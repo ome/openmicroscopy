@@ -38,6 +38,7 @@ IceImport.load("Glacier2_Router_ice")
 
 from Glacier2 import PermissionDeniedException
 
+from omero.rtypes import rlong
 from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
@@ -176,7 +177,19 @@ class SessionsControl(BaseControl):
             "Set the group of the current session by id or name")
         group.add_argument(
             "target",
+            nargs="?",
             help="Id or name of the group to switch this session to")
+
+        timeout = parser.add(
+            sub, self.timeout, "Query or set the timeToIdle for the given session")
+        timeout.add_argument(
+            "seconds",
+            nargs="?",
+            type=long,
+            help="Number of seconds to set the timeToIdle value to")
+        timeout.add_argument(
+            "--session",
+            help="Session other than the current to update")
 
         list = parser.add(sub, self.list, (
             "List all available sessions stored locally\n\n" + LISTHELP))
@@ -528,6 +541,11 @@ class SessionsControl(BaseControl):
         sf = client.sf
         admin = sf.getAdminService()
 
+        if args.target is None:
+            ec = self.ctx.get_event_context()
+            self.ctx.out("ExperimenterGroup:%s" % ec.groupId)
+            return ec.groupName
+
         try:
             group_id = long(args.target)
             group_name = admin.getGroup(group_id).name.val
@@ -547,6 +565,40 @@ class SessionsControl(BaseControl):
             self.ctx.set_event_context(sf.getAdminService().getEventContext())
             self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
                          % (old_name, old_id, group_name, group_id))
+
+    def timeout(self, args):
+        client = self.ctx.conn(args)
+        svc = client.sf.getSessionService()
+
+        uuid = args.session
+        if uuid is None:
+            uuid = self.ctx.get_event_context().sessionUuid
+        try:
+            obj = svc.getSession(uuid)
+        except:
+            self.ctx.dbg(traceback.format_exc())
+            self.ctx.die(557, "cannot get session: %s" % uuid)
+
+        if args.seconds is None:
+            # Query only
+            secs = unwrap(obj.timeToIdle)/1000.0
+            self.ctx.out(secs)
+            return secs
+
+        req = omero.cmd.UpdateSessionTimeoutRequest()
+        req.session = uuid
+        req.timeToIdle = rlong(args.seconds * 1000)
+        try:
+            cb = client.submit(req)
+            rsp = cb.getResponse()
+            cb.close(True)
+        except omero.CmdError, ce:
+            self.ctx.dbg(str(ce.err))
+            self.ctx.die(558, "CmdError: %s" % ce.err.name)
+        except:
+            self.ctx.dbg(traceback.format_exc())
+            self.ctx.die(559, "cannot update timeout for %s" % uuid)
+
 
     def list(self, args):
         store = self.store(args)
