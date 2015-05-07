@@ -882,7 +882,7 @@ class MetadataDichroicForm(forms.Form):
             set_widget_attrs(self.fields['lotNumber'])
 
         self.fields.keyOrder = [
-            'manufacturer', 'model', 'serialNumber', 'lotNumber']
+            'model', 'manufacturer', 'serialNumber', 'lotNumber']
 
 
 class MetadataMicroscopeForm(forms.Form):
@@ -1878,7 +1878,7 @@ class MetadataFilterForm(forms.Form):
             set_widget_attrs(self.fields['transmittance'])
 
         self.fields.keyOrder = [
-            'manufacturer', 'model', 'serialNumber', 'lotNumber', 'type',
+            'model', 'manufacturer', 'serialNumber', 'lotNumber', 'type',
             'filterWheel', 'cutIn', 'cutOut', 'cutInTolerance',
             'cutOutTolerance', 'transmittance']
 
@@ -2256,7 +2256,7 @@ class MetadataDetectorForm(forms.Form):
             set_widget_attrs(self.fields['binning'])
 
         self.fields.keyOrder = [
-            'manufacturer', 'model', 'serialNumber', 'lotNumber', 'type',
+            'model', 'manufacturer', 'serialNumber', 'lotNumber', 'type',
             'gain', 'voltage', 'offsetValue', 'zoom', 'amplificationGain',
             'readOutRate', 'binning']
 
@@ -2713,7 +2713,7 @@ class MetadataLightSourceForm(forms.Form):
         set_widget_attrs(self.fields['attenuation'])
 
         self.fields.keyOrder = [
-            'manufacturer', 'model', 'serialNumber', 'lotNumber', 'power',
+            'model', 'manufacturer', 'serialNumber', 'lotNumber', 'power',
             'lstype', 'pump', 'lmedium', 'wavelength',
             'frequencyMultiplication', 'tuneable', 'pulse', 'repetitionRate',
             'pockelCell', 'attenuation']
