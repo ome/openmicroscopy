@@ -185,7 +185,7 @@ class TestSessions(CLITest):
 
     # Group subcommand
     # ========================================================================
-    def testGroup(self):
+    def testGroup(self, capsys):
         group1 = self.new_group()
         client, user = self.new_client_and_user(group=group1)
         group2 = self.new_group([user])
@@ -200,6 +200,39 @@ class TestSessions(CLITest):
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.get_event_context()
         assert ec.groupName == group2.name.val
+
+        # List current
+        capsys.readouterr()  # Clear
+        self.args = ["-q", "sessions", "group"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "ExperimenterGroup:%s\n" % group2.id.val
+
+    # Timeout subcommand
+    # ========================================================================
+    def testTimeout(self, capsys):
+        client, user = self.new_client_and_user()
+
+        self.set_login_args(user)
+        self.args += ["-q", "-w", user.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["-q", "sessions", "timeout"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "600.0\n"
+
+        self.args = ["-q", "sessions", "timeout", "300"]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["-q", "sessions", "timeout"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "300.0\n"
+
+        self.args = ["-q", "sessions", "timeout", "1000000"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     # File subcommand
     # ========================================================================
