@@ -189,11 +189,7 @@ class Parser(ArgumentParser):
 
     def add_login_arguments(self):
         group = self.add_argument_group(
-            'Login arguments', """Environment variables:
-  OMERO_USERDIR     Set the base directory containing the user's files.
-                    Default: $HOME/omero
-  OMERO_SESSIONDIR  Set the base directory containing local sessions.
-                    Default: $OMERO_USERDIR/sessions
+            'Login arguments', ENV_HELP + """
 
 Optional session arguments:
 """)
@@ -391,6 +387,16 @@ Examples:
     bin/omero -d0 admin start
 """
 
+ENV_HELP = """Environment variables:
+
+  OMERO_USERDIR     Set the base directory containing the user's files.
+                    Default: $HOME/omero
+  OMERO_SESSIONDIR  Set the base directory containing local sessions.
+                    Default: $OMERO_USERDIR/sessions
+  OMERO_TMPDIR      Set the base directory containing temporary files.
+                    Default: $OMERO_USERDIR/tmp
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -416,7 +422,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": DEBUG_HELP}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
