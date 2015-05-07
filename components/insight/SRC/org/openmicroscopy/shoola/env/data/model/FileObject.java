@@ -26,6 +26,7 @@ import ij.ImagePlus;
 import ij.io.FileInfo;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,9 @@ public class FileObject
      * List of associated files. Mainly for imageJ.
      */
     private List<FileObject> associatedFiles;
+
+    /** The trueFile if available.*/
+    private File trueFile;
 
     /**
      * Creates a new instance.
@@ -155,7 +159,6 @@ public class FileObject
             //prepare command
             ImagePlus img = (ImagePlus) file;
             generated = true;
-            
             try {
                 //name w/o extension
                 String baseName = FilenameUtils.getBaseName(
@@ -214,13 +217,32 @@ public class FileObject
         if (file instanceof File) {
             return (File) file;
         } else if (file instanceof ImagePlus) {
-            //to be modified.
+            if (trueFile != null) return trueFile;
             ImagePlus img = (ImagePlus) file;
             if (!img.changes) {
                 FileInfo info = img.getOriginalFileInfo();
-                if (info != null && info.directory != null &&
-                        info.fileName != null)
-                    return new File(info.directory, info.fileName);
+                if (info != null) {
+                    if (CommonsLangUtils.isNotEmpty(info.url)) {
+                        //create a tmp file and copy the URL
+                        String fname = img.getTitle();
+                        String extension = FilenameUtils.getExtension(fname);
+                        String baseName = FilenameUtils.getBaseName(
+                                FilenameUtils.removeExtension(fname));
+                        try {
+                            trueFile = File.createTempFile(baseName,
+                                    "."+extension);
+                            trueFile.deleteOnExit();
+                            FileUtils.copyURLToFile(new URL(info.url), trueFile);
+                        } catch (Exception e) {
+                            //ignore.
+                        }
+                        return trueFile;
+                    }
+                    if (info.directory != null && info.fileName != null) {
+                        trueFile = new File(info.directory, info.fileName);
+                        return trueFile;
+                    }
+                }
             }
         }
         return null;
