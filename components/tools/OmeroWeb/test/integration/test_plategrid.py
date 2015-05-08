@@ -169,9 +169,9 @@ def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
     [well] = well_grid_factory({(0, 0): 1})
     plate.addWell(well)
     well.copyWellSamples()[0].image.acquisitionDate = None
-    well = update_service.saveAndReturnObject(well)
-    creation_date = well.copyWellSamples()[0].image.details.creationEvent.time
     plate = update_service.saveAndReturnObject(plate)
+    image = plate.copyWells()[0].copyWellSamples()[0].image
+    creation_date = image.details.creationEvent.time
     return {'plate': plate,
             'creation_date': creation_date.val / 1000}
 
