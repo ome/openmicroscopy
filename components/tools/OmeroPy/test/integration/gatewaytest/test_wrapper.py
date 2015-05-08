@@ -4,7 +4,7 @@
 """
    gateway tests - Object Wrappers
 
-   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -91,22 +91,23 @@ class TestWrapper(object):
         assert m['child_count'] == p.countChildren_cached()
         # Verify canOwnerWrite
         gatewaywrapper.loginAsAdmin()
-        admin = gatewaywrapper.gateway.getAdminService()
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         p = gatewaywrapper.gateway.getObject('project', pid)
-        perms = str(p.getDetails().getGroup().getDetails().permissions)
-        admin.changePermissions(
-            p.getDetails().getGroup()._obj,
-            omero.model.PermissionsI('rw' + perms[2:]))
+        g = p.getDetails().getGroup()
+        perms = str(g.getDetails().permissions)
+        chmod = omero.cmd.Chmod(
+            type="/ExperimenterGroup", id=g.id, permissions='rw' + perms[2:])
+        gatewaywrapper.gateway.c.submit(chmod)
         p = gatewaywrapper.gateway.getObject('project', pid)
         assert p.canOwnerWrite() is True
-        admin.changePermissions(
-            p.getDetails().getGroup()._obj,
-            omero.model.PermissionsI('r-' + perms[2:]))
+        chmod = omero.cmd.Chmod(
+            type="/ExperimenterGroup", id=g.id, permissions='r-' + perms[2:])
+        gatewaywrapper.gateway.c.submit(chmod)
         p = gatewaywrapper.gateway.getObject('project', pid)
         assert p.canOwnerWrite() is False
-        admin.changePermissions(
-            p.getDetails().getGroup()._obj, omero.model.PermissionsI(perms))
+        chmod = omero.cmd.Chmod(
+            type="/ExperimenterGroup", id=g.id, permissions=perms)
+        gatewaywrapper.gateway.c.submit(chmod)
 
     def testDatasetWrapper(self, gatewaywrapper, author_testimg):
         # author_testimg above is only included to populate the dataset

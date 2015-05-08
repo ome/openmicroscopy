@@ -4,7 +4,7 @@
 """
    gateway tests - Users
 
-   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -84,7 +84,9 @@ class TestUser (object):
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         # make sure the group is groupwrite enabled
         perms = str(d.getDetails().getGroup().getDetails().permissions)
-        admin.changePermissions(g._obj, omero.model.PermissionsI('rwrw--'))
+        chmod = omero.cmd.Chmod(
+            type="/ExperimenterGroup", id=g.id, permissions='rwrw--')
+        gatewaywrapper.gateway.c.submit(chmod)
         d = gatewaywrapper.getTestDataset()
         g = d.getDetails().getGroup()
         assert g.getDetails().permissions.isGroupWrite()
@@ -110,7 +112,9 @@ class TestUser (object):
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
             # Revert group permissions and remove user from group
-            admin.changePermissions(g._obj, omero.model.PermissionsI(perms))
+            chmod = omero.cmd.Chmod(
+                type="/ExperimenterGroup", id=g.id, permissions=perms)
+            gatewaywrapper.gateway.c.submit(chmod)
 
     @pytest.mark.broken(ticket="11545")
     def testCrossGroupRead(self, gatewaywrapper):
@@ -139,13 +143,14 @@ class TestUser (object):
         except dbhelpers.BadGroupPermissionsException:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
-            admin.changePermissions(
-                admin.lookupGroup('testAnnotationPermissions'),
-                omero.model.PermissionsI('rw----'))
+            g = admin.lookupGroup('testAnnotationPermissions')
+            chmod = omero.cmd.Chmod(
+                type="/ExperimenterGroup", id=g.id.val, permissions='rw----')
+            gatewaywrapper.gateway.c.submit(chmod)
             gatewaywrapper.loginAsAuthor()
             p = p.create(gatewaywrapper.gateway)
         pid = p.getId()
-        g = p.getDetails().getGroup()._obj
+        g = p.getDetails().getGroup()
         try:
             # Admin
             # add User to group
@@ -153,7 +158,7 @@ class TestUser (object):
             uid = gatewaywrapper.gateway.getUserId()
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
-            admin.addGroups(omero.model.ExperimenterI(uid, False), [g])
+            admin.addGroups(omero.model.ExperimenterI(uid, False), [g._obj])
             # User
             # try to read project and annotation, which fails
             gatewaywrapper.loginAsUser()
@@ -163,7 +168,9 @@ class TestUser (object):
             # Chmod project to rwrw--
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
-            admin.changePermissions(g, omero.model.PermissionsI('rwrw--'))
+            chmod = omero.cmd.Chmod(
+                type="/ExperimenterGroup", id=g.id, permissions='rwrw--')
+            gatewaywrapper.gateway.c.submit(chmod)
             # Author
             # check project has proper permissions
             gatewaywrapper.loginAsAuthor()

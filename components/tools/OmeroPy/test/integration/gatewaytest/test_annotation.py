@@ -303,10 +303,8 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
 
     # delete what we created
     assert gateway.getObject("Annotation", annId) is not None
-    link = ann.link
-    gateway.deleteObjectDirect(link._obj)        # delete link
-    gateway.deleteObjectDirect(ann._obj)         # then the annotation
-    gateway.deleteObjectDirect(ann._obj.file)    # then the file
+    handle = gateway.deleteObjects("Annotation", [annId])
+    gateway._waitOnCmd(handle)
     assert gateway.getObject("Annotation", annId) is None
 
 
