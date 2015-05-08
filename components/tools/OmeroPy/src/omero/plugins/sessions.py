@@ -717,8 +717,8 @@ class SessionsControl(BaseControl):
             self.ctx.dbg(str(ce.err))
             self.ctx.die(560, "CmdError: %s" % ce.err.name)
         except omero.ClientError, ce:
-            if ce.err == "Null handle":
-                v = client.getConfigService().getVersion()
+            if ce.message == "Null handle":
+                v = client.sf.getConfigService().getVersion()
                 self.ctx.die(561,
                              "Operation unsupported. Server version: %s" % v)
             else:
