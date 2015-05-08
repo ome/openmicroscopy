@@ -75,7 +75,7 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         helper.assertStep(step);
 
         contexts = manager.getAll();
-        if (contexts.size() == 0) {
+        if (contexts.isEmpty()) {
             return Collections.emptyList();
         }
         return helper.getServiceFactory().getQueryService().
