@@ -20,6 +20,7 @@
 package omero.cmd.admin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +31,39 @@ import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
 import omero.cmd.CurrentSessionsRequest;
 import omero.cmd.CurrentSessionsResponse;
-import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
 import omero.model.Session;
 import omero.util.IceMapper;
-import edu.emory.mathcs.backport.java.util.Collections;
+import omero.util.ObjectFactoryRegistry;
+import Ice.Communicator;
+
+import com.google.common.collect.ImmutableMap;
 
 @SuppressWarnings("serial")
 public class CurrentSessionsRequestI extends CurrentSessionsRequest
     implements IRequest {
+
+    public static class Factory extends ObjectFactoryRegistry {
+        private final ObjectFactory factory;
+        public Factory(final CurrentDetails current,
+                final SessionManager sessionManager) {
+            factory = new ObjectFactory(ice_staticId()) {
+                @Override
+                public Ice.Object create(String name) {
+                    return new CurrentSessionsRequestI(
+                            current, sessionManager);
+                }};
+            }
+
+        @Override
+        public Map<String, ObjectFactory> createFactories(Communicator ic) {
+            return new ImmutableMap.Builder<String, ObjectFactory>()
+                    .put(ice_staticId(), factory).build();
+        }
+    }
 
     protected Helper helper;
 

@@ -38,7 +38,7 @@
         <bean class="ome.services.blitz.impl.RoiI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="geomTool"/>
-		<constructor-arg ref="simpleSqlAction"/>
+            <constructor-arg ref="simpleSqlAction"/>
         </bean>
     </constructor-arg>
   </bean>
@@ -350,8 +350,6 @@
       <constructor-arg ref="securitySystem"/>
       <constructor-arg ref="passwordProvider"/>
       <constructor-arg ref="graphRequestFactory"/>
-      <constructor-arg ref="currentDetails"/>
-      <constructor-arg ref="sessionManager"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
@@ -396,6 +394,21 @@
      <constructor-arg ref="repositoryDao"/>
      <constructor-arg ref="ring"/>
      <constructor-arg ref="/OMERO/Pixels"/>
+     <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
+  <!-- "Self"-factories -->
+
+  <bean class="omero.cmd.admin.UpdateSessionTimeoutRequestI$Factory" lazy-init="false">
+      <constructor-arg ref="currentDetails"/>
+      <constructor-arg ref="sessionManager"/>
+      <constructor-arg ref="securitySystem"/>
+     <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
+  <bean class="omero.cmd.admin.CurrentSessionsRequestI$Factory" lazy-init="false">
+      <constructor-arg ref="currentDetails"/>
+      <constructor-arg ref="sessionManager"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

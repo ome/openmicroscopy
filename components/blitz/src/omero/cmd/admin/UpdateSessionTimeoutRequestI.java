@@ -21,6 +21,9 @@ package omero.cmd.admin;
 
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
+
+import Ice.Communicator;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.meta.Session;
@@ -38,10 +41,31 @@ import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.cmd.UpdateSessionTimeoutRequest;
+import omero.util.ObjectFactoryRegistry;
 
 @SuppressWarnings("serial")
 public class UpdateSessionTimeoutRequestI extends UpdateSessionTimeoutRequest
     implements IRequest {
+
+    public static class Factory extends ObjectFactoryRegistry {
+        private final ObjectFactory factory;
+        public Factory(final CurrentDetails current,
+                final SessionManager sessionManager,
+                final SecuritySystem securitySystem) {
+            factory = new ObjectFactory(ice_staticId()) {
+                @Override
+                public Ice.Object create(String name) {
+                    return new UpdateSessionTimeoutRequestI(
+                            current, sessionManager, securitySystem);
+                }};
+            }
+
+        @Override
+        public Map<String, ObjectFactory> createFactories(Communicator ic) {
+            return new ImmutableMap.Builder<String, ObjectFactory>()
+                    .put(ice_staticId(), factory).build();
+        }
+    }
 
     protected Helper helper;
 

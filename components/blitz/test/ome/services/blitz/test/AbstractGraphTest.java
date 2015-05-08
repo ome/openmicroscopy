@@ -64,9 +64,7 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(PasswordUtil.class),
                 user.ctx.getBean(SecuritySystem.class),
                 user.ctx.getBean(PasswordProvider.class),
-                user.ctx.getBean("graphRequestFactory", GraphRequestFactory.class),
-                user.ctx.getBean("currentDetails", CurrentDetails.class),
-                user.sm
+                user.ctx.getBean("graphRequestFactory", GraphRequestFactory.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);
