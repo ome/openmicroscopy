@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 
 import javax.swing.Icon;
 import javax.swing.JScrollPane;
@@ -740,6 +741,16 @@ public class TreeCellRenderer
         return w;
     }
 
+    private int getIconGap()
+    {
+        FontMetrics fm = getFontMetrics(getFont());
+        int w = 0;
+        if (getIcon() != null) w += getIcon().getIconWidth();
+        else w += SIZE.width;
+        w += getIconTextGap();
+        return w;
+    }
+    
     /**
      * Overridden to highlight the destination of the target.
      * @see paintComponent(Graphics)
@@ -761,16 +772,19 @@ public class TreeCellRenderer
     	    int w = ref.getViewport().getSize().width;
             FontMetrics fm = getFontMetrics(getFont());
             String text = node.getNodeName();
-            int v = fm.stringWidth(text+UIUtilities.DOTS);
+            int v = getPreferredSize().width;
+            Rectangle r = getBounds();
+            w = w-r.x;
             if (v > w) {
                 //truncate the text
                 v = fm.stringWidth(text);
-                double charWidth = v/text.length();
-                String value = UIUtilities.formatPartialName(text,
-                        (int) (w/charWidth));
+                int charWidth = fm.charWidth('A');
+                int vv = (w-getIconGap()-5)/charWidth;
+                if (vv < 0) vv = 0;
+                String value = UIUtilities.formatPartialName(text, vv);
                 setText(value);
                 w = getPreferredWidth();
-                setSize(new Dimension(w, fm.getHeight()+4));
+                setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
             }
     	}
     	selected = false;
