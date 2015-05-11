@@ -207,6 +207,22 @@ public class FileObject
      */
     public boolean isGenerated() { return generated; }
 
+    public boolean isNewImage()
+    {
+        if (file instanceof ImagePlus) {
+            ImagePlus img = (ImagePlus) file;
+            if (img.changes) return true;
+            FileInfo info = img.getOriginalFileInfo();
+            if (info == null) {
+                info = img.getFileInfo();
+                String name = info.fileName;
+                if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
+                    return true;
+            }
+        }
+        return false;
+    }
+    
     /**
      * Returns the file to import.
      *

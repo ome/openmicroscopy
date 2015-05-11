@@ -396,9 +396,8 @@ class FileSelectionTable
 	    if (f == null) return false;
 	    if (queue == null) return true;
 	    Object o = f.getFile();
-	    if (o instanceof ImagePlus) {
-	        ImagePlus img = (ImagePlus) o;
-	        if (img.changes) return true;
+	    if (f.isNewImage()) {
+	        return true;
 	    }
 	    File file = f.getTrueFile();
 	    Iterator<FileElement> i = queue.iterator();
