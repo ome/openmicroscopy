@@ -1263,10 +1263,9 @@ class BaseContainer(BaseController):
                 cid = self.comment.getId()
                 command = Delete2(targetObjects={"CommentAnnotation": [cid]},
                                   dryRun=True)
-                handle = self.conn.c.sf.submit(command)
-                self.conn._waitOnCmd(handle)
+                cb = self.conn.c.submit(command)
                 # ...to check for any remaining links
-                rsp = handle.getResponse()
+                rsp = cb.getResponse()
                 for parentType in ["Project", "Dataset", "Image", "Screen",
                                    "Plate", "PlateAcquisition", "Well"]:
                     key = 'ome.model.annotations.%sAnnotationLink' % parentType
