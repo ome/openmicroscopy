@@ -2636,7 +2636,7 @@ def download_placeholder(request, conn=None, **kwargs):
     format = request.REQUEST.get('format', None)
     if format is not None:
         download_url = reverse('download_as')
-        zipName = 'SaveAs_%s' % format
+        zipName = 'Export_as_%s' % format
     else:
         download_url = reverse('archived_files')
         zipName = 'OriginalFileDownload'
