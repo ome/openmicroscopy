@@ -121,6 +121,10 @@ namespace omero {
             Ice::ObjectPrx prx = adapter->add(this, id);
             omero::cmd::CmdCallbackPrx cb = omero::cmd::CmdCallbackPrx::uncheckedCast(prx);
             handle->addCallback(cb);
+            initialPoll();
+        }
+
+        void CmdCallbackI::initialPoll() {
             // Now check just in case the process exited VERY quickly
             pollThread = new PollThread(this);
             pollThread->start();

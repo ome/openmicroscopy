@@ -12,6 +12,7 @@
 
 import Ice
 import logging
+import threading
 import uuid
 
 import omero
@@ -140,8 +141,33 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         self.prx = omero.cmd.CmdCallbackPrx.uncheckedCast(self.prx)
         handle.addCallback(self.prx)
 
-        # Now check just in case the process exited VERY quickly
-        self.poll()
+        self.initialPoll()
+
+    def initialPoll(self):
+        """
+        Called at the end of construction to check a race condition.
+
+        If HandlePrx finishes its execution before the
+        CmdCallbackPrx has been sent set via addCallback,
+        then there's a chance that this implementation will never
+        receive a call to finished, leading to perceived hangs.
+
+        By default, this method starts a background thread and
+        calls poll(). An Ice.ObjectNotExistException
+        implies that another caller has already closed the
+        HandlePrx.
+        """
+        class T(threading.Thread):
+
+            def run(this):
+                try:
+                    self.poll()
+                except:
+                    # don't throw any exceptions, e.g. if the
+                    # handle has already been closed.
+                    self.onFinished(None, None, None)
+
+        T().start()
 
     #
     # Local invocations
