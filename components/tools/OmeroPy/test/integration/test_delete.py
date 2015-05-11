@@ -254,6 +254,7 @@ class TestDelete(lib.ITest):
         command = Delete2(targetObjects={"ImageAnnotationLink": linkIds})
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
+        handle.close()
 
         # Delete Dry Run...
         command = Delete2(targetObjects={"CommentAnnotation": [cid]},
@@ -279,6 +280,7 @@ class TestDelete(lib.ITest):
         command = Delete2(targetObjects={"CommentAnnotation": [cid]})
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
+        handle.close()
         assert not self.query.find("CommentAnnotation", cid)
 
     def test3639(self):
