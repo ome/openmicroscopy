@@ -112,8 +112,9 @@ Test Delete Images in Share
     Go To                                       ${WELCOME URL}public
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
-    # Should be image with id='image-123', with 'Object Deleted'
+    # Should be image with id='image-123', with 'Object Deleted' in Tree and icons
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@id='${imageId}'][contains(text(), 'Object deleted')]
+    Wait Until Page Contains Element            xpath=//ul[@id='dataIcons']//li[@title='Object deleted']
 
 
 
