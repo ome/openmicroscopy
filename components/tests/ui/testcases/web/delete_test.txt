@@ -76,7 +76,44 @@ Test Delete Images in Dataset
     Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
 
 
+Test Delete Images in Share
+    [Documentation]     Deletes pre-imported images after putting them in Share
 
+    Select Experimenter
+    # Clear any activities from earlier tests etc.
+    Click Element                           id=launch_activities
+    Click Element                           id=clear_activities
+    # Add image in 'Delete' Dataset to Share
+    Click Element                               xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
+    Wait Until Page Contains Element            id=dataIcons
+    # Click first image in Tree
+    Click Element                               xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]/a
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]/a[contains(@class, 'jstree-clicked')]
+    ${imageId}=                                 Get Element Attribute    xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]@id
+    Click Element                               basketButton
+    Sleep                                       0.5
+    Go To                                       ${WELCOME URL}basket/
+    Wait Until Page Contains Element            xpath=//table[@id='dataTable']
+    Click Element                               xpath=//table[@id='dataTable']//tr/td
+    Click Element                               create_share
+    Wait Until Page Contains Element            id_message
+    Input Text                                  id_message      Robot Test Delete Images in Share
+    Select From List                            id_members      1
+    Submit Form                                 create_share_form
+    Wait Until Page Contains Element            id=Public
+    # Wait Until Page Contains Element          xpath=//div[@id='dataTree']//li[@rel='share']/a
+    # Click Element                             xpath=//div[@id='dataTree']//li[@rel='share']/a
+    Go To                                       ${WELCOME URL}?show=${imageId}
+    Wait Until Page Contains Element            id=dataIcons
+    Click Element                               id=deleteButton
+    Wait Until Element Is Visible               id=delete-dialog-form
+    Click Dialog Button                         Yes
+    Wait Until Page Contains Element            xpath=//span[@id='jobstatus'][contains(text(),'1')]     20
+    Go To                                       ${WELCOME URL}public
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
+    Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
+    # Should be image with id='image-123', with 'Object Deleted'
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@id='${imageId}'][contains(text(), 'Object deleted')]
 
 
 
