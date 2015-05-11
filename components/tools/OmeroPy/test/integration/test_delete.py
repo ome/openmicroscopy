@@ -263,6 +263,7 @@ class TestDelete(lib.ITest):
 
         # ...Should tell us that remaining links will be deleted
         rsp = handle.getResponse()
+        handle.close()
         assert ('ome.model.annotations.ImageAnnotationLink'
                 in rsp.deletedObjects)
         links = rsp.deletedObjects['ome.model.annotations.ImageAnnotationLink']
