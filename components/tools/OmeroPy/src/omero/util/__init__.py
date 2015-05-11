@@ -11,6 +11,7 @@ import os
 import sys
 import Ice
 import path
+import shlex
 import omero
 import IcePy
 import IceGrid
@@ -854,16 +855,20 @@ def edit_path(path_or_obj, start_text):
     # If absolute, then use the path
     # as is (ticket:4246). Otherwise,
     # use which.py to find it.
+    editor_parts = shlex.split(editor)
+    editor = editor_parts[0]
     editor_obj = path.path(editor)
     if editor_obj.isabs():
-        editor_path = editor
+        editor_parts[0] = editor
     else:
         from omero_ext.which import which
-        editor_path = which(editor)
+        editor_parts[0] = which(editor)
+    editor_parts.append(f)
 
-    pid = os.spawnl(os.P_WAIT, editor_path, editor_path, f)
+    pid = os.spawnl(os.P_WAIT, editor_parts[0], *tuple(editor_parts))
     if pid:
-        re = RuntimeError("Couldn't spawn editor: %s" % editor)
+        re = RuntimeError(
+            "Couldn't spawn editor: %s" % editor_parts[0])
         re.pid = pid
         raise re
 
