@@ -207,6 +207,12 @@ public class FileObject
      */
     public boolean isGenerated() { return generated; }
 
+    /**
+     * Returns <code>true</code> if it is a new image from ImageJ,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
     public boolean isNewImage()
     {
         if (file instanceof ImagePlus) {
