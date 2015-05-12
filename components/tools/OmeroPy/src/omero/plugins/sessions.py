@@ -528,15 +528,24 @@ class SessionsControl(BaseControl):
 
         msg = "%s session %s (%s@%s:%s)." \
             % (action, uuid, ec.userName, host, port)
-        if idle:
-            msg = msg + " Idle timeout: %s min." % (float(idle)/60/1000)
-        if live:
-            msg = msg + " Expires in %s min." % (float(live)/60/1000)
+        msg += self._parse_timeout(idle, "Idle timeout")
+        msg += self._parse_timeout(live, "Expires in ")
 
         msg += (" Current group: %s" % ec.groupName)
 
         if not self.ctx.isquiet:
             self.ctx.err(msg)
+
+    def _parse_timeout(self, timeout, msg):
+        if not timeout:
+            return ""
+
+        unit = "min."
+        val = float(timeout) / 60 / 1000
+        if val < 1:
+            unit = "sec."
+            val = val * 60
+        return " %s: %.f %s" % (msg, val, unit)
 
     def logout(self, args):
         store = self.store(args)
