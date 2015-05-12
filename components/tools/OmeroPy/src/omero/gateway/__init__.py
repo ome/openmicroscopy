@@ -5393,7 +5393,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
                 else:
                     colleagues.append(ExperimenterWrapper(self._conn, d.child))
         else:
-            if self._conn.isLeader():
+            if self._conn.isLeader(self.id):
                 leaders = [self._conn.getUser()]
             else:
                 colleagues = [self._conn.getUser()]
