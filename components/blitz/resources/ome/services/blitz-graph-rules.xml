@@ -43,7 +43,7 @@
             O = outside: do not operate on, do not even unlink from target objects
         In matches, starting these action letters with a ! negates the given set.
         For changes, in the square brackets an additional action is available:
-            * = process: apply rule set to the object and its relationships
+            - = process: apply rule set to the object and its relationships
 
         In curly braces, the orphan status of the object:
             i = irrelevant: don't care about orphan status
@@ -186,6 +186,59 @@
         <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:XmlAnnotation[E]{o}" p:changes="C:[D]/n"/>
     </util:list>
 
+    <util:list id="chmodRules" value-type="ome.services.graphs.GraphPolicyRule">
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = X:[E]/!d, L.child = T:TagAnnotation[D]"
+                                       p:error="may not delete {T} because {X} is tagged with it"/>
+        <bean parent="graphPolicyRule" p:matches="G:IGlobal[E]" p:changes="G:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E].details.group = ExperimenterGroup[I]" p:changes="X:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent =/!o [E], L.child = C:[E]" p:changes="L:[D]/n, C:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child =/!o C:[E]" p:changes="L:[D]/n, C:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:BooleanAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:CommentAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:NumericAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:TimestampAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:XmlAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="R:Roi[E].image =/!o [E]" p:changes="R:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].pixels =/!o [E]" p:changes="RD:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E].pixels =/!o [E]" p:changes="T:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="R:Roi[D]/!no.image = [!O]/o" p:changes="R:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[D]/!no.pixels = [!O]/o" p:changes="RD:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="T:Thumbnail[D]/!no.pixels = [!O]/o" p:changes="T:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="[D] =? X:!ILink[E]{o}/d" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="[D] =?/o X:!ILink[E]{o}" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!DO].parent = [D], L.child = C:!Job[E]/!d" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:[E]{o}/d" p:changes="C:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:Job[E]{o}" p:changes="C:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = C:[D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [E]{a}" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.channels = [D]" p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.settings = [D]" p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [D]" p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[D] == X:!IGlobal[E]{o}/d" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[D] = X:[E]{i}" p:changes="X:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{r} = X:[E]{i}" p:changes="X:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:[E]{i}" p:changes="C:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="DS:DetectorSettings[E]{i}.detector = [E]{r}" p:changes="DS:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="LS:LightSettings[E]{i}.lightSource = [E]{r}" p:changes="LS:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="OS:ObjectiveSettings[E]{i}.objective = [E]{r}" p:changes="OS:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/d == [D]" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/!d == [D]" p:changes="X:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E].file = [D]" p:changes="FA:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:!Job[E]{r}/!d" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[E]{r}/!o" p:changes="A:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="A:TagAnnotation[E]{r}/!o" p:changes="A:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="A:TermAnnotation[E]{r}/!o" p:changes="A:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [E], L.child = C:!Pixels[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:!ILink[E]{r}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E]{a}.parent = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]{i}" p:changes="C:{a}"/>
+    </util:list>
+
     <util:list id="chownRules" value-type="ome.services.graphs.GraphPolicyRule">
         <bean parent="graphPolicyRule" p:matches="F:Fileset[!I].images = [I], F.images = [!I]" p:error="may not split {F}"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:Instrument, Image[!I].instrument = IN"
@@ -196,6 +249,8 @@
         <bean parent="graphPolicyRule" p:matches="G:IGlobal[E]" p:changes="G:[O]"/>
         <bean parent="graphPolicyRule" p:matches="[I] =? X:!ILink[E]{o}/o" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="[I] =?/o X:!ILink[E]{o}" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!IO].parent =/!o [!O]" p:changes="L:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!IO].child =/!o [!O]" p:changes="L:[O]"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap[!IO].parent = [E]/!d, POFM.child = Pixels[I]"
                                        p:changes="POFM:[O]"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap.parent = [I], POFM.child = P:Pixels[E]{r}"
@@ -205,9 +260,9 @@
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap.parent = OF:[E]{o}/d, POFM.child = Pixels[I]"
                                        p:changes="OF:[O]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!IO].parent = [I], L.child = C:!Job[E]/!d" p:changes="L:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:[E]{o}/o" p:changes="C:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!O].parent = [I], L.child = C:[E]{o}/o" p:changes="C:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:[E]{o}" p:changes="C:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:Job[E]{o}" p:changes="C:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!O].parent = [I], L.child = C:Job[E]{o}" p:changes="C:[I]"/>
         <bean parent="graphPolicyRule" p:matches="[I] == X:[E]{o}" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[E]{i}" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [I]" p:changes="I:{a}"/>

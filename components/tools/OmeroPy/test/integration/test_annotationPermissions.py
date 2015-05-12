@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved. Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -74,8 +74,8 @@ class AnnotationPermissions(lib.ITest):
 
     def chmodGroupAs(self, user, perms, succeed=True):
         client = self.clients[user]
-        chmod = omero.cmd.Chmod(
-            type="/ExperimenterGroup", id=self.group.id.val,
+        chmod = omero.cmd.Chmod2(
+            targetObjects={'ExperimenterGroup': [self.group.id.val]},
             permissions=perms)
         self.doSubmit(chmod, client, test_should_pass=succeed)
 
@@ -84,6 +84,10 @@ class AnnotationPermissions(lib.ITest):
         project = self.make_project(name=user + "_" + self.proj_name,
                                     client=self.clients[user])
         return project
+
+    def getProjectAs(self, user, id):
+        """ Gets a Project via its id. """
+        return self.queryServices[user].find("Project", id)
 
     def makeTag(self):
         tag = TagAnnotationI()
@@ -369,19 +373,32 @@ class TestReadAnnotateGroup(AnnotationPermissions):
 
 class TestMovePrivatePermissions(AnnotationPermissions):
 
-    DEFAULT_PERMS = 'rwra--'
+    def setup_method(self, method):
+        super(TestMovePrivatePermissions, self).setup_method(method)
 
-    @pytest.mark.parametrize("admin_type", ("root", "admin"))
+        # Make the group read-annotate for every test run
+        self.chmodGroupAs("root", "rwra--")
+
+    @pytest.mark.parametrize("admin_type", ("root", "admin", "owner"))
     def testAddTagMakePrivate(self, admin_type):
         """ see ticket:11479 """
+
+        # Have member1 tag their project with member2's tag
         project = self.createProjectAs("member1")
         tag = self.createTagAs("member2")
         self.linkTagAs("member1", project, tag)
-        # This chmod should not succeed
-        self.chmodGroupAs(admin_type, "rw----", succeed=False)
 
-        for x in ("member1", "member2"):
-            # Check reading
-            self.getTagLinkAs(x, project)
-            self.getTagViaLinkAs(x, project)
-            self.getTagAs(x, tag.id.val)
+        # Make the group private
+        self.chmodGroupAs(admin_type, "rw----")
+
+        # Link should be gone
+        tagLink = self.getTagLinkAs("member1", project)
+        assert tagLink is None
+
+        # Check that the project remains
+        project = self.getProjectAs("member1", project.id.val)
+        assert project is not None
+
+        # Check that the tag remains
+        tag = self.getTagAs("member2", tag.id.val)
+        assert tag is not None

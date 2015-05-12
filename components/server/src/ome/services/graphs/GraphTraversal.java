@@ -95,12 +95,13 @@ public class GraphTraversal {
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
+         * @param mayChmod if the object may have its permissions changed
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         DetailsWithCI(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean isOwner, boolean isCheckPermissions) {
-            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, isOwner, isCheckPermissions);
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
+            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, isOwner, isCheckPermissions);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -372,6 +373,7 @@ public class GraphTraversal {
         final Map<CI, ome.model.internal.Details> detailsNoted = new HashMap<CI, ome.model.internal.Details>();
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
+        final Set<CI> mayChmod = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
         final Set<CI> overrides = new HashSet<CI>();
     }
@@ -414,10 +416,12 @@ public class GraphTraversal {
 
         /**
          * Assert that an object with the given details may be processed. Called only if the user is not an administrator.
+         * @param className the name of the object's class
+         * @param id the ID of the object
          * @param details the object's details
          * @throws GraphException if the object may not be processed
          */
-        void assertMayProcess(ome.model.internal.Details details) throws GraphException;
+        void assertMayProcess(String className, long id, ome.model.internal.Details details) throws GraphException;
     }
 
     private final Session session;
@@ -635,6 +639,12 @@ public class GraphTraversal {
             if (aclVoter.allowDelete(objectInstance, objectDetails)) {
                 planning.mayDelete.add(object);
             }
+            if (objectInstance instanceof ExperimenterGroup) {
+                final ExperimenterGroup loadedGroup = (ExperimenterGroup) session.load(ExperimenterGroup.class, object.id);
+                if (aclVoter.allowChmod(loadedGroup)) {
+                    planning.mayChmod.add(object);
+                }
+            }
             final Experimenter objectOwner = objectDetails.getOwner();
             if (objectOwner != null && eventContext.getCurrentUserId().equals(objectOwner.getId())) {
                 planning.owns.add(object);
@@ -778,6 +788,7 @@ public class GraphTraversal {
      * @param linkProperty a class and property name
      * @return the linking class
      */
+    @SuppressWarnings("unused")
     private String getLinkerClass(CP linkProperty) {
         for (final Entry<String, String> backwardLink : model.getLinkedBy(linkProperty.className)) {
             if (linkProperty.propertyName.equals(backwardLink.getValue())) {
@@ -962,10 +973,11 @@ public class GraphTraversal {
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
 
             if (eventContext.isCurrentUserAdmin()) {
-                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true);
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
             } else {
                 details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
-                        planning.mayUpdate.contains(object), planning.mayDelete.contains(object), planning.owns.contains(object),
+                        planning.mayUpdate.contains(object), planning.mayDelete.contains(object),
+                        planning.mayChmod.contains(object), planning.owns.contains(object),
                         !planning.overrides.contains(object));
             }
 
@@ -1168,8 +1180,8 @@ public class GraphTraversal {
             }
 
             @Override
-            public void assertMayProcess(ome.model.internal.Details details) throws GraphException {
-                processor.assertMayProcess(details);
+            public void assertMayProcess(String className, long id, ome.model.internal.Details details) throws GraphException {
+                processor.assertMayProcess(className, id, details);
             }
         };
     }
@@ -1197,16 +1209,16 @@ public class GraphTraversal {
      * @throws GraphException if the user does not have the necessary permissions for all of the objects
      */
     private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
+        final Set<CI> objects = idsToCIs(className, ids);
         if (!isSystemType(className)) {
-            final Set<CI> objects = idsToCIs(className, ids);
             assertPermissions(objects, processor.getRequiredPermissions());
-            if (!eventContext.isCurrentUserAdmin()) {
-                for (final CI object : Sets.difference(objects, planning.overrides)) {
-                    try {
-                        processor.assertMayProcess(planning.detailsNoted.get(object));
-                    } catch (GraphException e) {
-                        throw new GraphException("cannot process " + object + ": " + e.message);
-                    }
+        }
+        if (!eventContext.isCurrentUserAdmin()) {
+            for (final CI object : Sets.difference(objects, planning.overrides)) {
+                try {
+                    processor.assertMayProcess(object.className, object.id, planning.detailsNoted.get(object));
+                } catch (GraphException e) {
+                    throw new GraphException("cannot process " + object + ": " + e.message);
                 }
             }
         }
@@ -1259,6 +1271,12 @@ public class GraphTraversal {
                 throw new GraphException("not permitted to update " + Joiner.on(", ").join(violations));
             }
         }
+        if (abilities.contains(Ability.CHMOD)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChmod);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to change permissions on " + Joiner.on(", ").join(violations));
+            }
+        }
         if (abilities.contains(Ability.OWN)) {
             final Set<CI> violations = Sets.difference(objects, planning.owns);
             if (!violations.isEmpty()) {
@@ -1283,9 +1301,11 @@ public class GraphTraversal {
 
     /**
      * Remove links between the targeted model objects and the remainder of the model object graph.
+     * @param isUnlinkIncludeFromExclude if {@link Action#EXCLUDE} objects must be unlinked from {@link Action#INCLUDE} objects
+     * and vice versa
      * @throws GraphException if the user does not have permission to unlink the targets
      */
-    public void unlinkTargets() throws GraphException {
+    public void unlinkTargets(boolean isUnlinkIncludeFromExclude) throws GraphException {
         /* accumulate plan for unlinking included/deleted from others */
         final SetMultimap<CP, Long> toNullByCP = HashMultimap.create();
         final Map<CP, SetMultimap<Long, Entry<String, Long>>> linkerToIdToLinked =
@@ -1299,7 +1319,7 @@ public class GraphTraversal {
                     final CPI linkSource = linkProperty.toCPI(object.id);
                     for (final CI linked : planning.forwardLinksCached.get(linkSource)) {
                         final Action linkedAction = getAction(linked);
-                        if (!(linkedAction == Action.INCLUDE || linkedAction == Action.OUTSIDE)) {
+                        if (linkedAction == Action.DELETE || isUnlinkIncludeFromExclude && linkedAction == Action.EXCLUDE) {
                             /* INCLUDE is linked to EXCLUDE or DELETE, so unlink */
                             if (isCollection) {
                                 addRemoval(linkerToIdToLinked, linkProperty.toCPI(object.id), linked);
@@ -1309,19 +1329,21 @@ public class GraphTraversal {
                         }
                     }
                 }
-                for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
-                    final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
-                    final boolean isCollection =
-                            model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
-                    final CPI linkTarget = linkProperty.toCPI(object.id);
-                    for (final CI linker : planning.backwardLinksCached.get(linkTarget)) {
-                        final Action linkerAction = getAction(linker);
-                        if (linkerAction == Action.EXCLUDE) {
-                            /* EXCLUDE is linked to INCLUDE, so unlink */
-                            if (isCollection) {
-                                addRemoval(linkerToIdToLinked, linkProperty.toCPI(linker.id), object);
-                            } else {
-                                toNullByCP.put(linkProperty, linker.id);
+                if (isUnlinkIncludeFromExclude) {
+                    for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
+                        final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
+                        final boolean isCollection =
+                                model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
+                        final CPI linkTarget = linkProperty.toCPI(object.id);
+                        for (final CI linker : planning.backwardLinksCached.get(linkTarget)) {
+                            final Action linkerAction = getAction(linker);
+                            if (linkerAction == Action.EXCLUDE) {
+                                /* EXCLUDE is linked to INCLUDE, so unlink */
+                                if (isCollection) {
+                                    addRemoval(linkerToIdToLinked, linkProperty.toCPI(linker.id), object);
+                                } else {
+                                    toNullByCP.put(linkProperty, linker.id);
+                                }
                             }
                         }
                     }

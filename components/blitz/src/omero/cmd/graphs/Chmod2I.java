@@ -27,14 +27,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 
+import ome.api.IAdmin;
+import ome.model.IObject;
+import ome.model.internal.Details;
+import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.delete.Deletion;
@@ -44,8 +53,9 @@ import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.system.EventContext;
 import ome.system.Login;
-import omero.cmd.Delete2;
-import omero.cmd.Delete2Response;
+import ome.util.Utils;
+import omero.cmd.Chmod2;
+import omero.cmd.Chmod2Response;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -53,15 +63,17 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * Request to delete model objects, reimplementing {@link DeleteI}.
+ * Request to change the permissions on model objects, reimplementing {@link ChmodI}.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.1.0
+ * @since 5.1.2
  */
-public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Delete2> {
+public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2> {
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
-    private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
+    private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.CHMOD);
+
+    private static final String PERMITTED_CLASS = ExperimenterGroup.class.getName();
 
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
@@ -70,23 +82,26 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
 
+    private long perm1;
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
     private GraphTraversal graphTraversal;
+    private Set<Long> acceptableGroups;
 
     int targetObjectCount = 0;
     int deletedObjectCount = 0;
+    int changedObjectCount = 0;
 
     /**
-     * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
+     * Construct a new <q>chmod</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
-     * @param graphPolicy the graph policy to apply for delete
+     * @param graphPolicy the graph policy to apply for chmod
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
+    public Chmod2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
             GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
@@ -98,7 +113,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
     @Override
     public Map<String, String> getCallContext() {
-       return new HashMap<String, String>(ALL_GROUPS_CONTEXT);
+        return new HashMap<String, String>(ALL_GROUPS_CONTEXT);
     }
 
     @Override
@@ -106,7 +121,22 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         this.helper = helper;
         helper.setSteps(dryRun ? 1 : 3);
 
+        try {
+            perm1 = (Long) Utils.internalForm(Permissions.parseString(permissions));
+        } catch (RuntimeException e) {
+            throw helper.cancel(new ERR(), e, "bad-permissions");
+        }
+
+        /* if the current user is not an administrator then find of which groups the target user is a owner */
         final EventContext eventContext = helper.getEventContext();
+
+        if (eventContext.isCurrentUserAdmin()) {
+            acceptableGroups = null;
+        } else {
+            final Long userId = eventContext.getCurrentUserId();
+            final IAdmin iAdmin = helper.getServiceFactory().getAdminService();
+            acceptableGroups = ImmutableSet.copyOf(iAdmin.getLeaderOfGroupIds(new Experimenter(userId, false)));
+        }
 
         final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
 
@@ -124,6 +154,42 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
         }
         graphPolicyAdjusters = null;
+
+        final boolean isToGroupReadable = Utils.toPermissions(perm1).isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
+
+        if (isToGroupReadable) {
+            /* for permissions change to not-private, no changes are required based on policy rules */
+            graphPolicyWithOptions = new BaseGraphPolicyAdjuster(graphPolicyWithOptions) {
+                @Override
+                protected boolean isBlockedFromAdjustment(Details object) {
+                    return true;
+                }
+            };
+        } else {
+            /* for permissions change to private, objects not in private groups must have policy rule checks for deletion */
+            graphPolicyWithOptions = new BaseGraphPolicyAdjuster(graphPolicyWithOptions) {
+                private final Map<Long, Boolean> isGroupReadableById = new HashMap<Long, Boolean>();
+
+                @Override
+                public void noteDetails(Session session, IObject object, String realClass, long id) {
+                    /* note whether groups are private */
+                    if (object instanceof ExperimenterGroup && !isGroupReadableById.containsKey(id)) {
+                        final ExperimenterGroup group = (ExperimenterGroup) session.get(ExperimenterGroup.class, id);
+                        final Permissions permissions = group.getDetails().getPermissions();
+                        final boolean isGroupReadable = permissions.isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
+                        isGroupReadableById.put(id, isGroupReadable);
+                    }
+                    super.noteDetails(session, object, realClass, id);
+                }
+
+                @Override
+                protected boolean isBlockedFromAdjustment(Details object) {
+                    /* for groups that are already private, no changes are required based on policy rules */
+                    final Long groupId = object.subject instanceof ExperimenterGroup ? object.subject.getId() : object.groupId;
+                    return Boolean.FALSE.equals(isGroupReadableById.get(groupId));
+                }
+            };
+        }
 
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
                 graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
@@ -148,10 +214,10 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                     }
                 }
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false);
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(true);
+                graphTraversal.unlinkTargets(false);
                 return null;
             case 2:
                 graphTraversal.processTargets();
@@ -180,25 +246,31 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             /* if the results object were in terms of IObjectList then this would need IceMapper.map */
             final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
                     (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
-            final SetMultimap<String, Long> resultProcessed = result.getKey();
-            final SetMultimap<String, Long> resultDeleted = result.getValue();
             if (!dryRun) {
                 try {
-                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(resultDeleted));
+                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(result.getValue()));
                 } catch (Exception e) {
                     helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
+            final Map<String, List<Long>> changedObjects = new HashMap<String, List<Long>>();
             final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
-            for (final String className : Sets.union(resultProcessed.keySet(), resultDeleted.keySet())) {
-                final Set<Long> ids = Sets.union(resultProcessed.get(className), resultDeleted.get(className));
+            for (final Entry<String, Collection<Long>> oneChangedClass : result.getKey().asMap().entrySet()) {
+                final String className = oneChangedClass.getKey();
+                final Collection<Long> ids = oneChangedClass.getValue();
+                changedObjectCount += ids.size();
+                changedObjects.put(className, new ArrayList<Long>(ids));
+            }
+            for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
+                final String className = oneDeletedClass.getKey();
+                final Collection<Long> ids = oneDeletedClass.getValue();
                 deletedObjectCount += ids.size();
                 deletedObjects.put(className, new ArrayList<Long>(ids));
             }
-            final Delete2Response response = new Delete2Response(deletedObjects);
+            final Chmod2Response response = new Chmod2Response(changedObjects, deletedObjects);
             helper.setResponseIfNull(response);
-            helper.info("in " + (dryRun ? "mock " : "") + "delete of " + targetObjectCount +
-                    ", deleted " + deletedObjectCount + " in total");
+            helper.info("in " + (dryRun ? "mock " : "") + "chmod to " + permissions + " of " + targetObjectCount +
+                    ", changed " + changedObjectCount + " and deleted " + deletedObjectCount + " in total");
         }
     }
 
@@ -208,8 +280,9 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     }
 
     @Override
-    public void copyFieldsTo(Delete2 request) {
+    public void copyFieldsTo(Chmod2 request) {
         GraphUtil.copyFields(this, request);
+        request.permissions = permissions;
     }
 
     @Override
@@ -223,20 +296,22 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
     @Override
     public GraphPolicy.Action getActionForStarting() {
-        return GraphPolicy.Action.DELETE;
+        return GraphPolicy.Action.INCLUDE;
     }
 
     @Override
     public Map<String, List<Long>> getStartFrom(Response response) {
-        return ((Delete2Response) response).deletedObjects;
+        return ((Chmod2Response) response).includedObjects;
     }
 
     /**
-     * A <q>delete</q> processor that deletes model objects.
+     * A <q>chmod</q> processor that updates model objects' permissions.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.1.0
+     * @since 5.1.2
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
+
+        private final Logger LOGGER = LoggerFactory.getLogger(InternalProcessor.class);
 
         public InternalProcessor() {
             super(helper.getSession());
@@ -244,12 +319,28 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
         @Override
         public void processInstances(String className, Collection<Long> ids) throws GraphException {
-            deleteInstances(className, ids);
+            final String update = "UPDATE " + className + " SET details.permissions.perm1 = :permissions WHERE id IN (:ids)";
+            final int count =
+                    session.createQuery(update).setParameter("permissions", perm1).setParameterList("ids", ids).executeUpdate();
+            if (count != ids.size()) {
+                LOGGER.warn("not all the objects of type " + className + " could be processed");
+            }
         }
 
         @Override
         public Set<GraphPolicy.Ability> getRequiredPermissions() {
             return REQUIRED_ABILITIES;
+        }
+
+        @Override
+        public void assertMayProcess(String className, long id, Details details) throws GraphException {
+            if (!PERMITTED_CLASS.equals(className)) {
+                /* chmod may be done only to groups */
+                throw new GraphException("may process objects only of type " + PERMITTED_CLASS);
+            }
+            if (!(acceptableGroups == null || acceptableGroups.contains(id))) {
+                throw new GraphException("user is not an owner of group " + id);
+            }
         }
     }
 }
