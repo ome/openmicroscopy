@@ -336,9 +336,9 @@ public class ROIReader {
     {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
-        if (overlay == null) return null;
-        List<ROIData> rois = read(imageID, overlay.toArray());
-        if (CollectionUtils.isNotEmpty(rois)) return rois;
+        if (overlay != null) {
+            return read(imageID, overlay.toArray());
+        }
         return readImageJROI(imageID);
     }
 
