@@ -574,7 +574,6 @@ class FileSelectionTable
 	    boolean v;
 	    long gID = group.getId();
 	    FileObject f;
-	    File ff;
 	    while (i.hasNext()) {
 	        f = i.next();
 	        if (allowAddToQueue(inQueue, f, gID, user.getId())) {

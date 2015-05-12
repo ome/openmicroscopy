@@ -65,6 +65,10 @@ class DataNodeElement
 	DataNodeElement(DataNode location, String value)
 	{
 		this.location = location;
+		if (this.location != null && this.location.isNoDataset()) {
+		    this.location = null;
+		    value = null;
+		}
 		setName(value);
 	}
 
@@ -76,7 +80,7 @@ class DataNodeElement
 	void setName(String value)
 	{
 	    name = "";
-	    if (CommonsLangUtils.isEmpty(value)) {
+	    if (CommonsLangUtils.isBlank(value)) {
 	        if (location == null) name = NO_LOCATION;
 	        else {
 	            if (location.getDataObject() instanceof ScreenData ||
@@ -130,6 +134,7 @@ class DataNodeElement
 	 */
 	Boolean isHCSContainer()
 	{
+	    if (location == null) return null;
 		Object object = location.getDataObject();
 		if (object == null) {
 			DatasetData d = getLocation();
