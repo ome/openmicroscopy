@@ -1266,6 +1266,7 @@ class BaseContainer(BaseController):
                 cb = self.conn.c.submit(command)
                 # ...to check for any remaining links
                 rsp = cb.getResponse()
+                cb.close(True)
                 for parentType in ["Project", "Dataset", "Image", "Screen",
                                    "Plate", "PlateAcquisition", "Well"]:
                     key = 'ome.model.annotations.%sAnnotationLink' % parentType
