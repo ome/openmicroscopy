@@ -773,6 +773,7 @@ public class TreeCellRenderer
     	    int w = ref.getViewport().getSize().width;
             FontMetrics fm = getFontMetrics(getFont());
             String text = node.getNodeName();
+            if (numberChildrenVisible) text = node.getNodeText();
             int v = getPreferredSize().width;
             Rectangle r = getBounds();
             w = w-r.x;
