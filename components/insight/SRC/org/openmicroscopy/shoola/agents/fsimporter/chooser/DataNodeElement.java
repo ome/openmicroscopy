@@ -66,8 +66,10 @@ class DataNodeElement
 	{
 		this.location = location;
 		if (this.location != null && this.location.isNoDataset()) {
-		    this.location = null;
-		    value = null;
+		    if (getParent() == null) {
+		        this.location = null;
+	            value = null;
+		    }
 		}
 		setName(value);
 	}
