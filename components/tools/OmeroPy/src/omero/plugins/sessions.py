@@ -584,11 +584,15 @@ class SessionsControl(BaseControl):
             self.ctx.err("Group '%s' (id=%s) is already active"
                          % (group_name, group_id))
         else:
-            sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id,
-                                                                 False))
-            self.ctx.set_event_context(sf.getAdminService().getEventContext())
-            self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
-                         % (old_name, old_id, group_name, group_id))
+            try:
+                sf.setSecurityContext(omero.model.ExperimenterGroupI(
+                    group_id, False))
+                self.ctx.set_event_context(
+                    sf.getAdminService().getEventContext())
+                self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (
+                    old_name, old_id, group_name, group_id))
+            except omero.SecurityViolation, sv:
+                    self.ctx.die(564, "SecurityViolation: %s" % sv.message)
 
     def timeout(self, args):
         client = self.ctx.conn(args)

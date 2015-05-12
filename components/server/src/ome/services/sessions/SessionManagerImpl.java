@@ -1266,6 +1266,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         Session s = sc.getSession();
 
                         // Store old value for rollback
+                        if (!sc.getMemberOfGroupsList().contains(id)) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("User ");
+                            sb.append(sc.getCurrentUserId());
+                            sb.append(" is not a member of group ");
+                            sb.append(id);
+                            throw new SecurityViolation(sb.toString());
+                        }
                         group[0] = s.getDetails().getGroup();
                         s.getDetails().setGroup(sf.getAdminService().getGroup(id));
                         return s;
