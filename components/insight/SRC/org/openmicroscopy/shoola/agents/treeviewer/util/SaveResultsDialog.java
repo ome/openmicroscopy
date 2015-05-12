@@ -120,7 +120,7 @@ public class SaveResultsDialog
             plus = WindowManager.getCurrentImage();
             if (plus != null) {
                 img = new FileObject(plus);
-                if (img.getOMEROID() < 0 || plus.changes) {
+                if (img.getOMEROID() < 0 || img.isNewImage()) {
                     toImport.add(img);
                   //check if there are associated files
                     int[] values = WindowManager.getIDList();
@@ -142,7 +142,7 @@ public class SaveResultsDialog
                 for (int i = 0; i < values.length; i++) {
                     plus = WindowManager.getImage(values[i]);
                     img = new FileObject(plus);
-                    if (img.getOMEROID() < 0 || plus.changes) {
+                    if (img.getOMEROID() < 0 || img.isNewImage()) {
                         toImport.add(img);
                     } else {
                         images.add(img);
