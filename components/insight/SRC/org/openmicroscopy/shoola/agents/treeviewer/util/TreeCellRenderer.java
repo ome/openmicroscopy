@@ -730,10 +730,7 @@ public class TreeCellRenderer
     private int getPreferredWidth()
     {
         FontMetrics fm = getFontMetrics(getFont());
-        int w = 0;
-        if (getIcon() != null) w += getIcon().getIconWidth();
-        else w += SIZE.width;
-        w += getIconTextGap();
+        int w = getIconGap();
         xText = w;
         if (node instanceof TreeFileSet)
             w +=  fm.stringWidth(getText())+40;
@@ -741,9 +738,13 @@ public class TreeCellRenderer
         return w;
     }
 
+    /**
+     * Returns the gap between icon and text.
+     *
+     * @return See above
+     */
     private int getIconGap()
     {
-        FontMetrics fm = getFontMetrics(getFont());
         int w = 0;
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
