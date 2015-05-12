@@ -176,10 +176,14 @@ namespace omero {
                     } catch (...) {
                         // don't throw any exceptions, e.g. if the
                         // handle has already been closed.
-                        callback->onFinished(
+                        try {
+                            callback->onFinished(
                                 omero::cmd::ResponsePtr(),
                                 omero::cmd::StatusPtr(),
                                 Ice::Current());
+                        } catch (...) {
+                            // ditto
+                        }
                     }
                 }
             private:
@@ -240,7 +244,7 @@ namespace omero {
              * receive a call to finished, leading to perceived hangs.
              *
              * By default, this method starts a background thread and
-             * calls poll(). An Ice.ObjectNotExistException
+             * calls poll(). An Ice::ObjectNotExistException
              * implies that another caller has already closed the
              * HandlePrx.
              */
