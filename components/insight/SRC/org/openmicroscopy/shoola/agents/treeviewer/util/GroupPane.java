@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.admin.util.GroupPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -74,10 +74,13 @@ class GroupPane
     /** The component displaying the permissions options. */
     private PermissionsPane permissions;
 
-    /** Initializes the components. */
-    private void initComponents()
+    /** Initializes the components.
+     * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
+     */
+    private void initComponents(boolean admin)
     {
-    	permissions = new PermissionsPane();
+    	permissions = new PermissionsPane(admin);
     	permissions.setBorder(
 				BorderFactory.createTitledBorder("Permissions"));
     	descriptionArea = new JTextField();
@@ -162,10 +165,15 @@ class GroupPane
         add(expPane, c);
     }
     
-	/** Creates a new instance. */
-	GroupPane()
+    /**
+     * Creates a new instance
+     * 
+     * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
+     */
+	GroupPane(boolean admin)
 	{
-		initComponents();
+		initComponents(admin);
 		buildGUI();
 	}
 	/**

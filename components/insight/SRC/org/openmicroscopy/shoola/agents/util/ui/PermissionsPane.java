@@ -115,6 +115,9 @@ public class PermissionsPane
      */
     private boolean allowDowngrade;
     
+    /** Flag indicating if the current user is an admin */
+    private boolean admin;
+    
     /** The original permissions level.*/
     private int originalPermissions;
     
@@ -282,38 +285,49 @@ public class PermissionsPane
      * 
      * @param permissions The permissions level.
      * @param background The background color or <code>null</code>.
+     * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
      */
-    private void initialize(int permissions, Color background)
+    private void initialize(int permissions, Color background, boolean admin)
     {
-    	if (background != null) setBackground(background);
+    	if (background != null) 
+    	    setBackground(background);
+    	this.admin = admin;
 		initComponents(permissions);
 		buildGUI();
     }
     
-	/** Creates a new instance. */
-	public PermissionsPane()
+	/** Creates a new instance.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
+     */
+	public PermissionsPane(boolean admin)
 	{
-		this(GroupData.PERMISSIONS_PRIVATE);
+		this(GroupData.PERMISSIONS_PRIVATE, admin);
 	}
 	
 	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(Color background)
+	public PermissionsPane(Color background, boolean admin)
 	{
-		this(GroupData.PERMISSIONS_PRIVATE, background);
+		this(GroupData.PERMISSIONS_PRIVATE, background, admin);
 	}
 	
 	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param permissions The permissions level.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(int permissions)
+	public PermissionsPane(int permissions, boolean admin)
 	{
-		this(permissions, null);
+		this(permissions, null, admin);
 	}
 	
 	/** 
@@ -321,10 +335,12 @@ public class PermissionsPane
 	 * 
 	 * @param permissions 	The permissions level.
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(int permissions, Color background)
+	public PermissionsPane(int permissions, Color background, boolean admin)
 	{
-		initialize(permissions, background);
+		initialize(permissions, background, admin);
 	}
 
 	/** 
@@ -332,10 +348,12 @@ public class PermissionsPane
 	 * 
 	 * @param permissions 	The permissions level.
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(PermissionData permissions)
+	public PermissionsPane(PermissionData permissions, boolean admin)
 	{
-		this(permissions, null);
+		this(permissions, null, admin);
 	}
 	
 	/** 
@@ -343,13 +361,15 @@ public class PermissionsPane
 	 * 
 	 * @param permissions 	The permissions level.
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(PermissionData permissions, Color background)
+	public PermissionsPane(PermissionData permissions, Color background, boolean admin)
 	{
 		int level = GroupData.PERMISSIONS_PRIVATE;
 		if (permissions != null)
 			level = permissions.getPermissionsLevel();
-		initialize(level, background);
+		initialize(level, background, admin);
 	}
 	
 	/**
@@ -361,7 +381,7 @@ public class PermissionsPane
 	{
 	    if (permissions == null) return;
 	    removeAll();
-	    initialize(permissions.getPermissionsLevel(), getBackground());
+	    initialize(permissions.getPermissionsLevel(), getBackground(), admin);
 	    revalidate();
 	    repaint();
 	}
@@ -468,7 +488,7 @@ public class PermissionsPane
 		if (readOnlyGroupBox != null) readOnlyGroupBox.setEnabled(enabled);
 		if (readOnlyPublicBox != null) readOnlyPublicBox.setEnabled(enabled);
 		if (readWriteGroupBox != null)
-			readWriteGroupBox.setEnabled(enabled);
+			readWriteGroupBox.setEnabled(admin);
 		if (readAnnotateGroupBox != null)
 			readAnnotateGroupBox.setEnabled(enabled);
 		publicBox.addActionListener(this);

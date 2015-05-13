@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.GroupProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -114,7 +114,7 @@ class GroupProfile
     	//permission level
 
     	permissionsPane = new PermissionsPane(ref.getPermissions(),
-    			UIUtilities.BACKGROUND_COLOR);
+    			UIUtilities.BACKGROUND_COLOR, model.isAdministrator());
     	level = permissionsPane.getPermissions();
     	permissionsPane.allowDowngrade(!mayChangePermissions);
     	permissionsPane.setBorder(
