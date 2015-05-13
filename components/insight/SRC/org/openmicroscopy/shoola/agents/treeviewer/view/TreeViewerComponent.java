@@ -260,16 +260,21 @@ class TreeViewerComponent
 		String ns = null;
 		GroupData group;
 		long userID = model.getExperimenter().getId();
+		boolean notOwner = false;
 		while (i.hasNext()) {
 			node = (TreeImageDisplay) i.next();
 			if (node.isAnnotated() && ann == null) ann = true;
 			Object uo = node.getUserObject();
 			type = uo.getClass();
-			if (uo instanceof DataObject && leader == null) {
-				group = model.getGroup(((DataObject) uo).getGroupId());
-				if (EditorUtil.isUserGroupOwner(group, userID)) {
-					leader = true;
-				}
+			if (uo instanceof DataObject) {
+			    if( leader == null) {
+    				group = model.getGroup(((DataObject) uo).getGroupId());
+    				if (EditorUtil.isUserGroupOwner(group, userID)) {
+    					leader = true;
+    				}
+			    }
+			    if(((DataObject)uo).getOwner().getId()!=userID)
+			        notOwner = true;
 			}
 			if (uo instanceof TagAnnotationData) 
 				ns = ((TagAnnotationData) uo).getNameSpace();
@@ -278,7 +283,7 @@ class TreeViewerComponent
 		if (ann != null) b = ann.booleanValue();
 		boolean le = false;
 		if (leader != null) le = leader.booleanValue();
-		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le);
+		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le, notOwner);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 			boolean content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
