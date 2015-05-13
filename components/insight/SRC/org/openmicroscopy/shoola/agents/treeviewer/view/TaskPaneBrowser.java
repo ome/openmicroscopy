@@ -24,12 +24,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
@@ -62,26 +62,26 @@ class TaskPaneBrowser
 	/** Initializes the component. */
 	private void initialize()
 	{
-		Container container = getContentPane();
 		setAnimated(false);
+		setSpecial(false);
+		setCollapsed(true);
+		
+		Container container = getContentPane();
 		if (container instanceof JComponent) 
 			((JComponent) container).setBorder(BorderFactory.createEmptyBorder(
 					1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setCollapsed(true);
-		double[][] size = {{TableLayout.FILL}, {TableLayout.FILL}};
-		TableLayout layout = new TableLayout(size);
-		container.setLayout(layout);
+		container.setLayout(new BorderLayout());
 		if (browser instanceof Browser) {
 			Browser b = (Browser) browser;
 			setTitle(b.getTitle());
 			setIcon(b.getIcon());
-			container.add(b.getUI(), "0, 0");
+			container.add(b.getUI(), BorderLayout.CENTER);
 		} else {
 			setTitle(SearchAction.NAME);
 			IconManager icons = IconManager.getInstance();
 			setIcon(icons.getIcon(IconManager.SEARCH));
-			container.add((JComponent) browser, "0, 0");
+			container.add((JComponent) browser, BorderLayout.CENTER);
 		}
 	}
 	
@@ -106,7 +106,8 @@ class TaskPaneBrowser
 	 */
 	Browser getBrowser()
 	{ 
-		if (browser instanceof Browser) return (Browser) browser;
+		if (browser instanceof Browser) 
+		    return (Browser) browser;
 		return null; 
 	}
 	

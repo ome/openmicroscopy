@@ -15,7 +15,7 @@
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <dependency org="robot-framework" name="swinglibrary" rev="${versions.robotframework.swinglibrary}"/>
-    <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="org.swinglabs" name="swingx-all" rev="${versions.swingx-all}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
     <dependency org="org.testng" name="testng" rev="${versions.testng}"/>
   </dependencies>

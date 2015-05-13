@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.treetable.TreeTable 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.TreeExpansionEvent;
@@ -43,7 +44,6 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 
@@ -114,8 +114,8 @@ public class OMETreeTable
 	/** Initializes the table. */
 	private void initialize()
 	{
-		ColumnHeaderRenderer l = 
-			(ColumnHeaderRenderer) getTableHeader().getDefaultRenderer();
+		JLabel l = 
+			(JLabel) getTableHeader().getDefaultRenderer();
 		l.setHorizontalAlignment(SwingConstants.CENTER);
 	}
 	

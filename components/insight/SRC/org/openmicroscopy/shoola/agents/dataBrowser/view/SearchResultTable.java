@@ -26,8 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EventObject;
@@ -47,6 +45,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import org.apache.commons.collections.ComparatorUtils;
 import org.jdesktop.swingx.JXTable;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -209,6 +208,14 @@ public class SearchResultTable extends JXTable {
         getColumn(4).setMaxWidth(wB);
         getColumn(4).setPreferredWidth(wB);
         getColumn(4).setWidth(wB);
+        
+        // set sorter
+        getColumnExt(0).setSortable(false); // icon
+        getColumnExt(1).setComparator(ComparatorUtils.naturalComparator()); // name
+        getColumnExt(2).setComparator(ComparatorUtils.naturalComparator()); // a date
+        getColumnExt(3).setComparator(ComparatorUtils.naturalComparator()); // i date
+        getColumnExt(4).setComparator(ComparatorUtils.naturalComparator()); // group
+        getColumnExt(5).setSortable(false); // obj
     }
 
     private JButton createActionButton(final DataObject obj) {
