@@ -70,6 +70,8 @@ END;$$ LANGUAGE plpgsql;
 SELECT assert_db_server_prerequisites(84000);
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
+SET client_encoding = 'UTF8';
+
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              VALUES ('OMERO5.1DEV',    11,              'OMERO5.1DEV',    10);

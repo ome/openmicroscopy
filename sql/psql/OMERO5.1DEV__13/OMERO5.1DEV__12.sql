@@ -42,6 +42,8 @@ END;' LANGUAGE plpgsql;
 SELECT omero_assert_db_version('OMERO5.1DEV', 12);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
+SET client_encoding = 'UTF8';
+
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              VALUES ('OMERO5.1DEV',  13,                'OMERO5.1DEV',    12);
