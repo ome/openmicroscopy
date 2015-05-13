@@ -38,6 +38,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -47,6 +48,7 @@ import javax.swing.JRadioButton;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -82,6 +84,10 @@ public class PermissionsPane
 	private static final String WARNING = " Changing group to Private may fail if links"
 	        + " have been\n created under Read-Annotate permissions. Make the change?";
 	
+	/** ReadWrite warning message */
+    private static final String RW_WARNING = "Read-Write groups allow members to delete other"
+            + " members' data.\nSee documentation about 'OMERO permissions' for full details.";
+
 	/** Indicate that the group has <code>RWRA--</code>. */
     //private JRadioButton		collaborativeGroupBox;
     
@@ -123,6 +129,9 @@ public class PermissionsPane
     
     /** The current permissions level.*/
     private int currentPermissions;
+    
+    /** Internal flag making sure the RW warning message is only shown once */
+    private boolean warningMessageShown = false;
     
     /**
      * Sets the controls depending on the specified permissions.
@@ -179,6 +188,24 @@ public class PermissionsPane
     			GroupData.PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT);
     	readWriteGroupBox.setToolTipText(
     			GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT);
+    	
+        readWriteGroupBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (readWriteGroupBox.isSelected() && !warningMessageShown) {
+                    // for some reason can't use NotificationDialog here, just shows
+                    // a black panel instead of the text, using JOptionPane therefore
+                    JOptionPane.showMessageDialog(
+                            PermissionsPane.this,
+                            RW_WARNING,
+                            "Warning",
+                            JOptionPane.WARNING_MESSAGE,
+                            IconManager.getInstance().getIcon(
+                                    IconManager.INFO_32));
+                    warningMessageShown = true;
+                }
+            }
+        });
     	
     	readOnlyGroupBox.setSelected(true);//default
     	readOnlyPublicBox = new JCheckBox(
