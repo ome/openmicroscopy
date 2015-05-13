@@ -30,9 +30,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
@@ -109,6 +109,34 @@ public final class Container
 	 */
 	private static Container singleton;
 
+    /**
+     * Starts up the application w/o login screen and connect.
+     *
+     * @param home Path to the installation directory. If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     * @param configFile The configuration file.
+     * @param sessionId The session to join.
+     */
+    private static void runStartupProcedureHeadlessAndLogin(String home,
+                String configFile, String sessionId)
+    {
+        //read jnlp parameters
+        String jnlpHost = System.getProperty("jnlp.omero.host");
+        String jnlpPort = System.getProperty("jnlp.omero.port");
+        AbnormalExitHandler.configure();
+        try {
+            Container c = startupInHeadlessMode(home, configFile);
+            Registry reg = c.getRegistry();
+            LoginService svc = (LoginService) reg.lookup(LookupNames.LOGIN);
+            UserCredentials uc = new UserCredentials(sessionId, sessionId,
+                    jnlpHost, UserCredentials.HIGH);
+            uc.setPort(Integer.parseInt(jnlpPort));
+            svc.login(uc);
+        } catch (Exception e) {
+            AbnormalExitHandler.terminate(e);
+        }
+    }
+
 	/**
 	 * Performs the start up procedure.
 	 * 
@@ -120,6 +148,11 @@ public final class Container
 	{
 		AbnormalExitHandler.configure();
 		Initializer initManager = null;
+		String jnlpSession = System.getProperty("jnlp.omero.sessionid");
+		if (CommonsLangUtils.isNotBlank(jnlpSession)) {
+		    runStartupProcedureHeadlessAndLogin(home, configFile, jnlpSession);
+		    return;
+		}
 		try {
 			singleton = new Container(home, configFile);
 			initManager = new Initializer(singleton);
