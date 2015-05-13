@@ -35,7 +35,9 @@ BEGIN
     END IF;
 
     IF char_encoding != 'UTF8' THEN
-       RAISE EXCEPTION 'OMERO database character encoding must be UTF8, not %%', char_encoding;
+        RAISE EXCEPTION 'OMERO database character encoding must be UTF8, not %%', char_encoding;
+    ELSE
+        SET client_encoding = 'UTF8';
     END IF;
 
 END;$$ LANGUAGE plpgsql;
