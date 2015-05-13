@@ -32,10 +32,13 @@ import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
@@ -43,6 +46,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
@@ -172,9 +176,18 @@ class SplashScreenManager
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
         
     	String port = ""+info.getPortSSL();
-    	
-    	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port, 
-    			info.getHostName(), connectToServer());
+    	String host = info.getHostName();
+    	//check if we have jnlp option
+    	String jnlpHost = System.getProperty("jnlp.omero.host");
+    	if (CommonsLangUtils.isNotBlank(jnlpHost)) {
+    	    host = jnlpHost;
+    	}
+        String jnlpPort = System.getProperty("jnlp.omero.port");
+        if (CommonsLangUtils.isNotBlank(jnlpPort)) {
+            port = jnlpPort;
+        }
+    	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port,
+    			host, connectToServer());
     	view.setEncryptionConfiguration(info.isEncrypted(),
     			info.isEncryptedConfigurable());
     	view.setHostNameConfiguration(info.getHostName(),
