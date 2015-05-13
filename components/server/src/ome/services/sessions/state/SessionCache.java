@@ -351,15 +351,27 @@ public class SessionCache implements ApplicationContextAware {
      * {@link RemovedSessionException} or {@link SessionTimeoutException}.
      */
     public SessionContext getSessionContext(String uuid) {
+        return getSessionContext(uuid, false);
+    }
 
+    /**
+     * Retrieve a session possibly raising either
+     * {@link RemovedSessionException} or {@link SessionTimeoutException}.
+     *
+     * @param quietly If true, then the access time for the given UUID
+     *                  will not be updated.
+     */
+    public SessionContext getSessionContext(String uuid, boolean quietly) {
         if (uuid == null) {
             throw new ApiUsageException("Uuid cannot be null.");
         }
 
         Data data = getDataNullOrThrowOnTimeout(uuid, true);
 
-        // Up'ing access time
-        this.sessions.put(uuid, new Data(data));
+        if (!quietly) {
+            // Up'ing access time
+            this.sessions.put(uuid, new Data(data));
+        }
         return data.sessionContext;
     }
 

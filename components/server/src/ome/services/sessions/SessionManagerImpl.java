@@ -612,7 +612,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 continue; // DON'T INCLUDE ROOT SESSION
             }
             try {
-                SessionContext ctx = cache.getSessionContext(id);
+                SessionContext ctx = cache.getSessionContext(id, true);
                 rv.put(id,  new SimpleEventContext(ctx));
             } catch (RemovedSessionException rse) {
                 // Ok. Done for us
