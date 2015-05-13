@@ -132,6 +132,7 @@ public final class Container
                     jnlpHost, UserCredentials.HIGH);
             uc.setPort(Integer.parseInt(jnlpPort));
             svc.login(uc);
+            reg.getEventBus().post(new ActivateAgents());
         } catch (Exception e) {
             AbnormalExitHandler.terminate(e);
         }
