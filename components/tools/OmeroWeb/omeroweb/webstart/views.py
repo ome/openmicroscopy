@@ -80,7 +80,8 @@ def index(request, conn=None, **kwargs):
 
 
 @never_cache
-def insight(request):
+@login_required()
+def insight(request, conn=None, **kwargs):
     t = template_loader.get_template('webstart/insight.xml')
 
     codebase = request.build_absolute_uri(settings.STATIC_URL+'webstart/jars/')
@@ -103,13 +104,18 @@ def insight(request):
         'codebase': codebase, 'href': href, 'jarlist': jarlist,
         'icon': settings.WEBSTART_ICON,
         'heap': settings.WEBSTART_HEAP,
-        'host': settings.WEBSTART_HOST,
-        'port': settings.WEBSTART_PORT,
         'class': settings.WEBSTART_CLASS,
         'title': settings.WEBSTART_TITLE,
         'vendor': settings.WEBSTART_VENDOR,
         'homepage': settings.WEBSTART_HOMEPAGE,
     }
+    if conn is None:
+        context['host'] = settings.WEBSTART_HOST
+        context['port'] = settings.WEBSTART_PORT
+    else:
+        context['host'] = conn.host
+        context['port'] = conn.port
+        context['sessionid'] = conn.c.getSessionId()
 
     c = Context(request, context)
     return HttpJNLPResponse(t.render(c))

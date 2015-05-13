@@ -32,7 +32,8 @@
     <j2se version="1.6+" max-heap-size="{{heap}}"/>{% for jar in jarlist %}
     <jar href="{{jar}}"/>{% endfor %}
     <property name="jnlp.omero.host" value="{{host}}"/>
-    <property name="jnlp.omero.port" value="{{port}}"/>
+    <property name="jnlp.omero.port" value="{{port}}"/>{% if sessionid %}
+    <property name="jnlp.omero.sessionid" value="{{sessionid}}"/>{% endif %}
   </resources>
   <application-desc main-class="{{class}}"/>
 </jnlp>
