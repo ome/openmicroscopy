@@ -140,10 +140,9 @@ OME.select_fileset_images = function(filesetId) {
 
 // actually called when share is edited, to refresh right-hand panel
 OME.share_selection_changed = function(share_id) {
-    $("body")
-        .data("selected_objects.ome", [{"id": share_id}])
-        .trigger("selection_change.ome");
+    $("body").trigger("selection_change.ome");
 };
+
 
 // Standard ids are in the form TYPE-ID, web extensions may add an
 // additional -SUFFIX

@@ -21,6 +21,16 @@
 -->
 {% endcomment %}
 
+<link rel="stylesheet" href="{% static "3rdparty/jquery.chosen-1.2.0/chosen.css" %}" type="text/css" media="screen"/>
+<script type="text/javascript" src="{% static "3rdparty/jquery.chosen-1.2.0/chosen.jquery.js" %}"></script>
+<script type="text/javascript">
+
+$(document).ready(function () {
+    $("#id_members").chosen({disable_search_threshold:5, placeholder_text:'Choose members of the share'});
+}); 
+
+</script>
+
 <h1>{% trans "Edit" %} {{ share.share.getShareType|lower }}:</h1>
 
 {% if share.share.isExpired %}

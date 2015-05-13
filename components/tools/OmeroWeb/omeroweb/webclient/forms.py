@@ -93,20 +93,20 @@ class ShareForm(NonASCIIForm):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(
                 queryset=kwargs['initial']['experimenters'],
                 initial=kwargs['initial']['shareMembers'],
-                widget=forms.SelectMultiple(attrs={'size': 5}))
+                widget=forms.SelectMultiple(attrs={'size': 28}))
         except:
             self.fields['members'] = ExperimenterModelMultipleChoiceField(
                 queryset=kwargs['initial']['experimenters'],
-                widget=forms.SelectMultiple(attrs={'size': 5}))
+                widget=forms.SelectMultiple(attrs={'size': 28}))
         self.fields.keyOrder = [
             'message', 'expiration', 'enable', 'members']  # , 'guests']
 
     message = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 7, 'cols': 39}),
+        widget=forms.Textarea(attrs={'rows': 5, 'cols': 50}),
         help_text=help_wiki_c)
     expiration = forms.CharField(
         max_length=100,
-        widget=forms.TextInput(attrs={'size': 20}),
+        widget=forms.TextInput(attrs={'size': 10}),
         label="Expire date",
         help_text=help_expire,
         required=False)

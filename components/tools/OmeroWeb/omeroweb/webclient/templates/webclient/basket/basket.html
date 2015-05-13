@@ -109,7 +109,6 @@
             // since we are using 3-column layout (to extend the )
             OME.nav.hide_left_panel();
 
-
             // AJAX handling of create-discussion form
             $("#create_discussion_form").ajaxForm({
                 success: function(html) {
@@ -124,13 +123,14 @@
             $("#create_discussion_form").dialog({
                 autoOpen: false,
                 resizable: true,
-                height: 470,
-                width:420,
+                height: 650,
+                width:500,
                 modal: true,
                 buttons: {
                     "Accept": function() {
                         // simply submit the form
                         $("#create_discussion_form").submit();
+                        $( this ).dialog( "close" );
                     },
                     "Cancel": function() {
                         $( this ).dialog( "close" );
@@ -153,13 +153,14 @@
             $("#create_share_form").dialog({
                 autoOpen: false,
                 resizable: true,
-                height: 470,
-                width:420,
+                height: 650,
+                width:500,
                 modal: true,
                 buttons: {
                     "Accept": function() {
                         // simply submit the form
                         $("#create_share_form").submit();
+                        $( this ).dialog( "close" );
                     },
                     "Cancel": function() {
                         $( this ).dialog( "close" );

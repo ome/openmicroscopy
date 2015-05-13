@@ -126,19 +126,17 @@
                     // set-up the edit-share form to use dialog
                     $("#edit_share_div").dialog({
                         resizable: true,
-                        height: 410,
-                        width:420,
+                        height: 650,
+                        width:500,
                         modal: true,
                         buttons: {
                             "Accept": function() {
                                 // simply submit the form (AJAX handling set-up below)
                                 $("#edit_share_form").submit();
-                                $( this ).dialog( "destroy" );
-                                $("#edit_share_div").appendTo($("#metadata_general"))
+                                $( this ).dialog( "close" );
                             },
                             "Cancel": function() {
-                                $( this ).dialog( "destroy" );
-                                $("#edit_share_div").appendTo($("#metadata_general"))
+                                $( this ).dialog( "close" );
                             }
                         }
                     });
@@ -147,10 +145,10 @@
                     $("#edit_share_div").load(edit_share_url, function(){
                         $('#edit_share_form').ajaxForm({
                             success: function(data) {
-                                $("#edit_share_div").dialog( "close" );      // hide in case it was submitted via 'Enter'
-                                // update the UI  - only available if the owner is editing share
+                                 // update the UI  - only available if the owner is editing share
                                 {% if manager.share.id %}
-                                OME.share_selection_changed("share-{{ manager.share.id }}");
+                                OME.share_selection_changed(
+                                    "{{ manager.share.getShareType }}-{{ manager.share.id }}");
                                 {% endif %}
                             }
                         });
