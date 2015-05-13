@@ -174,8 +174,8 @@ class SplashScreenManager
     		v = (String) version;
     	OMEROInfo info = 
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
-        
-    	String port = ""+info.getPortSSL();
+    	int p = -1;
+    	String port = ""+ info.getPortSSL();
     	String host = info.getHostName();
     	//check if we have jnlp option
     	String jnlpHost = System.getProperty("jnlp.omero.host");
@@ -183,15 +183,17 @@ class SplashScreenManager
     	    host = jnlpHost;
     	}
         String jnlpPort = System.getProperty("jnlp.omero.port");
+        boolean configurable = info.isHostNameConfigurable();
         if (CommonsLangUtils.isNotBlank(jnlpPort)) {
             port = jnlpPort;
+            p = Integer.parseInt(port);
+            configurable = false;
         }
     	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port,
     			host, connectToServer());
     	view.setEncryptionConfiguration(info.isEncrypted(),
     			info.isEncryptedConfigurable());
-    	view.setHostNameConfiguration(info.getHostName(),
-    			info.isHostNameConfigurable());
+    	view.setHostNameConfiguration(host, configurable, p);
 		view.showConnectionSpeed(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = view.getPreferredSize();

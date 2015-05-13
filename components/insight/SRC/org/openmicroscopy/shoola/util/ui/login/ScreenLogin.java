@@ -516,7 +516,7 @@ public class ScreenLogin
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
 		Map<String, String> servers = editor.getServers();
-		if (hostName != null && hostName.trim().length() > 0) {
+		if (CommonsLangUtils.isNotBlank(hostName)) {
 			serverName = hostName;
 			//if user did point to another server
 			if (servers != null && servers.size() > 0) {
@@ -803,7 +803,7 @@ public class ScreenLogin
 	 */
 	private void setNewServer(String s)
 	{
-		if (s == null || s.length() == 0) {
+		if (CommonsLangUtils.isBlank(s)) {
 			if (configureServerName != null)
 				s = configureServerName;
 			else s = DEFAULT_SERVER;
@@ -1309,7 +1309,51 @@ public class ScreenLogin
     	if (!configurable)
     		encryptedButton.removeActionListener(encryptionListener);
     }
-    
+    /**
+     * Indicates if the user can modify or not the host name from the UI.
+     * 
+     * @param hostName The hostname.
+     * @param configurable Pass <code>true</code> to allow to change the 
+     * host name, <code>false</code> otherwise.
+     * @param port The selected port.
+     */
+    public void setHostNameConfiguration(String hostName, boolean configurable,
+            int port)
+    {
+        hostConfigurable = configurable;
+        configureServerName = hostName;
+        if (CommonsLangUtils.isNotBlank(hostName)) {
+            if (configurable) {
+                Map<String, String> servers = editor.getServers();
+                if (servers == null || servers.size() == 0) 
+                    editor.addRow(hostName);
+                else {
+                    Iterator<String> i = servers.keySet().iterator();
+                    String value;
+                    boolean exist = false;
+                    while (i.hasNext()) {
+                        value = i.next();
+                        if (hostName.equals(value)) {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist) editor.addRow(hostName);
+                }
+            } else {
+                serverName = hostName;
+                originalServerName = serverName;
+                if (port < 0) {
+                    selectedPort = Integer.parseInt(editor.getDefaultPort());
+                } else {
+                    selectedPort = port;
+                }
+                
+                setNewServer(originalServerName);
+            }
+        }
+    }
+
     /**
      * Indicates if the user can modify or not the host name from the UI.
      * 
@@ -1319,33 +1363,7 @@ public class ScreenLogin
      */
     public void setHostNameConfiguration(String hostName, boolean configurable)
     {
-    	hostConfigurable = configurable;
-    	configureServerName = hostName;
-    	if (hostName != null && hostName.trim().length() > 0) {
-    		if (configurable) {
-        		Map<String, String> servers = editor.getServers();
-        		if (servers == null || servers.size() == 0) 
-    				editor.addRow(hostName);
-    			else {
-    				Iterator<String> i = servers.keySet().iterator();
-    				String value;
-    				boolean exist = false;
-    				while (i.hasNext()) {
-    					value = i.next();
-    					if (hostName.equals(value)) {
-    						exist = true;
-    						break;
-    					}
-    				}
-    				if (!exist) editor.addRow(hostName);
-    			}
-        	} else {
-        		serverName = hostName;
-        		originalServerName = serverName;
-        		selectedPort = Integer.parseInt(editor.getDefaultPort());
-        		setNewServer(originalServerName);
-        	}
-    	}
+        setHostNameConfiguration(hostName, configurable, -1);
     }
 
 	/**
