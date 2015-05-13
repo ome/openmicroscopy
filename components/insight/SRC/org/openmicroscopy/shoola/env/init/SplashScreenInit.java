@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.init.SplashScreenInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -132,6 +132,22 @@ public final class SplashScreenInit
 		//NOTE: post increment b/c this task hasn't been executed yet.
 	}
 
+    /**
+     * Create {@link UserCredentials} from session id provided via webstart
+     * 
+     * @return The {@link UserCredentials} or <code>null</code> if a session id
+     *         was not provided
+     */
+    private UserCredentials getWebStartUserCredentials() {
+        String sessionId = System.getProperty("jnlp.omero.sessionid");
+        if (sessionId == null || sessionId.length() == 0)
+            return null;
+
+        UserCredentials uc = new UserCredentials(sessionId, null,
+                System.getProperty("jnlp.omero.host"), UserCredentials.HIGH);
+        return uc;
+    }
+	
 	/** 
 	 * Waits until user's credentials are available and then tries to log onto
 	 * <i>OMERO</i>.
@@ -161,11 +177,12 @@ public final class SplashScreenInit
         LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);
 
         int index = max;
-        UserCredentials uc;
+        UserCredentials uc = getWebStartUserCredentials();
         UserNotifier un = UIFactory.makeUserNotifier(container);
 
         while (0 < max--) {
-            uc = splashScreen.getUserCredentials((max == index-1));
+            if(uc==null)
+                uc = splashScreen.getUserCredentials((max == index-1));
             //needed b/c need to retrieve user's details later.
             reg.bind(LookupNames.USER_CREDENTIALS, uc);
 
@@ -181,7 +198,8 @@ public final class SplashScreenInit
 					if (max != 0) {
 						loginSvc.notifyLoginFailure();
 						splashScreen.onLoginFailure();
-		        	} else if (max == 0) {
+						uc = null;
+		        	} else {
 		        		//Exit if we couldn't manage to log in.
 		        		 un.notifyError("Login Failure", 
 		        				 "A valid connection to the OMERO "+
