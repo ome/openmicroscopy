@@ -695,6 +695,7 @@ class SessionsControl(BaseControl):
 
     def who(self, args):
         client = self.ctx.conn(args)
+        uuid = self.ctx.get_event_context().sessionUuid
         req = omero.cmd.CurrentSessionsRequest()
         try:
             cb = client.submit(req)
@@ -714,6 +715,8 @@ class SessionsControl(BaseControl):
                     t = s.started.val / 1000.0
                     t = time.localtime(t)
                     t = time.strftime("%Y-%m-%d %H:%M:%S", t)
+                    if uuid == ec.sessionUuid:
+                        t = t + " (*)"
                     results["logged in"].append(t)
                     results["agent"].append(unwrap(s.userAgent))
                 else:
