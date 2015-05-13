@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.PermissionsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -216,11 +217,11 @@ public class PermissionsPane
      */
     private JPanel buildCollaborative()
     {
-    	JPanel p = new JPanel();
+    	JPanel p = new JPanel(new GridLayout(2, 2));
     	p.setBackground(getBackground());
     	p.add(readOnlyGroupBox);
     	p.add(readAnnotateGroupBox);
-    	//p.add(readWriteGroupBox);
+    	p.add(readWriteGroupBox);
     	return p;
     }
     
@@ -373,14 +374,17 @@ public class PermissionsPane
 	 */
 	public int getPermissions()
 	{
-		if (privateBox.isSelected()) return GroupData.PERMISSIONS_PRIVATE;
+		if (privateBox.isSelected())
+		    return GroupData.PERMISSIONS_PRIVATE;
 		if (readAnnotateGroupBox.isSelected())
 			return GroupData.PERMISSIONS_GROUP_READ_LINK;
 		if (readOnlyGroupBox.isSelected())
 			return GroupData.PERMISSIONS_GROUP_READ;
 		if (readOnlyPublicBox.isSelected())
 			return GroupData.PERMISSIONS_PUBLIC_READ;
-		return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+		if (readWriteGroupBox.isSelected())
+            return GroupData.PERMISSIONS_GROUP_READ_WRITE;
+		return -1;
 	}
 
 	/** 
@@ -497,7 +501,7 @@ public class PermissionsPane
 		}
 		currentPermissions = getPermissions();
  		if (readOnlyGroupBox == src || readAnnotateGroupBox == src ||
-				privateBox == src) {
+				privateBox == src || readWriteGroupBox == src) {
 			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1,
 					getPermissions());
 			return;
