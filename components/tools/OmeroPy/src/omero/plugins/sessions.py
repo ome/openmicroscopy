@@ -528,15 +528,16 @@ class SessionsControl(BaseControl):
 
         msg = "%s session %s (%s@%s:%s)." \
             % (action, uuid, ec.userName, host, port)
-        msg += self._parse_timeout(idle, "Idle timeout")
-        msg += self._parse_timeout(live, "Expires in ")
+        msg += self._parse_timeout(idle, " Idle timeout: ")
+        msg += self._parse_timeout(live, " Expires in : ")
 
         msg += (" Current group: %s" % ec.groupName)
 
         if not self.ctx.isquiet:
             self.ctx.err(msg)
 
-    def _parse_timeout(self, timeout, msg):
+    def _parse_timeout(self, timeout, msg=""):
+        timeout = unwrap(timeout)
         if not timeout:
             return ""
 
@@ -545,7 +546,7 @@ class SessionsControl(BaseControl):
         if val < 1:
             unit = "sec."
             val = val * 60
-        return " %s: %.f %s" % (msg, val, unit)
+        return "%s%.f %s" % (msg, val, unit)
 
     def logout(self, args):
         store = self.store(args)
@@ -704,9 +705,10 @@ class SessionsControl(BaseControl):
             finally:
                 cb.close(True)
 
-            headers = ("name", "group", "logged in", "agent")
+            headers = ("name", "group", "logged in", "agent", "timeout")
             results = {"name": [], "group": [],
-                       "logged in": [], "agent": []}
+                       "logged in": [], "agent": [],
+                       "timeout": []}
             for idx, s in enumerate(rsp.sessions):
                 ec = rsp.contexts[idx]
                 results["name"].append(ec.userName)
@@ -719,12 +721,15 @@ class SessionsControl(BaseControl):
                         t = t + " (*)"
                     results["logged in"].append(t)
                     results["agent"].append(unwrap(s.userAgent))
+                    results["timeout"].append(
+                        self._parse_timeout(s.timeToIdle))
                 else:
                     # Insufficient privileges. The EventContext
                     # will be missing fields as well.
                     msg = "---"
                     results["logged in"].append(msg)
                     results["agent"].append(msg)
+                    results["timeout"].append(msg)
 
             from omero.util.text import Table, Column
             columns = tuple([Column(x, results[x]) for x in headers])
