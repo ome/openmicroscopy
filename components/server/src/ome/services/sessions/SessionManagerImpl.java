@@ -1268,6 +1268,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
                         // Store old value for rollback
                         if (!sc.isCurrentUserAdmin() &&
+                                id >= 0 &&
                                 !sc.getMemberOfGroupsList().contains(id)) {
                             StringBuilder sb = new StringBuilder();
                             sb.append("User ");
