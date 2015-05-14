@@ -90,7 +90,7 @@
                     href="#"
                     onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ image.id }}&fileCount={{ fileCount }}&name={{ image.name }}');"
                   {% endifequal %}
-                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
                 Download...</a>
             </li>
@@ -115,7 +115,7 @@
                     onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}&index={{ index }}');"
                   {% endifequal %}
                 {% endifequal %}
-                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
                 Download...</a>
             </li>

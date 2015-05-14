@@ -2491,8 +2491,9 @@ def get_original_file(request, fileId, conn=None, **kwargs):
         mimetype = "text/plain"  # allows display in browser
     rsp['Content-Type'] = mimetype
     rsp['Content-Length'] = orig_file.getSize()
-    # rsp['Content-Disposition'] = ('attachment; filename=%s'
-    #                               % (orig_file.name.replace(" ", "_")))
+    downloadName = orig_file.name.replace(" ", "_")
+    downloadName = downloadName.replace(",", ".")
+    rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
     return rsp
 
 
@@ -2627,8 +2628,9 @@ def download_orig_metadata(request, imageId, conn=None, **kwargs):
     return rsp
 
 
+@login_required()
 @render_response()
-def download_placeholder(request):
+def download_placeholder(request, conn=None, **kwargs):
     """
     Page displays a simple "Preparing download..." message and redirects to
     the 'url'.
@@ -2638,7 +2640,7 @@ def download_placeholder(request):
     format = request.REQUEST.get('format', None)
     if format is not None:
         download_url = reverse('download_as')
-        zipName = 'SaveAs_%s' % format
+        zipName = 'Export_as_%s' % format
     else:
         download_url = reverse('archived_files')
         zipName = 'OriginalFileDownload'
@@ -2646,7 +2648,67 @@ def download_placeholder(request):
     defaultName = request.REQUEST.get('name', zipName)  # default zip name
     defaultName = os.path.basename(defaultName)         # remove path
 
-    query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])
+    if targetIds is None:
+        raise Http404("No IDs specified. E.g. ?ids=image-1|image-2")
+
+    ids = targetIds.split("|")
+
+    fileLists = []
+    fileCount = 0
+    # If we're downloading originals, list original files so user can
+    # download individual files.
+    if format is None:
+        imgIds = []
+        wellIds = []
+        for i in ids:
+            if i.split("-")[0] == "image":
+                imgIds.append(i.split("-")[1])
+            elif i.split("-")[0] == "well":
+                wellIds.append(i.split("-")[1])
+
+        images = []
+        # Get images...
+        if imgIds:
+            images = list(conn.getObjects("Image", imgIds))
+        elif wellIds:
+            try:
+                index = int(request.REQUEST.get("index", 0))
+            except ValueError:
+                index = 0
+            wells = conn.getObjects("Well", wellIds)
+            for w in wells:
+                images.append(w.getWellSample(index).image())
+
+        if len(images) == 0:
+            raise Http404("No images found.")
+
+        # Have a list of files per fileset (or per image without fileset)
+        fsIds = set()
+        fileIds = set()
+        for image in images:
+            fs = image.getFileset()
+            if fs is not None:
+                # Make sure we've not processed this fileset before.
+                if fs.id in fsIds:
+                    continue
+                fsIds.add(fs.id)
+            files = list(image.getImportedImageFiles())
+            fList = []
+            for f in files:
+                if f.id in fileIds:
+                    continue
+                fileIds.add(f.id)
+                fList.append({'id': f.id,
+                              'name': f.name,
+                              'size': f.getSize()})
+            if len(fList) > 0:
+                fileLists.append(fList)
+        fileCount = sum([len(l) for l in fileLists])
+    else:
+        # E.g. JPEG/PNG - 1 file per image
+        fileCount = len(ids)
+
+    query = "&".join([i.replace("-", "=") for i in ids])
     download_url = download_url + "?" + query
     if format is not None:
         download_url = (download_url + "&format=%s"
@@ -2658,7 +2720,9 @@ def download_placeholder(request):
     context = {
         'template': "webclient/annotations/download_placeholder.html",
         'url': download_url,
-        'defaultName': defaultName
+        'defaultName': defaultName,
+        'fileLists': fileLists,
+        'fileCount': fileCount
         }
     return context
 
