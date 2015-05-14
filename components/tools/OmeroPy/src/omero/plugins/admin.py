@@ -20,6 +20,7 @@ import stat
 import platform
 import datetime
 
+from glob import glob
 from path import path
 
 import omero
@@ -1420,6 +1421,30 @@ OMERO Diagnostics %s
             except KeyError:
                 pass
             self.can_access(omero_data_dir)
+
+            # While we're here, issue a warning if any of
+            # the top ".omero" directories contain a lock
+            # file. This isn't a conclusive test this we
+            # don't have access to the DB to get the UUID
+            # for this instance. Usually there should only
+            # be one though.
+            lock_files = os.path.join(
+                omero_data_dir, ".omero", "repository",
+                "*", ".lock")
+            lock_files = glob(lock_files)
+            if lock_files:
+                self.ctx.err("WARNING: lock files in %s" %
+                             omero_data_dir)
+                self.ctx.err("-"*40)
+                for lock_file in lock_files:
+                    self.ctx.err(lock_file)
+                self.ctx.err("-"*40)
+                self.ctx.err(("\n"
+                    "You may want to stop all server processes and remove\n"
+                    "these files manually. Lock files can remain after an\n"
+                    "abrupt server outage and are especially frequent on\n"
+                    "remotely mounted filesystems like NFS.\n"))
+
         for p in os.listdir(var):
             subpath = os.path.join(var, p)
             if os.path.isdir(subpath):
@@ -1553,7 +1578,6 @@ OMERO Diagnostics %s
             omero_data_dir = cfg.get("omero.data.dir", "/OMERO")
             self.can_access(omero_data_dir)
             from os.path import sep
-            from glob import glob
             pattern = sep.join([omero_data_dir, "FullText", "*"])
             files = glob(pattern)
             total = 0
