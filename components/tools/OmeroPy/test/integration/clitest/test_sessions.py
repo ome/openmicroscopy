@@ -51,7 +51,7 @@ class TestSessions(CLITest):
 
     def get_connection_string(self):
         ec = self.cli.get_event_context()
-        return 'session %s (%s). Idle timeout: 10.0 min. ' \
+        return 'session %s (%s). Idle timeout: 10 min. ' \
             'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
                                      ec.groupName)
 
@@ -140,7 +140,7 @@ class TestSessions(CLITest):
                     assert ec.userName == user.omeName.val
                     assert ec.groupName == target_group.name.val
                 else:
-                    with pytest.raises(SecurityViolation):
+                    with pytest.raises(NonZeroReturnCode):
                         self.cli.invoke(switch_cmd, strict=True)
             finally:
                 self.cli.invoke(["sessions", "logout"], strict=True)
