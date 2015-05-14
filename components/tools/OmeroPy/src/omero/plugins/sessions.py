@@ -543,7 +543,7 @@ class SessionsControl(BaseControl):
 
         unit = "min."
         val = float(timeout) / 60 / 1000
-        if val < 1:
+        if val < 5:
             unit = "sec."
             val = val * 60
         return "%s%.f %s" % (msg, val, unit)
