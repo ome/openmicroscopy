@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.event.SaveEvent;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -80,8 +81,11 @@ public class SaveResultsDialog
     /** Close the dialog.*/
     private JButton saveButton;
 
-    /** Initializes the components.*/
-    private void initialize()
+    /** Initializes the components.
+     * 
+     * @param index The index indicating what to save.
+     */
+    private void initialize(int index)
     {
         activeWindow = true;
         cancelButton = new JButton("Cancel");
@@ -101,10 +105,15 @@ public class SaveResultsDialog
             }
         });
         roi = new JCheckBox("ROI");
-        roi.setSelected(true);
-        roi.setEnabled(false);
         table = new JCheckBox("Measurements");
-        table.setSelected(true);
+        if (index == SaveEvent.ALL) {
+            roi.setSelected(true);
+            table.setSelected(true);
+        } else if (index == SaveEvent.ROIS) {
+            roi.setSelected(true);
+        } else if (index == SaveEvent.RESULTS) {
+            table.setSelected(true);
+        }
     }
 
     /** Closes the dialog.*/
@@ -245,13 +254,14 @@ public class SaveResultsDialog
     /**
      * Creates a new instance.
      *
-     * @param parent The owner of the frame
+     * @param parent The owner of the frame.
+     * @param index The save index.
      */
-    public SaveResultsDialog(JFrame parent)
+    public SaveResultsDialog(JFrame parent, int index)
     {
         super(parent);
         setTitle("Save ImageJ results");
-        initialize();
+        initialize(index);
         buildGUI();
         pack();
     }

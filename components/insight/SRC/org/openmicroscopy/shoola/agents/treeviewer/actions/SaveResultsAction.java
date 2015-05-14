@@ -28,6 +28,7 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.util.SaveResultsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.event.SaveEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -51,6 +52,9 @@ public class SaveResultsAction
     /** The plugin this action is for.*/
     private int plugin;
 
+    /** Indicates what to save.*/
+    private int saveIndex;
+
     /**
      * Creates a new instance.
      *
@@ -62,12 +66,21 @@ public class SaveResultsAction
         super(model);
         setEnabled(true);
         this.plugin = plugin;
+        saveIndex = -1;
         if (plugin == LookupNames.IMAGE_J) {
             putValue(Action.NAME, NAME);
             putValue(Action.SHORT_DESCRIPTION,
                     UIUtilities.formatToolTipText(DESCRIPTION));
+            saveIndex = SaveEvent.ALL;
         }
     }
+
+    /**
+     * Sets the index indicating the data to save.
+     *
+     * @param index The indicate the data to save.
+     */
+    public void setSaveIndex(int index) { saveIndex = index; }
 
     /**
      * Brings up the dialog.
@@ -76,7 +89,7 @@ public class SaveResultsAction
     public void actionPerformed(ActionEvent e)
     {
         if (plugin == LookupNames.IMAGE_J) { 
-            SaveResultsDialog d = new SaveResultsDialog(model.getUI());
+            SaveResultsDialog d = new SaveResultsDialog(model.getUI(), saveIndex);
             UIUtilities.centerAndShow(d);
         }
     }
