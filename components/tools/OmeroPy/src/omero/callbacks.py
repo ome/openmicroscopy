@@ -122,7 +122,8 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         response = cb.loop(5, 500)
     """
 
-    def __init__(self, adapter_or_client, handle, category=None):
+    def __init__(self, adapter_or_client, handle, category=None,
+                 foreground_poll=True):
 
         if adapter_or_client is None:
             raise omero.ClientError("Null client")
@@ -140,10 +141,9 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         self.prx = self.adapter.add(self, self.id)  # OK ADAPTER USAGE
         self.prx = omero.cmd.CmdCallbackPrx.uncheckedCast(self.prx)
         handle.addCallback(self.prx)
+        self.initialPoll(foreground_poll)
 
-        self.initialPoll()
-
-    def initialPoll(self):
+    def initialPoll(self, foreground_poll=False):
         """
         Called at the end of construction to check a race condition.
 
@@ -155,8 +155,13 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         By default, this method starts a background thread and
         calls poll(). An Ice.ObjectNotExistException
         implies that another caller has already closed the
-        HandlePrx.
+        HandlePrx. By passing, foreground_poll=True, the poll()
+        invocation can be performed in the calling thread as in
+        5.1.0 and before.
         """
+        if foreground_poll:
+            return self.poll()
+
         class T(threading.Thread):
 
             def run(this):

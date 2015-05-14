@@ -3028,7 +3028,8 @@ def activities(request, conn=None, **kwargs):
                 try:
                     prx = omero.cmd.HandlePrx.checkedCast(
                         conn.c.ic.stringToProxy(cbString))
-                    callback = omero.callbacks.CmdCallbackI(conn.c, prx)
+                    callback = omero.callbacks.CmdCallbackI(
+                        conn.c, prx, foreground_poll=True)
                     rsp = callback.getResponse()
                     close_handle = False
                     try:
@@ -3085,10 +3086,12 @@ def activities(request, conn=None, **kwargs):
                 try:
                     handle = omero.cmd.HandlePrx.checkedCast(
                         conn.c.ic.stringToProxy(cbString))
-                    cb = omero.callbacks.CmdCallbackI(conn.c, handle)
+                    cb = omero.callbacks.CmdCallbackI(
+                        conn.c, handle, foreground_poll=True)
+                    rsp = cb.getResponse()
                     close_handle = False
                     try:
-                        if not cb.block(0):  # Response not available
+                        if not rsp:  # Response not available
                             update_callback(
                                 request, cbString,
                                 error=0,
