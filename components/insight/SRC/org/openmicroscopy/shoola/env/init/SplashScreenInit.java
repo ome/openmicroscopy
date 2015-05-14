@@ -172,7 +172,9 @@ public final class SplashScreenInit
             if (CommonsLangUtils.isNotBlank(jnlpSession)) {
                 uc = new UserCredentials(jnlpSession,
                         jnlpSession, jnlpHost, UserCredentials.HIGH);
-                uc.setPort(Integer.parseInt(jnlpPort));
+                try {
+                    uc.setPort(Integer.parseInt(jnlpPort));
+                } catch (Exception e) {}//use the default port.
             } else {
                 uc = splashScreen.getUserCredentials((max == index-1));
             }
