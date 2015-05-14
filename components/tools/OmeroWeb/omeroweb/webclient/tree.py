@@ -75,7 +75,11 @@ def parse_permissions_css(permissions, ownerid, conn):
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
     '''
-    restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete', 'isOwned')
+    restrictions = ('canEdit',
+                    'canAnnotate',
+                    'canLink',
+                    'canDelete',
+                    'isOwned')
     permissionsCss = [r for r in restrictions if permissions.get(r)]
     if ownerid == conn.getUserId() or conn.isAdmin():
         permissionsCss.append("canChgrp")
