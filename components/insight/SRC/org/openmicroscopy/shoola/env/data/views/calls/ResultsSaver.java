@@ -23,8 +23,12 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import ij.ImagePlus;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import omero.model.OriginalFile;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -36,6 +40,8 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
+
+import com.google.common.io.Files;
 
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -68,6 +74,30 @@ public class ResultsSaver
     /** The partial result.*/
     private Object result;
 
+    /**
+     * Create a temporary file
+     *
+     * @param img The image object to handle.
+     * @return See above.
+     */
+    private File createFile(ImagePlus img)
+    {
+        File dir = Files.createTempDir();
+        String name = "ImageJ-"+FilenameUtils.getBaseName(
+                FilenameUtils.removeExtension(img.getTitle()))+"-Results-";
+        name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        name += ".csv";
+        try {
+            File f = new File(dir, name);
+            dir.deleteOnExit();
+            return f;
+        } catch (Exception e) {
+            context.getLogger().error(this,
+                    "Cannot create file to save results"+e.getMessage());
+        }
+        return null;
+    }
+
     /** Create call to save the results.*/
     private void saveROIandTableResults()
     {
@@ -90,18 +120,7 @@ public class ResultsSaver
                     ImagePlus img = (ImagePlus) file.getFile();
                     rois = reader.readImageJROIFromSources(id, img);
                     //create a tmp file.
-                    File f = null;
-                    String name = FilenameUtils.getBaseName(
-                            FilenameUtils.removeExtension(img.getTitle()));
-                    try {
-                        f = File.createTempFile(name, ".csv");
-                        f.deleteOnExit();
-                        reader.readROIMeasurement(f);
-                    } catch (Exception e) {
-                        context.getLogger().error(this,
-                                "Cannot Save the ROIs results: "
-                                        +e.getMessage());
-                    }
+                    File f = createFile(img);
                     if (f != null) {
                         final String description = "Save ROIs Results";
                         final long imageID = id;
@@ -121,6 +140,8 @@ public class ResultsSaver
                                     context.getLogger().error(this,
                                             "Cannot Save the ROIs results: "
                                                     +e.getMessage());
+                                } finally {
+                                    fi.delete();
                                 }
                             }
                         });
@@ -148,18 +169,7 @@ public class ResultsSaver
                     ctx = new SecurityContext(file.getGroupID());
                     ImagePlus img = (ImagePlus) file.getFile();
                     //create a tmp file.
-                    File f = null;
-                    String name = FilenameUtils.getBaseName(
-                            FilenameUtils.removeExtension(img.getTitle()));
-                    try {
-                        f = File.createTempFile(name, ".csv");
-                        f.deleteOnExit();
-                        reader.readROIMeasurement(f);
-                    } catch (Exception e) {
-                        context.getLogger().error(this,
-                                "Cannot Save the ROIs results: "
-                                        +e.getMessage());
-                    }
+                    File f = createFile(img);
                     if (f != null) {
                         final String description = "Save ROIs Results";
                         final long imageID = id;
@@ -176,6 +186,8 @@ public class ResultsSaver
                                     context.getLogger().error(this,
                                             "Cannot Save the ROIs results: "
                                                     +e.getMessage());
+                                } finally {
+                                    fi.delete();
                                 }
                             }
                         });
