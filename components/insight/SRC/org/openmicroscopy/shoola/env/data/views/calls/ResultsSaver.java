@@ -28,8 +28,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import omero.model.OriginalFile;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
