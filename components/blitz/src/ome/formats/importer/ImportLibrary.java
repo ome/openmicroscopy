@@ -733,7 +733,11 @@ public class ImportLibrary implements IObservable
     private void checkManagedRepo() {
         if (repo == null) {
             throw new RuntimeException(
-                    "Cannot exclusively use the managed repository.");
+                    "Cannot exclusively use the managed repository.\n\n" +
+                    "Likely no ManagedRepositoryPrx is being returned from the server.\n" +
+                    "This could point to a recent server crash. Ask your server administrator\n" +
+                    "to check for stale .lock files under the OMERO data directory. This\n" +
+                    "is particularly likely on a server using NFS.\n");
         }
     }
 
