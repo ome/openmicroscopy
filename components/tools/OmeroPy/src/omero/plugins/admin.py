@@ -1439,7 +1439,8 @@ OMERO Diagnostics %s
                 for lock_file in lock_files:
                     self.ctx.err(lock_file)
                 self.ctx.err("-"*40)
-                self.ctx.err(("\n"
+                self.ctx.err((
+                    "\n"
                     "You may want to stop all server processes and remove\n"
                     "these files manually. Lock files can remain after an\n"
                     "abrupt server outage and are especially frequent on\n"
