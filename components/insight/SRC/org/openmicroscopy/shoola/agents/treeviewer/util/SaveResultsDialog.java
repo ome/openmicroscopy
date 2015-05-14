@@ -25,6 +25,7 @@ import ij.ImagePlus;
 import ij.WindowManager;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +43,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -104,8 +107,15 @@ public class SaveResultsDialog
                 save();
             }
         });
+        ChangeListener l = new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                saveButton.setEnabled(roi.isSelected() || table.isSelected());
+              }
+            };
         roi = new JCheckBox("ROI");
+        roi.addChangeListener(l);
         table = new JCheckBox("Measurements");
+        table.addChangeListener(l);
         if (index == SaveEvent.ALL) {
             roi.setSelected(true);
             table.setSelected(true);
