@@ -31,6 +31,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -519,6 +520,11 @@ public interface SqlAction {
     int changeGroupPermissions(Long id, Long internal);
 
     int changeTablePermissionsForGroup(String table, Long id, Long internal);
+
+    /**
+     * @return if the database's type system contains correctly encoded units of measure
+     */
+    boolean hasUnicodeUnits();
 
     /**
      * Add a unique message to the DB patch table within the current patch.
@@ -1118,6 +1124,20 @@ public interface SqlAction {
                 public Object mapRow(ResultSet arg0, int arg1) {
                     return null;
                 }});
+        }
+
+        @Override
+        public boolean hasUnicodeUnits() {
+            try {
+                _jdbc().query(_lookup("check_units"), new RowMapper<Object>() {
+                    @Override
+                    public Object mapRow(ResultSet rs, int rowNum) {
+                        return null;
+                    }});
+            } catch (DataAccessException dae) {
+                return false;
+            }
+            return true;
         }
 
         @Override
