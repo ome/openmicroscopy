@@ -79,7 +79,16 @@ extends ActivityComponent
      */
     protected void notifyActivityEnd()
     {
-        type.setText(DESCRIPTION_DONE);
+        if (results.isROI()) {
+            if (results.isTable()) {
+                type.setText("ROIs and Results Saved");
+            } else {
+                type.setText("ROIs Saved");
+            }
+        }
+        if (results.isTable()) {
+            type.setText("Results Saved");
+        }
     }
 
     /** 
