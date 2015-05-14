@@ -55,6 +55,8 @@ def get_perms(conn, object_type, object_id, object_owner_id, object_group_id,
         for r in restrictions:
             if getattr(perms_obj, r)():
                 perms[r] = True
+        if (obj.details.owner.id.val == conn.getUserId()):
+            perms['isOwned'] = True
 
         # Cache the result
         cache[(object_group_id.val, object_owner_id.val)] = perms
@@ -73,7 +75,7 @@ def parse_permissions_css(permissions, ownerid, conn):
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
     '''
-    restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
+    restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete', 'isOwned')
     permissionsCss = [r for r in restrictions if permissions.get(r)]
     if ownerid == conn.getUserId() or conn.isAdmin():
         permissionsCss.append("canChgrp")
