@@ -171,7 +171,20 @@ namespace omero {
                 {}
 
                 virtual void run() {
-                    callback->poll();
+                    try {
+                        callback->poll();
+                    } catch (...) {
+                        // don't throw any exceptions, e.g. if the
+                        // handle has already been closed.
+                        try {
+                            callback->onFinished(
+                                omero::cmd::ResponsePtr(),
+                                omero::cmd::StatusPtr(),
+                                Ice::Current());
+                        } catch (...) {
+                            // ditto
+                        }
+                    }
                 }
             private:
                 CmdCallbackIPtr callback;
@@ -221,6 +234,21 @@ namespace omero {
                     omero::cmd::State s);
 
             void doinit(std::string category);
+
+            /**
+             * Called at the end of construction to check a race condition.
+             *
+             * If HandlePrx finishes its execution before the
+             * CmdCallbackPrx has been sent set via addCallback,
+             * then there's a chance that this implementation will never
+             * receive a call to finished, leading to perceived hangs.
+             *
+             * By default, this method starts a background thread and
+             * calls poll(). An Ice::ObjectNotExistException
+             * implies that another caller has already closed the
+             * HandlePrx.
+             */
+            void initialPoll();
 
         public:
 

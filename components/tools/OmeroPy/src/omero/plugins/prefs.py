@@ -14,6 +14,7 @@
 """
 
 import sys
+import traceback
 
 from path import path
 from omero.cli import CLI
@@ -426,6 +427,7 @@ class PrefsControl(WriteableConfigControl):
         try:
             edit_path(temp_file, start_text)
         except RuntimeError, re:
+            self.ctx.dbg(traceback.format_exc())
             self.ctx.die(954, "%s: Failed to edit %s"
                          % (getattr(re, "pid", "Unknown"), temp_file))
         args.NAME = config.default()
