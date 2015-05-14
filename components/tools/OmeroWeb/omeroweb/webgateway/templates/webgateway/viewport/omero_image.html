@@ -616,7 +616,7 @@
       link = location.href.split(location.search)[0];   // handle trailing #
     }
     link = link.replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)#?$/,'$1');
-    link = link + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true);
+    link = link + viewport.getCurrentImgUrlPath() + '?' + viewport.getQuery(true, true, true);
     $('#curr-link input').attr('value', link);
     return false;
   }
