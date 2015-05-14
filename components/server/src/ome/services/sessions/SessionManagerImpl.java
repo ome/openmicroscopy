@@ -604,16 +604,17 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
     }
 
-    public Map<String, EventContext> getAll() {
+    public Map<String, Map<String, Object>> getSessionData() {
         final Collection<String> ids = cache.getIds();
-        final Map<String, EventContext> rv = new HashMap<String, EventContext>();
+        final Map<String, Map<String, Object>> rv
+            = new HashMap<String, Map<String, Object>>();
+
         for (String id : ids) {
             if (asroot.getName().equals(id)) {
                 continue; // DON'T INCLUDE ROOT SESSION
             }
             try {
-                SessionContext ctx = cache.getSessionContext(id, true);
-                rv.put(id,  new SimpleEventContext(ctx));
+                rv.put(id,  cache.getSessionData(id, true));
             } catch (RemovedSessionException rse) {
                 // Ok. Done for us
             } catch (SessionTimeoutException ste) {

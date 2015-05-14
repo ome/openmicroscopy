@@ -29,6 +29,8 @@ import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
+import ome.system.SimpleEventContext;
+import omero.RType;
 import omero.cmd.CurrentSessionsRequest;
 import omero.cmd.CurrentSessionsResponse;
 import omero.cmd.HandleI.Cancel;
@@ -38,6 +40,10 @@ import omero.cmd.Response;
 import omero.model.Session;
 import omero.util.IceMapper;
 import omero.util.ObjectFactoryRegistry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import Ice.Communicator;
 
 import com.google.common.collect.ImmutableMap;
@@ -45,6 +51,8 @@ import com.google.common.collect.ImmutableMap;
 @SuppressWarnings("serial")
 public class CurrentSessionsRequestI extends CurrentSessionsRequest
     implements IRequest {
+
+    private final Logger log = LoggerFactory.getLogger(CurrentSessionsRequestI.class);
 
     public static class Factory extends ObjectFactoryRegistry {
         private final ObjectFactory factory;
@@ -71,7 +79,7 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
 
     protected final SessionManager manager;
 
-    protected Map<String, EventContext> contexts;
+    protected Map<String, Map<String, Object>> contexts;
 
     public CurrentSessionsRequestI(CurrentDetails current,
             SessionManager manager) {
@@ -96,7 +104,7 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
     public Object step(int step) throws Cancel {
         helper.assertStep(step);
 
-        contexts = manager.getAll();
+        contexts = manager.getSessionData();
         if (contexts.isEmpty()) {
             return Collections.emptyList();
         }
@@ -111,10 +119,10 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         // no-op
     }
 
+    @SuppressWarnings("unchecked")
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
 
-        @SuppressWarnings("unchecked")
         List<ome.model.meta.Session> rv = (List<ome.model.meta.Session>) object;
         Map<String, Session> objects = new HashMap<String, Session>();
         IceMapper mapper = new IceMapper();
@@ -123,16 +131,21 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         }
 
         if (helper.isLast(step)) {
+            final int size = contexts.size();
             CurrentSessionsResponse rsp = new CurrentSessionsResponse();
-            rsp.sessions = new ArrayList<Session>(contexts.size());
-            rsp.contexts = new ArrayList<omero.sys.EventContext>(contexts.size());
-            for (Map.Entry<String, EventContext> entry : contexts.entrySet()) {
+            rsp.sessions = new ArrayList<Session>(size);
+            rsp.contexts = new ArrayList<omero.sys.EventContext>(size);
+            rsp.data = new Map[size];
+            int count = 0;
+            for (Map.Entry<String, Map<String, Object>> entry : contexts.entrySet()) {
                 String uuid = entry.getKey();
+                Map<String, Object> data = entry.getValue();
+                EventContext orig = new SimpleEventContext(
+                        (EventContext) data.get("sessionContext"));
                 Session s = objects.get(uuid);
                 rsp.sessions.add(s);
                 if (s == null) {
                     // Non-admin
-                    EventContext orig = entry.getValue();
                     omero.sys.EventContext ec = new omero.sys.EventContext();
                     rsp.contexts.add(ec);
                     ec.userId = orig.getCurrentUserId();
@@ -141,11 +154,35 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
                     ec.groupName = orig.getCurrentGroupName();
                     ec.isAdmin = orig.isCurrentUserAdmin();
                 } else {
-                    rsp.contexts.add(IceMapper.convert(entry.getValue()));
+                    rsp.contexts.add(IceMapper.convert(orig));
+                    rsp.data[count++] = parseData(rsp, data);
                 }
             }
             helper.setResponseIfNull(rsp);
         }
+    }
+
+    private Map<String, RType> parseData(CurrentSessionsResponse rsp, Map<String, Object> data) {
+        Map<String, RType> parsed = new HashMap<String, RType>();
+        for (Map.Entry<String, Object> entry2 : data.entrySet()) {
+            String key2 = entry2.getKey();
+            Object obj2 = entry2.getValue();
+            RType wrapped = null;
+            try {
+                if (key2.endsWith("Time")) {
+                    wrapped = omero.rtypes.rtime((Long)obj2);
+                } else {
+                    wrapped = omero.rtypes.wrap(obj2);
+                }
+            } catch (omero.ClientError ce) {
+                log.warn("Failed to convert {}", obj2, ce);
+                wrapped = omero.rtypes.rstring(obj2.toString());
+            }
+            parsed.put(key2, wrapped);
+        }
+        parsed.remove("sessionContext");
+        parsed.remove("class");
+        return parsed;
     }
 
     public Response getResponse() {

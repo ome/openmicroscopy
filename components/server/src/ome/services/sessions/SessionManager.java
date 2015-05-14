@@ -158,9 +158,10 @@ public interface SessionManager {
     List<Session> findByUserAndAgent(String user, String... agent);
 
     /**
-     * Return all sessions that are active.
+     * Return all sessions that are active with associated possibly varing
+     * session data information.
      */
-    Map<String, EventContext> getAll();
+    Map<String, Map<String, Object>> getSessionData();
 
     /**
      * If reference count for the session is less than 1, close the session.

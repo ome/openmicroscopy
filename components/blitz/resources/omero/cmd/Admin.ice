@@ -77,8 +77,25 @@ module omero {
          * those belonging to that user will be nulled.
          **/
         class CurrentSessionsResponse extends Response {
+
+            /**
+             * [omero::model::Session] objects loaded from
+             * the database.
+             **/
             omero::api::SessionList sessions;
+
+            /**
+             * [omero::sys::EventContext] objects stored in
+             * memory by the server.
+             **/
             omero::api::EventContextList contexts;
+
+            /**
+             * Other session state which may vary based on
+             * usage. This may include "hitCount", "lastAccess",
+             * and similar metrics.
+             **/
+            omero::api::RTypeDictArray data;
         };
 
     };

@@ -705,12 +705,36 @@ class SessionsControl(BaseControl):
             finally:
                 cb.close(True)
 
-            headers = ("name", "group", "logged in", "agent", "timeout")
+            headers = ["name", "group", "logged in", "agent", "timeout"]
+            extra = set()
             results = {"name": [], "group": [],
                        "logged in": [], "agent": [],
                        "timeout": []}
+
+            # Preparse data to find extra columns
+            for idx, s in enumerate(rsp.sessions):
+                for k in rsp.data[idx].keys():
+                    extra.add(k)
+            for add in sorted(extra):
+                headers.append(add)
+                results[add] = []
+
             for idx, s in enumerate(rsp.sessions):
                 ec = rsp.contexts[idx]
+                data = unwrap(rsp.data[idx])
+                # Handle missing keys
+                for k in extra:
+                    if k not in data.keys():
+                        results[k].append("---")
+                for k, v in sorted(data.items()):
+                    try:
+                        if k.endswith("Time"):
+                            t = v / 1000.0
+                            t = time.localtime(t)
+                            v = time.strftime('%Y-%m-%d %H:%M:%S', t)
+                    except:
+                        pass
+                    results[k].append(v)
                 results["name"].append(ec.userName)
                 results["group"].append(ec.groupName)
                 if s is not None:
