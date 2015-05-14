@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /** 
  * Does some configuration required for the initialization process to run.
@@ -155,7 +156,6 @@ public final class SplashScreenInit
         	splashScreen.close();
         	return;
         }
-        
         LoginConfig cfg = new LoginConfig(reg);
         int max = cfg.getMaxRetry();
         LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);
@@ -164,8 +164,18 @@ public final class SplashScreenInit
         UserCredentials uc;
         UserNotifier un = UIFactory.makeUserNotifier(container);
 
+        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
+        String jnlpHost = System.getProperty("jnlp.omero.host");
+        String jnlpPort = System.getProperty("jnlp.omero.port");
+        
         while (0 < max--) {
-            uc = splashScreen.getUserCredentials((max == index-1));
+            if (CommonsLangUtils.isNotBlank(jnlpSession)) {
+                uc = new UserCredentials(jnlpSession,
+                        jnlpSession, jnlpHost, UserCredentials.HIGH);
+                uc.setPort(Integer.parseInt(jnlpPort));
+            } else {
+                uc = splashScreen.getUserCredentials((max == index-1));
+            }
             //needed b/c need to retrieve user's details later.
             reg.bind(LookupNames.USER_CREDENTIALS, uc);
 

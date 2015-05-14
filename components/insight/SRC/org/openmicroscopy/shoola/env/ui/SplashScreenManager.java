@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 
 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -213,6 +214,10 @@ class SplashScreenManager
      */
     private boolean connectToServer()
     {
+        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
+        if (CommonsLangUtils.isNotBlank(jnlpSession)) {
+            return false;
+        }
     	Integer v = (Integer) container.getRegistry().lookup(
 				LookupNames.ENTRY_POINT);
 		if (v != null) {
