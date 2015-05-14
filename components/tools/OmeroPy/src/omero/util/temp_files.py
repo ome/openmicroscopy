@@ -131,20 +131,21 @@ class TempFileManager(object):
         """
         locktest = None
 
-        # List target base directories by order of precedence
-        targets = []
-        custom_tmpdir = os.environ.get('OMERO_TEMPDIR', None)
-        if custom_tmpdir:
+        # Handle deprecated OMERO_TEMPDIR environment variable
+        default_tmpdir = None
+        custom_tmpdir_deprecated = os.environ.get('OMERO_TEMPDIR', None)
+        if custom_tmpdir_deprecated:
             import warnings
             warnings.warn(
                 "OMERO_TEMPDIR is deprecated. Use OMERO_TMPDIR instead.",
                 DeprecationWarning)
-            targets.append(path(custom_tmpdir) / "omero" / "tmp")
-        else:
-            custom_tmpdir = os.environ.get('OMERO_TMPDIR', None)
-            if custom_tmpdir:
-                targets.append(path(custom_tmpdir))
+            default_tmpdir = path(custom_tmpdir_deprecated) / "omero" / "tmp"
 
+        # List target base directories by order of precedence
+        targets = []
+        custom_tmpdir = os.environ.get('OMERO_TMPDIR', default_tmpdir)
+        if custom_tmpdir:
+            targets.append(path(custom_tmpdir))
         targets.append(get_omero_userdir() / "tmp")
         targets.append(path(tempfile.gettempdir()) / "omero" / "tmp")
 
