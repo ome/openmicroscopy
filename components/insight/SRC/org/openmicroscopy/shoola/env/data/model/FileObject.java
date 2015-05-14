@@ -208,6 +208,28 @@ public class FileObject
     public boolean isGenerated() { return generated; }
 
     /**
+     * Returns <code>true</code> if it is a new image from ImageJ,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isNewImage()
+    {
+        if (file instanceof ImagePlus) {
+            ImagePlus img = (ImagePlus) file;
+            if (img.changes) return true;
+            FileInfo info = img.getOriginalFileInfo();
+            if (info == null) {
+                info = img.getFileInfo();
+                String name = info.fileName;
+                if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
+                    return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Returns the file to import.
      *
      * @return See above.
