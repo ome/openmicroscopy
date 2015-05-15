@@ -150,10 +150,22 @@
 
 
     window.imageChange = function (viewport) {
-        $('#wblitz-t-curr').html(viewport.getTPos());
-        $('#wblitz-z-curr').html(viewport.getZPos());
+        var newZ = viewport.getZPos(),
+            oldZ = $('#wblitz-z-curr').html(),
+            newT = viewport.getTPos(),
+            oldT = $('#wblitz-t-curr').html(),
+            zChanged = (oldZ != '?' && oldZ != newZ),
+            tChanged = (oldT != '?' && oldT != newT);
+        $('#wblitz-t-curr').html(newZ);
+        $('#wblitz-z-curr').html(newZ);
         $('#wblitz-t-count').html(viewport.getTCount());
         $('#wblitz-z-count').html(viewport.getZCount());
+
+        // Z/T change enables Save button
+        var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
+        if ((zChanged || tChanged) && canSaveRdef) {
+            $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
+        }
 
         if (viewport.hasLinePlot() || $('#wblitz-lp-enable').prop('checked')) {
             viewport.refreshPlot();
