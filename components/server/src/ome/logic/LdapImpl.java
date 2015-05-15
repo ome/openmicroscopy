@@ -507,7 +507,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                     false);
             long uid = provider.createExperimenter(exp, grp1, grpOther);
             for (Long toBeOwned : ownerOfGroups) {
-                provider.setGroupOwner(exp,
+                provider.setGroupOwner(
+                        new Experimenter(uid, false),
                         new ExperimenterGroup(toBeOwned, false), true);
             }
             return iQuery.get(Experimenter.class, uid);
