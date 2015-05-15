@@ -2820,7 +2820,7 @@ def basket_action(request, action=None, conn=None, **kwargs):
             template = "webclient/basket/basket_share_action.html"
             context = {'form': form}
     elif action == "todiscuss":
-        template = "webclient/basket/basket_discussion_action.html"
+        template = "webclient/basket/basket_share_action.html"
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
@@ -2848,7 +2848,7 @@ def basket_action(request, action=None, conn=None, **kwargs):
             share.createDiscussion(host, message, members, enable, expiration)
             return HttpResponse("success")
         else:
-            template = "webclient/basket/basket_discussion_action.html"
+            template = "webclient/basket/basket_share_action.html"
             context = {'form': form}
     else:
         template = kwargs.get("template", "webclient/basket/basket.html")
