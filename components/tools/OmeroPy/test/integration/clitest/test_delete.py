@@ -294,3 +294,79 @@ class TestDelete(CLITest):
             assert not self.query.find('Image', i.id.val)
         for d in ds:
             assert not self.query.find('Dataset', d.id.val)
+
+    # These tests check the default exclusion of the annotations:
+    # FileAnnotation, TagAnnotation and TermAnnotation
+
+    def testDefaultExclusion(self):
+        img = self.update.saveAndReturnObject(self.new_image())
+        fa = self.make_file_annotation()
+        tag = self.make_tag()
+
+        self.link(img, fa)
+        self.link(img, tag)
+
+        self.args += ['Image:%s' % img.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that the image has been deleted,
+        # but that both annotations have not been deleted.
+        assert not self.query.find('Image', img.id.val)
+        assert self.query.find('FileAnnotation', fa.id.val)
+        assert self.query.find('TagAnnotation', tag.id.val)
+
+    def testDefaultExclusionOverride(self):
+        img = self.update.saveAndReturnObject(self.new_image())
+        fa = self.make_file_annotation()
+        tag = self.make_tag()
+
+        self.link(img, fa)
+        self.link(img, tag)
+
+        self.args += ['Image:%s' % img.id.val]
+        self.args += ['--include', 'Annotation']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that the image has been deleted,
+        # and both annotations have been deleted.
+        assert not self.query.find('Image', img.id.val)
+        assert not self.query.find('FileAnnotation', fa.id.val)
+        assert not self.query.find('TagAnnotation', tag.id.val)
+
+    def testDefaultExclusionPartialOverride(self):
+        img = self.update.saveAndReturnObject(self.new_image())
+        fa = self.make_file_annotation()
+        tag = self.make_tag()
+
+        self.link(img, fa)
+        self.link(img, tag)
+
+        self.args += ['Image:%s' % img.id.val]
+        self.args += ['--include', 'FileAnnotation']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that the image has been deleted,
+        # and both annotations have been deleted.
+        assert not self.query.find('Image', img.id.val)
+        assert not self.query.find('FileAnnotation', fa.id.val)
+        assert self.query.find('TagAnnotation', tag.id.val)
+
+    def testSeparateAnnotationDelete(self):
+        img = self.update.saveAndReturnObject(self.new_image())
+        fa = self.make_file_annotation()
+        fa2 = self.make_file_annotation()
+        tag = self.make_tag()
+
+        self.link(img, fa)
+        self.link(img, tag)
+
+        self.args += ['Image:%s' % img.id.val]
+        self.args += ['Annotation:%s' % fa2.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that the image has been deleted and annotation, fa2,
+        # but that both of the other annotations have not been deleted.
+        assert not self.query.find('Image', img.id.val)
+        assert self.query.find('FileAnnotation', fa.id.val)
+        assert self.query.find('TagAnnotation', tag.id.val)
+        assert not self.query.find('FileAnnotation', fa2.id.val)
