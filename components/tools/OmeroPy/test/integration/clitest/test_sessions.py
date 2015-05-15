@@ -22,7 +22,6 @@
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
-from omero import SecurityViolation
 import pytest
 
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
