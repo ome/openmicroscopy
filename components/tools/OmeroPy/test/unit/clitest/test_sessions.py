@@ -96,17 +96,15 @@ class TestSessions(object):
         store = self.cli.controls['sessions'].store(args)
         # By order of precedence
         if environment.get('OMERO_SESSIONDIR'):
-            assert store.dir == (
-                path(tmpdir) / environment.get('OMERO_SESSIONDIR'))
+            sdir = path(tmpdir) / environment.get('OMERO_SESSIONDIR')
         elif environment.get('OMERO_SESSION_DIR'):
-            assert store.dir == (
-                path(tmpdir) / environment.get('OMERO_SESSION_DIR') /
-                'omero' / 'sessions')
+            sdir = (path(tmpdir) / environment.get('OMERO_SESSION_DIR') /
+                    'omero' / 'sessions')
+            pytest.deprecated_call(self.cli.controls['sessions'].store, args)
         elif session_args:
-            assert store.dir == (
-                path(getattr(args, session_args) / 'omero' / 'sessions'))
+            sdir = path(getattr(args, session_args)) / 'omero' / 'sessions'
         elif environment.get('OMERO_USERDIR'):
-            assert store.dir == (
-                path(tmpdir) / environment.get('OMERO_USERDIR') / 'sessions')
+            sdir = path(tmpdir) / environment.get('OMERO_USERDIR') / 'sessions'
         else:
-            assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
+            sdir = path(get_user_dir()) / 'omero' / 'sessions'
+        assert store.dir == sdir

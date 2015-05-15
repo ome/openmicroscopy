@@ -165,6 +165,7 @@ class TestTempFileManager(object):
                 monkeypatch.delenv(var, raising=False)
 
         if environment.get('OMERO_TEMPDIR'):
+            pytest.deprecated_call(manager.tmpdir)
             tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
         elif environment.get('OMERO_TMPDIR'):
             tdir = tmpdir / environment.get('OMERO_TMPDIR')
