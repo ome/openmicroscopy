@@ -186,7 +186,6 @@ class SplashScreenManager
     	    configurable = false;
     	}
         String jnlpPort = System.getProperty("jnlp.omero.port");
-        
         if (CommonsLangUtils.isNotBlank(jnlpPort)) {
             port = jnlpPort;
             p = Integer.parseInt(port);
