@@ -39,7 +39,7 @@ import omero.scripts
 
 from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
-from omero.cmd import Chmod2
+from omero.cmd import Chmod
 
 from omero.gateway import TagAnnotationWrapper, AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
@@ -1452,9 +1452,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         """
 
         perms = str(permissions)
-        logger.debug("Chmod2 of group ID: %s to %s" % (group.id, perms))
-        command = Chmod2(targetObjects={'ExperimenterGroup': [group.id]},
-                         permissions=perms)
+        logger.debug("Chmod of group ID: %s to %s" % (group.id, perms))
+        command = Chmod(type="/ExperimenterGroup",
+                        id=group.id,
+                        permissions=perms)
         cb = self.c.submit(command)
         cb.close(True)
 
