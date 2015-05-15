@@ -295,6 +295,17 @@ class TestDelete(CLITest):
         for d in ds:
             assert not self.query.find('Dataset', d.id.val)
 
+    # Test dry-run option
+    def testDryRun(self):
+        img = self.update.saveAndReturnObject(self.new_image())
+
+        self.args += ['Image:%s' % img.id.val]
+        self.args += ['--dry-run']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that the image has not been deleted,
+        assert self.query.find('Image', img.id.val)
+
     # These tests check the default exclusion of the annotations:
     # FileAnnotation, TagAnnotation and TermAnnotation
 
