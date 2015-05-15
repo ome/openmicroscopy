@@ -100,7 +100,10 @@ Test Delete Images in Share
     Click Element                               create_share
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Robot Test Delete Images in Share
-    Select From List                            id_members      1
+    # Select first user with Chosen plugin
+    Click Element                               xpath=//div[@id='id_members_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element                 xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
     Submit Form                                 create_share_form
     Wait Until Page Contains Element            id=Public
     # Wait Until Page Contains Element          xpath=//div[@id='dataTree']//li[@rel='share']/a
