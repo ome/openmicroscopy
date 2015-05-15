@@ -81,17 +81,21 @@ Test Basket Share
     Click Element                               create_share
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Created via Selenium Test
-    Select From List                            id_members      1
+
+    Click Element                               xpath=//div[@id='id_members_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element                 xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
+
     Submit Form                                 create_share_form
     Wait Until Page Contains Element            id=Public
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
-    # Test Editing of Share. NB: Adding a Comment to Share is currently broken.
+    # Test Editing of Share.
     Wait Until Page Contains Element            id=edit_share
     Click Element                               id=edit_share
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Edited Share Message
-    Submit Form                                 edit_share_form
+    Click Dialog Button                         Accept
     Wait Until Page Contains                    Edited Share Message
     # Add Comment
     Input Text                                  id_comment      New Discussion Comment
@@ -108,7 +112,11 @@ Test Discussion
     # Can't Use IDs for form fields because they are not unique. Page also contains #create_share_form with these fields.
     Wait Until Page Contains Element            css=#create_discussion_form textarea    10
     Input Text                                  css=#create_discussion_form textarea    Created via Selenium Test
-    Select From List                            css=#create_discussion_form select      1
+
+    Click Element                               xpath=//div[@id='id_members_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element                 xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
+
     Submit Form                                 create_discussion_form
     # Click Element                               css=div.ui-dialog-buttonset:visible button:first
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion']/a    60
@@ -118,7 +126,7 @@ Test Discussion
     Click Element                               id=edit_share
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Edited Discussion Message
-    Submit Form                                 edit_share_form
+    Click Dialog Button                         Accept
     # Bug - right panel does not refresh on it's own. Need to click the discussion in tree again
     Go To                                       ${WELCOME URL}public/
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion']/a    60
