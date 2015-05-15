@@ -7512,7 +7512,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         q = self._conn.getQueryService()
         params = omero.sys.ParametersI()
         params.addId(self.getId())
-        query = "select lc.name, lc.emissionWave, lc.id "\
+        query = "select lc.name, lc.emissionWave, chan.id "\
                 "from LogicalChannel lc, Channel chan, Image img "\
                 "where chan.logicalChannel = lc "\
                 "and chan.pixels.image = img "\
@@ -7520,10 +7520,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         res = q.projection(query, params, self._conn.SERVICE_OPTS)
         ret = []
         for name, emissionWave, idx in res:
-            label = (name and name.val) or\
-                    (emissionWave and emissionWave.val) or\
-                    (idx and idx.val) or -1
-            ret.append(label)
+            if name is not None and len(name.val.strip()) > 0:
+                ret.append(name.val)
+            elif emissionWave is not None and\
+                    len(unicode(emissionWave.val).strip()) > 0:
+                ret.append(unicode(emissionWave.val))
+            else:
+                ret.append(unicode(idx.val))
         return ret
 
     @assert_re()
