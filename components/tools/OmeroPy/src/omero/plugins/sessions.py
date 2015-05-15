@@ -144,6 +144,16 @@ GROUPHELP = """
 If any current services are open, the command will fail.
 """
 
+WHOHELP = """
+Administrators will receive a list of all active sessions
+along with critical information on last activity. This is
+useful for determining whether or not the server can be
+restarted.
+
+Other users will only see a list of names, i.e. users who
+can be considered "online".
+"""
+
 
 class SessionsControl(BaseControl):
 
@@ -213,7 +223,7 @@ class SessionsControl(BaseControl):
             help="Do not remove inactive sessions")
 
         parser.add(sub, self.who, (
-            "List all active server sessions (admin-only)"))
+            "List all active server sessions\n\n" + WHOHELP))
 
         keepalive = parser.add(
             sub, self.keepalive, "Keeps the current session alive")
