@@ -51,6 +51,13 @@ class DeleteControl(GraphControl):
                 for i in rsp.deletedObjects[k]:
                     self.ctx.out("%s:%s" % (k, i))
 
+    def default_exclude(self):
+        """
+        Don't delete these three types of Annotation by default
+        """
+        return ["TagAnnotation", "TermAnnotation", "FileAnnotation"]
+
+
 try:
     register("delete", DeleteControl, HELP)
 except NameError:
