@@ -102,7 +102,7 @@ class TestDelete(CLITest):
         for i in images:
             assert self.query.get('Image', i.id.val) is not None
 
-    def testFilesetAllImagesMoveDataset(self):
+    def testFilesetAllImagesDeleteDataset(self):
         images = self.importMIF(2)  # 2 images sharing a fileset
         dataset_id = self.create_object('Dataset')  # ... in a dataset
 
