@@ -72,9 +72,10 @@ class TestServices (object):
         try:
             # Make the group writable so Author can delete the annotation
             g = img.details.group
+            chmod = omero.cmd.Chmod2(
+                targetObjects={'ExperimenterGroup': [g.id.val]})
             perms = str(img.details.permissions)
-            chmod = omero.cmd.Chmod(
-                type="/ExperimenterGroup", id=g.id.val, permissions='rwrw--')
+            chmod.permissions = 'rwrw--'
             gatewaywrapper.gateway.c.submit(chmod)
             img = gatewaywrapper.gateway.getObject('image', imgid)
             g = img.details.group
@@ -96,9 +97,8 @@ class TestServices (object):
             # annotation that author can't delete, so kill is as admin
             img = gatewaywrapper.gateway.getObject('image', imgid)
             img.removeAnnotations(self.TESTANN_NS)
-            # Revert group permissions and remove user from group
-            chmod = omero.cmd.Chmod(
-                type="/ExperimenterGroup", id=g.id.val, permissions=perms)
+            # Revert group permissions
+            chmod.permissions = perms
             gatewaywrapper.gateway.c.submit(chmod)
 
 
