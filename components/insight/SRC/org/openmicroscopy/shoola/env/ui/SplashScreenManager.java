@@ -178,20 +178,27 @@ class SplashScreenManager
     	int p = -1;
     	String port = ""+ info.getPortSSL();
     	String host = info.getHostName();
+    	boolean configurable = info.isHostNameConfigurable();
     	//check if we have jnlp option
     	String jnlpHost = System.getProperty("jnlp.omero.host");
     	if (CommonsLangUtils.isNotBlank(jnlpHost)) {
     	    host = jnlpHost;
+    	    configurable = false;
     	}
         String jnlpPort = System.getProperty("jnlp.omero.port");
-        boolean configurable = info.isHostNameConfigurable();
+        
         if (CommonsLangUtils.isNotBlank(jnlpPort)) {
             port = jnlpPort;
             p = Integer.parseInt(port);
             configurable = false;
         }
+        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
+        boolean serverAvailable = connectToServer();
+        if (CommonsLangUtils.isNotBlank(jnlpSession)) {
+            serverAvailable = false;
+        }
     	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port,
-    			host, connectToServer());
+    			host, serverAvailable);
     	view.setEncryptionConfiguration(info.isEncrypted(),
     			info.isEncryptedConfigurable());
     	view.setHostNameConfiguration(host, configurable, p);
@@ -214,10 +221,6 @@ class SplashScreenManager
      */
     private boolean connectToServer()
     {
-        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
-        if (CommonsLangUtils.isNotBlank(jnlpSession)) {
-            return false;
-        }
     	Integer v = (Integer) container.getRegistry().lookup(
 				LookupNames.ENTRY_POINT);
 		if (v != null) {
@@ -328,7 +331,9 @@ class SplashScreenManager
 		if (doneTasks == totalTasks) {
 			view.setStatusVisible(false, lc == null);
 			if (lc == null) view.requestFocusOnField();
-			if (!connectToServer()) view.setVisible(false);
+			if (!connectToServer()) {
+			    view.setVisible(false);
+			}
 		}
 	}
     

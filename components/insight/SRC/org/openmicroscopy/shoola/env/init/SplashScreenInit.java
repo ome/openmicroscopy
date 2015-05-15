@@ -152,6 +152,7 @@ public final class SplashScreenInit
 		    b = v.intValue() == LookupNames.INSIGHT_ENTRY ||
 	                    v.intValue() == LookupNames.IMPORTER_ENTRY;
 		}
+		
         if (!b) {
         	splashScreen.close();
         	return;
@@ -163,13 +164,13 @@ public final class SplashScreenInit
         int index = max;
         UserCredentials uc;
         UserNotifier un = UIFactory.makeUserNotifier(container);
-
-        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
         String jnlpHost = System.getProperty("jnlp.omero.host");
         String jnlpPort = System.getProperty("jnlp.omero.port");
-        
+        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
+        boolean jnlp = false;
         while (0 < max--) {
             if (CommonsLangUtils.isNotBlank(jnlpSession)) {
+                jnlp = true;
                 uc = new UserCredentials(jnlpSession,
                         jnlpSession, jnlpHost, UserCredentials.HIGH);
                 try {
@@ -193,6 +194,7 @@ public final class SplashScreenInit
 					if (max != 0) {
 						loginSvc.notifyLoginFailure();
 						splashScreen.onLoginFailure();
+						jnlpSession = null;
 		        	} else if (max == 0) {
 		        		//Exit if we couldn't manage to log in.
 		        		 un.notifyError("Login Failure", 
