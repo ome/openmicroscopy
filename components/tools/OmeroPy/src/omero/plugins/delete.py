@@ -27,6 +27,8 @@ Examples:
 
 """
 
+EXCLUDED_PACKAGES = ["ome.model.display"]
+
 
 class DeleteControl(GraphControl):
 
@@ -45,11 +47,13 @@ class DeleteControl(GraphControl):
             self.print_delete_response(rsp)
 
     def print_delete_response(self, rsp):
+        self.ctx.out("Deleted objects")
         for k in rsp.deletedObjects.keys():
             if rsp.deletedObjects[k]:
-                self.ctx.out("Deleted %s objects" % k)
-                for i in rsp.deletedObjects[k]:
-                    self.ctx.out("%s:%s" % (k, i))
+                for excl in EXCLUDED_PACKAGES:
+                    if not k.startswith(excl):
+                        ids = ','.join(map(str, rsp.deletedObjects[k]))
+                        self.ctx.out("%s:%s" % (k, ids))
 
 try:
     register("delete", DeleteControl, HELP)
