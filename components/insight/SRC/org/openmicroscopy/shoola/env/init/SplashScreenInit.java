@@ -86,8 +86,6 @@ public final class SplashScreenInit
 	void configure()
 	{
         initializer.register(this);
-		//splashScreen = UIFactory.makeSplashScreen(container);
-		//splashScreen.open();
 	}
 
 	/** 
@@ -116,7 +114,6 @@ public final class SplashScreenInit
 	 */
 	public void onStart(int totalTasks)
 	{
-		//splashScreen.setTotalTasks(totalTasks);
 		this.totalTasks = totalTasks;
 	}
 
@@ -167,10 +164,8 @@ public final class SplashScreenInit
         String jnlpHost = System.getProperty("jnlp.omero.host");
         String jnlpPort = System.getProperty("jnlp.omero.port");
         String jnlpSession = System.getProperty("jnlp.omero.sessionid");
-        boolean jnlp = false;
         while (0 < max--) {
             if (CommonsLangUtils.isNotBlank(jnlpSession)) {
-                jnlp = true;
                 uc = new UserCredentials(jnlpSession,
                         jnlpSession, jnlpHost, UserCredentials.HIGH);
                 try {
