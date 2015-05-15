@@ -170,6 +170,12 @@ public class UpdateSessionTimeoutRequestI extends UpdateSessionTimeoutRequest
         long diff = target - current;
         if (!isAdmin && diff > 0) {
             throw helper.cancel(new ERR(), null, "non-admin-increase",
+                    "field", field,
+                    "target", ""+target,
+                    "current", ""+current);
+        } else if (!isAdmin && target <= 0) {
+            throw helper.cancel(new ERR(), null, "non-admin-disabling",
+                    "field", field,
                     "target", ""+target,
                     "current", ""+current);
         }
