@@ -201,10 +201,14 @@ jQuery.fn.viewportImage = function(options) {
     };
 
     this.setPixelated = function (pixelated) {
+      // Handle images for regular viewer and big image viewer
+      var $tiledViewer = $(".viewer", wrapdiv);
       if (pixelated) {
         image.addClass("pixelated");
+        $tiledViewer.addClass("pixelated");
       } else {
         image.removeClass("pixelated");
+        $tiledViewer.removeClass("pixelated");
       }
     };
 
