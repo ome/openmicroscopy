@@ -1821,7 +1821,7 @@ class ImViewerModel
 	{
             RndProxyDef rndDef = null;
             Renderer rnd = metadataViewer.getRenderer();
-            if (rnd != null && rnd.isModified()) {
+            if (rnd != null && rnd.isModified(false)) {
                 rndDef = rnd.getRndSettingsCopy();
             }
             

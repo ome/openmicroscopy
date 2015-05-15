@@ -96,6 +96,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.event.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -2701,10 +2702,27 @@ class EditorModel
 	    	} else if (refObject instanceof ExperimenterData) {
 	    		fireExperimenterPhotoLoading();
 	    	}
-	    	if (renderer != null) {
-	    		renderer.discard();
-	    		renderer = null;
-	    	}
+            if (renderer != null) {
+                try {
+                    // save Z/T changes (only Z/T, therefore call discardChanges
+                    // beforehand)
+                    if (renderer.isModified(false))
+                        renderer.discardChanges();
+                    if (renderer.isModified(true)) {
+                        renderer.saveCurrentSettings();
+                        MetadataViewerAgent
+                                .getRegistry()
+                                .getEventBus()
+                                .post(new ReloadThumbsEvent(renderer
+                                        .getRefImage().getId()));
+                    }
+                } catch (Exception e) {
+                    MetadataViewerAgent.getRegistry().getLogger()
+                            .warn(this, "Could not save rendering settings");
+                }
+                renderer.discard();
+                renderer = null;
+            }
 	    }
 	} 
 

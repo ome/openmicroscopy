@@ -1299,11 +1299,6 @@ class TreeViewerControl
 			model.showTagWizard();
 		} else if (DataBrowser.FIELD_SELECTED_PROPERTY.equals(name)) {
 			model.setSelectedField(pce.getNewValue());
-		} else if (MetadataViewer.RENDER_THUMBNAIL_PROPERTY.equals(name)) {
-			long imageID = ((Long) pce.getNewValue()).longValue();
-			List<Long> ids = new ArrayList<Long>(1);
-			ids.add(imageID);
-			view.reloadThumbnails(ids);
 		} else if (MetadataViewer.APPLY_SETTINGS_PROPERTY.equals(name)) {
 			Object object = pce.getNewValue();
 			if (object instanceof ImageData) {

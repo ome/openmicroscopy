@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -79,6 +79,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -1242,9 +1243,7 @@ class MetadataViewerComponent
 			}
 			
 			if (imageID >= 0 && model.canAnnotate()) {
-				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
-				// reload the viewedby thumbnails after new rendering settings were applied
-				model.fireViewedByLoading();
+			    MetadataViewerAgent.getRegistry().getEventBus().post(new ReloadThumbsEvent(imageID));
 			}
 		}
 	}

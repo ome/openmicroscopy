@@ -526,6 +526,14 @@ public interface Renderer
     RndProxyDef saveCurrentSettings()
             throws RenderingServiceException, DSOutOfServiceException;
 
+    /**
+     * Discards the changes to the rendering settings
+     * (apart from Z/T changes)
+     * @throws DSOutOfServiceException 
+     * @throws RenderingServiceException 
+     */
+    void discardChanges() throws RenderingServiceException, DSOutOfServiceException;
+    
     /** Fires a property to indicate to save the settings. */
     void saveSettings();
 
@@ -794,10 +802,10 @@ public interface Renderer
     /**
      * Returns <code>true</code> if the rendering settings 
      * have been modified
-     *
+     * @param checkPlane Take Z/T changes into account
      * @return See above.
      */
-    boolean isModified();
+    boolean isModified(boolean checkPlane);
     
     /**
      * Enables/Disables the paste action
