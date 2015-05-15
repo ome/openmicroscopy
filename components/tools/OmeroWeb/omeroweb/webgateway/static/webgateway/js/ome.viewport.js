@@ -975,6 +975,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
   };
 
+  // bookmarks were previously set and used when rdef dialog
+  // was hidden and show. Not used currently.
   this.bookmark_channels = function () {
     channels_bookmark = channels_undo_stack_ptr+1;
   };
