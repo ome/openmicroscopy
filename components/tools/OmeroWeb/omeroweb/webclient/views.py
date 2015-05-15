@@ -3477,12 +3477,12 @@ def script_ui(request, scriptId, conn=None, **kwargs):
             i["list"] = True
             if "default" in i:
                 i["default"] = i["default"][0]
-        elif isinstance(pt.__class__, bool):
+        elif isinstance(pt, bool):
             i["boolean"] = True
-        elif isinstance(pt.__class__, int) or isinstance(pt.__class__, long):
+        elif isinstance(pt, int) or isinstance(pt, long):
             # will stop the user entering anything other than numbers.
             i["number"] = "number"
-        elif isinstance(pt.__class__, float):
+        elif isinstance(pt, float):
             i["number"] = "float"
 
         # if we got a value for this key in the page request, use this as
