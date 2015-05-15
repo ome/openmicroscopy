@@ -39,7 +39,8 @@ import omero.gateway
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
-from omero.model import Annotation, FileAnnotationI, OriginalFileI
+from omero.model import Annotation, FileAnnotationI, TagAnnotationI
+from omero.model import OriginalFileI
 from omero.model import DimensionOrderI, PixelsI, PixelsTypeI
 from omero.model import Experimenter, ExperimenterI
 from omero.model import ExperimenterGroup, ExperimenterGroupI
@@ -798,6 +799,13 @@ class ITest(object):
         """
         return self.new_object(DatasetI, name=name, description=description)
 
+    def new_tag(self, name=None):
+        """
+        Creates a new tag object.
+        :param name: The tag name. If None, a UUID string will be used
+        """
+        return self.new_object(TagAnnotationI, name=name)
+
     def make_image(self, name=None, description=None, date=0, client=None):
         """
         Creates a new image instance and returns the persisted object.
@@ -834,6 +842,17 @@ class ITest(object):
             client = self.client
         dataset = self.new_dataset(name=name, description=description)
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
+
+    def make_tag(self, name=None, client=None):
+        """
+        Creates a new tag instance and returns the persisted object.
+        :param name: The tag name. If None, a UUID string will be used
+        :param client: The client to use to create the object
+        """
+        if client is None:
+            client = self.client
+        tag = self.new_tag(name=name)
+        return client.sf.getUpdateService().saveAndReturnObject(tag)
 
     def createDatasets(self, count, baseName, client=None):
         """
