@@ -701,6 +701,8 @@ present, the user will enter a console""")
         if 0 == self.status(args, node_only=True):
             self.ctx.die(876, "Server already running")
 
+        self.check_lock(config=config)
+
         self._initDir()
         # Do a check to see if we've started before.
         self._regdata()
@@ -969,12 +971,7 @@ present, the user will enter a console""")
     def diagnostics(self, args, config):
         self.check_access(os.R_OK)
         memory = self.jvmcfg(args, config, verbose=False)
-        config = config.as_map()
-        omero_data_dir = '/OMERO'
-        try:
-            omero_data_dir = config['omero.data.dir']
-        except KeyError:
-            pass
+        omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
         # gettempdir returns ~/omero/tmp/omero_%NAME/%PROCESS
@@ -1414,42 +1411,40 @@ OMERO Diagnostics %s
             self.can_access(var, mask)
 
         if config is not None:
-            omero_data_dir = '/OMERO'
-            config = config.as_map()
-            try:
-                omero_data_dir = config['omero.data.dir']
-            except KeyError:
-                pass
+            omero_data_dir = self._get_data_dir(config)
             self.can_access(omero_data_dir)
-
-            # While we're here, issue a warning if any of
-            # the top ".omero" directories contain a lock
-            # file. This isn't a conclusive test this we
-            # don't have access to the DB to get the UUID
-            # for this instance. Usually there should only
-            # be one though.
-            lock_files = os.path.join(
-                omero_data_dir, ".omero", "repository",
-                "*", ".lock")
-            lock_files = glob(lock_files)
-            if lock_files:
-                self.ctx.err("WARNING: lock files in %s" %
-                             omero_data_dir)
-                self.ctx.err("-"*40)
-                for lock_file in lock_files:
-                    self.ctx.err(lock_file)
-                self.ctx.err("-"*40)
-                self.ctx.err((
-                    "\n"
-                    "You may want to stop all server processes and remove\n"
-                    "these files manually. Lock files can remain after an\n"
-                    "abrupt server outage and are especially frequent on\n"
-                    "remotely mounted filesystems like NFS.\n"))
 
         for p in os.listdir(var):
             subpath = os.path.join(var, p)
             if os.path.isdir(subpath):
                 self.can_access(subpath, mask)
+
+    def check_lock(self, config):
+        """
+        Issue a warning if any of the top ".omero" directories
+        contain a lock file. This isn't a conclusive test this
+        we don't have access to the DB to get the UUID
+        for this instance. Usually there should only be one
+        though.
+        """
+        omero_data_dir = self._get_data_dir(config)
+        lock_files = os.path.join(
+            omero_data_dir, ".omero", "repository",
+            "*", ".lock")
+        lock_files = glob(lock_files)
+        if lock_files:
+            self.ctx.err("WARNING: lock files in %s" %
+                         omero_data_dir)
+            self.ctx.err("-"*40)
+            for lock_file in lock_files:
+                self.ctx.err(lock_file)
+            self.ctx.err("-"*40)
+            self.ctx.err((
+                "\n"
+                "You may want to stop all server processes and remove\n"
+                "these files manually. Lock files can remain after an\n"
+                "abrupt server outage and are especially frequent on\n"
+                "remotely mounted filesystems like NFS.\n"))
 
     def check_node(self, args):
         """
@@ -1541,6 +1536,7 @@ OMERO Diagnostics %s
             xargs.append("-Domero.throttling.method_time.%s=%s" % v)
 
         cfg = config.as_map()
+        omero_data_dir = self._get_data_dir(config)
         config.close()  # Early close. See #9800
         for x in ("name", "user", "host", "port"):
             # NOT passing password on command-line
@@ -1549,8 +1545,7 @@ OMERO Diagnostics %s
                 v = cfg[k]
                 xargs.append("-D%s=%s" % (k, v))
 
-        if "omero.data.dir" in cfg:
-            xargs.append("-Domero.data.dir=%s" % cfg["omero.data.dir"])
+        xargs.append("-Domero.data.dir=%s" % omero_data_dir)
         for k, v in cfg.items():
             if k.startswith("omero.search"):
                 xargs.append("-D%s=%s" % (k, cfg[k]))
@@ -1576,7 +1571,6 @@ OMERO Diagnostics %s
         early_exit = False
         if args.wipe:
             early_exit = True
-            omero_data_dir = cfg.get("omero.data.dir", "/OMERO")
             self.can_access(omero_data_dir)
             from os.path import sep
             pattern = sep.join([omero_data_dir, "FullText", "*"])
@@ -1782,6 +1776,9 @@ OMERO Diagnostics %s
             else:
                 self.ctx.err("%s stopped" % name)
 
+    def _get_data_dir(self, config):
+        config = config.as_map()
+        return config.get("omero.data.dir", "/OMERO")
 
 try:
     register("admin", AdminControl, HELP)
