@@ -151,12 +151,27 @@ class TestUpgradeCheck(object):
 class TestTempFileManager(object):
 
     @pytest.mark.parametrize('environment', (
-        {'OMERO_USERDIR': None, 'OMERO_TMPDIR': None},
-        {'OMERO_USERDIR': None, 'OMERO_TEMPDIR': 'tmpdir'},
-        {'OMERO_USERDIR': None, 'OMERO_TMPDIR': 'tmpdir'},
-        {'OMERO_USERDIR': 'userdir', 'OMERO_TMPDIR': None},
-        {'OMERO_USERDIR': 'userdir', 'OMERO_TEMPDIR': 'tmpdir'},
-        {'OMERO_USERDIR': 'userdir', 'OMERO_TMPDIR': 'tmpdir'}))
+        {'OMERO_USERDIR': None,
+         'OMERO_TEMPDIR': None,
+         'OMERO_TMPDIR': None},
+        {'OMERO_USERDIR': None,
+         'OMERO_TEMPDIR': 'tempdir',
+         'OMERO_TMPDIR': None},
+        {'OMERO_USERDIR': None,
+         'OMERO_TEMPDIR': None,
+         'OMERO_TMPDIR': 'tmpdir'},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_TEMPDIR': None,
+         'OMERO_TMPDIR': None},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_TEMPDIR': 'tempdir',
+         'OMERO_TMPDIR': None},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_TEMPDIR': None,
+         'OMERO_TMPDIR': 'tmpdir'},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_TEMPDIR': 'tempdir',
+         'OMERO_TMPDIR': 'tmpdir'}))
     def testTmpdirEnvironment(self, monkeypatch, tmpdir, environment):
         for var in environment.keys():
             if environment[var]:
@@ -166,9 +181,11 @@ class TestTempFileManager(object):
 
         if environment.get('OMERO_TEMPDIR'):
             pytest.deprecated_call(manager.tmpdir)
-            tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
-        elif environment.get('OMERO_TMPDIR'):
+
+        if environment.get('OMERO_TMPDIR'):
             tdir = tmpdir / environment.get('OMERO_TMPDIR')
+        elif environment.get('OMERO_TEMPDIR'):
+            tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
         elif environment.get('OMERO_USERDIR'):
             tdir = tmpdir / environment.get('OMERO_USERDIR') / "tmp"
         else:
