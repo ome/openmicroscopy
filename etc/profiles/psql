@@ -1,6 +1,9 @@
-#
-# postgres profile
-#
+##
+## postgres profile
+##
+
+# The TCP port or the local Unix-domain socket file extension on which the
+# server is listening for connections.
 omero.db.port=5432
 omero.db.driver=org.postgresql.Driver
 omero.db.driver_type=UNUSED
