@@ -5,6 +5,7 @@
 # The TCP port or the local Unix-domain socket file extension on which the
 # server is listening for connections.
 omero.db.port=5432
+### END
 omero.db.driver=org.postgresql.Driver
 omero.db.driver_type=UNUSED
 omero.db.dialect=ome.util.PostgresqlDialect
