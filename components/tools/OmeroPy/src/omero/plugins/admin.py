@@ -701,7 +701,7 @@ present, the user will enter a console""")
         if 0 == self.status(args, node_only=True):
             self.ctx.die(876, "Server already running")
 
-        self.check_lock(config=config)
+        self.check_lock(config)
 
         self._initDir()
         # Do a check to see if we've started before.
