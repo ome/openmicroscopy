@@ -93,6 +93,9 @@ class TestSessions(object):
         if session_args:
             setattr(args, session_args, tmpdir / session_args)
 
+        if environment.get('OMERO_SESSION_DIR') or session_args:
+            pytest.deprecated_call(self.cli.controls['sessions'].store, args)
+
         store = self.cli.controls['sessions'].store(args)
         # By order of precedence
         if environment.get('OMERO_SESSIONDIR'):
@@ -100,7 +103,6 @@ class TestSessions(object):
         elif environment.get('OMERO_SESSION_DIR'):
             sdir = (path(tmpdir) / environment.get('OMERO_SESSION_DIR') /
                     'omero' / 'sessions')
-            pytest.deprecated_call(self.cli.controls['sessions'].store, args)
         elif session_args:
             sdir = path(getattr(args, session_args)) / 'omero' / 'sessions'
         elif environment.get('OMERO_USERDIR'):

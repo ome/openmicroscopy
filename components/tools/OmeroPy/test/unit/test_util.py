@@ -169,6 +169,9 @@ class TestTempFileManager(object):
         {'OMERO_USERDIR': 'userdir',
          'OMERO_TEMPDIR': None,
          'OMERO_TMPDIR': 'tmpdir'},
+        {'OMERO_USERDIR': None,
+         'OMERO_TEMPDIR': 'tempdir',
+         'OMERO_TMPDIR': 'tmpdir'},
         {'OMERO_USERDIR': 'userdir',
          'OMERO_TEMPDIR': 'tempdir',
          'OMERO_TMPDIR': 'tmpdir'}))

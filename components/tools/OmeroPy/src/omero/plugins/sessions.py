@@ -133,25 +133,26 @@ class SessionsControl(BaseControl):
 
     def store(self, args):
         try:
-            # Read sessions directory from OMERO_SESSIONDIR envvar
-            sessions_dir = os.environ.get('OMERO_SESSIONDIR', None)
-            if not sessions_dir:
-                # Read base directory from deprecated OMERO_SESSION_DIR envvar
-                base_dir = os.environ.get('OMERO_SESSION_DIR', None)
-                if base_dir:
-                    warnings.warn(
-                        "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSIONDIR"
-                        " instead.", DeprecationWarning)
-                else:
-                    base_dir = getattr(args, "session_dir", None)
-                    if base_dir:
-                        warnings.warn(
-                            "--session-dir is deprecated. Use OMERO_SESSIONDIR"
-                            " instead.", DeprecationWarning)
+            # Read base directory from deprecated --session-dir argument
+            base_dir = getattr(args, "session_dir", None)
+            if base_dir:
+                warnings.warn(
+                    "--session-dir is deprecated. Use OMERO_SESSIONDIR"
+                    " instead.", DeprecationWarning)
 
-                if base_dir:
-                    from path import path
-                    sessions_dir = path(base_dir) / "omero" / "sessions"
+            # Read base directory from deprecated OMERO_SESSION_DIR envvar
+            base_dir = os.environ.get('OMERO_SESSION_DIR', base_dir)
+            if 'OMERO_SESSION_DIR' in os.environ:
+                warnings.warn(
+                    "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSIONDIR"
+                    " instead.", DeprecationWarning)
+
+            # Read sessions directory from OMERO_SESSIONDIR envvar
+            session_dir = None
+            if base_dir:
+                from path import path
+                session_dir = path(base_dir) / "omero" / "sessions"
+            sessions_dir = os.environ.get('OMERO_SESSIONDIR', session_dir)
 
             return self.FACTORY(sessions_dir)
         except OSError, ose:
