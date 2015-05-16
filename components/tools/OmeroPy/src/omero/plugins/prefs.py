@@ -379,11 +379,19 @@ class PrefsControl(WriteableConfigControl):
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
         pp.parse_file(str(cfg.abspath()))
-        if not args.file:
-            psql_file = self.dir / "etc" / "profiles" / "psql"
-            pp.parse_file(str(psql_file.abspath()))
+
+        # Parse PSQL profile file
+        for p in pp:
+            if p.key == "omero.db.profile":
+                psql_file = self.dir / "etc" / "profiles" / p.val
+                pp.parse_file(str(psql_file.abspath()))
+                break
+
+        # Parse OMERO.web configuration properties
         if not args.no_web:
             pp.parse_module('omeroweb.settings')
+
+        # Display options
         if args.headers:
             pp.print_headers()
         elif args.keys:
