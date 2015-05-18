@@ -153,6 +153,7 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
                     ec.groupId = orig.getCurrentGroupId();
                     ec.groupName = orig.getCurrentGroupName();
                     ec.isAdmin = orig.isCurrentUserAdmin();
+                    rsp.data[count++] = new HashMap<String, RType>();
                 } else {
                     rsp.contexts.add(IceMapper.convert(orig));
                     rsp.data[count++] = parseData(rsp, data);
