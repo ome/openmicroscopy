@@ -23,7 +23,7 @@
 {% endcomment %}
 
 <ul>
-    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ui.dropdown_menu_all }}{% endif %}</a>
+    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ui.dropdown_menu.everyone }}{% endif %}</a>
         {% if manager.t_size %}
         <ul>
             {% for t in manager.tags %}
