@@ -39,6 +39,7 @@ import omero.scripts
 
 from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
+from omero.cmd import Chmod
 
 from omero.gateway import TagAnnotationWrapper, AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
@@ -1382,8 +1383,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(up_gr)
         if permissions is not None:
-            logger.warning("WARNING: changePermissions was called!!!")
-            admin_serv.changePermissions(up_gr, permissions)
+            self.updatePermissions(group, permissions)
         admin_serv.addGroupOwners(up_gr, add_exps)
         admin_serv.removeGroupOwners(up_gr, rm_exps)
 
@@ -1440,21 +1440,24 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         admin_serv.setDefaultGroup(
             ExperimenterI(exp_id, False), ExperimenterGroupI(group_id, False))
 
-    def updatePermissions(self, obj, permissions):
+    def updatePermissions(self, group, permissions):
         """
-        Allow to change the permission on the object.
+        Allow to change the permission of the group.
 
-        @param obj      A wrapped entity or an unloaded reference to an
+        @param group      A wrapped entity or an unloaded reference to an
                         entity. Not null.
-        @type obj       BlitzObjectWrapper
+        @type group       BlitzObjectWrapper
         @param perm     The permissions value for this entity. Not null.
         @type perm      PermissionsI
         """
 
-        admin_serv = self.getAdminService()
-        if permissions is not None:
-            logger.warning("WARNING: changePermissions was called!!!")
-            admin_serv.changePermissions(obj._obj, permissions)
+        perms = str(permissions)
+        logger.debug("Chmod of group ID: %s to %s" % (group.id, perms))
+        command = Chmod(type="/ExperimenterGroup",
+                        id=group.id,
+                        permissions=perms)
+        cb = self.c.submit(command)
+        cb.close(True)
 
     def saveObject(self, obj):
         """
