@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
@@ -42,8 +42,6 @@ import omero.grid.ImportProcessPrx;
 import omero.grid.ImportProcessPrxHelper;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
-import omero.model.Dataset;
-import omero.model.Screen;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
@@ -328,6 +326,7 @@ public class CommandLineImporter {
             + "  -l READER_FILE\t\t\tUse the list of readers rather than the default\n"
             + "  -d DATASET_ID\t\t\t\tOMERO dataset ID to import image into\n"
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
+            + "  -T TARGET\t\t\t\ttarget for imports\n"
 
             + "  --report\t\t\t\tReport errors to the OME team\n"
             + "  --upload\t\t\t\tUpload broken files and log file (if any) with report. Required --report\n"
@@ -693,7 +692,7 @@ public class CommandLineImporter {
                 break;
             }
             case 21: {
-                config.template.set(g.getOptarg());
+                config.target.set(g.getOptarg());
                 break;
             }
             case 22: {

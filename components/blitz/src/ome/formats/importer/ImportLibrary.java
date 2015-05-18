@@ -32,9 +32,8 @@ import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportEvent.FILESET_EXCLUSION;
 import ome.formats.importer.exclusions.FileExclusion;
-import ome.formats.importer.targets.ImportTemplate;
+import ome.formats.importer.targets.ImportTarget;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.TransferState;
 import ome.formats.importer.transfers.UploadFileTransfer;
@@ -102,12 +101,6 @@ import Ice.Current;
 public class ImportLibrary implements IObservable
 {
     private static Logger log = LoggerFactory.getLogger(ImportLibrary.class);
-
-    /** The class used to identify the dataset target.*/
-    private static final String DATASET_CLASS = "omero.model.Dataset";
-
-    /** The class used to identify the screen target.*/
-    private static final String SCREEN_CLASS = "omero.model.Screen";
 
     /* checksum provider factory for verifying file integrity in upload */
     private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
@@ -269,20 +262,10 @@ public class ImportLibrary implements IObservable
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
-                if (DATASET_CLASS.equals(config.targetClass.get()))
-                {
-                    ic.setTarget(store.getTarget(
-                            Dataset.class, config.targetId.get()));
-                }
-                else if (SCREEN_CLASS.equals(config.targetClass.get()))
-                {
-                    ic.setTarget(store.getTarget(
-                            Screen.class, config.targetId.get()));
-                }
-                else if (config.template.get() != null)
-                {
-                    ImportTemplate it = new ImportTemplate(config, ic);
-                    ic.setTarget(store.getTarget(it));
+                ImportTarget target = config.getTarget();
+                if (target != null) {
+                    // FIXME: We really should be doing this delayed on the srv.
+                    ic.setTarget(target.load(store, ic));
                 }
 
                 if (config.checksumAlgorithm.get() != null) {
