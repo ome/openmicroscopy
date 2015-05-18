@@ -26,6 +26,7 @@ package training;
 
 //Java imports
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -115,12 +116,15 @@ public class CreateImage
 	 * @param sizeZ The number of z-sections.
 	 * @return
 	 */
-	private Integer linearize(int z, int t, int sizeZ)
+	private Integer linearize(int z, int c, int t,  int sizeZ, int sizeC)
 	{
 		if (z < 0 || sizeZ <= z) 
 			throw new IllegalArgumentException(
-					"z out of range [0, "+sizeZ+"): "+z+".");
-		return Integer.valueOf(sizeZ*t + z);
+					"z out of range [0, "+sizeZ+"]: "+z+".");
+		if (c < 0 || sizeC <= c)
+			throw new IllegalArgumentException(
+					"c out of range [0, "+sizeC+"]: "+c+".");
+		return Integer.valueOf(sizeZ*sizeC*t + sizeZ*c + z);
 	}
 	
 	/**
@@ -152,15 +156,12 @@ public class CreateImage
 		try {
 			store = connector.getRawPixelsStore();
 			store.setPixelsId(pixelsId, false);
-			for (int z = 0; z < sizeZ; z++) {
-				for (int t = 0; t < sizeT; t++) {
-					byte[] planeC1 = store.getPlane(z, 0, t);
-					byte[] planeC2 = store.getPlane(z, 1, t);
-					byte[] newPlane = new byte[planeC1.length];
-					for (int i = 0; i < planeC1.length; i++) {
-						newPlane[i] = (byte) ((planeC1[i]+planeC2[i])/2);
+			for (int c = 0; c < sizeC; c++) {
+				for (int z = 0; z < sizeZ; z++) {
+					for (int t = 0; t < sizeT; t++) {
+						byte[] plane = store.getPlane(z, c, t);
+						map.put(linearize(z, c, t, sizeZ, sizeC), plane);
 					}
-					map.put(linearize(z, t, sizeZ), newPlane);
 				}
 			}
 			
@@ -188,9 +189,12 @@ public class CreateImage
 			throw new Exception("Pixels Type not valid.");
 	
 		String name = "newImageFrom"+image.getId();
-		RLong idNew = proxy.createImage(sizeX, sizeY, sizeZ, sizeT, 
-				Arrays.asList(0), type, name,
-				"From Image ID: "+image.getId());
+		List<Integer> channels = new ArrayList<Integer>();
+		for (int c = 0; c < sizeC; c++) {
+			channels.add(c);
+		}
+		RLong idNew = proxy.createImage(sizeX, sizeY, sizeZ, sizeT,
+			channels, type, name, "From Image ID: "+image.getId());
 		if (idNew == null)
 			throw new Exception("New image could not be created.");
 		ImageData newImage = loadImage(idNew.getValue());
@@ -206,10 +210,12 @@ public class CreateImage
 			store = connector.getRawPixelsStore();
 			store.setPixelsId(newImage.getDefaultPixels().getId(), false);
 			int index = 0;
-			for (int z = 0; z < sizeZ; z++) {
-				for (int t = 0; t < sizeT; t++) {
-					index = linearize(z, t, sizeZ);
-					store.setPlane(map.get(index), z, 0, t);
+			for (int c = 0; c < sizeC; c++) {
+				for (int z = 0; z < sizeZ; z++) {
+					for (int t = 0; t < sizeT; t++) {
+						index = linearize(z, c, t, sizeZ, sizeC);
+						store.setPlane(map.get(index), z, c, t);
+					}
 				}
 			}
 			store.save();
