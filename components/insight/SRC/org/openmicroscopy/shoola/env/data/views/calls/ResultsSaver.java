@@ -87,6 +87,13 @@ public class ResultsSaver
         name += ".csv";
         try {
             File f = new File(dir, name);
+            //read data
+            ROIReader reader = new ROIReader();
+            if (!reader.readResults(f)) {
+                f.delete();
+                dir.delete();
+                return null;
+            }
             dir.deleteOnExit();
             return f;
         } catch (Exception e) {
