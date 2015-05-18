@@ -191,6 +191,7 @@ public class ParamsHelper {
                 secSys.runAsAdmin(new AdminAction(){
                     public void runAsAdmin() {
                         session.delete(parseJob);
+                        session.flush();
                     }});
                 return null;
             }

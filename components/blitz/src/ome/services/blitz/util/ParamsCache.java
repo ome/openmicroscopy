@@ -19,24 +19,31 @@
 
 package ome.services.blitz.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import ome.conditions.SecurityViolation;
 import ome.model.core.OriginalFile;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.scripts.ScriptRepoHelper;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Roles;
+import ome.system.ServiceFactory;
 import ome.tools.spring.OnContextRefreshedEventListener;
-import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
+import omero.constants.GROUP;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
 import omero.grid.ParamsHelper.Acquirer;
+import omero.model.ExperimenterGroupI;
 import omero.util.IceMapper;
 
+import org.hibernate.Session;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +52,7 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.UserException;
 
@@ -179,22 +187,32 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
         try {
             Slf4JStopWatch login = sw("login");
             try {
-                loader = new Loader();
+                loader = new Loader(reg, ctx, roles.getRootName());
             } finally {
                 login.stop();
             }
 
             if (key != null) {
+                // May not return null!
                 return loader.createParams(key);
             } else {
                 Slf4JStopWatch list = sw("list");
                 List<OriginalFile> files = scripts.loadAll(true);
                 list.stop();
                 for (OriginalFile file : files) {
-                    Slf4JStopWatch single = sw(file.getId().toString());
-                    cache.put(file.getId(),
-                            loader.createParams(file.getId()));
-                    single.stop();
+                    try {
+                        Slf4JStopWatch single = sw(file.getId().toString());
+                        cache.put(file.getId(),
+                                loader.createParams(file.getId()));
+                        single.stop();
+                    } catch (omero.ValidationException ve) {
+                        // Likely an invalid script
+                        log.warn("Failed to load params for {}",
+                                file.getId(), ve);
+                    } catch (Exception e) {
+                        log.error("Failed to load params for {}",
+                                file.getId(), e);
+                    }
                 }
                 log.info("New size of scripts cache: {} ({} ms.)",
                         cache.size(), load.getElapsedTime());
@@ -211,16 +229,26 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
     /** Simple state class for holding the various instances needed for
      * logging in and creating a {@link JobParams} instance.
      */
-    private class Loader {
+    private static class Loader {
 
-        ParamsHelper helper = null;
-        ServiceFactoryI sf = null;
-        Ice.Current curr = null;
+        final Registry reg;
+        final OmeroContext ctx;
+        final ParamsHelper helper;
+        final ServiceFactoryI sf;
+        final Ice.Current curr;
+        final Long gid;
 
-        Loader() throws Exception {
-            ServiceFactoryPrx prx = reg.getInternalServiceFactory(roles
-                .getRootName(), "unused", 3, 1, UUID.randomUUID()
-                .toString());
+        Loader(Registry reg, OmeroContext ctx, String name) throws Exception {
+            this(reg, ctx, name, null);
+        }
+
+        Loader(Registry reg, OmeroContext ctx, String name, Long gid)
+                throws Exception {
+            this.reg = reg;
+            this.ctx = ctx;
+            this.gid = gid;
+            ServiceFactoryPrx prx = reg.getInternalServiceFactory(name,
+                "unused", 3, 1, UUID.randomUUID().toString());
             Ice.Identity id = prx.ice_getIdentity();
             FindServiceFactoryMessage msg = new FindServiceFactoryMessage(
                     this, id);
@@ -231,6 +259,10 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
             }
             sf = msg.getServiceFactory();
             curr = sf.newCurrent(id, "loadScripts");
+            if (gid != null) {
+                sf.setSecurityContext(new ExperimenterGroupI(gid, false), curr);
+                curr.ctx.put(GROUP.value, ""+gid);
+            }
 
             // From ScriptI.java
             Acquirer acq = (Acquirer) sf.getServant(sf
@@ -239,8 +271,56 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
                     sf.getPrincipal());
         }
 
-        JobParams createParams(Long key) throws ServerError {
-            return helper.generateScriptParams(key, false, curr);
+        /**
+         * Call {@link ParamsHelper#generateScriptParams(long, boolean, Ice.Current)}
+         * either as the current admin user or if this is a user script, creating
+         * a temporary loader with just that context.
+         */
+        JobParams createParams(Long key) throws Exception {
+            try {
+                return helper.generateScriptParams(key, false, curr);
+            } catch (SecurityViolation e) {
+                if (gid != null) {
+                    throw e;
+                }
+                // This must be a non-official script, i.e. doesn't belong
+                // to an admin in the "user" group. We'll spend the extra
+                // time logging into the user/group context.
+                Object[] context = new Object[2];
+                findContext(key, context);
+                if (context[1] == null) {
+                    // This is the recursion stopping condition. If the gid
+                    // is null, then throw before recursing. Note: it's highly
+                    // unlikely that an original file won't have a gid, so this
+                    // is just in case.
+                    throw new RuntimeException("No group found!");
+                }
+                Loader tmp = new Loader(reg, ctx, (String) context[0], (Long) context[1]);
+                try {
+                    return tmp.createParams(key);
+                } finally {
+                    tmp.close();
+                }
+            }
+        }
+
+        void findContext(final Long key, final Object[] context) {
+            Map<String, String> allGroups = new HashMap<String, String>();
+            allGroups.put(GROUP.value, "-1");
+            sf.executor.execute(allGroups, sf.getPrincipal(),
+                    new Executor.SimpleWork(this, "setContext", key) {
+                        @Transactional(readOnly=true)
+                        @Override
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            OriginalFile ofile = (OriginalFile) session.get(OriginalFile.class, key);
+                            if (ofile != null) {
+                                String uid = ofile.getDetails().getOwner().getOmeName();
+                                Long gid = ofile.getDetails().getGroup().getId();
+                                context[0] = uid;
+                                context[1] = gid;
+                            }
+                            return null;
+                        }});
         }
 
         void close() {
