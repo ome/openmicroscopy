@@ -189,9 +189,7 @@ class Parser(ArgumentParser):
 
     def add_login_arguments(self):
         group = self.add_argument_group(
-            'Login arguments', """Environment variables:
-    OMERO_SESSIONDIR - Set the sessions directory (Default:
- $HOME/omero/sessions)
+            'Login arguments', ENV_HELP + """
 
 Optional session arguments:
 """)
@@ -389,6 +387,16 @@ Examples:
     bin/omero -d0 admin start
 """
 
+ENV_HELP = """Environment variables:
+
+  OMERO_USERDIR     Set the base directory containing the user's files.
+                    Default: $HOME/omero
+  OMERO_SESSIONDIR  Set the base directory containing local sessions.
+                    Default: $OMERO_USERDIR/sessions
+  OMERO_TMPDIR      Set the base directory containing temporary files.
+                    Default: $OMERO_USERDIR/tmp
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -414,7 +422,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": DEBUG_HELP}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
@@ -1102,12 +1110,13 @@ class CLI(cmd.Cmd, Context):
                 tracer = trace.Trace()
                 tracer.runfunc(args.func, args)
             elif "p" in debug_opts or "profile" in debug_opts:
-                import hotshot
-                from hotshot import stats
-                prof = hotshot.Profile("hotshot_edi_stats")
+                from hotshot import stats, Profile
+                from omero.util import get_omero_userdir
+                profile_file = get_omero_userdir() / "hotshot_edi_stats"
+                prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
-                s = stats.load("hotshot_edi_stats")
+                s = stats.load(profile_file)
                 s.sort_stats("time").print_stats()
             else:
                 self.die(10, "Unknown debug action: %s" % debug_opts)

@@ -50,8 +50,30 @@ class TestSessions(object):
         assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
 
     @pytest.mark.parametrize('environment', (
-        [], ["OMERO_SESSIONS_DIR"], ["OMERO_SESSIONDIR"],
-        ["OMERO_SESSIONS_DIR", "OMERO_SESSIONDIR"]))
+        {'OMERO_USERDIR': None,
+         'OMERO_SESSION_DIR': None,
+         'OMERO_SESSIONDIR': None},
+        {'OMERO_USERDIR': None,
+         'OMERO_SESSION_DIR': 'session_dir',
+         'OMERO_SESSIONDIR': None},
+        {'OMERO_USERDIR': None,
+         'OMERO_SESSION_DIR': None,
+         'OMERO_SESSIONDIR': 'sessiondir'},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_SESSION_DIR': None,
+         'OMERO_SESSIONDIR': None},
+        {'OMERO_USERDIR': None,
+         'OMERO_SESSION_DIR': 'session_dir',
+         'OMERO_SESSIONDIR': 'sessiondir'},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_SESSION_DIR': 'session_dir',
+         'OMERO_SESSIONDIR': None},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_SESSION_DIR': None,
+         'OMERO_SESSIONDIR': 'sessiondir'},
+        {'OMERO_USERDIR': 'userdir',
+         'OMERO_SESSION_DIR': 'session_dir',
+         'OMERO_SESSIONDIR': 'sessiondir'}))
     @pytest.mark.parametrize('session_args', [None, 'session_dir'])
     def testCustomSessionsDir(
             self, tmpdir, monkeypatch, environment,
@@ -60,23 +82,31 @@ class TestSessions(object):
         from omero.util import get_user_dir
         from path import path
 
-        for envvar in environment:
-            monkeypatch.setenv(envvar, tmpdir / envvar)
+        for var in environment.keys():
+            if environment[var]:
+                monkeypatch.setenv(var, tmpdir / environment.get(var))
+            else:
+                monkeypatch.delenv(var, raising=False)
 
         # args.session_dir sets the sessions dir
         args = Namespace()
         if session_args:
             setattr(args, session_args, tmpdir / session_args)
 
+        if environment.get('OMERO_SESSION_DIR') or session_args:
+            pytest.deprecated_call(self.cli.controls['sessions'].store, args)
+
         store = self.cli.controls['sessions'].store(args)
         # By order of precedence
-        if 'OMERO_SESSIONDIR' in environment:
-            assert store.dir == path(tmpdir) / 'OMERO_SESSIONDIR'
-        elif 'OMERO_SESSION_DIR' in environment:
-            assert store.dir == (
-                path(tmpdir) / 'OMERO_SESSIONS_DIR' / 'omero' / 'sessions')
+        if environment.get('OMERO_SESSIONDIR'):
+            sdir = path(tmpdir) / environment.get('OMERO_SESSIONDIR')
+        elif environment.get('OMERO_SESSION_DIR'):
+            sdir = (path(tmpdir) / environment.get('OMERO_SESSION_DIR') /
+                    'omero' / 'sessions')
         elif session_args:
-            assert store.dir == (
-                path(getattr(args, session_args) / 'omero' / 'sessions'))
+            sdir = path(getattr(args, session_args)) / 'omero' / 'sessions'
+        elif environment.get('OMERO_USERDIR'):
+            sdir = path(tmpdir) / environment.get('OMERO_USERDIR') / 'sessions'
         else:
-            assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
+            sdir = path(get_user_dir()) / 'omero' / 'sessions'
+        assert store.dir == sdir
