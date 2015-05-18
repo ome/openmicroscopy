@@ -156,9 +156,9 @@ public class CreateImage
 		try {
 			store = connector.getRawPixelsStore();
 			store.setPixelsId(pixelsId, false);
-			for (int c = 0; c < sizeC; c++) {
-				for (int z = 0; z < sizeZ; z++) {
-					for (int t = 0; t < sizeT; t++) {
+			for (int t = 0; t < sizeT; t++) {
+				for (int c = 0; c < sizeC; c++) {
+					for (int z = 0; z < sizeZ; z++) {
 						byte[] plane = store.getPlane(z, c, t);
 						map.put(linearize(z, c, t, sizeZ, sizeC), plane);
 					}
@@ -210,9 +210,9 @@ public class CreateImage
 			store = connector.getRawPixelsStore();
 			store.setPixelsId(newImage.getDefaultPixels().getId(), false);
 			int index = 0;
-			for (int c = 0; c < sizeC; c++) {
-				for (int z = 0; z < sizeZ; z++) {
-					for (int t = 0; t < sizeT; t++) {
+			for (int t = 0; t < sizeT; t++) {
+				for (int c = 0; c < sizeC; c++) {
+					for (int z = 0; z < sizeZ; z++) {
 						index = linearize(z, c, t, sizeZ, sizeC);
 						store.setPlane(map.get(index), z, c, t);
 					}
