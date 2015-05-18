@@ -55,7 +55,9 @@ var Metadata = function () {
         this[i][j] = cached[i][j];
       }
     }
+    this.defaultZ = this.rdefs.defaultZ;
     this.current.z = this.rdefs.defaultZ;
+    this.defaultT = this.rdefs.defaultT;
     this.current.t = this.rdefs.defaultT;
       if (this.rdefs.invertAxis) {
         var t = this.size.t;
@@ -942,10 +944,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
   // When we Save settings to the server, we can remember the point we saved.
   this.setSaved = function() {
     saved_undo_stack_ptr = channels_undo_stack_ptr;
+    _this.loadedImg.defaultZ = this.getZPos()-1;
+    _this.loadedImg.defaultT = this.getTPos()-1;
   };
   // Do we have any unsaved changes? (undo/redo since we last saved)
   this.getSaved = function() {
-    return saved_undo_stack_ptr === channels_undo_stack_ptr;
+    var zSaved = _this.loadedImg.defaultZ === this.getZPos()-1;
+    var tSaved = _this.loadedImg.defaultT === this.getTPos()-1;
+    return (zSaved && tSaved && saved_undo_stack_ptr === channels_undo_stack_ptr);
   };
 
   this.doload = function(){
