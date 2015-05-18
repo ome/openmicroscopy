@@ -62,7 +62,7 @@ import loci.formats.meta.MetadataStore;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.ImportEvent;
-import ome.formats.importer.ImportTemplate;
+import ome.formats.importer.targets.ImportTemplate;
 import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
