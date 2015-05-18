@@ -1535,6 +1535,12 @@ class _BlitzGateway (object):
         return (self.getConfigService().getConfigValue(
                 "omero.client.viewer.initial_zoom_level") or 0)
 
+    def getWebclientHost(self):
+        """
+        Returns default initial zoom level set on the server.
+        """
+        return self.getConfigService().getConfigValue("omero.client.web.host")
+
     def isAnonymous(self):
         """
         Returns the anonymous flag
