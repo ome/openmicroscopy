@@ -40,7 +40,6 @@ from omero_version import omero_version
 
 from decorators import login_required, render_response
 
-
 @never_cache
 @login_required()
 @render_response()
@@ -79,6 +78,7 @@ def index(request, conn=None, **kwargs):
     return context
 
 
+
 @never_cache
 @login_required()
 def insight(request, conn=None, **kwargs):
@@ -109,13 +109,30 @@ def insight(request, conn=None, **kwargs):
         'vendor': settings.WEBSTART_VENDOR,
         'homepage': settings.WEBSTART_HOMEPAGE,
     }
+
     if conn is None:
-        context['host'] = settings.WEBSTART_HOST
+        context['host'] = getOmeroHost(request, settings.WEBSTART_HOST)
         context['port'] = settings.WEBSTART_PORT
+        context['web_host'] = buildWebhost(request, settings.WEBSTART_HOST)
     else:
-        context['host'] = conn.host
+        context['host'] = getOmeroHost(request, conn.host)
         context['port'] = conn.port
         context['sessionid'] = conn.c.getSessionId()
+        context['web_host'] = buildWebhost(request, conn.getWebclientHost())
 
     c = Context(request, context)
     return HttpJNLPResponse(t.render(c))
+
+
+def buildWebhost(request, web_host=None):
+    if web_host is None or "localhost" in web_host:
+        prefix = settings.FORCE_SCRIPT_NAME or "/"
+        web_host = request.build_absolute_uri(prefix)
+    return web_host
+
+from django.http.request import split_domain_port
+def getOmeroHost(request, host=None):
+    if host is None or host in ("localhost", "127.0.0.1"):
+        hostport = request.get_host()
+        host, port = split_domain_port(hostport)
+    return host
