@@ -10,6 +10,7 @@
 """
 
 import os
+import time
 import pytest
 import library as lib
 import omero
@@ -520,3 +521,44 @@ client.closeSession()
             assert gid == results["gid"].val
         finally:
             impl.cleanup()
+
+    def testDynamic(self):
+        DYNAMIC = """if True:
+        import omero.constants as OC
+        import omero.grid as OG
+        import omero.scripts as OS
+        job = OG.JobParams(name="testDynamic",
+                           namespaces=[OC.namespaces.NSDYNAMIC])
+        c = OS.client(job)
+        """
+        CACHED = """if True:
+        import omero.scripts as OS
+        c = OS.client("testDynamic")
+        """
+        svc = self.root.sf.getScriptService()
+        dynamicID = svc.uploadOfficialScript(
+            "/test/dynamic/dyn%s.py" % self.uuid(), DYNAMIC)
+        cachedID = svc.uploadOfficialScript(
+            "/test/dynamic/cached%s.py" % self.uuid(), CACHED)
+        # Prep each of the params
+        svc.getParams(dynamicID)
+        svc.getParams(cachedID)
+
+        dynamic_times = []
+        cached_times = []
+
+        for x in range(3):
+            d_start = time.time()
+            svc.getParams(dynamicID)
+            d_stop = time.time()
+
+            c_start = time.time()
+            svc.getParams(cachedID)
+            c_stop = time.time()
+
+            dynamic_times.append(d_stop-d_start)
+            cached_times.append(c_stop-c_start)
+
+        d_time = min(dynamic_times)
+        c_time = min(cached_times)
+        assert d_time > 10 * c_time

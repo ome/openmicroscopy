@@ -37,6 +37,7 @@ import ome.system.ServiceFactory;
 import ome.tools.spring.OnContextRefreshedEventListener;
 import omero.api.ServiceFactoryPrx;
 import omero.constants.GROUP;
+import omero.constants.namespaces.NSDYNAMIC;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
 import omero.grid.ParamsHelper.Acquirer;
@@ -74,6 +75,22 @@ import com.google.common.cache.LoadingCache;
  */
 public class ParamsCache extends OnContextRefreshedEventListener implements
         ApplicationContextAware {
+
+    /**
+     * Thrown by {@link ParamsCache#_load(Long)} when a found
+     * {@link JobsParams} object has the {@link NSDYNAMIC} namespace.
+     * In that case, the value <em>should not</em> be stored in the
+     * cache but should be regenerated for each call.
+     */
+    @SuppressWarnings("serial")
+    private static class DynamicException extends Exception {
+
+        private final JobParams params;
+
+        DynamicException(JobParams params) {
+            this.params = params;
+        }
+    }
 
     private final static Logger log = LoggerFactory
             .getLogger(ParamsCache.class);
@@ -147,6 +164,9 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
             return cache.get(key);
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
+            if (cause instanceof DynamicException) {
+                return ((DynamicException) cause).params;
+            }
             UserException ue = new IceMapper().handleException(cause, ctx);
             log.warn("Error on scripts cache lookup", ue);
             throw ue;
@@ -194,7 +214,13 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
 
             if (key != null) {
                 // May not return null!
-                return loader.createParams(key);
+                JobParams params = loader.createParams(key);
+                if (params.namespaces != null) {
+                    if (params.namespaces.contains(NSDYNAMIC.value)) {
+                        throw new DynamicException(params);
+                    }
+                }
+                return params;
             } else {
                 Slf4JStopWatch list = sw("list");
                 List<OriginalFile> files = scripts.loadAll(true);
