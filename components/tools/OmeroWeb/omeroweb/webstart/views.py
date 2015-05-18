@@ -29,6 +29,7 @@ import traceback
 from glob import glob
 
 from django.conf import settings
+from django.http.request import split_domain_port
 from django.template import loader as template_loader
 from django.template import RequestContext as Context
 from django.core.urlresolvers import reverse
@@ -39,6 +40,7 @@ from omero_version import build_year
 from omero_version import omero_version
 
 from decorators import login_required, render_response
+
 
 @never_cache
 @login_required()
@@ -76,7 +78,6 @@ def index(request, conn=None, **kwargs):
         context['template'] = 'webstart/index.html'
 
     return context
-
 
 
 @never_cache
@@ -130,7 +131,7 @@ def buildWebhost(request, web_host=None):
         web_host = request.build_absolute_uri(prefix)
     return web_host
 
-from django.http.request import split_domain_port
+
 def getOmeroHost(request, host=None):
     if host is None or host in ("localhost", "127.0.0.1"):
         hostport = request.get_host()
