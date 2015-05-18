@@ -2,15 +2,34 @@
 ## postgres profile
 ##
 
-# The TCP port or the local Unix-domain socket file extension on which the
-# server is listening for connections.
+# TCP port on which the database server is listening for connections.
+# Used by the JDBC driver to access the database. Use of a local UNIX
+# socket is not supported.
+#
+# (PostgreSQL default)
 omero.db.port=5432
-### END
+
+# JDBC driver used to access the database. Other drivers can be configured
+# which wrap this driver to provide logging, monitoring, etc.
+#
+# (PostgreSQL default)
 omero.db.driver=org.postgresql.Driver
-omero.db.driver_type=UNUSED
+
+# Implementation of the org.hibernate.dialect.Dialect interface which will
+# be used to convert HQL queries and save operations into SQL SELECTs and
+# DML statements.
+#
+# (PostgreSQL default)
 omero.db.dialect=ome.util.PostgresqlDialect
-omero.db.generate_dialect=ome.util.PostgresqlDialect
+
+# Implementation of the ome.util.SqlAction interface which will be used to
+# perform all direct SQL actions, i.e. without Hibernate.
+#
+# (PostgreSQL default)
 omero.db.sql_action_class=ome.util.actions.PostgresSqlAction
+
+### END
+omero.db.generate_dialect=ome.util.PostgresqlDialect
 omero.db.lob_handler=org.springframework.jdbc.support.lob.DefaultLobHandler
 omero.db.org=org.postgresql
 omero.db.jar=postgresql
@@ -19,3 +38,4 @@ omero.db.delimiter=;;
 omero.db.defer=
 omero.db.temp_ids=false
 omero.security.filter.bitand=(int8and(permissions,%s) = %s)
+omero.db.driver_type=UNUSED
