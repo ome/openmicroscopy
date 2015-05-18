@@ -397,30 +397,35 @@ public class ROIReader {
 
     /**
      * Reads the results and save them to the specified file.
+     * Returns <code>false</code> if no results to read, <code>true</code>
+     * otherwise.
      *
      * @param f The file to save the results to.
+     * @return Returns <c
      */
-    public void readResults(File f)
+    public boolean readResults(File f)
         throws IOException
     {
-        if (f == null) return;
-        readResults(f.getAbsolutePath());
+        if (f == null) return false;
+        return readResults(f.getAbsolutePath());
     }
 
     /**
      * Reads the results and save them to the specified file.
+     * Returns <code>false</code> if no results to read, <code>true</code>
+     * otherwise.
      *
      * @param f The file to save the results to.
      */
-    public void readResults(String f)
+    public boolean readResults(String f)
         throws IOException
     {
         ResultsTable rt = ResultsTable.getResultsTable();
-        if (rt != null) {
-            rt.updateResults();
-            rt.show("Results");
-            rt.saveAs(f);
-        }
+        if (rt == null) return false;
+        rt.updateResults();
+        rt.show("Results");
+        rt.saveAs(f);
+        return true;
     }
 
 }
