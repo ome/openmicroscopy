@@ -30,6 +30,27 @@
     <script type="text/javascript">
         $(function() {
 
+            // This is duplicated in containers.html
+            // Deletion itself is handled by OME.handleDelete()
+            $("#delete-dialog-form").dialog({
+                dialogClass: 'delete_confirm_dialog',
+                autoOpen: false,
+                resizable: true,
+                height: 210,
+                width:420,
+                modal: true,
+                buttons: {
+                    "Yes": function() {
+                        $("#delete-dialog-form").data("clicked_button", "Yes");
+                        $( this ).dialog( "close" );
+                    },
+                    "No": function() {
+                        $("#delete-dialog-form").data("clicked_button", "No");
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
+
             // We truncate images when the left panel resizes...
             $("#left_panel").on('resize', OME.truncateNames);
             // and also when we load new data in the tree
@@ -365,13 +386,7 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-                    var confirm_delete = OME.confirm_dialog('Delete selected Tags?',
-                        function() {
-                            if(confirm_delete.data("clicked_button") == "OK") {
-                                $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
-                            }
-                        }
-                    );
+                    OME.handleDelete();
                     break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
@@ -461,6 +476,20 @@
         </div>
     </div>
 </div>
+        <!-- hidden form for delete dialogs -->
+        <div id="delete-dialog-form" title="Delete" style="display:none"
+                data-url="{% url 'manage_action_containers' 'deletemany' %}"
+                data-fileset-check-url="{% url 'fileset_check' 'delete' %}">
+            <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
+            <p>If yes:</p>
+            <form>
+            <fieldset style="border: 0px solid white">
+                <input type="checkbox" name="delete_anns" id="delete_anns" />
+                Also delete any Annotations that become 'orphans'?<br/>
+            </fieldset>
+            </form>
+        </div>
+
 {% endblock %}
 
 
