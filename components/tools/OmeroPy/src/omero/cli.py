@@ -1662,6 +1662,12 @@ class GraphControl(CmdControl):
             req_or_doall = omero.cmd.DoAll([req_or_doall])
         return req_or_doall
 
+    def default_exclude(self):
+        """
+        Return a list of types to exclude by default.
+        """
+        return []
+
     def main_method(self, args):
 
         client = self.ctx.conn(args)
@@ -1699,21 +1705,24 @@ class GraphControl(CmdControl):
                 self.ctx.out("\n".join(keys))
                 return  # Early exit.
 
-        opt = None
+        inc = []
         if args.include:
             inc = args.include.split(",")
-            opt = omero.cmd.graphs.ChildOption(includeType=inc)
+        exc = self.default_exclude()
         if args.exclude:
-            exc = args.exclude.split(",")
-            if opt is None:
-                opt = omero.cmd.graphs.ChildOption(excludeType=exc)
-            else:
+            exc = exc.extend(args.exclude.split(","))
+
+        if len(inc) > 0 or len(exc) > 0:
+            opt = omero.cmd.graphs.ChildOption()
+            if len(inc) > 0:
+                opt.includeType = inc
+            if len(exc) > 0:
                 opt.excludeType = exc
 
         commands = args.obj
         for req in commands:
             req.dryRun = args.dry_run
-            if args.include or args.exclude:
+            if len(inc) > 0 or len(exc) > 0:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.childOptions = req.childOptions
