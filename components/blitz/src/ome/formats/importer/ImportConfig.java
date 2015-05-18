@@ -28,6 +28,8 @@ import java.util.prefs.Preferences;
 
 import loci.formats.FormatTools;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.targets.ImportTarget;
+import ome.formats.importer.targets.TargetBuilder;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
@@ -48,6 +50,12 @@ import ch.qos.logback.classic.Level;
 public class ImportConfig {
 
     private final static Logger log = LoggerFactory.getLogger(ImportConfig.class);
+
+    /** The class used to identify the dataset target.*/
+    private static final String DATASET_CLASS = "omero.model.Dataset";
+
+    /** The class used to identify the screen target.*/
+    private static final String SCREEN_CLASS = "omero.model.Screen";
 
     /**
      * Delimiter used to encode multiple servers in one preferences value.
@@ -111,9 +119,14 @@ public class ImportConfig {
     public final StrValue email;
     public final StrValue userSpecifiedName;
     public final StrValue userSpecifiedDescription;
+
+    @Deprecated
     public final StrValue targetClass;
+
+    @Deprecated
     public final LongValue targetId;
-    public final StrValue template;
+
+    public final StrValue target;
 
     public final BoolValue debug;
     public final BoolValue contOnError;
@@ -254,7 +267,7 @@ public class ImportConfig {
         userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
         targetId     = new LongValue("targetId", this, 0L);
-        template     = new StrValue("template", this);
+        target       = new StrValue("target", this);
 
         savedProject = new LongValue("savedProject", this, 0L);
         savedDataset = new LongValue("savedDataset", this, 0L);
@@ -1021,4 +1034,26 @@ public class ImportConfig {
             }
         }
     }
+
+    public ImportTarget getTarget() {
+        TargetBuilder builder = new TargetBuilder();
+        if (target.get() != null)
+        {
+            return builder.parse(target.get()).build();
+        }
+        if (DATASET_CLASS.equals(targetClass.get()))
+        {
+            return builder.parse(
+                    String.format("%s:%s", DATASET_CLASS, targetId.get()))
+                    .build();
+        }
+        else if (SCREEN_CLASS.equals(targetClass.get()))
+        {
+            return builder.parse(
+                    String.format("%s:%s", SCREEN_CLASS, targetId.get()))
+                    .build();
+        }
+        return null;
+    }
+
 }
