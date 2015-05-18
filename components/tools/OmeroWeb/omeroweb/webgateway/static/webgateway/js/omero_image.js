@@ -100,6 +100,10 @@
                 if (callback) {
                     callback();
                 }
+                // update 'default' values of Z & T so we know of unsaved changes
+                $('#wblitz-z-curr').attr('data-defaultZ',viewport.getZPos());
+                $('#wblitz-t-curr').attr('data-defaultT',viewport.getTPos());
+
                 viewport.setSaved();
                 updateUndoRedo(viewport);
             });
@@ -151,25 +155,43 @@
 
     window.imageChange = function (viewport) {
         var newZ = viewport.getZPos(),
-            oldZ = $('#wblitz-z-curr').html(),
+            oldZ = $('#wblitz-z-curr').attr('data-defaultZ'),
             newT = viewport.getTPos(),
-            oldT = $('#wblitz-t-curr').html(),
-            zChanged = (oldZ != '?' && oldZ != newZ),
-            tChanged = (oldT != '?' && oldT != newT);
-        $('#wblitz-t-curr').html(newZ);
+            oldT = $('#wblitz-t-curr').attr('data-defaultT');
+            // zChanged = (oldZ && oldZ != newZ),
+            // tChanged = (oldT && oldT != newT);
+        $('#wblitz-t-curr').html(newT);
         $('#wblitz-z-curr').html(newZ);
+        // if default Z and T not set yet, we are just loading image for first time...
+        if (!oldZ) {
+            $('#wblitz-z-curr').attr('data-defaultZ',newZ);
+        }
+        if (!oldT) {
+            $('#wblitz-t-curr').attr('data-defaultT',newT);
+        }
         $('#wblitz-t-count').html(viewport.getTCount());
         $('#wblitz-z-count').html(viewport.getZCount());
 
         // Z/T change enables Save button
-        var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
-        if ((zChanged || tChanged) && canSaveRdef) {
-            $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
-        }
+        // var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
+        // if ((zChanged || tChanged) && canSaveRdef) {
+        //     $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
+        // }
+        updateUndoRedo(viewport);
 
         if (viewport.hasLinePlot() || $('#wblitz-lp-enable').prop('checked')) {
             viewport.refreshPlot();
         }
+    };
+
+    window.isZandTsaved = function(viewport) {
+        var savedZ = $('#wblitz-z-curr').attr('data-defaultZ'),
+            currZ = viewport.getZPos(),
+            savedT = $('#wblitz-t-curr').attr('data-defaultT'),
+            currT = viewport.getTPos();
+        var zSaved = (!savedZ || savedZ == currZ);
+        var tSaved = (!savedT || savedT == currT);
+        return (zSaved && tSaved);
     };
 
     window.syncChannelsActive = function(viewport) {
@@ -216,7 +238,7 @@
             $('#rdef-redo-btn').attr("disabled", "disabled").addClass("button-disabled");
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
-        if (viewport.getSaved() || !canSaveRdef) {
+        if ((viewport.getSaved() && isZandTsaved(viewport)) || !canSaveRdef) {
             $("#rdef-setdef-btn").attr("disabled", "disabled").addClass("button-disabled");
         } else {
             $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
