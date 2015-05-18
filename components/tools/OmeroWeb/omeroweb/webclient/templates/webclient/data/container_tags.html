@@ -42,8 +42,8 @@
                     var toolbar_config = new Object();
                     
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {                            
-                            toolbar_config = {'delete':{% if isLeader %}true{% else %}false{% endif %}};
+                        if(selected.hasClass('canDelete')) {
+                            toolbar_config = {'delete':true};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
                                 toolbar_config = {'delete':false};
