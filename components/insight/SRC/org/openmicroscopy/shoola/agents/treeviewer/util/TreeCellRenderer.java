@@ -34,6 +34,7 @@ import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -770,7 +771,8 @@ public class TreeCellRenderer
 			g.fillRect(xText, 0, getSize().width, getSize().height);
 		}
     	if (ref != null) {
-    	    int w = ref.getViewport().getSize().width;
+    	    JViewport vp = ref.getViewport();
+    	    int w = vp.getSize().width;
             FontMetrics fm = getFontMetrics(getFont());
             String text = node.getNodeName();
             if (numberChildrenVisible) text = node.getNodeText();
@@ -786,7 +788,12 @@ public class TreeCellRenderer
                 String value = UIUtilities.formatPartialName(text, vv);
                 setText(value);
                 w = getPreferredWidth();
-                setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
+                Dimension d = new Dimension(w, fm.getHeight()+4);
+                if (vp.getComponentCount() > 0) {
+                    vp.getComponent(0).setPreferredSize(d);
+                }
+                setSize(d);//4 b/c GTK L&F
+                setPreferredSize(d);//4 b/c GTK L&F
             }
     	}
     	selected = false;
