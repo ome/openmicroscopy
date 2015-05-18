@@ -34,6 +34,7 @@ import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportEvent.FILESET_EXCLUSION;
 import ome.formats.importer.exclusions.FileExclusion;
+import ome.formats.importer.targets.ImportTemplate;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.TransferState;
 import ome.formats.importer.transfers.UploadFileTransfer;
