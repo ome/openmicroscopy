@@ -18,7 +18,10 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.targets;
+
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
