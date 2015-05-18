@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.formats.model.UnitsFactory;
@@ -394,6 +393,34 @@ public class ROIReader {
         rt.updateResults();
         rt.show("Results");
         rt.saveAs(f);
+    }
+
+    /**
+     * Reads the results and save them to the specified file.
+     *
+     * @param f The file to save the results to.
+     */
+    public void readResults(File f)
+        throws IOException
+    {
+        if (f == null) return;
+        readResults(f.getAbsolutePath());
+    }
+
+    /**
+     * Reads the results and save them to the specified file.
+     *
+     * @param f The file to save the results to.
+     */
+    public void readResults(String f)
+        throws IOException
+    {
+        ResultsTable rt = ResultsTable.getResultsTable();
+        if (rt != null) {
+            rt.updateResults();
+            rt.show("Results");
+            rt.saveAs(f);
+        }
     }
 
 }
