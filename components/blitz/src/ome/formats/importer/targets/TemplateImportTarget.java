@@ -39,13 +39,13 @@ import omero.sys.ParametersI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractPathTarget implements ImportTarget {
+public abstract class TemplateImportTarget implements ImportTarget {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private String template;
     private String filename;
-    private Boolean isSPW;
+    private boolean isSPW;
 
     private String user = null;
     private String group = null;

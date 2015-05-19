@@ -39,7 +39,7 @@ public class TargetBuilder {
     @SuppressWarnings("unchecked")
     public TargetBuilder parse(String string) {
         if (target != null) {
-            throw new IllegalStateException(String.format(
+            throw new RuntimeException(String.format(
                     "Only one target supported: old=%s new=%s",
                     this.target, string));
         }
@@ -65,14 +65,10 @@ public class TargetBuilder {
                 }
             }
 
-            if ("abspath".equals(prefix)) {
-                type = AbspathImportTarget.class;
-                return this;
-            }
         }
 
         // Handles everything else.
-        type = RelpathImportTarget.class;
+        type = TemplateImportTarget.class;
         return this;
     }
 
