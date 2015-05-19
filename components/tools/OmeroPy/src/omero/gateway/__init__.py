@@ -7517,7 +7517,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 "join p.image as img "\
                 "join p.channels as chan "\
                 "join chan.logicalChannel as lc "\
-                "where img.id = :id"
+                "where img.id = :id order by index(chan)"
         res = q.projection(query, params, self._conn.SERVICE_OPTS)
         ret = []
         for name, emissionWave, idx in res:

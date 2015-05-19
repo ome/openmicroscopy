@@ -71,41 +71,52 @@ def image_no_acquisition_date(request, gatewaywrapper):
 @pytest.fixture()
 def image_channel_factory(itest, gatewaywrapper):
 
-    def make_image_channel(channel):
+    def make_image_channels(channels):
         gatewaywrapper.loginAsAuthor()
         gw = gatewaywrapper.gateway
         update_service = gw.getUpdateService()
         pixels = itest.pix(client=gw.c)
-        pixels.addChannel(channel)
+        for channel in channels:
+            pixels.addChannel(channel)
         pixels = update_service.saveAndReturnObject(pixels)
         return gw.getObject('Image', pixels.image.id)
-    return make_image_channel
+    return make_image_channels
 
 
 @pytest.fixture()
 def labeled_channel(image_channel_factory):
-    channel = ChannelI()
-    lchannel = LogicalChannelI()
-    lchannel.name = rstring('a channel')
-    channel.logicalChannel = lchannel
-    return image_channel_factory(channel)
+    channels = list()
+    for index in range(2):
+        channel = ChannelI()
+        lchannel = LogicalChannelI()
+        lchannel.name = rstring('a channel %d' % index)
+        channel.logicalChannel = lchannel
+        channels.append(channel)
+    return image_channel_factory(channels)
 
 
 @pytest.fixture()
 def emissionWave_channel(image_channel_factory):
-    channel = ChannelI()
-    lchannel = LogicalChannelI()
-    lchannel.emissionWave = LengthI(123.0, 'NANOMETER')
-    channel.logicalChannel = lchannel
-    return image_channel_factory(channel)
+    channels = list()
+    emission_waves = (LengthI(123.0, 'NANOMETER'), LengthI(456.0, 'NANOMETER'))
+    for emission_wave in emission_waves:
+        channel = ChannelI()
+        lchannel = LogicalChannelI()
+        lchannel.emissionWave = emission_wave
+        channel.logicalChannel = lchannel
+        channels.append(channel)
+    return image_channel_factory(channels)
 
 
 @pytest.fixture()
 def unlabeled_channel(image_channel_factory):
-    channel = ChannelI()
-    lchannel = LogicalChannelI()
-    channel.logicalChannel = lchannel
-    return image_channel_factory(channel)
+    channels = list()
+    for index in range(2):
+        channel = ChannelI()
+        lchannel = LogicalChannelI()
+        channel.logicalChannel = lchannel
+        channels.append(channel)
+    return image_channel_factory(channels)
 
 
 class TestImageWrapper(object):
@@ -132,31 +143,16 @@ class TestImageWrapper(object):
         }
 
     def testChannelLabel(self, labeled_channel):
-        labels = labeled_channel.getChannelLabels()
-        channels = labeled_channel.getChannels()
-        assert labels
-        assert channels
-        assert len(labels) == len(channels)
-
-        for channel in channels:
-            assert channel.getLabel() in labels
+        labels_a = labeled_channel.getChannelLabels()
+        labels_b = [v.getLabel() for v in labeled_channel.getChannels()]
+        assert labels_a == labels_b == ['a channel 0', 'a channel 1']
 
     def testChannelEmissionWaveLabel(self, emissionWave_channel):
-        labels = emissionWave_channel.getChannelLabels()
-        channels = emissionWave_channel.getChannels()
-        assert labels
-        assert channels
-        assert len(labels) == len(channels)
-
-        for channel in channels:
-            assert channel.getLabel() in labels
+        labels_a = emissionWave_channel.getChannelLabels()
+        labels_b = [v.getLabel() for v in emissionWave_channel.getChannels()]
+        assert labels_a == labels_b == ['123', '456']
 
     def testChannelNoLabel(self, unlabeled_channel):
-        labels = unlabeled_channel.getChannelLabels()
-        channels = unlabeled_channel.getChannels()
-        assert labels
-        assert channels
-        assert len(labels) == len(channels)
-
-        for channel in channels:
-            assert channel.getLabel() in labels
+        labels_a = unlabeled_channel.getChannelLabels()
+        labels_b = [v.getLabel() for v in unlabeled_channel.getChannels()]
+        assert labels_a == labels_b == ['0', '1']
