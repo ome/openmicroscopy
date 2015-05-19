@@ -7512,11 +7512,12 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         q = self._conn.getQueryService()
         params = omero.sys.ParametersI()
         params.addId(self.getId())
-        query = "select lc.name, lc.emissionWave, chan.id "\
-                "from LogicalChannel lc, Channel chan, Image img "\
-                "where chan.logicalChannel = lc "\
-                "and chan.pixels.image = img "\
-                "and img.id = :id"
+        query = "select lc.name, lc.emissionWave, index(chan) "\
+                "from Pixels p "\
+                "join p.image as img "\
+                "join p.channels as chan "\
+                "join chan.logicalChannel as lc "\
+                "where img.id = :id"
         res = q.projection(query, params, self._conn.SERVICE_OPTS)
         ret = []
         for name, emissionWave, idx in res:
