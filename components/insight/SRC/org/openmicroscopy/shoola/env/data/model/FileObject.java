@@ -219,9 +219,17 @@ public class FileObject
             ImagePlus img = (ImagePlus) file;
             if (img.changes) return true;
             FileInfo info = img.getOriginalFileInfo();
+            IJ.log("info:"+info);
+            String name;
             if (info == null) {
                 info = img.getFileInfo();
-                String name = info.fileName;
+                name = info.fileName;
+                IJ.log("name:"+name);
+                if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
+                    return true;
+            } else {
+                name = info.fileName;
+                IJ.log("name:"+name);
                 if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
                     return true;
             }
@@ -260,7 +268,9 @@ public class FileObject
                         }
                         return trueFile;
                     }
-                    if (info.directory != null && info.fileName != null) {
+                    if (isNewImage()) return null;
+                    if (info.directory != null && info.fileName != null &&
+                            !"Untitled".equals(info.fileName)) {
                         trueFile = new File(info.directory, info.fileName);
                         return trueFile;
                     }
