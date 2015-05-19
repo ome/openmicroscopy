@@ -338,6 +338,10 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
 
     }
 
+    /**
+     * Subclass for when no {@link Ice.Current} is available. Uses "root" as
+     * the login and creates a new session which <em>must</em> be closed.
+     */
     private static class RootLoader extends Loader {
 
         final String root;
@@ -382,6 +386,10 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
         }
     }
 
+    /**
+     * Simpler subclass which uses the {@link Ice.Current} stored within a
+     * {@link Key} instance.
+     */
     private static class UserLoader extends Loader {
 
         final Key key;
@@ -403,6 +411,12 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
         }
     }
 
+    /**
+     * Simple Set/Map-compatible class for storing instances based on a
+     * (Long, String) tuple. An additional possibly null {@link Ice.Current}
+     * instance can also be stored but will not effect {@link #equals(Object)}
+     * or {@link #hashCode()} calculation.
+     */
     private static class Key {
 
         final Long id;
