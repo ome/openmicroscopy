@@ -236,6 +236,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                                 "Use editScript to modify existing official scripts.");
                     } else if (fileID != null) {
                         log.info("Overwriting existing non-script: " + fileID);
+                        cache.removeParams(fileID);
                     }
                     RepoFile f = scripts.write(path, scriptText);
                     OriginalFile file = scripts.addOrReplace(f, fileID);
@@ -288,6 +289,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 } else {
                     file = writeContent(file, scriptText, __current);
                 }
+                cache.removeParams(file.getId());
                 validateParams(__current, file);
                 return null; // void
             }

@@ -176,6 +176,13 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
     }
 
     /**
+     * Remove a cached {@link JobParams} instance.
+     */
+    public void removeParams(Long id) {
+        cache.invalidate(id);
+    }
+
+    /**
      * Called by the {@link LoadingCache} when a cache-miss occurs.
      */
     public JobParams lookup(Long key) throws Exception {
