@@ -1740,12 +1740,47 @@ class GraphControl(CmdControl):
         if not args.ordered and len(commands) > 1:
             commands = self.combine_commands(commands)
 
+        for command_check in commands:
+            self._check_command(command_check)
+
         if len(commands) == 1:
             cmd = args.obj[0]
         else:
             cmd = omero.cmd.DoAll(commands)
 
         self._process_request(cmd, args, client)
+
+    def _check_command(self, command_check):
+        query = self.ctx.get_client().sf.getQueryService()
+        ec = self.ctx.get_event_context()
+        own_id = ec.userId
+        if not command_check or not command_check.targetObjects:
+            return
+        for k, v in command_check.targetObjects.items():
+            query_str = (
+                "select "
+                "x.details.owner.id, "
+                "x.details.group.details.permissions "
+                "from %s x "
+                "where x.id = :id") % k
+            if not v:
+                return
+            for w in v:
+                try:
+                    uid, perms = omero.rtypes.unwrap(
+                        query.projection(
+                            query_str,
+                            omero.sys.ParametersI().addId(w),
+                            {"omero.group": "-1"})[0])
+                    perms = perms["perm"]
+                    perms = omero.model.PermissionsI(perms)
+                    if perms.isGroupWrite() and uid != own_id:
+                        self.ctx.err(
+                            "WARNING: %s:%s belongs to user %s" % (
+                                k, w, uid))
+                except:
+                    self.ctx.dbg(traceback.format_exc())
+                    # Doing nothing since this is a best effort
 
     def combine_commands(self, commands):
         """
