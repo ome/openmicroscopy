@@ -2375,7 +2375,7 @@ class EditorModel
 		if (ratings == null || ratings.size() == 0) return null;
 		Iterator<RatingAnnotationData> i = ratings.iterator();
 		RatingAnnotationData rate;
-		long id = getUserID();
+		long id = getCurrentUser().getId();
 		while (i.hasNext()) {
 			rate = i.next();
 			if (rate.getOwner().getId() == id)
