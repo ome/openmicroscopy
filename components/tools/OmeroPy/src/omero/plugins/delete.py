@@ -48,12 +48,20 @@ class DeleteControl(GraphControl):
 
     def print_delete_response(self, rsp):
         self.ctx.out("Deleted objects")
+        objIds = self._get_object_ids(rsp)
+        for k in sorted(objIds):
+            self.ctx.out("%s:%s" % (k, objIds[k]))
+
+    def _get_object_ids(self, rsp):
+        objIds = {}
         for k in rsp.deletedObjects.keys():
             if rsp.deletedObjects[k]:
                 for excl in EXCLUDED_PACKAGES:
                     if not k.startswith(excl):
                         ids = ','.join(map(str, rsp.deletedObjects[k]))
-                        self.ctx.out("%s:%s" % (k, ids))
+                        k = k[k.rfind('.')+1:]
+                        objIds[k] = ids
+        return objIds
 
 try:
     register("delete", DeleteControl, HELP)
