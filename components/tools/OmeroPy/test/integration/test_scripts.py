@@ -524,11 +524,12 @@ client.closeSession()
 
     def testDynamic(self):
         DYNAMIC = """if True:
-        import omero.constants as OC
+        import omero.all  # For constants
+        import omero.constants.namespaces as OCN
         import omero.grid as OG
         import omero.scripts as OS
         job = OG.JobParams(name="testDynamic",
-                           namespaces=[OC.namespaces.NSDYNAMIC])
+                           namespaces=[OCN.NSDYNAMIC])
         c = OS.client(job)
         """
         CACHED = """if True:
