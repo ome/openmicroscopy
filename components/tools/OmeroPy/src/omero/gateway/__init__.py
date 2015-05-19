@@ -7512,7 +7512,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         q = self._conn.getQueryService()
         params = omero.sys.ParametersI()
         params.addId(self.getId())
-        query = "select lc.name, lc.emissionWave, index(chan) "\
+        query = "select lc.name, lc.emissionWave.value, index(chan) "\
                 "from Pixels p "\
                 "join p.image as img "\
                 "join p.channels as chan "\
@@ -7525,7 +7525,12 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 ret.append(name.val)
             elif emissionWave is not None and\
                     len(unicode(emissionWave.val).strip()) > 0:
-                ret.append(unicode(emissionWave.val))
+                # FIXME: units ignored for wavelength
+                rv = emissionWave.getValue()
+                # Don't show as double if it's really an int
+                if int(rv) == rv:
+                    rv = int(rv)
+                ret.append(unicode(rv))
             else:
                 ret.append(unicode(idx.val))
         return ret
