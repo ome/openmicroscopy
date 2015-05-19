@@ -82,7 +82,6 @@ def image_channel_factory(itest, gatewaywrapper):
     return make_image_channel
 
 
-
 @pytest.fixture()
 def labeled_channel(image_channel_factory):
     channel = ChannelI()
