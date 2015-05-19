@@ -20,8 +20,11 @@
 package ome.services.blitz.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -63,13 +66,13 @@ import com.google.common.cache.LoadingCache;
 
 /**
  * Caching replacement of {@link omero.grid.ParamsHelper} which maintains an
- * {@link OriginalFile} ID-to-{@link JobParams} mapping in memory rather than
- * storing ParseJob instances in the database. All scripts are read once on
+ * {@link OriginalFile} ID+SHA1-to-{@link JobParams} mapping in memory rather
+ * than storing ParseJob instances in the database. All scripts are read once on
  * start and them subsequently based on the omero.scripts.cache.cron setting.
  * {@link JobParams} instances may be removed from the cache based on the
  * omero.scripts.cache.spec setting. If a key is not present in the cache on
- * {@link #getParams(long)} then an attempt will be made to load it. Any
- * exceptions thrown will be propagated to the callter.
+ * {@link #getParams(String)} then an attempt will be made to load it. Any
+ * exceptions thrown will be propagated to the caller.
  *
  * @since 5.1.2
  */
@@ -95,7 +98,7 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
     private final static Logger log = LoggerFactory
             .getLogger(ParamsCache.class);
 
-    private final LoadingCache<Long, JobParams> cache;
+    private final LoadingCache<Key, JobParams> cache;
 
     private final Registry reg;
 
@@ -111,8 +114,8 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
         this.roles = roles;
         this.scripts = scripts;
         this.cache = CacheBuilder.from(spec).build(
-                new CacheLoader<Long, JobParams>() {
-                    public JobParams load(Long key) throws Exception {
+                new CacheLoader<Key, JobParams>() {
+                    public JobParams load(Key key) throws Exception {
                         return lookup(key);
                     }
                 });
@@ -158,10 +161,10 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
      * @return
      * @throws UserException
      */
-    public JobParams getParams(long key) throws UserException {
-        Slf4JStopWatch get = sw("get." + Long.toString(key));
+    public JobParams getParams(Long id, String sha1) throws UserException {
+        Slf4JStopWatch get = sw("get." + id);
         try {
-            return cache.get(key);
+            return cache.get(new Key(id, sha1));
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof DynamicException) {
@@ -179,13 +182,23 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
      * Remove a cached {@link JobParams} instance.
      */
     public void removeParams(Long id) {
-        cache.invalidate(id);
+        if (id == null) {
+            return;
+        }
+        Set<Key> matching = new HashSet<Key>(cache.asMap().keySet());
+        Iterator<Key> it = matching.iterator();
+        while (it.hasNext()) {
+            if (id.equals(it.next().id)) {
+                it.remove();
+            }
+        }
+        cache.invalidateAll(matching);
     }
 
     /**
      * Called by the {@link LoadingCache} when a cache-miss occurs.
      */
-    public JobParams lookup(Long key) throws Exception {
+    public JobParams lookup(Key key) throws Exception {
         return _load(key);
     }
 
@@ -208,8 +221,8 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
      * Internal loading method which uses a {@link Loader} to create
      * a session as root and perform the necessary script invocation.
      */
-    private JobParams _load(Long key) throws Exception {
-        Slf4JStopWatch load = sw(key == null ? "all" : Long.toString(key));
+    private JobParams _load(Key key) throws Exception {
+        Slf4JStopWatch load = sw(key == null ? "all" : Long.toString(key.id));
         Loader loader = null;
         try {
             Slf4JStopWatch login = sw("login");
@@ -235,8 +248,9 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
                 for (OriginalFile file : files) {
                     try {
                         Slf4JStopWatch single = sw(file.getId().toString());
-                        cache.put(file.getId(),
-                                loader.createParams(file.getId()));
+                        Key newkey = new Key(file.getId(), file.getHash());
+                        cache.put(newkey,
+                                loader.createParams(newkey));
                         single.stop();
                     } catch (omero.ValidationException ve) {
                         // Likely an invalid script
@@ -309,9 +323,9 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
          * either as the current admin user or if this is a user script, creating
          * a temporary loader with just that context.
          */
-        JobParams createParams(Long key) throws Exception {
+        JobParams createParams(Key key) throws Exception {
             try {
-                return helper.generateScriptParams(key, false, curr);
+                return helper.generateScriptParams(key.id, false, curr);
             } catch (SecurityViolation e) {
                 if (gid != null) {
                     throw e;
@@ -337,7 +351,7 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
             }
         }
 
-        void findContext(final Long key, final Object[] context) {
+        void findContext(final Key key, final Object[] context) {
             Map<String, String> allGroups = new HashMap<String, String>();
             allGroups.put(GROUP.value, "-1");
             sf.executor.execute(allGroups, sf.getPrincipal(),
@@ -345,7 +359,7 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
                         @Transactional(readOnly=true)
                         @Override
                         public Object doWork(Session session, ServiceFactory sf) {
-                            OriginalFile ofile = (OriginalFile) session.get(OriginalFile.class, key);
+                            OriginalFile ofile = (OriginalFile) session.get(OriginalFile.class, key.id);
                             if (ofile != null) {
                                 String uid = ofile.getDetails().getOwner().getOmeName();
                                 Long gid = ofile.getDetails().getGroup().getId();
@@ -362,6 +376,48 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
             }
         }
 
+    }
+
+    private static class Key {
+
+        final Long id;
+        final String sha1;
+
+        Key(Long id, String sha1) {
+            this.id = id;
+            this.sha1 = sha1;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 113;
+            int result = 1;
+            result = prime * result + ((id == null) ? 0 : id.hashCode());
+            result = prime * result + ((sha1 == null) ? 0 : sha1.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Key other = (Key) obj;
+            if (id == null) {
+                if (other.id != null)
+                    return false;
+            } else if (!id.equals(other.id))
+                return false;
+            if (sha1 == null) {
+                if (other.sha1 != null)
+                    return false;
+            } else if (!sha1.equals(other.sha1))
+                return false;
+            return true;
+        }
     }
 
 }

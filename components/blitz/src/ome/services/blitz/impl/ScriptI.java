@@ -411,7 +411,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
-                return cache.getParams(id);
+                final OriginalFile file = getOriginalFileOrNull(id, __current);
+                if (file == null) {
+                    return null;
+                }
+                return cache.getParams(id, file.getHash());
             }
         });
     }
@@ -710,7 +714,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         try {
 
-            JobParams params = cache.getParams(file.getId());
+            JobParams params = cache.getParams(file.getId(), file.getHash());
 
             if (params == null) {
                 throw new ApiUsageException(null, null, "Script error: no params found.");
