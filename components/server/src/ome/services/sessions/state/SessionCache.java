@@ -24,17 +24,19 @@ import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.system.OmeroContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.MapMaker;
 
 /**
@@ -351,6 +353,38 @@ public class SessionCache implements ApplicationContextAware {
      * {@link RemovedSessionException} or {@link SessionTimeoutException}.
      */
     public SessionContext getSessionContext(String uuid) {
+        return getSessionContext(uuid, false);
+    }
+
+    /**
+     * Retrieve a session possibly raising either
+     * {@link RemovedSessionException} or {@link SessionTimeoutException}.
+     *
+     * @param quietly If true, then the access time for the given UUID
+     *                  will not be updated.
+     */
+    public SessionContext getSessionContext(String uuid, boolean quietly) {
+        if (uuid == null) {
+            throw new ApiUsageException("Uuid cannot be null.");
+        }
+
+        Data data = getDataNullOrThrowOnTimeout(uuid, true);
+
+        if (!quietly) {
+            // Up'ing access time
+            this.sessions.put(uuid, new Data(data));
+        }
+        return data.sessionContext;
+    }
+
+    /**
+     * Returns all the data contained in the internal implementation of
+     * this manger.
+     *
+     * @param quietly If true, then the access time for the given UUID
+     *                  will not be updated.
+     */
+    public Map<String, Object> getSessionData(String uuid, boolean quietly) {
 
         if (uuid == null) {
             throw new ApiUsageException("Uuid cannot be null.");
@@ -358,9 +392,18 @@ public class SessionCache implements ApplicationContextAware {
 
         Data data = getDataNullOrThrowOnTimeout(uuid, true);
 
-        // Up'ing access time
-        this.sessions.put(uuid, new Data(data));
-        return data.sessionContext;
+        if (!quietly) {
+            // Up'ing access time
+            this.sessions.put(uuid, new Data(data));
+        }
+
+        return new ImmutableMap.Builder<String, Object>()
+            .put("class", getClass().getName())
+            .put("sessionContext", data.sessionContext)
+            .put("hitCount", data.hitCount)
+            .put("lastAccessTime", data.lastAccessTime)
+            // .put("error", data.error.get())
+            .build();
     }
 
     /**
@@ -490,7 +533,6 @@ public class SessionCache implements ApplicationContextAware {
      * significantly effected.
      */
     public Set<String> getIds() {
-        // waitForUpdate();
         return sessions.keySet();
     }
 
