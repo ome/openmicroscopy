@@ -155,38 +155,46 @@ class MyWatchManager(pyinotify.WatchManager):
 
     def addWatch(self, path, mask):
         if not self.isPathWatched(path):
-            res = pyinotify.WatchManager.add_watch(
-                self, path, mask, rec=False, auto_add=False)
-            self.watchPaths.update(res)
-            self.watchParams[path] = copy.copy(
-                self.watchParams[pathModule.path(path).parent])
-            if self.watchParams[path].getRec():
-                for d in pathModule.path(path).dirs():
-                    self.addWatch(str(d), mask)
-            if self.isPathWatched(path):
-                self.log.info('Watch added on: %s', path)
-            else:
-                self.log.info('Unable to add watch on: %s', path)
+            try:
+                res = pyinotify.WatchManager.add_watch(
+                    self, path, mask, rec=False, auto_add=False)
+                self.watchPaths.update(res)
+                self.watchParams[path] = copy.copy(
+                    self.watchParams[pathModule.path(path).parent])
+                if self.watchParams[path].getRec():
+                    for d in pathModule.path(path).dirs():
+                        self.addWatch(str(d), mask)
+                if self.isPathWatched(path):
+                    self.log.info('Watch added on: %s', path)
+                else:
+                    self.log.info('Unable to add watch on: %s', path)
+            except Exception, e:
+                self.log.error(
+                    'Unable to add watch on: %s : %s', path, str(e))
 
     def removeWatch(self, path):
         if self.isPathWatched(path):
-            removeDict = {}
-            self.log.info('Trying to remove : %s', path)
-            removeDict[self.watchPaths[path]] = path
-            for d in self.watchPaths.keys():
-                if d.find(path + '/') == 0:
-                    self.log.info('    ... and : %s', d)
-                    removeDict[self.watchPaths[d]] = d
-            res = pyinotify.WatchManager.rm_watch(self, removeDict.keys())
-            for wd in res.keys():
-                if res[wd]:
-                    self.watchPaths.pop(removeDict[wd], True)
-                    self.watchParams.pop(removeDict[wd], True)
-                    self.log.info('Watch removed on: %s', removeDict[wd])
-                else:
-                    self.log.info(
-                        'Watch remove failed, wd=%s, on: %s',
-                        wd, removeDict[wd])
+            try:
+                removeDict = {}
+                self.log.info('Trying to remove : %s', path)
+                removeDict[self.watchPaths[path]] = path
+                for d in self.watchPaths.keys():
+                    if d.find(path + '/') == 0:
+                        self.log.info('    ... and : %s', d)
+                        removeDict[self.watchPaths[d]] = d
+                res = pyinotify.WatchManager.rm_watch(self, removeDict.keys())
+                for wd in res.keys():
+                    if res[wd]:
+                        self.watchPaths.pop(removeDict[wd], True)
+                        self.watchParams.pop(removeDict[wd], True)
+                        self.log.info('Watch removed on: %s', removeDict[wd])
+                    else:
+                        self.log.info(
+                            'Watch remove failed, wd=%s, on: %s',
+                            wd, removeDict[wd])
+            except Exception, e:
+                self.log.error(
+                    'Unable to remove watch on: %s : %s', path, str(e))
 
     def getWatchPaths(self):
         for (path, wd) in self.watchPaths.items():
