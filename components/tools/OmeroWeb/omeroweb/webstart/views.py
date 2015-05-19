@@ -36,6 +36,7 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.cache import never_cache
 
 from omeroweb.http import HttpJNLPResponse
+from omeroweb.settings import str_slash
 from omero_version import build_year
 from omero_version import omero_version
 
@@ -129,7 +130,7 @@ def buildWebhost(request, web_host=None):
     if web_host is None or "localhost" in web_host:
         prefix = settings.FORCE_SCRIPT_NAME or "/"
         web_host = request.build_absolute_uri(prefix)
-    return web_host
+    return str_slash(web_host)
 
 
 def getOmeroHost(request, host=None):
