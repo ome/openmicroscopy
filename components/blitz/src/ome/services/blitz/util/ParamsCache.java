@@ -235,10 +235,8 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
             if (key != null) {
                 // May not return null!
                 JobParams params = loader.createParams(key);
-                if (params.namespaces != null) {
-                    if (params.namespaces.contains(NSDYNAMIC.value)) {
-                        throw new DynamicException(params);
-                    }
+                if (isDynamic(params)) {
+                    throw new DynamicException(params);
                 }
                 return params;
             } else {
@@ -249,8 +247,10 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
                     try {
                         Slf4JStopWatch single = sw(file.getId().toString());
                         Key newkey = new Key(file.getId(), file.getHash());
-                        cache.put(newkey,
-                                loader.createParams(newkey));
+                        JobParams params = loader.createParams(newkey);
+                        if (!isDynamic(params)) {
+                            cache.put(newkey, params);
+                        }
                         single.stop();
                     } catch (omero.ValidationException ve) {
                         // Likely an invalid script
@@ -271,6 +271,15 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
                 loader.close();
             }
         }
+    }
+
+    private boolean isDynamic(JobParams params) throws DynamicException {
+        if (params.namespaces != null) {
+            if (params.namespaces.contains(NSDYNAMIC.value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Simple state class for holding the various instances needed for
