@@ -2372,7 +2372,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		Collection<RatingAnnotationData> ratings = data.getRatings();
-		if (ratings == null || ratings.size() == 0) return null;
+		if (CollectionUtils.isEmpty(ratings)) return null;
 		Iterator<RatingAnnotationData> i = ratings.iterator();
 		RatingAnnotationData rate;
 		long id = getCurrentUser().getId();
