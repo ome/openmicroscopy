@@ -1409,7 +1409,7 @@ OMERO Diagnostics %s
         var = self.ctx.dir / 'var'
         if not os.path.exists(var):
             self.ctx.out("Creating directory %s" % var)
-            os.makedirs(var, 0700)
+            os.makedirs(var)
         else:
             self.can_access(var, mask)
 

@@ -748,7 +748,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version,create-workdirs"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -793,6 +793,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
+
+    <target name="create-workdirs" depends="init">
+            <mkdir dir="${dist.dir}/var"/>
     </target>
 
     <macrodef name="jar_update_if">
