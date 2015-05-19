@@ -634,7 +634,8 @@ if __name__ == '__main__':
         svc = self.client.sf.getScriptService()
         rsvc = self.root.sf.getScriptService()
         script = rsvc.uploadOfficialScript(
-                "/test/dynamic/dyn%s.py" % self.uuid(), SCRIPT)
+            "/test/dynamic/dyn%s.py" % self.uuid(), SCRIPT)
+        update = self.client.sf.getUpdateService()
 
         def contains_uuids(u1, u2):
             params = svc.getParams(script)
@@ -643,7 +644,7 @@ if __name__ == '__main__':
             assert u2 == any([(uuid2 in x) for x in datasets])
 
         contains_uuids(False, False)
-        d1 = self.new_dataset(name=uuid1)
+        update.saveObject(self.new_dataset(name=uuid1))
         contains_uuids(True, False)
-        d2 = self.new_dataset(name=uuid2)
+        update.saveObject(self.new_dataset(name=uuid2))
         contains_uuids(True, True)
