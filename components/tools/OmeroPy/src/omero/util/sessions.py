@@ -347,8 +347,13 @@ class SessionsStore(object):
             principal.name = name
             principal.group = props.get("omero.group", None)
             principal.eventType = "User"
+            try:
+                cs = sf.getConfigService()
+                idleTimeout = long(cs.getConfigValue('omero.sessions.timeout'))
+            except:
+                idleTimeout = 0L
             sess = sf.getSessionService().createSessionWithTimeouts(
-                principal, 0, 0)
+                principal, 0, idleTimeout)
             client.closeSession()
             sf = client.joinSession(sess.getUuid().getValue())
         else:
