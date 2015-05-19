@@ -20,7 +20,7 @@ import omero.processor
 import omero.scripts
 import omero.cli
 
-from omero.rtypes import rstring, wrap
+from omero.rtypes import rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
 PUBLIC = omero.model.PermissionsI("rwrwrw")
@@ -522,7 +522,7 @@ client.closeSession()
         finally:
             impl.cleanup()
 
-    def testDynamic(self):
+    def testDynamicTime(self):
         DYNAMIC = """if True:
         import omero.all  # For constants
         import omero.constants.namespaces as OCN
@@ -563,3 +563,87 @@ client.closeSession()
         d_time = min(dynamic_times)
         c_time = min(cached_times)
         assert d_time > 10 * c_time
+
+    def testDynamicUpdate(self):
+        SCRIPT = """#!/usr/bin/env python
+
+import omero
+import omero.gateway
+from omero import scripts
+from omero.rtypes import rstring, unwrap
+from datetime import datetime
+
+
+def get_params():
+    try:
+        client = omero.client()
+        client.createSession()
+        conn = omero.gateway.BlitzGateway(client_obj=client)
+        conn.SERVICE_OPTS.setOmeroGroup(-1)
+        objparams = [rstring('Dataset:%d %s' % (d.id, d.getName()))
+                     for d in conn.getObjects('Dataset')]
+        if not objparams:
+            objparams = [rstring('<No objects found> %s' % datetime.now())]
+        return objparams
+    except Exception as e:
+        return ['Exception: %s' % e]
+    finally:
+        client.closeSession()
+
+
+def runScript():
+    "The main entry point of the script"
+
+    startTime = datetime.now()
+    # objparams = [str(datetime.now()) for n in xrange(2)]
+    objparams = get_params()
+
+    client = scripts.client(
+        'Dynamic_Test.py',
+        'Test dynamic parameters',
+
+        scripts.String(
+            'Object', optional=False, grouping='1',
+            description='Select an object',
+            values=objparams),
+
+        namespaces=[omero.constants.namespaces.NSDYNAMIC],
+    )
+
+    paramsTime = datetime.now()
+
+    try:
+        scriptParams = client.getInputs(unwrap=True)
+        message = ''
+        message += 'Params: %s\\n' % scriptParams
+
+        stopTime = datetime.now()
+        message += 'Parameters time: %s\\n' % str(paramsTime - startTime)
+        message += 'Processing time: %s\\n' % str(stopTime - paramsTime)
+
+        print message
+        client.setOutput('Message', rstring(str(message)))
+
+    finally:
+        client.closeSession()
+
+if __name__ == '__main__':
+    runScript()"""
+        uuid1 = self.uuid()
+        uuid2 = self.uuid()
+        svc = self.client.sf.getScriptService()
+        rsvc = self.root.sf.getScriptService()
+        script = rsvc.uploadOfficialScript(
+                "/test/dynamic/dyn%s.py" % self.uuid(), SCRIPT)
+
+        def contains_uuids(u1, u2):
+            params = svc.getParams(script)
+            datasets = unwrap(params.inputs["Object"].values)
+            assert u1 == any([(uuid1 in x) for x in datasets])
+            assert u2 == any([(uuid2 in x) for x in datasets])
+
+        contains_uuids(False, False)
+        d1 = self.new_dataset(name=uuid1)
+        contains_uuids(True, False)
+        d2 = self.new_dataset(name=uuid2)
+        contains_uuids(True, True)

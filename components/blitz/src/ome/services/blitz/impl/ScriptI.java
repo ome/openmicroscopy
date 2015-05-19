@@ -415,7 +415,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 if (file == null) {
                     return null;
                 }
-                return cache.getParams(id, file.getHash());
+                return cache.getParams(id, file.getHash(), __current);
             }
         });
     }
@@ -714,7 +714,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         try {
 
-            JobParams params = cache.getParams(file.getId(), file.getHash());
+            JobParams params = cache.getParams(file.getId(), file.getHash(), __current);
 
             if (params == null) {
                 throw new ApiUsageException(null, null, "Script error: no params found.");

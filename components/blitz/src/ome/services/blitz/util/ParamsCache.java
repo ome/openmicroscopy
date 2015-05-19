@@ -38,6 +38,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.spring.OnContextRefreshedEventListener;
+import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.constants.GROUP;
 import omero.constants.namespaces.NSDYNAMIC;
@@ -161,10 +162,10 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
      * @return
      * @throws UserException
      */
-    public JobParams getParams(Long id, String sha1) throws UserException {
+    public JobParams getParams(Long id, String sha1, Ice.Current curr) throws UserException {
         Slf4JStopWatch get = sw("get." + id);
         try {
-            return cache.get(new Key(id, sha1));
+            return cache.get(new Key(id, sha1, curr));
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof DynamicException) {
@@ -225,21 +226,16 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
         Slf4JStopWatch load = sw(key == null ? "all" : Long.toString(key.id));
         Loader loader = null;
         try {
-            Slf4JStopWatch login = sw("login");
-            try {
-                loader = new Loader(reg, ctx, roles.getRootName());
-            } finally {
-                login.stop();
-            }
-
             if (key != null) {
                 // May not return null!
+                loader = new UserLoader(reg, ctx, key);
                 JobParams params = loader.createParams(key);
                 if (isDynamic(params)) {
                     throw new DynamicException(params);
                 }
                 return params;
             } else {
+                loader = new RootLoader(reg, ctx, roles);
                 Slf4JStopWatch list = sw("list");
                 List<OriginalFile> files = scripts.loadAll(true);
                 list.stop();
@@ -285,39 +281,37 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
     /** Simple state class for holding the various instances needed for
      * logging in and creating a {@link JobParams} instance.
      */
-    private static class Loader {
+    private static abstract class Loader {
 
         final Registry reg;
         final OmeroContext ctx;
-        final ParamsHelper helper;
-        final ServiceFactoryI sf;
-        final Ice.Current curr;
-        final Long gid;
+        ServiceFactoryI sf;
+        ParamsHelper helper;
 
-        Loader(Registry reg, OmeroContext ctx, String name) throws Exception {
-            this(reg, ctx, name, null);
-        }
-
-        Loader(Registry reg, OmeroContext ctx, String name, Long gid)
-                throws Exception {
+        Loader(Registry reg, OmeroContext ctx) throws Exception {
             this.reg = reg;
             this.ctx = ctx;
-            this.gid = gid;
-            ServiceFactoryPrx prx = reg.getInternalServiceFactory(name,
-                "unused", 3, 1, UUID.randomUUID().toString());
-            Ice.Identity id = prx.ice_getIdentity();
-            FindServiceFactoryMessage msg = new FindServiceFactoryMessage(
-                    this, id);
+        }
+
+        abstract ServiceFactoryI getFactory() throws Exception;
+
+        ServiceFactoryI lookupFactory(FindServiceFactoryMessage msg) throws UserException {
             try {
                 ctx.publishMessage(msg);
+                return msg.getServiceFactory();
             } catch (Throwable t) {
                 throw new IceMapper().handleException(t, ctx);
             }
-            sf = msg.getServiceFactory();
-            curr = sf.newCurrent(id, "loadScripts");
-            if (gid != null) {
-                sf.setSecurityContext(new ExperimenterGroupI(gid, false), curr);
-                curr.ctx.put(GROUP.value, ""+gid);
+        }
+
+        ParamsHelper getHelper() throws Exception {
+
+            if (helper != null) {
+                return helper;
+            }
+
+            if (sf == null) {
+                sf = getFactory();
             }
 
             // From ScriptI.java
@@ -325,6 +319,7 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
                     .sharedResources(null).ice_getIdentity());
             helper = new ParamsHelper(acq, sf.getExecutor(),
                     sf.getPrincipal());
+            return helper;
         }
 
         /**
@@ -333,68 +328,95 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
          * a temporary loader with just that context.
          */
         JobParams createParams(Key key) throws Exception {
-            try {
-                return helper.generateScriptParams(key.id, false, curr);
-            } catch (SecurityViolation e) {
-                if (gid != null) {
-                    throw e;
-                }
-                // This must be a non-official script, i.e. doesn't belong
-                // to an admin in the "user" group. We'll spend the extra
-                // time logging into the user/group context.
-                Object[] context = new Object[2];
-                findContext(key, context);
-                if (context[1] == null) {
-                    // This is the recursion stopping condition. If the gid
-                    // is null, then throw before recursing. Note: it's highly
-                    // unlikely that an original file won't have a gid, so this
-                    // is just in case.
-                    throw new RuntimeException("No group found!");
-                }
-                Loader tmp = new Loader(reg, ctx, (String) context[0], (Long) context[1]);
-                try {
-                    return tmp.createParams(key);
-                } finally {
-                    tmp.close();
-                }
-            }
+            Ice.Current curr = getCurrent();
+            return getHelper().generateScriptParams(key.id, false, curr);
         }
 
-        void findContext(final Key key, final Object[] context) {
-            Map<String, String> allGroups = new HashMap<String, String>();
-            allGroups.put(GROUP.value, "-1");
-            sf.executor.execute(allGroups, sf.getPrincipal(),
-                    new Executor.SimpleWork(this, "setContext", key) {
-                        @Transactional(readOnly=true)
-                        @Override
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            OriginalFile ofile = (OriginalFile) session.get(OriginalFile.class, key.id);
-                            if (ofile != null) {
-                                String uid = ofile.getDetails().getOwner().getOmeName();
-                                Long gid = ofile.getDetails().getGroup().getId();
-                                context[0] = uid;
-                                context[1] = gid;
-                            }
-                            return null;
-                        }});
+        abstract Ice.Current getCurrent();
+
+        abstract void close();
+
+    }
+
+    private static class RootLoader extends Loader {
+
+        final String root;
+        final Long gid;
+        Ice.Current curr;
+
+        RootLoader(Registry reg, OmeroContext ctx, Roles roles) throws Exception {
+            this(reg, ctx, roles, null);
+        }
+
+        RootLoader(Registry reg, OmeroContext ctx, Roles roles, Long gid)
+                throws Exception {
+            super(reg, ctx);
+            this.root = roles.getRootName();
+            this.gid = gid;
+        }
+
+        ServiceFactoryI getFactory() throws Exception {
+
+            Ice.Identity id;
+
+            ServiceFactoryPrx prx = reg.getInternalServiceFactory(
+                 root, "unused", 3, 1,
+                 UUID.randomUUID().toString());
+            id = prx.ice_getIdentity();
+            ServiceFactoryI sf = lookupFactory(new FindServiceFactoryMessage(this, id));
+            curr = sf.newCurrent(id, "loadScripts");
+            if (gid != null) {
+                sf.setSecurityContext(new ExperimenterGroupI(gid, false), curr);
+            }
+            return sf;
+        }
+
+        Ice.Current getCurrent() {
+            return curr;
         }
 
         void close() {
             if (sf != null) {
-                sf.destroy(curr);
+                sf.destroy(null);
             }
         }
+    }
 
+    private static class UserLoader extends Loader {
+
+        final Key key;
+
+        UserLoader(Registry reg, OmeroContext ctx, Key key) throws Exception {
+            super(reg, ctx);
+            this.key = key;
+        }
+
+        ServiceFactoryI getFactory() throws Exception {
+            return lookupFactory(new FindServiceFactoryMessage(this, key.curr));
+        }
+
+        Ice.Current getCurrent() {
+            return key.curr;
+        }
+        void close() {
+            // no-op
+        }
     }
 
     private static class Key {
 
         final Long id;
         final String sha1;
+        final Ice.Current curr;
 
         Key(Long id, String sha1) {
+            this(id, sha1, null);
+        }
+
+        Key(Long id, String sha1, Ice.Current curr) {
             this.id = id;
             this.sha1 = sha1;
+            this.curr = curr;
         }
 
         @Override
