@@ -251,9 +251,11 @@ class ProcessEvent(pyinotify.ProcessEvent):
                 'Event with "-unknown-path" of type %s : %s', maskname, name)
             name = name.replace('-unknown-path', '')
 
-        # New directory within watch area, either created or moved into.
-        if event.mask == (pyinotify.IN_CREATE | pyinotify.IN_ISDIR) \
-                or event.mask == (pyinotify.IN_MOVED_TO | pyinotify.IN_ISDIR):
+        # New directory within watch area,
+        # either created, moved in or modfied attributes, ie now readable.
+        if (event.mask == (pyinotify.IN_CREATE | pyinotify.IN_ISDIR)
+                or event.mask == (pyinotify.IN_MOVED_TO | pyinotify.IN_ISDIR)
+                or event.mask == (pyinotify.IN_ATTRIB | pyinotify.IN_ISDIR)):
             self.log.info(
                 'New directory event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
@@ -386,7 +388,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
 
         # These are all the currently ignored events.
         elif event.mask == pyinotify.IN_ATTRIB:
-            # Attributes have changed? Useful?
+            # File attributes have changed? Useful?
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif (event.mask == pyinotify.IN_DELETE_SELF
                 or event.mask == pyinotify.IN_IGNORED):
