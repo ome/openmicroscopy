@@ -874,8 +874,8 @@ class BaseContainer(BaseController):
             pass
         if ann is None:
             ann = omero.model.TagAnnotationI()
-            ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))
+            ann.textValue = rstring(tag.encode('utf8'))
+            ann.setDescription(rstring(desc.encode('utf8')))
             ann = self.conn.saveAndReturnObject(ann)
             if tag_group_id:  # Put new tag in given tag set
                 tag_group = None
