@@ -2160,6 +2160,8 @@ class OmeroWebObjectWrapper (object):
             flags.append("canLink")
         if self.canDelete():
             flags.append("canDelete")
+        if self.isOwned():
+            flags.append("isOwned")
         if self.canChgrp():
             flags.append("canChgrp")
         return " ".join(flags)

@@ -359,7 +359,7 @@ class TestTree(lib.ITest):
     def test_marshal_project_dataset(self, project_dataset):
         project_id = project_dataset.id.val
         dataset, = project_dataset.linkedDatasetList()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': project_id,
             'childCount': 1L,
@@ -381,7 +381,7 @@ class TestTree(lib.ITest):
     def test_marshal_projects_datasets(self, projects_datasets):
         project_a, project_b, project_c, project_d = projects_datasets
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # The underlying query explicitly orders the Projects list by
         # case-insensitive name.
         for project in sorted(projects_datasets, cmp_name_insensitive):
@@ -448,7 +448,7 @@ class TestTree(lib.ITest):
 
     def test_marshal_datasets(self, datasets):
         dataset_a, dataset_b, dataset_c, dataset_d = datasets
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': dataset_a.id.val,
@@ -506,7 +506,7 @@ class TestTree(lib.ITest):
         screen_id = screen_plate_run.id.val
         plate, = screen_plate_run.linkedPlateList()
         plate_acquisition, = plate.copyPlateAcquisitions()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': screen_id,
             'childCount': 1,
@@ -522,7 +522,7 @@ class TestTree(lib.ITest):
                     'name': 'Run %d' % plate_acquisition.id.val,
                     'isOwned': True,
                     'permsCss': perms_css
-                }],
+                    }],
                 'plateAcquisitionCount': 1,
                 'permsCss': perms_css
             }],
@@ -532,7 +532,7 @@ class TestTree(lib.ITest):
         assert marshaled == expected
 
     def test_marshal_screens_plates_runs(self, screens_plates_runs):
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = []
         # The underlying query explicitly orders the Screens by name.
         for screen in sorted(screens_plates_runs, cmp_name):
@@ -575,7 +575,7 @@ class TestTree(lib.ITest):
 
     def test_marshal_screen_plate(self, screen_plate):
         plate, = screen_plate.linkedPlateList()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [
             {
                 'id': screen_plate.id.val,
@@ -600,7 +600,7 @@ class TestTree(lib.ITest):
     def test_marshal_plate_run(self, plate_run):
         plate_id = plate_run.id.val
         plate_acquisition, = plate_run.copyPlateAcquisitions()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': plate_id,
             'isOwned': True,
@@ -620,7 +620,7 @@ class TestTree(lib.ITest):
 
     def test_marshal_plates_runs(self, plates_runs):
         plate_a, plate_b, plate_c, plate_d = plates_runs
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = list()
         # The underlying query explicitly orders the Plates by name.
         for plate in sorted(plates_runs, cmp_name_insensitive):
@@ -674,7 +674,7 @@ class TestTree(lib.ITest):
 
     def test_marshal_plate(self, plate):
         plate_id = plate.id.val
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': plate_id,
             'isOwned': True,
@@ -690,7 +690,7 @@ class TestTree(lib.ITest):
     def test_marshal_project_dataset_image(self, project_dataset_image):
         project_id = project_dataset_image.id.val
         dataset, = project_dataset_image.linkedDatasetList()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': project_id,
             'isOwned': True,
@@ -711,7 +711,7 @@ class TestTree(lib.ITest):
 
     def test_marshal_projects(self, projects):
         project_a, project_b, project_c, project_d = projects
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': project_a.id.val,
@@ -744,11 +744,12 @@ class TestTree(lib.ITest):
         }]
 
         marshaled = marshal_projects(self.conn, self.conn.getUserId())
+        print marshaled
         assert marshaled == expected
 
     def test_marshal_screens(self, screens):
         screen_a, screen_b, screen_c, screen_d = screens
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': screen_a.id.val,
@@ -786,7 +787,7 @@ class TestTree(lib.ITest):
     def test_marshal_screens_plates(self, screens_plates):
         screen_a, screen_b, screen_c, screen_d = screens_plates
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # The underlying query explicitly orders the Screens list by
         # case-insensitive name.
         for screen in sorted(screens_plates, cmp_name_insensitive):

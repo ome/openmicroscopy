@@ -68,14 +68,22 @@
             var q = false;
             var dtypes = {};
             var first_parent;   // select this when we're done deleting
+            var notOwned = false;
             selected.each(function (i) {
                 if (!first_parent) first_parent = datatree._get_parent(this);
-                ajax_data[i] = $(this).attr('id').replace("-","=");
-                var dtype = $(this).attr('rel');
+                var $this = $(this);
+                ajax_data[i] = $this.attr('id').replace("-","=");
+                var dtype = $this.attr('rel');
                 if (dtype in dtypes) dtypes[dtype] += 1;
                 else dtypes[dtype] = 1;
-                if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
+                if (!q && $this.attr('rel').indexOf('image')<0) q = true;
+                if (!$this.hasClass('isOwned')) notOwned = true;
             });
+            if (notOwned) {
+                $("#deleteOthersWarning").show();
+            } else {
+                $("#deleteOthersWarning").hide();
+            }
             var type_strings = [];
             for (var key in dtypes) {
                 key = key.replace("-locked", "");
@@ -1146,6 +1154,9 @@
 
         <!-- hidden form for delete dialogs -->
         <div id="delete-dialog-form" title="Delete" style="display:none">
+            <p id="deleteOthersWarning" class='error' style="font-size: 120%; font-weight: bold">
+                Warning: Some objects you selected are owned by other users.
+            </p>
             <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
             <p>If yes:</p>
             <form>
