@@ -360,10 +360,21 @@ class SessionsStore(object):
         else:
             sf = client.createSession(name, pasw)
 
-        if props.get("omero.timeout", None):
+        ec = sf.getAdminService().getEventContext()
+        uuid = sf.ice_getIdentity().name
+        sess = sf.getSessionService().getSession(uuid)
+        timeToIdle = sess.getTimeToIdle().getValue()
+
+        # Retrieve timeout from properties
+        timeout = None
+        if props.get("omero.timeout", False):
+            timeout = long(props.get("omero.timeout")) * 1000
+
+        if timeout and timeout != timeToIdle:
             req = omero.cmd.UpdateSessionTimeoutRequest()
             req.session = sf.getAdminService().getEventContext().sessionUuid
-            req.timeToIdle = rlong(props.get("omero.timeout") * 1000)
+            req.timeToIdle = rlong(timeout)
+
             try:
                 cb = client.submit(req)  # Response is "OK"
                 cb.close(True)
@@ -373,10 +384,11 @@ class SessionsStore(object):
                 import traceback
                 self.ctx.dbg(traceback.format_exc())
 
-        ec = sf.getAdminService().getEventContext()
-        uuid = sf.ice_getIdentity().name
+            # Reload event context and session
+            ec = sf.getAdminService().getEventContext()
+            sess = sf.getSessionService().getSession(uuid)
+
         sf.detachOnDestroy()
-        sess = sf.getSessionService().getSession(uuid)
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
         if new:
