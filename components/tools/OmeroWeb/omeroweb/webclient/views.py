@@ -1284,10 +1284,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
                                 lstypes = filamenttypes
                             channel['form_light_source'] = \
                                 MetadataLightSourceForm(initial={
-                                    'lightSource':
-                                        lightSrc,
-                                    'lightSourceSettings':
-                                        lightSourceSettings,
+                                    'lightSource': lightSrc,
+                                    'lightSourceSettings': lightSourceSettings,
                                     'lstypes': lstypes,
                                     'mediums': list(
                                         conn.getEnumerationEntries(
