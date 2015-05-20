@@ -1,18 +1,11 @@
 /*
  * omeis.providers.re.quantum.QuantumStrategy
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package omeis.providers.re.quantum;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-import com.google.common.collect.Range;
 
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
@@ -236,20 +229,19 @@ public abstract class QuantumStrategy {
      * @param value The value to handle
      * @return See above.
      */
-    protected Range<Double> getRange(double value)
+    protected Double getMiddleRange(double value)
     {
         //no range so we need to create it
         double min = getWindowStart();
         double max = getWindowEnd();
         double step = Math.abs(max-min)/(MAX-MIN+1);
-        double end = min+step;
         if (value == min) {
-            return Range.closedOpen(min, end);
+            return min+step/2;
         }
         int v = (int) ((value-min)/step);
-        return Range.closed(min+(v-1)*step, min+v*step);
+        return (min+(v-1)*step+min+v*step)/2;
     }
-    
+
     /**
      * Sets the maximum range of the input window.
      * 
