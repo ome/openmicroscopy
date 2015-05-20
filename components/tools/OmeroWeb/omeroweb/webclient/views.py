@@ -2470,7 +2470,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
 
 
 @login_required(doConnectionCleanup=False)
-def get_original_file(request, fileId, conn=None, **kwargs):
+def get_original_file(request, fileId, download=False, conn=None, **kwargs):
     """
     Returns the specified original file as an http response. Used for
     displaying text or png/jpeg etc files in browser
@@ -2491,9 +2491,11 @@ def get_original_file(request, fileId, conn=None, **kwargs):
         mimetype = "text/plain"  # allows display in browser
     rsp['Content-Type'] = mimetype
     rsp['Content-Length'] = orig_file.getSize()
-    downloadName = orig_file.name.replace(" ", "_")
-    downloadName = downloadName.replace(",", ".")
-    rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
+
+    if download:
+        downloadName = orig_file.name.replace(" ", "_")
+        downloadName = downloadName.replace(",", ".")
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
     return rsp
 
 

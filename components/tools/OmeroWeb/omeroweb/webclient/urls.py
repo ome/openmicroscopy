@@ -287,6 +287,10 @@ urlpatterns = patterns(
     url(r'^get_original_file/(?:(?P<fileId>[0-9]+)/)?$',
         views.get_original_file,
         name="get_original_file"),  # for stderr, stdout etc
+    url(r'^download_original_file/(?:(?P<fileId>[0-9]+)/)?$',
+        views.get_original_file,
+        {'download': True},
+        name="download_original_file"),  # for stderr, stdout etc
     url(r'^figure_script/(?P<scriptName>'
         r'((?i)SplitView|RoiSplit|Thumbnail|MakeMovie))/$',
         views.figure_script,

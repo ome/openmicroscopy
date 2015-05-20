@@ -124,7 +124,7 @@ Download files
         {% for f in fs %}
         <tr>
             <td>
-                <a href="{% url 'get_original_file' f.id %}">
+                <a href="{% url 'download_original_file' f.id %}">
                     <div>
                         {{ f.name }}
                         <span style="margin-left:20px; text-decoration:none"> {{ f.size|filesizeformat }}</span>
