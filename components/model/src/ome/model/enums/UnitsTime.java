@@ -20,10 +20,12 @@
 
 package ome.model.enums;
 
+import ome.model.units.UnitEnum;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public enum UnitsTime {
+public enum UnitsTime implements UnitEnum {
 
     YOTTASECOND("Ys"),
     ZETTASECOND("Zs"),

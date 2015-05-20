@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,12 +22,11 @@ package ome.model.units;
 import ome.model.internal.Primitive;
 
 /**
- * marker interface for all of ome.model.unit types.
+ * marker interface for all of ome.model.unit enums.
+ * @since 5.1.2
  */
-public interface Unit extends Primitive {
+public interface UnitEnum {
 
-    public double getValue();
-    public void setValue(double d);
-    public UnitEnum getUnit();
+    public String getSymbol();
 
 }

@@ -20,10 +20,12 @@
 
 package ome.model.enums;
 
+import ome.model.units.UnitEnum;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public enum UnitsPressure {
+public enum UnitsPressure implements UnitEnum {
 
     YOTTAPASCAL("YPa"),
     ZETTAPASCAL("ZPa"),
