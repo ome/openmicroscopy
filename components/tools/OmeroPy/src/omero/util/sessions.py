@@ -363,14 +363,17 @@ class SessionsStore(object):
 
         ec = sf.getAdminService().getEventContext()
         uuid = sf.ice_getIdentity().name
+        sf.detachOnDestroy()
         sess = sf.getSessionService().getSession(uuid)
         timeToIdle = sess.getTimeToIdle().getValue()
+        timeToLive = sess.getTimeToLive().getValue()
 
         # Retrieve timeout from properties
         timeout = None
         if props.get("omero.timeout", False):
             timeout = long(props.get("omero.timeout")) * 1000
 
+        # Update timeout
         if timeout and timeout != timeToIdle:
             req = omero.cmd.UpdateSessionTimeoutRequest()
             req.session = sf.getAdminService().getEventContext().sessionUuid
@@ -385,13 +388,10 @@ class SessionsStore(object):
                 import traceback
                 self.ctx.dbg(traceback.format_exc())
 
-            # Reload event context and session
-            ec = sf.getAdminService().getEventContext()
+            # Reload session
             sess = sf.getSessionService().getSession(uuid)
+            timeToIdle = sess.getTimeToIdle().getValue()
 
-        sf.detachOnDestroy()
-        timeToIdle = sess.getTimeToIdle().getValue()
-        timeToLive = sess.getTimeToLive().getValue()
         if new:
             self.add(host, ec.userName, uuid, props, sudo=sudo)
         if set_current:
