@@ -246,12 +246,8 @@ public abstract class QuantumStrategy {
         if (value == min) {
             return Range.closedOpen(min, end);
         }
-        while (min+step < value) {
-            min += step;
-            end += step;
-        }
-        if (end == max) return Range.closed(min, end);
-        return Range.closedOpen(min, end);
+        int v = (int) ((value-min)/step);
+        return Range.closed(min+(v-1)*step, min+v*step);
     }
     
     /**
