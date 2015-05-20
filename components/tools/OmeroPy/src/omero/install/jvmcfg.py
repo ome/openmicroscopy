@@ -279,6 +279,8 @@ class Strategy(object):
             self.get_heap_dump(),
             self.get_perm_gen(),
         ]
+        if any([x.startswith("-XX:MaxPermSize") for x in values]):
+            values.append("-XX:+IgnoreUnrecognizedVMOptions")
         values += self.get_append()
         return [x for x in values if x]
 

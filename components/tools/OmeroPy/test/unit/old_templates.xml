@@ -199,6 +199,7 @@
              See #4670
         -->
         <option>-XX:MaxPermSize=128m</option>
+        <option>-XX:+IgnoreUnrecognizedVMOptions</option>
         <target name="memcfg">
             <option>${omero.blitz.maxmemory}</option>
             <option>${omero.blitz.permgen}</option>

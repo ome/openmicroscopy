@@ -153,6 +153,7 @@ class TestStrategy(object):
         assert settings == [
             "-Xmx512m",
             "-XX:MaxPermSize=128m",
+            "-XX:+IgnoreUnrecognizedVMOptions",
         ]
 
     def test_percent_usage(self):
