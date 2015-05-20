@@ -25,6 +25,7 @@ Library for managing user sessions.
 
 import omero.constants
 from omero.util import get_omero_userdir, make_logname
+from omero.rtypes import rlong
 from path import path
 
 import logging
@@ -358,6 +359,19 @@ class SessionsStore(object):
             sf = client.joinSession(sess.getUuid().getValue())
         else:
             sf = client.createSession(name, pasw)
+
+        if props.get("omero.timeout", None):
+            req = omero.cmd.UpdateSessionTimeoutRequest()
+            req.session = sf.getAdminService().getEventContext().sessionUuid
+            req.timeToIdle = rlong(props.get("omero.timeout") * 1000)
+            try:
+                cb = client.submit(req)  # Response is "OK"
+                cb.close(True)
+            except omero.CmdError, ce:
+                self.ctx.dbg(str(ce.err))
+            except:
+                import traceback
+                self.ctx.dbg(traceback.format_exc())
 
         ec = sf.getAdminService().getEventContext()
         uuid = sf.ice_getIdentity().name
