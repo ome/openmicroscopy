@@ -15,7 +15,7 @@ import logging
 import tempfile
 
 from path import path
-from omero.util import get_user_dir, get_user
+from omero.util import get_omero_userdir, get_user
 from omero_ext import portalocker
 
 # Activating logging at a static level
@@ -120,7 +120,7 @@ class TempFileManager(object):
         """
         Returns a platform-specific user-writable temporary directory
 
-        First, the value of "OMERO_TEMPDIR" is attempted (if available),
+        First, the value of "OMERO_TMPDIR" is attempted (if available),
         then user's home directory, then the global temp director.
 
         Typical errors for any of the possible temp locations are:
@@ -131,14 +131,33 @@ class TempFileManager(object):
         """
         locktest = None
 
-        omerotemp = os.environ.get("OMERO_TEMPDIR", None)
-        homeprop = None
-        try:
-            homeprop = get_user_dir()
-        except:
-            pass  # ticket:3194, ticket:5583
-        tempprop = tempfile.gettempdir()
-        targets = [omerotemp, homeprop, tempprop]
+        # Read temporary  files directory from deprecated OMERO_TEMPDIR envvar
+        custom_tmpdir_deprecated = os.environ.get('OMERO_TEMPDIR', None)
+        if 'OMERO_TEMPDIR' in os.environ:
+            import warnings
+            warnings.warn(
+                "OMERO_TEMPDIR is deprecated. Use OMERO_TMPDIR instead.",
+                DeprecationWarning)
+
+        # Read temporary files directory from OMERO_TMPDIR envvar
+        default_tmpdir = None
+        if custom_tmpdir_deprecated:
+            default_tmpdir = path(custom_tmpdir_deprecated) / "omero" / "tmp"
+        custom_tmpdir = os.environ.get('OMERO_TMPDIR', default_tmpdir)
+
+        # List target base directories by order of precedence
+        targets = []
+        if custom_tmpdir:
+            targets.append(path(custom_tmpdir))
+        targets.append(get_omero_userdir() / "tmp")
+        targets.append(path(tempfile.gettempdir()) / "omero" / "tmp")
+
+        # Handles existing files named tmp
+        # See https://trac.openmicroscopy.org.uk/ome/ticket/2805
+        for target in targets:
+            if target.exists() and not target.isdir():
+                self.logger.debug("%s exists and is not a directory" % target)
+                targets.remove(target)
 
         name = None
         choice = None
@@ -146,28 +165,11 @@ class TempFileManager(object):
 
         for target in targets:
 
-            if target is None:
-                continue
-
             if choice is not None:
                 break
-
             try:
-
-                # 2805
-                omero_dir = path(target) / "omero"
-                if omero_dir.exists() and not omero_dir.isdir():
-                    self.logger.debug(
-                        """"omero" is not a directory: %s""" % omero_dir)
-                    continue
-                tmp_dir = omero_dir / "tmp"
-                if tmp_dir.exists() and not tmp_dir.isdir():
-                    self.logger.debug(
-                        """"tmp" is not a directory: %s""" % tmp_dir)
-                    continue
-
                 try:
-
+                    self.create(target)
                     name = self.mkstemp(
                         prefix=".lock_test", suffix=".tmp", dir=target)
                     locktest = open(name, "a+")
@@ -207,7 +209,7 @@ class TempFileManager(object):
         if choice is None:
             raise Exception("Could not find lockable tmp dir")
 
-        return path(choice) / "omero" / "tmp"
+        return choice
 
     def username(self):
         """

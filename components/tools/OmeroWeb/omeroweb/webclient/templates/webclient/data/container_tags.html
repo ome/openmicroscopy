@@ -480,6 +480,9 @@
         <div id="delete-dialog-form" title="Delete" style="display:none"
                 data-url="{% url 'manage_action_containers' 'deletemany' %}"
                 data-fileset-check-url="{% url 'fileset_check' 'delete' %}">
+            <p id="deleteOthersWarning" class='error' style="font-size: 120%; font-weight: bold">
+                Warning: Some objects you selected are owned by other users.
+            </p>
             <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
             <p>If yes:</p>
             <form>

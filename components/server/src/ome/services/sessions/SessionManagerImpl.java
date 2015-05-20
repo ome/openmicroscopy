@@ -55,6 +55,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
@@ -601,6 +602,29 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                     + " more references: " + uuid);
             return refCount;
         }
+    }
+
+    public Map<String, Map<String, Object>> getSessionData() {
+        final Collection<String> ids = cache.getIds();
+        final Map<String, Map<String, Object>> rv
+            = new HashMap<String, Map<String, Object>>();
+
+        for (String id : ids) {
+            if (asroot.getName().equals(id)) {
+                continue; // DON'T INCLUDE ROOT SESSION
+            }
+            try {
+                rv.put(id,  cache.getSessionData(id, true));
+            } catch (RemovedSessionException rse) {
+                // Ok. Done for us
+            } catch (SessionTimeoutException ste) {
+                // Also ok
+            } catch (Exception e) {
+                log.warn(String.format("Exception thrown on getAll: %s:%s", e
+                        .getClass().getName(), e.getMessage()));
+            }
+        }
+        return rv;
     }
 
     public int closeAll() {
@@ -1243,6 +1267,16 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         Session s = sc.getSession();
 
                         // Store old value for rollback
+                        if (!sc.isCurrentUserAdmin() &&
+                                id >= 0 &&
+                                !sc.getMemberOfGroupsList().contains(id)) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("User ");
+                            sb.append(sc.getCurrentUserId());
+                            sb.append(" is not a member of group ");
+                            sb.append(id);
+                            throw new SecurityViolation(sb.toString());
+                        }
                         group[0] = s.getDetails().getGroup();
                         s.getDetails().setGroup(sf.getAdminService().getGroup(id));
                         return s;
@@ -1336,13 +1370,19 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
+            final Session reloaded = (Session)
+                    sf.getQueryService().findByQuery(
+                            "select s from Session s "
+                            + "left outer join fetch s.annotationLinks l "
+                            + "left outer join fetch l.child a where s.id = :id",
+                            new Parameters().addId(session.getId()));
             list.add(exp);
             list.add(grp);
             list.add(memberOfGroupsIds);
             list.add(leaderOfGroupsIds);
             list.add(userRoles);
             list.add(principal);
-            list.add(session);
+            list.add(reloaded);
             return list;
         } catch (Exception e) {
             log.info("No info for " + principal.getName(), e);

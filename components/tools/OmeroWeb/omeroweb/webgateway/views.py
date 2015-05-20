@@ -373,8 +373,8 @@ def render_roi_thumbnail(request, roiId, w=None, h=None, conn=None, **kwargs):
         for s in roi.copyShapes():
             if s is None:   # seems possible in some situations
                 continue
-            t = s.getTheT().getValue()
-            z = s.getTheZ().getValue()
+            t = unwrap(s.getTheT())
+            z = unwrap(s.getTheZ())
             shapes[(z, t)] = s
             if minT is None:
                 minT = t

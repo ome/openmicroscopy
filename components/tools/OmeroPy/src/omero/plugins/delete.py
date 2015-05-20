@@ -16,6 +16,9 @@ HELP = """Delete OMERO data.
 
 Remove entire graphs of data based on the ID of the top-node.
 
+By default linked tag, file and term annotations are not deleted.
+To delete linked annoations they must be explicitly included.
+
 Examples:
 
     bin/omero delete --list   # Print all of the graphs
@@ -24,6 +27,9 @@ Examples:
     bin/omero delete Plate:1
     bin/omero delete Image:51,52 OriginalFile:101
     bin/omero delete Project:101 --exclude Dataset,Image
+
+    # Force delete of linked annotations
+    bin/omero delete Image:51 --include Annotation
 
 """
 
@@ -50,6 +56,13 @@ class DeleteControl(GraphControl):
                 self.ctx.out("Deleted %s objects" % k)
                 for i in rsp.deletedObjects[k]:
                     self.ctx.out("%s:%s" % (k, i))
+
+    def default_exclude(self):
+        """
+        Don't delete these three types of Annotation by default
+        """
+        return ["TagAnnotation", "TermAnnotation", "FileAnnotation"]
+
 
 try:
     register("delete", DeleteControl, HELP)

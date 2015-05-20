@@ -21,7 +21,7 @@
 
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
-from omero import SecurityViolation
+from omero.model import Experimenter
 import pytest
 
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
@@ -34,15 +34,23 @@ class TestSessions(CLITest):
         self.args += ["sessions"]
 
     def set_login_args(self, user):
+        if isinstance(user, Experimenter):
+            user = user.omeName.val
+        else:
+            user = str(user)
+
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         self.args = ["sessions", "login"]
-        self.conn_string = "%s@%s:%s" % (user.omeName.val, host, port)
+        self.conn_string = "%s@%s:%s" % (user, host, port)
         self.args += [self.conn_string]
+
+    def login_as(self, user):
+        self.set_login_args(user)
 
     def get_connection_string(self):
         ec = self.cli.get_event_context()
-        return 'session %s (%s). Idle timeout: 10.0 min. ' \
+        return 'session %s (%s). Idle timeout: 10 min. ' \
             'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
                                      ec.groupName)
 
@@ -97,7 +105,7 @@ class TestSessions(CLITest):
         group2 = self.new_group(perms=perms)
         user = self.new_user(group1, owner=False)  # Member of two groups
         self.root.sf.getAdminService().addGroups(user, [group2])
-        member = self.new_user(group1, owner=False)  # Member of first gourp
+        member = self.new_user(group1, owner=False)  # Member of first group
         owner = self.new_user(group1, owner=True)  # Owner of first group
         admin = self.new_user(system=True)  # System administrator
 
@@ -131,7 +139,7 @@ class TestSessions(CLITest):
                     assert ec.userName == user.omeName.val
                     assert ec.groupName == target_group.name.val
                 else:
-                    with pytest.raises(SecurityViolation):
+                    with pytest.raises(NonZeroReturnCode):
                         self.cli.invoke(switch_cmd, strict=True)
             finally:
                 self.cli.invoke(["sessions", "logout"], strict=True)
@@ -176,7 +184,7 @@ class TestSessions(CLITest):
 
     # Group subcommand
     # ========================================================================
-    def testGroup(self):
+    def testGroup(self, capsys):
         group1 = self.new_group()
         client, user = self.new_client_and_user(group=group1)
         group2 = self.new_group([user])
@@ -192,9 +200,64 @@ class TestSessions(CLITest):
         ec = self.cli.get_event_context()
         assert ec.groupName == group2.name.val
 
+        # List current
+        capsys.readouterr()  # Clear
+        self.args = ["-q", "sessions", "group"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "ExperimenterGroup:%s\n" % group2.id.val
+
+    # Timeout subcommand
+    # ========================================================================
+    def testTimeout(self, capsys):
+        client, user = self.new_client_and_user()
+
+        self.set_login_args(user)
+        self.args += ["-q", "-w", user.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["-q", "sessions", "timeout"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "600.0\n"
+
+        self.args = ["-q", "sessions", "timeout", "300"]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["-q", "sessions", "timeout"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "300.0\n"
+
+        self.args = ["-q", "sessions", "timeout", "1000000"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     # File subcommand
     # ========================================================================
     def testFile(self):
 
         self.args = ["sessions", "file"]
+        self.cli.invoke(self.args, strict=True)
+
+    # who subcommand
+    # ========================================================================
+
+    @pytest.mark.parametrize("who", ("user", "root"))
+    def testWho(self, who):
+        self.args = ["sessions", "login"]
+        if who == "user":
+            user = self.new_user()
+            passwd = user.omeName.val
+        else:
+            user = "root"
+            passwd = self.root.getProperty("omero.rootpass")
+
+        # Login
+        self.set_login_args(user)
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        # Attempt who
+        self.args = ["sessions", "who"]
         self.cli.invoke(self.args, strict=True)

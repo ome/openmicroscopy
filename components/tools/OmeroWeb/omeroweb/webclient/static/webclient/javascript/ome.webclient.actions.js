@@ -479,14 +479,23 @@ OME.handleDelete = function() {
     var q = false;
     var dtypes = {};
     var first_parent;   // select this when we're done deleting
+    var notOwned = false;
     selected.each(function (i) {
         if (!first_parent) first_parent = datatree._get_parent(this);
-        ajax_data[i] = $(this).attr('id').replace("-","=");
-        var dtype = $(this).attr('rel').replace("-locked", "");
+        var $this = $(this);
+        ajax_data[i] = $this.attr('id').replace("-","=");
+        var dtype = $this.attr('rel').replace("-locked", "");
         if (dtype in dtypes) dtypes[dtype] += 1;
         else dtypes[dtype] = 1;
-        if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
+        if (!q && $this.attr('rel').indexOf('image')<0) q = true;
+        console.log($this, $this.hasClass('isOwned'));
+        if (!$this.hasClass('isOwned')) notOwned = true;
     });
+    if (notOwned) {
+        $("#deleteOthersWarning").show();
+    } else {
+        $("#deleteOthersWarning").hide();
+    }
     var type_strings = [];
     for (var key in dtypes) {
         if (key === "acquisition") key = "Plate Run";

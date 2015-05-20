@@ -825,6 +825,15 @@ def get_user(default=None):
         return rv
 
 
+def get_omero_userdir():
+    """Returns the OMERO user directory"""
+    omero_userdir = os.environ.get('OMERO_USERDIR', None)
+    if omero_userdir:
+        return path.path(omero_userdir)
+    else:
+        return path.path(get_user_dir()) / "omero"
+
+
 def get_user_dir():
     exceptions_to_handle = (ImportError)
     try:
