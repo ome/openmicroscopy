@@ -201,7 +201,8 @@ class TestModel51(lib.ITest):
         as_map = self.query.projection((
             "select pi.exposureTime from PlaneInfo pi "
             "join pi.pixels as pix join pix.image as img "
-            "where img.id = :id"), omero.sys.ParametersI().addId(img.id.val))[0][0]
+            "where img.id = :id"),
+            omero.sys.ParametersI().addId(img.id.val))[0][0]
         as_map = unwrap(as_map)
         pytest.assertAlmostEqual(1.2, as_map.get("value"))
         assert "SECOND" == as_map.get("unit")
@@ -215,7 +216,8 @@ class TestModel51(lib.ITest):
             "pi.exposureTime.unit, "
             "cast(pi.exposureTime.unit as text) from PlaneInfo pi "
             "join pi.pixels as pix join pix.image as img "
-            "where img.id = :id"), omero.sys.ParametersI().addId(img.id.val))[0]
+            "where img.id = :id"),
+            omero.sys.ParametersI().addId(img.id.val))[0]
         as_objs = unwrap(as_objs)
         pytest.assertAlmostEqual(1.2, as_objs[0])
         assert "SECOND" == as_objs[1]
