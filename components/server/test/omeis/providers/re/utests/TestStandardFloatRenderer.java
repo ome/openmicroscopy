@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ import java.util.List;
 
 import ome.api.IPixels;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelsService;
 import ome.logic.RenderingSettingsImpl;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
