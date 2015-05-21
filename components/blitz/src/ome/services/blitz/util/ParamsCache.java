@@ -19,28 +19,20 @@
 
 package ome.services.blitz.util;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import ome.conditions.SecurityViolation;
 import ome.model.core.OriginalFile;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.scripts.ScriptRepoHelper;
-import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Roles;
-import ome.system.ServiceFactory;
-import ome.tools.spring.OnContextRefreshedEventListener;
-import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
-import omero.constants.GROUP;
 import omero.constants.namespaces.NSDYNAMIC;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
@@ -48,16 +40,12 @@ import omero.grid.ParamsHelper.Acquirer;
 import omero.model.ExperimenterGroupI;
 import omero.util.IceMapper;
 
-import org.hibernate.Session;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.transaction.annotation.Transactional;
 
 import Ice.UserException;
 
@@ -77,8 +65,7 @@ import com.google.common.cache.LoadingCache;
  *
  * @since 5.1.2
  */
-public class ParamsCache extends OnContextRefreshedEventListener implements
-        ApplicationContextAware {
+public class ParamsCache implements ApplicationContextAware {
 
     /**
      * Thrown by {@link ParamsCache#_load(Long)} when a found
@@ -109,7 +96,8 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
 
     private/* final */OmeroContext ctx;
 
-    public ParamsCache(Registry reg, Roles roles, ScriptRepoHelper scripts,
+    public ParamsCache(Registry reg, Roles roles,
+            ScriptRepoHelper scripts,
             String spec) {
         this.reg = reg;
         this.roles = roles;
@@ -126,27 +114,6 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         this.ctx = (OmeroContext) ctx;
-    }
-
-    /**
-     * Called once on startup. This can typically take many minutes before
-     * being called, and usually takes a few seconds per script to be loaded.
-     */
-    @Override
-    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
-        new Thread() {
-            public void run() {
-                Slf4JStopWatch startup = sw("startup");
-                log.info("in handle");
-                try {
-                    lookupAll();
-                } catch (Throwable t) {
-                    throw new FatalBeanException("Failed to initially load", t);
-                } finally {
-                    startup.stop();
-                }
-            }
-        }.run();
     }
 
     //
