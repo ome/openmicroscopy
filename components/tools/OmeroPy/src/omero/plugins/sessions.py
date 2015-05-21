@@ -247,7 +247,7 @@ class SessionsControl(BaseControl):
     def _configure_login(self, login):
         login.add_login_arguments()
         login.add_argument(
-            "-t", "--timeout",
+            "-t", "--timeout", type=long,
             help="Timeout for session. After this many inactive seconds, the"
             " session will be closed")
         login.add_argument(
@@ -407,6 +407,8 @@ class SessionsControl(BaseControl):
         props["omero.user"] = name
         if port:
             props["omero.port"] = port
+        if "timeout" in args and args.timeout:
+            props["omero.timeout"] = args.timeout
 
         rv = None
         #
@@ -555,7 +557,7 @@ class SessionsControl(BaseControl):
         unit = "min."
         val = float(timeout) / 60 / 1000
         if val < 5:
-            unit = "sec."
+            unit = "s."
             val = val * 60
         return "%s%.f %s" % (msg, val, unit)
 

@@ -25,6 +25,7 @@ Library for managing user sessions.
 
 import omero.constants
 from omero.util import get_omero_userdir, make_logname
+from omero.rtypes import rlong
 from path import path
 
 import logging
@@ -347,8 +348,14 @@ class SessionsStore(object):
             principal.name = name
             principal.group = props.get("omero.group", None)
             principal.eventType = "User"
+
+            # Retrieve the default time to idle value
+            uuid = sf.ice_getIdentity().name
+            sess = sf.getSessionService().getSession(uuid)
+            timeToIdle = sess.getTimeToIdle().getValue()
+
             sess = sf.getSessionService().createSessionWithTimeouts(
-                principal, 0, 0)
+                principal, 0, timeToIdle)
             client.closeSession()
             sf = client.joinSession(sess.getUuid().getValue())
         else:
@@ -360,6 +367,31 @@ class SessionsStore(object):
         sess = sf.getSessionService().getSession(uuid)
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
+
+        # Retrieve timeout from properties
+        timeout = None
+        if props.get("omero.timeout", False):
+            timeout = long(props.get("omero.timeout")) * 1000
+
+        # Update timeout
+        if timeout and timeout != timeToIdle:
+            req = omero.cmd.UpdateSessionTimeoutRequest()
+            req.session = sf.getAdminService().getEventContext().sessionUuid
+            req.timeToIdle = rlong(timeout)
+
+            try:
+                cb = client.submit(req)  # Response is "OK"
+                cb.close(True)
+            except omero.CmdError, ce:
+                self.ctx.dbg(str(ce.err))
+            except:
+                import traceback
+                self.ctx.dbg(traceback.format_exc())
+
+            # Reload session
+            sess = sf.getSessionService().getSession(uuid)
+            timeToIdle = sess.getTimeToIdle().getValue()
+
         if new:
             self.add(host, ec.userName, uuid, props, sudo=sudo)
         if set_current:

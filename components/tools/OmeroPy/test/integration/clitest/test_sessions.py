@@ -48,40 +48,67 @@ class TestSessions(CLITest):
     def login_as(self, user):
         self.set_login_args(user)
 
-    def get_connection_string(self):
+    def get_connection_string(self, timetoidle="10 min"):
         ec = self.cli.get_event_context()
-        return 'session %s (%s). Idle timeout: 10 min. ' \
-            'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
-                                     ec.groupName)
+        string = 'session %s (%s).' % (ec.sessionUuid, self.conn_string)
+        if timetoidle:
+            string += ' Idle timeout: %s.' % timetoidle
+        else:
+            string += ' Idle timeout: 10 min.'
+        string += ' Current group: %s\n' % ec.groupName
+        return string
+
+    def check_session(self, timetoidle=None):
+        sessionUuid = self.cli.get_event_context().sessionUuid
+        sess = self.sf.getSessionService().getSession(sessionUuid)
+        if timetoidle:
+            assert sess.getTimeToIdle().getValue() == timetoidle
 
     # Login subcommand
     # ========================================================================
     @pytest.mark.parametrize("quiet", [True, False])
-    def testLoginStderr(self, capsys, quiet):
+    @pytest.mark.parametrize("timeout", [None, 300])
+    def testLogin(self, capsys, quiet, timeout):
         user = self.new_user()
+
+        # Test basic connection logic using credentials
         self.set_login_args(user)
         self.args += ["-w", user.omeName.val]
+        timetoidle = None
+        timetoidle_str = "10 min"
         if quiet:
             self.args += ["-q"]
+        if timeout:
+            self.args += ["--timeout", str(timeout)]
+            timetoidle = long(timeout) * 1000
+            timetoidle_str = "%.f min" % (float(timeout) / 60)
         self.cli.invoke(self.args, strict=True)
+
+        self.check_session(timetoidle=timetoidle)
         o, e = capsys.readouterr()
         assert not o
         if quiet:
             assert not e
         else:
-            assert e == 'Created ' + self.get_connection_string()
+            assert e == 'Created ' + self.get_connection_string(
+                timetoidle=timetoidle_str)
 
+        # Test active session re-usage
         join_args = ["sessions", "login", self.conn_string]
         if quiet:
             join_args += ["-q"]
         self.cli.invoke(join_args, strict=True)
+
+        self.check_session(timetoidle=timetoidle)
         o, e = capsys.readouterr()
         assert not o
         if quiet:
             assert not e
         else:
-            assert e == 'Using ' + self.get_connection_string()
+            assert e == 'Using ' + self.get_connection_string(
+                timetoidle=timetoidle_str)
 
+        # Test session joining by session key
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         ec = self.cli.get_event_context()
@@ -90,12 +117,15 @@ class TestSessions(CLITest):
         if quiet:
             join_args += ["-q"]
         self.cli.invoke(join_args, strict=True)
+
+        self.check_session(timetoidle=timetoidle)
         o, e = capsys.readouterr()
         assert not o
         if quiet:
             assert not e
         else:
-            assert e == 'Joined ' + self.get_connection_string()
+            assert e == 'Joined ' + self.get_connection_string(
+                timetoidle=timetoidle_str)
 
     @pytest.mark.parametrize("perms", permissions)
     def testLoginAs(self, perms):
