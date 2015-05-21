@@ -62,21 +62,17 @@
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     
-                    if(selected.length > 0) {
-                        if(selected.hasClass('canDelete')) {
-                            toolbar_config = {'delete':true};
-                        } else {
-                            if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {'delete':false};
-                            } else if(selected.attr("id").indexOf("tagset")>=0) {
-                                toolbar_config = {'delete':true};
-                            } else if(selected.attr("id").indexOf("tag")>=0) {
-                                toolbar_config = {'delete':true};
-                            } else {
+                    toolbar_config = {'delete':true};
+                    // Can't delete if missing 'canDelete' flag or not a Tag
+                    selected.each(function(){
+                        if(this.id.indexOf("tag")>=0) {
+                            if(!$(this).hasClass('canDelete')) {
                                 toolbar_config = {'delete':false};
                             }
+                        } else {
+                            toolbar_config = {'delete':false};
                         }
-                    }
+                    });
                     
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
