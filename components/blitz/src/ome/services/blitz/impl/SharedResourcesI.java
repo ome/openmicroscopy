@@ -20,6 +20,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
+import ome.services.blitz.util.ParamsCache;
 import ome.services.blitz.util.ResultHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.scripts.ScriptRepoHelper;
@@ -95,6 +96,8 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
     private final ScriptRepoHelper helper;
 
+    private final ParamsCache paramsCache;
+
     /**
      * How long to wait for shared resources (e.g. TablesPrx) to respond to
      * requests.
@@ -112,23 +115,25 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
     private ServiceFactoryI sf;
 
     public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
-            Registry registry, ScriptRepoHelper helper) {
-        this(be, topicManager, registry, helper, 5000);
+            Registry registry, ScriptRepoHelper helper, ParamsCache cache) {
+        this(be, topicManager, registry, helper, cache, 5000);
     }
 
     public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
-                Registry registry, ScriptRepoHelper helper, long waitMillis) {
-        this( be, topicManager, registry, helper, waitMillis, DEFAULT_TIMEOUT);
+                Registry registry, ScriptRepoHelper helper, ParamsCache cache,
+                long waitMillis) {
+        this( be, topicManager, registry, helper, cache, waitMillis, DEFAULT_TIMEOUT);
     }
 
     public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
-                Registry registry, ScriptRepoHelper helper, long waitMillis,
-                long timeout) {
+                Registry registry, ScriptRepoHelper helper, ParamsCache cache,
+                long waitMillis, long timeout) {
         super(null, be);
         this.waitMillis = waitMillis;
         this.topicManager = topicManager;
         this.registry = registry;
         this.helper = helper;
+        this.paramsCache = cache;
         this.timeout = timeout;
         // In order to prevent overflow of currentTimeMillis+timeout and more
         // generally to prevent nonsensical timeouts, we limit to 1 year.
@@ -445,7 +450,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
-                sf.control,
+                sf.control, paramsCache,
                 new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()),
                 helper, current);
         Ice.Identity procId = sessionedID("InteractiveProcessor");

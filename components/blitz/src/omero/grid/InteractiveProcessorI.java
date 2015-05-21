@@ -21,14 +21,15 @@ import ome.api.local.LocalAdmin;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
+import ome.services.blitz.util.ParamsCache;
 import ome.services.procs.Processor;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
-import ome.tools.hibernate.QueryBuilder;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
 import omero.ApiUsageException;
 import omero.RMap;
 import omero.RType;
@@ -69,6 +70,15 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
 
     private final ProcessorPrx prx;
 
+    /**
+     * Used to access params for non-{@link ParseJob}. This may require another
+     * call to the processor with a {@link ParseJob}.
+     */
+    private final ParamsCache paramsCache;
+
+    /**
+     * Used to generate and save params for a {@link ParseJob}
+     */
     private final ParamsHelper paramsHelper;
 
     private final ScriptRepoHelper scriptRepoHelper;
@@ -78,6 +88,8 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
     private final Job job;
 
     private final long scriptId;
+
+    private final String scriptSha1;
 
     private final String mimetype;
 
@@ -128,8 +140,10 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
      */
     public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
             ProcessorPrx prx, Job job, long timeout, SessionControlPrx control,
-            ParamsHelper paramsHelper, ScriptRepoHelper scriptRepoHelper, Ice.Current current)
+            ParamsCache paramsCache, ParamsHelper paramsHelper, ScriptRepoHelper scriptRepoHelper,
+            Ice.Current current)
         throws ServerError {
+        this.paramsCache = paramsCache;
         this.paramsHelper = paramsHelper;
         this.scriptRepoHelper = scriptRepoHelper;
         this.principal = p;
@@ -144,6 +158,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
         // Loading values.
         OriginalFile f = getScriptId(job, current);
         this.scriptId = f.getId();
+        this.scriptSha1 = f.getHash();
         this.mimetype = f.getMimetype();
         this.launcher = scriptRepoHelper.getLauncher(this.mimetype);
         this.process = scriptRepoHelper.getProcess(this.mimetype);
@@ -203,7 +218,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                         paramsHelper.saveScriptParams(params, (ParseJob) job,
                                 __current);
                     } else {
-                        params = paramsHelper.getOrCreateParams(scriptId, __current);
+                        params = paramsCache.getParams(scriptId,  scriptSha1, __current);
                     }
                 } catch (Throwable t) {
                     if (t instanceof ServerError) {

@@ -316,7 +316,7 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
 
             // From ScriptI.java
             Acquirer acq = (Acquirer) sf.getServant(sf
-                    .sharedResources(null).ice_getIdentity());
+                    .sharedResources(getCurrent()).ice_getIdentity());
             helper = new ParamsHelper(acq, sf.getExecutor(),
                     sf.getPrincipal());
             return helper;
