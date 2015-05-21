@@ -375,10 +375,7 @@
         </map>
       </constructor-arg>
       <constructor-arg>
-        <list>
-          <value>Image.fileset</value>
-          <value>Image.instrument</value>
-        </list>
+        <list/>  <!-- unnullable not presently required -->
       </constructor-arg>
       <constructor-arg>
         <set>
