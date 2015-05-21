@@ -58,5 +58,5 @@ ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
 % Delegate unmatched arguments check to getObjects function
-unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
+unmatchedArgs =[fieldnames(ip.Unmatched)'; struct2cell(ip.Unmatched)'];
 plates = getObjects(session, 'plate', ip.Results.ids, unmatchedArgs{:});

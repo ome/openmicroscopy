@@ -82,6 +82,6 @@ if ip.Results.loaded, parameters.leaves(); end
 if nargout > 1, parameters.orphan(); end
 
 % Delegate unmatched arguments check to getObjects function
-unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
+unmatchedArgs =[fieldnames(ip.Unmatched)'; struct2cell(ip.Unmatched)'];
 [projects, datasets] = getObjects(session, 'project', ip.Results.ids,...
     parameters, unmatchedArgs{:});
