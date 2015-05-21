@@ -212,7 +212,6 @@ public class Quantization_32_bit extends QuantumStrategy {
     public Quantization_32_bit(QuantumDef qd, Pixels pixels) {
         super(qd, pixels);
         values = CacheBuilder.newBuilder()
-                .maximumSize(MAX-MIN+1)
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build(new CacheLoader<Double, Integer>() {
                     public Integer load(Double key) throws Exception {
