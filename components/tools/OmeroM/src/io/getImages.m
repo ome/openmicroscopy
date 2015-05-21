@@ -82,6 +82,8 @@ if isempty(ip.Results.project) && isempty(ip.Results.dataset)
         defaultOwner = -1;
     end
     ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
+    ip.addParamValue('map', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'));
+    ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
     ip.KeepUnmatched = false;
     ip.parse(session, varargin{:});
 
@@ -89,16 +91,21 @@ if isempty(ip.Results.project) && isempty(ip.Results.dataset)
     parameters = omero.sys.ParametersI();
     parameters.exp(rlong(ip.Results.owner));
     
+    m = ip.Results.map;
+    if ~isempty(ip.Results.group)
+        m.put('omero.group', java.lang.String(num2str(ip.Results.group)));
+    end
+
     % Create container service to load objects
     proxy = session.getContainerService();
     
     if isempty(ip.Results.ids),
         % Load all images belonging to current session user
-        imageList = proxy.getUserImages(parameters);
+        imageList = proxy.getUserImages(parameters, m);
     else
         % Load all images specified by input ids
         ids = toJavaList(ip.Results.ids, 'java.lang.Long');
-        imageList = proxy.getImages('omero.model.Image', ids, parameters);
+        imageList = proxy.getImages('omero.model.Image', ids, parameters, m);
     end
     
     % Convert java.util.ArrayList into Matlab arrays
