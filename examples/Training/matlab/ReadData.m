@@ -66,7 +66,7 @@ try
     fprintf(1, '  Found %g projects\n', numel(projects));
     fprintf(1, '\n');
     
-    % Retrieve a project specified by an input identifier
+    % Retrieve a loaded project specified by an input identifier
     % If the dataset contains images, the images will be loaded
     fprintf(1, 'Reading project %g with loaded images\n', projectId);
     project = getProjects(session, projectId, true);
@@ -93,7 +93,7 @@ try
     allDatasetsAllGroups = getDatasets(session, 'group', -1);
     fprintf(1, '  Found %g datasets\n\n', numel(allDatasetsAllGroups));
     
-    % Retrieve a dataset specified by an input identifier
+    % Retrieve a loaded dataset specified by an input identifier
     % If the dataset contains images, the images will be loaded
     fprintf(1, 'Retrieving dataset %g with loaded images\n', datasetId);
     dataset = getDatasets(session, datasetId, true);
@@ -190,6 +190,18 @@ try
     fprintf(1, '  Found %g screens\n\n', numel(allScreensAllGroups));
     
     %% Plates
+    % Retrieve all the unloaded datasets owned by the session owner.
+    % If the datasets contain images, the images will not be loaded.
+    disp('Listing plates owned by the session user');
+    allPlates = getPlates(session);
+    fprintf(1, '  Found %g plates\n\n', numel(allPlates));
+    
+    % Retrieve all the unloaded datasets owned by the session owner across
+    % all groups
+    disp('Retrieving plates owned by the session user across all groups')
+    allPlatesAllGroups = getPlates(session, 'group', -1);
+    fprintf(1, '  Found %g datasets\n\n', numel(allPlatesAllGroups));
+     
     % Retrieve Wells within a Plate, see ScreenPlateWell.
     
     % Given a plate ID, load the wells.
@@ -197,11 +209,11 @@ try
     fprintf(1, 'Listing wells for plate: %g\n ', plateId);
     wells = session.getQueryService().findAllByQuery(['select well from Well as well left outer join fetch well.plate as pt left outer join fetch well.wellSamples as ws left outer join fetch ws.plateAcquisition as pa left outer join fetch ws.image as img left outer join fetch img.pixels as pix left outer join fetch pix.pixelsType as pt where well.plate.id =  ', num2str(plateId)], []);
     wells = toMatlabList(wells);
-    fprintf(1, 'Found %g wells\n ', numel(wells));
+    fprintf(1, '  Found %g wells\n ', numel(wells));
     
     for i = 1:numel(wells),
         wellSamples = toMatlabList(wells(i).copyWellSamples());
-        fprintf(1, 'Well %g - Found %g well samples\n ', i, numel(wellSamples));
+        fprintf(1, '  Well %g - Found %g well samples\n ', i, numel(wellSamples));
         for j = 1:numel(wellSamples),
             pa = wellSamples(j).getPlateAcquisition();
         end
