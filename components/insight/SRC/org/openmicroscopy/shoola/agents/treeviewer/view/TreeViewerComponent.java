@@ -1516,7 +1516,12 @@ class TreeViewerComponent
                     if (siblings.size() > 1 && !sameSelection)
                         mv.setRelatedNodes(siblings);
                 }
-    
+            } else {
+                if (selected instanceof WellSampleData) {
+                    siblings.add(selected);
+                    if (siblings.size() > 1 && !sameSelection)
+                        mv.setRelatedNodes(siblings);
+                }
             }
         }
         if (model.getDataViewer() != null)
