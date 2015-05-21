@@ -328,8 +328,9 @@ public class ParamsCache extends OnContextRefreshedEventListener implements
          * a temporary loader with just that context.
          */
         JobParams createParams(Key key) throws Exception {
+            ParamsHelper helper = getHelper();
             Ice.Current curr = getCurrent();
-            return getHelper().generateScriptParams(key.id, false, curr);
+            return helper.generateScriptParams(key.id, false, curr);
         }
 
         abstract Ice.Current getCurrent();
