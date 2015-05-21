@@ -18,14 +18,24 @@ function [objects, orphans] = getObjects(session, type, ids, varargin)
 %   the objects of the specified type, identified by the input ids, owned
 %   by the input owner in the context of the session group.
 %
+%   objects = getObjects(session, type, ids, 'group', groupId) returns all
+%   the objects of the specified type, identified by the input ids, owned
+%   by the input owner in the context of the input group. A value of -1 for
+%   groupId means objects are returned for all groups.
+%
 %   [objects, orphans] = getObjects(session, type, [],...) returns all the
 %   orphans in addition to all the queried objects.
 %
 %   Examples:
 %
+%      % Retrieve objects by type and ids
 %      objects = getObjects(session, type, ids);
+%      % Retrieve objects with a custom set of parameters
 %      objects = getObjects(session, type, ids, parameters);
+%      % Retrieve objects owned by a given user
 %      objects = getObjects(session, type, ids, 'owner', ownerId);
+%      % Retrieve objects owned by the session user across all groups 
+%      objects = getObjects(session, type, ids, 'group', -1);
 %      objects = getObjects(session, type, ids, parameters, 'owner', ownerId);
 %      [objects, orphans] = getObjects(session, type, [])
 %
@@ -75,6 +85,7 @@ else
     defaultOwner = -1;
 end
 ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(varargin{:});
 
 % Use getImages function if retrieving images
@@ -92,7 +103,13 @@ ids = toJavaList(ids, 'java.lang.Long');
 
 % Create container service to load objects
 proxy = session.getContainerService();
-objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters);
+if ~isempty(ip.Results.group)
+    m=java.util.HashMap;
+    m.put('omero.group', java.lang.String(num2str(ip.Results.group)));
+    objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters, m);
+else
+    objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters);
+end
 
 % If orphans are loaded split the lists into two: objects and orphans
 orphanList = java.util.ArrayList();
