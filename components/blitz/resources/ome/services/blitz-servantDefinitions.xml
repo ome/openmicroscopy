@@ -360,6 +360,14 @@
       <constructor-arg ref="ome.services.delete.Deletion"/>
       <constructor-arg>
         <map>
+          <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpTargets"/>
+          <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodTargets"/>
+          <entry key="omero.cmd.graphs.Chown2I" value-ref="chownTargets"/>
+          <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteTargets"/>
+        </map>
+      </constructor-arg>
+      <constructor-arg>
+        <map>
           <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpRules"/>
           <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodRules"/>
           <entry key="omero.cmd.graphs.Chown2I" value-ref="chownRules"/>
