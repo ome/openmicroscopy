@@ -633,8 +633,21 @@ if __name__ == '__main__':
             assert u1 == (uuid1 in datasets)
             assert u2 == (uuid2 in datasets)
 
+        def run_with_param(param):
+            process = svc.runScript(script, {'Object': wrap(param)}, None)
+            cb = omero.scripts.ProcessCallbackI(self.client, process)
+            while cb.block(500) is None:
+                pass
+            cb.close()
+
         contains_uuids(False, False)
+        with pytest.raises(omero.ValidationException):
+            run_with_param(uuid1)
+
         update.saveObject(self.new_dataset(name=uuid1))
         contains_uuids(True, False)
+        run_with_param(uuid1)
+
         update.saveObject(self.new_dataset(name=uuid2))
         contains_uuids(True, True)
+        run_with_param(uuid2)
