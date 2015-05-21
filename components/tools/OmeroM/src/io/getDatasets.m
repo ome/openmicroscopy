@@ -18,17 +18,28 @@ function datasets = getDatasets(session, varargin)
 %   datasets = getDatasets(session, 'owner', owner) returns all the
 %   datasets owned by the input owner in the context of the session group.
 %
+%   datasets = getDatasets(session, 'group', groupId) returns all the
+%   datasets owned by the session owner in the context of the input group.
+%   A value of -1 for groupId means datasets are returned for all groups.
+%
 %   datasets = getDatasets(session, ids, 'owner', owner) returns all the
 %   datasets identified by the input ids owned by the input user in the
 %   context of the session group.
+%
+%   datasets = getDatasets(session, ids, 'group', groupId) returns all the
+%   datasets identified by the input ids owned by the session owner in the
+%   context of the input group. A value of -1 for groupId means datasets
+%   are returned for all groups.
 %
 %   Examples:
 %
 %      datasets = getDatasets(session);
 %      datasets = getDatasets(session, 'owner', ownerId);
+%      datasets = getDatasets(session, 'group', -1);
 %      datasets = getDatasets(session, ids);
 %      datasets = getDatasets(session, ids, false);
-%      datasets = getDatasets(session, ids, false, 'owner', ownerId);
+%      datasets = getDatasets(session, ids, 'owner', ownerId);
+%      datasets = getDatasets(session, ids, 'group', -1);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETIMAGES
 

@@ -13,9 +13,18 @@ function [screens, plates] = getScreens(session, varargin)
 %   screens = getScreens(session, 'owner', owner) returns all the screens
 %   owned by the input owner in the context of the session group.
 %
+%   screens = getScreens(session, 'group', groupId) returns all the screens
+%   owned by the session owner in the context of the input group. A value
+%   of -1 for groupId means screens are returned for all groups.
+%
 %   screens = getScreens(session, ids, 'owner', owner) returns all the
 %   screens identified by the input ids owned by the input user in the
 %   context of the session group.
+%
+%   screens = getScreens(session, ids, 'group', groupId) returns all the
+%   screens identified by the input ids owned by the session owner in the
+%   context of the input group. A value of -1 for groupId means screens
+%   are returned for all groups.
 %
 %   [screens, plates] = getScreens(session, [],...) returns all the
 %   orphaned platest in addition to all the projects.
@@ -24,8 +33,10 @@ function [screens, plates] = getScreens(session, varargin)
 %
 %      screens = getScreens(session);
 %      screens = getScreens(session, 'owner', ownerId);
+%      screens = getScreens(session, 'group', -1);
 %      screens = getScreens(session, ids);
 %      screens = getScreens(session, ids, 'owner', ownerId);
+%      screens = getScreens(session, ids, 'group', -1);
 %      [screens, plates] = getScreens(session, []);
 %
 % See also: GETOBJECTS, GETPLATES, GETIMAGES

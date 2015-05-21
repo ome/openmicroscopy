@@ -10,9 +10,18 @@ function images = getImages(session, varargin)
 %   images = getImages(session, 'owner', ownerId) returns all the images
 %   owned by the input owner in the context of the session group.
 %
+%   images = getImages(session, 'group', ownerId) returns all the images
+%   owned by the session owner in the context of the input group. A value
+%   of -1 for groupId means images are returned for all groups.
+%
 %   images = getImages(session, ids, 'owner', ownerId) returns all the
 %   images identified by the input ids and owned by the input owner in the
 %   context of the session group.
+%
+%   images = getImages(session, ids, 'group', groupId) returns all the
+%   images identified by the input ids owned by the session owner in the
+%   context of the input group. A value of -1 for groupId means images
+%   are returned for all groups.
 %
 %   images = getImages(session, 'project', projectIds) returns all the
 %   images contained in the projects identified by the input ids in the
@@ -21,13 +30,16 @@ function images = getImages(session, varargin)
 %   images = getImages(session, 'dataset', datasetIds) returns all the
 %   images contained in the datasets identified by the input ids in the
 %   context of the session group.
+
 %
 %   Examples:
 %
 %      images = getImages(session);
 %      images = getImages(session, 'owner', ownerId);
+%      images = getImages(session, 'group', -1);
 %      images = getImages(session, ids);
 %      images = getImages(session, ids, 'owner', ownerId);
+%      images = getImages(session, ids, 'group', -1);
 %      images = getImages(session, 'project', projectIds);
 %      images = getImages(session, 'dataset', projectIds);
 %

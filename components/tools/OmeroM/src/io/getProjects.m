@@ -18,9 +18,18 @@ function [projects, datasets] = getProjects(session, varargin)
 %   projects = getProjects(session, 'owner', ownerId) returns all the
 %   projects owned by the input owner in the context of the session group.
 %
+%   projects = getProjects(session, 'group', groupId) returns all the
+%   projects owned by the session owner in the context of the input group.
+%   A value of -1 for groupId means projects are returned for all groups.
+%
 %   projects = getProjects(session, ids, 'owner', ownerId) returns all the
 %   projects identified by the input ids owned by the input owner in the
 %   context of the session group.
+%
+%   projects = getProjects(session, ids, 'group', groupId) returns all the
+%   projects identified by the input ids owned by the session owner in the
+%   context of the input group. A value of -1 for groupId means projects
+%   are returned for all groups.
 %
 %   [projects, datasets] = getProjects(session, [],...) returns all the
 %   orphaned datasets in addition to all the projects.
@@ -29,10 +38,13 @@ function [projects, datasets] = getProjects(session, varargin)
 %
 %      projects = getProjects(session);
 %      projects = getProjects(session, 'owner', ownerId);
+%      projects = getProjects(session, 'group', groupId);
 %      projects = getProjects(session, ids);
 %      projects = getProjects(session, ids, 'owner', ownerId);
-%      projects = getProjects(session, ids, false);
-%      projects = getProjects(session, ids, false, 'owner', ownerId);
+%      projects = getProjects(session, ids, 'group', -1);
+%      projects = getProjects(session, ids, true);
+%      projects = getProjects(session, ids, true, 'owner', ownerId);
+%      projects = getProjects(session, ids, true, 'group', -1);
 %      [projects, datasets] = getProjects(session, [], false);
 %
 %
