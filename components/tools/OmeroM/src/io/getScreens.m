@@ -70,6 +70,6 @@ parameters = omero.sys.ParametersI();
 if nargout > 1, parameters.orphan(); end
 
 % Delegate unmatched arguments check to getObjects function
-unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
+unmatchedArgs =[fieldnames(ip.Unmatched)'; struct2cell(ip.Unmatched)'];
 [screens, plates] = getObjects(session, 'screen', ip.Results.ids,...
     parameters, unmatchedArgs{:});
