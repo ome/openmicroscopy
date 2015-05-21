@@ -3926,7 +3926,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     try:
         # Try/except in case inputs are not serializable, e.g. unicode
-        logger.debug("Running script %s with params %s" % (scriptName, inputMap))
+        logger.debug("Running script %s with "
+                     "params %s" % (scriptName, inputMap))
     except:
         pass
     rsp = run_script(request, conn, sId, inputMap, scriptName)
