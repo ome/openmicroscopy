@@ -10,16 +10,27 @@ function plates = getPlates(session, varargin)
 %   plates = getPlates(session, 'owner', ownerId) returns all the plates
 %   owned by the input owner in the context of the session group.
 %
+%   plates = getPlates(session, 'group', groupId) returns all the plates
+%   owned by the session owner in the context of the input group. A value
+%   of -1 for groupId means plates are returned for all groups.
+%
 %   plates = getPlates(session, ids, 'owner', ownerId) returns all the
 %   plates identified by the input ids owned by the input owner in the
 %   context of the session group.
+%
+%   plates = getPlates(session, ids, 'group', groupId) returns all the
+%   platest identified by the input ids  owned by the session owner in the
+%   context of the input group. A value of -1 for groupId means plates
+%   are returned for all groups.
 %
 %   Examples:
 %
 %      plates = getPlates(session);
 %      plates = getPlates(session, 'owner', ownerId);
+%      plates = getPlates(session, 'group', -1);
 %      plates = getPlates(session, ids);
 %      plates = getPlates(session, ids, 'owner', ownerId);
+%      plates = getPlates(session, ids, 'group', -1);
 %
 % See also: GETOBJECTS, GETSCREENS, GETIMAGES
 
