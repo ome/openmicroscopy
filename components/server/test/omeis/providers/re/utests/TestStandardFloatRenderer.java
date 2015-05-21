@@ -143,7 +143,6 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
         }
     }
 
-    @Test(timeOut=60000)
     public void testRenderLargeRange() throws Exception
     {
         PixelsType pixelsType = getPixelsType();
