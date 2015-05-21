@@ -27,17 +27,19 @@ try
         char(eventContext.groupName), eventContext.groupId);
     
     % Information to edit
+    projectId = p.projectid;
     datasetId = p.datasetid;
     imageId = p.imageid;
     plateId = p.plateid;
     
+    %% Projects
     % Retrieve all the projects and orphaned datasets owned by session
     % owner.
     % If a project contains datasets, the datasets will automatically be
     % loaded but the images contained in the datasets are not loaded.
-    disp('Listing projects and orphaned datasets')
-    [projects, orphanedDatasets] = getProjects(session, [], false);
-    fprintf(1, 'Found %g projects\n', numel(projects));
+    disp('Retrieving projects and orphaned datasets owned by the session user');
+    [projects, orphanedDatasets] = getProjects(session);
+    fprintf(1, '  Found %g projects\n', numel(projects));
     for i = 1 : numel(projects),
         datasets = toMatlabList(projects(i).linkedDatasetList);
         fprintf(1, '  Project %g: %s (%g) - %g datasets\n', i,...
@@ -49,7 +51,7 @@ try
                 datasets(j).getId().getValue());
         end
     end
-    fprintf(1, 'Found %g orphaned datasets\n', numel(orphanedDatasets));
+    fprintf(1, '  Found %g orphaned datasets\n', numel(orphanedDatasets));
     for j = 1 : numel(orphanedDatasets),
         fprintf(1, '  Orphaned dataset %g: %s (%d)\n',...
             j, char(orphanedDatasets(j).getName().getValue()),...
@@ -57,30 +59,73 @@ try
     end
     fprintf(1, '\n');
     
-    % Retrieve all the unloaded datasets owned by the session owner.
-    % If the datasets contain images, the images will no be loaded.
-    disp('Listing datasets')
-    datasets = getDatasets(session, [], false);
-    fprintf(1, 'Found %g datasets\n', numel(datasets));
+    % Retrieve all the unloaded projects owned by the session owner across
+    % all groups
+    disp('Retrieving projects owned by the session user across all groups')
+    projects = getProjects(session, 'group', -1);
+    fprintf(1, '  Found %g projects\n', numel(projects));
     fprintf(1, '\n');
     
+    % Retrieve a project specified by an input identifier
+    % If the dataset contains images, the images will be loaded
+    fprintf(1, 'Reading project %g with loaded images\n', projectId);
+    project = getProjects(session, projectId, true);
+    assert(~isempty(project), 'OMERO:ReadData', 'Project Id not valid');
+    datasets = toMatlabList(project.linkedDatasetList);
+    for j = 1 : numel(datasets),
+        images = toMatlabList(datasets(j).linkedImageList);
+        fprintf(1, '  Dataset %g: %s (%d) - %g datasets\n',...
+            j, char(datasets(j).getName().getValue()),...
+            datasets(j).getId().getValue(), numel(images));
+    end
+    fprintf(1, '\n');
+
+    %% Datasets
+    % Retrieve all the unloaded datasets owned by the session owner.
+    % If the datasets contain images, the images will not be loaded.
+    disp('Listing datasets owned by the session user');
+    allDatasets = getDatasets(session);
+    fprintf(1, '  Found %g datasets\n\n', numel(allDatasets));
+
+    % Retrieve all the unloaded datasets owned by the session owner across
+    % all groups
+    disp('Retrieving dataset owned by the session user across all groups')
+    allDatasetsAllGroups = getDatasets(session, 'group', -1);
+    fprintf(1, '  Found %g datasets\n\n', numel(allDatasetsAllGroups));
+
     % Retrieve a dataset specified by an input identifier
     % If the dataset contains images, the images will be loaded
-    disp('Reading dataset with loaded images');
+    fprintf(1, 'Retrieving dataset %g with loaded images\n', datasetId);
     dataset = getDatasets(session, datasetId, true);
     assert(~isempty(dataset), 'OMERO:ReadData', 'Dataset Id not valid');
     images = toMatlabList(dataset.linkedImageList); % The images in the dataset.
-    fprintf(1, 'Found %g images in dataset %g using getDatasets()\n',...
-        numel(images), datasetId);
+    fprintf(1, '  Found %g images\n\n', numel(images));
+
+    %% Images
+    % Retrieve all the images owned by the session user.
+    disp('Retrieving images owned by the session user')
+    allImages = getImages(session);
+    fprintf(1, ' Found %g images\n\n', numel(allImages));
+
+    % Retrieve all the images owned by the session user across all groups
+    disp('Retrieving images owned by the session user')
+    allImagesAllGroups = getImages(session, 'group', -1);
+    fprintf(1, '  Found %g images\n\n', numel(allImagesAllGroups));
     
     % Retrieve all the images contained in a given dataset.
+    fprintf(1, 'Retrieving images contained in dataset %g\n', datasetId);
     images2 = getImages(session, 'dataset', datasetId);
-    fprintf(1, 'Found %g images in dataset %g using getImages()\n',...
-        numel(images2), datasetId);
+    fprintf(1, '  Found %g images\n', numel(images2));
+    fprintf(1, '\n');
+
+    % Retrieve all the images contained in a given dataset.
+    fprintf(1, 'Retrieving images contained in project %g\n', projectId);
+    images3 = getImages(session, 'dataset', projectId);
+    fprintf(1, '  Found %g images\n', numel(images3));
     fprintf(1, '\n');
     
     % Retrieve an image if the identifier is known.
-    fprintf(1, 'Reading image: %g\n', imageId);
+    fprintf(1, 'Retrieving image: %g\n', imageId);
     image = getImages(session, imageId);
     proxy = session.getContainerService();
     assert(~isempty(image), 'OMERO:ReadData', 'Image Id not valid');
@@ -104,6 +149,7 @@ try
     fprintf(1, '  SizeT: %g\n', sizeT);
     fprintf(1, '\n');
     
+    %% Screens
     % Retrieve Screening data owned by the user currently logged in.
     
     % There is no explicit method in the gateway exposed to retrieve screening data
@@ -111,9 +157,9 @@ try
     % load the data, you can use the method `findAllByQuery`.
     
     % load Screen and plate owned by the user currently logged in
-    disp('Listing screens and orphaned plates')
+    disp('Retrieving all screens and orphaned plates owner by the session user')
     [screens, orphanedPlates] = getScreens(session);
-    fprintf(1, 'Found %g screens\n', numel(screens));
+    fprintf(1, '  Found %g screens\n', numel(screens));
     for i = 1 : numel(screens),
         plates = toMatlabList(screens(i).linkedPlateList);
         fprintf(1, '  Screen %g: %s (%g) - %g plates\n', i,...
@@ -129,7 +175,7 @@ try
             end
         end
     end
-    fprintf(1, 'Found %g orphaned plates\n', numel(orphanedPlates));
+    fprintf(1, '  Found %g orphaned plates\n', numel(orphanedPlates));
     for i = 1 : numel(orphanedPlates),
         plateAcquisitions = toMatlabList(orphanedPlates(i).copyPlateAcquisitions());
         fprintf(1, '  Orphaned plate %g: %s (%g) - %g plate runs\n', i,...
@@ -138,6 +184,12 @@ try
     end
     fprintf(1, '\n');
     
+    % Retrieve all the images owned by the session user across all groups
+    disp('Retrieving all screens owned by the session user across all groups')
+    allScreensAllGroups = getScreens(session, 'group', -1);
+    fprintf(1, '  Found %g screens\n\n', numel(allScreensAllGroups));
+
+    %% Plates
     % Retrieve Wells within a Plate, see ScreenPlateWell.
     
     % Given a plate ID, load the wells.
