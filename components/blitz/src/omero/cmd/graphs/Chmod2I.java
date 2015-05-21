@@ -74,8 +74,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
 
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.CHMOD);
 
-    private static final String PERMITTED_CLASS = ExperimenterGroup.class.getName();
-
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
@@ -350,10 +348,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
 
         @Override
         public void assertMayProcess(String className, long id, Details details) throws GraphException {
-            if (!PERMITTED_CLASS.equals(className)) {
-                /* chmod may be done only to groups */
-                throw new GraphException("may process objects only of type " + PERMITTED_CLASS);
-            }
             if (!(acceptableGroups == null || acceptableGroups.contains(id))) {
                 throw new GraphException("user is not an owner of group " + id);
             }
