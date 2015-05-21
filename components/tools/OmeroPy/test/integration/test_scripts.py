@@ -580,10 +580,9 @@ def get_params():
         client.createSession()
         conn = omero.gateway.BlitzGateway(client_obj=client)
         conn.SERVICE_OPTS.setOmeroGroup(-1)
-        objparams = [rstring('Dataset:%d %s' % (d.id, d.getName()))
-                     for d in conn.getObjects('Dataset')]
+        objparams = [rstring(d.getName()) for d in conn.getObjects('Dataset')]
         if not objparams:
-            objparams = [rstring('<No objects found> %s' % datetime.now())]
+            objparams = [rstring('<No objects found>')]
         return objparams
     except Exception as e:
         return ['Exception: %s' % e]
@@ -594,8 +593,6 @@ def get_params():
 def runScript():
     "The main entry point of the script"
 
-    startTime = datetime.now()
-    # objparams = [str(datetime.now()) for n in xrange(2)]
     objparams = get_params()
 
     client = scripts.client(
@@ -614,14 +611,7 @@ def runScript():
 
     try:
         scriptParams = client.getInputs(unwrap=True)
-        message = ''
-        message += 'Params: %s\\n' % scriptParams
-
-        stopTime = datetime.now()
-        message += 'Parameters time: %s\\n' % str(paramsTime - startTime)
-        message += 'Processing time: %s\\n' % str(stopTime - paramsTime)
-
-        print message
+        message = 'Params: %s\\n' % scriptParams
         client.setOutput('Message', rstring(str(message)))
 
     finally:
@@ -640,8 +630,8 @@ if __name__ == '__main__':
         def contains_uuids(u1, u2):
             params = svc.getParams(script)
             datasets = unwrap(params.inputs["Object"].values)
-            assert u1 == any([(uuid1 in x) for x in datasets])
-            assert u2 == any([(uuid2 in x) for x in datasets])
+            assert u1 == (uuid1 in datasets)
+            assert u2 == (uuid2 in datasets)
 
         contains_uuids(False, False)
         update.saveObject(self.new_dataset(name=uuid1))
