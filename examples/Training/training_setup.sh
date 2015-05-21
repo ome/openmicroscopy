@@ -9,6 +9,7 @@ HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
 ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 GROUP_NAME=${GROUP_NAME:-training_group}
+GROUP_NAME_2=${GROUP_NAME_2:-training_group-2}
 USER_NAME=${USER_NAME:-training_user}
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-training_ice.config}
@@ -16,14 +17,15 @@ CONFIG_FILENAME=${CONFIG_FILENAME:-training_ice.config}
 # Create training user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
 bin/omero group add $GROUP_NAME --ignore-existing
-bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME --ignore-existing -P $USER_PASSWORD
+bin/omero group add $GROUP_NAME_2 --ignore-existing
+bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
 bin/omero logout
 
 # Create fake files
 touch test.fake
 
 # Create training user and group
-bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
+bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME
 nProjects=1
 nDatasets=2
 echo "Creating projects and datasets"
@@ -62,6 +64,16 @@ touch "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake"
 bin/omero import -r $screen "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake" > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 
+# Logout
+bin/omero logout
+
+# Create data under the second group
+bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME_2
+bin/omero obj new Project name='Project 0'
+bin/omero obj new Dataset name='Dataset 0'
+bin/omero import test.fake --debug ERROR
+bin/omero obj new Screen name='Screen'
+bin/omero obj new Plate name='Plate'
 # Logout
 bin/omero logout
 
