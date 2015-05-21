@@ -85,6 +85,8 @@ else
     defaultOwner = -1;
 end
 ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
+ip.addParamValue('map', java.util.HashMap,...
+    @(x) isa(x, 'java.util.HashMap'));
 ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(varargin{:});
 
@@ -103,13 +105,11 @@ ids = toJavaList(ids, 'java.lang.Long');
 
 % Create container service to load objects
 proxy = session.getContainerService();
+m = ip.Results.map;
 if ~isempty(ip.Results.group)
-    m=java.util.HashMap;
     m.put('omero.group', java.lang.String(num2str(ip.Results.group)));
-    objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters, m);
-else
-    objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters);
 end
+objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters, m);
 
 % If orphans are loaded split the lists into two: objects and orphans
 orphanList = java.util.ArrayList();
