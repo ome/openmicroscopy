@@ -152,7 +152,7 @@ def custom_server_error(request, error500):
 
 
 def csrf_failure(request, reason=""):
-    logger.info('csrf_failure: Forbidden')
+    logger.warn('csrf_failure: Forbidden')
     t = template_loader.get_template("403_csrf.html")
     c = RequestContext(request, {})
     return HttpResponseForbidden(t.render(c))
