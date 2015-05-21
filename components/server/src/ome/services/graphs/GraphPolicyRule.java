@@ -881,7 +881,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linked object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkerObject : dataPerProperty.getValue()) {
                     if (matcher.isMatch(namedTerms, isCheckAllPermissions,
                             linkerObject, rootObject, classProperty, isNotNullable)) {
@@ -894,7 +894,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linker object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkedObject : dataPerProperty.getValue()) {
                     if (matcher.isMatch(namedTerms, isCheckAllPermissions,
                             rootObject, linkedObject, classProperty, isNotNullable)) {
@@ -945,7 +945,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linked object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkerObject : dataPerProperty.getValue()) {
                     unmatchedTermIterator = unmatchedTerms.iterator();
                     while (unmatchedTermIterator.hasNext()) {
@@ -967,7 +967,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linker object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkedObject : dataPerProperty.getValue()) {
                     unmatchedTermIterator = unmatchedTerms.iterator();
                     while (unmatchedTermIterator.hasNext()) {
