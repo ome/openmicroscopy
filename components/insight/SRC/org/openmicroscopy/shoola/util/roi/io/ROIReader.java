@@ -21,8 +21,6 @@
 package org.openmicroscopy.shoola.util.roi.io;
 
 
-//Java imports
-import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.EllipseRoi;

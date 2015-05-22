@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-//Java imports
-import ij.IJ;
 import ij.ImagePlus;
 
 import java.io.File;
