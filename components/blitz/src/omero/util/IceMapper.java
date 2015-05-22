@@ -480,7 +480,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         } else if (o instanceof ome.model.units.Unit) {
             ome.model.units.Unit u = (ome.model.units.Unit) o;
             Map<String, RType> rv = new HashMap<String, RType>();
-            rv.put("string", rstring(u.toString()));
             rv.put("value", rdouble(u.getValue()));
             rv.put("unit", rstring(u.getUnit().toString()));
             rv.put("symbol", rstring(u.getUnit().getSymbol()));
