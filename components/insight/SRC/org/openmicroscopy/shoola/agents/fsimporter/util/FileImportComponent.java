@@ -1481,9 +1481,18 @@ public class FileImportComponent
 	 */
 	public ImportableFile getImportableFile() { return importable; }
 
-	public void onResultsSaving(String message)
+	/**
+	 * Indicates the results saving status.
+	 *
+	 * @param message The message to display
+	 * @param busy Pass <code>true</code> when saving,
+	 *             <code>false</code> otherwise.
+	 */
+	public void onResultsSaving(String message, boolean busy)
 	{
-	    
+	    statusLabel.updatePostProcessing(message, !busy);
+	    busyLabel.setVisible(busy);
+	    busyLabel.setBusy(busy);
 	}
 
 	/**

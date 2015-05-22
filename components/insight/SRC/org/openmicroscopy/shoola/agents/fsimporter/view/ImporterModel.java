@@ -654,7 +654,7 @@ class ImporterModel
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
-                        c.getExperimenterID());
+                        c.getExperimenterID(), c);
                     saver.load();
                     //Save the measurements
                     File f = null;

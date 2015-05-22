@@ -100,7 +100,7 @@ public class ROISaver
     {
         handle = ivView.saveROI(ctx, imageID, userID, rois , this);
         if (c != null) {
-            c.onResultsSaving(SAVING_MESSAGE);
+            c.onResultsSaving(SAVING_MESSAGE, true);
         }
     }
  
@@ -117,7 +117,7 @@ public class ROISaver
     public void handleResult(Object result) 
     {
         if (c != null) {
-            c.onResultsSaving(SAVED_MESSAGE);
+            c.onResultsSaving(SAVED_MESSAGE, false);
         }
     }
 
@@ -129,7 +129,7 @@ public class ROISaver
     {
         super.handleException(exc);
         if (c != null) {
-            c.onResultsSaving(ERROR_MESSAGE);
+            c.onResultsSaving(ERROR_MESSAGE, false);
         }
     }
 }
