@@ -663,11 +663,14 @@ class ImporterModel
                     try {
                         f = File.createTempFile(name, ".csv");
                         f.deleteOnExit();
-                        reader.readROIMeasurement(f);
-                        MeasurementsSaver ms = new MeasurementsSaver(component,
-                                ctx, new FileAnnotationData(f), data,
-                                c.getExperimenterID());
-                        ms.load();
+                        if (reader.readResults(f)) {
+                            MeasurementsSaver ms = new MeasurementsSaver(
+                                    component, ctx, new FileAnnotationData(f),
+                                    data, c.getExperimenterID());
+                            ms.load();
+                        } else {
+                            f.delete();
+                        }
                     } catch (Exception e) {
                         ImporterAgent.getRegistry().getLogger().error(this,
                                 "Cannot Save the ROIs results: "

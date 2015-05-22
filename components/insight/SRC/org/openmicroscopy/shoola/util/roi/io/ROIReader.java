@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.EllipseRoi;
@@ -421,9 +422,8 @@ public class ROIReader {
         throws IOException
     {
         ResultsTable rt = ResultsTable.getResultsTable();
-        if (rt == null) return false;
+        if (rt == null || rt.getCounter() == 0) return false;
         rt.updateResults();
-        rt.show("Results");
         rt.saveAs(f);
         return true;
     }
