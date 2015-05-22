@@ -127,14 +127,14 @@ def insight(request, conn=None, **kwargs):
 
 
 def buildWebhost(request, web_host=None):
-    if web_host is None or "localhost" in web_host:
+    if not web_host or "localhost" in web_host:
         prefix = settings.FORCE_SCRIPT_NAME or "/"
         web_host = request.build_absolute_uri(prefix)
     return str_slash(web_host)
 
 
 def getOmeroHost(request, host=None):
-    if host is None or host in ("localhost", "127.0.0.1"):
+    if not host or host in ("localhost", "127.0.0.1"):
         hostport = request.get_host()
         host, port = split_domain_port(hostport)
     return host
