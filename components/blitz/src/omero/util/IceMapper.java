@@ -468,6 +468,15 @@ public class IceMapper extends ome.util.ModelMapper implements
             return rmap(mOut);
         } else if (o instanceof omero.Internal) {
             return rinternal((omero.Internal) o);
+        } else if (o instanceof ome.model.internal.Permissions) {
+            ome.model.internal.Permissions p = (ome.model.internal.Permissions) o;
+            Map<String, RType> rv = new HashMap<String, RType>();
+            rv.put("perm", rstring(p.toString()));
+            rv.put("canAnnotate", rbool(!p.isDisallowAnnotate()));
+            rv.put("canDelete", rbool(!p.isDisallowDelete()));
+            rv.put("canEdit", rbool(!p.isDisallowEdit()));
+            rv.put("canLink", rbool(!p.isDisallowLink()));
+            return rmap(rv);
         } else if (o instanceof ome.model.units.Unit) {
             ome.model.units.Unit u = (ome.model.units.Unit) o;
             Map<String, RType> rv = new HashMap<String, RType>();
