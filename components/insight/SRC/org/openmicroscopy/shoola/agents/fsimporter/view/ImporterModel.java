@@ -27,7 +27,9 @@ import ij.IJ;
 import ij.ImagePlus;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -58,6 +60,8 @@ import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
+
+import com.google.common.io.Files;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -656,31 +660,49 @@ class ImporterModel
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
                         c.getExperimenterID(), c);
                     saver.load();
-                    //Save the measurements
-                    File f = null;
-                    String name = FilenameUtils.getBaseName(
-                            FilenameUtils.removeExtension(data.getName()));
-                    try {
-                        f = File.createTempFile(name, ".csv");
-                        f.deleteOnExit();
-                        if (reader.readResults(f)) {
-                            MeasurementsSaver ms = new MeasurementsSaver(
-                                    component, ctx, new FileAnnotationData(f),
-                                    data, c.getExperimenterID());
-                            ms.load();
-                        } else {
-                            f.delete();
-                        }
-                    } catch (Exception e) {
-                        ImporterAgent.getRegistry().getLogger().error(this,
-                                "Cannot Save the ROIs results: "
-                                        +e.getMessage());
-                    }
+                }
+                //Save the measurements
+                File f = createFile(data.getName());
+                if (f != null) {
+                    MeasurementsSaver ms = new MeasurementsSaver(
+                            component, ctx, new FileAnnotationData(f),
+                            data, c.getExperimenterID());
+                    ms.load();
                 }
             }
         }
     }
 
+    /**
+     * Create a temporary file
+     *
+     * @param imageName The image object to handle.
+     * @return See above.
+     */
+    private File createFile(String imageName)
+    {
+        File dir = Files.createTempDir();
+        String name = "ImageJ-"+FilenameUtils.getBaseName(
+                FilenameUtils.removeExtension(imageName))+"-Results-";
+        name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        name += ".csv";
+        try {
+            File f = new File(dir, name);
+            //read data
+            ROIReader reader = new ROIReader();
+            if (!reader.readResults(f)) {
+                f.delete();
+                dir.delete();
+                return null;
+            }
+            dir.deleteOnExit();
+            return f;
+        } catch (Exception e) {
+            ImporterAgent.getRegistry().getLogger().error(this,
+                    "Cannot create file to save results"+e.getMessage());
+        }
+        return null;
+    }
     /**
      * Links the rois to the image.
      *
