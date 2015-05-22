@@ -157,6 +157,28 @@ public class SimpleRoleProvider implements RoleProvider {
 
     }
 
+    public void setGroupOwner(Experimenter user, ExperimenterGroup group, boolean value) {
+        Session session = sf.getSession();
+        Experimenter foundUser = userById(user.getId(), session);
+        ExperimenterGroup foundGroup = groupById(group.getId(), session);
+        Set<GroupExperimenterMap> foundMaps = foundUser
+                .findGroupExperimenterMap(foundGroup);
+        if (foundMaps.size() < 1) {
+            throw new ApiUsageException("Group " + group.getId() + " was not "
+                    + "found for user " + user.getId());
+        } else if (foundMaps.size() > 1) {
+            log.warn(foundMaps.size() + " copies of " + foundGroup
+                    + " found for " + foundUser);
+        } else {
+            // May throw an exception
+            GroupExperimenterMap newDef = foundMaps.iterator().next();
+            log.info(String.format("Seeting ownership flag on user %s to %s for %s",
+                    foundUser.getId(), value, group.getId()));
+            newDef.setOwner(value);
+            sec.doAction(new SecureMerge(session), newDef);
+        }
+    }
+
     public void addGroups(final Experimenter user,
             final ExperimenterGroup... groups) {
 

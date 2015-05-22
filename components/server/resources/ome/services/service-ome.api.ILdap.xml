@@ -54,6 +54,7 @@
       <constructor-arg index="5" value="${omero.ldap.group_mapping}" />
       <constructor-arg index="6" value="${omero.ldap.sync_on_login}" />
       <constructor-arg index="7" value="${omero.ldap.base}"/>
+      <constructor-arg index="8" value="${omero.ldap.new_user_group_owner}"/>
     </bean>
 
 	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
