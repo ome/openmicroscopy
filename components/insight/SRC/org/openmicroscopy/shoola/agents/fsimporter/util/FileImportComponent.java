@@ -1480,6 +1480,12 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public ImportableFile getImportableFile() { return importable; }
+
+	public void onResultsSaving(String message)
+	{
+	    
+	}
+
 	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
