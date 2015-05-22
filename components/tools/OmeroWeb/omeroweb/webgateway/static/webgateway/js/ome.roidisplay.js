@@ -49,6 +49,13 @@ $.fn.roi_display = function(options) {
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
+
+        var resolve_id = function(id) {
+            if(isNaN(parseInt(id)))
+                return id;
+            else
+                return parseInt(id);
+        };
         
         // break long labels into multiple lines
         var formatShapeText = function(text_string) {
@@ -182,7 +189,7 @@ $.fn.roi_display = function(options) {
             selectedClone = null;
             for (var i=0; i<shape_objects.length; i++) {
                 var s = shape_objects[i];
-                var shape_id = parseInt(s.id);
+                var shape_id = resolve_id(s.id);
                 if (shape_id == selected_shape_id) {
                     if (s.type == 'text') {
                         selectedClone = null;
@@ -246,7 +253,7 @@ $.fn.roi_display = function(options) {
         // called when user clicks on ROI
         handle_shape_click = function(event) {
             var shape = this;
-            var shape_id = parseInt(shape.id);
+            var shape_id = resolve_id(shape.id);
             self.set_selected_shape(shape_id);
         }
 
@@ -361,7 +368,7 @@ $.fn.roi_display = function(options) {
 
         // activate ROI with ID 'roi_id' and its related shapes
         this.activate_roi = function (roi_id) {
-            var roi_id = parseInt(roi_id);
+            var roi_id = resolve_id(roi_id);
             if (!active_rois.hasOwnProperty(roi_id)) {
                 active_rois[roi_id] = [];
             }
@@ -369,7 +376,7 @@ $.fn.roi_display = function(options) {
 
         // deactivate ROI with ID 'roi_id' and its related shapes
         this.deactivate_roi = function (roi_id) {
-            var roi_id = parseInt(roi_id);
+            var roi_id = resolve_id(roi_id);
             if (active_rois.hasOwnProperty(roi_id)) {
                 delete active_rois[roi_id];
             }
@@ -377,8 +384,8 @@ $.fn.roi_display = function(options) {
 
         // activate shape with ID 'shape_id' related to ROI with ID 'roi_id'
         this.activate_shape = function (roi_id, shape_id) {
-            var roi_id = parseInt(roi_id);
-            var shape_id = parseInt(shape_id);
+            var roi_id = resolve_id(roi_id);
+            var shape_id = resolve_id(roi_id);
             if (active_rois.hasOwnProperty(roi_id)) {
                 if (active_rois[roi_id].indexOf(shape_id) == -1)
                     active_rois[roi_id].push(shape_id);
@@ -390,8 +397,8 @@ $.fn.roi_display = function(options) {
 
         // deactivate shape with ID 'shape_id' related to ROI with ID 'roi_id'
         this.deactivate_shape = function(roi_id, shape_id) {
-            var roi_id = parseInt(roi_id);
-            var shape_id = parseInt(shape_id);
+            var roi_id = resolve_id(roi_id);
+            var shape_id = resolve_id(shape_id);
             if (active_rois.hasOwnProperty(roi_id)) {
                 if (active_rois[roi_id].indexOf(shape_id) != -1) {
                     active_rois[roi_id].splice(active_rois[roi_id].indexOf(shape_id), 1);
