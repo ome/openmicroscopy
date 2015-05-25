@@ -846,10 +846,6 @@
                                 } else if(obj.attr("id").indexOf("screen")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    // see #8879 config["create"]["_disabled"] = true;
-                                    config["create"]["submenu"]["project"]["_disabled"] = true;
-                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
-                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("plate")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
@@ -858,10 +854,6 @@
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     }
-                                    // see #8879 config["create"]["_disabled"] = true;
-                                    config["create"]["submenu"]["project"]["_disabled"] = true;
-                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
-                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("acquisition")>=0) {
@@ -871,19 +863,11 @@
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["chgrp"]["_disabled"] = true;
-                                    // see #8879 config["create"]["_disabled"] = true;
-                                    config["create"]["submenu"]["project"]["_disabled"] = true;
-                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
-                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else {
                                     // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    // see #8879 config["create"]["_disabled"] = true;
-                                    config["create"]["submenu"]["project"]["_disabled"] = true;
-                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
-                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["delete"]["_disabled"] = true;
                                 }
