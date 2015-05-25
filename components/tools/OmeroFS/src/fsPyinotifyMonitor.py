@@ -277,41 +277,50 @@ class ProcessEvent(pyinotify.ProcessEvent):
                         self.wm.addWatch(
                             name, self.wm.watchParams[
                                 pathModule.path(name).parent].getMask())
-                        if self.wm.watchParams[
-                                pathModule.path(name).parent].getRec():
-                            for d in pathModule.path(name).walkdirs():
-                                self.log.info(
-                                    'NON-INOTIFY event: New directory at: %s',
-                                    str(d))
-                                if not self.ignoreDirEvents:
+                        if self.wm.isPathWatched(name):
+                            if self.wm.watchParams[
+                                    pathModule.path(name).parent].getRec():
+                                for d in pathModule.path(name).walkdirs(
+                                        errors='warn'):
+                                    self.log.info(
+                                        ('NON-INOTIFY event: '
+                                         'New directory at: %s'),
+                                        str(d))
+                                    if not self.ignoreDirEvents:
+                                        el.append((
+                                            str(d),
+                                            monitors.EventType.Create))
+                                    else:
+                                        self.log.info('Not propagated.')
+                                    self.wm.addWatch(
+                                        str(d), self.wm.watchParams[
+                                            pathModule.path(
+                                                name).parent].getMask())
+                                for f in pathModule.path(name).walkfiles(
+                                        errors='warn'):
+                                    self.log.info(
+                                        'NON-INOTIFY event: New file at: %s',
+                                        str(f))
                                     el.append(
-                                        (str(d), monitors.EventType.Create))
-                                else:
-                                    self.log.info('Not propagated.')
-                                self.wm.addWatch(
-                                    str(d), self.wm.watchParams[
-                                        pathModule.path(
-                                            name).parent].getMask())
-                            for f in pathModule.path(name).walkfiles():
-                                self.log.info(
-                                    'NON-INOTIFY event: New file at: %s',
-                                    str(f))
-                                el.append((str(f), monitors.EventType.Create))
-                        else:
-                            for d in pathModule.path(name).dirs():
-                                self.log.info(
-                                    'NON-INOTIFY event: New directory at: %s',
-                                    str(d))
-                                if not self.ignoreDirEvents:
+                                        (str(f), monitors.EventType.Create))
+                            else:
+                                for d in pathModule.path(name).dirs():
+                                    self.log.info(
+                                        ('NON-INOTIFY event: '
+                                         'New directory at: %s'),
+                                        str(d))
+                                    if not self.ignoreDirEvents:
+                                        el.append((
+                                            str(d),
+                                            monitors.EventType.Create))
+                                    else:
+                                        self.log.info('Not propagated.')
+                                for f in pathModule.path(name).files():
+                                    self.log.info(
+                                        'NON-INOTIFY event: New file at: %s',
+                                        str(f))
                                     el.append(
-                                        (str(d), monitors.EventType.Create))
-                                else:
-                                    self.log.info('Not propagated.')
-                            for f in pathModule.path(name).files():
-                                self.log.info(
-                                    'NON-INOTIFY event: New file at: %s',
-                                    str(f))
-                                el.append((str(f), monitors.EventType.Create))
+                                        (str(f), monitors.EventType.Create))
                 else:
                     self.log.info('Created "untitled folder" ignored.')
             else:
