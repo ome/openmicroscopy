@@ -201,6 +201,7 @@ PERMISSION_CHOICES = (
     ('0', 'Private'),
     ('1', 'Read-Only'),
     ('2', 'Read-Annotate'),
+    ('3', 'Read-Write'),
 )
 
 

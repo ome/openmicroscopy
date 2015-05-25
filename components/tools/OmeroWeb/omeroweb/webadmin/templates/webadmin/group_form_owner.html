@@ -71,6 +71,12 @@
                         null, "WARNING", ['OK'], null, 180);
                 });
 
+                // Disable the "Read-Write" permissions option for group owners.
+                $('#id_permissions_3').prop('disabled', 'disabled');
+                $('label[for="id_permissions_3"]')
+                    .css('opacity',0.5)
+                    .prop('title', 'Group owners cannot upgrade to Read-Write permissions. Please contact your sysadmin.');
+
         })
     </script>
 {% endblock %}
