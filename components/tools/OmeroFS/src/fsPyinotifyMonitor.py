@@ -143,21 +143,26 @@ class MyWatchManager(pyinotify.WatchManager):
         return pathString in self.watchPaths.keys()
 
     def addBaseWatch(self, path, mask, rec=False, auto_add=False):
-        res = pyinotify.WatchManager.add_watch(
-            self, path, mask, rec=False, auto_add=False)
-        self.watchPaths.update(res)
-        self.watchParams[path] = WatchParameters(
-            mask, rec=rec, auto_add=auto_add)
-        if rec:
-            for d in pathModule.path(path).dirs():
-                self.addWatch(str(d), mask)
-        self.log.info('Base watch created on: %s', path)
+        try:
+            res = pyinotify.WatchManager.add_watch(
+                self, path, mask, rec=False, auto_add=False, quiet=False)
+            self.watchPaths.update(res)
+            self.watchParams[path] = WatchParameters(
+                mask, rec=rec, auto_add=auto_add)
+            self.log.info('Base watch created on: %s', path)
+            if rec:
+                for d in pathModule.path(path).dirs():
+                    self.addWatch(str(d), mask)
+        except Exception, e:
+            self.log.error(
+                'Unable to create base watch on: %s : %s', path, str(e))
+            raise e
 
     def addWatch(self, path, mask):
         if not self.isPathWatched(path):
             try:
                 res = pyinotify.WatchManager.add_watch(
-                    self, path, mask, rec=False, auto_add=False)
+                    self, path, mask, rec=False, auto_add=False, quiet=False)
                 self.watchPaths.update(res)
                 self.watchParams[path] = copy.copy(
                     self.watchParams[pathModule.path(path).parent])
@@ -182,7 +187,8 @@ class MyWatchManager(pyinotify.WatchManager):
                     if d.find(path + '/') == 0:
                         self.log.info('    ... and : %s', d)
                         removeDict[self.watchPaths[d]] = d
-                res = pyinotify.WatchManager.rm_watch(self, removeDict.keys())
+                res = pyinotify.WatchManager.rm_watch(
+                    self, removeDict.keys(), quiet=False)
                 for wd in res.keys():
                     if res[wd]:
                         self.watchPaths.pop(removeDict[wd], True)
