@@ -1078,8 +1078,6 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
             manager.annotationList()
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
-        # Load channel metadata if appropriate
-        manager.channelMetadata(noRE=True)
     context['manager'] = manager
 
     if c_type in ("tag", "tagset"):
