@@ -343,7 +343,6 @@ class ImViewerComponent
 					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
 				}
 			}
-			savePlane();
 			return true;
 		}
 		MessageBox msg = new MessageBox(view, "Save Data", 
