@@ -25,8 +25,8 @@ mark up.
 """
 
 HEADER_MAPPING = {
-    "omero.data": "Core",
-    "omero.db": "Core",
+    "omero.data": "FS",
+    "omero.db": "Database",
     "omero.cluster": "Grid",
     "omero.grid": "Grid",
     "omero.checksum": "FS",
@@ -114,6 +114,18 @@ editor.
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
 :doc:`LDAP installation <server-ldap>` page.
+
+.. _core_configuration:
+
+Core
+----
+
+- :property:`omero.data.dir`
+- :property:`omero.db.host`
+- :property:`omero.db.name`
+- :property:`omero.db.pass`
+- :property:`omero.db.version`
+- :property:`omero.db.patch`
 
 """
 
