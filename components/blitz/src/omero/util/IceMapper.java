@@ -477,6 +477,15 @@ public class IceMapper extends ome.util.ModelMapper implements
             rv.put("canEdit", rbool(!p.isDisallowEdit()));
             rv.put("canLink", rbool(!p.isDisallowLink()));
             return rmap(rv);
+        } else if (o instanceof ome.model.units.Unit) {
+            ome.model.units.Unit u = (ome.model.units.Unit) o;
+            Map<String, RType> rv = new HashMap<String, RType>();
+            rv.put("value", rdouble(u.getValue()));
+            rv.put("unit", rstring(u.getUnit().toString()));
+            rv.put("symbol", rstring(u.getUnit().getSymbol()));
+            return rmap(rv);
+        } else if (o instanceof ome.model.units.UnitEnum) {
+            return rstring(((ome.model.units.UnitEnum) o).toString());
         } else {
             throw new ApiUsageException(null, null,
                     "Unsupported conversion to rtype from " + o.getClass().getName() + ":" + o);

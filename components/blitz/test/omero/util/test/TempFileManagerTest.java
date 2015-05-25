@@ -15,7 +15,20 @@ import omero.util.TempFileManager;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
-@Test(groups = "unit")
+//
+// Upping timeout since travis can fail with the following:
+// [nomemorytestng] FAILED: testBasicUsage on null(omero.util.test.TempFileManagerTest)
+// [nomemorytestng] org.testng.internal.thread.ThreadTimeoutException: Method org.testng.internal.TestNGMethod.testBasicUsage() didn't finish within the time-out 1000
+// [nomemorytestng]    at java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+// [nomemorytestng]    at java.net.InetAddress$1.lookupAllHostAddr(InetAddress.java:901)
+// [nomemorytestng]    at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1293)
+// [nomemorytestng]    at java.net.InetAddress.getLocalHost(InetAddress.java:1469)
+// [nomemorytestng]    at sun.management.VMManagementImpl.getVmId(VMManagementImpl.java:135)
+// [nomemorytestng]    at sun.management.RuntimeImpl.getName(RuntimeImpl.java:59)
+// [nomemorytestng]    at omero.util.TempFileManager.pid(TempFileManager.java:279)
+// [nomemorytestng]    at omero.util.TempFileManager.<init>(TempFileManager.java:118)
+//
+@Test(groups = "unit", timeOut = 30000)
 public class TempFileManagerTest extends TestCase {
 
     @Test

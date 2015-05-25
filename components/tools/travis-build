@@ -33,7 +33,7 @@ java_build()
 java_test()
 {
     NAME=java_test
-    for dir in dsl model common rendering romio server
+    for dir in dsl model common rendering romio server blitz
     do
         fold start $dir
         ant -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
