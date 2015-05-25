@@ -335,9 +335,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
          '[]',
          json.loads,
          ("A list of people who get code error notifications whenever the "
-          "application identify broken link or raises an unhandled exception "
-          "that results in an internal server error. This gives the "
-          "administrators immediate notification of any errors, "
+          "application identifies a broken link or raises an unhandled "
+          "exception that results in an internal server error. This gives "
+          "the administrators immediate notification of any errors, "
           "see :doc:`/sysadmins/mail`. "
           "Example:``'[[\"Full Name\", \"email address\"]]'``.")],
     "omero.web.application_server":
@@ -526,13 +526,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          None,
          identity,
          ("Define template used as an index page ``http://your_host/omero/``."
-          "If None user is automaticaly redirected to the login page."
+          "If None user is automatically redirected to the login page."
           "For example use 'webstart/start.html'. ")],
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
          json.loads,
-         ("Redirect to the givin location after loging in. It only support "
+         ("Redirect to the given location after logging in. It only supports "
           "arguments for :djangodoc:`Django reverse function"
           " <ref/urlresolvers/#django.core.urlresolvers.reverse>`. "
           "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\":"
