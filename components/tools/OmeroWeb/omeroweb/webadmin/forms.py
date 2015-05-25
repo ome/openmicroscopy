@@ -178,7 +178,7 @@ class ExperimenterForm(NonASCIIForm):
 
     def clean_email(self):
         if self.email_check:
-            raise forms.ValidationError('This email already exist.')
+            raise forms.ValidationError('This email already exists.')
         return self.cleaned_data.get('email')
 
     def clean_default_group(self):
@@ -201,6 +201,7 @@ PERMISSION_CHOICES = (
     ('0', 'Private'),
     ('1', 'Read-Only'),
     ('2', 'Read-Annotate'),
+    ('3', 'Read-Write'),
 )
 
 
@@ -252,7 +253,7 @@ class GroupForm(NonASCIIForm):
 
     def clean_name(self):
         if self.name_check:
-            raise forms.ValidationError('This name already exist.')
+            raise forms.ValidationError('This name already exists.')
         return self.cleaned_data.get('name')
 
 
@@ -333,7 +334,7 @@ class MyAccountForm(NonASCIIForm):
 
     def clean_email(self):
         if self.email_check:
-            raise forms.ValidationError('This email already exist.')
+            raise forms.ValidationError('This email already exists.')
         return self.cleaned_data.get('email')
 
 

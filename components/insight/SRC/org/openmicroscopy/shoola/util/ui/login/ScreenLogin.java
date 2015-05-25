@@ -263,7 +263,10 @@ public class ScreenLogin
     
     /** The default server name from the configuration file.*/
     private String configureServerName;
-    
+
+    /** List of components to show or hide depending on connection status.*/
+    private List<JComponent> components;
+
 	/** Quits the application. */
 	private void quit()
 	{
@@ -495,6 +498,7 @@ public class ScreenLogin
 	 */
 	private void initialize(String userName, String hostName)
 	{
+	    components = new ArrayList<JComponent>();
 		//status update.
 		currentTask = new JLabel();
 		Font newFont = currentTask.getFont().deriveFont(8);
@@ -516,7 +520,7 @@ public class ScreenLogin
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
 		Map<String, String> servers = editor.getServers();
-		if (hostName != null && hostName.trim().length() > 0) {
+		if (CommonsLangUtils.isNotBlank(hostName)) {
 			serverName = hostName;
 			//if user did point to another server
 			if (servers != null && servers.size() > 0) {
@@ -683,7 +687,7 @@ public class ScreenLogin
 		row.add(bar);
 		
 		mainPanel.add(row);
-		
+		components.add(row);
 		//user name
 		JPanel group = new JPanel();
 		group.setOpaque(false);
@@ -706,20 +710,20 @@ public class ScreenLogin
 		group.add(row);
 		
 		mainPanel.add(group);
+		components.add(group);
 		//controls
 		JPanel controls = new JPanel();
 		controls.setOpaque(false);
 		controls.add(Box.createHorizontalGlue());
 		controls.add(login);
 		controls.add(cancel);
-		mainPanel.add(UIUtilities.buildComponentPanelCenter(controls, 0, 0,
-				false));
-		
+		p = UIUtilities.buildComponentPanelCenter(controls, 0, 0, false);
+		mainPanel.add(p);
+		components.add(p);
 
-		
 		return mainPanel;
 	}
-	
+
 	/** 
 	 * Lays out the widgets and positions the window in the middle of
 	 * the screen.
@@ -759,16 +763,30 @@ public class ScreenLogin
 		versionInfo.setOpaque(false);
 		//Add login details.
 		int y = height-bottom-10;
-		if (serverAvailable) {
-			y = top+2*h;
-			buildLogin();
-		}
-		
+		y = top+2*h;
+        buildLogin();
+        displayComponents(serverAvailable);
 		mainPanel.add(UIUtilities.buildComponentPanelCenter(
 				versionInfo, 0, 0, false));
 		mainPanel.setBounds(0, y, width, height-top-bottom);
 		addToLayer(mainPanel);
 	}
+
+    /**
+     * Shows or hides the components.
+     *
+     * @param visible Pass <code>true</code> to show,
+     *                <code>false</code> to hide.
+     */
+    private void displayComponents(boolean visible)
+    {
+        Iterator<JComponent> i = components.iterator();
+        while (i.hasNext()) {
+            i.next().setVisible(visible);
+        }
+        repaint();
+    }
+
 	/** 
 	 * Returns the server's name.
 	 * 
@@ -803,7 +821,7 @@ public class ScreenLogin
 	 */
 	private void setNewServer(String s)
 	{
-		if (s == null || s.length() == 0) {
+		if (CommonsLangUtils.isBlank(s)) {
 			if (configureServerName != null)
 				s = configureServerName;
 			else s = DEFAULT_SERVER;
@@ -1148,6 +1166,7 @@ public class ScreenLogin
 	{
 		loginAttempt = false;
 		setControlsEnabled(true);
+		displayComponents(true);
 	}
 	
 	/** Sets the text of all textFields to <code>null</code>. */
@@ -1176,7 +1195,7 @@ public class ScreenLogin
 				pass.setText("");
 				break;
 			default:
-				cleanFields();	
+				cleanFields();
 		}
 	}
 	
@@ -1309,7 +1328,50 @@ public class ScreenLogin
     	if (!configurable)
     		encryptedButton.removeActionListener(encryptionListener);
     }
-    
+    /**
+     * Indicates if the user can modify or not the host name from the UI.
+     * 
+     * @param hostName The hostname.
+     * @param configurable Pass <code>true</code> to allow to change the 
+     * host name, <code>false</code> otherwise.
+     * @param port The selected port.
+     */
+    public void setHostNameConfiguration(String hostName, boolean configurable,
+            int port)
+    {
+        hostConfigurable = configurable;
+        configureServerName = hostName;
+        if (CommonsLangUtils.isNotBlank(hostName)) {
+            if (configurable) {
+                Map<String, String> servers = editor.getServers();
+                if (servers == null || servers.size() == 0) 
+                    editor.addRow(hostName);
+                else {
+                    Iterator<String> i = servers.keySet().iterator();
+                    String value;
+                    boolean exist = false;
+                    while (i.hasNext()) {
+                        value = i.next();
+                        if (hostName.equals(value)) {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist) editor.addRow(hostName);
+                }
+            } else {
+                serverName = hostName;
+                originalServerName = serverName;
+                if (port < 0) {
+                    selectedPort = Integer.parseInt(editor.getDefaultPort());
+                } else {
+                    selectedPort = port;
+                }
+                setNewServer(originalServerName);
+            }
+        }
+    }
+
     /**
      * Indicates if the user can modify or not the host name from the UI.
      * 
@@ -1319,33 +1381,7 @@ public class ScreenLogin
      */
     public void setHostNameConfiguration(String hostName, boolean configurable)
     {
-    	hostConfigurable = configurable;
-    	configureServerName = hostName;
-    	if (hostName != null && hostName.trim().length() > 0) {
-    		if (configurable) {
-        		Map<String, String> servers = editor.getServers();
-        		if (servers == null || servers.size() == 0) 
-    				editor.addRow(hostName);
-    			else {
-    				Iterator<String> i = servers.keySet().iterator();
-    				String value;
-    				boolean exist = false;
-    				while (i.hasNext()) {
-    					value = i.next();
-    					if (hostName.equals(value)) {
-    						exist = true;
-    						break;
-    					}
-    				}
-    				if (!exist) editor.addRow(hostName);
-    			}
-        	} else {
-        		serverName = hostName;
-        		originalServerName = serverName;
-        		selectedPort = Integer.parseInt(editor.getDefaultPort());
-        		setNewServer(originalServerName);
-        	}
-    	}
+        setHostNameConfiguration(hostName, configurable, -1);
     }
 
 	/**

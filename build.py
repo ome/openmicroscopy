@@ -70,7 +70,11 @@ def find_java():
 
 
 def calculate_memory_args():
-    return "-Xmx600M -XX:MaxPermSize=256m".split(" ")
+    return (
+        "-Xmx600M",
+        "-XX:MaxPermSize=256m",
+        "-XX:+IgnoreUnrecognizedVMOptions"
+    )
 
 
 def handle_tools(args):

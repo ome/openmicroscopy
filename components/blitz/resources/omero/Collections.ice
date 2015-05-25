@@ -107,6 +107,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.NamedValue>:java.util.List<omero.model.NamedValue>"]
         sequence<omero::model::NamedValue> NamedValueList;
 
+        ["java:type:java.util.ArrayList<omero.sys.EventContext>:java.util.List<omero.sys.EventContext>"]
+        sequence<omero::sys::EventContext> EventContextList;
+
         // Arrays
 
         sequence<bool> BoolArray;

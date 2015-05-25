@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.DeleteBox
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -82,7 +82,7 @@ public class DeleteBox
 	private static final String		TITLE = "Confirm delete";
 	
 	/** The default delete text. */
-	private static final String		DEFAULT_TEXT = "Are you sure you want to " +
+	private static final String		DEFAULT_TEXT = "<html>Are you sure you want to " +
 			"delete the selected ";
 
 	/** The text displayed in the tool tip for annotations. */
@@ -94,6 +94,11 @@ public class DeleteBox
 			"might be used by other users,\nthey will no longer be able to " +
 			"use or see them.";
 	
+    /**
+     * Text display if other user's data is going to be deleted 
+     */
+    private static final String NOT_OWNER_WARNING = "Warning: Some objects you selected are owned by other users!";
+
 	/** The button to display the tool tip. */
 	private JButton					infoButton;
 	
@@ -290,10 +295,12 @@ public class DeleteBox
 	 * @param nameSpace		Name space related to the data object if any.
 	 * @param annotation	Pass <code>true</code> if the objects have been 
 	 * 						annotated, <code>false</code> otherwise.
+	 * @param notOwner     Flag indicating that objects belonging to other users
+     *  are going to be deleted
 	 * @return See above. 
 	 */
 	private static String getMessage(Class type, int number, String nameSpace,
-						boolean annotation)
+						boolean annotation, boolean notOwner)
 	{
 		StringBuffer buffer = new StringBuffer(); 
 		String value = getTypeAsString(type, number, nameSpace);
@@ -312,6 +319,11 @@ public class DeleteBox
 				if (annotation) buffer.append("If yes, ");
 			}
 		}
+		if(notOwner) {
+		    buffer.append("<br/><br/>");
+		    buffer.append("<p style=\"font-weight: bold; color: red;\">"+NOT_OWNER_WARNING+"</p>");
+		}
+		buffer.append("</html>");
 		return buffer.toString();
 	}
 	
@@ -327,12 +339,14 @@ public class DeleteBox
 	 * @param groupLeader Pass <code>true</code> to indicate that the user
 	 * currently logged in is the owner of one of the groups the objects 
 	 * belong to, <code>false</code> otherwise.
+	 * @param notOwner Flag indicating that objects belonging to other users
+	 *  are going to be deleted
 	 */
 	public DeleteBox(JFrame parent, Class type, boolean annotation, int number,
-			String nameSpace, boolean groupLeader)
+			String nameSpace, boolean groupLeader, boolean notOwner)
 	{
 		super(parent, TITLE, 
-				DeleteBox.getMessage(type, number, nameSpace, annotation));
+				DeleteBox.getMessage(type, number, nameSpace, annotation, notOwner));
 		this.nameSpace = nameSpace;
 		this.type = type;
 		this.annotation = annotation;

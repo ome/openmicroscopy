@@ -189,9 +189,7 @@ class Parser(ArgumentParser):
 
     def add_login_arguments(self):
         group = self.add_argument_group(
-            'Login arguments', """Environment variables:
-    OMERO_SESSIONDIR - Set the sessions directory (Default:
- $HOME/omero/sessions)
+            'Login arguments', ENV_HELP + """
 
 Optional session arguments:
 """)
@@ -389,6 +387,16 @@ Examples:
     bin/omero -d0 admin start
 """
 
+ENV_HELP = """Environment variables:
+
+  OMERO_USERDIR     Set the base directory containing the user's files.
+                    Default: $HOME/omero
+  OMERO_SESSIONDIR  Set the base directory containing local sessions.
+                    Default: $OMERO_USERDIR/sessions
+  OMERO_TMPDIR      Set the base directory containing temporary files.
+                    Default: $OMERO_USERDIR/tmp
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -414,7 +422,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": DEBUG_HELP}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
@@ -1102,12 +1110,13 @@ class CLI(cmd.Cmd, Context):
                 tracer = trace.Trace()
                 tracer.runfunc(args.func, args)
             elif "p" in debug_opts or "profile" in debug_opts:
-                import hotshot
-                from hotshot import stats
-                prof = hotshot.Profile("hotshot_edi_stats")
+                from hotshot import stats, Profile
+                from omero.util import get_omero_userdir
+                profile_file = get_omero_userdir() / "hotshot_edi_stats"
+                prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
-                s = stats.load("hotshot_edi_stats")
+                s = stats.load(profile_file)
                 s.sort_stats("time").print_stats()
             else:
                 self.die(10, "Unknown debug action: %s" % debug_opts)
@@ -1662,6 +1671,12 @@ class GraphControl(CmdControl):
             req_or_doall = omero.cmd.DoAll([req_or_doall])
         return req_or_doall
 
+    def default_exclude(self):
+        """
+        Return a list of types to exclude by default.
+        """
+        return []
+
     def main_method(self, args):
 
         client = self.ctx.conn(args)
@@ -1699,21 +1714,24 @@ class GraphControl(CmdControl):
                 self.ctx.out("\n".join(keys))
                 return  # Early exit.
 
-        opt = None
+        inc = []
         if args.include:
             inc = args.include.split(",")
-            opt = omero.cmd.graphs.ChildOption(includeType=inc)
+        exc = self.default_exclude()
         if args.exclude:
-            exc = args.exclude.split(",")
-            if opt is None:
-                opt = omero.cmd.graphs.ChildOption(excludeType=exc)
-            else:
+            exc = exc.extend(args.exclude.split(","))
+
+        if len(inc) > 0 or len(exc) > 0:
+            opt = omero.cmd.graphs.ChildOption()
+            if len(inc) > 0:
+                opt.includeType = inc
+            if len(exc) > 0:
                 opt.excludeType = exc
 
         commands = args.obj
         for req in commands:
             req.dryRun = args.dry_run
-            if args.include or args.exclude:
+            if len(inc) > 0 or len(exc) > 0:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.childOptions = req.childOptions
@@ -1722,12 +1740,47 @@ class GraphControl(CmdControl):
         if not args.ordered and len(commands) > 1:
             commands = self.combine_commands(commands)
 
+        for command_check in commands:
+            self._check_command(command_check)
+
         if len(commands) == 1:
             cmd = args.obj[0]
         else:
             cmd = omero.cmd.DoAll(commands)
 
         self._process_request(cmd, args, client)
+
+    def _check_command(self, command_check):
+        query = self.ctx.get_client().sf.getQueryService()
+        ec = self.ctx.get_event_context()
+        own_id = ec.userId
+        if not command_check or not command_check.targetObjects:
+            return
+        for k, v in command_check.targetObjects.items():
+            query_str = (
+                "select "
+                "x.details.owner.id, "
+                "x.details.group.details.permissions "
+                "from %s x "
+                "where x.id = :id") % k
+            if not v:
+                return
+            for w in v:
+                try:
+                    uid, perms = omero.rtypes.unwrap(
+                        query.projection(
+                            query_str,
+                            omero.sys.ParametersI().addId(w),
+                            {"omero.group": "-1"})[0])
+                    perms = perms["perm"]
+                    perms = omero.model.PermissionsI(perms)
+                    if perms.isGroupWrite() and uid != own_id:
+                        self.ctx.err(
+                            "WARNING: %s:%s belongs to user %s" % (
+                                k, w, uid))
+                except:
+                    self.ctx.dbg(traceback.format_exc())
+                    # Doing nothing since this is a best effort
 
     def combine_commands(self, commands):
         """

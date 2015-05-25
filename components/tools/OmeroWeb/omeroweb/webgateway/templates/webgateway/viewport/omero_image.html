@@ -1105,10 +1105,7 @@
     $("#rdef-postit").bind('closed',
       function () {
                     hidePicker();
-                    /* viewport.back_to_bookmarked_channels();*/
-                    //syncRDCW(viewport);
-                  })
-      .bind('opening', function () { syncRDCW(viewport); viewport.bookmark_channels()});
+                  });
 
     $('.can-collapse').click(function () {
       $(this).toggleClass('closed').next().slideToggle();
