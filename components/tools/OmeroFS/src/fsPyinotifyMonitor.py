@@ -88,11 +88,14 @@ class PlatformMonitor(AbstractPlatformMonitor):
             self.wm, ProcessEvent(
                 wm=self.wm, cb=self.propagateEvents, et=self.eTypes,
                 ignoreDirEvents=self.ignoreDirEvents))
-        self.wm.addBaseWatch(
-            self.pathsToMonitor, (pyinotify.ALL_EVENTS), rec=recurse,
-            auto_add=follow)
-        self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
-        self.log.info('Monitoring %s events', str(self.eTypes))
+        try:
+            self.wm.addBaseWatch(
+                self.pathsToMonitor, (pyinotify.ALL_EVENTS), rec=recurse,
+                auto_add=follow)
+            self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
+            self.log.info('Monitoring %s events', str(self.eTypes))
+        except:
+            self.log.error('Monitor failed on: %s', str(self.pathsToMonitor))
 
     def start(self):
         """
