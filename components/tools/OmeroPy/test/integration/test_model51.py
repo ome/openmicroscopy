@@ -207,9 +207,6 @@ class TestModel51(lib.ITest):
         pytest.assertAlmostEqual(1.2, as_map.get("value"))
         assert "SECOND" == as_map.get("unit")
         assert "s" == as_map.get("symbol")
-        as_str = as_map.get("string", "")
-        assert as_str.startswith("Time(1.2")
-        assert as_str.endswith("SECOND)")
 
         as_objs = self.query.projection((
             "select pi.exposureTime.value, "
