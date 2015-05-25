@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,17 @@
 package omeis.providers.re.utests;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
+import ome.api.IPixels;
+import ome.io.nio.PixelBuffer;
+import ome.logic.RenderingSettingsImpl;
+import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
+import ome.model.enums.RenderingModel;
+import ome.util.PixelData;
+import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.Quantization_float;
 import omeis.providers.re.quantum.QuantumFactory;
@@ -31,6 +40,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 import org.perf4j.LoggingStopWatch;
 import org.perf4j.StopWatch;
 import org.testng.annotations.Test;
+
 
 public class TestStandardFloatRenderer extends BaseRenderingTest
 {
@@ -132,4 +142,48 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
             stopWatch.stop();
         }
     }
+
+    public void testRenderLargeRange() throws Exception
+    {
+        PixelsType pixelsType = getPixelsType();
+        byte[] plane = getLargeRangePlane();
+        data = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(plane));
+
+        Pixels pixels = createDummyPixels(pixelsType, data);
+        TestPixelsService pixelsService = new TestPixelsService(pixels);
+        pixelsService.setDummyPlane(plane);
+        IPixels pixelsMetadataService = new TestPixelsMetadataService();
+        RenderingSettingsImpl settingsService = new RenderingSettingsImpl();
+        settingsService.setPixelsMetadata(pixelsMetadataService);
+        settingsService.setPixelsData(pixelsService);
+        RenderingDef settings = settingsService.createNewRenderingDef(pixels);
+        settingsService.resetDefaultsNoSave(settings, pixels);
+
+        PixelBuffer pixelBuffer = pixelsService.getPixelBuffer(pixels, false);
+        List<RenderingModel> renderingModels =
+            pixelsMetadataService.getAllEnumerations(RenderingModel.class);
+        QuantumFactory quantumFactory = createQuantumFactory();
+        Renderer renderer = new Renderer(quantumFactory, renderingModels,
+                                pixels, settings, pixelBuffer);
+        PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
+        StopWatch stopWatch = new LoggingStopWatch("testRenderLargeRange");
+        renderer.renderAsPackedInt(def, pixelBuffer);
+        stopWatch.stop();
+    }
+
+    private byte[] getLargeRangePlane()
+    {
+        int n = 100000000;
+        Float[] output = new Float[n];
+        for (int i = 0; i < output.length; i++) {
+            output[i] = new Float(Integer.MIN_VALUE+i);
+        }
+        ByteBuffer buffer = ByteBuffer.allocate(4 * output.length);
+
+        for (float value : output){
+            buffer.putFloat(value);
+        }
+        return buffer.array();
+    }
+
 }

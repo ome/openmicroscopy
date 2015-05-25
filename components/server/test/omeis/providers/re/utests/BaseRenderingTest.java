@@ -150,7 +150,7 @@ public class BaseRenderingTest extends TestCase
 		return new double[] { min, max };
 	}
 	
-	private Pixels createDummyPixels(PixelsType pixelsType, PixelData plane)
+	Pixels createDummyPixels(PixelsType pixelsType, PixelData plane)
 	{
 		Pixels pixels = new Pixels(1L, true);
 		pixels.setSizeX(getSizeX());
