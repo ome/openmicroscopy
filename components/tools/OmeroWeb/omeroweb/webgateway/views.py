@@ -863,11 +863,13 @@ def render_image(request, iid, z=None, t=None, conn=None, **kwargs):
         # don't seem to need to do this for tiff
         elif format == 'tif':
             rsp = HttpResponse(jpeg_data, content_type='image/tif')
+        fileName = img.getName().decode('utf8').replace(" ", "_")
+        fileName = fileName.replace(",", ".")
         rsp['Content-Type'] = 'application/force-download'
         rsp['Content-Length'] = len(jpeg_data)
         rsp['Content-Disposition'] = (
             'attachment; filename=%s.%s'
-            % (img.getName().replace(" ", "_"), format))
+            % (fileName, format))
     return rsp
 
 
