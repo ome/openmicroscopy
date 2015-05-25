@@ -330,10 +330,16 @@ public class ImportConfig {
          } else {
              level = Level.toLevel(levelString);
          }
-         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.formats")).setLevel(level);
-         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.services.blitz")).setLevel(level);
-         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.system")).setLevel(level);
-         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("loci")).setLevel(level);
+         setLevel("ome.formats", level);
+         setLevel("ome.services.blitz", level);
+         setLevel("ome.system", level);
+         setLevel("loci", level);
+     }
+
+     private void setLevel(String loggerName, Level level) {
+         Logger logger = LoggerFactory.getLogger(loggerName);
+         if (!(logger instanceof ch.qos.logback.classic.Logger)) return;
+         ((ch.qos.logback.classic.Logger) logger).setLevel(level);
      }
 
     //
