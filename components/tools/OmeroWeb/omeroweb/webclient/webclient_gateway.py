@@ -41,7 +41,7 @@ from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
 from omero.cmd import Chmod
 
-from omero.gateway import TagAnnotationWrapper, AnnotationWrapper
+from omero.gateway import AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
 from omero.gateway import CommentAnnotationWrapper
 
@@ -373,7 +373,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         q = self.getQueryService()
         for ann in q.findAllByQuery(sql, params, self.SERVICE_OPTS):
-            yield TagAnnotationWrapper(self, ann)
+            yield omero.gateway.TagAnnotationWrapper(self, ann)
 
     def listTagsRecursive(self, eid=None, offset=None, limit=1000):
         """
@@ -649,7 +649,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         sql += " and tg.ns is null order by tg.textValue"
         res = query_serv.findAllByQuery(sql, p, self.SERVICE_OPTS)
         if len(res) > 0:
-            return TagAnnotationWrapper(self, res[0])
+            return omero.gateway.TagAnnotationWrapper(self, res[0])
         return None
 
     # AVATAR #
@@ -2507,6 +2507,15 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
             self.link = 'link' in kwargs and kwargs['link'] or None
 
 omero.gateway.WellWrapper = WellWrapper
+
+
+class TagWrapper(OmeroWebObjectWrapper, omero.gateway.TagAnnotationWrapper):
+    """
+    omero_model_TagAnnotationI class wrapper overwrite
+    omero.gateway.TagAnnotationWrapper and extends OmeroWebObjectWrapper.
+    """
+
+omero.gateway.TagAnnotationWrapper = TagWrapper
 
 
 class PlateAcquisitionWrapper(OmeroWebObjectWrapper,
