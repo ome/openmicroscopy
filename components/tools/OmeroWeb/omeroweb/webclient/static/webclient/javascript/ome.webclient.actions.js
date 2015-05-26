@@ -551,6 +551,9 @@ OME.formatScriptName = function(name) {
 };
 
 OME.showScriptList = function(event) {
+    // We're almost always going to be triggered from an anchor
+    event.preventDefault();
+
     // show menu - load if empty
     // $('#scriptList').css('visibility', 'visible');
     $('#scriptList').show();
