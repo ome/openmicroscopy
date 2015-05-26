@@ -3850,9 +3850,9 @@ def script_run(request, scriptId, conn=None, **kwargs):
                 # the key and value don't have any data-type defined by
                 # scripts - just use string
                 k = str(request.POST[keyName])
-                v = str(request.POST[valueName])
+                v = request.POST[valueName]
                 if len(k) > 0 and len(v) > 0:
-                    paramMap[str(k)] = str(v)
+                    paramMap[str(k)] = v.encode('utf8')
                 row += 1
                 keyName = "%s_key%d" % (key, row)
                 valueName = "%s_value%d" % (key, row)
@@ -3871,7 +3871,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
                     values = values[0].split(",")
 
                 # try to determine 'type' of values in our list
-                listClass = omero.rtypes.rstring
+                listClass = omero.rtypes.RStringI
                 l = prototype.val     # list
                 # check if a value type has been set (first item of prototype
                 # list)
@@ -3886,8 +3886,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
                 valueList = []
                 for v in values:
                     try:
-                        # convert unicode -> string
-                        obj = listClass(str(v.strip()))
+                        # RStringI() will encode any unicode
+                        obj = listClass(v.strip())
                     except:
                         logger.debug("Invalid entry for '%s' : %s" % (key, v))
                         continue
@@ -3923,7 +3923,12 @@ def script_run(request, scriptId, conn=None, **kwargs):
             # if inputMap values not as expected or firstObj is None
             conn.SERVICE_OPTS.setOmeroGroup(gid)
 
-    logger.debug("Running script %s with params %s" % (scriptName, inputMap))
+    try:
+        # Try/except in case inputs are not serializable, e.g. unicode
+        logger.debug("Running script %s with "
+                     "params %s" % (scriptName, inputMap))
+    except:
+        pass
     rsp = run_script(request, conn, sId, inputMap, scriptName)
     return HttpJsonResponse(rsp)
 
