@@ -7481,6 +7481,36 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
                 for n, c in enumerate(pixels.iterateChannels())]
 
+    def getChannelLabels(self):
+        """
+        Returns a list of the labels for the Channels for this image
+        """
+        q = self._conn.getQueryService()
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query = "select lc.name, lc.emissionWave.value, index(chan) "\
+                "from Pixels p "\
+                "join p.image as img "\
+                "join p.channels as chan "\
+                "join chan.logicalChannel as lc "\
+                "where img.id = :id order by index(chan)"
+        res = q.projection(query, params, self._conn.SERVICE_OPTS)
+        ret = []
+        for name, emissionWave, idx in res:
+            if name is not None and len(name.val.strip()) > 0:
+                ret.append(name.val)
+            elif emissionWave is not None and\
+                    len(unicode(emissionWave.val).strip()) > 0:
+                # FIXME: units ignored for wavelength
+                rv = emissionWave.getValue()
+                # Don't show as double if it's really an int
+                if int(rv) == rv:
+                    rv = int(rv)
+                ret.append(unicode(rv))
+            else:
+                ret.append(unicode(idx.val))
+        return ret
+
     @assert_re()
     def getZoomLevelScaling(self):
         """
