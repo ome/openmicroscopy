@@ -20,53 +20,41 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter;
 
-
-
+import java.util.ArrayList;
 import java.util.List;
 
-import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.ROIData;
+import pojos.AnnotationData;
+import pojos.DataObject;
+import pojos.FileAnnotationData;
+import pojos.ImageData;
 
 
 /**
- * Saved the roi after import.
+ * Save the measurements.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.0
  */
-public class ROISaver
+public class MeasurementsSaver
     extends DataImporterLoader
 {
-
-    /** Indicates that the rois are being saved.*/
-    private static final String SAVING_MESSAGE = "Saving ROIs";
-
-    /** Indicates that the rois have been saved.*/
-    private static final String SAVED_MESSAGE = "ROIs Saved";
-
-    /** Indicates that an error occurred while saving rois.*/
-    private static final String ERROR_MESSAGE =
-            "Error occurred while saving ROIs";
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
 
-    /** The id of the image the ROIs are related to. */
-    private long imageID;
+    /** The image the ROIs are related to. */
+    private ImageData image;
 
     /** The id of the user. */
     private long userID;
 
-    /** The ROI data to save. */
-    private List<ROIData> rois;
-
-    /** The component to use to notify of saving progress.*/
-    private FileImportComponent c;
+    /** The data to save. */
+    private FileAnnotationData data;
 
     /**
      * Creates a new instance.
@@ -74,22 +62,19 @@ public class ROISaver
      * @param viewer The Importer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param rois The ROI to save.
+     * @param data The data to save.
      * @param imageID The image to link the roi to.
      * @param userID The owner of the rois.
-     * @param c The component to update when saving rois.
      */
-    public ROISaver(Importer viewer, SecurityContext ctx,
-            List<ROIData> rois, long imageID, long userID,
-            FileImportComponent c)
+    public MeasurementsSaver(Importer viewer, SecurityContext ctx,
+            FileAnnotationData data, ImageData image, long userID)
     {
         super(viewer, ctx);
-        if (imageID < 0) 
+        if (image == null) 
             throw new IllegalArgumentException("No image specified.");
-        this.imageID = imageID;
+        this.image = image;
         this.userID = userID;
-        this.rois = rois;
-        this.c = c;
+        this.data = data;
     }
 
     /** 
@@ -98,10 +83,11 @@ public class ROISaver
      */
     public void load()
     {
-        handle = ivView.saveROI(ctx, imageID, userID, rois , this);
-        if (c != null) {
-            c.onResultsSaving(SAVING_MESSAGE, true);
-        }
+        List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+        toAdd.add(data);
+        List<DataObject> nodes = new ArrayList<DataObject>();
+        nodes.add(image);
+        handle = mhView.saveData(ctx, nodes, toAdd, null, null, userID, this);
     }
  
     /** 
@@ -116,20 +102,6 @@ public class ROISaver
      */
     public void handleResult(Object result) 
     {
-        if (c != null) {
-            c.onResultsSaving(SAVED_MESSAGE, false);
-        }
     }
 
-    /**
-     * Displays message if an error occurred.
-     * @see DataImporterLoader#handleException(Throwable)
-     */
-    public void handleException(Throwable exc)
-    {
-        super.handleException(exc);
-        if (c != null) {
-            c.onResultsSaving(ERROR_MESSAGE, false);
-        }
-    }
 }

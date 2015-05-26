@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import ij.IJ;
-
 import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -308,6 +306,16 @@ class ImporterComponent
         return sortedGroups;
 	}
 
+	/**
+	 * Brings up the dialog to select the import location.
+	 *
+	 * @param type The type of dialog e.g. screen view.
+	 * @param selectedContainer The selected container e.g. dataset
+	 * @param objects The collection of containers.
+	 * @param userId The user to import for.
+	 * @param display Pass <code>true</code> to display the view,
+	 *                <code>false</code> otherwise.
+	 */
     private void activate(int type, TreeImageDisplay selectedContainer,
            Collection<TreeImageDisplay> objects, long userId, boolean display)
     {

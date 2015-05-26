@@ -79,7 +79,6 @@ import org.openmicroscopy.shoola.agents.util.ui.ThumbnailLabel;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
-import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -1480,6 +1479,21 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public ImportableFile getImportableFile() { return importable; }
+
+	/**
+	 * Indicates the results saving status.
+	 *
+	 * @param message The message to display
+	 * @param busy Pass <code>true</code> when saving,
+	 *             <code>false</code> otherwise.
+	 */
+	public void onResultsSaving(String message, boolean busy)
+	{
+	    statusLabel.updatePostProcessing(message, !busy);
+	    busyLabel.setVisible(busy);
+	    busyLabel.setBusy(busy);
+	}
+
 	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
