@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- *  This program is free software; you can redistribute it and/or modify
+ * 	This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -24,19 +24,19 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
+//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Rectangle;
-
 import javax.swing.Icon;
-import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.JViewport;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
@@ -396,13 +396,7 @@ public class TreeCellRenderer
     
     /** The id of the user currently logged in.*/
     private long userId;
-
-    /** The component of reference.*/
-    private JScrollPane ref;
-
-    /** The node to display.*/
-    private TreeImageDisplay node;
-
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -664,7 +658,7 @@ public class TreeCellRenderer
      * @param userId The id of the user currently logged in. 
      */
     public void reset(long userId) { this.userId = userId; }
-
+    
     /**
      * Overridden to set the icon and the text.
      * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object,
@@ -688,7 +682,8 @@ public class TreeCellRenderer
         }
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
-        node = (TreeImageDisplay) value;
+        TreeImageDisplay  node = (TreeImageDisplay) value;
+        
         int w = 0;
         FontMetrics fm = getFontMetrics(getFont());
         Object ho = node.getUserObject();
@@ -707,6 +702,7 @@ public class TreeCellRenderer
             return this;
         } 
         setIcon(node);
+    	
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
@@ -717,40 +713,17 @@ public class TreeCellRenderer
         else setTextColor(getBackgroundSelectionColor());
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
-        w = getPreferredWidth();
+        w += getIconTextGap();
+        xText = w;
+        if (ho instanceof ImageData)
+        	w += fm.stringWidth(node.getNodeName());
+        else if (node instanceof TreeFileSet)
+        	w +=  fm.stringWidth(getText())+40;
+        else w += fm.stringWidth(getText());
+        
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
         return this;
-    }
-
-    /**
-     * Determines the preferred width of the component.
-     *
-     * @return See above.
-     */
-    private int getPreferredWidth()
-    {
-        FontMetrics fm = getFontMetrics(getFont());
-        int w = getIconGap();
-        xText = w;
-        if (node instanceof TreeFileSet)
-            w +=  fm.stringWidth(getText())+40;
-        else w += fm.stringWidth(getText());
-        return w;
-    }
-
-    /**
-     * Returns the gap between icon and text.
-     *
-     * @return See above
-     */
-    private int getIconGap()
-    {
-        int w = 0;
-        if (getIcon() != null) w += getIcon().getIconWidth();
-        else w += SIZE.width;
-        w += getIconTextGap();
-        return w;
     }
     
     /**
@@ -759,9 +732,6 @@ public class TreeCellRenderer
      */
     public void paintComponent(Graphics g)
     {
-        if (ref == null) {
-            ref = (JScrollPane) UIUtilities.findParent(this, JScrollPane.class);
-        }
     	if (isTargetNode) {
 			if (!droppedAllowed) {
 				if (selected) g.setColor(backgroundSelectionColor);
@@ -770,35 +740,10 @@ public class TreeCellRenderer
 			} else g.setColor(draggedColor);
 			g.fillRect(xText, 0, getSize().width, getSize().height);
 		}
-    	if (ref != null) {
-    	    JViewport vp = ref.getViewport();
-    	    int w = vp.getSize().width;
-            FontMetrics fm = getFontMetrics(getFont());
-            String text = node.getNodeName();
-            if (numberChildrenVisible) text = node.getNodeText();
-            int v = getPreferredSize().width;
-            Rectangle r = getBounds();
-            w = w-r.x;
-            if (v > w) {
-                //truncate the text
-                v = fm.stringWidth(text);
-                int charWidth = fm.charWidth('A');
-                int vv = (w-getIconGap()-5)/charWidth;
-                if (vv < 0) vv = 0;
-                String value = UIUtilities.formatPartialName(text, vv);
-                setText(value);
-                w = getPreferredWidth();
-                Dimension d = new Dimension(w, fm.getHeight()+4);
-                if (vp.getComponentCount() > 0) {
-                    vp.getComponent(0).setPreferredSize(d);
-                }
-                setSize(d);//4 b/c GTK L&F
-                setPreferredSize(d);//4 b/c GTK L&F
-            }
-    	}
     	selected = false;
     	isTargetNode = false;
     	droppedAllowed = false;
     	super.paintComponent(g);
 	}
+  
 }
