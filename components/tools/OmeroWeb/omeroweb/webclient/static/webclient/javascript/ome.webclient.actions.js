@@ -567,7 +567,7 @@ OME.showScriptList = function(event) {
                         name = li.name;
                     if (li.id) {
                         name = OME.formatScriptName(name);
-                        html += "<li><a href='{% url 'webindex' %}script_ui/"+ li.id + "/'>" + name + "</a></li>";
+                        html += "<li><a href='" + event.data.webindex + "script_ui/"+ li.id + "/'>" + name + "</a></li>";
                     } else {
                         html += "<li class='menuItem'><a href='#'>" + name + "</a>";
                         // sub-menus have a 'BACK' button at the top
