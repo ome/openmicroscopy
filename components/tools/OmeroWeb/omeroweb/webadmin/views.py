@@ -840,6 +840,8 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                                 " their only group" % (url, e.getFullName()))
                 # refresh the form and add messages
                 context = getEditFormContext()
+            else:
+                context = {'gid': gid, 'form': form}
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
