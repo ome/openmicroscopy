@@ -164,7 +164,6 @@ public class ResultsSaver
         Object o;
         FileObject file;
         long id;
-        ROIReader reader = new ROIReader();
         while (i.hasNext()) {
             o = i.next();
             if (o instanceof FileObject) {
