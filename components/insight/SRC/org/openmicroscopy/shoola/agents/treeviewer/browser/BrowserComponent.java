@@ -42,12 +42,9 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTree;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
-
-
 
 
 import org.apache.commons.collections.CollectionUtils;
@@ -61,7 +58,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ParentVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
@@ -719,19 +715,6 @@ class BrowserComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         view.getTreeRoot().accept(visitor, algoType);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        if (visitor instanceof UpdateVisitor) {
-            UpdateVisitor us = (UpdateVisitor) visitor;
-            Collection<TreeImageDisplay> updated = us.getUpdated();
-            if (CollectionUtils.isEmpty(updated)) return;
-            Iterator<TreeImageDisplay> i = updated.iterator();
-            TreeImageDisplay n;
-            TreeModel tm = view.getTreeDisplay().getModel();
-            while (i.hasNext()) {
-                n = i.next();
-                tm.valueForPathChanged(new TreePath(n.getPath()),
-                        n.getUserObject());
-            }
-        }
     }
 
     /**

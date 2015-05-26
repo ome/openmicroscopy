@@ -29,16 +29,11 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
-
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -61,9 +56,6 @@ public class UpdateVisitor
 
 	/** The update object.*/
 	private DataObject object;
-
-	/** The collection of updated nodes.*/
-	private Set<TreeImageDisplay> updated;
 	
 	/**
 	 * Updates the specified node.
@@ -80,7 +72,6 @@ public class UpdateVisitor
 			object.getId() == data.getId()) {
 			node.setUserObject(object);
 			TreeViewerTranslator.formatToolTipFor(node);
-			updated.add(node);
 		}
 	}
 	
@@ -96,16 +87,8 @@ public class UpdateVisitor
         if (object == null)
         	throw new IllegalArgumentException("No object to update.");
         this.object = object;
-        updated = new HashSet<TreeImageDisplay>();
     }
-
-    /**
-     * Returns the collection of updated nodes
-     *
-     * @return See above.
-     */
-    public Collection<TreeImageDisplay> getUpdated() { return updated; }
-
+    
     /**
      * Updates the nodes.
      * @see BrowserVisitor#visit(TreeImageSet)
