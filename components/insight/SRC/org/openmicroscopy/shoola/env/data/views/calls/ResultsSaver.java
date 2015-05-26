@@ -177,7 +177,7 @@ public class ResultsSaver
                     //create a tmp file.
                     File f = createFile(img);
                     if (f != null) {
-                        final String description = "Save ROIs Results";
+                        final String description = "Save Table Results";
                         final long imageID = id;
                         final File fi = f;
                         add(new BatchCall(description) {
