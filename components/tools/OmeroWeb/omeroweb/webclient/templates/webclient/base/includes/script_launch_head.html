@@ -56,8 +56,10 @@
             }
         });
 
-        $("#scriptButton").click(OME.showScriptList);
-
+        $("#scriptButton").click(
+            {webindex: "{% url 'webindex' %}"},
+            OME.showScriptList
+        );
     });
 
 </script>
