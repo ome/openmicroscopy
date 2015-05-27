@@ -420,7 +420,7 @@ $.fn.roi_display = function(options) {
             return external_rois;
         }
 
-        this.check_ext_shape_id = function(roi_id, shape_id) {
+        var check_ext_shape_id = function(roi_id, shape_id) {
             // check if ROI ID is already used by one on OMERO's ROIs...
             for (var rx=0; rx<roi_json.length; rx++) {
                 if (roi_json[rx]["id"] == roi_id) {
@@ -444,7 +444,7 @@ $.fn.roi_display = function(options) {
         }
 
         // Check if there is another shape with on the same Z and T planes for this ROI
-        this.check_shape_planes = function(roi_id, shape_z, shape_t) {
+        var check_ext_shape_planes = function(roi_id, shape_z, shape_t) {
             for (var rx=0; rx<external_rois.length; rx++) {
                 if (external_rois[rx]["id"] == roi_id) {
                     var shapes = external_rois[rx]["shapes"];
@@ -491,9 +491,9 @@ $.fn.roi_display = function(options) {
                 external_rois = [];
             }
 
-            var check_shape_id = this.check_ext_shape_id(roi_id, shape_id);
-            var check_shape_planes = this.check_shape_planes(roi_id, shape_config['theZ'],
-                                                             shape_config['theT']);
+            var check_shape_id = check_ext_shape_id(roi_id, shape_id);
+            var check_shape_planes = check_ext_shape_planes(roi_id, shape_config['theZ'],
+                                                            shape_config['theT']);
 
             console.info("CHECK SHAPE ID: " + check_shape_id + " - CHECK SHAPE PLANES: " + check_shape_planes);
 
