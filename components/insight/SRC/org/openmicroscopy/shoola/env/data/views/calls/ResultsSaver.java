@@ -126,31 +126,33 @@ public class ResultsSaver
                     rois = reader.readImageJROIFromSources(id, img);
                     //create a tmp file.
                     File f = createFile(img);
-                    if (f != null) {
-                        final String description = "Save ROIs Results";
-                        final long imageID = id;
-                        final File fi = f;
-                        final List<ROIData> list = rois;
-                        add(new BatchCall(description) {
-                            public void doCall() { 
-                                try {
-                                    //first save the roi
+                    final String description = "Save ROIs Results";
+                    final long imageID = id;
+                    final File fi = f;
+                    final List<ROIData> list = rois;
+                    add(new BatchCall(description) {
+                        public void doCall() { 
+                            try {
+                                //first save the roi
+                                if (CollectionUtils.isNotEmpty(list)) {
                                     svc.saveROI(ctx, imageID, expID, list);
+                                }
+                                if (fi != null) {
                                     FileAnnotationData fa =
                                             new FileAnnotationData(fi);
                                     //TODO: create ns.
                                     result = msvc.annotate(ctx, ImageData.class,
                                             imageID, fa);
-                                } catch (Exception e) {
-                                    context.getLogger().error(this,
-                                            "Cannot Save the ROIs results: "
-                                                    +e.getMessage());
-                                } finally {
-                                    fi.delete();
                                 }
+                            } catch (Exception e) {
+                                context.getLogger().error(this,
+                                        "Cannot Save the ROIs results: "
+                                                +e.getMessage());
+                            } finally {
+                                if (fi != null) fi.delete();
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
         }
@@ -164,7 +166,6 @@ public class ResultsSaver
         Object o;
         FileObject file;
         long id;
-        ROIReader reader = new ROIReader();
         while (i.hasNext()) {
             o = i.next();
             if (o instanceof FileObject) {
@@ -176,7 +177,7 @@ public class ResultsSaver
                     //create a tmp file.
                     File f = createFile(img);
                     if (f != null) {
-                        final String description = "Save ROIs Results";
+                        final String description = "Save Table Results";
                         final long imageID = id;
                         final File fi = f;
                         add(new BatchCall(description) {
