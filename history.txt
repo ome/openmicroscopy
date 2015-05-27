@@ -8,20 +8,40 @@ A bug-fix release which also introduces some new functionality. Improvements
 include:
 
 -  support for Read-Write groups
--  users created by LDAP can be made group owners
--  new graph operations are now implemented further in the clients and test
-   code (delete, chgrp)
--  new graph operation 'chmod' added
+-  the LDAP plugin can now set users as group owners
+   whether on creation or via the improved sync_on_login
+   option
+-  users logged into the webclient can now automatically
+   log in via webstart
 -  OMERO.web fixes and improvements including:
 
    * interpolation
    * optimization of plate grid and right-hand panel
    * download of original files and script results fixes
+   * significant speed-ups in loading large datasets
 
 -  better delete functionality and warnings in the UI
--  CLI sessions timeouts
--  in-place import leak fix
--  deployment fixes (set var, environment variables)
+-  improved graph operations like 'delete' and 'chgrp'
+   as well as the new 'chmod' operation are now used
+   across the clients including the CLI
+-  an API for setting and querying session timeouts
+   available via the CLI
+-  deployment fixes include:
+
+   * new default permissions on the var/ directory
+   * better checks of the DropBox directory permissions
+   * new and some deprecated environment variables
+   * a startup check for lock files on NFS
+   * use /var/run for omero.fcgi
+
+Critical bugs which were fixed include:
+
+-  the in-place import file handle leak which was a
+   regression in 5.1.1
+-  various unicode and unit failures were corrected
+
+??? magnification (gh-3691) cc: Dom
+??? IJ (gh-3766, 3807, 3795, 3808) cc: Dom, Jm, Balaji
 
 5.1.1 (April 2015)
 ------------------
