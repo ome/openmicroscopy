@@ -908,6 +908,19 @@
                         <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
                         </a>
+                        <input type="button" href="{% url 'list_scripts' %}" title="Run Script"
+                            class="btn silver btn_script_dark scriptButton button-disabled" disabled="disabled">
+                            <!-- Class "scriptButton" also on <span> as that
+                                 is actually what we're clicking on.
+                            -->
+                            <span class="scriptButton"></span>
+                        </a>
+                        <script type="text/javascript">
+                            $(".annotations_section .scriptButton").click(
+                                {webindex: "{% url 'webindex' %}"},
+                                OME.showScriptList
+                            );
+                        </script>
                     {% endif %}
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
@@ -917,6 +930,11 @@
                         {% with fileanns=manager.file_annotations %}
                             {% include "webclient/annotations/fileanns.html" %}
                         {% endwith %}
+                        <script type="text/javascript">
+                            $(".lnfiles li input[type=checkbox]").change(
+                                OME.fileAnnotationCheckboxChanged
+                            );
+                        </script>
                     </ul>
 
             </div>
