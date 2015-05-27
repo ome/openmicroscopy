@@ -594,6 +594,15 @@ OME.hideScriptList = function() {
     $("#scriptList").hide();
 }
 
+OME.fileAnnotationCheckboxChanged = function(event) {
+    var disabled =
+        $("#fileanns_container input[type=checkbox]")
+        .filter(":checked").length == 0;
+    $(".annotations_section input.scriptButton").toggleClass(
+        "button-disabled", disabled
+    ).prop('disabled', function() { return disabled });
+}
+
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         items: '.tooltip',

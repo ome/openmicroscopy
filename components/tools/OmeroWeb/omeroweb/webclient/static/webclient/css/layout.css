@@ -775,11 +775,15 @@
 				
             }
             
+                .lnfiles li input[type=checkbox] {
+                    vertical-align: middle;
+                    margin-top: 1px;
+                }
             
                 .lnfiles li>a {
                     text-shadow:0 1px 0 rgba(255,255,255,.4);
                     font-size:1em;
-                    padding:8px 10px;
+                    padding:8px 10px 8px 0px;
                     display:inline-block;
                     color:hsl(210,15%,35%);
                     -webkit-border-radius: inherit;
