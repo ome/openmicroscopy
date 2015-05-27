@@ -1455,7 +1455,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         command = omero.cmd.Chmod(type="/ExperimenterGroup",
                                   id=group.id,
                                   permissions=perms)
-        handle = self.c.sf.submit(command, self.SERVICE_OPTS)
+        handle = self.c.sf.submit(command)
         try:
             self._waitOnCmd(handle, loops=50, failontimeout=True)
         finally:
