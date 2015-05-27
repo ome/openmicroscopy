@@ -292,6 +292,13 @@ OME.openScriptWindow = function(event, width, height) {
                 args.push(key.capitalize() + "=" + sel_types[key].join(","));
             }
         }
+        var fileAnnotationCheckboxes =
+            $("#fileanns_container input[type=checkbox]").filter(":checked");
+        fileAnnotationCheckboxes.each(function() {
+            var li = $(this).parent();
+            var oid = li.attr('id').split('-')[1];
+            args.push("FileAnnotation=" + oid);
+        })
         script_url += "?" + args.join("&");
     }
     OME.openCenteredWindow(script_url, width, height);
