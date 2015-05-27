@@ -882,7 +882,7 @@ class BlitzObjectWrapper (object):
             delete = omero.cmd.Delete2(targetObjects=links)
             handle = self._conn.c.sf.submit(delete, self._conn.SERVICE_OPTS)
             try:
-                self._conn._waitOnCmd(handle)
+                self._conn._waitOnCmd(handle, failontimeout=True)
             finally:
                 handle.close()
             self._obj.unloadAnnotationLinks()
@@ -904,7 +904,7 @@ class BlitzObjectWrapper (object):
         if len(ids):
             handle = self._conn.deleteObjects('Annotation', ids)
             try:
-                self._conn._waitOnCmd(handle)
+                self._conn._waitOnCmd(handle, failontimeout=True)
             finally:
                 handle.close()
             self._obj.unloadAnnotationLinks()
@@ -8217,7 +8217,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         outfile.close()
         handle = self._conn.deleteObjects('OriginalFile', todel)
         try:
-            self._conn._waitOnCmd(handle)
+            self._conn._waitOnCmd(handle, failontimeout=True)
         finally:
             handle.close()
 
@@ -8673,7 +8673,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     def _deleteSettings(self):
         handle = self._conn.deleteObjects("Image/RenderingDef", [self.getId()])
         try:
-            self._conn._waitOnCmd(handle)
+            self._conn._waitOnCmd(handle, failontimeout=True)
         finally:
             handle.close()
 
