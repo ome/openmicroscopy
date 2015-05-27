@@ -8,24 +8,27 @@ A bug-fix release which also introduces some new functionality. Improvements
 include:
 
 -  support for Read-Write groups
--  the LDAP plugin can now set users as group owners
-   whether on creation or via the improved sync_on_login
-   option
--  users logged into the webclient can now automatically
-   log in via webstart
+-  the LDAP plugin can now set users as group owners whether on creation or
+   via the improved sync_on_login option
+-  users logged into the webclient can now automatically log in via webstart
+-  results tables from ImageJ/Fiji can be attached to images in OMERO and
+   the ImageJ/Fiji workflow has been improved
+-  better delete functionality and warnings in the UI
+-  improved graph operations like 'delete' and 'chgrp', as well as the new
+   'chmod' operation (for changing group permissions), are now used across the
+   clients including the CLI
+-  an API for setting and querying session timeouts is now available via the
+   CLI
+-  magnification now reflects microscopy values (e.g. 40x) rather than a
+   percentage in both clients
+-  more readable truncation of file names in the OMERO.insight data tree
 -  OMERO.web fixes and improvements including:
 
    * interpolation
    * optimization of plate grid and right-hand panel
-   * download of original files and script results fixes
-   * significant speed-ups in loading large datasets
-
--  better delete functionality and warnings in the UI
--  improved graph operations like 'delete' and 'chgrp'
-   as well as the new 'chmod' operation are now used
-   across the clients including the CLI
--  an API for setting and querying session timeouts
-   available via the CLI
+   * option to download single original files
+   * significant speed-up in loading large datasets
+   
 -  deployment fixes include:
 
    * new default permissions on the var/ directory
@@ -36,12 +39,9 @@ include:
 
 Critical bugs which were fixed include:
 
--  the in-place import file handle leak which was a
-   regression in 5.1.1
+-  the in-place import file handle leak (which was a regression in 5.1.1)
 -  various unicode and unit failures were corrected
 
-??? magnification (gh-3691) cc: Dom
-??? IJ (gh-3766, 3807, 3795, 3808) cc: Dom, Jm, Balaji
 
 5.1.1 (April 2015)
 ------------------
