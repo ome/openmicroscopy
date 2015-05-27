@@ -1456,7 +1456,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         command = Chmod(type="/ExperimenterGroup",
                         id=group.id,
                         permissions=perms)
-        cb = self.c.submit(command)
+        cb = self.c.submit(command, loops=120)
         cb.close(True)
 
     def saveObject(self, obj):
