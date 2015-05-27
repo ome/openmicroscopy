@@ -35,7 +35,8 @@ $.fn.roi_display = function(options) {
         }
 
         var roi_json = null;          // load ROI data as json when needed
-        var active_rois = {};       // show only the active ROIs
+        var active_rois = {};         // show only the active ROIs
+        var external_rois = null;     // ROIs specified using an external software
         this.theZ = null;
         this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
@@ -415,6 +416,94 @@ $.fn.roi_display = function(options) {
             return roi_json;
         }
 
+        this.get_external_roi_json = function() {
+            return external_rois;
+        }
+
+        this.check_ext_shape_id = function(roi_id, shape_id) {
+            // check if ROI ID is already used by one on OMERO's ROIs...
+            for (var rx=0; rx<roi_json.length; rx++) {
+                if (roi_json[rx]["id"] == roi_id) {
+                    console.error("ID " + roi_id + " already used by one of OMERO ROIs");
+                    return false;
+                }
+            }
+            // ... if roi_id is used by an external ROI, check shape_id
+            for (var rx=0; rx<external_rois.length; rx++) {
+                if (external_rois[rx]["id"] == roi_id) {
+                    var shapes = external_rois[rx]["shapes"];
+                    for (var sx=0; sx<shapes.length; sx++) {
+                        if (shapes[sx]["id"] == shape_id) {
+                            console.error("Shape ID " + shape_id + " already in use for ROI " + roi_id);
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Check if there is another shape with on the same Z and T planes for this ROI
+        this.check_shape_planes = function(roi_id, shape_z, shape_t) {
+            for (var rx=0; rx<external_rois.length; rx++) {
+                if (external_rois[rx]["id"] == roi_id) {
+                    var shapes = external_rois[rx]["shapes"];
+                    for(var sx=0; sx<shapes.length; sx++) {
+                        if (shapes[sx]["theZ"] == shape_z && shapes[sx]["theT"] == shape_t) {
+                            console.error("Z plane " + shape_z + " and T plane " + shape_t + " already used");
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        var configure_shape = function(shape_id, shape_config) {
+            shape_config["id"] = shape_id;
+        }
+
+        var build_roi_description = function(roi_id, shapes) {
+            return {
+                "id": roi_id,
+                "shapes": typeof shapes !== "undefined" ? shapes : []
+            };
+        }
+
+        var append_shape = function(roi_id, shape_config, rois_collection) {
+            for (var x=0; x<rois_collection.length; x++) {
+                if (rois_collection[x]["id"] == roi_id) {
+                    // ROI with ID roi_id already exists, append shape
+                    rois_collection[x]["shapes"].push(shape_config);
+                    return;
+                }
+            }
+            var roi = build_roi_description(roi_id, [shape_config]);
+            rois_collection.push(roi);
+        }
+
+        this.push_shape = function(roi_id, shape_id, shape_config) {
+            var roi_id = resolve_id(roi_id);
+            var shape_id = resolve_id(shape_id);
+
+            // initialize external_rois when used for the first time
+            if(! external_rois) {
+                external_rois = [];
+            }
+
+            var check_shape_id = this.check_ext_shape_id(roi_id, shape_id);
+            var check_shape_planes = this.check_shape_planes(roi_id, shape_config['theZ'],
+                                                             shape_config['theT']);
+
+            console.info("CHECK SHAPE ID: " + check_shape_id + " - CHECK SHAPE PLANES: " + check_shape_planes);
+
+            if (check_shape_id && check_shape_planes) {
+                // add ID to the shape
+                configure_shape(shape_id, shape_config);
+                // append shape to proper ROI
+                append_shape(roi_id, shape_config, external_rois);
+            }
+        };
         /*
         Clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based.
         Only shapes in 'active_rois' are going to be displayed.
