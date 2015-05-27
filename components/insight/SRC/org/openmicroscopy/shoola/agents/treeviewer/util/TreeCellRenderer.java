@@ -789,9 +789,6 @@ public class TreeCellRenderer
                 setText(value);
                 w = getPreferredWidth();
                 Dimension d = new Dimension(w, fm.getHeight()+4);
-                if (vp.getComponentCount() > 0) {
-                    vp.getComponent(0).setPreferredSize(d);
-                }
                 setSize(d);//4 b/c GTK L&F
                 setPreferredSize(d);//4 b/c GTK L&F
             }
