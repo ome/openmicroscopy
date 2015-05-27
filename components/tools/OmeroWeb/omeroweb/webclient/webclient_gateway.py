@@ -1457,7 +1457,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                                   permissions=perms)
         handle = self.c.sf.submit(command, self.SERVICE_OPTS)
         try:
-            self._waitOnCmd(handle)
+            self._waitOnCmd(handle, loops=50, failontimeout=True)
         finally:
             handle.close()
 
