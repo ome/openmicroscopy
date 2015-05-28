@@ -124,8 +124,6 @@ Core
 - :property:`omero.db.host`
 - :property:`omero.db.name`
 - :property:`omero.db.pass`
-- :property:`omero.db.version`
-- :property:`omero.db.patch`
 
 """
 
