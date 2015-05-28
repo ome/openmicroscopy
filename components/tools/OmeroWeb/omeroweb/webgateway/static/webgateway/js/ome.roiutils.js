@@ -17,7 +17,7 @@ function get_shape_config(stroke_width, stroke_alpha, stroke_color, fill_alpha, 
 
 function get_generic_shape(transform, z_plane, t_plane, shape_type) {
     return {
-        "transform": typeof transform == "undefined" ? transform : "none",
+        "transform": typeof transform !== "undefined" ? transform : "none",
         "theZ": z_plane,
         "theT": t_plane,
         "type": shape_type
