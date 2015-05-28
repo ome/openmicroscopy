@@ -493,7 +493,7 @@ $.fn.roi_display = function(options) {
             rois_collection.push(roi);
         }
 
-        this.push_shape = function(roi_id, shape_id, shape_config) {
+        this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois) {
             var roi_id = resolve_id(roi_id);
             var shape_id = resolve_id(shape_id);
 
@@ -514,6 +514,12 @@ $.fn.roi_display = function(options) {
                 // append shape to proper ROI
                 append_shape(roi_id, shape_config, external_rois);
             }
+
+            // refresh current ROIs (False by default)
+            var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : False;
+            if (refresh)
+                this.refresh_active_rois();
+        };
         };
         /*
         Clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based.
