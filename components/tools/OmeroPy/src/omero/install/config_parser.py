@@ -24,26 +24,52 @@ Parser for the omero.properties file to generate RST
 mark up.
 """
 
+
+class Header(object):
+    def __init__(self, name, reference=None, description=""):
+        """Initialize new configuration property"""
+        self.name = name
+        self.reference = reference
+        self.description = description
+
+    def get_reference(self):
+
+        if not self.reference:
+            return self.name.lower()
+        else:
+            return self.reference
+
+DB_HEADER = Header("Database", reference="db")
+FS_HEADER = Header("Binary repository", reference="fs")
+GRID_HEADER = Header("Grid", reference="grid")
+ICE_HEADER = Header("Ice", reference="ice")
+LDAP_HEADER = Header("LDAP", reference="ldap")
+JVM_HEADER = Header("JVM", reference="jvm")
+MISC_HEADER = Header("Misc", reference="misc")
+PERFORMANCE_HEADER = Header("Performance", reference="performance")
+SCRIPTS_HEADER = Header("Scripts", reference="scripts")
+SECURITY_HEADER = Header("Security", reference="security")
+
 HEADER_MAPPING = {
-    "omero.data": "FS",
-    "omero.db": "Database",
-    "omero.cluster": "Grid",
-    "omero.grid": "Grid",
-    "omero.checksum": "FS",
-    "omero.fs": "FS",
-    "omero.managed": "FS",
-    "omero.ldap": "LDAP",
-    "omero.jvmcfg": "JVM",
-    "omero.sessions": "Performance",
-    "omero.threads": "Performance",
-    "omero.throttling": "Performance",
-    "omero.launcher": "Scripts",
-    "omero.process": "Scripts",
-    "omero.scripts": "Scripts",
-    "omero.security": "Security",
-    "omero.resetpassword": "Security",
-    "omero.upgrades": "Misc",
-    "Ice": "Ice",
+    "omero.data": FS_HEADER,
+    "omero.db": DB_HEADER,
+    "omero.cluster": GRID_HEADER,
+    "omero.grid": GRID_HEADER,
+    "omero.checksum": FS_HEADER,
+    "omero.fs": FS_HEADER,
+    "omero.managed": FS_HEADER,
+    "omero.ldap": LDAP_HEADER,
+    "omero.jvmcfg": JVM_HEADER,
+    "omero.sessions": PERFORMANCE_HEADER,
+    "omero.threads": PERFORMANCE_HEADER,
+    "omero.throttling": PERFORMANCE_HEADER,
+    "omero.launcher": SCRIPTS_HEADER,
+    "omero.process": SCRIPTS_HEADER,
+    "omero.scripts": SCRIPTS_HEADER,
+    "omero.security": SECURITY_HEADER,
+    "omero.resetpassword": SECURITY_HEADER,
+    "omero.upgrades": MISC_HEADER,
+    "Ice": ICE_HEADER,
 }
 
 
@@ -315,6 +341,7 @@ class PropertyParser(object):
 
     def headers(self):
         headers = defaultdict(list)
+        additional_headers = {}
         for x in self:
             found = False
             for header in HEADER_MAPPING:
@@ -322,9 +349,13 @@ class PropertyParser(object):
                     headers.setdefault(HEADER_MAPPING[header], []).append(x)
                     found = True
                     break
+
             if not found and x.key.startswith('omero.'):
                 parts = x.key.split(".")
-                headers.setdefault(parts[1].title(), []).append(x)
+                section = parts[1].title()
+                if section not in additional_headers:
+                    additional_headers[section] = Header(section)
+                headers.setdefault(additional_headers[section], []).append(x)
 
         for key in headers.iterkeys():
             headers[key].sort(lambda a, b: cmp(a.key, b.key))
@@ -347,14 +378,14 @@ class PropertyParser(object):
     def print_headers(self):
         """Print headers and number of keys"""
         headers = self.headers()
-        for k, v in sorted(headers.items()):
-            print "%s (%s)" % (k, len(v))
+        for k, v in sorted(headers.items(), key=lambda x: x[0].name):
+            print "%s (%s)" % (k.name, len(v))
 
     def print_rst(self):
         """Print configuration in reStructuredText format"""
         print TOP
         headers = self.headers()
-        for header in sorted(headers):
+        for header in sorted(headers, key=lambda x: x.name):
             properties = ""
             # Filter properties marked as DEVELOPMENT
             props = [p for p in headers[header] if
@@ -379,11 +410,11 @@ class PropertyParser(object):
                 else:
                     properties += "Default: `%s`\n\n" % v
 
-            hline = "-" * len(header)
-            m = {"header": header,
+            hline = "-" * len(header.name)
+            m = {"header": header.name,
                  "hline": hline,
                  "properties": properties,
-                 "reference": header.lower()}
+                 "reference": header.get_reference()}
             print HEADER % m
 
 if __name__ == "__main__":
