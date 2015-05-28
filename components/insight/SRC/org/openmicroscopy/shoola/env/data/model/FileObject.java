@@ -91,7 +91,7 @@ public class FileObject
     {
         if (!isImagePlus()) return;
         ImagePlus image = (ImagePlus) file;
-        image.setProperty(OMERO_GROUP, id);
+        image.setProperty(OMERO_ID, id);
     }
 
     /**
