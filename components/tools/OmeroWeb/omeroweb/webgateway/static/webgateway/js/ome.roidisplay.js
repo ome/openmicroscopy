@@ -506,8 +506,6 @@ $.fn.roi_display = function(options) {
             var check_shape_planes = check_ext_shape_planes(roi_id, shape_config['theZ'],
                                                             shape_config['theT']);
 
-            console.info("CHECK SHAPE ID: " + check_shape_id + " - CHECK SHAPE PLANES: " + check_shape_planes);
-
             if (check_shape_id && check_shape_planes) {
                 // add ID to the shape
                 configure_shape(shape_id, shape_config);
