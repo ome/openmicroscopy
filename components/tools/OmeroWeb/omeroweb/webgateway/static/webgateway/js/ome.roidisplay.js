@@ -307,14 +307,19 @@ $.fn.roi_display = function(options) {
                     }
                 }
             } else {
-                for (r=0; r<roi_json.length; r++) {
-                    if (!active_rois.hasOwnProperty(roi_json[r].id)) {
-                        active_rois[roi_json[r].id] = [];
+                var global_rois = [];
+                $.merge(global_rois, roi_json);
+                if (external_rois)
+                    $.merge(global_rois, external_rois);
+
+                for (r=0; r<global_rois.length; r++) {
+                    if (!active_rois.hasOwnProperty(global_rois[r].id)) {
+                        active_rois[global_rois[r].id] = [];
                     }
-                    var shapes = roi_json[r]['shapes'];
+                    var shapes = global_rois[r]['shapes'];
                     for (s=0; s<shapes.length; s++) {
-                        if (active_rois[roi_json[r].id].indexOf(shapes[s].id) == -1);
-                            active_rois[roi_json[r].id].push(shapes[s].id);
+                        if (active_rois[global_rois[r].id].indexOf(shapes[s].id) == -1);
+                            active_rois[global_rois[r].id].push(shapes[s].id);
                     }
                 }
             }
@@ -327,23 +332,29 @@ $.fn.roi_display = function(options) {
          */
         get_active_rois = function () {
             var act_rois = [];
-            for (r=0; r<roi_json.length; r++) {
-                if (active_rois.hasOwnProperty(roi_json[r].id)) {
-                    var roi = {"id": roi_json[r].id};
-                    var shapes = roi_json[r].shapes;
-                    if (active_rois[roi_json[r].id].length == 0) {
+
+            // merge ROIs coming from OMERO server and external ROIs
+            var global_rois = [];
+            $.merge(global_rois, roi_json);
+            if (external_rois)
+                $.merge(global_rois, external_rois);
+            for (r=0; r<global_rois.length; r++) {
+                if (active_rois.hasOwnProperty(global_rois[r].id)) {
+                    var roi = {"id": global_rois[r].id};
+                    var shapes = global_rois[r].shapes;
+                    if (active_rois[global_rois[r].id].length == 0) {
                         // No filter for the shapes, append all of them
                         roi['shapes'] = shapes;
                         // Update filter as well, this will make possible to selectively disable shapes
                         for (s = 0; s < shapes.length; s++) {
-                            active_rois[roi_json[r].id].push(shapes[s].id);
+                            active_rois[global_rois[r].id].push(shapes[s].id);
                         }
                     }
                     else {
                         roi['shapes'] = [];
                         for (s=0; s<shapes.length; s++) {
                             // Add only active shapes
-                            if (active_rois[roi_json[r].id].indexOf(shapes[s].id) != -1) {
+                            if (active_rois[global_rois[r].id].indexOf(shapes[s].id) != -1) {
                                 roi['shapes'].push(shapes[s]);
                             }
                         }
