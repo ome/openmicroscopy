@@ -928,7 +928,13 @@ public class FileImportComponent
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
-			imageLabel.setData(list.get(0));
+			ThumbnailData data = list.get(0);
+			long iid = data.getImageID();
+			if (data.getImage() != null) {
+			    iid = data.getImage().getId();
+			}
+			getFile().setImageID(iid);
+			imageLabel.setData(data);
 			list.remove(0);
 			if (list.size() > 0) {
 				ThumbnailLabel label = imageLabels.get(0);
