@@ -514,7 +514,7 @@ $.fn.roi_display = function(options) {
             }
 
             // refresh current ROIs (False by default)
-            var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : False;
+            var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : false;
             if (refresh)
                 this.refresh_active_rois();
         };
