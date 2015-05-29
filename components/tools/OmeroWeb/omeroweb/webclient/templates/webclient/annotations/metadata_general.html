@@ -911,7 +911,8 @@
                             {% include "webclient/annotations/fileanns.html" %}
                         {% endwith %}
                         <script type="text/javascript">
-                            $(".lnfiles li input[type=checkbox]").change(
+                            $("#fileanns_container").on(
+                                "change", "li input[type=checkbox]",
                                 OME.fileAnnotationCheckboxChanged
                             );
                         </script>
