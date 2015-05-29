@@ -168,6 +168,7 @@ button::-moz-focus-inner {
 		width:22px;
 		height:20px;
 		display:block;
+		cursor:pointer;
 	}
 	input.btn_script_dark.button-disabled:hover {
 		/* Overrides the default "button-disabled" class semantics for the
