@@ -40,7 +40,7 @@ import omero.sys.ParametersI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class TemplateImportTarget implements ImportTarget {
+public class TemplateImportTarget implements ImportTarget {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -84,6 +84,11 @@ public abstract class TemplateImportTarget implements ImportTarget {
     {
         String[] parts = template.split(":");
         group = parts[0];
+
+        if (parts.length == 1) {
+            return;
+        }
+
         if (isSPW)
         {
             if (!parts[1].equals("") || !parts[2].equals(""))
