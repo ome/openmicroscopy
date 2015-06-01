@@ -31,7 +31,7 @@ public interface ImportTarget {
 
     void init(String target);
 
-    IObject load(OMEROMetadataStoreClient client, ImportContainer ic);
-
+    IObject load(OMEROMetadataStoreClient client, ImportContainer ic)
+        throws Exception;
 
 }

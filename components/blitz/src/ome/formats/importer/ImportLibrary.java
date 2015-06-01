@@ -266,7 +266,13 @@ public class ImportLibrary implements IObservable
                 ImportTarget target = config.getTarget();
                 if (target != null) {
                     // FIXME: We really should be doing this delayed on the srv.
-                    ic.setTarget(target.load(store, ic));
+                    try {
+                        IObject obj = target.load(store, ic);
+                        ic.setTarget(obj);
+                    } catch (Exception e) {
+                        log.error("Could not load target: {}", target);
+                        throw new RuntimeException("Failed to load target", e);
+                    }
                 }
 
                 if (config.checksumAlgorithm.get() != null) {
