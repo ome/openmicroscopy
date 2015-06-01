@@ -23,6 +23,7 @@ package ome.formats.importer.targets;
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -315,4 +316,21 @@ public abstract class TemplateImportTarget implements ImportTarget {
             throw new RuntimeException(e);
         }
     }
+ 
+    /**
+     * Temporary helper method to parse filename.
+     * THIS IS NOT YET FILE SYSTEM AGNOSTIC!
+     * This should be relocated to some service class.
+     *
+     */
+    private Map<String, String> getTargetMap(String template, String filename)
+    {
+        Map<String, String> targetNames = new HashMap<String, String>();
+        String[] parts = template.split(":");
+        targetNames.put("group", parts[0]);
+        targetNames.put("outer", parts[1]);
+        targetNames.put("inner", parts[2]);
+        return targetNames;
+    }
+
 }
