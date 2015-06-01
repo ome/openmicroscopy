@@ -532,8 +532,8 @@ public class CommandLineImporter {
         LongOpt exclude =
                 new LongOpt("exclude", LongOpt.REQUIRED_ARGUMENT, null, 20);
 
-        LongOpt template =
-                new LongOpt("template", LongOpt.REQUIRED_ARGUMENT, null, 21);
+        LongOpt target =
+                new LongOpt("target", LongOpt.REQUIRED_ARGUMENT, null, 21);
 
         LongOpt qaBaseURL = new LongOpt(
                 "qa-baseurl", LongOpt.REQUIRED_ARGUMENT, null, 22);
@@ -559,14 +559,14 @@ public class CommandLineImporter {
         LongOpt annotationLinkDeprecated =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT, null, 96);
 
-        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:T:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 name, description, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
-                                exclude, template, noStatsInfo,
+                                exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
                                 plateName, plateDescription,
                                 noThumbnailsDeprecated,
