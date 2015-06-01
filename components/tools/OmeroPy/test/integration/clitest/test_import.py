@@ -344,6 +344,102 @@ class TestImport(CLITest):
         assert screens
         assert screen.id.val in [s.id.val for s in screens]
 
+    class TargetSource(object):
+
+        def get_arg(self, client, spw=False):
+            raise NotImplemented()
+
+        def verify_containers(self, found1, found2):
+            raise NotImplemented()
+
+
+    class ClassTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            pass
+
+
+    class ModelTargetSource(TargetSource):
+
+        def __init__(self, by="name"):
+            if by == "id":
+                pass
+            else:
+                raise NotImplemented(by)
+
+        def get_arg(self, client, spw=False):
+            update = client.sf.getUpdateService()
+            if spw:
+                self.kls = "Screen"
+                self.obj = omero.model.ScreenI()
+            else:
+                self.kls = "Dataset"
+                self.obj = omero.model.DatasetI()
+            self.obj.name = rstring("ClassTargetSource-Test")
+            self.obj = update.saveAndReturnObject(self.obj)
+            self.oid = self.obj.id.val
+            return "%s:%s" % (self.kls, self.oid)
+
+        def verify_containers(self, found1, found2):
+            assert (self.oid,) == tuple(found1)
+            assert (self.oid,) == tuple(found2)
+
+    class TemplateTargetSource(TargetSource):
+        pass
+
+    SOURCES = (
+        #ClassTargetSource(),
+        ModelTargetSource(by="id"),
+        #ModelTargetSource(by="name"),
+        #TemplateTargetSource(),
+    )
+
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("source", SOURCES)
+    def testTargetArgument(self, spw, source, tmpdir, capfd):
+        if spw:
+            fakefile = tmpdir.join(
+                "SPW&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
+        else:
+            fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        target = source.get_arg(self.client, spw)
+        self.args += ['-T', target]
+        self.args += [str(fakefile)]
+
+        def parse_containers():
+            try:
+                self.cli.invoke(self.args, strict=True)
+            except NonZeroReturnCode:
+                o, e = capfd.readouterr()
+                print "O" * 40
+                print o
+                print "E" * 40
+                print e
+                raise
+            o, e = capfd.readouterr()
+
+            if spw:
+                obj = self.get_object(e, 'Plate')
+                containers = self.get_screens(obj.id.val)
+            else:
+                obj = self.get_object(e, 'Image')
+                containers = self.get_dataset(obj.id.val)
+
+            assert containers
+            found = [x.id.val for x in containers]
+            return found
+
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = parse_containers()
+        found2 = parse_containers()
+        source.verify_containers(found1, found2)
+
     @pytest.mark.parametrize("level", debug_levels)
     @pytest.mark.parametrize("prefix", [None, '--'])
     def testDebugArgument(self, tmpdir, capfd, level, prefix):
