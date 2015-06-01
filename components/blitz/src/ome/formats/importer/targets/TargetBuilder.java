@@ -39,7 +39,7 @@ public class TargetBuilder {
     @SuppressWarnings("unchecked")
     public TargetBuilder parse(String string) {
         if (target != null) {
-            throw new RuntimeException(String.format(
+            throw new IllegalStateException(String.format(
                     "Only one target supported: old=%s new=%s",
                     this.target, string));
         }
@@ -80,7 +80,8 @@ public class TargetBuilder {
             inst = type.newInstance();
         } catch (Exception e) {
             log.warn("Failed to instantiate for: {}", target, e);
-            throw new RuntimeException("Could not create ImportTarget: " + target);
+            throw new RuntimeException("Could not create ImportTarget: "
+                + target, e);
         }
         inst.init(target);
         return inst;
