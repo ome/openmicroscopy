@@ -796,8 +796,7 @@ public class CommandLineImporter {
                     datasetString = datasetString.substring(
                             "Dataset:".length());
                 }
-                config.targetId.set(Long.parseLong(datasetString));
-                config.targetClass.set(Dataset.class.getName());
+                config.target.set(datasetString);
                 break;
             }
             case 'r': {
@@ -806,8 +805,7 @@ public class CommandLineImporter {
                     screenString = screenString.substring(
                             "Screen:".length());
                 }
-                config.targetId.set(Long.parseLong(screenString));
-                config.targetClass.set(Screen.class.getName());
+                config.target.set(screenString);
                 break;
             }
             case 'n': {
