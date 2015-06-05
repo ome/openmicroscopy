@@ -11,6 +11,7 @@ ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 GROUP_NAME=${GROUP_NAME:-training_group}
 GROUP_NAME_2=${GROUP_NAME_2:-training_group-2}
 USER_NAME=${USER_NAME:-training_user}
+USER_NAME_2=${USER_NAME_2:-training_user-2}
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-training_ice.config}
 
@@ -19,6 +20,7 @@ bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
 bin/omero group add $GROUP_NAME --ignore-existing
 bin/omero group add $GROUP_NAME_2 --ignore-existing
 bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
+bin/omero user add $USER_NAME_2 $USER_NAME_2 $USER_NAME_2 $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
 bin/omero logout
 
 # Create fake files
@@ -67,8 +69,8 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Logout
 bin/omero logout
 
-# Create data under the second group
-bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME_2
+# Create data owned by another user in the second group
+bin/omero login $USER_NAME_2@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME_2
 bin/omero obj new Project name='Project 0'
 bin/omero obj new Dataset name='Dataset 0'
 bin/omero import test.fake --debug ERROR
