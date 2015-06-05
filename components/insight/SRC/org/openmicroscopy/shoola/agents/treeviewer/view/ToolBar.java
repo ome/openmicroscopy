@@ -978,7 +978,12 @@ class ToolBar
                 {
                     model.setAvailableScripts(null);
                     scriptsMenu = null;
-                    controller.reloadAvailableScripts(e.getPoint());
+                    Point p = e.getPoint();
+                    if (e.getSource() != scriptButton) {
+                        p = null;
+                    }
+                    controller.reloadAvailableScripts(p,
+                            (Component) e.getSource());
                 }
             });
             scriptsMenu.add(refresh);

@@ -996,9 +996,9 @@ class TreeViewerControl
 	 * 
 	 * @param location The location of the mouse click.
 	 */
-	void reloadAvailableScripts(Point location)
+	void reloadAvailableScripts(Point location, Component source)
 	{
-		model.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, null, location);
+		model.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, source, location);
 	}
 	
 	/**
