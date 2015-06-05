@@ -50,7 +50,18 @@ public class ScriptDisplay
     public ScriptDisplay(Component source)
     {
         this.source = source;
-        location = new Point(0, 0);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param source The invoker.
+     * @param location The location of the mouse pressed.
+     */
+    public ScriptDisplay(Component source, Point location)
+    {
+        this.source = source;
+        this.location = location;
     }
 
     /**

@@ -952,9 +952,12 @@ class ToolBar
      */
     void showAvailableScriptsMenu(Component c, Point p)
     {
-        if (p == null) return;
+        if (p == null) {
+            p = new Point(0, 0);
+        };
         if (c == null) {
             c = scriptButton;
+            repaint();
         }
         IconManager icons = IconManager.getInstance();
         Collection<ScriptObject> scripts = model.getAvailableScripts();
