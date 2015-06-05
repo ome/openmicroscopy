@@ -25,10 +25,12 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -42,9 +44,11 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
-
+import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -162,6 +166,9 @@ class ToolBar
 	/** The index of the Metadata component. */
 	private static final int		METADATA_INDEX = 1;
 	
+    /** Button to bring available script.*/
+    private JButton script;
+
     /**
      * Returns the icon corresponding to the permissions of the group.
      * 
@@ -244,33 +251,7 @@ class ToolBar
 
         bar.add(b);  
         bar.add(pasteButton);
-        /*
-        b = new JButton(
-    			controller.getAction(ImViewerControl.UNDO_RND_SETTINGS));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        
-        b = new JButton(
-    			controller.getAction(ImViewerControl.RESET_RND_SETTINGS));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        b = new JButton(controller.getAction(
-        					ImViewerControl.SET_RND_SETTINGS_MIN_MAX));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        
-        b = new JButton(controller.getAction(
-        		ImViewerControl.SET_OWNER_RND_SETTINGS));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        */
-        /*
-        Action a = controller.getAction(ImViewerControl.USER);
-        b = new JButton(a);
-        b.addMouseListener((UserAction) a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        */
+
         b = new JButton(
     			controller.getAction(ImViewerControl.SAVE_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -301,11 +282,12 @@ class ToolBar
         b = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        bar.add(script);
         a = controller.getAction(ImViewerControl.ACTIVITY);
         b = new JButton(a);
         b.addMouseListener((ActivityImageAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(b);        
+        //bar.add(b);
         Dimension d = new Dimension(w, h);
         busyLabel = new JXBusyLabel(d);
     	busyLabel.setEnabled(true);
@@ -326,6 +308,18 @@ class ToolBar
     	interpolation = new JCheckBox();
     	interpolation.setBackground(getBackground());
     	interpolation.setToolTipText("Enables/Disables interpolation when images are scaled up");
+    	script = new JButton();
+    	IconManager im = IconManager.getInstance();
+    	script.setIcon(im.getIcon(IconManager.ANALYSIS_RUN));
+    	UIUtilities.unifiedButtonLookAndFeel(script);
+    	script.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ScriptDisplay evt = new ScriptDisplay((Component) e.getSource());
+                ImViewerAgent.getRegistry().getEventBus().post(evt);
+            }
+        });
         createControlsBar();
     }
     
