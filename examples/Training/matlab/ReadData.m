@@ -34,36 +34,60 @@ try
     
     %% Projects
     % Retrieve all the projects and orphaned datasets owned by session
-    % owner.
+    % owner in the current context
     % If a project contains datasets, the datasets will automatically be
     % loaded but the images contained in the datasets are not loaded.
-    disp('Retrieving projects and orphaned datasets owned by the session user');
+    disp(['Retrieving projects and orphaned datasets owned'...
+          'by the session user in the current group']);
     [projects, orphanedDatasets] = getProjects(session);
     fprintf(1, '  Found %g projects\n', numel(projects));
     for i = 1 : numel(projects),
         datasets = toMatlabList(projects(i).linkedDatasetList);
-        fprintf(1, '  Project %g: %s (%g) - %g datasets\n', i,...
+        fprintf(1, '  %s (id: %g)\n',...
             char(projects(i).getName().getValue()),...
-            projects(i).getId().getValue(), numel(datasets));
+            projects(i).getId().getValue());
         for j = 1 : numel(datasets),
-            fprintf(1, '    Dataset %g: %s (%d)\n',...
-                j, char(datasets(j).getName().getValue()),...
+            fprintf(1, '    %s (id: %d)\n',...
+                char(datasets(j).getName().getValue()),...
                 datasets(j).getId().getValue());
         end
     end
     fprintf(1, '  Found %g orphaned datasets\n', numel(orphanedDatasets));
     for j = 1 : numel(orphanedDatasets),
-        fprintf(1, '  Orphaned dataset %g: %s (%d)\n',...
-            j, char(orphanedDatasets(j).getName().getValue()),...
+        fprintf(1, '    %s (id: %d)\n',...
+            char(orphanedDatasets(j).getName().getValue()),...
             orphanedDatasets(j).getId().getValue());
     end
     fprintf(1, '\n');
     
     % Retrieve all the unloaded projects owned by the session owner across
-    % all groups
-    disp('Retrieving projects owned by the session user across all groups')
+    % groups
+    disp('Retrieving projects across owned by the session user all groups')
     projects = getProjects(session, 'group', -1);
     fprintf(1, '  Found %g projects\n', numel(projects));
+    for i = 1 : numel(projects),
+        details = projects(i).getDetails();
+        fprintf(1, '    %s (id: %d, owner: %d, group: %d)\n',...
+            char(projects(i).getName().getValue()),...
+            projects(i).getId().getValue(),...
+            details.getOwner().getId().getValue(),...
+            details.getGroup().getId().getValue());
+    end
+    fprintf(1, '\n');
+    
+        % Retrieve all the unloaded projects owned by the session owner across
+    % groups
+    disp('Retrieving projects across owned by any user in the current group')
+    projects = getProjects(session, 'owner', -1);
+    fprintf(1, '  Found %g projects\n', numel(projects));
+    for i = 1 : numel(projects),
+        details = projects(i).getDetails();
+        fprintf(1, '    %s (id: %d, owner: %d, group: %d)\n',...
+            char(projects(i).getName().getValue()),...
+            projects(i).getId().getValue(),...
+            details.getOwner().getId().getValue(),...
+            details.getGroup().getId().getValue());
+    end
     fprintf(1, '\n');
     
     % Retrieve a loaded project specified by an input identifier
@@ -74,7 +98,7 @@ try
     datasets = toMatlabList(project.linkedDatasetList);
     for j = 1 : numel(datasets),
         images = toMatlabList(datasets(j).linkedImageList);
-        fprintf(1, '  Dataset %g: %s (%d) - %g datasets\n',...
+        fprintf(1, '  Dataset %g: %s (id: %d) - %g image(s)\n',...
             j, char(datasets(j).getName().getValue()),...
             datasets(j).getId().getValue(), numel(images));
     end
