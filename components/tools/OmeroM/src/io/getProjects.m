@@ -2,8 +2,7 @@ function [projects, datasets] = getProjects(session, varargin)
 % GETPROJECTS Retrieve project objects from the server
 %
 %   projects = getProjects(session) returns all the projects owned by the
-%   session user in the context of the session group. By default,
-%   getProjects loads the entire projects/datasets/images graph. This may
+%   session user in the context of the session group. This may
 %   have consequences in terms of loading time depending on the images
 %   contained in the projects' datasets.
 %
@@ -15,21 +14,13 @@ function [projects, datasets] = getProjects(session, varargin)
 %   loaded is false, the images attached to the  datasets are not loaded.
 %   Default: false.
 %
-%   projects = getProjects(session, 'owner', ownerId) returns all the
-%   projects owned by the input owner in the context of the session group.
+%   projects = getProjects(..., 'owner', owner) specifies the owner of the
+%   projects. A value of -1 implies projects are returned independently of
+%   the owner.
 %
-%   projects = getProjects(session, 'group', groupId) returns all the
-%   projects owned by the session owner in the context of the input group.
-%   A value of -1 for groupId means projects are returned for all groups.
-%
-%   projects = getProjects(session, ids, 'owner', ownerId) returns all the
-%   projects identified by the input ids owned by the input owner in the
-%   context of the session group.
-%
-%   projects = getProjects(session, ids, 'group', groupId) returns all the
-%   projects identified by the input ids owned by the session owner in the
-%   context of the input group. A value of -1 for groupId means projects
-%   are returned for all groups.
+%   projects = getProjects(..., 'group', groupId) specifies the group
+%   context for the projects. A value of -1 means projects are returned
+%   across groups.
 %
 %   [projects, datasets] = getProjects(session, [],...) returns all the
 %   orphaned datasets in addition to all the projects.
@@ -41,10 +32,10 @@ function [projects, datasets] = getProjects(session, varargin)
 %      projects = getProjects(session, 'group', groupId);
 %      projects = getProjects(session, ids);
 %      projects = getProjects(session, ids, 'owner', ownerId);
-%      projects = getProjects(session, ids, 'group', -1);
+%      projects = getProjects(session, ids, 'group', groupId);
 %      projects = getProjects(session, ids, true);
 %      projects = getProjects(session, ids, true, 'owner', ownerId);
-%      projects = getProjects(session, ids, true, 'group', -1);
+%      projects = getProjects(session, ids, true, 'group', groupId);
 %      [projects, datasets] = getProjects(session, [], false);
 %
 %

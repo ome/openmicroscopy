@@ -2,26 +2,23 @@ function [objects, orphans] = getObjects(session, type, ids, varargin)
 % GETOBJECTS Retrieve objects from a given type from the OMERO server
 %
 %   objects = getObjects(session, type, ids) returns all the objects of the
-%   specified type, identified by the input ids in the context of the
-%   session group.
+%   specified type, identified by the input ids.
+%   If ids is an empty array, only the objects belonging to the session
+%   owner in the context of the current group are returned. If ids is non
+%   empty, all objects are returned independently of the owner.
 %
 %   objects = getObjects(session, type, ids, parameters) returns all the
 %   objects of the specified type, identified by the input ids, owned by
 %   the session user in the context of the session group using the supplied
 %   loading parameters.
 %
-%   If the input ids is an empty array, only the objects belonging to the
-%   session user are returned else all the readable objects belonging to
-%   any user are returned.
+%   objects = getObjects(..., 'owner', owner) specifies the owner of the
+%   objects. A value of -1 implies objects are returned independently of
+%   the owner.
 %
-%   objects = getObjects(session, type, ids, 'owner', ownerId) returns all
-%   the objects of the specified type, identified by the input ids, owned
-%   by the input owner in the context of the session group.
-%
-%   objects = getObjects(session, type, ids, 'group', groupId) returns all
-%   the objects of the specified type, identified by the input ids, owned
-%   by the input owner in the context of the input group. A value of -1 for
-%   groupId means objects are returned for all groups.
+%   objects = getObjects(..., 'group', groupId) specifies the group
+%   context for the objects. A value of -1 means objects are returned
+%   across groups.
 %
 %   [objects, orphans] = getObjects(session, type, [],...) returns all the
 %   orphans in addition to all the queried objects.
@@ -35,13 +32,13 @@ function [objects, orphans] = getObjects(session, type, ids, varargin)
 %      % Retrieve objects owned by a given user
 %      objects = getObjects(session, type, ids, 'owner', ownerId);
 %      % Retrieve objects owned by the session user across all groups
-%      objects = getObjects(session, type, ids, 'group', -1);
+%      objects = getObjects(session, type, ids, 'group', groupId);
 %      objects = getObjects(session, type, ids, parameters, 'owner', ownerId);
 %      [objects, orphans] = getObjects(session, type, [])
 %
 % See also: GETOBJECTTYPES
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -74,19 +71,21 @@ assert(~strcmp(objectType.class, 'omero.model.PlateAcquisition'),...
     'Use getPlates() instead.']);
 
 % Check optional input parameters
-ip = inputParser;
-ip.addOptional('parameters', omero.sys.ParametersI(),...
-    @(x) isa(x, 'omero.sys.ParametersI'));
+defaultParameters = omero.sys.ParametersI();
+defaultContext = java.util.HashMap;
 if isempty(ids),
-    % If no input id, return the objects owned by the session user by default
+    % If no input id, return the objects owned by the session user in the    % current context
     defaultOwner = session.getAdminService().getEventContext().userId;
 else
-    % If ids are specified, return the objects owned by any user by default
+    % If ids are specified, return the objects owned by any user across
+    % groups
     defaultOwner = -1;
+    defaultContext.put('omero.group', '-1');
 end
+ip = inputParser;
+ip.addOptional('parameters', defaultParameters, @(x) isa(x, 'omero.sys.ParametersI'));
 ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
-ip.addParamValue('map', java.util.HashMap,...
-    @(x) isa(x, 'java.util.HashMap'));
+ip.addParamValue('context', defaultContext, @(x) isa(x, 'java.util.HashMap'));
 ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(varargin{:});
 
@@ -98,18 +97,20 @@ end
 
 % Add the owner to the loading parameters
 parameters = ip.Results.parameters;
-parameters.exp(rlong(ip.Results.owner));
+if ~isempty(ip.Results.owner)
+    parameters.exp(rlong(ip.Results.owner));
+end
 
 % Create list of objects to load
 ids = toJavaList(ids, 'java.lang.Long');
 
 % Create container service to load objects
 proxy = session.getContainerService();
-m = ip.Results.map;
+context = ip.Results.context;
 if ~isempty(ip.Results.group)
-    m.put('omero.group', java.lang.String(num2str(ip.Results.group)));
+    context.put('omero.group', num2str(ip.Results.group));
 end
-objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters, m);
+objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters, context);
 
 % If orphans are loaded split the lists into two: objects and orphans
 orphanList = java.util.ArrayList();

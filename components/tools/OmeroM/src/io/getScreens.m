@@ -10,21 +10,13 @@ function [screens, plates] = getScreens(session, varargin)
 %   screens = getScreens(session, ids) returns all the screens identified
 %   by the input ids in the context of the session group.
 %
-%   screens = getScreens(session, 'owner', owner) returns all the screens
-%   owned by the input owner in the context of the session group.
+%   screens = getScreens(..., 'owner', owner) specifies the owner of the
+%   screens. A value of -1 implies screens are returned independently of
+%   the owner.
 %
-%   screens = getScreens(session, 'group', groupId) returns all the screens
-%   owned by the session owner in the context of the input group. A value
-%   of -1 for groupId means screens are returned for all groups.
-%
-%   screens = getScreens(session, ids, 'owner', owner) returns all the
-%   screens identified by the input ids owned by the input user in the
-%   context of the session group.
-%
-%   screens = getScreens(session, ids, 'group', groupId) returns all the
-%   screens identified by the input ids owned by the session owner in the
-%   context of the input group. A value of -1 for groupId means screens
-%   are returned for all groups.
+%   screens = getScreens(..., 'group', groupId) specifies the group
+%   context for the screens. A value of -1 means screens are returned
+%   across groups.
 %
 %   [screens, plates] = getScreens(session, [],...) returns all the
 %   orphaned platest in addition to all the projects.
@@ -33,15 +25,15 @@ function [screens, plates] = getScreens(session, varargin)
 %
 %      screens = getScreens(session);
 %      screens = getScreens(session, 'owner', ownerId);
-%      screens = getScreens(session, 'group', -1);
+%      screens = getScreens(session, 'group', groupId);
 %      screens = getScreens(session, ids);
 %      screens = getScreens(session, ids, 'owner', ownerId);
-%      screens = getScreens(session, ids, 'group', -1);
+%      screens = getScreens(session, ids, 'group', groupId);
 %      [screens, plates] = getScreens(session, []);
 %
 % See also: GETOBJECTS, GETPLATES, GETIMAGES
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
