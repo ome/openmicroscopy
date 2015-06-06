@@ -2,44 +2,33 @@ function datasets = getDatasets(session, varargin)
 % GETDATASETS Retrieve dataset objects from the OMERO server
 %
 %   datasets = getDatasets(session) returns all the datasets owned by the
-%   session user in the context of the session group. By default,
-%   getDatasets loads all the images attached to the datasets. This may
-%   have consequences in terms of loading time depending on the number of
-%   images in the datasets.
+%   session user in the context of the session group.
 %
 %   datasets = getDatasets(session, ids) returns all the datasets
-%   identified by the input ids in the context of the session group.
+%   identified by the input ids across all groups.
 %
 %   datasets = getDatasets(session, ids, loaded) returns all the datasets
 %   identified by the input ids in the context of the session group. If
-%   loaded is False, the images attached to the datasets are not loaded.
+%   loaded is true, the images attached to the datasets are also loaded.
 %   Default: false.
 %
-%   datasets = getDatasets(session, 'owner', owner) returns all the
-%   datasets owned by the input owner in the context of the session group.
+%   datasets = getDatasets(..., 'owner', owner) specifies the owner of the
+%   datasets. A value of -1 implies datasets are returned independently of
+%   the owner.
 %
-%   datasets = getDatasets(session, 'group', groupId) returns all the
-%   datasets owned by the session owner in the context of the input group.
-%   A value of -1 for groupId means datasets are returned for all groups.
-%
-%   datasets = getDatasets(session, ids, 'owner', owner) returns all the
-%   datasets identified by the input ids owned by the input user in the
-%   context of the session group.
-%
-%   datasets = getDatasets(session, ids, 'group', groupId) returns all the
-%   datasets identified by the input ids owned by the session owner in the
-%   context of the input group. A value of -1 for groupId means datasets
-%   are returned for all groups.
+%   datasets = getDatasets(..., 'group', groupId) specifies the group
+%   context for the datasets. A value of -1 means datasets are returned
+%   across groups.
 %
 %   Examples:
 %
 %      datasets = getDatasets(session);
 %      datasets = getDatasets(session, 'owner', ownerId);
-%      datasets = getDatasets(session, 'group', -1);
+%      datasets = getDatasets(session, 'group', groupId);
 %      datasets = getDatasets(session, ids);
 %      datasets = getDatasets(session, ids, false);
 %      datasets = getDatasets(session, ids, 'owner', ownerId);
-%      datasets = getDatasets(session, ids, 'group', -1);
+%      datasets = getDatasets(session, ids, 'group', groupId);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETIMAGES
 

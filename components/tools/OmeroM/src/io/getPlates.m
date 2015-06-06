@@ -7,34 +7,26 @@ function plates = getPlates(session, varargin)
 %   plates = getPlates(session, ids) returns all the plates identified by
 %   the input ids in the context of the session group.
 %
-%   plates = getPlates(session, 'owner', ownerId) returns all the plates
-%   owned by the input owner in the context of the session group.
+%   plates = getPlates(..., 'owner', owner) specifies the owner of the
+%   plates. A value of -1 implies plates are returned independently of
+%   the owner.
 %
-%   plates = getPlates(session, 'group', groupId) returns all the plates
-%   owned by the session owner in the context of the input group. A value
-%   of -1 for groupId means plates are returned for all groups.
-%
-%   plates = getPlates(session, ids, 'owner', ownerId) returns all the
-%   plates identified by the input ids owned by the input owner in the
-%   context of the session group.
-%
-%   plates = getPlates(session, ids, 'group', groupId) returns all the
-%   platest identified by the input ids  owned by the session owner in the
-%   context of the input group. A value of -1 for groupId means plates
-%   are returned for all groups.
+%   plates = getPlates(..., 'group', groupId) specifies the group
+%   context for the plates. A value of -1 means plates are returned
+%   across groups.
 %
 %   Examples:
 %
 %      plates = getPlates(session);
 %      plates = getPlates(session, 'owner', ownerId);
-%      plates = getPlates(session, 'group', -1);
+%      plates = getPlates(session, 'group', groupId);
 %      plates = getPlates(session, ids);
 %      plates = getPlates(session, ids, 'owner', ownerId);
-%      plates = getPlates(session, ids, 'group', -1);
+%      plates = getPlates(session, ids, 'group', groupId);
 %
 % See also: GETOBJECTS, GETSCREENS, GETIMAGES
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
