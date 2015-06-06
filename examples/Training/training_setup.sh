@@ -70,12 +70,21 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 bin/omero logout
 
 # Create data owned by another user in the second group
-bin/omero login $USER_NAME_2@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME_2
+bin/omero login $USER_NAME_2@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME
 bin/omero obj new Project name='Project 0'
 bin/omero obj new Dataset name='Dataset 0'
 bin/omero import test.fake --debug ERROR
 bin/omero obj new Screen name='Screen'
 bin/omero obj new Plate name='Plate'
+
+# Create data owned by the same user in the second group
+bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME_2
+bin/omero obj new Project name='Project 0'
+bin/omero obj new Dataset name='Dataset 0'
+bin/omero import test.fake --debug ERROR
+bin/omero obj new Screen name='Screen'
+bin/omero obj new Plate name='Plate'
+
 # Logout
 bin/omero logout
 
