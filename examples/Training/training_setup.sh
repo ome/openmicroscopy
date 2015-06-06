@@ -17,8 +17,8 @@ CONFIG_FILENAME=${CONFIG_FILENAME:-training_ice.config}
 
 # Create training user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
-bin/omero group add $GROUP_NAME --ignore-existing
-bin/omero group add $GROUP_NAME_2 --ignore-existing
+bin/omero group add $GROUP_NAME --type read-only --ignore-existing
+bin/omero group add $GROUP_NAME_2 --type read-only --ignore-existing
 bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
 bin/omero user add $USER_NAME_2 $USER_NAME_2 $USER_NAME_2 $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
 bin/omero logout
