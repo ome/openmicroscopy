@@ -49,7 +49,21 @@ ip.addRequired('fileAnnotation', @(x) isa(x, 'omero.model.FileAnnotationI'));
 ip.addRequired('filePath', @(x) exist(x, 'file') == 2);
 ip.addParamValue('namespace', '', @ischar);
 ip.addParamValue('description', '', @ischar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, fileAnnotation, filePath, varargin{:});
+
+context = java.util.HashMap;
+% Check if the Annotation exists on the server
+try
+    group = fileAnnotation.getDetails().getGroup().getId().getValue();
+    context.put('omero.group', num2str(group));
+catch
+end
+% In case the FileAnnotation does not yet exist on the server:
+if ~context.containsKey('omero.group') && ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+end
 
 if ~isempty(ip.Results.description)
     % Update the description
@@ -61,10 +75,11 @@ if ~isempty(ip.Results.namespace),
     fileAnnotation.setNs(rstring(ip.Results.namespace))
 end
 
-if ~isempty(ip.Results.description) || ~isempty(ip.Results.description),
+if ~isempty(ip.Results.description) || ~isempty(ip.Results.namespace),
     % Save the file annotation
-    fileAnnotation = session.getUpdateService().saveAndReturnObject(fileAnnotation);
+    fileAnnotation = session.getUpdateService().saveAndReturnObject(...
+        fileAnnotation, context);
 end
 
 % Update the original file with the new content
-updateOriginalFile(session, fileAnnotation.getFile(), filePath);
+updateOriginalFile(session, fileAnnotation.getFile(), filePath, varargin);
