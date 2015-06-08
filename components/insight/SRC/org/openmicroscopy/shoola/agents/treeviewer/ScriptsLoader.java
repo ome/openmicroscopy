@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.ScriptsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -24,22 +24,12 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.util.List;
-
-//Third-party libraries
-
-
-
-
 import javax.swing.JButton;
 
-
 import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;

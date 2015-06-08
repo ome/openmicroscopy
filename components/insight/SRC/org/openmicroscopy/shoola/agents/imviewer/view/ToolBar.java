@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.view.ToolBar
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -44,12 +42,9 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-
-
-//Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
