@@ -523,7 +523,11 @@ $.fn.roi_display = function(options) {
             if (refresh)
                 this.refresh_active_rois();
         };
+
+        this.remove_shape = function(roi_id, shape_id) {
+
         };
+
         /*
         Clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based.
         Only shapes in 'active_rois' are going to be displayed.
