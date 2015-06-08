@@ -1,4 +1,4 @@
-function fas = getFileAnnotations(session, ids)
+function fas = getFileAnnotations(session, ids, varargin)
 % GETFILEANNOTATIONS Retrieve file annotations from the OMERO server
 %
 %   fas = getFileAnnotations(session, ids) returns all the file
@@ -36,4 +36,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return file annotations
-fas = getAnnotations(session, ids, 'file');
+fas = getAnnotations(session, ids, 'file', varargin{:});
