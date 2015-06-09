@@ -99,12 +99,12 @@
                                     var url;
                                     if (n.attr) {
                                         var parent = this._get_parent(n);
-                                        if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
-                                            url = "{% url 'load_data' %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
-                                        } else if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["image"]) > -1){
-                                            url = "{% url 'load_data' %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                        if ($.inArray($(parent).attr("rel"), ["project", "screen"]) > -1) {
+                                            url = "{% url 'load_data' %}"+$(parent).attr("rel")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
+                                        } else if ($.inArray($(parent).attr("rel"), ["image"]) > -1){
+                                            url = "{% url 'load_data' %}"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
                                         } else {
-                                            url = "{% url 'load_data_by_tag' %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                            url = "{% url 'load_data_by_tag' %}"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
                                         }
                                     } else {
                                         url = "{% url 'load_data_by_tag' %}";
@@ -115,7 +115,7 @@
                                 // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
                                 "data" : function (n) {
                                     var r = { "view" : "tree" };
-                                    if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
+                                    if (n.attr && $.inArray(n.attr("rel"), ["dataset"]) > -1) {
                                         if($("div#content_details").has("#page").length > 0) {
                                             r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
                                         }
@@ -134,94 +134,58 @@
                             "valid_children" : [ "experimenter" ],
                             "types" : {
                                 "experimenter" : {
-                                    "valid_children" : [ "tagset", "tagset-locked", "tag", "tag-locked" ],
+                                    "valid_children" : [ "tagset", "tag" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/icon_user.png" %}'
                                     },
-                                    "create_node" : true,
+                                    "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
                                 },
                                 "tagset" : {
-                                    "valid_children" : [ "tag", "tag-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_tags.png" %}'
-                                    },
-                                    "create_node" : true,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : true
-                                },
-                                "tagset-locked" : {
-                                    "valid_children" : [ "tag", "tag-locked" ],
+                                    "valid_children" : [ "tag" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/left_sidebar_icon_tags.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
-                                },                                
-                                "tag" : {
-                                    "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_tag.png" %}'
-                                    },
-                                    "create_node" : true,
-                                    "start_drag" : true,
-                                    "move_node" : true,
-                                    "delete_node" : true,
-                                    "remove" : true
                                 },
-                                "tag-locked" : {
-                                    "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+                                "tag" : {
+                                    "valid_children" : [ "project", "dataset", "image", "screen", "plate" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/left_sidebar_icon_tag.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
                                 },
                                 "project" : {
-                                    "valid_children" : [ "dataset", "dataset-locked" ],
+                                    "valid_children" : [ "dataset" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/folder16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
-                                    "remove" : false
-                                },
-                                "project-locked" : {
-                                    "valid_children" : [ "dataset", "dataset-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
                                 },
                                 "dataset" : {
-                                    "valid_children" : [ "image", "image-locked" ],
+                                    "valid_children" : [ "image" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/folder_image16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
-                                    "remove" : false
-                                },
-                                "dataset-locked" : {
-                                    "valid_children" : [ "image", "image-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder_image16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
                                 },
                                 "image" : {
@@ -232,36 +196,18 @@
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
-                                    "remove" : false
-                                },
-                                "image-locked" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/image16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
                                 },
                                 "screen" : {
-                                    "valid_children" : [ "plate", "plate-locked" ],
+                                    "valid_children" : [ "plate" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/folder_screen16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
-                                    "remove" : false
-                                },
-                                "screen-locked" : {
-                                    "valid_children" : [ "plate", "plate-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder_screen16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
                                 },
                                 "plate" : {
@@ -272,16 +218,7 @@
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
-                                    "remove" : false
-                                },
-                                "plate-locked" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder_plate16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
+                                    "delete_node" : false,
                                     "remove" : false
                                 },
                                 "acquisition" : {
@@ -289,14 +226,11 @@
                                     "icon" : {
                                         "image" : '{% static "webclient/image/image16.png" %}'
                                     },
-                                    "create_node" : false
-                                },
-                                "acquisition-locked" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/image16.png" %}'
-                                    },
-                                    "create_node" : false
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "delete_node" : false,
+                                    "remove" : false
                                 }
                             }
                         },
@@ -338,7 +272,7 @@
                         obj_rel = $this.parent().attr('rel'),
                         ob_id = $this.parent().attr('id'),
                         iid;
-                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                    if (obj_rel=='image') {
                         iid = ob_id.split("-")[1];
                         OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/" + iid + "/"));
                     }
@@ -350,7 +284,7 @@
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
-                        var url = '{% url 'manage_action_containers' "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        var url = '{% url 'manage_action_containers' "delete" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
 
                         $.ajax({
                             async : false,
