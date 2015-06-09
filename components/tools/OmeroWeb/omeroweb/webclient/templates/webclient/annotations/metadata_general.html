@@ -534,6 +534,16 @@
                         $("#ratingsSummary").show();
                     });
                 }
+
+                // For wells, we try to load Bulk table annotations attached to parent Screen / Plate
+                // loading just the row we need for the current well.
+                {% if manager.well %}
+                    var wellsUrl = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' manager.well.id %}";
+                        linksUrl = "{% url 'webgateway_object_table_query' 'Plate.wells' manager.well.id %}",
+                        wellId = {{ manager.well.id }};
+                    loadBulkAnnotations(wellsUrl, wellId);
+                    loadBulkAnnotations(linksUrl, wellId);
+                {% endif %}
             });
             
     </script>
@@ -824,6 +834,12 @@
             <hr style="margin-top:0" />
 
             <div class="annotations_section">
+
+                <h2 id="bulk-annotations" style="display: none;">Bulk Annotations</h2>
+                <div style="display: none;">
+                    <table>
+                    </table>
+                </div>
 
             <!-- RATING -->
       

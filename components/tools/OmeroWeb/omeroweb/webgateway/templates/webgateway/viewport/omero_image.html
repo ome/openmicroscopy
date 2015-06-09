@@ -736,8 +736,8 @@
 
       <h3 class="can-collapse" id="bulk-annotations" style="display: none;">Bulk Annotations</h3>
       <div style="display: none;">
-		<table cellspacing="0">
-		</table>
+        <table cellspacing="0">
+        </table>
       </div>
 
       <!--<h3 class="can-collapse defclose"> Legend </h3>
@@ -979,6 +979,7 @@
 
     viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}{'mediaroot': '{{ STATIC_URL }}' }{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
+    viewport.bind('imageLoad', _load_metadata);
 
     /* Prepare the Zoom spin button */
     $("INPUT.spin-button").SpinButton({min:0});
