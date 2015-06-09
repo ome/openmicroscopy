@@ -1837,6 +1837,34 @@ class GraphControl(CmdControl):
                 objects.append('%s %s' % (type, ids))
         return "%s %s... " % (cmd_type, ', '.join(objects))
 
+    def _get_object_ids(self, objDict):
+        import collections
+        objIds = {}
+        for k in objDict.keys():
+            if objDict[k]:
+                objIds[k] = self._order_and_range_ids(objDict[k])
+        newIds = collections.OrderedDict(sorted(objIds.items()))
+        objIds = collections.OrderedDict()
+        for k in newIds:
+            key = k[k.rfind('.')+1:]
+            objIds[key] = newIds[k]
+        return objIds
+
+    def _order_and_range_ids(self, ids):
+        from itertools import groupby
+        from operator import itemgetter
+        out = ""
+        ids = sorted(ids)
+        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
+            g = map(str, map(itemgetter(1), g))
+            out += g[0]
+            if len(g) > 2:
+                out += "-" + g[-1]
+            elif len(g) == 2:
+                out += "," + g[1]
+            out += ","
+        return out.rstrip(",")
+
 
 class UserGroupControl(BaseControl):
 

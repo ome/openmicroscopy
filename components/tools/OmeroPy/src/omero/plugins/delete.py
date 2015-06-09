@@ -52,37 +52,9 @@ class DeleteControl(GraphControl):
 
     def print_delete_response(self, rsp):
         self.ctx.out("Deleted objects")
-        objIds = self._get_object_ids(rsp)
+        objIds = self._get_object_ids(rsp.deletedObjects)
         for k in objIds:
             self.ctx.out("%s:%s" % (k, objIds[k]))
-
-    def _get_object_ids(self, rsp):
-        import collections
-        objIds = {}
-        for k in rsp.deletedObjects.keys():
-            if rsp.deletedObjects[k]:
-                objIds[k] = self._order_and_range_ids(rsp.deletedObjects[k])
-        newIds = collections.OrderedDict(sorted(objIds.items()))
-        objIds = collections.OrderedDict()
-        for k in newIds:
-            key = k[k.rfind('.')+1:]
-            objIds[key] = newIds[k]
-        return objIds
-
-    def _order_and_range_ids(self, ids):
-        from itertools import groupby
-        from operator import itemgetter
-        out = ""
-        ids = sorted(ids)
-        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
-            g = map(str, map(itemgetter(1), g))
-            out += g[0]
-            if len(g) > 2:
-                out += "-" + g[-1]
-            elif len(g) == 2:
-                out += "," + g[1]
-            out += ","
-        return out.rstrip(",")
 
     def default_exclude(self):
         """
