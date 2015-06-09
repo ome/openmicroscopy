@@ -18,23 +18,30 @@ import sys
 
 HELP = """Move data between groups
 
-Example Usage:
+Move entire graphs of data based on the ID of the top-node.
 
-  omero chgrp 101 Image:1                     # Move all of Image 1 to \
-group 101
-  omero chgrp Group:101 Image:1               # Move all of Image 1 to \
-group 101
-  omero chgrp ExperimenterGroup:101 Image:1   # Move all of Image 1 to \
-group 101
-  omero chgrp "My Lab" Image:1,2,3            # Move all of Images 1, 2 and 3 \
-to group "myLab"
+Examples:
 
-  omero chgrp --exclude Image Plate:1         # Calls chgrp on Plate, \
-leaving all
-                                              # images in the previous group.
+    # Move an image to group 101
+    omero chgrp 101 Image:1
+    omero chgrp Group:101 Image:2
+    omero chgrp ExperimenterGroup:101 Image:2
+    # Move 3 image to group named "My Lab"
+    omero chgrp "My Lab" Image:51,52,53
 
-  What data is moved is the same as that which would be deleted by a similar
-  call to "omero delete Image:1"
+    # Move a plate but leave all images in the original group
+    omero chgrp 201 Plate:1 --exclude Image
+
+    # Move all images contained under a project
+    omero chgrp 101 Project/Dataset/Image:53
+    # Move all images contained under two projects
+    omero chgrp 101 Project/Image:201,202
+
+    # Do a dry run of a move reporting the outcome if the move had been run
+    omero chgrp 101 Dataset:53 --dry-run
+    # Do a dry run of a move, reporting all the objects
+    # that would have been moved
+    omero chgrp 101 Dataset:53 --dry-run --report
 
 """
 
