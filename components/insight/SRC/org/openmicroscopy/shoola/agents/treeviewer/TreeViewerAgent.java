@@ -503,6 +503,7 @@ public class TreeViewerAgent
         if (evt == null || exp == null) return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         SaveResultsAction a = new SaveResultsAction(viewer, LookupNames.IMAGE_J);
+        a.setSaveIndex(evt.getSaveIndex());
         a.actionPerformed(
                 new ActionEvent(new JButton(), ActionEvent.ACTION_PERFORMED, ""));
     }
