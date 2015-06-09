@@ -124,71 +124,32 @@
                             "valid_children" : [ "experimenter" ],
                             "types" : {
                                 "experimenter" : {
-                                    "valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
+                                    "valid_children" : [ "share", "discussion" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/icon_user.png" %}'
                                     },
                                     "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "experimenter-locked" : {
-                                    "valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/icon_user.png" %}'
-                                    },
-                                       "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
                                     "remove" : false
                                 },
                                 "share" : {
-                                    "valid_children" : [ "image", "image-locked" ],
+                                    "valid_children" : [ "image" ],
                                     "icon" : {
                                         "image" : '{% static "webclient/image/left_sidebar_icon_public.png" %}'
                                     },
+                                    "select_node" : function(obj){return !obj.hasClass('disabled');},
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
                                     "remove" : false
                                 },
-                                "share-locked" : {
-                                    "valid_children" : [ "image", "image-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_public.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "share-disabled" : {
-                                    "valid_children" : [ "image", "image-locked" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_public.png" %}'
-                                    },
-                                    "select_node" : false,
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },                                
                                 "discussion" : {
                                     "valid_children" : "none",
                                     "icon" : {
                                         "image" : '{% static "webclient/image/wp_protocol16.png" %}'
                                     },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "discussion-locked" : {
-                                    "valid_children" :  "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/wp_protocol16.png" %}'
-                                    },
+                                    "select_node" : function(obj){return !obj.hasClass('disabled');},
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
@@ -202,17 +163,7 @@
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
-                                    "remove" : true
-                                },
-                                "image-locked" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/image16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
+                                    "remove" : function(obj){return obj.hasClass('canEdit');}
                                 }
                             }
                         },
@@ -256,7 +207,7 @@
                         share_id = $this.parent().attr('data-share'),
                         popup_url = "{% url 'webindex' %}",
                         iid;
-                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                    if (obj_rel=='image') {
                         iid = ob_id.split("-")[1];
                         // Share-id will only be there if share is not owned.
                         if (share_id) {
