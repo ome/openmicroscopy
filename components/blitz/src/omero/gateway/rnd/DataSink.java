@@ -82,16 +82,35 @@ public class DataSink
      * access to the metadata associated with the specified pixels set.
      * 
      * @param source The pixels set. Mustn't be <code>null</code>.
-     * @param context The container's registry. Mustn't be <code>null</code>.
-     * @param cacheSize The size of the cache.
+     * @param gw Reference to the {@link Gateway} Mustn't be <code>null</code>.
      * @return See above.
      */
-    public static DataSink makeNew(PixelsData source, Gateway gw,
-            int cacheSize)
+    public static DataSink makeNew(PixelsData source, Gateway gw)
     {
         if (source == null)
             throw new NullPointerException("No pixels.");
         if (gw == null) 
+            throw new NullPointerException("No Gateway.");
+        return new DataSink(source, gw);
+    }
+    
+    /**
+     * Factory method to create a new <code>DataSink</code> to handle access to
+     * the metadata associated with the specified pixels set.
+     * 
+     * @param source
+     *            The pixels set. Mustn't be <code>null</code>.
+     * @param gw
+     *            Reference to the {@link Gateway} Mustn't be <code>null</code>.
+     * @param cacheSize
+     *            The size of the cache to use. (Make sure the {@link Gateway} provides
+     *            a {@link CacheService})
+     * @return See above.
+     */
+    public static DataSink makeNew(PixelsData source, Gateway gw, int cacheSize) {
+        if (source == null)
+            throw new NullPointerException("No pixels.");
+        if (gw == null)
             throw new NullPointerException("No Gateway.");
         return new DataSink(source, gw, cacheSize);
     }
@@ -114,6 +133,17 @@ public class DataSink
     private Gateway gw;
 
     /**
+     * Creates a new instance without using a cache.
+     *
+     * @param source The pixels set.
+     * @param context The container's registry.
+     */
+    private DataSink(PixelsData source, Gateway gw)
+    {
+        this(source, gw, 0);
+    }
+    
+    /**
      * Creates a new instance.
      *
      * @param source The pixels set.
@@ -125,12 +155,14 @@ public class DataSink
         this.gw = gw;
         this.source = source;
         String type = source.getPixelType();
-        bytesPerPixels = getBytesPerPixels(type);
+        bytesPerPixels = getBytesPerPixels(type); 
         
-        int maxEntries =
-                cacheSize/(source.getSizeX()*source.getSizeY()*bytesPerPixels);
-        
-        if(gw.getCacheService() != null) {
+        if(cacheSize > 0) {
+            if(gw.getCacheService() == null)
+                throw new IllegalArgumentException("No cache provided!");
+            
+            int maxEntries =
+                    cacheSize/(source.getSizeX()*source.getSizeY()*bytesPerPixels);
             cacheID = gw.getCacheService().createCache(
                     CacheService.IN_MEMORY, maxEntries);
         }
