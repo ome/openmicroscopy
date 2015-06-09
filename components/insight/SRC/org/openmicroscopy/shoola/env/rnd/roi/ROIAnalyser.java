@@ -33,11 +33,16 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
 import org.apache.commons.collections.CollectionUtils;
+
+
 //Application-internal dependencies
 import omero.gateway.SecurityContext;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
+import omero.gateway.exception.DataSourceException;
+import omero.gateway.rnd.DataSink;
+
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 

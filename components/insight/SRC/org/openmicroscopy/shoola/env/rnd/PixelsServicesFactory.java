@@ -48,12 +48,11 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 
+import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.rnd.DataSink;
 import omero.log.Logger;
-
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -430,7 +429,7 @@ public class PixelsServicesFactory
 	 * @param pixels The pixels set the data sink is for.
 	 * @return See above.
 	 */
-	public static DataSink createDataSink(PixelsData pixels)
+	public static DataSink createDataSink(PixelsData pixels, Gateway gw)
 	{
 		if (pixels == null)
 			throw new IllegalArgumentException("Pixels cannot be null.");
@@ -440,7 +439,7 @@ public class PixelsServicesFactory
 		registry.getCacheService().clearAllCaches(); 
 		int size = getCacheSize();
 		if (size <= 0) size = 0;
-		singleton.pixelsSource = DataSink.makeNew(pixels, registry, size);
+		singleton.pixelsSource = DataSink.makeNew(pixels, registry.getGateway(), size);
 		return singleton.pixelsSource;
 	}
 

@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 import pojos.ExperimenterData;
 import pojos.GroupData;

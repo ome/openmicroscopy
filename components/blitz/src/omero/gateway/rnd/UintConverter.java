@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.DoubleConverter 
+ * org.openmicroscopy.shoola.env.rnd.data.UintConverter 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,22 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.rnd.data;
+package omero.gateway.rnd;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
+import omero.util.ReadOnlyByteArray;
 
 /** 
- * Packs a sequence of bytes representing a big-endian double into 
- * a <code>double</code> value of appropriate integer type. 
- * <p>This class handles the conversion of double of <code>4</code>-byte length 
+ * Packs a sequence of bytes representing an unsigned big-endian integer into 
+ * an integer value of appropriate integer type. 
+ * <p>This class handles the conversion of unsigned big-endian integers of 
+ * <code>1, 2</code> and <code>4</code>-byte length 
  * (bytes are assumed to be <code>8</code>-bit long). 
- * </p>
+ * Integers of <code>1</code>,<code>2</code>, <code>4</code>-byte length 
+ * are packed into a <code>double</code>.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,8 +43,8 @@ import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
  * </small>
  * @since OME3.0
  */
-public class DoubleConverter
-	extends BytesConverter
+public class UintConverter
+	extends BytesConverter	
 {
 
 	/**
@@ -61,6 +57,7 @@ public class DoubleConverter
 		for (int k = 0; k < length; ++k) {
 			
 			//Get k-byte starting from MSB, that is LSB[length-k-1].
+			
 			tmp = data.get(offset+k)&0xFF;
 			//Add LSB[j]*(2^8)^j to r, where j=length-k-1.  
 			r |= tmp<<(length-k-1)*8;
@@ -79,7 +76,8 @@ public class DoubleConverter
 
 		}
 		
-		return Double.longBitsToDouble(r);
+		//if (length < 4) return new Integer((int) r);	
+		return r;
 	}
 	
 }
