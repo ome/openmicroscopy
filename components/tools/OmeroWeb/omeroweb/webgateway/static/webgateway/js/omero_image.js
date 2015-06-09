@@ -275,10 +275,10 @@
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
                     for (var col = 0; col < result.data.columns.length; col++) {
-                        var label = result.data.columns[col];
+                        var label = result.data.columns[col].escapeHTML();
                         var value = '';
                         for (var r = 0; r < result.data.rows.length; r++) {
-                          value += result.data.rows[r][col] + '<br />';
+                          value += ("" + result.data.rows[r][col]).escapeHTML() + '<br />';
                         }
                         var row = $('<tr><td class="title"></td><td></td></tr>');
                         row.addClass(col % 2 == 1 ? 'odd' : 'even');
