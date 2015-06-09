@@ -20,6 +20,8 @@
  */
 package omero.gateway;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +60,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
+import omero.gateway.cache.CacheService;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.Facility;
 import omero.gateway.util.NetworkChecker;
@@ -100,8 +103,15 @@ public class Gateway {
             .<Long, Connector> synchronizedListMultimap(LinkedListMultimap
                     .<Long, Connector> create());
 
+    private CacheService cacheService;
+    
     public Gateway(Logger log) {
+        this(log, null);
+    }
+    
+    public Gateway(Logger log, CacheService cacheService) {
         this.log = log;
+        this.cacheService = cacheService;
     }
 
     // Public connection handling methods
@@ -135,6 +145,8 @@ public class Gateway {
         groupConnectorMap.clear();
         keepAliveExecutor.shutdown();
         connected = false;
+        if (cacheService != null)
+            cacheService.shutDown();
     }
 
     /**
@@ -276,6 +288,11 @@ public class Gateway {
     public Logger getLogger() {
         return log;
     }
+    
+    public CacheService getCacheService() {
+        return cacheService;
+    }
+    
     
     // Public service access methods
 

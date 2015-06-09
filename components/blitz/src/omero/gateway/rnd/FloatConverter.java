@@ -20,15 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.rnd.data;
+package omero.gateway.rnd;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
+import omero.util.ReadOnlyByteArray;
 
 /** 
  * Packs a sequence of bytes representing a big-endian float into 

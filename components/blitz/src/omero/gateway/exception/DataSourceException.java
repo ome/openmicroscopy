@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd.data;
+package omero.gateway.exception;
 
 //Java imports
 
