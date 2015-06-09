@@ -96,14 +96,16 @@ class ChgrpControl(GraphControl):
             self.print_chgrp_response(rsp)
 
     def print_chgrp_response(self, rsp):
-        self.ctx.out("Included objects")
-        objIds = self._get_object_ids(rsp.includedObjects)
-        for k in objIds:
-            self.ctx.out("%s:%s" % (k, objIds[k]))
-        self.ctx.out("Deleted objects")
-        objIds = self._get_object_ids(rsp.deletedObjects)
-        for k in objIds:
-            self.ctx.out("%s:%s" % (k, objIds[k]))
+        if rsp.includedObjects:
+            self.ctx.out("Included objects")
+            objIds = self._get_object_ids(rsp.includedObjects)
+            for k in objIds:
+                self.ctx.out("%s:%s" % (k, objIds[k]))
+        if rsp.deletedObjects:
+            self.ctx.out("Deleted objects")
+            objIds = self._get_object_ids(rsp.deletedObjects)
+            for k in objIds:
+                self.ctx.out("%s:%s" % (k, objIds[k]))
 
 try:
     register("chgrp", ChgrpControl, HELP)

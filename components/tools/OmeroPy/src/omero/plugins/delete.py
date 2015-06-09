@@ -51,10 +51,11 @@ class DeleteControl(GraphControl):
             self.print_delete_response(rsp)
 
     def print_delete_response(self, rsp):
-        self.ctx.out("Deleted objects")
-        objIds = self._get_object_ids(rsp.deletedObjects)
-        for k in objIds:
-            self.ctx.out("%s:%s" % (k, objIds[k]))
+        if rsp.deletedObjects:
+            self.ctx.out("Deleted objects")
+            objIds = self._get_object_ids(rsp.deletedObjects)
+            for k in objIds:
+                self.ctx.out("%s:%s" % (k, objIds[k]))
 
     def default_exclude(self):
         """
