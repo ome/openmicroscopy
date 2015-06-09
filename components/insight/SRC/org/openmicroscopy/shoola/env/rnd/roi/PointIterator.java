@@ -31,11 +31,15 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+
+
 //Application-internal dependencies
 import omero.gateway.SecurityContext;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
-import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
+import omero.gateway.exception.DataSourceException;
+import omero.gateway.rnd.DataSink;
+import omero.gateway.rnd.Plane2D;
+
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 

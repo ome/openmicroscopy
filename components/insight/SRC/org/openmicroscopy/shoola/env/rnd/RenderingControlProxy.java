@@ -55,7 +55,7 @@ import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.cache.CacheService;
+import omero.gateway.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;

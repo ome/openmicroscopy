@@ -22,7 +22,7 @@
  */
 package org.openmicroscopy.shoola.env.init;
 
-import org.openmicroscopy.shoola.env.cache.CacheService;
+import omero.gateway.cache.CacheService;
 import org.openmicroscopy.shoola.env.cache.NullCacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;

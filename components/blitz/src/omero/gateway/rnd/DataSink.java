@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.rnd.data;
+package omero.gateway.rnd;
 
 
 
@@ -30,13 +30,11 @@ package org.openmicroscopy.shoola.env.rnd.data;
 
 //Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
-
-import org.openmicroscopy.shoola.env.cache.CacheService;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
-
+import omero.gateway.cache.CacheService;
+import omero.gateway.exception.DataSourceException;
+import omero.util.ReadOnlyByteArray;
 import pojos.PixelsData;
 
 /** 
@@ -56,28 +54,28 @@ public class DataSink
 {
 
     /** Identifies the type used to store pixel values. */
-    static final String INT_8 = PixelsData.INT8_TYPE;
+    public static final String INT_8 = PixelsData.INT8_TYPE;
 
     /** Identifies the type used to store pixel values. */
-    static final String UINT_8 = PixelsData.UINT8_TYPE;
+    public static final String UINT_8 = PixelsData.UINT8_TYPE;
 
     /** Identifies the type used to store pixel values. */
-    static final String INT_16 = PixelsData.INT16_TYPE;
+    public static final String INT_16 = PixelsData.INT16_TYPE;
 
     /** Identifies the type used to store pixel values. */
-    static final String UINT_16 = PixelsData.UINT16_TYPE;
+    public static final String UINT_16 = PixelsData.UINT16_TYPE;
 
     /** Identifies the type used to store pixel values. */
-    static final String INT_32 = PixelsData.INT32_TYPE;
+    public static final String INT_32 = PixelsData.INT32_TYPE;
 
     /** Identifies the type used to store pixel values. */
-    static final String UINT_32 = PixelsData.UINT32_TYPE;
+    public static final String UINT_32 = PixelsData.UINT32_TYPE;
 
     /** Identifies the type used to store pixel values. */
-    static final String FLOAT = PixelsData.FLOAT_TYPE;
+    public static final String FLOAT = PixelsData.FLOAT_TYPE;
 
     /** Identifies the type used to store pixel values. */
-    static final String DOUBLE = PixelsData.DOUBLE_TYPE;
+    public static final String DOUBLE = PixelsData.DOUBLE_TYPE;
 
     /**
      * Factory method to create a new <code>DataSink</code> to handle
@@ -88,21 +86,18 @@ public class DataSink
      * @param cacheSize The size of the cache.
      * @return See above.
      */
-    public static DataSink makeNew(PixelsData source, Registry context,
+    public static DataSink makeNew(PixelsData source, Gateway gw,
             int cacheSize)
     {
         if (source == null)
             throw new NullPointerException("No pixels.");
-        if (context == null) 
-            throw new NullPointerException("No registry.");
-        return new DataSink(source, context, cacheSize);
+        if (gw == null) 
+            throw new NullPointerException("No Gateway.");
+        return new DataSink(source, gw, cacheSize);
     }
 
     /** The data source. */
     private PixelsData source;
-
-    /** The container's registry. */
-    private Registry context;
 
     /** The number of bytes per pixel. */
     private int bytesPerPixels;
@@ -111,10 +106,12 @@ public class DataSink
     private BytesConverter strategy;
 
     /** The id of the cache. */
-    private int cacheID;
+    private int cacheID = -1;
 
     /** The pixels store for that pixels set.*/
     private RawPixelsStorePrx store;
+    
+    private Gateway gw;
 
     /**
      * Creates a new instance.
@@ -123,17 +120,21 @@ public class DataSink
      * @param context The container's registry.
      * @param cacheSize The size of the cache.
      */
-    private DataSink(PixelsData source, Registry context, int cacheSize)
+    private DataSink(PixelsData source, Gateway gw, int cacheSize)
     {
+        this.gw = gw;
         this.source = source;
-        this.context = context;
         String type = source.getPixelType();
         bytesPerPixels = getBytesPerPixels(type);
         
         int maxEntries =
                 cacheSize/(source.getSizeX()*source.getSizeY()*bytesPerPixels);
-        cacheID = context.getCacheService().createCache(
-                CacheService.IN_MEMORY, maxEntries);
+        
+        if(gw.getCacheService() != null) {
+            cacheID = gw.getCacheService().createCache(
+                    CacheService.IN_MEMORY, maxEntries);
+        }
+        
         strategy = BytesConverter.getConverter(type);
     }
 
@@ -197,15 +198,18 @@ public class DataSink
     {
         //Retrieve data
         Integer planeIndex = linearize(z, w, t);
-        CacheService cache = context.getCacheService();
-        Plane2D plane = (Plane2D) cache.getElement(cacheID, planeIndex);
-        if (plane != null) return plane;
+        Plane2D plane = null;
+        if (cacheID >= 0) {
+            CacheService cache = gw.getCacheService();
+            plane = (Plane2D) cache.getElement(cacheID, planeIndex);
+            if (plane != null)
+                return plane;
+        }
         byte[] data = null; 
         try {
             //initializes if null.
             if (store == null) {
-                OmeroImageService service = context.getImageService();
-                store = service.createPixelsStore(ctx);
+                store = gw.createPixelsStore(ctx);
                 store.setPixelsId(source.getId(), false);
             }
             data = store.getPlane(z, w, t);
@@ -214,15 +218,15 @@ public class DataSink
             throw new DataSourceException("Cannot retrieve the plane "+p, e);
         } finally {
             if (close) {
-                context.getDataService().closeService(ctx, store);
+                gw.closeService(ctx, store);
                 store = null;
             }
         }
         ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
         plane = new Plane2D(array, source.getSizeX(), source.getSizeY(), 
                 bytesPerPixels, strategy);
-        //cache.add(planeIndex, plane);
-        cache.addElement(cacheID, planeIndex, plane);
+        if(cacheID >= 0)
+            gw.getCacheService().addElement(cacheID, planeIndex, plane);
         return plane;
     }
 
@@ -276,7 +280,10 @@ public class DataSink
     /** Erases the cache. */
     public void clearCache()
     {
-        context.getCacheService().clearCache(cacheID);
+        if(cacheID==-1)
+            return;
+        
+        gw.getCacheService().clearCache(cacheID);
     }
 
     /**
@@ -287,10 +294,13 @@ public class DataSink
      */
     public void setCacheInMemory(boolean cacheInMemory)
     {
+        if(cacheID==-1)
+            return;
+        
         clearCache();
         if (cacheInMemory)
-            context.getCacheService().setCacheEntries(cacheID, 1);
-        else context.getCacheService().setCacheEntries(cacheID, 0);
+            gw.getCacheService().setCacheEntries(cacheID, 1);
+        else gw.getCacheService().setCacheEntries(cacheID, 0);
     }
 
 }

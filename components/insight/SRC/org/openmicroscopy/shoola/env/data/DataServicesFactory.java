@@ -175,6 +175,7 @@ public class DataServicesFactory
         RegistryFactory.linkMS(ms, registry);
         RegistryFactory.linkAdmin(admin, registry);
         RegistryFactory.linkIS(is, registry);
+        RegistryFactory.linkGateway(omeroGateway.getGateway(), registry);
         
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);

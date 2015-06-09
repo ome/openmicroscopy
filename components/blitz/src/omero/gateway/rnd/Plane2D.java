@@ -20,7 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.rnd.data;
+package omero.gateway.rnd;
+
+import omero.util.ReadOnlyByteArray;
 
 
 //Java imports
@@ -28,7 +30,6 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Holds structure used to mapped the raw pixels data.
