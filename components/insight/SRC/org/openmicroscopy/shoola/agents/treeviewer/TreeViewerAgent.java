@@ -498,11 +498,9 @@ public class TreeViewerAgent
     /** Display the save dialog when used in plugin mode.*/
     private void handleSaveEvent(SaveEvent evt)
     {
-        if (evt == null) return;
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
-        if (exp == null) 
-            return;
+        if (evt == null || exp == null) return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         SaveResultsAction a = new SaveResultsAction(viewer, LookupNames.IMAGE_J);
         a.actionPerformed(
