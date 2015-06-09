@@ -2212,16 +2212,17 @@ class ImViewerModel
 	/**
 	 * Returns <code>true</code> if the rendering settings are original,
 	 * <code>false</code> otherwise.
-	 * 
+	 * @param checkPlane Pass <code>true</code> to take z/t changes into account, 
+	 *                     <code>false</code> to ignore them
 	 * @return See above.
 	 */
-	boolean isOriginalSettings()
+	boolean isOriginalSettings(boolean checkPlane)
 	{
 		if (originalDef == null) return true;
 		if (metadataViewer == null) return true;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return true;
-		return isSameSettings(originalDef, false);
+		return isSameSettings(originalDef, checkPlane);
 	}
 
 	/**

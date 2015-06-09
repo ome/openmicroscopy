@@ -301,7 +301,7 @@ class ImViewerComponent
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JCheckBox rndBox = null;
-		if (!model.isOriginalSettings()) {
+		if (!model.isOriginalSettings(false)) {
 			rndBox = new JCheckBox(RND);
 			rndBox.setSelected(true);
 			p.add(rndBox);
@@ -805,6 +805,9 @@ class ImViewerComponent
 	 */
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
+	    boolean enableSave = z != model.getDefaultZ()
+                || t != model.getDefaultT();
+	    
 	    if (z < 0) z = model.getDefaultZ();
 	    if (t < 0) t = model.getRealSelectedT();
 	    switch (model.getState()) {
@@ -839,6 +842,9 @@ class ImViewerComponent
 	        newPlane = true;
 	    }
 	    model.setSelectedXYPlane(z, t, bin);
+	    
+	    if (enableSave)
+            controller.getAction(ImViewerControl.SAVE_RND_SETTINGS).setEnabled(true);
 	}
 	
 	/** 
@@ -2741,7 +2747,7 @@ class ImViewerComponent
 				throw new IllegalArgumentException("This method cannot be " +
 				"invoked in the DISCARDED state.");
 		}
-		return model.isOriginalSettings();
+		return model.isOriginalSettings(true);
 	}
 
 	/** 
