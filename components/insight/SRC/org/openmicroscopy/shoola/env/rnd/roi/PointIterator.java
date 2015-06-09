@@ -34,14 +34,23 @@ import java.util.Set;
 
 
 
+
+
+
+import java.util.concurrent.ExecutionException;
+
+import omero.gateway.Gateway;
 //Application-internal dependencies
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
+import omero.gateway.facility.RenderingFacility;
 import omero.gateway.rnd.DataSink;
 import omero.gateway.rnd.Plane2D;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+
+import pojos.PixelsData;
 
 /** 
  * Iterates over the pixels contained in an <code>ROIShape</code> or an 
@@ -66,7 +75,7 @@ class PointIterator
 {
 
     /** Gateway to the raw data of the pixels set bound to this iterator. */
-    private DataSink source;
+    private Gateway gw;
 
     /** The number of z-sections. */
     private int sizeZ;
@@ -83,6 +92,8 @@ class PointIterator
     /** The number of channels. */
     private int sizeC;
 
+    private PixelsData pixels;
+    
     /** 
      * All currently registered {@link PointIteratorObserver}s.
      * This is a set (no duplicates) and mustn't contain <code>null</code>s.
@@ -199,16 +210,16 @@ class PointIterator
      * @param sizeX The number of pixels along the x-axis.
      * @param sizeY The number of pixels along the y-axis.
      */
-    PointIterator(DataSink source, int sizeZ, int sizeT, int sizeC, int sizeX, 
-            int sizeY)
+    PointIterator(Gateway gw, PixelsData pixels)
     {
-        if (source == null) throw new NullPointerException("No source.");
-        this.source = source;
-        this.sizeZ = sizeZ;
-        this.sizeC = sizeC;
-        this.sizeT = sizeT;
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+        if (gw == null) throw new NullPointerException("No source.");
+        this.gw = gw;
+        this.pixels = pixels;
+        this.sizeZ = pixels.getSizeZ();
+        this.sizeC = pixels.getSizeC();
+        this.sizeT = pixels.getSizeT();
+        this.sizeX = pixels.getSizeX();
+        this.sizeY = pixels.getSizeY();
         observers = new HashSet<PointIteratorObserver>();
     }
 
@@ -261,16 +272,25 @@ class PointIterator
             int w, boolean close)
     throws DataSourceException
     {
-        if (shape == null) throw new NullPointerException("No shapes.");
+        if (shape == null) 
+            throw new NullPointerException("No shapes.");
         if (w < 0 || w >= sizeC) 
             throw new NullPointerException("Channel not valid.");
+        
+        RenderingFacility rf = null;
+        try {
+            rf = gw.getFacility(RenderingFacility.class);
+        } catch (ExecutionException e) {
+            throw new DataSourceException(e);
+        }
+        
         notifyIterationStart();
         try { 
             int z = shape.getZ();
             int t = shape.getT();
             if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
                 notifyPlaneStart(z, w, t, points.size());
-                Plane2D data = source.getPlane(ctx, z, t, w, close);
+                Plane2D data = rf.getPlane(ctx, pixels, z, t, w, close);
                 double value;
                 int length = 0;
                 int x1, x2;

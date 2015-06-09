@@ -86,12 +86,7 @@ public class Analyser
     	return new BatchCall("Analysing shapes") {
     		            public void doCall() throws Exception
             {
-    		    
-            	DataSink sink = PixelsServicesFactory.createDataSink(pixels, context.getGateway());
-            	ROIAnalyser analyser = new ROIAnalyser(sink, 
-            					pixels.getSizeZ(), pixels.getSizeT(),
-            					pixels.getSizeC(), pixels.getSizeX(),
-            					pixels.getSizeY());
+            	ROIAnalyser analyser = new ROIAnalyser(context.getGateway(), pixels);
             	try {
             		result = analyser.analyze(ctx, shapes, channels);
 				} catch (Exception e) {
