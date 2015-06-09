@@ -37,6 +37,7 @@ ip.addRequired('session');
 ip.addRequired('originalFile', @(x) isa(x, 'omero.model.OriginalFile'));
 ip.addRequired('filePath', @(x) exist(x, 'file') == 2);
 ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.KeepUnmatched = true;
 ip.parse(session, originalFile, filePath, varargin{:});
 
 % Read file absolute path and properties
@@ -75,7 +76,7 @@ hasher = checksumProviderFactory.getProvider(sha1);
 
 % Initialize the service to load the raw data
 rawFileStore = session.createRawFileStore();
-rawFileStore.setFileId(originalFile.getId().getValue());
+rawFileStore.setFileId(originalFile.getId().getValue(), context);
 
 %code for large files as well.
 lengthvec=262144;
