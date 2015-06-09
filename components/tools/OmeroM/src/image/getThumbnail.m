@@ -63,11 +63,14 @@ if isnumeric(image),
 end
 
 % Create store to retrieve thumbnails and set pixels Id
+context = java.util.HashMap;
+group = image.getDetails().getGroup().getId().getValue();
+context.put('omero.group', num2str(group));
 store = session.createThumbnailStore();
-store.setPixelsId(image.getPrimaryPixels().getId().getValue());
+store.setPixelsId(image.getPrimaryPixels().getId().getValue(), context);
 
 % Retrieve cache thumbnail
-byteArray = store.getThumbnail(width, height);
+byteArray = store.getThumbnail(width, height, context);
 store.close();
 
 % Convert byteArray into Matlab image
