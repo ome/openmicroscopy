@@ -21,15 +21,28 @@ To delete linked annoations they must be explicitly included.
 
 Examples:
 
-    bin/omero delete --list   # Print all of the graphs
+    # Delete an image but not its linked tag, file and term annotations
+    omero delete Image:50
+    # Delete an image including linked tag, file and term annotations
+    omero delete Image:51 --include TagAnnotation,FileAnnotation,TermAnnotation
+    # Delete an image including all linked annotations
+    omero delete Image:52 --include Annotation
 
-    bin/omero delete Image:50
-    bin/omero delete Plate:1
-    bin/omero delete Image:51,52 OriginalFile:101
-    bin/omero delete Project:101 --exclude Dataset,Image
+    # Delete 3 images, 2 datasets and their contents
+    omero delete  omero delete Image:101,102,103 Dataset:201,202
+    # Delete a project excluding contained datasets and images
+    omero delete Project:101 --exclude Dataset,Image
 
-    # Force delete of linked annotations
-    bin/omero delete Image:51 --include Annotation
+    # Delete all images contained under a project
+    omero delete Project/Dataset/Image:53
+    # Delete all images contained under two projects
+    omero delete Project/Image:201,202
+
+    # Do a dry run of a delete reporting the outcome if the delete had been run
+    omero delete Dataset:53 --dry-run
+    # Do a dry run of a delete, reporting all the objects
+    # that would have been deleted
+    omero delete Dataset:53 --dry-run --report
 
 """
 
