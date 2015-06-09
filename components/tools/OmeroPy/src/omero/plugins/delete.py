@@ -33,8 +33,6 @@ Examples:
 
 """
 
-EXCLUDED_PACKAGES = ["ome.model.display"]
-
 
 class DeleteControl(GraphControl):
 
@@ -63,10 +61,7 @@ class DeleteControl(GraphControl):
         objIds = {}
         for k in rsp.deletedObjects.keys():
             if rsp.deletedObjects[k]:
-                for excl in EXCLUDED_PACKAGES:
-                    if not k.startswith(excl):
-                        objIds[k] = self._order_and_range_ids(
-                            rsp.deletedObjects[k])
+                objIds[k] = self._order_and_range_ids(rsp.deletedObjects[k])
         newIds = collections.OrderedDict(sorted(objIds.items()))
         objIds = collections.OrderedDict()
         for k in newIds:
