@@ -304,6 +304,14 @@ class ITest(object):
             client = self.client
         if name is None:
             name = "importMIF"
+
+        try:
+            globalMetadata = kwargs.pop("GlobalMetadata")
+        except:
+            globalMetadata = None
+        if globalMetadata:
+            with_companion = True
+
         append = ""
         if kwargs:
             for k, v in kwargs.items():
@@ -312,7 +320,13 @@ class ITest(object):
         query = client.sf.getQueryService()
         fake = create_path(name, "&series=%d%s.fake" % (seriesCount, append))
         if with_companion:
-            open(fake.abspath() + ".ini", "w")
+            ini = open(fake.abspath() + ".ini", "w")
+            if globalMetadata:
+                ini.write("[GlobalMetadata]\n")
+                for k, v in globalMetadata.items():
+                    ini.write("%s=%s\n" % (k, v))
+            ini.close()
+
         pixelIds = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
         assert seriesCount == len(pixelIds)
