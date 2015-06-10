@@ -496,8 +496,10 @@ $.fn.roi_display = function(options) {
         this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois) {
             // If needed, load ROIs but don't show them, if refresh_rois is True, they will be
             // displayed with the last instructions of the script
-            if (roi_json == null)
-                load_rois(false);
+            if (roi_json == null) {
+                console.error("OMERO ROIs must be loaded in order to push external shapes");
+                return;
+            }
 
             var roi_id = resolve_id(roi_id);
             var shape_id = resolve_id(shape_id);
