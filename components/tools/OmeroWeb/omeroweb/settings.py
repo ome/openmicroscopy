@@ -247,6 +247,8 @@ INTERNAL_SETTINGS_MAPPING = {
         ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
     "omero.web.upgrades.url":
         ["UPGRADES_URL", None, leave_none_unset, None],
+    "omero.web.check_version":
+        ["CHECK_VERSION", "true", parse_boolean, None],
 
     # Allowed hosts:
     # https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
