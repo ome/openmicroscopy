@@ -55,7 +55,8 @@ import pojos.util.PojoMapper;
 //Java imports
 
 /**
- *
+ * A {@link Facility} for browsing the data hierarchy and retrieving {@link ProjectData}, {@link DatasetData}, etc.
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -63,11 +64,15 @@ import pojos.util.PojoMapper;
 
 public class BrowseFacility extends Facility {
 
+    /**
+     * Creates a new instance
+     * @param gateway Reference to the {@link Gateway}
+     */
     BrowseFacility(Gateway gateway) {
         super(gateway);
     }
 
-    @SuppressWarnings("rawtypes")
+    // TODO: Comment
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
         ParametersI param = new ParametersI();
@@ -77,7 +82,7 @@ public class BrowseFacility extends Facility {
         return loadHierarchy(ctx, rootType, null, param);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    // TODO: Comment
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException {
@@ -256,6 +261,11 @@ public class BrowseFacility extends Facility {
 
     /** Load Projects */
 
+    /**
+     * Get all projects for an user (make sure the {@link ExperimenterData} in {@link SecurityContext} is set!)
+     * @param ctx The {@link SecurityContext}
+     * @return A collection of {@link ProjectData}s
+     */
     public Collection<ProjectData> getProjects(SecurityContext ctx) {
         if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
             throw new IllegalArgumentException("No experimenter set.");
@@ -281,6 +291,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Get the projects for the given project ids
+     * @param ctx The {@link SecurityContext}
+     * @param ids The ids of the projects to fetch
+     * @return A collection of {@link ProjectData}s
+     */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             Collection<Long> ids) {
         try {
@@ -306,6 +322,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Get the projects of a certain user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the owner
+     * @return A collection of {@link ProjectData}s
+     */
     public Collection<ProjectData> getProjects(SecurityContext ctx, long ownerId) {
         try {
             ParametersI param = new ParametersI();
@@ -327,6 +349,13 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Get the projects for the given project ids which belong to a certain user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the owner
+     * @param ids The ids of the projects to fetch
+     * @return A collection of {@link ProjectData}s
+     */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             long ownerId, Collection<Long> ids) {
         try {
@@ -357,6 +386,11 @@ public class BrowseFacility extends Facility {
 
     /** Load Datasets */
 
+    /**
+     * Loads the datasets for an user (make sure the {@link ExperimenterData} in {@link SecurityContext} is set!)
+     * @param ctx The {@link SecurityContext}
+     * @return A collection of {@link DatasetData}s
+     */
     public Collection<DatasetData> getDatasets(SecurityContext ctx) {
         if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
             throw new IllegalArgumentException("No experimenter set.");
@@ -383,6 +417,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the datasets with the given ids
+     * @param ctx The {@link SecurityContext}
+     * @param ids The ids of the datasets to load
+     * @return A collection of {@link DatasetData}s
+     */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             Collection<Long> ids) {
         try {
@@ -411,6 +451,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the datasets for a particular user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the user
+     * @return A collection of {@link DatasetData}s
+     */
     public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) {
         try {
             ParametersI param = new ParametersI();
@@ -434,6 +480,13 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the datasets with the given ids which belong to a particular user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the user
+     * @param ids The ids of the datasets to load
+     * @return A collection of {@link DatasetData}s
+     */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             long ownerId, Collection<Long> ids) {
         try {
@@ -465,6 +518,11 @@ public class BrowseFacility extends Facility {
 
     /** Load Screens */
 
+    /**
+     * Loads the screens for an user (make sure the {@link ExperimenterData} in {@link SecurityContext} is set!)
+     * @param ctx The {@link SecurityContext}
+     * @return A collection of {@link ScreenData}s
+     */
     public Collection<ScreenData> getScreens(SecurityContext ctx) {
         if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
             throw new IllegalArgumentException("No experimenter set.");
@@ -489,6 +547,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the screens with the given ids
+     * @param ctx The {@link SecurityContext}
+     * @param ids The ids of the screens to load
+     * @return A collection of {@link ScreenData}s
+     */
     public Collection<ScreenData> getScreens(SecurityContext ctx,
             Collection<Long> ids) {
         try {
@@ -514,6 +578,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the screens for a particular user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the user
+     * @return A collection of {@link ScreenData}s
+     */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) {
         try {
             ParametersI param = new ParametersI();
@@ -535,6 +605,13 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the screens with the given ids which belong to a particular user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the user
+     * @param ids The ids of the screens to load
+     * @return A collection of {@link ScreenData}s
+     */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
             Collection<Long> ids) {
         try {
@@ -563,8 +640,13 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
-    /** Load PLatess */
+    /** Load PLates */
 
+    /**
+     * Loads the plates for an user (make sure the {@link ExperimenterData} in {@link SecurityContext} is set!)
+     * @param ctx The {@link SecurityContext}
+     * @return A collection of {@link PlateData}s
+     */
     public Collection<PlateData> getPlates(SecurityContext ctx) {
         if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
             throw new IllegalArgumentException("No experimenter set.");
@@ -589,6 +671,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the plates with the given ids
+     * @param ctx The {@link SecurityContext}
+     * @param ids The ids of the screens to load
+     * @return A collection of {@link PlateData}s
+     */
     public Collection<PlateData> getPlates(SecurityContext ctx,
             Collection<Long> ids) {
         try {
@@ -614,6 +702,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the plates for a particular user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the user
+     * @return A collection of {@link PlateData}s
+     */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) {
         try {
             ParametersI param = new ParametersI();
@@ -635,6 +729,13 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the plates with the given ids which belong to a particular user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the user
+     * @param ids The ids of the plates to load
+     * @return A collection of {@link PlateData}s
+     */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) {
         try {
@@ -665,6 +766,11 @@ public class BrowseFacility extends Facility {
 
     /** Load Images */
 
+    /**
+     * Loads the images for an user (make sure the {@link ExperimenterData} in {@link SecurityContext} is set!)
+     * @param ctx The {@link SecurityContext}
+     * @return A collection of {@link ImageData}s
+     */
     public Collection<ImageData> getImages(SecurityContext ctx) {
         if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
             throw new IllegalArgumentException("No experimenter set.");
@@ -690,6 +796,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the images with the given ids
+     * @param ctx The {@link SecurityContext}
+     * @param ids The ids of the images to load
+     * @return A collection of {@link ImageData}s
+     */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids) {
         if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
@@ -721,6 +833,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the images for a particular user
+     * @param ctx The {@link SecurityContext}
+     * @param ownerId The id of the user
+     * @return A collection of {@link ImageData}s
+     */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
             Collection<Long> ids) {
         if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
@@ -753,6 +871,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Load all images belonging to particular datasets
+     * @param ctx  The {@link SecurityContext}
+     * @param datasetIds The ids of the datasets
+     * @return A collection of {@link ImageData}s
+     */
     public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
             Collection<Long> datasetIds) {
         try {
@@ -774,6 +898,12 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Load all images belonging to particular projects
+     * @param ctx  The {@link SecurityContext}
+     * @param projectIds The ids of the projects
+     * @return A collection of {@link ImageData}s
+     */
     public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
             Collection<Long> projectIds) {
         try {
