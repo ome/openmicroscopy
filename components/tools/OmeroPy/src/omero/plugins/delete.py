@@ -68,7 +68,7 @@ class DeleteControl(GraphControl):
             self.ctx.out("Deleted objects")
             objIds = self._get_object_ids(rsp.deletedObjects)
             for k in objIds:
-                self.ctx.out("%s:%s" % (k, objIds[k]))
+                self.ctx.out("  %s:%s" % (k, objIds[k]))
 
     def default_exclude(self):
         """
