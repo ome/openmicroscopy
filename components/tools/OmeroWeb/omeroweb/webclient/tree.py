@@ -218,7 +218,6 @@ def marshal_projects(conn, experimenter_id):
                                         project_group_id, cache)
 
         if len(projects) == 0 or projects[-1]['id'] != project_id.val:
-            is_owned = experimenter_id == conn.getUserId()
             perms_css = parse_permissions_css(
                 project_permissions, experimenter_id, conn
             )
@@ -363,7 +362,6 @@ def marshal_screens(conn, experimenter_id=None):
                                        screen_owner_id, screen_group_id, cache)
 
         if len(screens) == 0 or screen_id.val != screens[-1]['id']:
-            is_owned = screen_owner_id.val == conn.getUserId()
             perms_css = parse_permissions_css(
                 screen_permissions, screen_owner_id.val, conn
             )
