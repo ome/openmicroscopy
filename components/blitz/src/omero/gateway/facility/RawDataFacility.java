@@ -42,12 +42,12 @@ import com.google.common.cache.CacheBuilder;
  * @since 5.1
  */
 
-public class RenderingFacility extends Facility {
+public class RawDataFacility extends Facility {
 
     private static final Cache<Long, DataSink> cache = CacheBuilder
             .newBuilder().build();
 
-    RenderingFacility(Gateway gateway) {
+    RawDataFacility(Gateway gateway) {
         super(gateway);
     }
 
@@ -74,7 +74,7 @@ public class RenderingFacility extends Facility {
             int t, int w) throws DataSourceException {
         Plane2D data = null;
         try {
-            DataSink ds = RenderingFacility.getDataSink(pixels, gateway);
+            DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
             data = ds.getPlane(ctx, z, t, w, true);
         } catch (ExecutionException e) {
             throw new DataSourceException("Can't initiate DataSink", e);
@@ -107,7 +107,7 @@ public class RenderingFacility extends Facility {
             int t, int w, boolean close) throws DataSourceException {
         Plane2D data = null;
         try {
-            DataSink ds = RenderingFacility.getDataSink(pixels, gateway);
+            DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
             data = ds.getPlane(ctx, z, t, w, close);
             if (close)
                 cache.invalidate(pixels.getId());
