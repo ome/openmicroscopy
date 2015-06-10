@@ -19,8 +19,9 @@
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" conf="build->build;server->runtime"/><!-- for DBEnumCheck -->
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
+    <!--Bio-Formats -->
+    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
     <!-- Ice -->
     <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
     <dependency org="zeroc" name="ice" rev="${versions.ice}"/>
