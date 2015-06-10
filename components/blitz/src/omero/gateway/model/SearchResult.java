@@ -116,7 +116,7 @@ public class SearchResult {
     }
 
     /**
-     * Set the Id of the found object
+     * Get the Id of the found object
      * 
      * @return
      */
@@ -125,7 +125,7 @@ public class SearchResult {
     }
 
     /**
-     * Get the Id of the found object
+     * Set the Id of the found object
      * 
      * @param objectId
      */
@@ -193,7 +193,7 @@ public class SearchResult {
             if (!object.getClass().equals(type))
                 throw new IllegalArgumentException("Cannot add a "
                         + object.getClass().getSimpleName()
-                        + " to an AdvancedSearchResult intended for "
+                        + " to a SearchResult intended for "
                         + type.getSimpleName() + "!");
         } else {
             type = object.getClass();
@@ -214,7 +214,7 @@ public class SearchResult {
 
     @Override
     public String toString() {
-        return "AdvancedSearchResult [scopeId=" + scopeId + ", type="
+        return "SearchResult [scopeId=" + scopeId + ", type="
                 + (type != null ? type.getSimpleName() : "null")
                 + ", objectId=" + objectId + ", groupId=" + groupId + "]";
     }
