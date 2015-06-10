@@ -20,6 +20,8 @@
  */
 package omero.gateway.facility;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import omero.IllegalArgumentException;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
@@ -36,11 +39,17 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.util.PojoMapper;
 
 //Java imports
@@ -57,7 +66,7 @@ public class BrowseFacility extends Facility {
     BrowseFacility(Gateway gateway) {
         super(gateway);
     }
-    
+
     @SuppressWarnings("rawtypes")
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
@@ -102,13 +111,14 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     @SuppressWarnings("unchecked")
-    public <T extends DataObject> T findObject(SecurityContext ctx, Class<T> klass, long id)
-            throws DSOutOfServiceException, DSAccessException {
+    public <T extends DataObject> T findObject(SecurityContext ctx,
+            Class<T> klass, long id) throws DSOutOfServiceException,
+            DSAccessException {
         String klassName = PojoMapper.getModelType(klass).getSimpleName();
         IObject obj = findIObject(ctx, klassName, id, false);
         return (T) PojoMapper.asDataObject(obj);
     }
-    
+
     /**
      * Retrieves an updated version of the specified object.
      *
@@ -147,7 +157,8 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id,
-            boolean allGroups) throws DSOutOfServiceException, DSAccessException {
+            boolean allGroups) throws DSOutOfServiceException,
+            DSAccessException {
         try {
             Map<String, String> m = new HashMap<String, String>();
             if (allGroups) {
@@ -159,8 +170,9 @@ public class BrowseFacility extends Facility {
             IQueryPrx service = gateway.getQueryService(ctx);
             return service.find(klassName, id, m);
         } catch (Throwable t) {
-            handleException(this, t, "Cannot retrieve the requested object with "
-                    + "object ID: " + id);
+            handleException(this, t,
+                    "Cannot retrieve the requested object with "
+                            + "object ID: " + id);
         }
         return null;
     }
@@ -187,44 +199,49 @@ public class BrowseFacility extends Facility {
             IQueryPrx service = gateway.getQueryService(ctx);
             return service.find(o.getClass().getName(), o.getId().getValue());
         } catch (Throwable t) {
-            handleException(this, t, "Cannot retrieve the requested object with "
-                    + "object ID: " + o.getId());
+            handleException(this, t,
+                    "Cannot retrieve the requested object with "
+                            + "object ID: " + o.getId());
         }
         return null;
     }
-    
+
     /**
      * Retrieves the groups visible by the current experimenter.
      *
-     * @param ctx The security context.
-     * @param loggedInUser The user currently logged in.
+     * @param ctx
+     *            The security context.
+     * @param loggedInUser
+     *            The user currently logged in.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Set<GroupData> getAvailableGroups(SecurityContext ctx,
-            ExperimenterData user)
-        throws DSOutOfServiceException, DSAccessException
-    {
+            ExperimenterData user) throws DSOutOfServiceException,
+            DSAccessException {
         Set<GroupData> pojos = new HashSet<GroupData>();
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
-            //Need method server side.
+            // Need method server side.
             ParametersI p = new ParametersI();
             p.addId(user.getId());
-            List<IObject> groups = service.findAllByQuery(
-                    "select distinct g from ExperimenterGroup as g "
-                    + "join fetch g.groupExperimenterMap as map "
-                    + "join fetch map.parent e "
-                    + "left outer join fetch map.child u "
-                    + "left outer join fetch u.groupExperimenterMap m2 "
-                    + "left outer join fetch m2.parent p "
-                    + "where g.id in "
-                    + "  (select m.parent from GroupExperimenterMap m "
-                    + "  where m.child.id = :id )", p);
+            List<IObject> groups = service
+                    .findAllByQuery(
+                            "select distinct g from ExperimenterGroup as g "
+                                    + "join fetch g.groupExperimenterMap as map "
+                                    + "join fetch map.parent e "
+                                    + "left outer join fetch map.child u "
+                                    + "left outer join fetch u.groupExperimenterMap m2 "
+                                    + "left outer join fetch m2.parent p "
+                                    + "where g.id in "
+                                    + "  (select m.parent from GroupExperimenterMap m "
+                                    + "  where m.child.id = :id )", p);
             ExperimenterGroup group;
-            //GroupData pojoGroup;
+            // GroupData pojoGroup;
             Iterator<IObject> i = groups.iterator();
             while (i.hasNext()) {
                 group = (ExperimenterGroup) i.next();
@@ -235,5 +252,542 @@ public class BrowseFacility extends Facility {
             handleException(this, t, "Cannot retrieve the available groups ");
         }
         return pojos;
+    }
+
+    /** Load Projects */
+
+    public Collection<ProjectData> getProjects(SecurityContext ctx) {
+        if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
+            throw new IllegalArgumentException("No experimenter set.");
+        }
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ctx.getExperimenter()));
+
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ProjectData.class).getName(), null, param);
+
+            Collection<ProjectData> result = new ArrayList<ProjectData>(
+                    projects.size());
+            for (IObject proj : projects)
+                result.add((ProjectData) PojoMapper.asDataObject(proj));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ProjectData> getProjects(SecurityContext ctx,
+            Collection<Long> ids) {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ProjectData.class).getName(), idsList, null);
+
+            Collection<ProjectData> result = new ArrayList<ProjectData>(
+                    projects.size());
+            for (IObject proj : projects)
+                result.add((ProjectData) PojoMapper.asDataObject(proj));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ProjectData> getProjects(SecurityContext ctx, long ownerId) {
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ProjectData.class).getName(), null, param);
+
+            Collection<ProjectData> result = new ArrayList<ProjectData>(
+                    projects.size());
+            for (IObject proj : projects)
+                result.add((ProjectData) PojoMapper.asDataObject(proj));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ProjectData> getProjects(SecurityContext ctx,
+            long ownerId, Collection<Long> ids) {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+
+            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ProjectData.class).getName(), idsList, param);
+
+            Collection<ProjectData> result = new ArrayList<ProjectData>(
+                    projects.size());
+            for (IObject proj : projects)
+                result.add((ProjectData) PojoMapper.asDataObject(proj));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    /** Load Datasets */
+
+    public Collection<DatasetData> getDatasets(SecurityContext ctx) {
+        if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
+            throw new IllegalArgumentException("No experimenter set.");
+        }
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ctx.getExperimenter()));
+            param.leaves();
+
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(DatasetData.class).getName(), null, param);
+
+            Collection<DatasetData> result = new ArrayList<DatasetData>(
+                    datasets.size());
+            for (IObject ds : datasets)
+                result.add((DatasetData) PojoMapper.asDataObject(ds));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<DatasetData> getDatasets(SecurityContext ctx,
+            Collection<Long> ids) {
+        try {
+            ParametersI param = new ParametersI();
+            param.leaves();
+
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(DatasetData.class).getName(), idsList, param);
+
+            Collection<DatasetData> result = new ArrayList<DatasetData>(
+                    datasets.size());
+            for (IObject ds : datasets)
+                result.add((DatasetData) PojoMapper.asDataObject(ds));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) {
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+            param.leaves();
+
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(DatasetData.class).getName(), null, param);
+
+            Collection<DatasetData> result = new ArrayList<DatasetData>(
+                    datasets.size());
+            for (IObject ds : datasets)
+                result.add((DatasetData) PojoMapper.asDataObject(ds));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<DatasetData> getDatasets(SecurityContext ctx,
+            long ownerId, Collection<Long> ids) {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+            param.leaves();
+
+            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(DatasetData.class).getName(), idsList, param);
+
+            Collection<DatasetData> result = new ArrayList<DatasetData>(
+                    datasets.size());
+            for (IObject ds : datasets)
+                result.add((DatasetData) PojoMapper.asDataObject(ds));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    /** Load Screens */
+
+    public Collection<ScreenData> getScreens(SecurityContext ctx) {
+        if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
+            throw new IllegalArgumentException("No experimenter set.");
+        }
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ctx.getExperimenter()));
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ScreenData.class).getName(), null, param);
+
+            Collection<ScreenData> result = new ArrayList<ScreenData>(
+                    screens.size());
+            for (IObject s : screens)
+                result.add((ScreenData) PojoMapper.asDataObject(s));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ScreenData> getScreens(SecurityContext ctx,
+            Collection<Long> ids) {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ScreenData.class).getName(), idsList, null);
+
+            Collection<ScreenData> result = new ArrayList<ScreenData>(
+                    screens.size());
+            for (IObject s : screens)
+                result.add((ScreenData) PojoMapper.asDataObject(s));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) {
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ScreenData.class).getName(), null, param);
+
+            Collection<ScreenData> result = new ArrayList<ScreenData>(
+                    screens.size());
+            for (IObject s : screens)
+                result.add((ScreenData) PojoMapper.asDataObject(s));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
+            Collection<Long> ids) {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+
+            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(ScreenData.class).getName(), idsList, param);
+
+            Collection<ScreenData> result = new ArrayList<ScreenData>(
+                    screens.size());
+            for (IObject s : screens)
+                result.add((ScreenData) PojoMapper.asDataObject(s));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    /** Load PLatess */
+
+    public Collection<PlateData> getPlates(SecurityContext ctx) {
+        if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
+            throw new IllegalArgumentException("No experimenter set.");
+        }
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ctx.getExperimenter()));
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(PlateData.class).getName(), null, param);
+
+            Collection<PlateData> result = new ArrayList<PlateData>(
+                    plates.size());
+            for (IObject p : plates)
+                result.add((PlateData) PojoMapper.asDataObject(p));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<PlateData> getPlates(SecurityContext ctx,
+            Collection<Long> ids) {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(PlateData.class).getName(), idsList, null);
+
+            Collection<PlateData> result = new ArrayList<PlateData>(
+                    plates.size());
+            for (IObject p : plates)
+                result.add((PlateData) PojoMapper.asDataObject(p));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) {
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(PlateData.class).getName(), null, param);
+
+            Collection<PlateData> result = new ArrayList<PlateData>(
+                    plates.size());
+            for (IObject p : plates)
+                result.add((PlateData) PojoMapper.asDataObject(p));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
+            Collection<Long> ids) {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+
+            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
+                    .getModelType(PlateData.class).getName(), idsList, param);
+
+            Collection<PlateData> result = new ArrayList<PlateData>(
+                    plates.size());
+            for (IObject p : plates)
+                result.add((PlateData) PojoMapper.asDataObject(p));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    /** Load Images */
+
+    public Collection<ImageData> getImages(SecurityContext ctx) {
+        if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
+            throw new IllegalArgumentException("No experimenter set.");
+        }
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ctx.getExperimenter()));
+            param.leaves();
+
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<Image> images = service.getUserImages(param);
+
+            Collection<ImageData> result = new ArrayList<ImageData>(
+                    images.size());
+            for (Image img : images)
+                result.add((ImageData) PojoMapper.asDataObject(img));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ImageData> getImages(SecurityContext ctx,
+            Collection<Long> ids) {
+        if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
+            throw new IllegalArgumentException("No experimenter set.");
+        }
+        try {
+            ParametersI param = new ParametersI();
+            param.leaves();
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<Image> images = service.getImages(
+                    PojoMapper.getModelType(ImageData.class).getName(),
+                    idsList, param);
+
+            Collection<ImageData> result = new ArrayList<ImageData>(
+                    images.size());
+            for (Image img : images)
+                result.add((ImageData) PojoMapper.asDataObject(img));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
+            Collection<Long> ids) {
+        if (ctx.getExperimenter() == SecurityContext.UNDEFINED) {
+            throw new IllegalArgumentException("No experimenter set.");
+        }
+        try {
+            ParametersI param = new ParametersI();
+            param.exp(omero.rtypes.rlong(ownerId));
+            param.leaves();
+
+            List<Long> idsList = new ArrayList<Long>(ids.size());
+            for (long id : ids)
+                idsList.add(id);
+
+            IContainerPrx service = gateway.getPojosService(ctx);
+            List<Image> images = service.getImages(
+                    PojoMapper.getModelType(ImageData.class).getName(),
+                    idsList, param);
+
+            Collection<ImageData> result = new ArrayList<ImageData>(
+                    images.size());
+            for (Image img : images)
+                result.add((ImageData) PojoMapper.asDataObject(img));
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
+            Collection<Long> datasetIds) {
+        try {
+            Collection<ImageData> result = new ArrayList<ImageData>();
+
+            Collection<DatasetData> datasets = getDatasets(ctx, datasetIds);
+            for (DatasetData ds : datasets) {
+                for (Object obj : ds.getImages()) {
+                    if (obj instanceof ImageData)
+                        result.add((ImageData) obj);
+                }
+            }
+
+            return result;
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
+            Collection<Long> projectIds) {
+        try {
+            Collection<ProjectData> projects = getProjects(ctx, projectIds);
+            Collection<Long> dsIds = new ArrayList<Long>();
+            for (ProjectData proj : projects) {
+                for (DatasetData ds : proj.getDatasets())
+                    dsIds.add(ds.getId());
+            }
+            return getImagesForDatasets(ctx, dsIds);
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptyList();
     }
 }
