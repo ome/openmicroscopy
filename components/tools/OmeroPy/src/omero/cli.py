@@ -295,7 +295,13 @@ class ProxyStringType(object):
         self.default = default
 
     def __call__(self, s):
-        return omero.proxy_to_instance(s, default=self.default)
+        try:
+            return omero.proxy_to_instance(s, default=self.default)
+        except omero.ClientError, ce:
+            raise ValueError(str(ce))
+
+    def __repr__(self):
+        return "proxy"
 
 
 class NewFileType(FileType):
