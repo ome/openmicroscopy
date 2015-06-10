@@ -23,7 +23,8 @@ package omero.gateway;
 //Java imports
 
 /**
- *
+ * Holds hostname and port of an OMERO server
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -31,32 +32,63 @@ package omero.gateway;
 
 public class ServerInformation {
 
+    /** The hostname */
     private String hostname;
 
+    /** The port */
     private int port;
 
+    /**
+     * Creates an empty instance
+     */
     public ServerInformation() {
 
     }
 
+    /**
+     * Creates a new instance
+     * 
+     * @param hostname
+     *            The hostname
+     * @param port
+     *            The port
+     */
     public ServerInformation(String hostname, int port) {
         super();
         this.hostname = hostname;
         this.port = port;
     }
 
+    /**
+     * @return The hostname
+     */
     public String getHostname() {
         return hostname;
     }
 
+    /**
+     * Set the hostname
+     * 
+     * @param hostname
+     *            See above
+     */
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
 
+    /**
+     * @return The port
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     * Set the port
+     * 
+     * @param port
+     *            See above
+     */
     public void setPort(int port) {
         this.port = port;
     }

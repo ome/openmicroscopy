@@ -45,6 +45,7 @@ import omero.gateway.model.SearchResult;
 import omero.gateway.model.SearchResultCollection;
 import omero.log.LogMessage;
 import omero.log.Logger;
+import omero.log.SimpleLogger;
 import omero.util.CommonsLangUtils;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -81,7 +82,7 @@ public class GatewayExample {
         c.getUser().setUsername(input[2]);
         c.getUser().setPassword(input[3]);
         
-        Gateway gateway = new Gateway(new LoggerImpl());
+        Gateway gateway = new Gateway(new SimpleLogger());
 
         try {
             ExperimenterData exp = gateway.connect(c);
@@ -319,62 +320,5 @@ public class GatewayExample {
         result[3] = password;
 
         return result;
-    }
-    
-    class LoggerImpl implements Logger {
-
-        @Override
-        public void debug(Object originator, String logMsg) {
-        }
-
-        @Override
-        public void debug(Object originator, LogMessage msg) {
-        }
-
-        @Override
-        public void info(Object originator, String logMsg) {
-            System.out.println(logMsg);
-        }
-
-        @Override
-        public void info(Object originator, LogMessage msg) {
-            System.out.println(msg);
-        }
-
-        @Override
-        public void warn(Object originator, String logMsg) {
-            System.err.println(logMsg);
-        }
-
-        @Override
-        public void warn(Object originator, LogMessage msg) {
-            System.err.println(msg); 
-        }
-
-        @Override
-        public void error(Object originator, String logMsg) {
-            System.err.println(logMsg);
-        }
-
-        @Override
-        public void error(Object originator, LogMessage msg) {
-            System.err.println(msg);
-        }
-
-        @Override
-        public void fatal(Object originator, String logMsg) {
-            System.err.println(logMsg);
-        }
-
-        @Override
-        public void fatal(Object originator, LogMessage msg) {
-            System.err.println(msg);
-        }
-
-        @Override
-        public String getLogFile() {
-            return null;
-        }
-        
     }
 }

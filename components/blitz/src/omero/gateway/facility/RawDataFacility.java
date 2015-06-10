@@ -36,7 +36,8 @@ import com.google.common.cache.CacheBuilder;
 //Java imports
 
 /**
- *
+ *  A {@link Facility}  for accessing raw data
+ *  
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -44,9 +45,14 @@ import com.google.common.cache.CacheBuilder;
 
 public class RawDataFacility extends Facility {
 
+    /** Cache for holding/reusing {@link DataSink}s */
     private static final Cache<Long, DataSink> cache = CacheBuilder
             .newBuilder().build();
 
+    /**
+     * Creates a new instance
+     * @param gateway Reference to the {@link Gateway}
+     */
     RawDataFacility(Gateway gateway) {
         super(gateway);
     }
