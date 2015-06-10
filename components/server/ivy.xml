@@ -20,8 +20,6 @@
     <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
-    <!--Bio-Formats -->
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
     <!-- Ice -->
     <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
     <dependency org="zeroc" name="ice" rev="${versions.ice}"/>
@@ -51,6 +49,7 @@
     <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
     <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/><!--now org.apache.pdfbox -->
     <dependency org="org.fontbox" name="fontbox" rev="${versions.fontbox}"/>
+    <dependency org="edu.ucar" name="netcdf" rev="${versions.netcdf}"/>
     <!-- spring -->
     <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
     <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
