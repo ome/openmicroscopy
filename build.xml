@@ -56,25 +56,13 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/version.xml"/>
 
-    <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
+    <target name="init" depends="check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
         <mkdir dir="${blitz.comp}/target/generated/src"/>
     </target>
 
     <target name="check-git">
       <available file=".git" type="dir" property="git.exists"/>
-    </target>
-
-    <target name="check-bioformats" unless="bioformats.done">
-        <!-- Prevent future invocations -->
-        <property name="bioformats.check.done" value="done"/>
-        <if><not><available file="${basedir}/components/bioformats/build.xml"/></not>
-        <then>
-            <fail>No components/bioformats/build.xml!
-
-            Use 'git submodule update --init' to checkout the source code.
-            </fail>
-        </then></if>
     </target>
 
     <target name="check-ivy" unless="ivy.done">
