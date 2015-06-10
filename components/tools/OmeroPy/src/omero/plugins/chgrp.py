@@ -22,11 +22,11 @@ Move entire graphs of data based on the ID of the top-node.
 
 Examples:
 
-    # Move an image to group 101
+    # In each case move an image to group 101
     omero chgrp 101 Image:1
     omero chgrp Group:101 Image:2
-    omero chgrp ExperimenterGroup:101 Image:2
-    # Move 3 image to group named "My Lab"
+    omero chgrp ExperimenterGroup:101 Image:3
+    # Move three images to the group named "My Lab"
     omero chgrp "My Lab" Image:51,52,53
 
     # Move a plate but leave all images in the original group
