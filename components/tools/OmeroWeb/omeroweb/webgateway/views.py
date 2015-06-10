@@ -2291,15 +2291,18 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
         left outer join fetch links.child
         where obj%d.id=:id""" % (len(objtype) - 1)
 
+    ctx = conn.createServiceOptsDict()
+    ctx.setOmeroGroup("-1")
+
     try:
         obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
-                            conn.createServiceOptsDict())
+                            ctx)
     except omero.QueryException:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
 
     if not obj:
-        return dict(error='%s with id %s not found' % (objtype, objid))
+        return dict(error='%s with id %s not found' % (objtype, objid), query=query)
 
     return dict(data=[
         dict(id=annotation.id.val,
@@ -2335,9 +2338,11 @@ def _table_query(request, fileid, conn=None, **kwargs):
         return dict(
             error='Must specify query parameter, use * to retrieve all')
 
+    ctx = conn.createServiceOptsDict()
+    ctx.setOmeroGroup("-1")
+
     r = conn.getSharedResources()
-    t = r.openTable(omero.model.OriginalFileI(fileid),
-                    conn.createServiceOptsDict())
+    t = r.openTable(omero.model.OriginalFileI(fileid), ctx)
     if not t:
         return dict(error="Table %s not found" % fileid)
 
