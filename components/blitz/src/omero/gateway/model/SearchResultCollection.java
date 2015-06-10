@@ -193,7 +193,7 @@ public class SearchResultCollection extends
 
     @Override
     public String toString() {
-        String s = "AdvancedSearchResultCollection [error=" + error + "]:\n";
+        String s = "SearchResultCollection [error=" + error + "]:\n";
         for (SearchResult r : this) {
             s += r.toString() + "\n";
         }
