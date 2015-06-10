@@ -54,7 +54,7 @@ import pojos.util.PojoMapper;
 //Java imports
 
 /**
- *
+ * A {@link Facility} for performing searches
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -62,8 +62,13 @@ import pojos.util.PojoMapper;
 
 public class SearchFacility extends Facility {
 
+    /** Reference to the {@link BrowseFacility} */
     private BrowseFacility browse;
 
+    /**
+     * Creates a new instance
+     * @param gateway Reference to the {@link Gateway}
+     */
     SearchFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.browse = gateway.getFacility(BrowseFacility.class);

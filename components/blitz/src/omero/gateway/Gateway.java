@@ -20,8 +20,6 @@
  */
 package omero.gateway;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,9 +77,8 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 
-//Java imports
-
 /**
+ * A Gateway for simplifying access to an OMERO server
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -90,25 +87,48 @@ import com.google.common.collect.Multimaps;
 
 public class Gateway {
 
+    /** Reference to a {@link Logger} */
     private Logger log;
+
+    /** The version of the server the Gateway is connected to */
     private String serverVersion;
+
+    /** Checks status of the network interfaces */
     private NetworkChecker networkChecker;
+
+    /** Flag indicating if the Gateway is connected to a server */
     private boolean connected = false;
+
+    /** Keeps the session alive */
     private ScheduledThreadPoolExecutor keepAliveExecutor;
+
+    /** The login credentials used for connecting to the server */
     private LoginCredentials login;
 
+    /** The logged in user */
     private ExperimenterData loggedInUser;
-    
+
+    /** Holds all {@link Connector}s for different {@link SecurityContext}s */
     private ListMultimap<Long, Connector> groupConnectorMap = Multimaps
             .<Long, Connector> synchronizedListMultimap(LinkedListMultimap
                     .<Long, Connector> create());
 
+    /** Optional reference to a {@link CacheService} */
     private CacheService cacheService;
-    
+
+    /**
+     * Creates a new Gateway instance
+     * @param log A {@link Logger}
+     */
     public Gateway(Logger log) {
         this(log, null);
     }
-    
+
+    /**
+     * Creates a new Gateway instance
+     * @param log A {@link Logger}
+     * @param cacheService A {@link CacheService}, can be <code>null</code>
+     */
     public Gateway(Logger log, CacheService cacheService) {
         this.log = log;
         this.cacheService = cacheService;
@@ -116,6 +136,14 @@ public class Gateway {
 
     // Public connection handling methods
 
+    /**
+     * Connect to the server
+     * 
+     * @param c
+     *            The {@link LoginCredentials}
+     * @return The {@link ExperimenterData} who is logged in
+     * @throws DSOutOfServiceException
+     */
     public ExperimenterData connect(LoginCredentials c)
             throws DSOutOfServiceException {
         client client = createSession(c);
@@ -124,10 +152,18 @@ public class Gateway {
         return loggedInUser;
     }
 
+    /**
+     * Get the currently logged in user
+     * 
+     * @return See above.
+     */
     public ExperimenterData getLoggedInUser() {
         return loggedInUser;
     }
 
+    /**
+     * Disconnects from the server
+     */
     public void disconnect() {
         boolean online = isNetworkUp(false);
         List<Connector> connectors = getAllConnectors();
@@ -203,10 +239,22 @@ public class Gateway {
         return connected;
     }
 
+    /**
+     * Check if the Gateway is still connected to the server
+     * 
+     * @return See above.
+     */
     public boolean isConnected() {
         return connected;
     }
 
+    /**
+     * Get the ID of the current session
+     * 
+     * @param user
+     *            The user to get the session ID for
+     * @return See above
+     */
     public String getSessionId(ExperimenterData user) {
         try {
             Connector c = getConnector(new SecurityContext(user.getGroupId()),
@@ -219,6 +267,12 @@ public class Gateway {
         return null;
     }
 
+    /**
+     * Get the version of the server the Gateway is connected to
+     * 
+     * @return See above
+     * @throws DSOutOfServiceException
+     */
     public String getServerVersion() throws DSOutOfServiceException {
         if (serverVersion == null) {
             throw new DSOutOfServiceException("Not logged in.");
@@ -226,54 +280,93 @@ public class Gateway {
         return serverVersion;
     }
 
+    /**
+     * Get a {@link Facility} to perform further operations with the server
+     * 
+     * @param type
+     *            The kind of {@link Facility} to request
+     * @return See above
+     * @throws ExecutionException
+     */
     public <T extends Facility> T getFacility(Class<T> type)
             throws ExecutionException {
         return Facility.getFacility(type, this);
     }
-    
+
     // General public methods
-    
+
     /**
      * Executes the commands.
      * 
-     * @param commands The commands to execute.
-     * @param target The target context is any.
+     * @param commands
+     *            The commands to execute.
+     * @param target
+     *            The target context is any.
      * @return See above.
      */
-     public CmdCallbackI submit(SecurityContext ctx, List<Request> commands, SecurityContext target)
-            throws Throwable
-    {
-         Connector c = getConnector(ctx, true, false);
-         if (c != null)
-             return c.submit(commands, target);
-         return null;
+    public CmdCallbackI submit(SecurityContext ctx, List<Request> commands,
+            SecurityContext target) throws Throwable {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.submit(commands, target);
+        return null;
     }
-     
-     public CmdCallbackI submit(SecurityContext ctx, Request cmd)
-             throws Throwable
-     {
-          Connector c = getConnector(ctx, true, false);
-          if (c != null) {
-              client client = getConnector(ctx, true, false).getClient();
-              HandlePrx handle = client.getSession().submit(cmd);
-              return new CmdCallbackI(client, handle);
-          }
-          return null;
-     }
-     
-     public void closeImport(SecurityContext ctx, String userName) {
-         try {
-             Connector c = getConnector(ctx, false, true);
-             if (c != null) {
-                 if(CommonsLangUtils.isNotEmpty(userName))
-                     c = c.getConnector(userName);
-                  c.closeImport();
-             }
-         } catch (Throwable e) {
-             log.warn(this, "Failed to close import: " + e);
-         }
-     }
-     
+
+    /**
+     * Directly submit a {@link Request} to the server
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param cmd
+     *            The {@link Request} to submit
+     * @return A callback reference, {@link CmdCallbackI}
+     * @throws Throwable
+     */
+    public CmdCallbackI submit(SecurityContext ctx, Request cmd)
+            throws Throwable {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null) {
+            client client = getConnector(ctx, true, false).getClient();
+            HandlePrx handle = client.getSession().submit(cmd);
+            return new CmdCallbackI(client, handle);
+        }
+        return null;
+    }
+
+    /**
+     * Close Import for a certain user
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param userName
+     *            The name of the user which import should be closed
+     */
+    public void closeImport(SecurityContext ctx, String userName) {
+        try {
+            Connector c = getConnector(ctx, false, true);
+            if (c != null) {
+                if (CommonsLangUtils.isNotEmpty(userName))
+                    c = c.getConnector(userName);
+                c.closeImport();
+            }
+        } catch (Throwable e) {
+            log.warn(this, "Failed to close import: " + e);
+        }
+    }
+
+    /**
+     * Run a script on the server
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param scriptID
+     *            The ID of the script
+     * @param parameters
+     *            Parameters for the script
+     * @return A callback reference, {@link ProcessCallbackI}
+     * @throws DSOutOfServiceException
+     * @throws ServerError
+     */
     public ProcessCallbackI runScript(SecurityContext ctx, long scriptID,
             Map<String, RType> parameters) throws DSOutOfServiceException,
             ServerError {
@@ -284,16 +377,25 @@ public class Gateway {
         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
         return new ProcessCallbackI(c.getClient(), prx);
     }
-     
+
+    /**
+     * Provides access to the {@link Logger}
+     * 
+     * @return See above
+     */
     public Logger getLogger() {
         return log;
     }
-    
+
+    /**
+     * Provides access to the {@link CacheService}
+     * 
+     * @return See above
+     */
     public CacheService getCacheService() {
         return cacheService;
     }
-    
-    
+
     // Public service access methods
 
     /**
@@ -411,7 +513,7 @@ public class Gateway {
             throws DSOutOfServiceException {
         return getUpdateService(ctx, null);
     }
-    
+
     /**
      * Returns the {@link IUpdatePrx} service.
      * 
@@ -649,10 +751,11 @@ public class Gateway {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    public OMEROMetadataStoreClient getImportStore(SecurityContext ctx) throws DSOutOfServiceException {
+    public OMEROMetadataStoreClient getImportStore(SecurityContext ctx)
+            throws DSOutOfServiceException {
         return getImportStore(ctx, null);
     }
-    
+
     /**
      * Creates or recycles the import store.
      * 
@@ -684,8 +787,8 @@ public class Gateway {
      *             Thrown if the service cannot be initialized.
      */
     public RenderingEnginePrx getRenderingService(SecurityContext ctx,
-            long pixelsID, float compression)
-            throws DSOutOfServiceException, ServerError {
+            long pixelsID, float compression) throws DSOutOfServiceException,
+            ServerError {
         Connector c = getConnector(ctx, true, false);
         if (c != null)
             return c.getRenderingService(pixelsID, compression);
@@ -694,6 +797,11 @@ public class Gateway {
 
     // Internal helper methods
 
+    /**
+     * Clears the groupConnector Map
+     * 
+     * @return The connectors the map held previously
+     */
     private List<Connector> removeAllConnectors() {
         synchronized (groupConnectorMap) {
             // This should be the only location which calls values().
@@ -704,6 +812,14 @@ public class Gateway {
         }
     }
 
+    /**
+     * Initiates a session
+     * 
+     * @param c
+     *            The login credentials
+     * @return The client
+     * @throws DSOutOfServiceException
+     */
     private client createSession(LoginCredentials c)
             throws DSOutOfServiceException {
         client secureClient = null;
@@ -777,6 +893,16 @@ public class Gateway {
         return secureClient;
     }
 
+    /**
+     * Logs in a certain user
+     * 
+     * @param client
+     *            The client
+     * @param cred
+     *            The login credentials
+     * @return The user which is logged in
+     * @throws DSOutOfServiceException
+     */
     private ExperimenterData login(client client, LoginCredentials cred)
             throws DSOutOfServiceException {
         this.login = cred;
@@ -831,6 +957,12 @@ public class Gateway {
         }
     }
 
+    /**
+     * Keeps the session active, prevents premature automatic closing of the
+     * session.
+     * 
+     * @throws DSOutOfServiceException
+     */
     private void keepSessionAlive() throws DSOutOfServiceException {
         // Check if network is up before keeping service otherwise
         // we block until timeout.
@@ -851,6 +983,17 @@ public class Gateway {
         }
     }
 
+    /**
+     * Change the current group of an user
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param exp
+     *            The user which group should be changed
+     * @param groupID
+     *            The new group of the user
+     * @throws DSOutOfServiceException
+     */
     private void changeCurrentGroup(SecurityContext ctx, ExperimenterData exp,
             long groupID) throws DSOutOfServiceException {
         List<GroupData> groups = exp.getGroups();
@@ -883,6 +1026,16 @@ public class Gateway {
         }
     }
 
+    /**
+     * Get the user details of a certain user
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param name
+     *            The name of the user
+     * @return See above
+     * @throws DSOutOfServiceException
+     */
     public ExperimenterData getUserDetails(SecurityContext ctx, String name)
             throws DSOutOfServiceException {
         Connector c = getConnector(ctx, true, false);
@@ -915,6 +1068,11 @@ public class Gateway {
         }
     }
 
+    /**
+     * Get all connectors
+     * 
+     * @return See above
+     */
     private List<Connector> getAllConnectors() {
         synchronized (groupConnectorMap) {
             // This should be the only location which calls values().
@@ -922,11 +1080,25 @@ public class Gateway {
         }
     }
 
+    /**
+     * Get a conenctor for a certain {@link SecurityContext}
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above
+     * @throws DSOutOfServiceException
+     */
     public Connector getConnector(SecurityContext ctx)
             throws DSOutOfServiceException {
         return getConnector(ctx, false, false);
     }
 
+    /**
+     * Close a connector for a certain {@link SecurityContext}
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     */
     public void closeConnector(SecurityContext ctx) {
         List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
         if (clist == null || clist.isEmpty())
@@ -940,7 +1112,15 @@ public class Gateway {
             }
         }
     }
-    
+
+    /**
+     * Close a service
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param svc
+     *            The service to close
+     */
     public void closeService(SecurityContext ctx,
             StatefulServiceInterfacePrx svc) {
         try {
@@ -955,6 +1135,14 @@ public class Gateway {
         }
     }
 
+    /**
+     * Create a {@link RawPixelsStorePrx}
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above
+     * @throws DSOutOfServiceException
+     */
     public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
             throws DSOutOfServiceException {
         if (ctx == null)
@@ -963,6 +1151,14 @@ public class Gateway {
         return c.getPixelsStore();
     }
 
+    /**
+     * Create a {@link ThumbnailStorePrx}
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above
+     * @throws DSOutOfServiceException
+     */
     public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
             throws DSOutOfServiceException {
         if (ctx == null)
@@ -982,6 +1178,15 @@ public class Gateway {
         return c.getThumbnailService();
     }
 
+    /**
+     * Checks if there is a {@link Connector} for a particular
+     * {@link SecurityContext}
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return <code>true</code> if there is one, <code>false</code> otherwise
+     * @throws DSOutOfServiceException
+     */
     public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException {
         return null != getConnector(ctx, true, true);
     }
@@ -1063,7 +1268,7 @@ public class Gateway {
                 throw new DSOutOfServiceException("Not allowed to recreate");
             }
         }
-        
+
         ExperimenterData exp = ctx.getExperimenterData();
         if (exp != null && ctx.isSudo()) {
             try {
@@ -1110,6 +1315,13 @@ public class Gateway {
         return l;
     }
 
+    /**
+     * Shuts down the rendering engine
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param pixelsID
+     */
     public void shutdownRenderingEngine(SecurityContext ctx, long pixelsID) {
         List<Connector> clist = groupConnectorMap.get(ctx.getGroupID());
         for (Connector c : clist) {
@@ -1117,6 +1329,17 @@ public class Gateway {
         }
     }
 
+    /**
+     * Create a {@link Connector} for a particular {@link SecurityContext}
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param permitNull
+     *            If not set throws an {@link DSOutOfServiceException} if the
+     *            creation failed
+     * @return
+     * @throws DSOutOfServiceException
+     */
     private Connector createConnector(SecurityContext ctx, boolean permitNull)
             throws DSOutOfServiceException {
         Connector c = null;

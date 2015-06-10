@@ -23,50 +23,82 @@ package omero.gateway;
 //Java imports
 
 /**
- *
- * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * Holds username and password of a user
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
  */
 
 public class UserCredentials {
 
-    private String  username;
-    
-    private String  password;
+    /** The username */
+    private String username;
 
+    /** The password */
+    private String password;
+
+    /**
+     * Creates an empty instance
+     */
     public UserCredentials() {
-        
+
     }
-    
+
+    /**
+     * Creates a new instance
+     * 
+     * @param username
+     *            The username
+     * @param password
+     *            The password
+     */
     public UserCredentials(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
+    /**
+     * @return The username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Sets the username
+     * 
+     * @param username
+     *            See above
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * @return The password
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Set the password
+     * 
+     * @param password
+     *            See above
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
     /**
-     * Formats user name and password.
-     * Each character of the password is replaced by a star.
+     * Formats user name and password. Each character of the password is
+     * replaced by a star.
+     * 
      * @see Object#toString()
      */
-    public String toString()
-    {
+    public String toString() {
         StringBuffer buf = new StringBuffer("User Name: ");
         buf.append(username);
         buf.append(" -- Password: ");

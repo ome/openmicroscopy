@@ -86,6 +86,7 @@ import pojos.TagAnnotationData;
 import pojos.util.PojoMapper;
 
 /**
+ * Encapsulates some functionality needed by the {@link TransferFacility}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>

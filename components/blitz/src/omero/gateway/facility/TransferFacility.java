@@ -44,21 +44,50 @@ import pojos.ExperimenterData;
  */
 public class TransferFacility extends Facility {
 
+    /** Reference to the helper class */
     private TransferFacilityHelper helper;
+    
+    /** Reference to the {@link DataManagerFacility} */
     private DataManagerFacility datamanager;
     
+    /**
+     * Creates a new instance
+     * @param gateway Reference to the {@link Gateway}
+     */
     TransferFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.datamanager = gateway.getFacility(DataManagerFacility.class);
         this.helper = new TransferFacilityHelper(gateway, datamanager, this);
     }
 
+    /**
+     * Uploads an image to the server
+     * @param context
+     * @param image
+     * @param observer
+     * @throws DSAccessException
+     * @throws DSOutOfServiceException
+     * @throws ImportException
+     */
     public void uploadImage(SecurityContext context, File image, 
             ImportCallback observer) throws DSAccessException,
             DSOutOfServiceException, ImportException {
         uploadImage(context, image, true, false, gateway.getLoggedInUser(),
             observer);
     }
+    
+    /**
+     * Uploads an image to the server
+     * @param context
+     * @param image
+     * @param folderAsContainer
+     * @param overrideName
+     * @param user
+     * @param observer
+     * @throws DSAccessException
+     * @throws DSOutOfServiceException
+     * @throws ImportException
+     */
     public void uploadImage(SecurityContext context, File image, boolean folderAsContainer, boolean overrideName, ExperimenterData user,
             ImportCallback observer) throws DSAccessException,
             DSOutOfServiceException, ImportException {
@@ -73,11 +102,30 @@ public class TransferFacility extends Facility {
         helper.importFile(imo, imf, user, true);
     }
 
+    /**
+     * Uploads an image to the server
+     * @param context
+     * @param image
+     * @param observer
+     * @param username
+     * @param groupname
+     * @throws DSAccessException
+     * @throws DSOutOfServiceException
+     */
     public void uploadImage(SecurityContext context, File image,
             IObserver observer, String username, String groupname)
             throws DSAccessException, DSOutOfServiceException {
     }
 
+    /**
+     * Downloads the original file of an image from the server
+     * @param context
+     * @param targetPath
+     * @param imageId
+     * @return
+     * @throws DSAccessException
+     * @throws DSOutOfServiceException
+     */
     public List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {
         return helper.downloadImage(context, targetPath, imageId);
