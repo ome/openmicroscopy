@@ -261,7 +261,7 @@ $.fn.roi_display = function(options) {
         // load the ROIs from json call and display
         load_rois = function(display_rois, filter) {
             if (json_url == undefined) return;
-            
+
             $.getJSON(json_url+'?callback=?', function(data) {
                 roi_json = data;
 
@@ -491,7 +491,7 @@ $.fn.roi_display = function(options) {
             }
             var roi = build_roi_description(roi_id, [shape_config]);
             rois_collection.push(roi);
-        }
+        };
 
         this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois) {
             // If needed, load ROIs but don't show them, if refresh_rois is True, they will be
@@ -524,8 +524,38 @@ $.fn.roi_display = function(options) {
                 this.refresh_active_rois();
         };
 
-        this.remove_shape = function(roi_id, shape_id) {
+        this.remove_shape = function(roi_id, shape_id, refresh) {
+            if (! external_rois) {
+                console.warn("There are no external ROIs, nothing to do");
+                return;
+            }
 
+            for(var r=0; r<external_rois.length; r++) {
+                var roi = external_rois[r];
+                if (roi["id"] == resolve_id(roi_id)) {
+                    for(var s=0; s<roi["shapes"].length; s++) {
+                        var shape = roi["shapes"][s];
+                        if (shape["id"] == resolve_id(shape_id)) {
+                            roi["shapes"].splice(roi["shapes"].indexOf(shape), 1);
+
+                            // If it was the last shape for the current ROI, delete the ROI as well
+                            if(roi["shapes"].length == 0) {
+                                external_rois.splice(external_rois.indexOf(roi), 1);
+                            }
+
+                            // refresh ROIs, if needed
+                            var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : false;
+                            if (refresh)
+                                this.refresh_active_rois();
+
+                            return;
+                        }
+                    }
+                    console.warn("There is no Shape with ID " + shape_id + " for ROI " + roi_id);
+                    return;
+                }
+            }
+            console.warn("There is no ROI with ID " + roi_id);
         };
 
         /*

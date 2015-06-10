@@ -58,4 +58,3 @@ function get_ome_ellipse(center_x, center_y, radius_x, radius_y, transform,
 
     return ellipse_conf;
 }
-
