@@ -43,7 +43,7 @@ import omero.gateway.Gateway;
 //Application-internal dependencies
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
-import omero.gateway.facility.RenderingFacility;
+import omero.gateway.facility.RawDataFacility;
 import omero.gateway.rnd.DataSink;
 import omero.gateway.rnd.Plane2D;
 
@@ -277,9 +277,9 @@ class PointIterator
         if (w < 0 || w >= sizeC) 
             throw new NullPointerException("Channel not valid.");
         
-        RenderingFacility rf = null;
+        RawDataFacility rf = null;
         try {
-            rf = gw.getFacility(RenderingFacility.class);
+            rf = gw.getFacility(RawDataFacility.class);
         } catch (ExecutionException e) {
             throw new DataSourceException(e);
         }
