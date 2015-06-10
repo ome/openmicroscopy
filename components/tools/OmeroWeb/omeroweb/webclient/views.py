@@ -127,8 +127,11 @@ def login(request):
         connector = Connector(server_id, is_secure)
 
         # TODO: version check should be done on the low level, see #5983
+        compatible = True
+        if settings.CHECK_VERSION:
+            compatible = connector.check_version(useragent)
         if (server_id is not None and username is not None and
-                password is not None and connector.check_version(useragent)):
+                password is not None and compatible):
             conn = connector.create_connection(
                 useragent, username, password, userip=get_client_ip(request))
             if conn is not None:
