@@ -540,7 +540,8 @@ $.fn.roi_display = function(options) {
 
                             // If it was the last shape for the current ROI, delete the ROI as well
                             if(roi["shapes"].length == 0) {
-                                external_rois.splice(external_rois.indexOf(roi), 1);
+                                console.warn("No shape connected, removing ROI " + roi_id);
+                                this.remove_roi(roi_id, false);
                             }
 
                             // refresh ROIs, if needed
@@ -557,6 +558,29 @@ $.fn.roi_display = function(options) {
             }
             console.warn("There is no ROI with ID " + roi_id);
         };
+
+        this.remove_roi = function(roi_id, refresh) {
+            if (! external_rois) {
+                console.warn("There are no external ROIs, nothing to do");
+                return;
+            }
+
+            console.warn("Try to remove ROI " + roi_id);
+
+            for (var r=0; r<external_rois.length; r++) {
+                var roi = external_rois[r];
+                if (roi["id"] == resolve_id(roi_id)) {
+                    console.warn("Removing ROI with index " + external_rois.indexOf(roi));
+                    external_rois.splice(external_rois.indexOf(roi), 1);
+
+                    var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : false;
+                    if (refresh)
+                        this.refresh_active_rois();
+                    return;
+                }
+            }
+            console.warn("There is no ROI with ID " + roi_id);
+        }
 
         /*
         Clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based.
