@@ -40,8 +40,10 @@ import com.google.common.base.Objects;
  */
 public class SecurityContext {
 
+    public static final long UNDEFINED = -1;
+    
     /** The identifier of the group. */
-    private long groupID;
+    private long groupID = UNDEFINED;
 
     /** The experimenterID if required. */
     private ExperimenterData experimenter;
@@ -97,7 +99,7 @@ public class SecurityContext {
      */
     public long getExperimenter() {
         if (experimenter == null)
-            return -1;
+            return UNDEFINED;
         return experimenter.getId();
     }
 
