@@ -1442,6 +1442,33 @@ def argv(args=sys.argv):
 # Specific argument types
 
 
+class ExperimenterArg(object):
+
+    def __init__(self, arg):
+        self.orig = arg
+        self.usr = None
+        try:
+            self.usr = long(arg)
+        except ValueError:
+            if ":" in arg:
+                parts = arg.split(":", 1)
+                if parts[0] == "User" or "Experimenter":
+                    try:
+                        self.usr = long(parts[1])
+                    except ValueError:
+                        pass
+
+    def lookup(self, client):
+        if self.usr is None:
+            import omero
+            a = client.sf.getAdminService()
+            try:
+                self.usr = a.lookupExperimenter(self.orig).id.val
+            except omero.ApiUsageException:
+                pass
+        return self.usr
+
+
 class ExperimenterGroupArg(object):
 
     def __init__(self, arg):
