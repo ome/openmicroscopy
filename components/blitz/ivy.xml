@@ -17,12 +17,16 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
+    <!-- Bio-Formats -->
+    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
     <!-- Public -->
     <dependency org="zeroc" name="ice" rev="${versions.ice}" conf="build,client,server->default"/>
     <dependency org="zeroc" name="ice-glacier2" rev="${versions.ice}" conf="build,client,server->default"/>
     <dependency org="zeroc" name="ice-grid" rev="${versions.ice}" conf="build,client,server->default"/>
     <dependency org="zeroc" name="ice-storm" rev="${versions.ice}" conf="build,client,server->default"/>
     <dependency org="javax.jts" name="jts" rev="${versions.jts}" conf="build,server->default"/>
+    <dependency org="com.esotericsoftware.kryo" name="kryo" rev="${versions.kryo}"/>
+    <dependency org="joda-time" name="joda-time" rev="${versions.joda-time}"/>
     <!-- Export -->
     <dependency org="org.ini4j" name="ini4j" rev="0.3.2"/>
     <dependency org="gnu.getopt" name="java-getopt" rev="1.0.13"/>
