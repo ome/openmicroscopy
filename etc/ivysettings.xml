@@ -53,10 +53,6 @@
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
-      <filesystem name="bio-formats" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
-        <artifact pattern="${ivy.settings.dir}/../components/bioformats/jar/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../components/bioformats/jar/[module]-[revision].ivy"/>
-      </filesystem>
 
       <!-- Lookup via maven cache -->
       <filesystem name="user-maven" m2compatible="true" force="false" cache="local">
