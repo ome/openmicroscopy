@@ -318,7 +318,7 @@ $.fn.roi_display = function(options) {
                     }
                     var shapes = global_rois[r]['shapes'];
                     for (s=0; s<shapes.length; s++) {
-                        if (active_rois[global_rois[r].id].indexOf(shapes[s].id) == -1);
+                        if (active_rois[global_rois[r].id].indexOf(shapes[s].id) == -1)
                             active_rois[global_rois[r].id].push(shapes[s].id);
                     }
                 }
