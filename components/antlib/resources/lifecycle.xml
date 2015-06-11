@@ -65,6 +65,12 @@
             log="quiet" sync="false" symlink="true" haltonfailure="${package-extra}"/>
     </target>
 
+    <target name="dependencytree" description="Generate a tree of dependencies">
+        <installIvy/>
+        <ivy:dependencytree settingsRef="ivy.${ant.project.name}"
+            haltonfailure="${package-extra}"/>
+    </target>
+
     <target name="prepare" depends="retrieve">
         <mkdir dir="${deps.lib.dir}"/>
         <defineClasspath/>
