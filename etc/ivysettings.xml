@@ -64,7 +64,7 @@
       <ibiblio name="maven2" m2compatible="true" cache="maven"
           usepoms="false" useMavenMetadata="false"/>
       <ibiblio name="artifactory" cache="maven"
-          usepoms="false" useMavenMetadata="false"
+          usepoms="true" useMavenMetadata="true"
           m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
 
       <url name="com.springsource.repository.bundles.release" cache="maven">
