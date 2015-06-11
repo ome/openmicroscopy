@@ -2302,7 +2302,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
                     query=query)
 
     if not obj:
-        return dict(error='%s with id %s not found' % (objtype, objid), query=query)
+        return dict(error='%s with id %s not found' % (objtype, objid),
+                    query=query)
 
     return dict(data=[
         dict(id=annotation.id.val,
