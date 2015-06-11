@@ -57,6 +57,11 @@ context = java.util.HashMap;
 try
     group = fileAnnotation.getDetails().getGroup().getId().getValue();
     context.put('omero.group', num2str(group));
+    if isempty(ip.Results.group)
+         index = length(varargin);
+         varargin{index + 1} = 'group';
+         varargin{index + 2} = group;
+    end
 catch
 end
 % In case the FileAnnotation does not yet exist on the server:
@@ -82,4 +87,5 @@ if ~isempty(ip.Results.description) || ~isempty(ip.Results.namespace),
 end
 
 % Update the original file with the new content
-updateOriginalFile(session, fileAnnotation.getFile(), filePath, varargin);
+updateOriginalFile(...
+    session, fileAnnotation.getFile(), filePath, varargin{:});
