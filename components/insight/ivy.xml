@@ -67,21 +67,10 @@
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
 
     <!-- Bioformats -->
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
-        <artifact name="formats-api"/>
-        <artifact name="formats-bsd"/>
-        <artifact name="formats-common"/>
-        <artifact name="formats-gpl"/>
-        <artifact name="ome-xml"/>
-        <artifact name="specification"/>
-        <!-- forks & stubs -->
-        <artifact name="jai_imageio"/>
-        <artifact name="lwf-stubs"/>
-        <artifact name="mdbtools-java"/>
-        <artifact name="metakit"/>
-        <artifact name="ome-poi"/>
-        <artifact name="turbojpeg"/>
-    </dependency>
+    <dependency org="ome" name="formats-api" rev="${versions.bioformats}"/>
+    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}"/>
+    <dependency org="ome" name="ome-xml" rev="${versions.bioformats}"/>
+     <dependency org="ome" name="formats-common" rev="${versions.bioformats}"/>
 
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
