@@ -650,6 +650,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     </fileset>
                 </classpath>
 
+                <fileset dir="components/model/" defaultexcludes="yes">
+                    <patternset refid="all.java.files"/>
+                </fileset>
                 <fileset dir="components/common/" defaultexcludes="yes">
                     <patternset refid="all.java.files"/>
                 </fileset>
