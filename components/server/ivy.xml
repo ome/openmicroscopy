@@ -18,7 +18,6 @@
     <!-- Internal -->
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}" transitive="true" conf="build,client,server->runtime"/>
     <!-- Ice -->
     <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
     <dependency org="zeroc" name="ice" rev="${versions.ice}"/>
@@ -39,6 +38,7 @@
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
+    <dependency org="edu.ucar" name="netcdf" rev="${versions.netcdf}" transitive="false"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
     <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
