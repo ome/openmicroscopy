@@ -119,6 +119,11 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
     </target>
 
+    <target name="clean-ivy-cache" description="Cleans the Ivy cache" 
+        depends="check-ivy">
+        <ivy:cleancache/>
+    </target>
+
     <macrodef name="setup-py-install">
 
         <attribute name="tarball"/>
