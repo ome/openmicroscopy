@@ -31,9 +31,9 @@
   <dependencies>
     <!-- Internal -->
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
-        <artifact name="specification"/>
-    </dependency>
+    <!-- Bio-Formats -->
+    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true"/>
+    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}" transitive="true"/>
   </dependencies>
 </ivy-module>
 
