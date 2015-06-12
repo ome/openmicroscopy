@@ -68,6 +68,7 @@ class LoginForm(NonASCIIForm):
             raise forms.ValidationError("Guest account is not supported.")
         return self.cleaned_data['username']
 
+
 class ForgottonPasswordForm(NonASCIIForm):
 
     server = ServerModelChoiceField(Server, empty_label=None)
