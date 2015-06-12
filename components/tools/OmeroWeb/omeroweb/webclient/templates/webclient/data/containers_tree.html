@@ -26,7 +26,7 @@
 
 <ul>
     <li id="experimenter-0" rel="experimenter">
-        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ui.dropdown_menu.everyone }}{% endif %}</a>
+        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{% if share.shSize %}Public{% else %}{{ ui.dropdown_menu.everyone }}{% endif %}{% endif %}</a>
         <ul>
             {% for c in projects %}
             <li id='project-{{ c.id }}' rel="project" class="{{ c.permsCss }}">
@@ -120,7 +120,7 @@
             <li id='discussion-{{ s.id }}' rel="discussion" class="{% if s.canEdit %}canEdit{% endif %}"><a href="#">{{ s.id }}</a></li>
             {% else %}
                 {% if s.isOwned %}
-                <li id='share-{{ s.id }}' rel="share" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
+                <li id='share-{{ s.id }}' rel="share" class="{% if s.canEdit %}canEdit{% endif %} jstree-closed"><a href="#">{{ s.id }}</a></li>
                 {% else %}
                     {% if s.active %}
                     <li id='share-{{ s.id }}' rel="share" class="jstree-closed {% if s.canEdit %}canEdit{% endif %}"><a href="#">{{ s.id }}</a></li>
