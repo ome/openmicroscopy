@@ -4,8 +4,8 @@
 		<classes>
 		    <!-- Explicitly list all test classes to ensure they are run in the right sequence -->
 			<class name="integration.gateway.AdminFacilityTest" />
-			<!-- 
 			<class name="integration.gateway.DataManagerFacilityTest" />
+			<!-- 
 			<class name="integration.gateway.BrowseFacilityTest" />
 			 -->
 		</classes>

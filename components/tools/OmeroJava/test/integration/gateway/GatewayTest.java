@@ -49,8 +49,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ProjectData;
 import spec.AbstractTest;
 
 //Java imports
@@ -80,6 +82,7 @@ public class GatewayTest extends AbstractTest {
  
     ExperimenterData testUser = null;
     GroupData testGroup = null;
+    
     
     @Test
     public void testConnected() throws DSOutOfServiceException {
