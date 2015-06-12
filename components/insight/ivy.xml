@@ -64,17 +64,17 @@
     <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
     <!-- Required for annotations in Permissions.java -->
-    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
+    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
 
     <!-- Bioformats -->
     <dependency org="ome" name="formats-api" rev="${versions.bioformats}"/>
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}"/>
     <dependency org="ome" name="ome-xml" rev="${versions.bioformats}"/>
-     <dependency org="ome" name="formats-common" rev="${versions.bioformats}"/>
+    <dependency org="ome" name="formats-common" rev="${versions.bioformats}"/>
 
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
-    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}" conf="build,client->default"/>
-    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}" conf="build,client->default"/>
+    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
+    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}"/>
   </dependencies>
 </ivy-module>
