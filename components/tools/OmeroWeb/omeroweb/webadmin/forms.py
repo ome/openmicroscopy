@@ -63,6 +63,10 @@ class LoginForm(NonASCIIForm):
         ' it off does not affect the connection to the server which is always'
         ' secure." alt="SSL"/>' % settings.STATIC_URL)
 
+    def clean_username(self):
+        if (self.cleaned_data['username'] in ('guest')):
+            raise forms.ValidationError("Guest account is not supported.")
+        return self.cleaned_data['username']
 
 class ForgottonPasswordForm(NonASCIIForm):
 
