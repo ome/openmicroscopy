@@ -78,7 +78,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="nobf.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**/"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
