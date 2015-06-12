@@ -30,7 +30,6 @@
     <dependency org="org.apache.httpcomponents" name="httpcore" rev="${versions.httpcore}"/>
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
-    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="OME" name="ome-java" rev="${versions.ome-java}"/>
   </dependencies>
