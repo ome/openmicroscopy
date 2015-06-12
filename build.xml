@@ -451,8 +451,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-src-git" description="Package the git source tree (git)"
             depends="check-git" if="git.exists">
         <mkdir dir="${target.dir}"/>
-        <ant antfile="build.xml" dir="components/bioformats" target="store-version" inheritAll="false"/>
-        <property file="components/bioformats/artifacts/bioformats.properties"/>
         <exec executable="python" failonerror="true">
             <arg value="${omero.home}/components/antlib/scripts/source-archive.py"/>
             <arg value="openmicroscopy"/>
@@ -462,12 +460,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <arg value="${omero.vcs.revision}"/>
             <arg value="${omero.vcs.date}"/>
             <arg value="${omero.vcs.date_unix}"/>
-            <arg value="${release.shortversion}"/>
-            <arg value="${release.version}"/>
-            <arg value="${vcs.shortrevision}"/>
-            <arg value="${vcs.revision}"/>
-            <arg value="${vcs.date}"/>
-            <arg value="${vcs.date_unix}"/>
             <arg value="${target.dir}"/>
         </exec>
 
