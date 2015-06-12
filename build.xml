@@ -911,11 +911,6 @@ omero.version=${omero.version}
         <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
     </target>
 
-    <target name="hot-bio-formats" depends="init" description="Re-launch running server with new bio-formats">
-        <property name="targets" value="dist"/>
-        <hotdeploy component="${bioformats.comp}" targets="${targets}"/>
-    </target>
-
     <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
         <property name="targets" value="install"/>
         <hotdeploy component="${blitz.comp}" targets="${targets}"/>
