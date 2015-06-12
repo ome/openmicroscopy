@@ -117,15 +117,15 @@
         {% if share.shSize %}
             {% for s in share.shares %}
             {% if s.isEmpty %}
-            <li id='discussion-{{ s.id }}' rel="discussion" class="{% if s.canEdit %}canEdit{% endif %}"><a href="#">{{ s.id }} {{ s.uuid }}</a></li>
+            <li id='discussion-{{ s.id }}' rel="discussion" class="{% if s.canEdit %}canEdit{% endif %}"><a href="#">{{ s.id }}</a></li>
             {% else %}
                 {% if s.isOwned %}
-                <li id='share-{{ s.id }}' rel="share" class="jstree-closed"><a href="#">{{ s.id }} {{ s.uuid }}</a></li>
+                <li id='share-{{ s.id }}' rel="share" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
                 {% else %}
                     {% if s.active %}
-                    <li id='share-{{ s.id }}' rel="share" class="jstree-closed {% if s.canEdit %}canEdit{% endif %}"><a href="#">{{ s.id }} {{ s.uuid }}</a></li>
+                    <li id='share-{{ s.id }}' rel="share" class="jstree-closed {% if s.canEdit %}canEdit{% endif %}"><a href="#">{{ s.id }}</a></li>
                     {% else %}
-                    <li id='share-{{ s.id }}' rel="share" class="disabled"><a href="#">{{ s.id }} {{ s.uuid }} DISABLED</a></li>
+                    <li id='share-{{ s.id }}' rel="share" class="disabled"><a href="#">{{ s.id }} DISABLED</a></li>
                     {% endif %}
                 {% endif %}
             {% endif %}
