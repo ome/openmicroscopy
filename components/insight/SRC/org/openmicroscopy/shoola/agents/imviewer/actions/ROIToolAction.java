@@ -38,8 +38,10 @@ import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -80,7 +82,11 @@ public class ROIToolAction
      */
     protected void onTabSelection()
     {
-    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+        if (ImViewerAgent.isRunAsPlugin()) {
+            setEnabled(false);
+        } else {
+            setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+        }
     }
     
     /**
@@ -103,11 +109,14 @@ public class ROIToolAction
     public ROIToolAction(ImViewer model)
     {
         super(model, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
+        putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, 
         		icons.getIcon(IconManager.MEASUREMENT_TOOL));
+        if (ImViewerAgent.isRunAsPlugin()) {
+            setEnabled(false);
+        }
     }
    
     /** 

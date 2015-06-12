@@ -138,6 +138,19 @@ public class ImViewerAgent
         return value == ImViewer.UNCOMPRESSED;
     }
 
+    /** 
+     * Returns <code>true</code> if the application is used as a plugin,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isRunAsPlugin()
+    {
+        Environment env = (Environment) registry.lookup(LookupNames.ENV);
+        if (env == null) return false;
+        return env.runAsPlugin() > 0;
+    }
+
     /**
      * Handles the {@link ViewImage} event.
      *
