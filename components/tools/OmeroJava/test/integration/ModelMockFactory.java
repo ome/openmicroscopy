@@ -115,7 +115,7 @@ public class ModelMockFactory {
      *
      * @param pixelsService
      */
-    ModelMockFactory(IPixelsPrx pixelsService) {
+    public ModelMockFactory(IPixelsPrx pixelsService) {
         this.pixelsService = pixelsService;
     }
 
