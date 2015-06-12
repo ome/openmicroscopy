@@ -61,7 +61,7 @@
       </filesystem>
 
       <!-- Remote downloads; cached to '~/.m2/repository' -->
-      <ibiblio name="public" m2compatible="true" cache="maven"
+      <ibiblio name="maven" m2compatible="true" cache="maven"
           usepoms="true" useMavenMetadata="false"/>
       <ibiblio name="artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
@@ -76,13 +76,6 @@
         <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
       </url>
    </chain>
-
-   <!-- Optional resolver which can be modified for using non-SCM jars -->
-   <chain name="loci-resolver">
-      <filesystem name="private">
-        <artifact pattern="${user.home}/target/libs/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
-      </filesystem>
-    </chain>
 
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
@@ -103,11 +96,8 @@
         <artifact pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
         <ivy pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/ivy-[revision](-[classifier]).xml" />
     </url>
-
   </resolvers>
 
-  <!-- The loci modules can be fetched from another path by changing the "loci.resolver"
-  configuration in local.properties to point to "loci-resolver" as configured above. -->
 
   <modules>
     <module organisation="omero" name="omejava" resolver="${loci.resolver}" />
