@@ -479,7 +479,7 @@
                                 "create_node" : false
                             },
                             "orphaned" : {
-                                "valid_children" : [ "image", "image_locked" ],
+                                "valid_children" : [ "image" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_yellow16.png" %}'
                                 },
@@ -642,14 +642,16 @@
                             }
                             // if experimenter or orphaned is selected, use 'locked' flag to decide permissions
                             if(obj.attr("id").indexOf("experimenter")>=0 || obj.attr("rel") == 'orphaned') {
-                                var canCreate = $("#experimenter-0").attr("rel").indexOf("locked")>=0;
+                                var userId = {{ ome.user_id }},
+                                canCreate = (userId === {{ ome.user.id }} || userId === -1);
                                 // see #8879 config["ccp"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
-                                if(canCreate) {
+                                if(!canCreate) {
                                     // see #8879 config["create"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
@@ -669,6 +671,8 @@
                                 // see #8879 otherwise the options depend on type of node...
                                 var to_paste = this.data.crrm.cp_nodes || this.data.crrm.ct_nodes || false;
                                 if(obj.attr("id").indexOf("project")>=0) {
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
@@ -679,6 +683,10 @@
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
                                         config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     }
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
