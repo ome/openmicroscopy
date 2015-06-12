@@ -38,7 +38,6 @@
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
-    <dependency org="edu.ucar" name="netcdf" rev="${versions.netcdf}" transitive="false"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
     <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>

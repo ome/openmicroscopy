@@ -17,7 +17,6 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}" transitive="false"/>
     <!-- Public -->
     <dependency org="zeroc" name="ice" rev="${versions.ice}" conf="build,client,server->default"/>
     <dependency org="zeroc" name="ice-glacier2" rev="${versions.ice}" conf="build,client,server->default"/>
