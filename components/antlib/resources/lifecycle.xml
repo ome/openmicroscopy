@@ -61,7 +61,7 @@
         <property name="retrieve.done" value="true"/>
         <installIvy/>
         <ivy:retrieve settingsRef="ivy.${ant.project.name}"
-            type="jar"
+            type="jar,bundle"
             pattern="${deps.lib.dir}/[artifact](-[classifier]).[ext]"
             log="quiet" sync="false" symlink="true"
             haltonfailure="${package-extra}"/>
