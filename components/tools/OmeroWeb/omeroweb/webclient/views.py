@@ -181,11 +181,11 @@ def login(request):
                      " credentials and version compatibility.")
         else:
             if not compatible:
-                error = ("Client version does not match server, please contact"
-                     " administrator.")
+                error = ("Client version does not match server,"
+                         " please contact administrator.")
             else:
-                error = ("Connection not available, please check your user name"
-                     " and password.")
+                error = ("Connection not available, please check your"
+                         " user name and password.")
 
     url = request.REQUEST.get("url")
 
