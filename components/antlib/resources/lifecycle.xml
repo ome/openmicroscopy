@@ -454,7 +454,9 @@ omero.version=${omero.version}
 
     <target name="install" depends="package" description="Publish artifacts">
         <property name="ivy.pom.version" value="${omero.version}"/>
-        <ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${target.dir}/${ivy.module}.pom">
+        <ivy:makepom ivyfile="${basedir}/ivy.xml"
+            settingsRef="ivy.${ant.project.name}"
+            pomfile="${target.dir}/${ivy.module}.pom">
             <mapping conf="build" scope="compile"/>
             <mapping conf="runtime" scope="compile"/>
             <mapping conf="client" scope="compile"/>

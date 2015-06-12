@@ -121,7 +121,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <target name="clean-ivy-cache" description="Cleans the Ivy cache" 
         depends="check-ivy">
-        <ivy:cleancache/>
+        <ivy:cleancache settingsRef="ivy.${ant.project.name}"/>
     </target>
 
     <macrodef name="setup-py-install">
