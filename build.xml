@@ -110,7 +110,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <delete includeemptydirs="true" quiet="true">
             <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
         </delete>
-        <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
         <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
     </target>
 
@@ -533,19 +532,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-docs" depends="release-javadoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
-        </zip>
-
-        <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
-        <ant antfile="build.xml" dir="docs/sphinx" target="html" inheritAll="false">
-            <property name="omero.shortversion" value="${omero.shortversion}"/>
-        </ant>
-        <ant antfile="build.xml" dir="docs/sphinx" target="latexpdf" inheritAll="false">
-            <property name="omero.shortversion" value="${omero.shortversion}"/>
-        </ant>
-
-        <copy file="${sphinx.dir}/_build/latex/OMERO-${omero.shortversion}.pdf" tofile="${omero.home}/target/OMERO-${omero.shortversion}.pdf" overwrite="true"/>
-        <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
-            <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
         </zip>
     </target>
 
