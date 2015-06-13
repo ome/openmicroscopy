@@ -56,10 +56,10 @@
     <dependency org="org.jfree" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
     <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
-    <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}"/>
+    <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}" transitive="false"/>
     <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
-    <dependency org="axis" name="axis-wsdl4j" rev="${versions.wsdl4j}"/>
+    <dependency org="axis" name="axis-wsdl4j" rev="${versions.wsdl4j}"  transitive="false"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
@@ -67,10 +67,8 @@
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
 
     <!-- Bioformats -->
-    <dependency org="ome" name="formats-api" rev="${versions.bioformats}"/>
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}"/>
-    <dependency org="ome" name="ome-xml" rev="${versions.bioformats}"/>
-    <dependency org="ome" name="formats-common" rev="${versions.bioformats}"/>
+    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
 
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
