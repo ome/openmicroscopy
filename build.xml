@@ -786,6 +786,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:report conf="client" todir="${target.dir}" settingsRef="ivy.toplevel"/>
     </target>
 
     <target name="copy-server" depends="init">
@@ -793,6 +794,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:report conf="server" todir="${target.dir}" settingsRef="ivy.toplevel"/>
     </target>
 
     <target name="create-workdirs" depends="init">
