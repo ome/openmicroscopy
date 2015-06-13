@@ -769,14 +769,14 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="copy-client" depends="init">
             <mkdir dir="${dist.dir}/lib/client"/>
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
-            <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
     <target name="copy-server" depends="init">
             <mkdir dir="${dist.dir}/lib/server"/>
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
-            <ivy:resolve file="ivy.xml" type="jar,egg" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
