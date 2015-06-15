@@ -13,5 +13,6 @@
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true"/>
     <dependency org="omero" name="blitz-test" rev="${omero.version}" changing="true"/>
     <dependency org="ome" name="specification" rev="${versions.bioformats}"/>
+    <dependency org="velocity" name="velocity-dep" rev="${versions.velocity}"/>
   </dependencies>
 </ivy-module>
