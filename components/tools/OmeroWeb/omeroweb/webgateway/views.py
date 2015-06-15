@@ -2305,12 +2305,19 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
         return dict(error='%s with id %s not found' % (objtype, objid),
                     query=query)
 
-    return dict(data=[
-        dict(id=annotation.id.val,
-             file=annotation.file.id.val)
-        for annotation in obj.linkedAnnotationList()
-        if unwrap(annotation.getNs()) == NSBULKANNOTATIONS
-        ])
+    data = []
+    for link in obj.copyAnnotationLinks():
+        annotation = link.child
+        if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
+            continue
+        owner = annotation.details.owner
+        addedBy = link.details.owner
+        data.append(dict(id=annotation.id.val,
+                         file=annotation.file.id.val,
+                         owner="%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName)),
+                         addedBy="%s %s" % (unwrap(addedBy.firstName), unwrap(addedBy.lastName))))
+    return dict(data=data)
+
 
 annotations = login_required()(jsonp(_annotations))
 
@@ -2412,5 +2419,15 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
 
     # multiple bulk annotations files could be attached, use the most recent
     # one (= the one with the highest identifier)
-    fileId = max(annotation['file'] for annotation in a['data'])
-    return _table_query(request, fileId, conn, **kwargs)
+    fileId = 0
+    ann = None
+    for annotation in a['data']:
+        if annotation['file'] > fileId:
+            fileId = annotation['file']
+            ann = annotation
+    tableData = _table_query(request, fileId, conn, **kwargs)
+    tableData['id'] = fileId
+    tableData['annId'] = ann['id']
+    tableData['owner'] = ann['owner']
+    tableData['addedBy'] = ann['addedBy']
+    return tableData
