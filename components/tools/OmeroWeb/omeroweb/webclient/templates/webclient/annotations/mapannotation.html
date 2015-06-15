@@ -25,9 +25,16 @@
             data-added-by="{% if ma %}{{ ma.getOwner.id }}{% else %}{{ ome.user.id }}{% endif %}"
             class="keyValueTable{% if canEdit %} editableKeyValueTable{% endif %}">
         <thead>
-          <tr>
+          <tr class="tooltip">
               <th colspan="2">
                 {% if ma %} Added by: {{ ma.getOwner.getFullName }} {% endif %}
+
+                <span class="tooltip_html" style='display:none'>
+                    <b>ID:</b> {{ ma.id }}<br />
+                    <b>Owner:</b> {{ ma.getOwner.getFullName }}<br />
+                    <b>Linked by:</b> {{ ma.link.getDetails.getOwner.getFullName }}<br />
+                    <b>On:</b> {{ ma.link.creationEventDate|date:"Y-m-d H:i:s" }}
+                </span>
               </th>
             </tr>
           {% if showTableHead %}

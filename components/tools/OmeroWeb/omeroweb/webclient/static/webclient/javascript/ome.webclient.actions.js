@@ -572,7 +572,7 @@ jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         items: '.tooltip',
         content: function() {
-            return $(this).parent().children("span.tooltip_html").html();
+            return $(this).parent().find("span.tooltip_html").html();
         },
         track: true,
         show: false,
