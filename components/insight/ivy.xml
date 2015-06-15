@@ -63,13 +63,14 @@
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
+    <dependency org="edu.ucar" name="grib" rev="{versions.grib}" transitive="false"/>
+    <dependency org="edu.ucar" name="bufr" rev="{versions.bufr}" transitive="false"/>
     <!-- Required for annotations in Permissions.java -->
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
-
     <!-- Bioformats -->
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}"/>
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
-
+    <dependency org="ome" name="lwf-stubs" rev="{versions.bioformats}" transitive="false"/>
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
