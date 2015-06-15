@@ -239,7 +239,7 @@ public class SaveResultsDialog
                 activeWindow = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
-        b = new JRadioButton("Image from all image windows");
+        b = new JRadioButton("Images from all image windows");
         b.setSelected(activeWindow);
         buttons.add(b);
         group.add(b);
