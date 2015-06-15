@@ -268,7 +268,7 @@
 
 
     // Used in the Image viewer and in metadata general panel
-    window.loadBulkAnnotations = function(url, wellId) {
+    window.loadBulkAnnotations = function(url, wellId, callback) {
         // Load bulk annotations for screen or plate
         $.getJSON(url + '?query=Well-' + wellId + '&callback=?',
             function(result) {
@@ -285,6 +285,9 @@
                         $('td:first-child', row).html(label + ":&nbsp;");
                         $('td:last-child', row).html(value);
                         table.append(row);
+                    }
+                    if (callback) {
+                        callback(result);
                     }
                 }
         });
