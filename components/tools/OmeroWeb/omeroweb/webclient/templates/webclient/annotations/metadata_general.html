@@ -545,9 +545,11 @@
                     var showBulkAnnTooltip = function(data) {
                         var bulkAnnTooltip = "<span class='tooltip_html' style='display:none'>" +
                             "<b>File ID:</b> " + data.id + "<br />" +
-                            "<b>Annotation ID:</b> " + data.annId + "<br />" +
                             "<b>Owner:</b> " + data.owner + " <br />" +
-                            "<b>Linked by:</b> " + data.addedBy + " <br /></span>";
+                            "<b>Annotation ID:</b> " + data.annId + "<br />" +
+                            "<b>Linked to:</b> " + data.parentType + " " + data.parentId + "<br />" +
+                            "<b>Linked by:</b> " + data.addedBy + " <br />" +
+                            "<b>On:</b> " + OME.formatDate(data.addedOn) + "</span>";
                         $("#bulk-annotations").append(bulkAnnTooltip);
                         $("#bulk-annotations").parent().tooltip({
                                 items: '.bulk_annotation',
