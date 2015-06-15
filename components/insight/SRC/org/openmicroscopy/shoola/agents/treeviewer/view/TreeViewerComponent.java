@@ -2206,7 +2206,7 @@ class TreeViewerComponent
 				break;
 			case AVAILABLE_SCRIPTS_MENU:
 				if (model.getAvailableScripts() == null) {
-					model.loadScripts(p);
+					model.loadScripts(p, c);
 					firePropertyChange(SCRIPTS_LOADING_PROPERTY,
 							Boolean.valueOf(false), Boolean.valueOf(true));
 					return;

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.activation.FileDataSource;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -89,6 +91,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -1280,11 +1283,12 @@ class TreeViewerModel
 	 * Loads the scripts.
 	 * 
 	 * @param location The location of the mouse.
+	 * @param invoker The invoker.
 	 */
-	void loadScripts(Point location)
+	void loadScripts(Point location, Component invoker)
 	{
 		ScriptsLoader loader = new ScriptsLoader(component,
-				getSecurityContext(null), false, location);
+				getSecurityContext(null), false, location, invoker);
 		loader.load();
 	}
 	

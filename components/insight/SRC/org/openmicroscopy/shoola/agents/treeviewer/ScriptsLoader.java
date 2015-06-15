@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.ScriptsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -24,14 +24,12 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-//Java imports
+import java.awt.Component;
 import java.awt.Point;
 import java.util.List;
+import javax.swing.JButton;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -64,7 +62,10 @@ public class ScriptsLoader
     
     /** Flag indicating to load the scripts with a given UI.*/
     private boolean ui;
-    
+
+    /** The invoker.*/
+    private Component source;
+
     /**
      * Creates a new instance.
      * 
@@ -73,13 +74,15 @@ public class ScriptsLoader
      * @param all  	 Pass <code>true</code> to retrieve all the scripts uploaded
 	 * 				 ones and the default ones, <code>false</code>.
 	 * @param location The location of the mouse click.
+	 * @param source The invoker
      */
     public ScriptsLoader(TreeViewer viewer, SecurityContext ctx, boolean all,
-    		Point location)
+    		Point location, Component source)
     {
     	super(viewer, ctx);
     	this.all = all;
     	this.location = location;
+    	this.source = source;
     }
     
     /**
@@ -113,6 +116,10 @@ public class ScriptsLoader
     {
     	if (viewer.getState() == Browser.DISCARDED) return;
     	viewer.setAvailableScripts((List) result, location);
+    	if (location == null && source instanceof JButton) {
+    	    ScriptDisplay evt = new ScriptDisplay(source, new Point(0, 0));
+    	    TreeViewerAgent.getRegistry().getEventBus().post(evt);
+    	}
     }
 
     /**
