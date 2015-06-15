@@ -541,8 +541,26 @@
                     var wellsUrl = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' manager.well.id %}";
                         linksUrl = "{% url 'webgateway_object_table_query' 'Plate.wells' manager.well.id %}",
                         wellId = {{ manager.well.id }};
-                    loadBulkAnnotations(wellsUrl, wellId);
-                    loadBulkAnnotations(linksUrl, wellId);
+
+                    var showBulkAnnTooltip = function(data) {
+                        var bulkAnnTooltip = "<span class='tooltip_html' style='display:none'>" +
+                            "<b>File ID:</b> " + data.id + "<br />" +
+                            "<b>Annotation ID:</b> " + data.annId + "<br />" +
+                            "<b>Owner:</b> " + data.owner + " <br />" +
+                            "<b>Linked by:</b> " + data.addedBy + " <br /></span>";
+                        $("#bulk-annotations").append(bulkAnnTooltip);
+                        $("#bulk-annotations").parent().tooltip({
+                                items: '.bulk_annotation',
+                                content: function() {
+                                    return $("span.tooltip_html", this).html();
+                                },
+                                track: true,
+                                show: false,
+                                hide: false
+                            });
+                    }
+                    loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
+                    loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
                 {% endif %}
             });
             
@@ -835,7 +853,7 @@
 
             <div class="annotations_section">
 
-                <h2 id="bulk-annotations" style="display: none;">Bulk Annotations</h2>
+                <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Bulk Annotations</h2>
                 <div style="display: none;">
                     <table id="bulk_annotations_table">
                     </table>
