@@ -29,7 +29,7 @@
       <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
       <cache name="maven" basedir="${user.home}/.m2/repository/"
         artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"
-        ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].ivy"
+        ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].xml"
         lockStrategy="artifact-lock"
         defaultTTL="0ms"/>
   </caches>
@@ -43,21 +43,21 @@
       <!-- Build-internal repositories -->
       <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
-        <ivy pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).ivy"/>
+        <ivy pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).xml"/>
       </filesystem>
       <filesystem name="repo" cache="local">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
+        <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].xml"/>
       </filesystem>
       <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
+        <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].xml"/>
       </filesystem>
 
       <!-- Lookup via maven cache -->
-      <filesystem name="user-maven" m2compatible="true" force="false" cache="local">
+      <filesystem name="user-maven" m2compatible="true" force="false" cache="local" descriptor="required">
         <artifact pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        <ivy pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].ivy"/>
+        <ivy pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
       </filesystem>
 
       <!-- Remote downloads; cached to '~/.m2/repository' -->
@@ -81,7 +81,7 @@
     <chain name="test-resolver" returnFirst="true">
       <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
+        <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].xml"/>
       </filesystem>
       <resolver ref="omero-resolver"/>
     </chain>
