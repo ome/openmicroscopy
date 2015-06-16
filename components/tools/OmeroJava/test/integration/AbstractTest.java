@@ -25,9 +25,8 @@ import org.testng.annotations.Test;
 /**
  * Base test for unit tests.
  *
- * @since Beta4.2
  */
-@Test(groups = { "all" })
+
 public class AbstractTest
 {
 
