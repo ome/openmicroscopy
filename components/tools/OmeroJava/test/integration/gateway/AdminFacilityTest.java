@@ -44,22 +44,25 @@ import pojos.GroupData;
 
 public class AdminFacilityTest extends GatewayTest {
 
+    GroupData group;
+    ExperimenterData exp;
+    
     @Test
     public void testCreateGroup() throws DSOutOfServiceException, DSAccessException {
-        GroupData group = new GroupData();
+        group = new GroupData();
         group.setName(UUID.randomUUID().toString());
-        super.testGroup = adminFacility.createGroup(ctx, group, null, GroupData.PERMISSIONS_GROUP_READ_WRITE);
-        Assert.assertTrue(super.testGroup.getId()>-1);
+        group = adminFacility.createGroup(rootCtx, group, null, GroupData.PERMISSIONS_GROUP_READ_WRITE);
+        Assert.assertTrue(group.getId()>-1);
     }
     
     @Test(dependsOnMethods = {"testCreateGroup"})
     public void testCreateExperimenter() throws DSOutOfServiceException, DSAccessException {
-        ExperimenterData exp = new ExperimenterData();
+        exp = new ExperimenterData();
         exp.setFirstName("Test");
         exp.setLastName("User");
         List<GroupData> groups = new ArrayList<GroupData>();
-        groups.add(super.testGroup);
-        super.testUser = adminFacility.createExperimenter(ctx, exp, UUID.randomUUID().toString(), "test", groups, false, true);
-        Assert.assertTrue(super.testUser.getId()>-1);
+        groups.add(group);
+        exp = adminFacility.createExperimenter(rootCtx, exp, UUID.randomUUID().toString(), "test", groups, false, true);
+        Assert.assertTrue(exp.getId()>-1);
     }
 }
