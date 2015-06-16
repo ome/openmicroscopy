@@ -90,22 +90,21 @@ public class DataManagerFacilityTest extends GatewayTest {
     }
     
     @Test(dependsOnMethods={"testSaveAndReturnObjectDataset"})
-    public void testAddImage() throws Exception {
-//        long imgId = createImage(ctx);
-//        List<Long> ids = new ArrayList<Long>(1);
-//        ids.add(imgId);
-//        ImageData img = browseFacility.getImages(ctx, ids).iterator().next();
-//        Assert.assertNotNull(img);
-//
-//        DatasetImageLink l = new DatasetImageLinkI();
-//        l.setParent(super.testDataset.asDataset());
-//        l.setChild(img.asImage());
-//        datamanagerFacility.saveAndReturnObject(ctx, l, null);
-//        
-//        ids.clear();
-//        ids.add(super.testDataset.getId());
-//        super.testDataset = browseFacility.getDatasets(ctx, ids).iterator().next();
-//        Assert.assertEquals(super.testDataset.getImages().size(), 1);
+    public void testAddImage() throws Exception {  
+        long imgId = createImage(ctx);
+       List<Long> ids = new ArrayList<Long>(1);
+        ids.add(imgId);
+        ImageData img = browseFacility.getImages(ctx, ids).iterator().next();
+        Assert.assertNotNull(img);
+
+        List<ImageData> l = new ArrayList<ImageData>(1);
+        l.add(img);
+        datamanagerFacility.addImagesToDataset(ctx, l, ds);
+        
+        ids.clear();
+        ids.add(ds.getId());
+        ds = browseFacility.getDatasets(ctx, ids).iterator().next();
+        Assert.assertEquals(ds.getImages().size(), 1);
     }
     
     private long createImage(SecurityContext ctx) throws Exception {
