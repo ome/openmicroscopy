@@ -42,10 +42,14 @@ import omero.gateway.util.Requests;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
+import omero.model.PlateAcquisition;
 import omero.sys.Parameters;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
+import pojos.PlateData;
+import pojos.ScreenData;
 import pojos.util.PojoMapper;
 
 //Java imports
@@ -333,6 +337,14 @@ public class DataManagerFacility extends Facility {
             l.setParent(ds.asDataset());
             l.setChild(img.asImage());
             links.add(l);
+        }
+        updateObjects(ctx, links, null);
+    }
+    
+    public void addImagesToPlate(SecurityContext ctx, Collection<PlateAcquisitionData> images, PlateData plate) throws DSOutOfServiceException, DSAccessException {
+        List<IObject> links = new ArrayList<IObject>();
+        for(PlateAcquisitionData img : images) {
+            // TODO: ???
         }
         updateObjects(ctx, links, null);
     }
