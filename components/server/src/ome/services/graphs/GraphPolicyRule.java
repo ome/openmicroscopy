@@ -488,9 +488,15 @@ public class GraphPolicyRule {
         } else if (classNameGroup.charAt(0) == '!') {
             requiredClass = null;
             prohibitedClass = graphPathBean.getClassForSimpleName(classNameGroup.substring(1));
+            if (prohibitedClass == null) {
+                throw new GraphException("unknown class named in " + term);
+            }
         } else {
             requiredClass = graphPathBean.getClassForSimpleName(classNameGroup);
             prohibitedClass = null;
+            if (requiredClass == null) {
+                throw new GraphException("unknown class named in " + term);
+            }
         }
 
         /* parse actions, if any */
