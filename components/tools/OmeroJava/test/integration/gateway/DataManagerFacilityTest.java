@@ -20,8 +20,6 @@
  */
 package integration.gateway;
 
-import integration.ModelMockFactory;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,13 +31,10 @@ import omero.api.IPixelsPrx;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.PixelsType;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import pojos.DatasetData;
@@ -50,63 +45,58 @@ import pojos.ProjectData;
 
 /**
  *
- * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
  */
 
 public class DataManagerFacilityTest extends GatewayTest {
 
-    /** Helper class creating mock object. */
-    protected ModelMockFactory mmFactory; 
-    
     ProjectData proj;
     DatasetData ds;
-    
-    @Override
-    @BeforeClass(alwaysRun = true)
-    protected void setUp() throws Exception {
-        super.setUp();
-        mmFactory = new ModelMockFactory(gw.getPixelsService(ctx));
-    }
 
     @Test
-    public void testSaveAndReturnObjectProject() throws DSOutOfServiceException, DSAccessException {
+    public void testSaveAndReturnObjectProject()
+            throws DSOutOfServiceException, DSAccessException {
         ProjectData proj = new ProjectData();
         proj.setName(UUID.randomUUID().toString());
-        this.proj = (ProjectData) datamanagerFacility.saveAndReturnObject(ctx, proj);
-        Assert.assertTrue(this.proj.getId()>-1);
+        this.proj = (ProjectData) datamanagerFacility.saveAndReturnObject(
+                rootCtx, proj);
+        Assert.assertTrue(this.proj.getId() > -1);
     }
-    
-    @Test(dependsOnMethods={"testSaveAndReturnObjectProject"})
-    public void testSaveAndReturnObjectDataset() throws DSOutOfServiceException, DSAccessException {
+
+    @Test(dependsOnMethods = { "testSaveAndReturnObjectProject" })
+    public void testSaveAndReturnObjectDataset()
+            throws DSOutOfServiceException, DSAccessException {
         DatasetData ds = new DatasetData();
         ds.setName(UUID.randomUUID().toString());
         Set<ProjectData> projs = new HashSet<ProjectData>(1);
         projs.add(this.proj);
         ds.setProjects(projs);
-        this.ds = (DatasetData) datamanagerFacility.saveAndReturnObject(ctx, ds);
-        Assert.assertTrue(this.ds.getId()>-1);
+        this.ds = (DatasetData) datamanagerFacility.saveAndReturnObject(
+                rootCtx, ds);
+        Assert.assertTrue(this.ds.getId() > -1);
     }
-    
-    @Test(dependsOnMethods={"testSaveAndReturnObjectDataset"})
-    public void testAddImage() throws Exception {  
-        long imgId = createImage(ctx);
-       List<Long> ids = new ArrayList<Long>(1);
+
+    @Test(dependsOnMethods = { "testSaveAndReturnObjectDataset" })
+    public void testAddImage() throws Exception {
+        long imgId = createImage(rootCtx);
+        List<Long> ids = new ArrayList<Long>(1);
         ids.add(imgId);
-        ImageData img = browseFacility.getImages(ctx, ids).iterator().next();
+        ImageData img = browseFacility.getImages(rootCtx, ids).iterator()
+                .next();
         Assert.assertNotNull(img);
 
         List<ImageData> l = new ArrayList<ImageData>(1);
         l.add(img);
-        datamanagerFacility.addImagesToDataset(ctx, l, ds);
-        
+        datamanagerFacility.addImagesToDataset(rootCtx, l, ds);
+
         ids.clear();
         ids.add(ds.getId());
-        ds = browseFacility.getDatasets(ctx, ids).iterator().next();
+        ds = browseFacility.getDatasets(rootCtx, ids).iterator().next();
         Assert.assertEquals(ds.getImages().size(), 1);
     }
-    
+
     private long createImage(SecurityContext ctx) throws Exception {
         IPixelsPrx svc = gw.getPixelsService(ctx);
         List<IObject> types = svc
@@ -119,5 +109,5 @@ public class DataManagerFacilityTest extends GatewayTest {
                 (PixelsType) types.get(1), "test", "");
         return id.getValue();
     }
-    
+
 }
