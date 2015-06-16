@@ -23,33 +23,26 @@ Populate bulk metadata tables from delimited text files.
 #
 
 
-import tempfile
 import logging
-import time
 import sys
 import csv
 import re
-from threading import Thread
-from StringIO import StringIO
 from getpass import getpass
 from getopt import getopt, GetoptError
-from Queue import Queue
 
 import omero.clients
-from omero.rtypes import rdouble, rstring, rint
-from omero.model import DatasetAnnotationLink, DatasetI, FileAnnotationI, \
-                        OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI, \
-                        ScreenAnnotationLinkI
-from omero.grid import ImageColumn, LongColumn, PlateColumn, StringColumn, \
-                       WellColumn
-from omero.util.temp_files import create_path, remove_path
+from omero.rtypes import rstring
+from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
+from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
+from omero.model import ScreenAnnotationLinkI
+from omero.grid import ImageColumn, LongColumn, PlateColumn
+from omero.grid import StringColumn, WellColumn
 from omero import client
 
 from populate_roi import ThreadPool
 
-from xml.etree.cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
-
 log = logging.getLogger("omero.util.populate_metadata")
+
 
 def usage(error):
     """Prints usage so that we don't have to. :)"""
@@ -81,9 +74,11 @@ PLATE_NAME_COLUMN = 'Plate Name'
 WELL_NAME_COLUMN = 'Well Name'
 IMAGE_NAME_COLUMN = 'Image Name'
 
+
 class Skip(object):
     """Instance to denote a row skip request."""
     pass
+
 
 class MetadataError(Exception):
     """
@@ -91,6 +86,7 @@ class MetadataError(Exception):
     is reached.
     """
     pass
+
 
 class HeaderResolver(object):
     """
@@ -101,16 +97,16 @@ class HeaderResolver(object):
     DEFAULT_COLUMN_SIZE = 1
 
     plate_keys = {
-            'well': WellColumn,
-            'field': ImageColumn,
-            'row': LongColumn,
-            'column': LongColumn,
-            'wellsample': ImageColumn,
-            'image': ImageColumn
+        'well': WellColumn,
+        'field': ImageColumn,
+        'row': LongColumn,
+        'column': LongColumn,
+        'wellsample': ImageColumn,
+        'image': ImageColumn
     }
 
     screen_keys = dict({
-            'plate': PlateColumn,
+        'plate': PlateColumn,
     }, **plate_keys)
 
     def __init__(self, target_object, headers):
@@ -130,16 +126,16 @@ class HeaderResolver(object):
         if DatasetI is target_class:
             log.debug('Creating columns for Dataset:%d' % target_id)
             return self.create_columns_dataset()
-        raise MetadataError('Unsupported target object class: %s' \
-                            % target_class)
+        raise MetadataError(
+            'Unsupported target object class: %s' % target_class)
 
     def columns_sanity_check(self, columns):
         column_types = [column.__class__ for column in columns]
         if WellColumn in column_types and ImageColumn in column_types:
             log.debug(column_types)
             raise MetadataError(
-                'Well Column and Image Column cannot be resolved at ' \
-                'the same time. Pick one.')
+                ('Well Column and Image Column cannot be resolved at '
+                 'the same time. Pick one.'))
         log.debug('Sanity check passed')
 
     def create_columns_screen(self):
@@ -162,7 +158,7 @@ class HeaderResolver(object):
             if column.__class__ is ImageColumn:
                 columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
                                self.DEFAULT_COLUMN_SIZE, list()))
-        self.columns_sanity_check(columns)                      
+        self.columns_sanity_check(columns)
         return columns
 
     def create_columns_plate(self):
@@ -191,12 +187,13 @@ class HeaderResolver(object):
     def create_columns_dataset(self):
         raise Exception('To be implemented!')
 
+
 class ValueResolver(object):
     """
     Value resolver for column types which is responsible for filling up
     non-metadata columns with their OMERO data model identifiers.
     """
-    
+
     AS_ALPHA = [chr(v) for v in range(97, 122 + 1)]  # a-z
     WELL_REGEX = re.compile(r'^([a-zA-Z]+)(\d+)$')
 
@@ -210,18 +207,19 @@ class ValueResolver(object):
             return self.load_dataset()
         if ScreenI is self.target_class:
             return self.load_screen()
-        raise MetadataError('Unsupported target object class: %s' \
-                            % target_class)
+        raise MetadataError(
+            'Unsupported target object class: %s' % self.target_class)
+
     def load_screen(self):
         query_service = self.client.getSession().getQueryService()
         parameters = omero.sys.ParametersI()
         parameters.addId(self.target_object.id.val)
         log.debug('Loading Screen:%d' % self.target_object.id.val)
-        self.target_object = query_service.findByQuery(
-                'select s from Screen as s '
-                'join fetch s.plateLinks as p_link '
-                'join fetch p_link.child as p '
-                'where s.id = :id', parameters, {'omero.group': '-1'})
+        self.target_object = query_service.findByQuery((
+            'select s from Screen as s '
+            'join fetch s.plateLinks as p_link '
+            'join fetch p_link.child as p '
+            'where s.id = :id'), parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
         self.images_by_id = dict()
@@ -232,12 +230,12 @@ class ValueResolver(object):
         for plate in (l.child for l in self.target_object.copyPlateLinks()):
             parameters = omero.sys.ParametersI()
             parameters.addId(plate.id.val)
-            plate = query_service.findByQuery(
-                    'select p from Plate as p '
-                    'join fetch p.wells as w '
-                    'join fetch w.wellSamples as ws '
-                    'join fetch ws.image as i '
-                    'where p.id = :id', parameters, {'omero.group': '-1'})
+            plate = query_service.findByQuery((
+                'select p from Plate as p '
+                'join fetch p.wells as w '
+                'join fetch w.wellSamples as ws '
+                'join fetch ws.image as i '
+                'where p.id = :id'), parameters, {'omero.group': '-1'})
             self.plates_by_name[plate.name.val] = plate
             self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
@@ -255,12 +253,12 @@ class ValueResolver(object):
         parameters = omero.sys.ParametersI()
         parameters.addId(self.target_object.id.val)
         log.debug('Loading Plate:%d' % self.target_object.id.val)
-        self.target_object = query_service.findByQuery(
-                'select p from Plate as p '
-                'join fetch p.wells as w '
-                'join fetch w.wellSamples as ws '
-                'join fetch ws.image as i '
-                'where p.id = :id', parameters, {'omero.group': '-1'})
+        self.target_object = query_service.findByQuery((
+            'select p from Plate as p '
+            'join fetch p.wells as w '
+            'join fetch w.wellSamples as ws '
+            'join fetch ws.image as i '
+            'where p.id = :id'), parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
         self.wells_by_location = dict()
@@ -327,26 +325,28 @@ class ValueResolver(object):
             except KeyError:
                 log.debug('Image Id: %i not found!' % (value))
                 return -1L
-            return 
+            return
         if WellColumn is column_class:
             m = self.WELL_REGEX.match(value)
             if m is None or len(m.groups()) != 2:
-                raise MetadataError(
-                        'Cannot parse well identifier "%s" from row: %r' % \
-                                (value, [o[1] for o in row]))
+                msg = 'Cannot parse well identifier "%s" from row: %r'
+                msg = msg % (value, [o[1] for o in row])
+                raise MetadataError(msg)
             plate_row = m.group(1).lower()
             plate_column = str(long(m.group(2)))
             wells_by_location = None
             if len(self.wells_by_location) == 1:
                 wells_by_location = self.wells_by_location.values()[0]
-                log.debug('Parsed "%s" row: %s column: %s' % \
-                        (value, plate_row, plate_column))
+                log.debug(
+                    'Parsed "%s" row: %s column: %s' % (
+                        value, plate_row, plate_column))
             else:
                 for column, plate in row:
                     if column.__class__ is PlateColumn:
                         wells_by_location = self.wells_by_location[plate]
-                        log.debug('Parsed "%s" row: %s column: %s plate: %s' % \
-                                (value, plate_row, plate_column, plate))
+                        log.debug(
+                            'Parsed "%s" row: %s column: %s plate: %s' % (
+                                value, plate_row, plate_column, plate))
                         break
             if wells_by_location is None:
                 raise MetadataError(
@@ -355,8 +355,8 @@ class ValueResolver(object):
             try:
                 return wells_by_location[plate_row][plate_column].id.val
             except KeyError:
-                log.debug('Row: %s Column: %s not found!' % \
-                        (plate_row, plate_column))
+                log.debug('Row: %s Column: %s not found!' % (
+                    plate_row, plate_column))
                 return -1L
         if PlateColumn is column_class:
             try:
@@ -375,6 +375,7 @@ class ValueResolver(object):
             return value
         raise MetadataError('Unsupported column class: %s' % column_class)
 
+
 class ParsingContext(object):
     """Generic parsing context for CSV files."""
 
@@ -392,8 +393,8 @@ class ParsingContext(object):
             return PlateAnnotationLinkI()
         if DatasetI is self.target_class:
             return DatasetAnnotationLinkI()
-        raise MetadataError('Unsupported target object class: %s' \
-                            % target_class)
+        raise MetadataError(
+            'Unsupported target object class: %s' % self.target_class)
 
     def get_column_widths(self):
         widths = list()
@@ -413,14 +414,8 @@ class ParsingContext(object):
         self.populate(rows[1:])
         self.post_process()
         log.debug('Column widths: %r' % self.get_column_widths())
-        log.debug('Columns: %r' % \
-                [(o.name, len(o.values)) for o in self.columns])
-        # Paranoid debugging
-        #for i in range(len(self.columns[0].values)):
-        #    values = list()
-        #    for column in self.columns:
-        #        values.append(column.values[i])
-        #    log.debug('Row: %r' % values)
+        log.debug('Columns: %r' % [
+            (o.name, len(o.values)) for o in self.columns])
 
     def parse(self):
         data = open(self.file, 'U')
@@ -430,13 +425,13 @@ class ParsingContext(object):
             data.close()
 
     def populate(self, rows):
-        value = None
         for row in rows:
             values = list()
             row = [(self.columns[i], value) for i, value in enumerate(row)]
             for column, original_value in row:
                 log.debug('Original value %s, %s' % (original_value, column))
-                value = self.value_resolver.resolve(column, original_value, row)
+                value = self.value_resolver.resolve(
+                    column, original_value, row)
                 if value.__class__ is Skip:
                     break
                 values.append(value)
@@ -444,8 +439,8 @@ class ParsingContext(object):
                     if value.__class__ is not long:
                         column.size = max(column.size, len(value))
                 except TypeError:
-                    log.error('Original value "%s" now "%s" of bad type!' % \
-                            (original_value, value))
+                    log.error('Original value "%s" now "%s" of bad type!' % (
+                        original_value, value))
                     raise
             if value.__class__ is not Skip:
                 values.reverse()
@@ -456,13 +451,12 @@ class ParsingContext(object):
                     try:
                         column.values.append(values.pop())
                     except IndexError:
-                        log.error('Column %s has no values to pop.' % \
-                                column.name)
+                        log.error(
+                            'Column %s has no values to pop.' % column.name)
                         raise
 
     def post_process(self):
         columns_by_name = dict()
-        plate_column = None
         well_column = None
         well_name_column = None
         plate_name_column = None
@@ -471,7 +465,7 @@ class ParsingContext(object):
         for column in self.columns:
             columns_by_name[column.name] = column
             if column.__class__ is PlateColumn:
-                plate_column = column
+                raise NotImplemented("PlateColumn")
             elif column.__class__ is WellColumn:
                 well_column = column
             elif column.name == WELL_NAME_COLUMN:
@@ -518,7 +512,8 @@ class ParsingContext(object):
                     image = self.value_resolver.images_by_id[plate]
                     image = image[image_column.values[i]]
                 except KeyError:
-                    log.error('Missing row or column for image name population!')
+                    log.error(
+                        'Missing row or column for image name population!')
                     raise
                 name = image.name.val
                 image_name_column.size = max(image_name_column.size, len(name))
@@ -553,14 +548,15 @@ class ParsingContext(object):
         log.info('Added data column data.')
         table.close()
         file_annotation = FileAnnotationI()
-        file_annotation.ns = \
-                rstring('openmicroscopy.org/omero/bulk_annotations')
+        file_annotation.ns = rstring(
+            'openmicroscopy.org/omero/bulk_annotations')
         file_annotation.description = rstring(name)
         file_annotation.file = OriginalFileI(original_file.id.val, False)
         link = self.create_annotation_link()
         link.parent = self.target_object
         link.child = file_annotation
         update_service.saveObject(link, {'omero.group': group})
+
 
 def parse_target_object(target_object):
     type, id = target_object.split(':')
@@ -583,7 +579,7 @@ if __name__ == "__main__":
         target_object = parse_target_object(target_object)
     except ValueError:
         usage('Target object and file must be a specified!')
-    
+
     username = None
     password = None
     hostname = 'localhost'
@@ -615,8 +611,8 @@ if __name__ == "__main__":
         usage("Host name must be specified!")
     if session_key is None and password is None:
         password = getpass()
-    
-    logging.basicConfig(level = logging_level)
+
+    logging.basicConfig(level=logging_level)
     client = client(hostname, port)
     client.setAgent("OMERO.populate_metadata")
     client.enableKeepAlive(60)
