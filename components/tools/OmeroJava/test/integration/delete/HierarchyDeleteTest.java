@@ -530,7 +530,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
      * The image should be deleted, but not its projection.
      * @throws Exception unexpected
      */
-    @Test(groups = {"ticket:12856", "broken"})
+    @Test(groups = {"ticket:12856"})
     public void testDeletingDatasetWithProjectedImage() throws Exception {
         newUserAndGroup("rw----");
 
@@ -570,7 +570,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         /* check what is left afterward */
         assertDoesNotExist(dataset);
-        assertDoesNotExist(original);  // FIXME: still exists!
+        assertDoesNotExist(original);
         assertExists(projection);
     }
 }
