@@ -20,6 +20,7 @@
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
         <exclude org="org.perf4j"/>
         <exclude org="org.slf4j"/>
+        <exclude org="commons-logging"/>
     </dependency>
     <!-- Other -->
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
