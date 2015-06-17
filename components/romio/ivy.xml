@@ -17,7 +17,9 @@
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server;client->client"/>
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
+    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
+        <exclude org="org.perf4j"/>
+    </dependency>
     <!-- Other -->
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
   </dependencies>

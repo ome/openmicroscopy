@@ -70,6 +70,7 @@
     <!-- Bioformats -->
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
         <exclude org="com.jgoodies"/>
+        <exclude org="org.perf4j"/>
     </dependency>
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
     <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>

@@ -32,7 +32,9 @@
     <!-- Internal -->
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
     <!-- Bio-Formats -->
-    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true"/>
+    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true">
+    <exclude org="org.perf4j"/>
+    </dependency>
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}" transitive="true"/>
   </dependencies>
 </ivy-module>
