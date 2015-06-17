@@ -338,7 +338,7 @@ $.fn.roi_display = function(options) {
             $.merge(global_rois, roi_json);
             if (external_rois)
                 $.merge(global_rois, external_rois);
-            for (r=0; r<global_rois.length; r++) {
+            for (var r=0; r<global_rois.length; r++) {
                 if (active_rois.hasOwnProperty(global_rois[r].id)) {
                     var roi = {"id": global_rois[r].id};
                     var shapes = global_rois[r].shapes;
