@@ -410,13 +410,6 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    physics-*.jar
-  Project:      TRAER.PHYSICS 3.0
-  Web Site:     http://murderandcreate.com/physics/
-  License:      Public Domain.
-                Use this code for whatever you want, just send me a link jeff@traer.cc
-
-
   Artifacts:    poi-*.jar
   Project:      Apache Project Java API To Access Microsoft Format Files
   License:      Apache License, Version 2.0
