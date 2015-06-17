@@ -18,7 +18,9 @@
     <!-- Internal -->
     <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build;client->runtime;server->runtime"/>
     <!-- Bio-Formats -->
-    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true"/>
+    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true">
+        <exclude org="com.jgoodies"/>
+    </dependency>
     <!-- Hibernate server -->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build,server->default"/>
     <dependency org="asm" name="asm-attrs" rev="${versions.asm}" conf="build,server->default"/>

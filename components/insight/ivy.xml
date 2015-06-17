@@ -68,7 +68,9 @@
     <!-- Required for annotations in Permissions.java -->
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
     <!-- Bioformats -->
-    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}"/>
+    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
+        <exclude org="com.jgoodies"/>
+    </dependency>
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
     <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- importer -->
