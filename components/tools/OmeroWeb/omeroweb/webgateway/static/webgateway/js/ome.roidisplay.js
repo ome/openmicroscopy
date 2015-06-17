@@ -606,7 +606,7 @@ $.fn.roi_display = function(options) {
             // build the filter for active ROIs and shapes
             filter_rois(rois_filter);
             // apply the filter and get the description of ROIs and shapes that will be displayed
-            rois = get_active_rois();
+            var rois = get_active_rois();
             if (rois == null) return;
 
             for (var r=0; r<rois.length; r++) {
