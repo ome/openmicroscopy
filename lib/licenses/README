@@ -66,12 +66,6 @@
   //
 
 
-  Artifacts:    ai_path-*.jar
-  Project:      AI Path
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl.txt
-
-
   Artifacts:    ant-*.jar ivy-*.jar
                 As well as junit-frames.xsl, and junit-noframes.xsl files under components/insight/build/tools
   Project:      The Apache Ant Project.  Ant is a Java-based build tool. (Ivy is a subproject
