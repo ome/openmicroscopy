@@ -290,29 +290,29 @@ $.fn.roi_display = function(options) {
         user interface when a change on the viewport occurs (like changing the Z or the T value).
          */
         filter_rois = function (filter) {
+            var global_rois = [];
+            $.merge(global_rois, roi_json);
+            if (external_rois)
+                $.merge(global_rois, external_rois);
+
             if (filter != undefined) {
-                for (r=0; r<roi_json.length; r++) {
+                for (var r=0; r<global_rois.length; r++) {
                     // check if ROI is in filter
-                    if (filter.hasOwnProperty(roi_json[r].id)) {
-                        if (!active_rois.hasOwnProperty(roi_json[r].id))
-                            active_rois[roi_json[r].id] = [];
+                    if (filter.hasOwnProperty(global_rois[r].id)) {
+                        if (!active_rois.hasOwnProperty(global_rois[r].id))
+                            active_rois[global_rois[r].id] = [];
                         // check if one or more shapes of the current ROI are in filter
-                        var shapes = roi_json[r]['shapes'];
+                        var shapes = global_rois[r]['shapes'];
                         for (s=0; s<shapes.length; s++) {
-                            if (filter[roi_json[r].id].indexOf(shapes[s].id) != -1 &&
-                                active_rois[roi_json[r].id].indexOf(shapes[s].id) == -1) {
-                                active_rois[roi_json[r].id].push(shapes[s].id);
+                            if (filter[global_rois[r].id].indexOf(shapes[s].id) != -1 &&
+                                active_rois[global_rois[r].id].indexOf(shapes[s].id) == -1) {
+                                active_rois[global_rois[r].id].push(shapes[s].id);
                             }
                         }
                     }
                 }
             } else {
-                var global_rois = [];
-                $.merge(global_rois, roi_json);
-                if (external_rois)
-                    $.merge(global_rois, external_rois);
-
-                for (r=0; r<global_rois.length; r++) {
+                for (var r=0; r<global_rois.length; r++) {
                     if (!active_rois.hasOwnProperty(global_rois[r].id)) {
                         active_rois[global_rois[r].id] = [];
                     }
