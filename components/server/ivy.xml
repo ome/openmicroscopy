@@ -39,7 +39,9 @@
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
-    <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
+    <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}">
+        <exclude org="xml-apis"/>
+    </dependency>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
     <dependency org="javax.mail" name="mail" rev="${versions.mail}"/>
