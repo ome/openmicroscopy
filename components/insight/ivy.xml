@@ -71,8 +71,11 @@
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
         <exclude org="com.jgoodies"/>
         <exclude org="org.perf4j"/>
+        <exclude org="org.slf4j"/>
     </dependency>
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
+    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
+        <exclude org="org.slf4j"/>
+    </dependency>
     <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>

@@ -21,6 +21,7 @@
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true">
         <exclude org="com.jgoodies"/>
         <exclude org="org.perf4j"/>
+        <exclude org="org.slf4j"/>
     </dependency>
     <!-- Hibernate server -->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build,server->default"/>
