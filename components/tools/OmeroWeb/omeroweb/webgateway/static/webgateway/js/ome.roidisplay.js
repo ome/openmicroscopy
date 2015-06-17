@@ -579,12 +579,22 @@ $.fn.roi_display = function(options) {
             for (var r=0; r<external_rois.length; r++) {
                 var roi = external_rois[r];
                 if (roi["id"] == resolve_id(roi_id)) {
-                    console.warn("Removing ROI with index " + external_rois.indexOf(roi));
+                    console.log("Removing ROI with index " + external_rois.indexOf(roi));
                     external_rois.splice(external_rois.indexOf(roi), 1);
+                    this.deactivate_roi(resolve_id(roi_id));
 
-                    var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : false;
-                    if (refresh)
-                        this.refresh_active_rois();
+                    var refresh = typeof refresh !== "undefined" ? refresh : false;
+                    if (refresh) {
+                        console.log("Active ROIs filter");
+                        console.log(active_rois);
+                        if (Object.keys(active_rois).length != 0) {
+                            this.refresh_active_rois();
+                            console.log("Refreshing active ROIs [this.remove_roi]");
+                        } else {
+                            this.hide_rois();
+                            console.log("No ROIs in active ROIs filter, hide them all [this.remove_roi]");
+                        }
+                    }
                     return;
                 }
             }
