@@ -776,13 +776,6 @@
   License File: npl-1_1.txt
 
 
-  Artifacts:    xalan-*
-  Project:      The Xalan-Java Project.  An XSLT processor which is used by Ant.
-  Web Site:     http://xml.apache.org/xalan-j/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   //
   // Graphic artifacts under components/insight/SRC
   //
