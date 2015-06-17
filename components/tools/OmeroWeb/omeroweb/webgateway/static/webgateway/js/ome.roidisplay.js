@@ -493,9 +493,7 @@ $.fn.roi_display = function(options) {
             rois_collection.push(roi);
         };
 
-        this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois) {
-            // If needed, load ROIs but don't show them, if refresh_rois is True, they will be
-            // displayed with the last instructions of the script
+        this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois) {
             if (roi_json == null) {
                 console.error("OMERO ROIs must be loaded in order to push external shapes");
                 return;
@@ -518,12 +516,21 @@ $.fn.roi_display = function(options) {
                 configure_shape(shape_id, shape_config);
                 // append shape to proper ROI
                 append_shape(roi_id, shape_config, external_rois);
+                this.activate_roi(roi_id);
             }
 
             // refresh current ROIs (False by default)
             var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : false;
-            if (refresh)
+            if (refresh) {
+                // if hide_ome_rois is true, deactivate all ROIs coming from OMERO before refresh
+                var hide_oroi = typeof hide_ome_rois !== "undefined" ? hide_ome_rois : false;
+                if (hide_oroi && active_rois) {
+                    for (var r=0; r<roi_json.length; r++) {
+                        this.deactivate_roi(roi_json[r]["id"]);
+                    }
+                }
                 this.refresh_active_rois();
+            }
         };
 
         this.remove_shape = function(roi_id, shape_id, refresh) {
