@@ -156,7 +156,7 @@
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:[E]{i}" p:changes="IN:{r}"/>
         <bean parent="graphPolicyRule" p:matches="Image[E]{ia}.instrument = IN:[E]{r}" p:changes="IN:{a}"/>
         <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{o}" p:changes="IN:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="I1:Image[I].instrument = IN:Instrument, I2:Image[E].instrument = IN"
+        <bean parent="graphPolicyRule" p:matches="I1:Image[I].instrument = IN:[EI], I2:Image[E].instrument = IN"
                                        p:error="may not move {I1} while {I2} remains as they share {IN}"/>
 
         <!-- Cannot move image with other user's instrument to private group. -->
@@ -285,12 +285,14 @@
         <!-- CONTAINERS -->
 
         <!--
-             If a container is moved then consider its contents for moving if they are ours, or if they are deletable and not going
-             to a private group.
+             If a container is moved then consider its contents for moving if they have the same owner, or if they are deletable and
+             not going to a private group.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = [I], L.child = D:[E]{i}/o" p:changes="D:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = [I], L.child = I:[E]{i}/o" p:changes="I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[I], L.child = D:[E]{i}, P =/o D"
+                                       p:changes="D:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}, D =/o I"
+                                       p:changes="I:{r}"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, L:ProjectDatasetLink.parent = P:[I], L.child = D:[E]{i}/d"
                                        p:changes="D:{r}"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}/d"
@@ -410,7 +412,7 @@
         <bean parent="graphPolicyRule" p:matches="Image[I].stageLabel = SL:[E]{i}" p:changes="SL:{r}"/>
         <bean parent="graphPolicyRule" p:matches="Image[E]{ia}.stageLabel = SL:[E]{r}" p:changes="SL:{a}"/>
         <bean parent="graphPolicyRule" p:matches="SL:StageLabel[E]{o}" p:changes="SL:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="I1:Image[I].stageLabel = SL:StageLabel, I2:Image[E].stageLabel = SL"
+        <bean parent="graphPolicyRule" p:matches="I1:Image[I].stageLabel = SL:[EI], I2:Image[E].stageLabel = SL"
                                        p:error="may not move {I1} while {I2} remains as they share {SL}"/>
 
         <!-- If a stage label cannot be moved then nor can images that use it. -->
@@ -484,9 +486,9 @@
         <!-- Cannot move experiment without associated images. -->
 
         <bean parent="graphPolicyRule" p:matches="I:Image[E].experiment = E:[I]" p:error="cannot move {E} while {I} remains"/>
-        <bean parent="graphPolicyRule" p:matches="$to_private, I:Image[I].experiment =/!o E:Experiment"
-                                       p:error="cannot move {I} to private group, first unlink or delete {E}"/>
-        <bean parent="graphPolicyRule" p:matches="I1:Image[I].experiment = E:Experiment, I2:Image[E].experiment = E"
+        <bean parent="graphPolicyRule" p:matches="$to_private, I:Image[I].experiment =/!o E:[EI]"
+                                       p:error="cannot move {I} while linked to {E}"/>
+        <bean parent="graphPolicyRule" p:matches="I1:Image[I].experiment = E:[EI], I2:Image[E].experiment = E"
                                        p:error="cannot move {I1} while {I2} remains as they share {E}"/>
 
         <!-- If an experiment cannot be moved then nor can images that use it. -->
@@ -510,11 +512,11 @@
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E].images = I1:[I], F.images = I2:[E]"
                                        p:error="within {F} may not move {I1} while {I2} remains"/>
 
-        <!-- Considering an image for deletion entails considering its fileset for deletion. -->
+        <!-- Considering an image for moving entails considering its fileset for moving. -->
 
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{i}.images = [E]{r}" p:changes="F:{r}"/>
 
-        <!-- If a fileset is not to be deleted then nor are its images. -->
+        <!-- If a fileset is not to be moved then nor are its images. -->
 
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{a}.images = I:[E]{r}" p:changes="I:{a}"/>
 
@@ -652,10 +654,10 @@
 
         <!-- Move stats info only if with all its channels regardless of permissions. -->
 
-        <bean parent="graphPolicyRule" p:matches="Channel[I].statsInfo = SI:[E]{i}" p:changes="SI:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Channel[E].statsInfo = SI:[E]{r}" p:changes="SI:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[I].statsInfo = SI:[E]{i}" p:changes="SI:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].statsInfo = SI:[E]{r}" p:changes="SI:{a}"/>
         <bean parent="graphPolicyRule" p:matches="SI:StatsInfo[E]{o}" p:changes="SI:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="C1:Channel[I].statsInfo = SI:StatsInfo, C2:Channel[E].statsInfo = SI"
+        <bean parent="graphPolicyRule" p:matches="C1:Channel[I].statsInfo = SI:[EI], C2:Channel[E].statsInfo = SI"
                                        p:error="may not move {C1} while {C2} remains as they share {SI}"/>
 
     </util:list>
