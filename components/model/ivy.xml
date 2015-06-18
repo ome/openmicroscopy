@@ -34,6 +34,7 @@
     <!-- Hibernate -->
     <dependency org="${omero.db.org}" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default">
         <exclude org="org.slf4j"/>
+        <exclude org="com.github.dblock.waffle"/>
     </dependency>
     <dependency org="org.hibernate" name="hibernate-core" rev="${versions.hibernate}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build,server->default"/>
