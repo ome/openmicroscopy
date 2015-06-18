@@ -6,6 +6,7 @@
 			<class name="integration.gateway.AdminFacilityTest" />
 			<class name="integration.gateway.DataManagerFacilityTest" />
 			<class name="integration.gateway.BrowseFacilityTest" />
+			<class name="integration.gateway.SearchFacilityTest" />
 		</classes>
 	</test>
 </suite>
