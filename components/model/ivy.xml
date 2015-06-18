@@ -32,7 +32,9 @@
     <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="build,server->default"/>
     <dependency org="javassist" name="javassist" rev="${versions.javassist}" conf="build,server->default"/>
     <!-- Hibernate -->
-    <dependency org="${omero.db.org}" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default"/>
+    <dependency org="${omero.db.org}" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default">
+        <exclude org="org.slf4j"/>
+    </dependency>
     <dependency org="org.hibernate" name="hibernate-core" rev="${versions.hibernate}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build,server->default"/>
