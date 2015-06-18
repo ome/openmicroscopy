@@ -70,7 +70,6 @@
     <!-- Bioformats -->
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
         <exclude org="com.jgoodies"/>
-        <exclude org="org.perf4j"/>
         <exclude org="org.slf4j"/>
         <exclude org="xml-apis"/>
     </dependency>
