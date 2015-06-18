@@ -22,6 +22,7 @@
         <exclude org="com.jgoodies"/>
         <exclude org="org.perf4j"/>
         <exclude org="org.slf4j"/>
+        <exclude org="xml-apis"/>
     </dependency>
     <!-- Hibernate server -->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build,server->default"/>

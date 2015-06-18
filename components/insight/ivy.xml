@@ -72,6 +72,7 @@
         <exclude org="com.jgoodies"/>
         <exclude org="org.perf4j"/>
         <exclude org="org.slf4j"/>
+        <exclude org="xml-apis"/>
     </dependency>
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
         <exclude org="org.slf4j"/>

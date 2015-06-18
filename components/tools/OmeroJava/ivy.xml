@@ -35,6 +35,8 @@
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true">
         <exclude org="org.perf4j"/>
         <exclude org="org.slf4j"/>
+        <exclude org="xml-apis"/>
+        <exclude org="xml-apis"/>
     </dependency>
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}" transitive="true">
         <exclude org="org.slf4j"/>
