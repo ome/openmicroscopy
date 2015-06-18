@@ -259,7 +259,7 @@ $.fn.roi_display = function(options) {
         }
 
         // load the ROIs from json call and display
-        load_rois = function(display_rois, filter) {
+        load_rois = function(display_rois, filter, roi_id, shape_id, shape_config, refr_rois, hide_ome_rois) {
             if (json_url == undefined) return;
 
             $.getJSON(json_url+'?callback=?', function(data) {
@@ -271,6 +271,8 @@ $.fn.roi_display = function(options) {
                   refresh_rois(undefined, undefined, filter);
                 }
                 $viewportimg.trigger("rois_loaded");
+                if (roi_id && shape_id && shape_config)
+                    $viewportimg.trigger("push_shape", [roi_id, shape_id, shape_config, refr_rois, hide_ome_rois]);
             });
         }
 
@@ -496,20 +498,26 @@ $.fn.roi_display = function(options) {
         this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois) {
             if (roi_json == null) {
                 console.error("OMERO ROIs must be loaded in order to push external shapes");
-                return;
+                load_rois(false, undefined, roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois);
+            } else {
+                $viewportimg.trigger("push_shape", [roi_id, shape_id, shape_config, refresh_rois,
+                                                    hide_ome_rois]);
             }
+        };
 
+        $viewportimg.on("push_shape", function (event, roi_id, shape_id, shape_config, refresh_rois,
+                                                hide_ome_rois) {
             var roi_id = resolve_id(roi_id);
             var shape_id = resolve_id(shape_id);
 
             // initialize external_rois when used for the first time
-            if(! external_rois) {
+            if (!external_rois) {
                 external_rois = [];
             }
 
             var check_shape_id = check_ext_shape_id(roi_id, shape_id);
             var check_shape_planes = check_ext_shape_planes(roi_id, shape_config['theZ'],
-                                                            shape_config['theT']);
+                shape_config['theT']);
 
             if (check_shape_id && check_shape_planes) {
                 // add ID to the shape
@@ -525,13 +533,13 @@ $.fn.roi_display = function(options) {
                 // if hide_ome_rois is true, deactivate all ROIs coming from OMERO before refresh
                 var hide_oroi = typeof hide_ome_rois !== "undefined" ? hide_ome_rois : false;
                 if (hide_oroi && active_rois) {
-                    for (var r=0; r<roi_json.length; r++) {
+                    for (var r = 0; r < roi_json.length; r++) {
                         this.deactivate_roi(roi_json[r]["id"]);
                     }
                 }
                 this.refresh_active_rois();
             }
-        };
+        });
 
         this.remove_shape = function(roi_id, shape_id, refresh) {
             if (! external_rois) {
