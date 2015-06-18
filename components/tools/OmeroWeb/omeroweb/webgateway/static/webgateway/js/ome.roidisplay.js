@@ -550,15 +550,15 @@ $.fn.roi_display = function(options) {
                             // If it was the last shape for the current ROI, delete the ROI as well
                             if(roi["shapes"].length == 0) {
                                 console.warn("No shape connected, removing ROI " + roi_id);
-                                this.remove_roi(roi_id, false);
+                                this.remove_roi(roi_id, refresh);
+                            } else {
+                                // refresh ROIs, if needed
+                                var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : false;
+                                if (refresh)
+                                    this.refresh_active_rois();
+
+                                return;
                             }
-
-                            // refresh ROIs, if needed
-                            var refresh = typeof refresh_rois !== "undefined" ? refresh_rois : false;
-                            if (refresh)
-                                this.refresh_active_rois();
-
-                            return;
                         }
                     }
                     console.warn("There is no Shape with ID " + shape_id + " for ROI " + roi_id);
