@@ -46,6 +46,7 @@
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
     <dependency org="javax.mail" name="mail" rev="${versions.mail}">
         <exclude org="javax.activation"/>
+        <exclude org="com.google.code.findbugs"/>
     </dependency>
     <dependency org="org.subethamail" name="subethasmtp" rev="${versions.subethasmtp}">
         <exclude org="org.slf4j"/>
