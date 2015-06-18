@@ -477,8 +477,8 @@
 
         <!-- If the last channel referencing stats info is deleted then delete the stats info itself regardless of permissions. -->
 
-        <bean parent="graphPolicyRule" p:matches="Channel[D].statsInfo = SI:[E]{i}" p:changes="SI:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Channel[E].statsInfo = SI:[E]{r}" p:changes="SI:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[D].statsInfo = SI:[E]{i}" p:changes="SI:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].statsInfo = SI:[E]{r}" p:changes="SI:{a}"/>
         <bean parent="graphPolicyRule" p:matches="SI:StatsInfo[E]{o}" p:changes="SI:[D]/n"/>
 
     </util:list>
