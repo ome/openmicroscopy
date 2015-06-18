@@ -32,6 +32,6 @@
         <exclude org="org.slf4j"/>
         <exclude org="ch.qos.logback"/>
     </dependency>
-    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}">
+    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
   </dependencies>
 </ivy-module>
