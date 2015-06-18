@@ -176,6 +176,9 @@
 
             // For 'number' fields, only allow numbers input.
             $(".number").numbersOnly();
+
+            // Focus first input
+            $('input:visible').first().focus();
         });
     </script>
 {% endblock %}
