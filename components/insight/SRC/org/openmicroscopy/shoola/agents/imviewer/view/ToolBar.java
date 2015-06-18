@@ -246,7 +246,6 @@ class ToolBar
 
         bar.add(b);  
         bar.add(pasteButton);
-
         b = new JButton(
     			controller.getAction(ImViewerControl.SAVE_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
