@@ -57,7 +57,8 @@ public class GraphPolicyRule {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphPolicyRule.class);
 
     private static final Pattern NEW_TERM_PATTERN =
-            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udon]+)?");
+            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udon]+)?(\\;\\S+)?");
+    private static final Pattern PREDICATE_PATTERN = Pattern.compile("\\;(\\w+)\\=([^\\;]+)(\\;\\S+)?");
     private static final Pattern EXISTING_TERM_PATTERN = Pattern.compile("(\\w+)");
     private static final Pattern CHANGE_PATTERN = Pattern.compile("(\\w+\\:)(\\[[EDIO\\-]\\])?(\\{[iroa]\\})?(\\/n)?");
 
@@ -111,12 +112,15 @@ public class GraphPolicyRule {
          * Does not adjust {@code namedTerms} or {@code isCheckAllPermissions} unless the match succeeds,
          * in which case sets {@code isCheckAllPermissions} to {@code false} if
          * {@code details.isCheckPermissions == false}.
+         * @param predicates the predicate matchers that may be named in policy rules
          * @param namedTerms the name dictionary of matched terms (updated by this method)
          * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects (updated by this method)
          * @param details the details of the term
          * @return if the term matches
+         * @throws GraphException if the match attempt could not be completed
          */
-        boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details);
+        boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions, Details details) throws GraphException;
     }
 
     /**
@@ -134,7 +138,9 @@ public class GraphPolicyRule {
             this.termName = termName;
         }
 
-        public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
+        @Override
+        public boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions, Details details) {
             return details.equals(namedTerms.get(termName));
         }
     }
@@ -156,6 +162,7 @@ public class GraphPolicyRule {
         private final Set<GraphPolicy.Ability> requiredAbilities;
         private final Set<GraphPolicy.Ability> prohibitedAbilities;
         private final Boolean isCheckPermissions;
+        private final Map<String, String> predicateArguments;
 
         /**
          * Construct a new term match. All arguments may be {@code null}.
@@ -168,11 +175,12 @@ public class GraphPolicyRule {
          * @param requiredAbilities the abilities that the user must have to operate upon the object
          * @param prohibitedAbilities the abilities that the user must not have to operate upon the object
          * @param isCheckPermissions if permissions are being checked for the object, may be {@code null}
+         * @param predicateArguments arguments that must satisfy named predicates, may be {@code null}
          */
         NewTermMatch(String termName, Class<? extends IObject> requiredClass, Class<? extends IObject> prohibitedClass,
                 Collection<GraphPolicy.Action> permittedActions, Collection<GraphPolicy.Orphan> permittedOrphans,
                 Collection<GraphPolicy.Ability> requiredAbilities, Collection<GraphPolicy.Ability> prohibitedAbilities,
-                Boolean isCheckPermissions) {
+                Boolean isCheckPermissions, Map<String, String> predicateArguments) {
             this.termName = termName;
             this.requiredClass = requiredClass;
             this.prohibitedClass = prohibitedClass;
@@ -198,9 +206,12 @@ public class GraphPolicyRule {
                 this.prohibitedAbilities = ImmutableSet.copyOf(prohibitedAbilities);
             }
             this.isCheckPermissions = isCheckPermissions;
+            this.predicateArguments = predicateArguments;
         }
 
-        public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
+        @Override
+        public boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions, Details details) throws GraphException {
             final Class<? extends IObject> subjectClass = details.subject.getClass();
             final boolean previousIsCheckAllPermissions = isCheckAllPermissions.booleanValue();
             if (previousIsCheckAllPermissions && !details.isCheckPermissions) {
@@ -214,6 +225,19 @@ public class GraphPolicyRule {
                 Sets.difference(requiredAbilities, details.permissions).isEmpty() &&
                 Sets.intersection(prohibitedAbilities, details.permissions).isEmpty() &&
                 (isCheckPermissions == null || isCheckPermissions == details.isCheckPermissions)) {
+                if (predicateArguments != null) {
+                    for (final Entry<String, String> predicateArgument : predicateArguments.entrySet()) {
+                        final String predicateName = predicateArgument.getKey();
+                        final String predicateValue = predicateArgument.getValue();
+                        final GraphPolicyRulePredicate predicate = predicates.get(predicateName);
+                        if (predicate == null) {
+                            throw new GraphException("unknown predicate: " + predicateName);
+                        }
+                        if (!predicate.isMatch(details, predicateValue)) {
+                            return false;
+                        }
+                    }
+                }
                 if (termName == null) {
                     return true;
                 } else {
@@ -266,6 +290,7 @@ public class GraphPolicyRule {
          * Does not adjust {@code namedTerms} or {@code isCheckAllPermissions} unless the match succeeds,
          * in which case sets {@code isCheckAllPermissions} to {@code false} if
          * {@code leftDetails.isCheckPermissions && rightDetails.isCheckPermissions == false}.
+         * @param predicates the predicate matchers that may be named in policy rules
          * @param namedTerms the name dictionary of matched terms (to be updated by this method)
          * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects
          * @param leftDetails the details of the left term, holding the property
@@ -273,9 +298,11 @@ public class GraphPolicyRule {
          * @param classProperty the name of the declaring class and property
          * @param notNullable if the property is not nullable
          * @return if the relationship matches
+         * @throws GraphException if the match attempt could not be completed
          */
-        boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions,
-                Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) {
+        boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions,
+                Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) throws GraphException {
             if ((this.sameOwner != null && leftDetails.ownerId != null && rightDetails.ownerId != null &&
                  this.sameOwner != leftDetails.ownerId.equals(rightDetails.ownerId)) ||
                 (this.notNullable != null && this.notNullable != notNullable) ||
@@ -284,8 +311,8 @@ public class GraphPolicyRule {
             }
             final Map<String, Details> newNamedTerms = new HashMap<String, Details>(namedTerms);
             final MutableBoolean newIsCheckAllPermissions = new MutableBoolean(isCheckAllPermissions.booleanValue());
-            final boolean isMatch = leftTerm.isMatch(newNamedTerms, newIsCheckAllPermissions, leftDetails) &&
-                                   rightTerm.isMatch(newNamedTerms, newIsCheckAllPermissions, rightDetails);
+            final boolean isMatch = leftTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, leftDetails) &&
+                                   rightTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, rightDetails);
             if (isMatch) {
                 namedTerms.putAll(newNamedTerms);
                 isCheckAllPermissions.setValue(newIsCheckAllPermissions.booleanValue());
@@ -469,6 +496,7 @@ public class GraphPolicyRule {
         final Collection<GraphPolicy.Ability> requiredAbilities;
         final Collection<GraphPolicy.Ability> prohibitedAbilities;
         Boolean isCheckPermissions = null;
+        final Map<String, String> predicateArguments;
 
         /* parse term name, if any */
 
@@ -578,10 +606,27 @@ public class GraphPolicyRule {
             }
         }
 
+        /* parse named predicate arguments, if any */
+
+        if (newTermMatcher.group(6) == null) {
+            predicateArguments = null;
+        } else {
+            predicateArguments = new HashMap<String, String>();
+            String remainingPredicates = newTermMatcher.group(6);
+            while (remainingPredicates != null) {
+                final Matcher predicateMatcher = PREDICATE_PATTERN.matcher(remainingPredicates);
+                if (!predicateMatcher.matches()) {
+                    throw new GraphException("failed to parse predicates suffixing match term " + term);
+                }
+                predicateArguments.put(predicateMatcher.group(1), predicateMatcher.group(2));
+                remainingPredicates = predicateMatcher.group(3);
+            }
+        }
+
         /* construct new term match */
 
         return new NewTermMatch(termName, requiredClass, prohibitedClass, permittedActions, permittedOrphans,
-                requiredAbilities, prohibitedAbilities, isCheckPermissions);
+                requiredAbilities, prohibitedAbilities, isCheckPermissions, predicateArguments);
 
     }
 
@@ -873,7 +918,7 @@ public class GraphPolicyRule {
                 final Set<Details> allTerms = GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
                 for (final TermMatch matcher : policyRule.termMatchers) {
                     for (final Details object : allTerms) {
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions, object)) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object)) {
                             recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                             namedTerms.clear();
                             isCheckAllPermissions.setValue(true);
@@ -888,7 +933,7 @@ public class GraphPolicyRule {
                     final String classProperty = dataPerProperty.getKey();
                     final boolean isNotNullable = notNullable.contains(classProperty);
                     for (final Details linkerObject : dataPerProperty.getValue()) {
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
                                 linkerObject, rootObject, classProperty, isNotNullable)) {
                             recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                             namedTerms.clear();
@@ -901,7 +946,7 @@ public class GraphPolicyRule {
                     final String classProperty = dataPerProperty.getKey();
                     final boolean isNotNullable = notNullable.contains(classProperty);
                     for (final Details linkedObject : dataPerProperty.getValue()) {
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
                                 rootObject, linkedObject, classProperty, isNotNullable)) {
                             recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                             namedTerms.clear();
@@ -942,7 +987,7 @@ public class GraphPolicyRule {
                 while (unmatchedTermIterator.hasNext()) {
                     final TermMatch matcher = unmatchedTermIterator.next();
                     for (final Details object : allTerms) {
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions, object)) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object)) {
                             unmatchedTermIterator.remove();
                         }
                     }
@@ -955,14 +1000,14 @@ public class GraphPolicyRule {
                         unmatchedTermIterator = unmatchedTerms.iterator();
                         while (unmatchedTermIterator.hasNext()) {
                             final TermMatch matcher = unmatchedTermIterator.next();
-                            if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkerObject)) {
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
                         unmatchedRelationshipIterator = unmatchedRelationships.iterator();
                         while (unmatchedRelationshipIterator.hasNext()) {
                             final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
-                            if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
                                     linkerObject, rootObject, classProperty, isNotNullable)) {
                                 unmatchedRelationshipIterator.remove();
                             }
@@ -977,14 +1022,14 @@ public class GraphPolicyRule {
                         unmatchedTermIterator = unmatchedTerms.iterator();
                         while (unmatchedTermIterator.hasNext()) {
                             final TermMatch matcher = unmatchedTermIterator.next();
-                            if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkedObject)) {
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
                         unmatchedRelationshipIterator = unmatchedRelationships.iterator();
                         while (unmatchedRelationshipIterator.hasNext()) {
                             final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
-                            if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
                                     rootObject, linkedObject, classProperty, isNotNullable)) {
                                 unmatchedRelationshipIterator.remove();
                             }
@@ -1004,7 +1049,7 @@ public class GraphPolicyRule {
                     if (leftDetails == null) continue;
                     final Details rightDetails = namedTerms.get(rightTermName);
                     if (rightDetails == null) continue;
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false)) {
+                    if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false)) {
                         unmatchedRelationshipIterator.remove();
                     }
                 }
