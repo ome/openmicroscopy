@@ -577,13 +577,9 @@
 
         <!-- SCREEN -->
 
-        <!-- If a field is moved then consider moving its image. -->
-
-        <bean parent="graphPolicyRule" p:matches="WellSample[I].image = I:[E]{i}" p:changes="I:{r}"/>
-
         <!-- In considering moving an image, do not move it if it is used for a field that is not to be moved. -->
 
-        <bean parent="graphPolicyRule" p:matches="WellSample[E]{ia}.image = I:[E]{r}" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [E]{ia}, WS.image = I:[E]{r}" p:changes = "I:{a}"/>
 
         <!-- Cannot move image to a private group if it is used for a differently owned field. -->
 
@@ -591,7 +587,7 @@
 
         <!-- Move images and corresponding well samples only together. -->
 
-        <bean parent="graphPolicyRule" p:matches="WS:WellSample[E].image = [I]" p:changes="WS:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample[E].image = [I], WS.well = [E]" p:changes="WS:[O]"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[I].image = [E]{a}" p:changes="WS:[O]"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[O].image = I:[I]" p:error="may not move {I} while {WS} remains"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[O].image = I:[E]" p:error="may not move {WS} while {I} remains"/>
@@ -638,15 +634,21 @@
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I], L.child = [E]{ia}" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E], L.child = [I]" p:changes="L:[D]/n"/>
 
-        <!-- Move contained objects: wells and runs of plates, fields of wells and runs. -->
+        <!-- Move the wells and runs of moved plates. -->
 
         <bean parent="graphPolicyRule" p:matches="Plate[I].wells = W:[E]" p:changes="W:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Plate[I].plateAcquisitions = R:[E]" p:changes="R:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="PlateAcquisition[I].wellSample = WS:[E]" p:changes="WS:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Well[I].wellSamples = WS:[E]" p:changes="WS:[I]"/>
+
+        <!-- If a well is moved, check if the fields' images can be moved; if so, move the fields. -->
+
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[E]{i}" p:changes = "I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[E]{a}" p:changes = "WS:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[E]{o}" p:changes = "WS:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[I]" p:changes = "WS:[I]"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
 
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample[!O]" p:changes="WS:[-]"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!O]" p:changes="L:[-]"/>
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[!O]" p:changes="L:[-]"/>
 
