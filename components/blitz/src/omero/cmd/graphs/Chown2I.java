@@ -49,6 +49,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.graphs.PermissionsPredicate;
 import ome.system.EventContext;
 import ome.system.Login;
 import omero.cmd.Chown2;
@@ -144,6 +145,8 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
         }
         graphPolicyAdjusters = null;
+
+        graphPolicyWithOptions.registerPredicate(new PermissionsPredicate());
 
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
                 graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
