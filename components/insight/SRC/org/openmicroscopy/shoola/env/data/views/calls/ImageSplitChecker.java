@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 
 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
@@ -48,11 +49,11 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
 
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 
