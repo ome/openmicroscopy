@@ -69,19 +69,19 @@ public class RawDataFacility extends Facility {
      *            The z-section at which data is to be fetched.
      * @param t
      *            The timepoint at which data is to be fetched.
-     * @param w
-     *            The wavelength at which data is to be fetched.
+     * @param c
+     *            The channel at which data is to be fetched.
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException
      *             If an error occurs while retrieving the plane data from the
      *             pixels source.
      */
     public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
-            int t, int w) throws DataSourceException {
+            int t, int c) throws DataSourceException {
         Plane2D data = null;
         try {
             DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
-            data = ds.getPlane(ctx, z, t, w, true);
+            data = ds.getPlane(ctx, z, t, c, true);
         } catch (ExecutionException e) {
             throw new DataSourceException("Can't initiate DataSink", e);
         }
@@ -99,8 +99,8 @@ public class RawDataFacility extends Facility {
      *            The z-section at which data is to be fetched.
      * @param t
      *            The timepoint at which data is to be fetched.
-     * @param w
-     *            The wavelength at which data is to be fetched.
+     * @param c
+     *            The channel at which data is to be fetched.
      * @param close
      *            Pass <code>true></code> to close the connection to the
      *            Pixelstore, <code>false</code> to leave it open.
@@ -110,11 +110,11 @@ public class RawDataFacility extends Facility {
      *             pixels source.
      */
     public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
-            int t, int w, boolean close) throws DataSourceException {
+            int t, int c, boolean close) throws DataSourceException {
         Plane2D data = null;
         try {
             DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
-            data = ds.getPlane(ctx, z, t, w, close);
+            data = ds.getPlane(ctx, z, t, c, close);
             if (close)
                 cache.invalidate(pixels.getId());
         } catch (ExecutionException e) {
