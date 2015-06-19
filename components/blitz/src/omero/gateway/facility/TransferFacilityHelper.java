@@ -932,7 +932,7 @@ public class TransferFacilityHelper {
             long imageId) throws DSAccessException, DSOutOfServiceException {
         List<File> files = new ArrayList<File>();
 
-        ImageData image = browse.findObject(context, ImageData.class, imageId);
+        ImageData image = browse.findObject(context, ImageData.class, imageId, true);
 
         String query;
         List<?> filesets;
