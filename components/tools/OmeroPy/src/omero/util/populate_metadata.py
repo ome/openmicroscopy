@@ -113,7 +113,9 @@ class HeaderResolver(object):
 
     def __init__(self, target_object, headers):
         self.target_object = target_object
-        self.headers = [v.replace('/', '\\') for v in headers]
+        # TODO: why do we need to replace '/'?
+        # self.headers = [v.replace('/', '\\') for v in headers]
+        self.headers = headers
         self.headers_as_lower = [v.lower() for v in self.headers]
 
     def create_columns(self):
