@@ -373,6 +373,12 @@
 
       // Show postit. Table will be built on callback from loading
       $("#roi_table_postit").show();
+      // Check all ROI visibility buttons
+      $('#toggle_roi_visibility').prop("checked", true);
+      $('[class^="shape_visibility"]').each(function(index, checkbox) {
+        checkbox.checked = true;
+      });
+      // if roi_table_postit is closed using close button, hide ROIs
       $(".postit-close-btn").on("click", function() {hide_rois(); return false;});
 
       // Disable the "Show ROIs" button ...
