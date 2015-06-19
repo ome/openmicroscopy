@@ -88,9 +88,9 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
             'name': 'Run 1',
-            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+            'permsCss':
+                'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         }
 
         marshaled = marshal_plate_acquisition(mock_conn, row)
@@ -108,9 +108,9 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
             'name': 'name',
-            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+            'permsCss':
+                'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         }
 
         marshaled = marshal_plate_acquisition(mock_conn, row)
@@ -128,9 +128,9 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
             'name': '2014-05-08 10:37:02 - 2014-05-08 10:38:30',
-            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+            'permsCss':
+                'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         }
 
         marshaled = marshal_plate_acquisition(mock_conn, row)
@@ -148,7 +148,6 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': False,
             'name': 'Run 1',
             'permsCss': 'canEdit canAnnotate canLink canDelete'
         }
@@ -179,7 +178,9 @@ class TestTree(object):
             received = filter(None, received.split(' '))
             received.sort()
             assert expected == received
-            # Test with matching owner_ids, which means canChgrp is True
+            # Test with matching owner_ids, which means
+            # isOwned and canChgrp is True
+            expected.append('isOwned')
             expected.append('canChgrp')
             expected.sort()
             received = parse_permissions_css(permissions_dict,
@@ -199,9 +200,9 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
             'name': 'name',
-            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
+            'permsCss':
+                'canEdit canAnnotate canLink canDelete isOwned canChgrp',
             'childCount': 1
         }
 
@@ -218,7 +219,6 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': False,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
             'childCount': 1
@@ -236,9 +236,9 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
             'name': 'name',
-            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
+            'permsCss':
+                'canEdit canAnnotate canLink canDelete isOwned canChgrp',
             'plateAcquisitions': list()
         }
 
@@ -254,7 +254,6 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': False,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
             'plateAcquisitions': list()

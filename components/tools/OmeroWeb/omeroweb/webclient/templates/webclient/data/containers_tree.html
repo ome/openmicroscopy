@@ -25,18 +25,18 @@
 
 
 <ul>
-    <li id="experimenter-0" rel="experimenter{% ifnotequal manager.experimenter.id ome.eventContext.userId %}-locked{% endifnotequal %}">
-        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ui.dropdown_menu.everyone }}{% endif %}</a>
+    <li id="experimenter-0" rel="experimenter">
+        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{% if share.shSize %}Public{% else %}{{ ui.dropdown_menu.everyone }}{% endif %}{% endif %}</a>
         <ul>
             {% for c in projects %}
-            <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.permsCss }}">
+            <li id='project-{{ c.id }}' rel="project" class="{{ c.permsCss }}">
 				<a href="#">{{ c.name|default:"Project"|escape|truncatebefor:"35" }} {% if c.childCount %}
 					<span class="children_count" id="counter-project-{{ c.id }}">{{ c.childCount }}</span>{% endif %}
 				</a>
                 {% if c.childCount %}
                 <ul>
                     {% for d in c.datasets %}
-                        <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
+                        <li id='dataset-{{ d.id }}' rel="dataset" 
                                 class="{{ d.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
 							<a href="#">{{ d.name|default:"Dataset"|escape|truncatebefor:"35" }} {% if d.childCount %}
 								<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.childCount }}
@@ -54,7 +54,7 @@
 		
 		
             {% for d in datasets %}
-                <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
+                <li id='dataset-{{ d.id }}' rel="dataset" 
                         class="{{ d.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
 					<a href="#">{{ d.name|default:"Dataset"|escape|truncatebefor:"35" }} {% if d.childCount %}
 						<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.childCount}}
@@ -67,18 +67,18 @@
 			
 			
             {% for c in screens %}
-            <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}" class="{{ c.permsCss }}">
+            <li id='screen-{{ c.id }}' rel="screen" class="{{ c.permsCss }}">
 				<a href="#">{{ c.name|default:"Screen"|escape|truncatebefor:"35" }} {% if c.childCount %}
 					<span class="children_count" id="counter-screen-{{ c.id }}">{{ c.childCount }}</span>{% endif %}</a>
                 {% if c.childCount %}
                 <ul>
                     {% for p in c.plates %}
-                        <li id='plate-{{ p.id }}' rel="plate{% if not p.isOwned %}-locked{% endif %}" class="{{ p.permsCss }}">
+                        <li id='plate-{{ p.id }}' rel="plate" class="{{ p.permsCss }}">
                             <a href="#">{{ p.name|default:"Plate"|escape|truncatebefor:"35" }}</a>
                             {% if p.plateAcquisitionCount %}
                             <ul>
                                 {% for a in p.plateAcquisitions %}
-                                    <li id='acquisition-{{ a.id }}' rel="acquisition{% if not a.isOwned %}-locked{% endif %}" class="{{ a.permsCss }}">
+                                    <li id='acquisition-{{ a.id }}' rel="acquisition" class="{{ a.permsCss }}">
                                         <a href="#">{{ a.name|default:"Run"|escape|truncatebefor:"35" }}</a>
                                     </li>
                                 {% endfor %}
@@ -95,12 +95,12 @@
 			
 			
             {% for d in plates %}
-            <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.permsCss }}">
+            <li id='plate-{{ d.id }}' rel="plate" class="{{ d.permsCss }}">
                 <a href="#">{{ d.name|default:"Plate"|escape|truncatebefor:"35" }}</a>
                 {% if d.plateAcquisitionCount %}
                 <ul>
                     {% for e in d.plateAcquisitions %}
-                        <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.permsCss }}">
+                        <li id='acquisition-{{ e.id }}' rel="acquisition" class="{{ e.permsCss }}">
                             <a href="#">{{ e.name|default:"Run"|escape|truncatebefor:"35" }}</a>
                         </li>
                     {% endfor %}
@@ -117,15 +117,15 @@
         {% if share.shSize %}
             {% for s in share.shares %}
             {% if s.isEmpty %}
-            <li id='discussion-{{ s.id }}' rel="discussion{% if not s.canEdit %}-locked{% endif %}"><a href="#">{{ s.id }}</a></li>
+            <li id='discussion-{{ s.id }}' rel="discussion" class="{% if s.isOwned %}isOwned{% endif %}"><a href="#">{{ s.id }}</a></li>
             {% else %}
                 {% if s.isOwned %}
-                <li id='share-{{ s.id }}' rel="share" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
+                <li id='share-{{ s.id }}' rel="share" class="{% if s.isOwned %}isOwned{% endif %} jstree-closed"><a href="#">{{ s.id }}</a></li>
                 {% else %}
                     {% if s.active %}
-                    <li id='share-{{ s.id }}' rel="share-locked" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
+                    <li id='share-{{ s.id }}' rel="share" class="jstree-closed {% if s.isOwned %}isOwned{% endif %}"><a href="#">{{ s.id }}</a></li>
                     {% else %}
-                    <li id='share-{{ s.id }}' rel="share-disabled"><a href="#">{{ s.id }} DISABLED</a></li>
+                    <li id='share-{{ s.id }}' rel="share" class="disabled"><a href="#">{{ s.id }} DISABLED</a></li>
                     {% endif %}
                 {% endif %}
             {% endif %}

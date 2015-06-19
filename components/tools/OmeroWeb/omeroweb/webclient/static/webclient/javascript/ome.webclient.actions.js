@@ -72,7 +72,7 @@ OME.handle_tree_selection = function(data) {
         var share_id = null;
         if (selected.length == 1) {
             var pr = selected.parent().parent();
-            if (pr.length>0 && pr.attr('rel') && pr.attr('rel').replace("-locked", "")==="share") {
+            if (pr.length>0 && pr.attr('rel') && pr.attr('rel')==="share") {
                 share_id = pr.attr("id").split("-")[1];
             }
         }
@@ -484,7 +484,7 @@ OME.handleDelete = function() {
         if (!first_parent) first_parent = datatree._get_parent(this);
         var $this = $(this);
         ajax_data[i] = $this.attr('id').replace("-","=");
-        var dtype = $this.attr('rel').replace("-locked", "");
+        var dtype = $this.attr('rel');
         if (dtype in dtypes) dtypes[dtype] += 1;
         else dtypes[dtype] = 1;
         if (!q && $this.attr('rel').indexOf('image')<0) q = true;

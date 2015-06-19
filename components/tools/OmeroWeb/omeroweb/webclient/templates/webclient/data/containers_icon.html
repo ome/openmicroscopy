@@ -205,7 +205,7 @@
                 var sel_obj, imgId;
                 for (var _s=0; _s<sel_objs.length; _s++) {
                     sel_obj = sel_objs[_s];
-                    if (sel_obj.rel.replace("-locked","") == "image") {
+                    if (sel_obj.rel == "image") {
                         imgId = sel_obj.id.split("-")[1];
                         $("#image_icon-"+imgId).addClass('ui-selected');
                         fsIds[sel_obj.fileset] = true;

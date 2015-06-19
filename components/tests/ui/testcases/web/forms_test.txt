@@ -111,8 +111,8 @@ Test Discussion
     Select From List                            css=#create_discussion_form select      1
     Submit Form                                 create_discussion_form
     # Click Element                               css=div.ui-dialog-buttonset:visible button:first
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a    60
-    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion']/a    60
+    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion']/a
     # Test Editing of Discussion. NB: Adding a Comment to Share is currently broken.
     Wait Until Page Contains Element            id=edit_share
     Click Element                               id=edit_share
@@ -121,8 +121,8 @@ Test Discussion
     Submit Form                                 edit_share_form
     # Bug - right panel does not refresh on it's own. Need to click the discussion in tree again
     Go To                                       ${WELCOME URL}public/
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a    60
-    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion']/a    60
+    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion']/a
     Wait Until Page Contains                    Edited Discussion Message       60
     # Add Comment
     Input Text                                  id_comment      New Discussion Comment
