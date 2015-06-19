@@ -534,6 +534,37 @@
                         $("#ratingsSummary").show();
                     });
                 }
+
+                // For wells, we try to load Bulk table annotations attached to parent Screen / Plate
+                // loading just the row we need for the current well.
+                {% if manager.well %}
+                    var wellsUrl = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' manager.well.id %}";
+                        linksUrl = "{% url 'webgateway_object_table_query' 'Plate.wells' manager.well.id %}",
+                        wellId = {{ manager.well.id }};
+
+                    var showBulkAnnTooltip = function(data) {
+                        var bulkAnnTooltip = "<span class='tooltip_html' style='display:none'>" +
+                            "Data from tables file:<br />" +
+                            "<b>File ID:</b> " + data.id + "<br />" +
+                            "<b>Owner:</b> " + data.owner + " <br />" +
+                            "<b>Annotation ID:</b> " + data.annId + "<br />" +
+                            "<b>Linked to:</b> " + data.parentType + " " + data.parentId + "<br />" +
+                            "<b>Linked by:</b> " + data.addedBy + " <br />" +
+                            "<b>On:</b> " + OME.formatDate(data.addedOn) + "</span>";
+                        $("#bulk-annotations").append(bulkAnnTooltip);
+                        $("#bulk-annotations").parent().tooltip({
+                                items: '.bulk_annotation',
+                                content: function() {
+                                    return $("span.tooltip_html", this).html();
+                                },
+                                track: true,
+                                show: false,
+                                hide: false
+                            });
+                    }
+                    loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
+                    loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
+                {% endif %}
             });
             
     </script>
@@ -824,6 +855,13 @@
             <hr style="margin-top:0" />
 
             <div class="annotations_section">
+
+                <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Tables</h2>
+                <div style="display: none;">
+                    <table id="bulk_annotations_table">
+                    </table>
+                </div>
+                <div style="clear:both; margin:8px"></div>
 
             <!-- RATING -->
       

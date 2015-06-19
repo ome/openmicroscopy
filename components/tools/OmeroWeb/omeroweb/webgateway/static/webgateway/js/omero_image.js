@@ -242,6 +242,69 @@
         syncRDCW(viewport);     // update undo/redo etc
     };
 
+
+    // This is called on load of viewport in Image viewer, but not preview panel
+    window._load_metadata = function(ev, viewport) {
+
+        /* Image details */
+        var tmp = viewport.getMetadata();
+        $('#wblitz-image-name').html(tmp.imageName);
+        $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
+        $('#wblitz-image-author').html(tmp.imageAuthor);
+        $('#wblitz-image-pub').html(tmp.projectName);
+        $('#wblitz-image-pubid').html(tmp.projectId);
+        $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
+
+        $("#bulk-annotations").hide();
+        $("#bulk-annotations").next().hide();
+        if (tmp.wellId) {
+
+            var wellsUrl = PLATE_WELLS_URL_999.replace('999', tmp.wellId),
+                linksUrl = PLATE_LINKS_URL_999.replace('999', tmp.wellId);
+            loadBulkAnnotations(wellsUrl, tmp.wellId);
+            loadBulkAnnotations(linksUrl, tmp.wellId);
+        }
+    };
+
+
+    // Used in the Image viewer and in metadata general panel
+    window.loadBulkAnnotations = function(url, wellId, callback) {
+        // Load bulk annotations for screen or plate
+        $.getJSON(url + '?query=Well-' + wellId + '&callback=?',
+            function(result) {
+                if (result.data && result.data.rows) {
+                    var table = $("#bulk-annotations").show().next().show().children("table");
+                    for (var col = 0; col < result.data.columns.length; col++) {
+                        var url = false;
+                        var label = result.data.columns[col].escapeHTML();
+                        if (result.data.descriptions && result.data.descriptions[col]) {
+                            desc = result.data.descriptions[col];
+                            url = desc.url;
+                        }
+                        var values = [],
+                            v, href;
+                        for (var r = 0; r < result.data.rows.length; r++) {
+                          v = ("" + result.data.rows[r][col]).escapeHTML();
+                          if (url) {
+                            href = url.replace("%s", v);
+                            v = "<a target='new' href='" + href + "'>" + v + "</a>";
+                          }
+                          values.push(v);
+                        }
+                        var value = values.join('<br />');
+                        var row = $('<tr><td class="title"></td><td></td></tr>');
+                        row.addClass(col % 2 == 1 ? 'odd' : 'even');
+                        $('td:first-child', row).html(label + ":&nbsp;");
+                        $('td:last-child', row).html(value);
+                        table.append(row);
+                    }
+                    if (callback) {
+                        callback(result);
+                    }
+                }
+        });
+    };
+
     /**
     * Gets called when an image is initially loaded.
     * This is the place to sync everything; rendering model, quality, channel buttons, etc.
@@ -285,46 +348,6 @@
         // disable 'split' view for single channel images.
         if (channels.length < 2) {
             $("#wblitz input[value='split']").prop('disabled', true);
-        }
-
-        /* Image details */
-        var tmp = viewport.getMetadata();
-        $('#wblitz-image-name').html(tmp.imageName);
-        $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
-        $('#wblitz-image-author').html(tmp.imageAuthor);
-        $('#wblitz-image-pub').html(tmp.projectName);
-        $('#wblitz-image-pubid').html(tmp.projectId);
-        $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
-
-        $("#bulk-annotations").hide();
-        $("#bulk-annotations").next().hide();
-        if (tmp.wellId) {
-            // Load bulk annotations for plate
-            var onAnnotations = function(result) {
-                if (result.data && result.data.rows) {
-                    var table = $("#bulk-annotations").show().next().show().children("table");
-                    for (var col = 0; col < result.data.columns.length; col++) {
-                        var label = result.data.columns[col];
-                        var value = '';
-                        for (var r = 0; r < result.data.rows.length; r++) {
-                          value += result.data.rows[r][col] + '<br />';
-                        }
-                        var row = $('<tr><td class="title"></td><td></td></tr>');
-                        row.addClass(col % 2 == 1 ? 'odd' : 'even');
-                        $('td:first-child', row).html(label + ":&nbsp;");
-                        $('td:last-child', row).html(value);
-                        table.append(row);
-                    }
-                }
-            };
-            $.getJSON(PLATE_WELLS_URL_999.replace('999', tmp.wellId) +
-                '?query=Well-' + tmp.wellId +
-                '&callback=?',
-                onAnnotations);
-            $.getJSON(PLATE_LINKS_URL_999.replace('999', tmp.wellId) +
-                '?query=Well-' + tmp.wellId +
-                '&callback=?',
-                onAnnotations);
         }
 
         // TODO: this used anywhere?
