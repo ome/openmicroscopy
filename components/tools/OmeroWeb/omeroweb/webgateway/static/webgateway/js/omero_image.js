@@ -279,15 +279,48 @@
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
                     var html = result.data.columns.map(function(col, colIdx) {
+                        var url = false;
                         var label = col.escapeHTML();
+                        if (result.data.descriptions && result.data.descriptions[colIdx]) {
+                            url = result.data.descriptions[colIdx].url;
+                        }
                         var values = result.data.rows.map(function(row){
-                            return ("" + row[colIdx]).escapeHTML();
+                            var v = ("" + row[colIdx]).escapeHTML();
+                            if (url) {
+                                var href = url.replace("%s", v);
+                                v = "<a target='new' href='" + href + "'>" + v + "</a>";
+                            }
+                            return v;
                         });
                         values = values.join('<br />');
                         var oddEvenClass = col % 2 == 1 ? 'odd' : 'even';
                         return '<tr><td class="title ' + oddEvenClass + '">' + label + ':&nbsp;</td><td>' + values + '</td></tr>';
                     });
                     table.html(html.join(""));
+                    for (var col = 0; col < result.data.columns.length; col++) {
+                        var url = false;
+                        var label = result.data.columns[col].escapeHTML();
+                        if (result.data.descriptions && result.data.descriptions[col]) {
+                            desc = result.data.descriptions[col];
+                            url = desc.url;
+                        }
+                        var values = [],
+                            v, href;
+                        for (var r = 0; r < result.data.rows.length; r++) {
+                          v = ("" + result.data.rows[r][col]).escapeHTML();
+                          if (url) {
+                            href = url.replace("%s", v);
+                            v = "<a target='new' href='" + href + "'>" + v + "</a>";
+                          }
+                          values.push(v);
+                        }
+                        var value = values.join('<br />');
+                        var row = $('<tr><td class="title"></td><td></td></tr>');
+                        row.addClass(col % 2 == 1 ? 'odd' : 'even');
+                        $('td:first-child', row).html(label + ":&nbsp;");
+                        $('td:last-child', row).html(value);
+                        table.append(row);
+                    }
                     if (callback) {
                         callback(result);
                     }
