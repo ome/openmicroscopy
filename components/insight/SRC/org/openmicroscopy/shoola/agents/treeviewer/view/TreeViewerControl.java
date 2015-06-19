@@ -959,10 +959,14 @@ class TreeViewerControl
 			downloadScript(new ScriptActivityParam(script,
 					ScriptActivityParam.DOWNLOAD));
 		} else {
-			GroupData g = model.getSelectedGroup();
-			if (g == null) 
-				g = TreeViewerAgent.getUserDetails().getDefaultGroup();
-			ctx = new SecurityContext(g.getId());
+		    long groupID = script.getGroupID();
+		    if (groupID < 0) {
+		        GroupData g = model.getSelectedGroup();
+	            if (g == null) 
+	                g = TreeViewerAgent.getUserDetails().getDefaultGroup();
+	            groupID = g.getId();
+		    }
+			ctx = new SecurityContext(groupID);
 			un.notifyActivity(ctx, new ScriptActivityParam(script,
 					ScriptActivityParam.RUN));
 		}
