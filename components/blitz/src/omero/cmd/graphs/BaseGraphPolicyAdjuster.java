@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 package omero.cmd.graphs;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,15 +66,6 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
         return false;
     }
 
-    /**
-     * An opportunity to reverse any change to each model object after the graph policy reviews it.
-     * @param object the model object after review
-     * @return if this object should <em>not</em> be adjusted
-     */
-    protected boolean isBlockedFromAdjustment(Details object) {
-        return false;
-    }
-
     @Override
     public void registerPredicate(GraphPolicyRulePredicate predicate) {
         graphPolicy.registerPredicate(predicate);
@@ -105,7 +95,14 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
     public final Set<Details> review(Map<String, Set<Details>> linkedFrom, Details rootObject, Map<String, Set<Details>> linkedTo,
             Set<String> notNullable, boolean isErrorRules) throws GraphException {
         /* note all the model objects that may be adjusted in review */
-        final Set<Details> allTerms = GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
+        final Set<Details> allTerms = new HashSet<Details>();
+        allTerms.add(rootObject);
+        for (final Set<Details> terms : linkedFrom.values()) {
+            allTerms.addAll(terms);
+        }
+        for (final Set<Details> terms : linkedTo.values()) {
+            allTerms.addAll(terms);
+        }
         /* allow isAdjustedBeforeReview to adjust objects before review */
         final Set<Details> changedTerms = new HashSet<Details>();
         for (final Details object : allTerms) {
@@ -119,13 +116,6 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
         for (final Details object : allTerms) {
             if (isAdjustedAfterReview(object)) {
                 changedTerms.add(object);
-            }
-        }
-        /* allow isBlockedFromAdjustment to block any adjustments */
-        final Iterator<Details> changedTermIterator = changedTerms.iterator();
-        while (changedTermIterator.hasNext()) {
-            if (isBlockedFromAdjustment(changedTermIterator.next())) {
-                changedTermIterator.remove();
             }
         }
         return changedTerms;
