@@ -1744,10 +1744,13 @@ def annotate_rating(request, conn=None, **kwargs):
     """
     rating = getIntOrDefault(request, 'rating', 0)
     oids = getObjects(request, conn)
+    well_index = getIntOrDefault(request, 'index', 0)
 
     # add / update rating
     for otype, objs in oids.items():
         for o in objs:
+            if isinstance(o._obj, omero.model.WellI):
+                o = o.getWellSample(well_index).image()
             o.setRating(rating)
 
     # return a summary of ratings
