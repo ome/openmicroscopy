@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.SecurityContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -23,10 +23,6 @@
  */
 package omero.gateway;
 
-//Java imports
-
-//Third-party libraries
-//Application-internal dependencies
 import pojos.ExperimenterData;
 
 import com.google.common.base.Objects;
@@ -40,10 +36,8 @@ import com.google.common.base.Objects;
  */
 public class SecurityContext {
 
-    public static final long UNDEFINED = -1;
-    
     /** The identifier of the group. */
-    private long groupID = UNDEFINED;
+    private long groupID = -1;
 
     /** The experimenterID if required. */
     private ExperimenterData experimenter;
@@ -54,7 +48,7 @@ public class SecurityContext {
     private ServerInformation serverInformation;
 
     private float compression;
-    
+
     /**
      * Creates a new instance.
      * 
@@ -99,7 +93,7 @@ public class SecurityContext {
      */
     public long getExperimenter() {
         if (experimenter == null)
-            return UNDEFINED;
+            return -1;
         return experimenter.getId();
     }
 
@@ -149,7 +143,6 @@ public class SecurityContext {
         ctx.setCompression(compression);
         return ctx;
     }
-    
 
     /**
      * Calculate the hashCode for the data.
