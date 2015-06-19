@@ -64,7 +64,6 @@
 	<property name="render.comp"    value="${components.dir}/rendering"/>
 	<property name="import.comp"    value="${components.dir}/importer"/>
 	<property name="blitz.comp"     value="${components.dir}/blitz"/>
-	<property name="bioformats.comp"     value="${components.dir}/bioformats"/>
 	<property name="tools.comp"     value="${components.dir}/tools"/>
 	<property name="insight.comp"   value="${components.dir}/insight"/>
 	<property name="OmeroCpp.comp"     value="${tools.comp}/OmeroCpp"/>

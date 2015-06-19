@@ -35,18 +35,18 @@
     <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->default"/>
     <!-- Moving all testing dependencies back to "build" for eclipse .classpath generation-->
     <dependency org="org.springframework" name="org.springframework.test" rev="${versions.spring}" conf="build->*"/>
-    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}" conf="build->default"/>
-    <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build->default"/>
-    <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build->default"/>
-    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="build->default"/>
-    <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
-    <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>
-    <dependency org="net.sourceforge.findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
-    <dependency org="oro" name="oro" rev="${versions.oro}" conf="build->default"/>
-    <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}" conf="build->default"/>
-    <dependency org="org.testng" name="testng" rev="${versions.testng}" conf="build->default"/>
-    <dependency org="com.google.guava" name="guava" rev="${versions.guava}" conf="build->default"/>
-    <dependency org="com.google.inject" name="guice" rev="2.0" conf="build->default"/>
-    <dependency org="org.uncommons" name="reportng" rev="${versions.reportng}" conf="build->default"/>
+    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
+    <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
+    <dependency org="antlr" name="antlr" rev="${versions.antlr}"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
+    <dependency org="jmock" name="jmock" rev="1.0.1"/>
+    <dependency org="junit" name="junit" rev="3.8.1"/>
+    <dependency org="net.sourceforge.findbugs" name="findbugs-ant" rev="${versions.findbugs}"/>
+    <dependency org="oro" name="oro" rev="${versions.oro}"/>
+    <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
+    <dependency org="org.testng" name="testng" rev="${versions.testng}"/>
+    <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
+    <dependency org="com.google.inject" name="guice" rev="2.0"/>
+    <dependency org="org.uncommons" name="reportng" rev="${versions.reportng}"/>
  </dependencies>
 </ivy-module>
