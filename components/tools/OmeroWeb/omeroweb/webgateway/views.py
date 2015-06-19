@@ -2312,13 +2312,16 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
         if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
             continue
         owner = annotation.details.owner
+        ownerName = "%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName))
         addedBy = link.details.owner
+        addedByName = "%s %s" % (unwrap(addedBy.firstName),
+                                 unwrap(addedBy.lastName))
         data.append(dict(id=annotation.id.val,
                          file=annotation.file.id.val,
                          parentType=objtype[0],
                          parentId=obj.id.val,
-                         owner="%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName)),
-                         addedBy="%s %s" % (unwrap(addedBy.firstName), unwrap(addedBy.lastName)),
+                         owner=ownerName,
+                         addedBy=addedByName,
                          addedOn=unwrap(link.details.creationEvent._time)))
     return dict(data=data)
 
