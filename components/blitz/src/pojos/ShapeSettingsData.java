@@ -416,9 +416,12 @@ public class ShapeSettingsData
 		if (size != null) {
 		    try {
                 return (new LengthI(size, UnitsLength.POINT)).getValue();
-            } catch (BigResult e) {
-                if (e.result != null) {
-                    return e.result.doubleValue();
+            } catch (Exception e) {
+                if (e instanceof BigResult) {
+                    BigResult ex = (BigResult) e;
+                    if (ex.result != null) {
+                        return ex.result.doubleValue();
+                    }
                 }
             }
 		}
