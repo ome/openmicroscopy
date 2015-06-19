@@ -4328,17 +4328,15 @@ class TreeViewerComponent
 		if (script == null) return;
 		model.setScript(script);
 		Browser browser = model.getSelectedBrowser();
-		Collection<DataObject> objects;
+		List<DataObject> objects;
 		if (browser == null) objects = new ArrayList<DataObject>();
 		else objects = browser.getSelectedDataObjects();
 
 		if (CollectionUtils.isEmpty(objects)) {
 		    DataBrowser db = model.getDataViewer();
-		    if (db != null) {
-		        objects = db.getBrowser().getSelectedDataObjects();
-		    }
-		    if (CollectionUtils.isEmpty(objects)) {
-	            objects = new ArrayList<DataObject>();
+		    objects = new ArrayList<DataObject>();
+		    if (db != null && db.getBrowser() != null) {
+		        objects.addAll(db.getBrowser().getSelectedDataObjects());
 		    }
 		}
 		//setStatus(false);
