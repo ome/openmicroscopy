@@ -3974,8 +3974,7 @@ class TreeViewerComponent
 		
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
-		mv.addPropertyChangeListener(controller);
-		
+
 		//reset search
 		clearFoundResults();
 	}
@@ -3996,8 +3995,7 @@ class TreeViewerComponent
 		view.clearMenus();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
-		mv.addPropertyChangeListener(controller);
-		
+
 		//reset search
 		clearFoundResults();
 		model.getAdvancedFinder().reset(
@@ -4896,5 +4894,18 @@ class TreeViewerComponent
     public boolean isSystemGroup(long groupID, String key)
     {
         return model.isSystemGroup(groupID, key);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#getSelectedObjectsFromBrowser()
+     */
+    public Collection<DataObject> getSelectedObjectsFromBrowser()
+    {
+        DataBrowser db = model.getDataViewer();
+        if (db != null && db.getBrowser() != null) {
+            return db.getBrowser().getSelectedDataObjects();
+        }
+        return null;
     }
 }

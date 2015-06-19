@@ -58,6 +58,7 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -1358,11 +1359,20 @@ class TreeViewerControl
 			if (param.isSelectedObjects()) {
 				Browser b = model.getSelectedBrowser();
 				if (b != null) l = b.getSelectedDataObjects();
-				else l = model.getDisplayedImages();
+				else {
+				    l = new ArrayList<DataObject>();
+	                Collection<DataObject> nodes = model.getSelectedObjectsFromBrowser();
+	                if (nodes != null) {
+	                    l.addAll(nodes);
+	                }
+	                if (CollectionUtils.isEmpty(l)) {
+	                    l = model.getDisplayedImages();
+	                }
+				}
 			} else {
 				l = model.getDisplayedImages();
 			}
-			if (l == null) return;
+			if (CollectionUtils.isEmpty(l)) return;
 			Class klass = null;
 			Object p = null;
 			if (param.getIndex() == FigureParam.THUMBNAILS) {
@@ -1373,16 +1383,7 @@ class TreeViewerControl
 						TreeImageDisplay node = nodes[0];
 						Object ho = node.getUserObject();
 						TreeImageDisplay pNode;
-
 						if (ho instanceof DatasetData) {
-							/*
-							klass = ho.getClass();
-							pNode = node.getParentDisplay();
-							if (pNode != null) {
-								p = pNode.getUserObject();
-								if (!(p instanceof ProjectData)) p = null;
-							}
-							*/
 							klass = ho.getClass();
 							p = ho;
 						} else if (ho instanceof ImageData) {

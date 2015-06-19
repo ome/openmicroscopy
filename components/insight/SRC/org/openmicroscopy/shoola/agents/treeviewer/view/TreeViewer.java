@@ -1189,4 +1189,10 @@ public interface TreeViewer
      */
     boolean isSystemGroup(long groupID, String key);
 
+    /**
+     * Returns the objects selected in the central panel.
+     *
+     * @return See above.
+     */
+    Collection<DataObject> getSelectedObjectsFromBrowser();
 }
