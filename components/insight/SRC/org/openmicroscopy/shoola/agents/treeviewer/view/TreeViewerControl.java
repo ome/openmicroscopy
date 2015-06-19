@@ -1365,9 +1365,6 @@ class TreeViewerControl
 	                if (nodes != null) {
 	                    l.addAll(nodes);
 	                }
-	                if (CollectionUtils.isEmpty(l)) {
-	                    l = model.getDisplayedImages();
-	                }
 				}
 			} else {
 				l = model.getDisplayedImages();
