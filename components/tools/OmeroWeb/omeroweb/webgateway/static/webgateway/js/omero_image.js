@@ -275,11 +275,23 @@
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
                     for (var col = 0; col < result.data.columns.length; col++) {
+                        var url = false;
                         var label = result.data.columns[col].escapeHTML();
-                        var value = '';
-                        for (var r = 0; r < result.data.rows.length; r++) {
-                          value += ("" + result.data.rows[r][col]).escapeHTML() + '<br />';
+                        if (result.data.descriptions && result.data.descriptions[col]) {
+                            desc = result.data.descriptions[col];
+                            url = desc.url;
                         }
+                        var values = [],
+                            v, href;
+                        for (var r = 0; r < result.data.rows.length; r++) {
+                          v = ("" + result.data.rows[r][col]).escapeHTML();
+                          if (url) {
+                            href = url.replace("%s", v);
+                            v = "<a target='new' href='" + href + "'>" + v + "</a>";
+                          }
+                          values.push(v);
+                        }
+                        var value = values.join('<br />');
                         var row = $('<tr><td class="title"></td><td></td></tr>');
                         row.addClass(col % 2 == 1 ? 'odd' : 'even');
                         $('td:first-child', row).html(label + ":&nbsp;");
