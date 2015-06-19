@@ -575,7 +575,7 @@ class InputServerStrategy
         try {
             value = data.getStrokeWidth(UnitsLength.PIXEL).getValue();
         } catch (BigResult e) {
-            value = 1d;
+            value = ShapeSettingsData.DEFAULT_STROKE_WIDTH;
         }
 		STROKE_WIDTH.set(figure, value);
 		STROKE_COLOR.set(figure, data.getStroke());
@@ -585,7 +585,7 @@ class InputServerStrategy
 		try {
             value = data.getFontSize(UnitsLength.POINT).getValue();
         } catch (BigResult e) {
-            value = 10d;
+            value = new Double(ShapeSettingsData.DEFAULT_FONT_SIZE);
         }
 		FONT_SIZE.set(figure, value);
 		FONT_ITALIC.set(figure, data.isFontItalic());
