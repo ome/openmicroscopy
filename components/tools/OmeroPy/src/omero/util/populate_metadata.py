@@ -113,8 +113,6 @@ class HeaderResolver(object):
 
     def __init__(self, target_object, headers):
         self.target_object = target_object
-        # TODO: why do we need to replace '/'?
-        # self.headers = [v.replace('/', '\\') for v in headers]
         self.headers = headers
         self.headers_as_lower = [v.lower() for v in self.headers]
 
@@ -146,6 +144,8 @@ class HeaderResolver(object):
                     k, v = description.split("=", 1)
                     k = k.strip()
                     description = json.dumps({k: v.strip()})
+            # HDF5 does not allow / in column names
+            name = name.replace('/', '\\')
             try:
                 column = self.screen_keys[header_as_lower](name, description,
                                                            list())
@@ -175,6 +175,8 @@ class HeaderResolver(object):
                     k, v = description.split("=", 1)
                     k = k.strip()
                     description = json.dumps({k: v.strip()})
+            # HDF5 does not allow / in column names
+            name = name.replace('/', '\\')
             try:
                 column = self.plate_keys[header_as_lower](name, description,
                                                           list())
