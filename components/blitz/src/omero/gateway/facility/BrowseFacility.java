@@ -121,11 +121,37 @@ public class BrowseFacility extends Facility {
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id) throws DSOutOfServiceException,
             DSAccessException {
-        String klassName = PojoMapper.getModelType(klass).getSimpleName();
-        IObject obj = findIObject(ctx, klassName, id, false);
-        return (T) PojoMapper.asDataObject(obj);
+        return findObject(ctx, klass, id, false);
     }
 
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param klass
+     *            The type of object to retrieve.
+     * @param id
+     *            The object's id.
+     * @param allGroups
+     *            Pass <code>true</code> to take all groups into account,
+     *            <code>false</code> to only use ctx's group
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DataObject> T findObject(SecurityContext ctx,
+            Class<T> klass, long id, boolean allGroups)
+            throws DSOutOfServiceException, DSAccessException {
+        String klassName = PojoMapper.getModelType(klass).getSimpleName();
+        IObject obj = findIObject(ctx, klassName, id, allGroups);
+        return (T) PojoMapper.asDataObject(obj);
+    }
+    
     /**
      * Retrieves an updated version of the specified object.
      *
