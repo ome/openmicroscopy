@@ -36,8 +36,10 @@ import java.util.List;
 import java.util.Map;
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
 
 
 //Application-internal dependencies
@@ -51,10 +53,10 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
 import omero.log.LogMessage;
 
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
