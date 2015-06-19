@@ -417,7 +417,9 @@ public class ShapeSettingsData
 		    try {
                 return (new LengthI(size, UnitsLength.POINT)).getValue();
             } catch (BigResult e) {
-                return e.result.doubleValue();
+                if (e.result != null) {
+                    return e.result.doubleValue();
+                }
             }
 		}
 		return DEFAULT_FONT_SIZE;
