@@ -27,14 +27,16 @@
         <thead>
           <tr class="tooltip">
               <th colspan="2">
-                {% if ma %} Added by: {{ ma.getOwner.getFullName }} {% endif %}
+                {% if ma %}
+                    Added by: {{ ma.getOwner.getFullName }}
 
-                <span class="tooltip_html" style='display:none'>
-                    <b>ID:</b> {{ ma.id }}<br />
-                    <b>Owner:</b> {{ ma.getOwner.getFullName }}<br />
-                    <b>Linked by:</b> {{ ma.link.getDetails.getOwner.getFullName }}<br />
-                    <b>On:</b> {{ ma.link.creationEventDate|date:"Y-m-d H:i:s" }}
-                </span>
+                    <span class="tooltip_html" style='display:none'>
+                        <b>ID:</b> {{ ma.id }}<br />
+                        <b>Owner:</b> {{ ma.getOwner.getFullName }}<br />
+                        <b>Linked by:</b> {{ ma.link.getDetails.getOwner.getFullName }}<br />
+                        <b>On:</b> {{ ma.link.creationEventDate|date:"Y-m-d H:i:s" }}
+                    </span>
+                {% endif %}
               </th>
             </tr>
           {% if showTableHead %}
