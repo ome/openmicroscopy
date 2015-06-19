@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -124,7 +124,7 @@ public class GraphPolicyRule {
      * Matches an existing named term.
      */
     private static class ExistingTermMatch implements TermMatch {
-        private final String termName;
+        final String termName;
 
         /**
          * Construct an existing term match.
@@ -292,7 +292,23 @@ public class GraphPolicyRule {
             }
             return isMatch;
         }
-    }
+
+        /**
+         * @return the name of the existing left term required for this relationship match,
+         * or {@code null} if the left term is not an existing term
+         */
+        String getExistingLeftTerm() {
+            return leftTerm instanceof ExistingTermMatch ? ((ExistingTermMatch) leftTerm).termName : null;
+        }
+
+        /**
+         * @return the name of the existing right term required for this relationship match,
+         * or {@code null} if the right term is not an existing term
+         */
+        String getExistingRightTerm() {
+            return rightTerm instanceof ExistingTermMatch ? ((ExistingTermMatch) rightTerm).termName : null;
+        }
+}
 
     /**
      * Matches conditions available via {@link GraphPolicy#isCondition(String)}.
@@ -472,9 +488,15 @@ public class GraphPolicyRule {
         } else if (classNameGroup.charAt(0) == '!') {
             requiredClass = null;
             prohibitedClass = graphPathBean.getClassForSimpleName(classNameGroup.substring(1));
+            if (prohibitedClass == null) {
+                throw new GraphException("unknown class named in " + term);
+            }
         } else {
             requiredClass = graphPathBean.getClassForSimpleName(classNameGroup);
             prohibitedClass = null;
+            if (requiredClass == null) {
+                throw new GraphException("unknown class named in " + term);
+            }
         }
 
         /* parse actions, if any */
@@ -865,7 +887,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linked object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkerObject : dataPerProperty.getValue()) {
                     if (matcher.isMatch(namedTerms, isCheckAllPermissions,
                             linkerObject, rootObject, classProperty, isNotNullable)) {
@@ -878,7 +900,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linker object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkedObject : dataPerProperty.getValue()) {
                     if (matcher.isMatch(namedTerms, isCheckAllPermissions,
                             rootObject, linkedObject, classProperty, isNotNullable)) {
@@ -929,7 +951,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linked object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkerObject : dataPerProperty.getValue()) {
                     unmatchedTermIterator = unmatchedTerms.iterator();
                     while (unmatchedTermIterator.hasNext()) {
@@ -951,7 +973,7 @@ public class GraphPolicyRule {
             /* consider the root object as the linker object */
             for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
                 final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                final boolean isNotNullable = notNullable.contains(classProperty);
                 for (final Details linkedObject : dataPerProperty.getValue()) {
                     unmatchedTermIterator = unmatchedTerms.iterator();
                     while (unmatchedTermIterator.hasNext()) {
@@ -968,6 +990,23 @@ public class GraphPolicyRule {
                             unmatchedRelationshipIterator.remove();
                         }
                     }
+                }
+            }
+            /* match relationships among existing terms without any property link via the root object */
+            unmatchedRelationshipIterator = unmatchedRelationships.iterator();
+            while (unmatchedRelationshipIterator.hasNext()) {
+                final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                if (matcher.propertyName != null || matcher.notNullable != null) continue;
+                final String leftTermName = matcher.getExistingLeftTerm();
+                if (leftTermName == null) continue;
+                final String rightTermName = matcher.getExistingRightTerm();
+                if (rightTermName == null) continue;
+                final Details leftDetails = namedTerms.get(leftTermName);
+                if (leftDetails == null) continue;
+                final Details rightDetails = namedTerms.get(rightTermName);
+                if (rightDetails == null) continue;
+                if (matcher.isMatch(namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false)) {
+                    unmatchedRelationshipIterator.remove();
                 }
             }
             if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {

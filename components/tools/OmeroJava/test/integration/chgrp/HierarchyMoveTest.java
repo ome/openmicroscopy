@@ -1,15 +1,13 @@
 /*
- * $Id$
- *
- * Copyright 2006-2011 University of Dundee. All rights reserved.
+ * Copyright 2006-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.chgrp;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +23,7 @@ import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Channel;
 import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
@@ -32,6 +31,7 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Instrument;
 import omero.model.LogicalChannel;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
@@ -1045,6 +1045,76 @@ public class HierarchyMoveTest extends AbstractServerTest {
         assertNotNull(iQuery.findByQuery(sql, param));
     }
 
-    // Test the data move by an admin
+    /**
+     * Test to move a dataset containing an image whose projection is not in the dataset.
+     * The image should be left behind but others should still move.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testMoveDatasetWithProjectedImage() throws Exception {
+        /* prepare a pair of groups for the user */
+        newUserAndGroup("rwr---");
+        final EventContext ctx = iAdmin.getEventContext();
+        final ExperimenterGroup source = iAdmin.getGroup(ctx.groupId);
+        final ExperimenterGroup destination = newGroupAddUser("rwr---", ctx.userId);
 
+        /* start in the source group */
+        loginUser(source);
+
+        /* create a dataset */
+        Dataset dataset = new DatasetI();
+        dataset.setName(omero.rtypes.rstring("dataset"));
+        dataset = (Dataset) iUpdate.saveAndReturnObject(dataset).proxy();
+
+        /* create an instrument */
+        Instrument instrument = mmFactory.createInstrument();
+        instrument = (Instrument) iUpdate.saveAndReturnObject(instrument).proxy();
+
+        /* the original and its projection are related and share an instrument */
+        Image original = mmFactory.createImage();
+        original.setInstrument(instrument);
+        original = (Image) iUpdate.saveAndReturnObject(original);
+        Image projection = mmFactory.createImage();
+        projection.setInstrument(instrument);
+        projection.getPrimaryPixels().setRelatedTo((Pixels) original.getPrimaryPixels().proxy());
+        projection = (Image) iUpdate.saveAndReturnObject(projection);
+
+        original = (Image) original.proxy();
+        projection = (Image) projection.proxy();
+
+        /* create another image */
+        Image other = mmFactory.createImage();
+        other = (Image) iUpdate.saveAndReturnObject(other).proxy();
+
+        /* only the original and the other are in the dataset; the projection is not */
+        for (final Image image : new Image[] {original, other}) {
+            final DatasetImageLink link = new DatasetImageLinkI();
+            link.setParent(dataset);
+            link.setChild(image);
+            iUpdate.saveAndReturnObject(link);
+        }
+
+        /* move the dataset */
+        final Chgrp2 chgrp = new Chgrp2();
+        chgrp.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(dataset.getId().getValue()));
+        chgrp.groupId = destination.getId().getValue();
+        callback(true, client, chgrp);
+
+        /* check what remains in the source group */
+        assertNull(iQuery.findByQuery("FROM Dataset WHERE id = :id", new ParametersI().addId(dataset.getId())));
+        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
+        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
+        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
+
+        /* switch to the destination group */
+        loginUser(destination);
+
+        /* check what was moved to the destination group */
+        assertNotNull(iQuery.findByQuery("FROM Dataset WHERE id = :id", new ParametersI().addId(dataset.getId())));
+        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
+        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
+        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
+    }
 }
