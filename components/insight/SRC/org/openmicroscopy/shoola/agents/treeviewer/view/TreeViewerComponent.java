@@ -4328,11 +4328,19 @@ class TreeViewerComponent
 		if (script == null) return;
 		model.setScript(script);
 		Browser browser = model.getSelectedBrowser();
-		List<DataObject> objects;
+		Collection<DataObject> objects;
 		if (browser == null) objects = new ArrayList<DataObject>();
 		else objects = browser.getSelectedDataObjects();
 
-		if (objects == null) objects = new ArrayList<DataObject>();
+		if (CollectionUtils.isEmpty(objects)) {
+		    DataBrowser db = model.getDataViewer();
+		    if (db != null) {
+		        objects = db.getBrowser().getSelectedDataObjects();
+		    }
+		    if (CollectionUtils.isEmpty(objects)) {
+	            objects = new ArrayList<DataObject>();
+		    }
+		}
 		//setStatus(false);
 		//Check if the objects are in the same group.
 		Iterator<DataObject> i = objects.iterator();
