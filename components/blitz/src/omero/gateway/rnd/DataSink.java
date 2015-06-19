@@ -189,27 +189,27 @@ public class DataSink
     /**
      * Transforms 3D coords into linear coords.
      * The returned value <code>L</code> is calculated as follows: 
-     * <nobr><code>L = sizeZ*sizeW*t + sizeZ*w + z</code></nobr>.
+     * <nobr><code>L = sizeZ*sizeC*t + sizeZ*w + z</code></nobr>.
      *
      * @param z The z coord. Must be in the range <code>[0, sizeZ)</code>.
-     * @param w The w coord. Must be in the range <code>[0, sizeW)</code>.
+     * @param c The c coord. Must be in the range <code>[0, sizeC)</code>.
      * @param t The t coord. Must be in the range <code>[0, sizeT)</code>.
-     * @return The linearized value corresponding to <code>(z, w, t)</code>.
+     * @return The linearized value corresponding to <code>(z, c, t)</code>.
      */
-    private Integer linearize(int z, int w, int t)
+    private Integer linearize(int z, int c, int t)
     {
         int sizeZ = source.getSizeZ();
         int sizeC = source.getSizeC();
         if (z < 0 || sizeZ <= z)
             throw new IllegalArgumentException(
                     "z out of range [0, "+sizeZ+"): "+z+".");
-        if (w < 0 || sizeC <= w)
+        if (c < 0 || sizeC <= c)
             throw new IllegalArgumentException(
-                    "w out of range [0, "+sizeC+"): "+w+".");
+                    "c out of range [0, "+sizeC+"): "+c+".");
         if (t < 0 || source.getSizeT() <= t)
             throw new IllegalArgumentException(
                     "t out of range [0, "+source.getSizeT()+"): "+t+".");
-        return Integer.valueOf(sizeZ*sizeC*t + sizeZ*w + z);
+        return Integer.valueOf(sizeZ*sizeC*t + sizeZ*c + z);
     }
 
     /**
@@ -218,18 +218,18 @@ public class DataSink
      * @param ctx The security context.
      * @param z The z-section at which data is to be fetched.
      * @param t The timepoint at which data is to be fetched.
-     * @param w The wavelength at which data is to be fetched.
+     * @param c The channel at which data is to be fetched.
      * @param strategy To transform bytes into pixels values.
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException If an error occurs while retrieving the
      *                              plane data from the pixels source.
      */
-    private Plane2D createPlane(SecurityContext ctx, int z, int t, int w,
+    private Plane2D createPlane(SecurityContext ctx, int z, int t, int c,
             BytesConverter strategy, boolean close)
             throws DataSourceException
     {
         //Retrieve data
-        Integer planeIndex = linearize(z, w, t);
+        Integer planeIndex = linearize(z, c, t);
         Plane2D plane = null;
         if (cacheID >= 0) {
             CacheService cache = gw.getCacheService();
@@ -244,9 +244,9 @@ public class DataSink
                 store = gw.createPixelsStore(ctx);
                 store.setPixelsId(source.getId(), false);
             }
-            data = store.getPlane(z, w, t);
+            data = store.getPlane(z, c, t);
         } catch (Exception e) {
-            String p = "("+z+", "+w+", "+t+")";
+            String p = "("+z+", "+c+", "+t+")";
             throw new DataSourceException("Cannot retrieve the plane "+p, e);
         } finally {
             if (close) {
@@ -268,15 +268,15 @@ public class DataSink
      * @param ctx The security context.
      * @param z The z-section at which data is to be fetched.
      * @param t The timepoint at which data is to be fetched.
-     * @param w The wavelength at which data is to be fetched.
+     * @param c The channel at which data is to be fetched.
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException If an error occurs while retrieving the
      *                              plane data from the pixels source.
      */
-    public Plane2D getPlane(SecurityContext ctx, int z, int t, int w)
+    public Plane2D getPlane(SecurityContext ctx, int z, int t, int c)
             throws DataSourceException
     {
-        return createPlane(ctx, z, t, w, strategy, true);
+        return createPlane(ctx, z, t, c, strategy, true);
     }
 
     /**
@@ -285,16 +285,16 @@ public class DataSink
      * @param ctx The security context.
      * @param z The z-section at which data is to be fetched.
      * @param t The timepoint at which data is to be fetched.
-     * @param w The wavelength at which data is to be fetched.
+     * @param c The channel at which data is to be fetched.
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException If an error occurs while retrieving the
      *                              plane data from the pixels source.
      */
-    public Plane2D getPlane(SecurityContext ctx, int z, int t, int w, boolean
+    public Plane2D getPlane(SecurityContext ctx, int z, int t, int c, boolean
             close)
             throws DataSourceException
     {
-        return createPlane(ctx, z, t, w, strategy, close);
+        return createPlane(ctx, z, t, c, strategy, close);
     }
     
     /**
