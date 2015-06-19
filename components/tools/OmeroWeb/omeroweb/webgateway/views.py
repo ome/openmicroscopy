@@ -2375,8 +2375,19 @@ def _table_query(request, fileid, conn=None, **kwargs):
         except Exception:
             return dict(error='Error executing query: %s' % query)
 
+    colDescriptions = []
+    for col in cols:
+        desc = col.description
+        # description might be json data
+        try:
+            if len(desc) > 0:
+                desc = json.loads(desc)
+        except:
+            pass
+        colDescriptions.append(desc)
     return dict(data=dict(
         columns=[col.name for col in cols],
+        descriptions=colDescriptions,
         rows=[[col.values[0] for col in t.read(range(len(cols)), hit,
                                                hit+1).columns]
               for hit in hits],
