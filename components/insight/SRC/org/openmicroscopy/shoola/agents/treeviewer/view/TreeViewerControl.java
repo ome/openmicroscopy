@@ -1418,7 +1418,7 @@ class TreeViewerControl
 				}
 			}
 			if (!canRun) {
-				un.notifyInfo("Script", "You can run the script only\non" +
+				un.notifyInfo("Script", "You can run the script only\non " +
 						"objects from the same group");
 				return;
 			}
