@@ -138,6 +138,7 @@ class HeaderResolver(object):
             description = ""
             if "%%" in name:
                 name, description = name.split("%%", 1)
+                name = name.strip()
                 # description is key=value. Convert to json
                 if "=" in description:
                     k, v = description.split("=", 1)
@@ -166,6 +167,7 @@ class HeaderResolver(object):
             description = ""
             if "%%" in name:
                 name, description = name.split("%%", 1)
+                name = name.strip()
                 # description is key=value. Convert to json
                 if "=" in description:
                     k, v = description.split("=", 1)
