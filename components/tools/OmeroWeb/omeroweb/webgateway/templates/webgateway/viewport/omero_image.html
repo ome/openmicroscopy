@@ -373,6 +373,19 @@
 
       // Show postit. Table will be built on callback from loading
       $("#roi_table_postit").show();
+      $(".postit-close-btn").on("click", function() {hide_rois(); return false;});
+
+      // Disable the "Show ROIs" button ...
+      if ($("#show-rois-a").attr("onclick") != undefined)
+        $("#show-rois-a").removeAttr("onclick");
+      else
+        $("#show-rois-a").off("click");
+      $("#show-rois-a").removeAttr("href");
+      $("#show-rois-a").attr("style", "color:gray");
+      // ... and enable the "Hide ROIs" button
+      $("#hide-rois-a").on("click", function(){hide_rois(); console.log("hide rois"); return false;});
+      $("#hide-rois-a").attr("href", "#");
+      $("#hide-rois-a").removeAttr("style");
 
       // loads ROIs (if needed) and shows.
       viewport.viewportimg.get(0).show_rois(theZ, theT, filter);
@@ -384,7 +397,18 @@
       if (viewport.viewportimg.get(0).hide_rois) {
           viewport.viewportimg.get(0).hide_rois();
       }
+
+      // Disable the "Hide ROIs" button ...
+      $("#hide-rois-a").off("click");
+      $("#hide-rois-a").removeAttr("href");
+      $("#hide-rois-a").attr("style", "color:gray");
+      // ... and enable the "Show ROIs" button
+      $("#show-rois-a").on("click", function(){show_rois(); console.log("show rois"); return false;});
+      $("#show-rois-a").attr("href", "#");
+      $("#show-rois-a").removeAttr("style");
+
       $("#roi_table_postit").hide();
+      $(".postit-close-btn").off("click");
   }
 
   var NOZT = "";
@@ -933,8 +957,9 @@
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
                 {% ifnotequal roiCount 0 %}
-                    <a href="#" onclick="show_rois(); return false;">Show ROIs</a> |
-                    <a href="#" onclick="hide_rois(); return false;">Hide</a>
+                    <a id="show-rois-a" href="#" onclick="show_rois(); console.log('show rois ORIGINAL'); return false;">Show ROIs</a> |
+                    <!-- <a id="hide-rois-a" href="#" onclick="hide_rois(); return false;">Hide</a> -->
+                    <a id="hide-rois-a" style="color:gray">Hide</a>
                 {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
