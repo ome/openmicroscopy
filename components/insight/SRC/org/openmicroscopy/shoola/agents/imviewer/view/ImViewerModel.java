@@ -83,10 +83,10 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
 
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;

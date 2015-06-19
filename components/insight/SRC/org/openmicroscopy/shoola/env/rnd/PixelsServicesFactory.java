@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
 import omero.gateway.rnd.DataSink;
 import omero.log.Logger;
 import pojos.ChannelData;

@@ -44,6 +44,7 @@ import java.util.Set;
 //Third-party libraries
 
 
+
 //Application-internal dependencies
 import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
@@ -55,13 +56,16 @@ import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.LookupNames;
+
 import omero.gateway.cache.CacheService;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
 import omero.log.LogMessage;
 
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;

@@ -72,6 +72,7 @@ import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.model.SearchResultCollection;
@@ -80,7 +81,6 @@ import omero.gateway.util.Requests;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
