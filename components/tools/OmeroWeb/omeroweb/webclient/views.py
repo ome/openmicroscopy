@@ -127,8 +127,11 @@ def login(request):
         connector = Connector(server_id, is_secure)
 
         # TODO: version check should be done on the low level, see #5983
+        compatible = True
+        if settings.CHECK_VERSION:
+            compatible = connector.check_version(useragent)
         if (server_id is not None and username is not None and
-                password is not None and connector.check_version(useragent)):
+                password is not None and compatible):
             conn = connector.create_connection(
                 useragent, username, password, userip=get_client_ip(request))
             if conn is not None:
@@ -168,22 +171,22 @@ def login(request):
                         except:
                             url = reverse("webindex")
                     return HttpResponseRedirect(url)
-                elif username == "guest":
-                    error = ("Guest account is for internal OMERO use only."
-                             " Not for login.")
                 else:
                     error = "This user is not active."
 
-    if request.method == 'POST' and server_id is not None:
-        connector = Connector(server_id, True)
         if not connector.is_server_up(useragent):
             error = "Server is not responding, please contact administrator."
-        elif not connector.check_version(useragent):
-            error = ("Client version does not match server, please contact"
-                     " administrator.")
+        elif not settings.CHECK_VERSION:
+            error = ("Connection not available, please check your"
+                     " credentials and version compatibility.")
         else:
-            error = ("Connection not available, please check your user name"
-                     " and password.")
+            if not compatible:
+                error = ("Client version does not match server,"
+                         " please contact administrator.")
+            else:
+                error = ("Connection not available, please check your"
+                         " user name and password.")
+
     url = request.REQUEST.get("url")
 
     template = "webclient/login.html"
