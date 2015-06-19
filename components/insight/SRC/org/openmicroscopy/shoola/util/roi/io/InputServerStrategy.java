@@ -45,12 +45,15 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.model.units.BigResult;
+import omero.model.Length;
 import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -571,21 +574,38 @@ class InputServerStrategy
 	 */
 	private void addShapeSettings(ROIFigure figure, ShapeSettingsData data)
 	{
-	    Double value;
+	    Double value = ShapeSettingsData.DEFAULT_STROKE_WIDTH;
+	    Length l;
         try {
-            value = data.getStrokeWidth(UnitsLength.PIXEL).getValue();
-        } catch (BigResult e) {
-            value = ShapeSettingsData.DEFAULT_STROKE_WIDTH;
+            l = data.getStrokeWidth(UnitsLength.PIXEL);
+            if (l != null) {
+                value = l.getValue();
+            }
+        } catch (Exception e) {
+            if (e instanceof BigResult) {
+                BigResult ex = (BigResult) e;
+                if (ex.result != null) {
+                    value = ex.result.doubleValue();
+                }
+            }
         }
 		STROKE_WIDTH.set(figure, value);
 		STROKE_COLOR.set(figure, data.getStroke());
 		FILL_COLOR.set(figure, data.getFill());
 		FONT_FACE.set(figure, data.getFont());
-		
+		value = new Double(ShapeSettingsData.DEFAULT_FONT_SIZE);
 		try {
-            value = data.getFontSize(UnitsLength.POINT).getValue();
-        } catch (BigResult e) {
-            value = new Double(ShapeSettingsData.DEFAULT_FONT_SIZE);
+		    l = data.getFontSize(UnitsLength.POINT);
+            if (l != null) {
+                value = l.getValue();
+            }
+        } catch (Exception e) {
+            if (e instanceof BigResult) {
+                BigResult ex = (BigResult) e;
+                if (ex.result != null) {
+                    value = ex.result.doubleValue();
+                }
+            }
         }
 		FONT_SIZE.set(figure, value);
 		FONT_ITALIC.set(figure, data.isFontItalic());
