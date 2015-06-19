@@ -64,6 +64,14 @@ Select And Expand Dataset
     ${firstNodeId}    Select First Node By Type    dataset
     [Return]          ${firstNodeId}
 
+Select And Expand Plate
+    ${firstNodeId}    Select First Node By Type    plate
+    [Return]          ${firstNodeId}
+
+Select And Expand Run
+    ${firstNodeId}    Select First Node By Type    acquisition
+    [Return]          ${firstNodeId}
+
 Select And Expand Image
     Select First Node With Children in Tree    dataset
     # Need to wait for data to load

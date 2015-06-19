@@ -567,6 +567,21 @@ OME.handleDelete = function() {
     });
 };
 
+// Format a date like "2015-06-15 12:08:01"
+OME.formatDate = function formatDate(date) {
+    function padZero(number) {
+        var n = "" + number;
+        if (n.length < 2) {
+            n = "0" + n;
+        }
+        return n;
+    }
+    var d = new Date(date),
+        dt = [d.getFullYear(), padZero(d.getMonth()+1), (d.getDate())].join("-"),
+        tm = [padZero(d.getHours()), padZero(d.getMinutes()), padZero(d.getSeconds())].join(":");
+    return dt + " " + tm;
+};
+
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
