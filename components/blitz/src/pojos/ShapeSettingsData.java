@@ -161,7 +161,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getFillColor();
 		if (value == null) return DEFAULT_FILL_COLOUR;
-		return new Color(value.getValue(), true);
+		Color c = new Color(value.getValue(), true);
+        if (c.getAlpha() == 0) return new Color(value.getValue(), false);
+        return c;
 	}
 	
 	/**
@@ -190,7 +192,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getStrokeColor();
 		if (value == null) return DEFAULT_STROKE_COLOUR;
-		return new Color(value.getValue(), true);
+		Color c = new Color(value.getValue(), true);
+		if (c.getAlpha() == 0) return new Color(value.getValue(), false);
+		return c;
 	}
 
 	/**
