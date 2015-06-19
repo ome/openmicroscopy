@@ -27,6 +27,7 @@ import logging
 import sys
 import csv
 import re
+import json
 from getpass import getpass
 from getopt import getopt, GetoptError
 
@@ -134,11 +135,20 @@ class HeaderResolver(object):
         columns = list()
         for i, header_as_lower in enumerate(self.headers_as_lower):
             name = self.headers[i]
+            description = ""
+            if "%%" in name:
+                name, description = name.split("%%", 1)
+                # description is key=value. Convert to json
+                if "=" in description:
+                    k, v = description.split("=", 1)
+                    k = k.strip()
+                    description = json.dumps({k: v.strip()})
             try:
-                column = self.screen_keys[header_as_lower](name, '', list())
+                column = self.screen_keys[header_as_lower](name, description,
+                                                           list())
             except KeyError:
-                column = StringColumn(name, '', self.DEFAULT_COLUMN_SIZE,
-                                      list())
+                column = StringColumn(name, description,
+                                      self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
         for column in columns:
             if column.__class__ is PlateColumn:
@@ -153,11 +163,20 @@ class HeaderResolver(object):
         columns = list()
         for i, header_as_lower in enumerate(self.headers_as_lower):
             name = self.headers[i]
+            description = ""
+            if "%%" in name:
+                name, description = name.split("%%", 1)
+                # description is key=value. Convert to json
+                if "=" in description:
+                    k, v = description.split("=", 1)
+                    k = k.strip()
+                    description = json.dumps({k: v.strip()})
             try:
-                column = self.plate_keys[header_as_lower](name, '', list())
+                column = self.plate_keys[header_as_lower](name, description,
+                                                          list())
             except KeyError:
-                column = StringColumn(name, '', self.DEFAULT_COLUMN_SIZE,
-                                      list())
+                column = StringColumn(name, description,
+                                      self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
         for column in columns:
             if column.__class__ is PlateColumn:
