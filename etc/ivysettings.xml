@@ -35,24 +35,19 @@
   </caches>
 
   <resolvers>
-
-    <!-- Main resolver which has as its first resolver the location
-    where all our jars will be published -->
-    <chain name="omero-resolver" returnFirst="true">
-
-      <!-- Build-internal repositories -->
-      <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
+    <!-- Build-internal repositories -->
+    <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
         <ivy pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).xml"/>
-      </filesystem>
-      <filesystem name="repo" cache="local">
+    </filesystem>
+    <filesystem name="repo" cache="local">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].xml"/>
-      </filesystem>
-      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
+    </filesystem>
+    <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].xml"/>
-      </filesystem>
+    </filesystem>
 
       <!-- Lookup via maven cache -->
       <filesystem name="user-maven" m2compatible="true" force="false" cache="local" descriptor="required">
@@ -75,14 +70,22 @@
         <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
       </url>
-   </chain>
+
+    <!-- Main resolver which has as its first resolver the location
+    where all our jars will be published -->
+    <chain name="omero-resolver" returnFirst="true">
+        <resolver ref="main"/>
+        <resolver ref="repo"/>
+        <resolver ref="user-maven"/>
+        <resolver ref="maven"/>
+        <resolver ref="artifactory"/>
+        <resolver ref="com.springsource.repository.bundles.release"/>
+        <resolver ref="com.springsource.repository.bundles.external"/>
+    </chain>
 
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
-      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
-        <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].xml"/>
-      </filesystem>
+      <resolver ref="test"/>
       <resolver ref="omero-resolver"/>
     </chain>
 
