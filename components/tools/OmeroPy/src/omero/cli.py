@@ -1748,17 +1748,17 @@ class GraphControl(CmdControl):
         if args.exclude:
             exc = exc.extend(args.exclude.split(","))
 
-        if len(inc) > 0 or len(exc) > 0:
+        if inc or exc:
             opt = omero.cmd.graphs.ChildOption()
-            if len(inc) > 0:
+            if inc:
                 opt.includeType = inc
-            if len(exc) > 0:
+            if exc:
                 opt.excludeType = exc
 
         commands = args.obj
         for req in commands:
             req.dryRun = args.dry_run
-            if len(inc) > 0 or len(exc) > 0:
+            if inc or exc:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.childOptions = req.childOptions
