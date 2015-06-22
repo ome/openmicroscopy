@@ -101,6 +101,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
+import omero.gateway.facility.RenderingFacility;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -580,6 +581,26 @@ class OmeroImageServiceImpl
 			throw new RenderingServiceException("Get Thumbnail", e);
 		}
 	}
+	
+    public BufferedImage loadThumbnail(SecurityContext ctx, PixelsData pix, int sizeX,
+        int sizeY, long userID, boolean isLast)
+        throws RenderingServiceException
+    {
+        try {
+            if (pix == null) 
+                return null;
+            if (!isBinaryAvailable()) 
+                return null;
+            return gateway.getGateway().getFacility(RenderingFacility.class)
+                    .getThumbnail(ctx, pix, sizeX, sizeY, userID, isLast);
+        } catch (Exception e) {
+            if (e instanceof DSOutOfServiceException) {
+                context.getLogger().error(this, e.getMessage());
+                return null;
+            }
+            throw new RenderingServiceException("Get Thumbnail", e);
+        }
+    }
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
