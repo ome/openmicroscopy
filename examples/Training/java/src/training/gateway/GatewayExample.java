@@ -19,6 +19,8 @@
 
 package training.gateway;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +28,9 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
@@ -35,6 +40,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.ImportException;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.Facility;
+import omero.gateway.facility.RenderingFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.facility.TransferFacility;
 import omero.gateway.model.ImportCallback;
@@ -79,9 +85,9 @@ import pojos.ProjectData;
  */
 public class GatewayExample {
 
-    private static final String DEFAULT_HOST = "localhost"; 
+    private static final String DEFAULT_HOST = "trout.openmicroscopy.org"; 
     private static final String DEFAULT_PORT = "4064";
-    private static final String DEFAULT_USER = "root"; 
+    private static final String DEFAULT_USER = "user-3"; 
 
     public static void main(String[] args) throws IOException {
         GatewayExample exp = new GatewayExample();
@@ -109,11 +115,12 @@ public class GatewayExample {
             SearchFacility search = gateway.getFacility(SearchFacility.class);
             TransferFacility transfer = gateway
                     .getFacility(TransferFacility.class);
+            RenderingFacility rend = gateway.getFacility(RenderingFacility.class);
 
             SecurityContext ctx = new SecurityContext(exp.getDefaultGroup()
                     .getId());
 
-            /** Example for browsing through the data hierarchhy */
+            /** Example for browsing through the data hierarchy */
             System.out.println("\nListing Datasets:");
             Collection<GroupData> groups = browse.getAvailableGroups(ctx, exp);
             for (GroupData group : groups) {
@@ -208,7 +215,16 @@ public class GatewayExample {
                 }
                 System.out.println("done");
             }
-
+            
+            System.out.println("\n\nShow thumbnail, image id: ");
+            String thumb = readLine();
+            if (!CommonsLangUtils.isEmpty(thumb)) {
+                long imgId = Long.parseLong(thumb);
+                ImageData img = browse.getImage(ctx, imgId);
+                BufferedImage bimg = rend.getThumbnail(ctx, img.getDefaultPixels());
+                showImage(bimg);
+            }
+            
         } catch (DSOutOfServiceException e) {
             e.printStackTrace();
         } catch (DSAccessException e) {
@@ -281,5 +297,21 @@ public class GatewayExample {
         result[3] = password;
 
         return result;
+    }
+    
+    private void showImage(final BufferedImage img) {
+        JFrame f = new JFrame();
+        JPanel p = new JPanel() {
+
+            @Override
+            public void paint(Graphics g) {
+                g.drawImage(img, 0, 0, null);
+            }
+
+        };
+
+        f.add(p);
+        f.pack();
+        f.setVisible(true);
     }
 }
