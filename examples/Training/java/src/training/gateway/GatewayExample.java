@@ -135,8 +135,7 @@ public class GatewayExample {
                         if (obj instanceof ImageData) {
                             ImageData img = (ImageData) obj;
                             System.out.println("\t\t" + img.getName() + " (id="
-                                    + img.getId() + ", fileid="
-                                    + img.getFilesetId() + ") - Owner: "+img.getOwner().getId());
+                                    + img.getId() + " - Owner: "+img.getOwner().getId());
                         }
                     }
                 }
@@ -176,7 +175,7 @@ public class GatewayExample {
 
             /** Example for downloading an image (original file format) */
             System.out
-                    .println("\n\nDownload image (must be in your default group), image id: ");
+                    .println("\n\nDownload image, image id: ");
             String id = readLine();
             if (!CommonsLangUtils.isEmpty(id)) {
                 System.out.println("\n\nDownload, target path: ");
