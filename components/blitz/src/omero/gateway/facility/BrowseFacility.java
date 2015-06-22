@@ -151,7 +151,7 @@ public class BrowseFacility extends Facility {
         IObject obj = findIObject(ctx, klassName, id, allGroups);
         return (T) PojoMapper.asDataObject(obj);
     }
-    
+
     /**
      * Retrieves an updated version of the specified object.
      *
@@ -867,6 +867,19 @@ public class BrowseFacility extends Facility {
         }
 
         return Collections.emptyList();
+    }
+
+    /**
+     * Loads a image
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param id
+     *            The ids of the image to load
+     * @return The {@link ImageData}
+     */
+    public ImageData getImage(SecurityContext ctx, long id) {
+        return getImages(ctx, Collections.singleton(id)).iterator().next();
     }
 
     /**
