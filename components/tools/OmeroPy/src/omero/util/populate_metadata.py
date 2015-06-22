@@ -619,6 +619,7 @@ if __name__ == "__main__":
     try:
         if session_key is not None:
             client.joinSession(session_key)
+            client.sf.detachOnDestroy()
         else:
             client.createSession(username, password)
 
