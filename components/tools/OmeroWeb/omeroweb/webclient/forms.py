@@ -132,22 +132,6 @@ class ShareForm(NonASCIIForm):
         return self.cleaned_data['expiration']
 
 
-class BasketShareForm(ShareForm):
-
-    def __init__(self, *args, **kwargs):
-        super(BasketShareForm, self).__init__(*args, **kwargs)
-
-        try:
-            self.fields['image'] = GroupModelMultipleChoiceField(
-                queryset=kwargs['initial']['images'],
-                initial=kwargs['initial']['selected'],
-                widget=forms.SelectMultiple(attrs={'size': 10}))
-        except:
-            self.fields['image'] = GroupModelMultipleChoiceField(
-                queryset=kwargs['initial']['images'],
-                widget=forms.SelectMultiple(attrs={'size': 10}))
-
-
 class ContainerForm(NonASCIIForm):
 
     name = forms.CharField(

@@ -55,7 +55,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.views.decorators.http import require_POST
 
 from webclient_utils import _formatReport, _purgeCallback
-from forms import GlobalSearchForm, ShareForm, BasketShareForm, ContainerForm
+from forms import GlobalSearchForm, ShareForm, ContainerForm
 from forms import ContainerNameForm, ContainerDescriptionForm
 from forms import CommentAnnotationForm, TagsAnnotationForm,  UsersForm
 from forms import MetadataFilterForm, MetadataDetectorForm
@@ -66,7 +66,6 @@ from forms import MetadataDichroicForm, MetadataMicroscopeForm
 from forms import FilesAnnotationForm, WellIndexForm, NewTagsAnnotationFormSet
 
 from controller.index import BaseIndex
-from controller.basket import BaseBasket
 from controller.container import BaseContainer
 from controller.history import BaseCalendar
 from controller.search import BaseSearch
@@ -310,8 +309,6 @@ def switch_active_group(request, active_group=None):
             active_group != request.session['active_group']):
         request.session.modified = True
         request.session['active_group'] = active_group
-        request.session['imageInBasket'] = set()        # empty basket
-        request.session['basket_counter'] = 0
 
 
 @login_required(login_redirect='webindex')
@@ -2762,186 +2759,6 @@ def load_public(request, share_id=None, conn=None, **kwargs):
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
-
-##################################################################
-# Basket
-
-
-@login_required(setGroupContext=True)
-@render_response()
-def basket_action(request, action=None, conn=None, **kwargs):
-    """
-    Various actions for creating a 'share' or 'discussion' (no images).
-
-    @param action:      'toshare', 'createshare'    (form to create share and
-                        handling the action itself)
-                        'todiscuss', 'createdisc'    (form to create
-                        discussion and handling the action itself)
-    """
-
-    if action == "toshare":
-        template = "webclient/basket/basket_share_action.html"
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        selected = [long(i) for i in request.REQUEST.getlist('image')]
-        form = BasketShareForm(initial={
-            'experimenters': experimenters,
-            'images': basket.imageInBasket,
-            'enable': True,
-            'selected': selected})
-        context = {'form': form}
-    elif action == "createshare":
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("basket_action"))
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = BasketShareForm(initial={'experimenters': experimenters,
-                                        'images': basket.imageInBasket},
-                               data=request.REQUEST.copy())
-        if form.is_valid():
-            images = form.cleaned_data['image']
-            message = form.cleaned_data['message']
-            expiration = form.cleaned_data['expiration']
-            members = form.cleaned_data['members']
-            # guests = request.REQUEST['guests']
-            enable = form.cleaned_data['enable']
-            host = "%s?server=%i" % (request.build_absolute_uri(
-                reverse("load_template", args=["public"])),
-                int(conn.server_id))
-            share = BaseShare(conn)
-            share.createShare(
-                host, images, message, members, enable, expiration)
-            return HttpResponse("success")
-        else:
-            template = "webclient/basket/basket_share_action.html"
-            context = {'form': form}
-    elif action == "todiscuss":
-        template = "webclient/basket/basket_share_action.html"
-        basket = BaseBasket(conn)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = ShareForm(initial={'experimenters': experimenters,
-                                  'enable': True})
-        context = {'form': form}
-    elif action == "createdisc":
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("basket_action"))
-        basket = BaseBasket(conn)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = ShareForm(initial={'experimenters': experimenters},
-                         data=request.REQUEST.copy())
-        if form.is_valid():
-            message = form.cleaned_data['message']
-            expiration = form.cleaned_data['expiration']
-            members = form.cleaned_data['members']
-            # guests = request.REQUEST['guests']
-            enable = form.cleaned_data['enable']
-            host = "%s?server=%i" % (request.build_absolute_uri(
-                reverse("load_template", args=["public"])),
-                int(conn.server_id))
-            share = BaseShare(conn)
-            share.createDiscussion(host, message, members, enable, expiration)
-            return HttpResponse("success")
-        else:
-            template = "webclient/basket/basket_share_action.html"
-            context = {'form': form}
-    else:
-        template = kwargs.get("template", "webclient/basket/basket.html")
-
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-
-        context = {'basket': basket}
-    context['template'] = template
-    return context
-
-
-@login_required()
-def empty_basket(request, **kwargs):
-    """ Empty the basket of images """
-
-    try:
-        del request.session['imageInBasket']
-        del request.session['basket_counter']
-    except KeyError:
-        logger.error(traceback.format_exc())
-
-    return HttpResponseRedirect(reverse("basket_action"))
-
-
-@login_required()
-def update_basket(request, **kwargs):
-    """ Add or remove images to the set in the basket """
-
-    action = None
-    if request.method == 'POST':
-        request.session.modified = True
-        try:
-            action = request.REQUEST['action']
-        except Exception:
-            logger.error(traceback.format_exc())
-            return handlerInternalError(
-                request, "Attribute error: 'action' is missed.")
-        else:
-            prod = request.REQUEST.get('productId')
-            ptype = request.REQUEST.get('productType')
-            if action == 'add':
-                images = request.REQUEST.getlist('image')
-                # datasets = request.REQUEST.getlist('datasets')
-                for i in images:
-                    flag = False
-                    for item in request.session['imageInBasket']:
-                        if item == long(i):
-                            flag = True
-                            break
-                    if not flag:
-                        request.session['imageInBasket'].add(long(i))
-                # for i in datasets:
-                #    flag = False
-                #    for item in request.session['datasetInBasket']:
-                #        if item == long(i):
-                #            flag = True
-                #            break
-                #    if not flag:
-                #        request.session['datasetInBasket'].append(long(i))
-            elif action == 'del':
-                if ptype == 'image':
-                    try:
-                        request.session['imageInBasket'].remove(long(prod))
-                    except:
-                        rv = "Error: could not remove image from the basket."
-                        return HttpResponse(rv)
-                # elif ptype == 'dataset':
-                #    try:
-                #        request.session['datasetInBasket'].remove(prod)
-                #    except:
-                #        rv = "Error: could not remove image from the basket."
-                #        return HttpResponse(rv)
-                else:
-                    rv = "Error: This action is not available"
-                    return HttpResponse(rv)
-            elif action == 'delmany':
-                images = [long(i) for i in request.REQUEST.getlist('image')]
-                for i in images:
-                    if i in request.session['imageInBasket']:
-                        request.session['imageInBasket'].remove(long(i))
-                    else:
-                        rv = "Error: could not remove image from the basket."
-                        return HttpResponse(rv)
-
-        total = len(request.session['imageInBasket'])
-        # +len(request.session['datasetInBasket'])
-        request.session['basket_counter'] = total
-        return HttpResponse(total)
-    else:
-        return handlerInternalError(
-            request, "Request method error in Basket.")
-
 
 @login_required(setGroupContext=True)
 @render_response()

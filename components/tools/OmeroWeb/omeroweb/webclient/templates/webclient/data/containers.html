@@ -288,7 +288,7 @@
 
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
-                        'paste': false, 'delete':false, 'annotation':false, 'basket':false};
+                        'paste': false, 'delete':false, 'annotation':false, 'createshare':false, 'chat':true};
                     // We 'canCreate' top level items, E.g. Project, Dataset, Screen, if the current userId is self or 'All Members'
                     var userId = {{ ome.user_id }},
                         canCreate = (userId === {{ ome.user.id }} || userId === -1);
@@ -318,7 +318,7 @@
                                     toolbar_config["copy"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("image")>=0) {
-                                toolbar_config['basket'] = true;
+                                toolbar_config['createshare'] = true;
                                 toolbar_config['cut'] = true;
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').indexOf("orphaned") < 0) {
                                     toolbar_config["copy"] = true;
@@ -355,6 +355,7 @@
                             enableToolbarButton('delete', false);
                             enableToolbarButton('cut', false);
                             enableToolbarButton('copy', false);
+                            enableToolbarButton('createshare', false);
                         }
                     }
                 });
@@ -583,7 +584,7 @@
                                 "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
                                 "action": OME.handleDelete
                             };
-                            
+
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
                                 "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
@@ -592,11 +593,11 @@
                                 }
                             };
                             
-                            config["basket"] = {
-                                "label" : "Add to Basket",
-                                "icon"  : '{% static "webclient/image/icon_basic_basket_16.png" %}',
+                            config["share"] = {
+                                "label" : "Create share",
+                                "icon"  : '{% static "webclient/image/icon_toolbar_share2.png" %}',
                                 "action": function(){
-                                    OME.addToBasket(this.get_selected(), '{% url 'update_basket' %}');
+                                    OME.createShare(this.get_selected());
                                 }
                             };
 
@@ -640,7 +641,7 @@
                             if(!obj.hasClass('canChgrp')) {
                                 config["chgrp"]["_disabled"] = true;
                             }
-                            // if experimenter or orphaned is selected, use 'locked' flag to decide permissions
+                            // if experimenter or orphaned is selected, use cssPerm classes to decide permissions
                             if(obj.attr("id").indexOf("experimenter")>=0 || obj.attr("rel") == 'orphaned') {
                                 var userId = {{ ome.user_id }},
                                 canCreate = (userId === {{ ome.user.id }} || userId === -1);
@@ -648,7 +649,7 @@
                                 config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
-                                config["basket"]["_disabled"] = true;
+                                config["share"]["_disabled"] = true;
                                 if(!canCreate) {
                                     // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
@@ -660,7 +661,7 @@
                             } else if(!obj.hasClass('canLink')) {
                                 // see #8879 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
-                                config["basket"]["_disabled"] = true;
+                                config["share"]["_disabled"] = true;
                                 config["create"]["submenu"]["project"]["_disabled"] = true;
                                 config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                 config["create"]["submenu"]["screen"]["_disabled"] = true;
@@ -675,7 +676,7 @@
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("dataset")>=0)) {  // if we don't have a dataset
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;  // disable paste
                                     }
@@ -691,7 +692,7 @@
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
                                     // see #8879 config["create"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("image")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
                                         config["ccp"]["submenu"]["copy"]["_disabled"] = true;
@@ -700,7 +701,7 @@
                                 } else if(obj.attr("id").indexOf("screen")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("plate")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
@@ -709,20 +710,20 @@
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("acquisition")>=0) {
                                     // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     config["chgrp"]["_disabled"] = true;
                                 } else {
                                     // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     config["delete"]["_disabled"] = true;
                                 }
                             }
@@ -893,8 +894,11 @@
                 case "deleteButton":
                         OME.handleDelete();
                     break;
-                case "basketButton":
-                    OME.addToBasket($.jstree._focused().get_selected(), '{% url 'update_basket' %}');
+                case "createshareButton":
+                    OME.createShare($.jstree._focused().get_selected());
+                    break;
+                case "createchatButton":
+                    OME.createShare();
                     break;
                 case "refreshButton":
                     // clear selection of center/right panels, refresh and notify
@@ -970,11 +974,13 @@
 			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link" /> </li>
             <li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link" title="Copy a link to the selected object" /> </li>
 			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link" title="Paste the copied link" /> </li>
-			
-			<li class="seperator">
-			
+
 			<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
-			<li><input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_basket.png" %}" alt="Add to basket" title="Add to basket"></li>
+
+            <li class="seperator">
+
+			<li><input id="createshareButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_share2.png" %}" alt="Create Share" title="Create Share"></li>
+            <li><input id="createchatButton" class="button button" type="image" src="{% static "webclient/image/icon_toolbar_chat2.png" %}" alt="Create Chat" title="Create Chat"></li>
 			
 			<li class="seperator"></li>
 			

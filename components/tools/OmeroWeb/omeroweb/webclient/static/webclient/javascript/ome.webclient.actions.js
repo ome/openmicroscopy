@@ -38,30 +38,6 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
-OME.addToBasket = function(selected, prefix) {
-    var productListQuery = new Array("action=add");
-    if (selected && selected.length > 0) {
-        selected.each(function(i) {
-            productListQuery[i+1]= $(this).attr('id').replace("-","=");
-        });
-    } else {
-        OME.alert_dialog("Please select at least one element.");
-        return;
-    }
-    $.ajax({
-        type: "POST",
-        url: prefix, //this.href,
-        data: productListQuery.join("&"),
-        success: function(responce){
-            if(responce.match(/(Error: ([A-z]+))/gi)) {
-                OME.alert_dialog(responce);
-            } else {
-                OME.calculateCartTotal(responce);
-            }
-        }
-    });
-};
-
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data) {
     var selected_objs = [];
