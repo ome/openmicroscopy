@@ -1,0 +1,41 @@
+*** Settings ***
+Documentation     Tests the display of Screen-Plate-Well data
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+
+*** Keywords ***
+
+Click Well By Name
+    [Arguments]    ${name}
+    Wait Until Page Contains Element    xpath=//td[contains(@class,'well')]/img[@name='${name}']
+    # Have to be sure that thumbnail itself has loaded before image is clickable!
+    Sleep                               1
+    Click Element                       xpath=//td[contains(@class,'well')]/img[@name='${name}']
+
+Bulk Annotation Should Contain Row
+    [Arguments]    ${key}   ${value}
+    Wait Until Page Contains Element    xpath=//table[@id='bulk_annotations_table']//tr[descendant::td[contains(text(), '${key}')]]/td[contains(text(), '${value}')]
+
+*** Test Cases ***
+
+Test Bulk Annotations
+    [Documentation]     Test display of bulk annotations added in setup
+
+    Select Experimenter
+    Select And Expand Plate
+    Select And Expand Run
+    Click Well By Name                      A1
+    Wait Until Page Contains Element        id=bulk_annotations_table
+    Bulk Annotation Should Contain Row      Well Type       Control
+    Bulk Annotation Should Contain Row      Concentration   0
+    Click Well By Name                      A2
+    Bulk Annotation Should Contain Row      Well Type       Treatment
+    Bulk Annotation Should Contain Row      Concentration   10
+
+
