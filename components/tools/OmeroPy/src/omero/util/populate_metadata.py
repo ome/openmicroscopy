@@ -465,7 +465,7 @@ class ParsingContext(object):
         for column in self.columns:
             columns_by_name[column.name] = column
             if column.__class__ is PlateColumn:
-                raise NotImplemented("PlateColumn")
+                log.warn("PlateColumn is unimplemented")
             elif column.__class__ is WellColumn:
                 well_column = column
             elif column.name == WELL_NAME_COLUMN:
