@@ -232,6 +232,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* tag another image with the tags from the first image */
 
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
+        testImages.add(otherImage.getId().getValue());
         for (final IObject annotation : imageAnnotations) {
             if (annotation instanceof TagAnnotation) {
                 final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
