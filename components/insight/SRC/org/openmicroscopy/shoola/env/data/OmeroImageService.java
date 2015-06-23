@@ -200,9 +200,6 @@ public interface OmeroImageService
 		int sizeX, int sizeY, long userID)
 		throws RenderingServiceException;
 
-	public BufferedImage loadThumbnail(SecurityContext ctx, PixelsData pix, int sizeX,
-	        int sizeY, long userID, boolean isLast) throws RenderingServiceException;
-	        
 	/**
 	 * Retrieves the thumbnails corresponding to the passed collection of
 	 * pixels set.

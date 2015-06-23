@@ -180,7 +180,6 @@ public class NetworkChecker {
                 count++;
             }
         }
-        log("Count: %s  %s", count, interfacesCount);
         if (count >= interfacesCount) {
             networkup = true;
         } else {
