@@ -56,7 +56,6 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-import spec.AbstractTest;
 
 //Java imports
 
@@ -67,7 +66,7 @@ import spec.AbstractTest;
  * @since 5.1
  */
 
-public class GatewayTest extends AbstractTest {
+public class GatewayTest {
 
     /** Identifies the <code>user</code> group. */
     public String USER_GROUP = "user";
@@ -95,7 +94,6 @@ public class GatewayTest extends AbstractTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Override
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
 
@@ -120,7 +118,6 @@ public class GatewayTest extends AbstractTest {
                 gw);
     }
 
-    @Override
     @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         gw.disconnect();
