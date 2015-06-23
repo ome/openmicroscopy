@@ -122,7 +122,8 @@ public class ThumbnailLoader
      * @param store The thumbnail store to use.
      * @param imageID The id of the image associated to the pixels set.
      */
-    private void loadThumbail(PixelsData pxd, long userID, boolean last, long imageID)
+    private void loadThumbail(PixelsData pxd, long userID,
+    		ThumbnailStorePrx store, boolean last, long imageID)
     {
     	BufferedImage thumbPix = null;
         boolean valid = true;
@@ -138,14 +139,27 @@ public class ThumbnailLoader
         		sizeY = d.height;
         	}
 
-    		thumbPix = service.loadThumbnail(ctx, pxd, sizeX,
-    		        sizeY, userID, last);
+        	if (!store.setPixelsId(pxd.getId())) {
+    			store.resetDefaults();
+    			store.setPixelsId(pxd.getId());
+    		}
+    		if (userID >= 0) {
+    			store.setRenderingDefId(service.getRenderingDef(ctx,
+    					pxd.getId(), userID));
+			}
+    		thumbPix = WriterImage.bytesToImage(
+    				store.getThumbnail(omero.rtypes.rint(sizeX),
+    				omero.rtypes.rint(sizeY)));
         } catch (Throwable e) {
         	thumbPix = null;
         	LogMessage msg = new LogMessage();
             msg.print("Cannot retrieve thumbnail");
             msg.print(e);
         	context.getLogger().error(this, msg);
+        } finally {
+        	if (last) {
+        		context.getDataService().closeService(ctx, store);
+        	}
         }
         if (thumbPix == null) {
         	valid = false;
@@ -202,28 +216,48 @@ public class ThumbnailLoader
     		id = j.next();
     		final long userID = id;
     		i = images.iterator();
-    		int size = images.size()-1;
-    		int k = 0;
-    		long imageID = -1;
-    		while (i.hasNext()) {
-    			image = (DataObject) i.next();
-    			if (image instanceof ImageData) {
-    			    pxd = ((ImageData) image).getDefaultPixels();
-    			    imageID = image.getId();
-    			} else {
-    			    pxd = (PixelsData) image;
-    			    if (pxd != null) imageID = pxd.getImage().getId();
-    			}
-    			description = "Loading thumbnail";
-    			final PixelsData index = pxd;
-    			final boolean last = size == k;
-    			k++;
-    			final long iid = imageID;
-    			add(new BatchCall(description) {
-    				public void doCall() {
-    					loadThumbail(index, userID, last, iid);
-    				}
-    			});
+    		ThumbnailStorePrx store = null;
+    		try {
+    			store = service.createThumbnailStore(ctx);
+			} catch (Exception e) {
+				context.getLogger().debug(this,
+						"Cannot start thumbnail store.");
+			}
+    		try {
+        		final ThumbnailStorePrx value = store;
+        		int size = images.size()-1;
+        		int k = 0;
+        		long imageID = -1;
+        		while (i.hasNext()) {
+        			image = (DataObject) i.next();
+        			if (image instanceof ImageData) {
+        			    pxd = ((ImageData) image).getDefaultPixels();
+        			    imageID = image.getId();
+        			} else {
+        			    pxd = (PixelsData) image;
+        			    if (pxd != null) imageID = pxd.getImage().getId();
+        			}
+        			description = "Loading thumbnail";
+        			final PixelsData index = pxd;
+        			final boolean last = size == k;
+        			k++;
+        			final long iid = imageID;
+        			add(new BatchCall(description) {
+        				public void doCall() {
+        					loadThumbail(index, userID, value, last, iid);
+        				}
+        			});
+        		}
+    		} catch (RuntimeException r) {
+    		    // If we fail to pass control to loadThumbnail
+    		    // then we need to clean up the service.
+    		    if (store != null) {
+    		        try {
+                        store.close();
+                    } catch (ServerError e) {
+                        context.getLogger().warn(this, "Failed to close " + store);
+                    }
+    		    }
     		}
     	}
     }
