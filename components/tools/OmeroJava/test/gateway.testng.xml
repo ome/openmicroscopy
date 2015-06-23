@@ -8,6 +8,7 @@
 			<class name="integration.gateway.BrowseFacilityTest" />
 			<class name="integration.gateway.SearchFacilityTest" />
 			<class name="integration.gateway.RawDataFacilityTest" />
+			<class name="integration.gateway.TransferFacilityTest" />
 		</classes>
 	</test>
 </suite>
