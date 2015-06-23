@@ -849,7 +849,7 @@ public class BrowseFacility extends Facility {
      *            The {@link SecurityContext}
      * @return A collection of {@link ImageData}s
      */
-    public Collection<ImageData> getImages(SecurityContext ctx) {
+    public Collection<ImageData> getUserImages(SecurityContext ctx) {
         try {
             ParametersI param = new ParametersI();
 

@@ -22,19 +22,8 @@ package integration.gateway;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
-import omero.RLong;
-import omero.api.IPixelsPrx;
 import omero.gateway.SecurityContext;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
-import omero.model.IObject;
-import omero.model.PixelsType;
-import omero.model.PlateAcquisition;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,8 +36,6 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-
-//Java imports
 
 /**
  *
@@ -69,17 +56,13 @@ public class BrowseFacilityTest extends GatewayTest {
     private ScreenData screen;
     private PlateData plate;
     private ImageData img;
-    private PlateAcquisition acq;
 
     private ProjectData proj2;
     private DatasetData ds2;
     private ScreenData screen2;
     private PlateData plate2;
     private ImageData img2;
-    private PlateAcquisition acq2;
 
-    // TODO: plateacquisition stuff still missing
-    
     @Override
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
@@ -90,29 +73,29 @@ public class BrowseFacilityTest extends GatewayTest {
     @Test
     public void testGetDatasets() {
         SecurityContext ctx = new SecurityContext(group.getId());
-        ctx.setExperimenter(user);
-        ctx.sudo();
 
+        // get datasets of the group
         Collection<DatasetData> result = browseFacility.getDatasets(ctx);
-        Assert.assertEquals(result.size(), 1);
-        Assert.assertEquals(result.iterator().next().getId(), ds.getId());
+        Assert.assertEquals(result.size(), 2);
 
+        // get specific dataset
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(ds.getId());
         result = browseFacility.getDatasets(ctx, ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), ds.getId());
 
+        // get specific dataset for user
         result = browseFacility.getDatasets(ctx, user.getId(), ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), ds.getId());
 
-        // Get dataset for user2 with user1 context
+        // Get datasets for user2
         result = browseFacility.getDatasets(ctx, user2.getId());
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), ds2.getId());
 
-        // Get dataset for user3 - has none
+        // Get datasets for user3 - has none
         result = browseFacility.getDatasets(ctx, user3.getId());
         Assert.assertEquals(result.size(), 0);
     }
@@ -120,29 +103,29 @@ public class BrowseFacilityTest extends GatewayTest {
     @Test
     public void testGetProjects() {
         SecurityContext ctx = new SecurityContext(group.getId());
-        ctx.setExperimenter(user);
-        ctx.sudo();
 
+        // get projects of the group
         Collection<ProjectData> result = browseFacility.getProjects(ctx);
-        Assert.assertEquals(result.size(), 1);
-        Assert.assertEquals(result.iterator().next().getId(), proj.getId());
+        Assert.assertEquals(result.size(), 2);
 
+        // get specific project
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(proj.getId());
         result = browseFacility.getProjects(ctx, ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), proj.getId());
 
+        // get specific project for user
         result = browseFacility.getProjects(ctx, user.getId(), ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), proj.getId());
 
-        // Get project for user2 with user1 context
+        // Get projects for user2
         result = browseFacility.getProjects(ctx, user2.getId());
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), proj2.getId());
 
-        // Get project for user3 - has none
+        // Get projects for user3 - has none
         result = browseFacility.getProjects(ctx, user3.getId());
         Assert.assertEquals(result.size(), 0);
     }
@@ -150,29 +133,29 @@ public class BrowseFacilityTest extends GatewayTest {
     @Test
     public void testGetScreens() {
         SecurityContext ctx = new SecurityContext(group.getId());
-        ctx.setExperimenter(user);
-        ctx.sudo();
 
+        // get screens of the group
         Collection<ScreenData> result = browseFacility.getScreens(ctx);
-        Assert.assertEquals(result.size(), 1);
-        Assert.assertEquals(result.iterator().next().getId(), screen.getId());
+        Assert.assertEquals(result.size(), 2);
 
+        // get specific screen
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(screen.getId());
         result = browseFacility.getScreens(ctx, ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), screen.getId());
 
+        // get specific screen for user
         result = browseFacility.getScreens(ctx, user.getId(), ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), screen.getId());
 
-        // Get screen for user2 with user1 context
+        // Get screens for user2
         result = browseFacility.getScreens(ctx, user2.getId());
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), screen2.getId());
 
-        // Get screen for user3 - has none
+        // Get screens for user3 - has none
         result = browseFacility.getScreens(ctx, user3.getId());
         Assert.assertEquals(result.size(), 0);
     }
@@ -180,29 +163,29 @@ public class BrowseFacilityTest extends GatewayTest {
     @Test
     public void testGetPlates() {
         SecurityContext ctx = new SecurityContext(group.getId());
-        ctx.setExperimenter(user);
-        ctx.sudo();
 
+        // get plates of the group
         Collection<PlateData> result = browseFacility.getPlates(ctx);
-        Assert.assertEquals(result.size(), 1);
-        Assert.assertEquals(result.iterator().next().getId(), plate.getId());
+        Assert.assertEquals(result.size(), 2);
 
+        // get specific plate
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(plate.getId());
         result = browseFacility.getPlates(ctx, ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), plate.getId());
 
+        // get specific plate for user
         result = browseFacility.getPlates(ctx, user.getId(), ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), plate.getId());
 
-        // Get plate for user2 with user1 context
+        // Get plates for user2
         result = browseFacility.getPlates(ctx, user2.getId());
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), plate2.getId());
 
-        // Get plate for user3 - has none
+        // Get plates for user3 - has none
         result = browseFacility.getPlates(ctx, user3.getId());
         Assert.assertEquals(result.size(), 0);
     }
@@ -210,24 +193,24 @@ public class BrowseFacilityTest extends GatewayTest {
     @Test
     public void testGetImages() {
         SecurityContext ctx = new SecurityContext(group.getId());
-        ctx.setExperimenter(user);
-        ctx.sudo();
 
-        Collection<ImageData> result = browseFacility.getImages(ctx);
-        Assert.assertEquals(result.size(), 1);
-        Assert.assertEquals(result.iterator().next().getId(), img.getId());
+        // get images of the user
+        Collection<ImageData> result = browseFacility.getUserImages(ctx);
+        Assert.assertEquals(result.size(), 0);
 
+        // get specific image
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(img.getId());
         result = browseFacility.getImages(ctx, ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), img.getId());
 
+        // get specific image for user
         result = browseFacility.getImages(ctx, user.getId(), ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), img.getId());
 
-        // Get image for user2 with user1 context
+        // Get images for user2
         ids.clear();
         ids.add(this.img2.getId());
         result = browseFacility.getImages(ctx, user2.getId(), ids);
