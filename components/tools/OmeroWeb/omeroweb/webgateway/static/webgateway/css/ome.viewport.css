@@ -169,3 +169,8 @@ div.weblitz-viewport-tiles img {
   -ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
 }
 
+  /* Bulk Annotations */
+  .noTabularData {
+    display: none;
+  }
+
