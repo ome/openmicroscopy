@@ -124,4 +124,14 @@ public class Plane2D
 		return mappedData[x][y];
 	}
 	
+	/**
+     * Returns the raw data value at the given offset
+     * 
+     * @param offset The offset
+     * @return See above.
+     */
+    public byte getRawValue(int offset)
+    {
+        return data.get(offset);
+    }
 }
