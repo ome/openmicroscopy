@@ -42,6 +42,10 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
      */
     protected final ProcessPrx process;
 
+    public ProcessCallbackI(ProcessCallbackI pcb) throws ServerError {
+        this(pcb.adapter, pcb.id.category, pcb.process);
+    }
+    
     public ProcessCallbackI(omero.client client, ProcessPrx process)
     throws ServerError {
         this(client, process, true);

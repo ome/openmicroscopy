@@ -31,7 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;

@@ -77,14 +77,16 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;

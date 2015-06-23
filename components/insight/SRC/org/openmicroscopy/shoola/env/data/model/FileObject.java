@@ -83,6 +83,18 @@ public class FileObject
     }
 
     /**
+     * Sets the omero image Id after saving the image.
+     *
+     * @param id The value to set.
+     */
+    public void setImageID(long id)
+    {
+        if (!isImagePlus()) return;
+        ImagePlus image = (ImagePlus) file;
+        image.setProperty(OMERO_ID, id);
+    }
+
+    /**
      * Add the associated file if any.
      * 
      * @param file The file to add.

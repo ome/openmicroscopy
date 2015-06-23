@@ -30,7 +30,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.AdvancedResultSearchMod
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 

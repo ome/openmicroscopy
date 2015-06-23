@@ -32,7 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 import pojos.FileAnnotationData;
 

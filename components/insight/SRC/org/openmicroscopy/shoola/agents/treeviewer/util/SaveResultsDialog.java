@@ -50,8 +50,8 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -239,7 +239,7 @@ public class SaveResultsDialog
                 activeWindow = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
-        b = new JRadioButton("Image from all image windows");
+        b = new JRadioButton("Images from all image windows");
         b.setSelected(activeWindow);
         buttons.add(b);
         group.add(b);

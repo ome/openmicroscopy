@@ -80,7 +80,7 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -928,7 +928,13 @@ public class FileImportComponent
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
-			imageLabel.setData(list.get(0));
+			ThumbnailData data = list.get(0);
+			long iid = data.getImageID();
+			if (data.getImage() != null) {
+			    iid = data.getImage().getId();
+			}
+			getFile().setImageID(iid);
+			imageLabel.setData(data);
 			list.remove(0);
 			if (list.size() > 0) {
 				ThumbnailLabel label = imageLabels.get(0);

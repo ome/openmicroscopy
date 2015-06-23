@@ -76,10 +76,10 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -561,7 +561,7 @@ class MetadataViewerComponent
 			}
 		}  else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
-			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
+			if (CollectionUtils.isEmpty(toAdd) && CollectionUtils.isEmpty(toRemove)) {
 				model.fireSaving(object, metadata, toSave, asynch);
 				b = false;
 			}	

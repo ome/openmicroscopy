@@ -36,7 +36,7 @@ import org.apache.commons.io.FileUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import pojos.FileAnnotationData;
 
 /** 

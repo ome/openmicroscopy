@@ -42,10 +42,10 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 

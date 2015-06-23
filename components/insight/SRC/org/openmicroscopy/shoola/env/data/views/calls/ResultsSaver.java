@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+import ij.IJ;
 import ij.ImagePlus;
 
 import java.io.File;
@@ -34,7 +35,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
@@ -121,7 +122,9 @@ public class ResultsSaver
                 file = (FileObject) o;
                 id = file.getOMEROID();
                 if (id >= 0) {
-                    ctx = new SecurityContext(file.getGroupID());
+                    if (file.getGroupID() > 0) {
+                        ctx = new SecurityContext(file.getGroupID());
+                    }
                     ImagePlus img = (ImagePlus) file.getFile();
                     rois = reader.readImageJROIFromSources(id, img);
                     //create a tmp file.
@@ -145,6 +148,7 @@ public class ResultsSaver
                                             imageID, fa);
                                 }
                             } catch (Exception e) {
+                                IJ.log("error:"+e.toString());
                                 context.getLogger().error(this,
                                         "Cannot Save the ROIs results: "
                                                 +e.getMessage());
@@ -172,7 +176,9 @@ public class ResultsSaver
                 file = (FileObject) o;
                 id = file.getOMEROID();
                 if (id >= 0) {
-                    ctx = new SecurityContext(file.getGroupID());
+                    if (file.getGroupID() > 0) {
+                        ctx = new SecurityContext(file.getGroupID());
+                    }
                     ImagePlus img = (ImagePlus) file.getFile();
                     //create a tmp file.
                     File f = createFile(img);
@@ -221,7 +227,9 @@ public class ResultsSaver
                 file = (FileObject) o;
                 id = file.getOMEROID();
                 if (id >= 0) {
-                    ctx = new SecurityContext(file.getGroupID());
+                    if (file.getGroupID() > 0) {
+                        ctx = new SecurityContext(file.getGroupID());
+                    }
                     ImagePlus img = (ImagePlus) file.getFile();
                     rois = reader.readImageJROIFromSources(id, img);
                     if (CollectionUtils.isNotEmpty(rois)) {

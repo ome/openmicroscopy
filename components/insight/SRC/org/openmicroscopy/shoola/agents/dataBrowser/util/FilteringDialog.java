@@ -67,6 +67,9 @@ import javax.swing.event.DocumentListener;
 
 
 
+
+import omero.gateway.model.SearchParameters;
+
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
 
@@ -80,7 +83,6 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
