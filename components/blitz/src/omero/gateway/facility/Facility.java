@@ -24,8 +24,6 @@ import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-import javax.media.jai.operator.LogDescriptor;
-
 import ome.conditions.SessionTimeoutException;
 import omero.AuthenticationException;
 import omero.DatabaseBusyException;
@@ -50,8 +48,6 @@ import Ice.UnknownException;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
-//Java imports
 
 /**
  * A Facility encapsulates a certain set of functionality for dealing with an
@@ -90,7 +86,6 @@ public abstract class Facility {
      * @return See above
      * @throws ExecutionException
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Facility> T getFacility(final Class<T> type,
             final Gateway gateway) throws ExecutionException {
 
@@ -98,7 +93,8 @@ public abstract class Facility {
 
             @Override
             public Facility call() throws Exception {
-                gateway.getLogger().debug(null, "Created new "+type.getSimpleName());
+                gateway.getLogger().debug(null,
+                        "Created new " + type.getSimpleName());
                 return type.getDeclaredConstructor(Gateway.class).newInstance(
                         gateway);
             }
