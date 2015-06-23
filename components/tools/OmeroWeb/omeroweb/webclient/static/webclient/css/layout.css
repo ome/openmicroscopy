@@ -958,6 +958,10 @@
 	.bulk_annotations_table td {
 		white-space: normal !important;
 	}
+
+	.noTabularData {
+		display: none;
+	}
 		
 	
 
