@@ -34,16 +34,22 @@ import java.util.Set;
 
 //Third-party libraries
 
+
 import omero.ServerError;
 //Application-internal dependencies
 import omero.api.ThumbnailStorePrx;
+
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.RenderingServiceException;
+
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+
+import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 

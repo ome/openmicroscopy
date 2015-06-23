@@ -38,6 +38,7 @@
 		    <src path="${src.dir}"/>
 		    <src path="${src.dest}"/>
 		    <src path="${basedir}/generated"/>
+			<include name="ome/**"/>
 		    <include name="pojos/**"/>
 		    <include name="omero/**"/>
 		    <include name="omero/model/**"/>

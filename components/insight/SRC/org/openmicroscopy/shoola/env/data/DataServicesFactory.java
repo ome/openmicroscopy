@@ -34,13 +34,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import omero.client;
 
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
@@ -54,11 +51,18 @@ import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.log.LogMessage;
+import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -68,6 +72,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -140,9 +145,6 @@ public class DataServicesFactory
  
 	/** The Administration service adapter. */
 	private AdminService				admin;
-	
-    /** Keeps the client's session alive. */
-	private ScheduledThreadPoolExecutor	executor;
 
     /** Flag indicating that we try to re-establish the connection.*/
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
@@ -173,6 +175,7 @@ public class DataServicesFactory
         RegistryFactory.linkMS(ms, registry);
         RegistryFactory.linkAdmin(admin, registry);
         RegistryFactory.linkIS(is, registry);
+        RegistryFactory.linkGateway(omeroGateway.getGateway(), registry);
         
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
@@ -182,48 +185,48 @@ public class DataServicesFactory
 	}
 	
 	/**
-	 * Determines the quality of the compression depending on the
-	 * connection speed.
-	 * 
-	 * @param connectionSpeed The connection speed.
-	 * @return See above.
-	 */
-	private float determineCompression(int connectionSpeed)
-	{
-		Float value;
-		switch (connectionSpeed) {
-			case UserCredentials.MEDIUM:
-			case UserCredentials.HIGH:
-				value = (Float) registry.lookup(
-						LookupNames.COMPRESSIOM_MEDIUM_QUALITY);
-				return value.floatValue();
-			case UserCredentials.LOW:
-			default:
-				value = (Float) registry.lookup(
-						LookupNames.COMPRESSIOM_LOW_QUALITY);
-				return value.floatValue();
-		}
-	}
-	
-	/**
-	 * Returns <code>true</code> if the connection is fast,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param connectionSpeed The connection speed.
-	 * @return See above.
-	 */
-	private int isFastConnection(int connectionSpeed)
-	{
-		switch (connectionSpeed) {
-			case UserCredentials.HIGH:
-				return RenderingControl.UNCOMPRESSED;
-			case UserCredentials.MEDIUM:
-				return RenderingControl.MEDIUM;
-			case UserCredentials.LOW:
-			default:
-				return RenderingControl.LOW;
-		}
-	}
+     * Determines the quality of the compression depending on the
+     * connection speed.
+     * 
+     * @param connectionSpeed The connection speed.
+     * @return See above.
+     */
+    private float determineCompression(int connectionSpeed)
+    {
+        Float value;
+        switch (connectionSpeed) {
+            case UserCredentials.MEDIUM:
+            case UserCredentials.HIGH:
+                value = (Float) registry.lookup(
+                        LookupNames.COMPRESSIOM_MEDIUM_QUALITY);
+                return value.floatValue();
+            case UserCredentials.LOW:
+            default:
+                value = (Float) registry.lookup(
+                        LookupNames.COMPRESSIOM_LOW_QUALITY);
+                return value.floatValue();
+        }
+    }
+    
+    /**
+     * Returns <code>true</code> if the connection is fast,
+     * <code>false</code> otherwise.
+     * 
+     * @param connectionSpeed The connection speed.
+     * @return See above.
+     */
+    private int isFastConnection(int connectionSpeed)
+    {
+        switch (connectionSpeed) {
+            case UserCredentials.HIGH:
+                return RenderingControl.UNCOMPRESSED;
+            case UserCredentials.MEDIUM:
+                return RenderingControl.MEDIUM;
+            case UserCredentials.LOW:
+            default:
+                return RenderingControl.LOW;
+        }
+    }
 	
     /**
      * Returns <code>true</code> if the server and the client are compatible,
@@ -327,7 +330,7 @@ public class DataServicesFactory
     {
         if (connectionDialog instanceof ShutDownDialog) {
             ShutDownDialog d = (ShutDownDialog) connectionDialog;
-            d.setChecker(omeroGateway.getChecker());
+            d.setGateway(omeroGateway.getGateway());
             d.setCheckupTime(5);
         }
         connectionDialog.setModal(false);
@@ -346,7 +349,6 @@ public class DataServicesFactory
                 {
                     connectionDialog = null;
                     reconnecting.set(false);
-                    omeroGateway.resetNetwork();
                     int index = (Integer) evt.getNewValue();
                     if (index == ConnectionExceptionHandler.LOST_CONNECTION)
                         reconnect();
@@ -546,14 +548,21 @@ public class DataServicesFactory
             throw new NullPointerException("No user credentials.");
 		String name = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
-		if (name == null) name = LookupNames.MASTER_INSIGHT;
-		client client = omeroGateway.createSession(uc.getUserName(),
-				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
-				uc.getPort());
-		if (client == null || singleton == null) {
-			omeroGateway.logout();
-        	return;
-		}
+		if (name == null) 
+		    name = LookupNames.MASTER_INSIGHT;
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getUser().setUsername(uc.getUserName());
+        cred.getUser().setPassword(uc.getPassword());
+        cred.getServer().setHostname( uc.getHostName());
+        cred.getServer().setPort(uc.getPort());
+        cred.setApplicationName(name);
+        cred.setCheckNetwork(true);
+        cred.setCompression(determineCompression(uc.getSpeedLevel()));
+        cred.setEncrypyion(uc.isEncrypted());
+        
+		ExperimenterData exp = omeroGateway.connect(cred);
+		
 		//check client server version
 		compatible = true;
         //Register into log file.
@@ -561,7 +570,7 @@ public class DataServicesFactory
     	String clientVersion = "";
     	if (v != null && v instanceof String)
     		clientVersion = (String) v;
-    	if (uc.getUserName().equals(client.getSessionId())) {
+    	if (uc.getUserName().equals(omeroGateway.getSessionId(exp))) {
     	    container.getRegistry().bind(LookupNames.SESSION_KEY, Boolean.TRUE);
     	}
     	;
@@ -580,9 +589,6 @@ public class DataServicesFactory
         	return;
         }
 
-        ExperimenterData exp = omeroGateway.login(client,
-                uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-                uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
@@ -600,10 +606,6 @@ public class DataServicesFactory
             msg.println(entry.getKey()+": "+entry.getValue());
         }
         registry.getLogger().info(this, msg);
-        
-        KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
-        executor = new ScheduledThreadPoolExecutor(1);
-        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
 
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
@@ -738,10 +740,7 @@ public class DataServicesFactory
 		if (omeroGateway != null) omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
-		 
-        if (executor != null) executor.shutdown();
         singleton = null;
-        executor = null;
         omeroGateway = null;
     }
 	

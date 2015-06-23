@@ -30,10 +30,12 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.ProcessReport;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.ExperimenterData;

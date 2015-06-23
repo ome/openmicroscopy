@@ -34,13 +34,22 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+
+
+
+
 //Application-internal dependencies
 import omero.api.StatefulServiceInterfacePrx;
+
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.SearchResultCollection;
+import omero.gateway.model.SearchParameters;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -473,7 +482,7 @@ public class NullOmeroPojoService
          * No-operation implementation
          * @see OmeroDataService#search(SecurityContext, SearchParameters)
          */
-        public AdvancedSearchResultCollection search(SecurityContext ctx,
+        public SearchResultCollection search(SecurityContext ctx,
                 SearchParameters context) throws DSOutOfServiceException,
                 DSAccessException {
             return null;
@@ -483,7 +492,7 @@ public class NullOmeroPojoService
          * No-operation implementation
          * @see OmeroDataService#search(SecurityContext, SearchParameters, int)
          */
-        public AdvancedSearchResultCollection search(SecurityContext ctx,
+        public SearchResultCollection search(SecurityContext ctx,
                 SearchParameters context, int maxResults) throws DSOutOfServiceException,
                 DSAccessException {
             return null;

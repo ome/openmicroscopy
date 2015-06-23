@@ -38,7 +38,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 /** 
  * Activity to open an image or a file.

@@ -42,15 +42,16 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import omero.gateway.model.SearchParameters;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.GroupContext;

@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="OmeroJava.Gateway">
+	<test name="OmeroJava.Gateway">
+		<classes>
+		    <!-- Explicitly list all test classes to ensure they are run in the right sequence -->
+			<class name="integration.gateway.AdminFacilityTest" />
+			<class name="integration.gateway.DataManagerFacilityTest" />
+			<class name="integration.gateway.BrowseFacilityTest" />
+			<class name="integration.gateway.SearchFacilityTest" />
+		</classes>
+	</test>
+</suite>
