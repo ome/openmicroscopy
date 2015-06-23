@@ -471,7 +471,7 @@
             white-space: nowrap;
         }
     
-        #right_panel th{
+        #right_panel th, #right_panel td.title{
             color:hsl(210,10%,30%);
             vertical-align:top;
             text-align:left;
