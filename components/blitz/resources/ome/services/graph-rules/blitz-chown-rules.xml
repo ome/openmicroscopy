@@ -333,17 +333,25 @@
                                        p:changes="L:[I]/n"/>
 
         <!--
-             If a project, dataset or image is given then delete any remaining cross-owner links regardless of permissions in a
-             private group.
+             If a project, dataset or image is given then delete any remaining cross-owner links regardless of permissions
+             outside read-write groups.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I];perms=??-???, L.child = [E]{ia}"
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I];perms=???-??, L.child = [E]{ia}"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E];perms=??-???, L.child = [I]"
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E];perms=???-??, L.child = [I]"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [I];perms=??-???, L.child = [E]{ia}"
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [I];perms=???-??, L.child = [E]{ia}"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [E];perms=??-???, L.child = [I]"
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [E];perms=???-??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I];perms=???a??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E];perms=???a??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [I];perms=???a??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [E];perms=???a??, L.child = [I]"
                                        p:changes="L:[D]/n"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
