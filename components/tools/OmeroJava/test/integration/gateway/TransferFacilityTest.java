@@ -99,7 +99,7 @@ public class TransferFacilityTest extends GatewayTest {
     }
 
     private void initData() throws Exception {
-        testFile = File.createTempFile("testImportFile", "." + OME_FORMAT);
+        testFile = File.createTempFile("testImportFile", ".ome");
         testFile.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
