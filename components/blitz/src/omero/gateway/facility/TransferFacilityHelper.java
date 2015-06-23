@@ -396,8 +396,6 @@ public class TransferFacilityHelper {
                 }
             }
             if (ImportableObject.isArbitraryFile(file)) {
-                if (ic == null) // already check if hcs.
-                    ic = getImportCandidates(ctx, object, file, status);
                 candidates = ic.getPaths();
                 int size = candidates.size();
                 if (size == 0) {
@@ -927,7 +925,6 @@ public class TransferFacilityHelper {
         return browse.findIObject(ctx, ioContainer);
     }
 
-    @SuppressWarnings("unchecked")
     public List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {
         List<File> files = new ArrayList<File>();

@@ -467,7 +467,6 @@ public class ModelMapper
      * @param data              The annotation to create.
      * @return See above.
      */
-    @SuppressWarnings("unchecked")
 	public static Annotation createAnnotation(AnnotationData data)
     {
     	Annotation annotation = null;

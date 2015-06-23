@@ -113,6 +113,8 @@ import omero.util.CommonsLangUtils;
  */
 class Connector
 {
+    // just for debugging purposes to monitor the amount of connections created
+    // and if they get properly closed again
     private static AtomicInteger nConnector = new AtomicInteger(0);
     private static AtomicInteger nStateful = new AtomicInteger(0);
     private static AtomicInteger nStateless = new AtomicInteger(0);
