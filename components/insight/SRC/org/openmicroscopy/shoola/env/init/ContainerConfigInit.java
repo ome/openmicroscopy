@@ -93,8 +93,13 @@ public final class ContainerConfigInit
 				value = values[j];
 				if (value != null) value = value.trim();
 				if (l == null) continue;
+				int idx = value.indexOf(".jar");
+				if (idx==-1){
+				    idx = value.length();
+				}
+				value = value.substring(0, idx);
 				for (int i = 0; i < l.length; i++) {
-					if (l[i].getName().equals(value)) {
+					if (l[i].getName().startsWith(value)) {
 						count++;
 					}
 				}
