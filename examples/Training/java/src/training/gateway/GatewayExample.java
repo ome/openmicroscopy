@@ -19,8 +19,6 @@
 
 package training.gateway;
 
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +26,6 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
@@ -40,7 +35,6 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.ImportException;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.Facility;
-import omero.gateway.facility.RenderingFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.facility.TransferFacility;
 import omero.gateway.model.ImportCallback;
@@ -60,34 +54,18 @@ import pojos.ProjectData;
  * A simple example to show the basic usage of the {@link Gateway} and it's
  * {@link Facility}s
  * 
- * Dependencies:
- * backport-util-concurrent
- * blitz
- * common
- * formats-api
- * formats-bsd
- * formats-common
- * formats-gpl
- * ice-db
- * ice-freeze
- * ice-glacier2
- * ice-grid
- * ice-storm
- * ice
- * ini4j
- * model-psql
- * ome-java
- * ome-poi
- * ome-xml
+ * Dependencies: backport-util-concurrent blitz common formats-api formats-bsd
+ * formats-common formats-gpl ice-db ice-freeze ice-glacier2 ice-grid ice-storm
+ * ice ini4j model-psql ome-java ome-poi ome-xml
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class GatewayExample {
 
-    private static final String DEFAULT_HOST = "trout.openmicroscopy.org"; 
+    private static final String DEFAULT_HOST = "localhost";
     private static final String DEFAULT_PORT = "4064";
-    private static final String DEFAULT_USER = "user-3"; 
+    private static final String DEFAULT_USER = "root";
 
     public static void main(String[] args) throws IOException {
         GatewayExample exp = new GatewayExample();
@@ -109,13 +87,13 @@ public class GatewayExample {
         try {
             ExperimenterData exp = gateway.connect(c);
 
-            System.out.println("Logged in as: "+exp.getUserName()+" (id="+exp.getId()+")");
-            
+            System.out.println("Logged in as: " + exp.getUserName() + " (id="
+                    + exp.getId() + ")");
+
             BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
             SearchFacility search = gateway.getFacility(SearchFacility.class);
             TransferFacility transfer = gateway
                     .getFacility(TransferFacility.class);
-            RenderingFacility rend = gateway.getFacility(RenderingFacility.class);
 
             SecurityContext ctx = new SecurityContext(exp.getDefaultGroup()
                     .getId());
@@ -137,12 +115,14 @@ public class GatewayExample {
                         .getDatasets(groupContext);
                 for (DatasetData dataset : datasets) {
                     System.out.println("\t" + dataset.getName() + " (id="
-                            + dataset.getId() + ") - Owner: "+dataset.getOwner().getId());
+                            + dataset.getId() + ") - Owner: "
+                            + dataset.getOwner().getId());
                     for (Object obj : dataset.getImages()) {
                         if (obj instanceof ImageData) {
                             ImageData img = (ImageData) obj;
                             System.out.println("\t\t" + img.getName() + " (id="
-                                    + img.getId() + " - Owner: "+img.getOwner().getId());
+                                    + img.getId() + " - Owner: "
+                                    + img.getOwner().getId());
                         }
                     }
                 }
@@ -181,8 +161,7 @@ public class GatewayExample {
             }
 
             /** Example for downloading an image (original file format) */
-            System.out
-                    .println("\n\nDownload image, image id: ");
+            System.out.println("\n\nDownload image, image id: ");
             String id = readLine();
             if (!CommonsLangUtils.isEmpty(id)) {
                 System.out.println("\n\nDownload, target path: ");
@@ -215,16 +194,7 @@ public class GatewayExample {
                 }
                 System.out.println("done");
             }
-            
-            System.out.println("\n\nShow thumbnail, image id: ");
-            String thumb = readLine();
-            if (!CommonsLangUtils.isEmpty(thumb)) {
-                long imgId = Long.parseLong(thumb);
-                ImageData img = browse.getImage(ctx, imgId);
-                BufferedImage bimg = rend.getThumbnail(ctx, img.getDefaultPixels());
-                showImage(bimg);
-            }
-            
+
         } catch (DSOutOfServiceException e) {
             e.printStackTrace();
         } catch (DSAccessException e) {
@@ -297,21 +267,5 @@ public class GatewayExample {
         result[3] = password;
 
         return result;
-    }
-    
-    private void showImage(final BufferedImage img) {
-        JFrame f = new JFrame();
-        JPanel p = new JPanel() {
-
-            @Override
-            public void paint(Graphics g) {
-                g.drawImage(img, 0, 0, null);
-            }
-
-        };
-
-        f.add(p);
-        f.pack();
-        f.setVisible(true);
     }
 }

@@ -24,6 +24,8 @@ import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+import javax.media.jai.operator.LogDescriptor;
+
 import ome.conditions.SessionTimeoutException;
 import omero.AuthenticationException;
 import omero.DatabaseBusyException;
@@ -96,6 +98,7 @@ public abstract class Facility {
 
             @Override
             public Facility call() throws Exception {
+                gateway.getLogger().debug(null, "Created new "+type.getSimpleName());
                 return type.getDeclaredConstructor(Gateway.class).newInstance(
                         gateway);
             }
