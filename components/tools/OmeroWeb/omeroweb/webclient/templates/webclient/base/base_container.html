@@ -36,6 +36,12 @@
 {% endblock %}
 
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.chosen-1.2.0/chosen.css" %}" type="text/css" media="screen"/>
+
+{% endblock %}
+
 {% block script %}
 
     {{ block.super }}
@@ -44,6 +50,9 @@
 
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js"|add:url_suffix %}"></script>
     <script src="{% static 'webclient/javascript/jquery.infieldlabel-0.1.js' %}" type="text/javascript"></script>
+
+    <!-- Toolbar -->
+    <script type="text/javascript" src="{% static "3rdparty/jquery.chosen-1.2.0/chosen.jquery.js" %}"></script>
 
     <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch-1.0.js" %}"></script>
@@ -117,9 +126,13 @@
 
     <!-- keep-alive ping so that OMERO session doesn't die -->
     {% include "webclient/base/includes/ping.html" %}
-    
+
+    <!-- toolbar helpers -->
+    {% include "webclient/base/includes/toolbar_forms.html" %}
+
     <!-- set-up right panel tabs -->
     {% include "webclient/data/includes/right_plugin.general.js.html" %}
+
 
     <!-- include scripts for loading data into right-hand tabs -->
     <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->

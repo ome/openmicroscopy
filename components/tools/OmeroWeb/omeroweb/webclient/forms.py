@@ -131,6 +131,20 @@ class ShareForm(NonASCIIForm):
                     'Expire date must be in the future.')
         return self.cleaned_data['expiration']
 
+class ShareFormWithImages(ShareForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ShareFormWithImages, self).__init__(*args, **kwargs)
+
+        try:
+            self.fields['image'] = GroupModelMultipleChoiceField(
+                queryset=kwargs['initial']['images'],
+                initial=kwargs['initial']['selected'],
+                widget=forms.SelectMultiple(attrs={'size': 10}))
+        except:
+            self.fields['image'] = GroupModelMultipleChoiceField(
+                queryset=kwargs['initial']['images'],
+                widget=forms.SelectMultiple(attrs={'size': 10}))
 
 class ContainerForm(NonASCIIForm):
 
