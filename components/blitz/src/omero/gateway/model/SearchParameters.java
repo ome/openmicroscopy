@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import omero.gateway.facility.SearchFacility;
 import omero.util.CommonsLangUtils;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -38,6 +39,14 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 
 
+/**
+ * Holds all parameters needed to perform a search operation;
+ * See {@link SearchFacility#search(omero.gateway.SecurityContext, SearchParameters)}
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @since 5.0
+ */
 public class SearchParameters
 {
     /** The ID for searching across all groups*/

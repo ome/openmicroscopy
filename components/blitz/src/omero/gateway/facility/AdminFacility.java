@@ -41,10 +41,10 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.util.PojoMapper;
 
-//Java imports
-
 /**
- *
+ * {@link Facility} for handling admin issues, e. g. creating users, groups,
+ * etc.
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -53,22 +53,11 @@ import pojos.util.PojoMapper;
 public class AdminFacility extends Facility {
 
     Roles roles;
-    
+
     AdminFacility(Gateway gateway) {
         super(gateway);
     }
 
-    private Roles getRoles(SecurityContext ctx) {
-        try {
-            if (roles == null)
-                roles = gateway.getAdminService(ctx).getSecurityRoles();
-            return roles;
-        } catch (ServerError e) {
-        } catch (DSOutOfServiceException e) {
-        }
-        return null;
-    }
-    
     /**
      * Creates a group.
      */
@@ -107,8 +96,8 @@ public class AdminFacility extends Facility {
      * Creates an experimenter.
      */
     public ExperimenterData createExperimenter(SecurityContext ctx,
-            ExperimenterData exp, String username, String password, List<GroupData> groups,
-            boolean isAdmin, boolean isGroupOwner)
+            ExperimenterData exp, String username, String password,
+            List<GroupData> groups, boolean isAdmin, boolean isGroupOwner)
             throws DSOutOfServiceException, DSAccessException {
 
         try {
@@ -140,8 +129,7 @@ public class AdminFacility extends Facility {
                     g = l.get(0);
                     systemGroup = true;
                 }
-                exp.asExperimenter().setOmeName(
-                        omero.rtypes.rstring(username));
+                exp.asExperimenter().setOmeName(omero.rtypes.rstring(username));
                 exp.asExperimenter().setLdap(omero.rtypes.rbool(false));
                 if (password != null && password.length() > 0) {
                     id = svc.createExperimenterWithPassword(
@@ -243,4 +231,16 @@ public class AdminFacility extends Facility {
         }
         return new PermissionsI(perms);
     }
+
+    private Roles getRoles(SecurityContext ctx) {
+        try {
+            if (roles == null)
+                roles = gateway.getAdminService(ctx).getSecurityRoles();
+            return roles;
+        } catch (ServerError e) {
+        } catch (DSOutOfServiceException e) {
+        }
+        return null;
+    }
+
 }

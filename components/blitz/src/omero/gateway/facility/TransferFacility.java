@@ -95,7 +95,6 @@ public class TransferFacility extends Facility {
         imf.setGroup(user.getDefaultGroup());
         imf.setStatus(observer);
         
-        @SuppressWarnings("unchecked")
         ImportableObject imo = new ImportableObject(Arrays.asList(new ImportableFile[]{imf}),
                 overrideName);
         

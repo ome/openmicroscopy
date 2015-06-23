@@ -51,8 +51,6 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.util.PojoMapper;
 
-//Java imports
-
 /**
  * A {@link Facility} for browsing the data hierarchy and retrieving
  * {@link ProjectData}, {@link DatasetData}, etc.
@@ -117,7 +115,6 @@ public class BrowseFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    @SuppressWarnings("unchecked")
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id) throws DSOutOfServiceException,
             DSAccessException {
@@ -143,7 +140,6 @@ public class BrowseFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    @SuppressWarnings("unchecked")
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id, boolean allGroups)
             throws DSOutOfServiceException, DSAccessException {
@@ -290,8 +286,7 @@ public class BrowseFacility extends Facility {
     /** Load Projects */
 
     /**
-     * Get all projects for an user (make sure the {@link ExperimenterData} in
-     * {@link SecurityContext} is set!)
+     * Get all projects
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -425,8 +420,7 @@ public class BrowseFacility extends Facility {
     /** Load Datasets */
 
     /**
-     * Loads the datasets for an user (make sure the {@link ExperimenterData} in
-     * {@link SecurityContext} is set!)
+     * Loads all datasets
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -566,8 +560,7 @@ public class BrowseFacility extends Facility {
     /** Load Screens */
 
     /**
-     * Loads the screens for an user (make sure the {@link ExperimenterData} in
-     * {@link SecurityContext} is set!)
+     * Loads all screens
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -701,8 +694,7 @@ public class BrowseFacility extends Facility {
     /** Load PLates */
 
     /**
-     * Loads the plates for an user (make sure the {@link ExperimenterData} in
-     * {@link SecurityContext} is set!)
+     * Loads all plates
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -842,8 +834,7 @@ public class BrowseFacility extends Facility {
     /** Load Images */
 
     /**
-     * Loads the images for an user (make sure the {@link ExperimenterData} in
-     * {@link SecurityContext} is set!)
+     * Loads all images of the logged in user
      * 
      * @param ctx
      *            The {@link SecurityContext}

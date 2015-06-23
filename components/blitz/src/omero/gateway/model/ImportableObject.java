@@ -26,7 +26,6 @@ package omero.gateway.model;
 //Java imports
 
 import java.io.File;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,30 +38,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-
-
-
-
-
-
-
-
 //Third-party libraries
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.in.OMEXMLReader;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-
-
-
-
-
-
-
 
 //Application-internal dependencies
 import omero.gateway.SecurityContext;

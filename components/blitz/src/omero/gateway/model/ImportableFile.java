@@ -28,8 +28,6 @@ import java.io.File;
 
 //Third-party libraries
 
-
-import ome.formats.importer.IObserver;
 //Application-internal dependencies
 import pojos.DatasetData;
 import pojos.ExperimenterData;
