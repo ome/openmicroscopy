@@ -25,16 +25,12 @@
 if (typeof OME === "undefined") { OME={}; }
 
     OME.createShare = function(data) {
-        var query;
+
         var productListQuery = new Array();
-        if (data !== undefined) {
-            for (var i=0; i<data.length; i++) {
-                productListQuery[i] = data[i]["id"].replace("-","=");
-            }
-            query = '{% url 'manage_action_containers' "add" "share" %}' + "?"+productListQuery.join("&");
-        } else {
-            query = '{% url 'manage_action_containers' "add" "chat" %}'
+        for (var i=0; i<data.length; i++) {
+            productListQuery[i] = data[i]["id"].replace("-","=");
         }
+        var query = '{% url 'manage_action_containers' "add" "share" %}' + "?"+productListQuery.join("&");
 
         $("#create_share_form").dialog("open");
         $("#create_share_form").attr("action", query)
@@ -49,18 +45,33 @@ if (typeof OME === "undefined") { OME={}; }
             success: function(html) {
                 if (html == "success") {
                     $("#create_share_form").dialog( "close" );
-                    document.location.href = "{% url 'load_template' 'public' %}";
+                    //document.location.href = "{% url 'load_template' 'public' %}";
+                    $("#share_dialog_form").dialog("open").show();
                 } else {
                     $("#create_share_form").html(html);
                 }
             },
         });
 
+        $("#share_dialog_form").dialog({
+            autoOpen: false,
+            resizable: true,
+            height: 150,
+            width:300,
+            modal: true,
+            buttons: {
+                "OK": function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+
+
         $("#create_share_form").dialog({
             autoOpen: false,
             resizable: true,
-            height: 470,
-            width:420,
+            height: 600,
+            width:450,
             modal: true,
             buttons: {
                 "Accept": function() {
@@ -80,4 +91,10 @@ if (typeof OME === "undefined") { OME={}; }
 
 <!-- hidden form for creating share - shown in dialog & loaded by AJAX -->
 <form id="create_share_form" action="#" method="post" title="Create Share" class="standard_form">{% csrf_token %}
+</form>
+
+<form id="share_dialog_form" action="#" title="Create Share" style="display:none">
+    <p id="deleteOthersWarning" style="font-size: 120%; font-weight: bold">
+        Share was created successfully.
+    </p>
 </form>

@@ -288,7 +288,7 @@
 
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
-                        'paste': false, 'delete':false, 'annotation':false, 'createshare':false, 'chat':true};
+                        'paste': false, 'delete':false, 'annotation':false, 'createshare':false};
                     // We 'canCreate' top level items, E.g. Project, Dataset, Screen, if the current userId is self or 'All Members'
                     var userId = {{ ome.user_id }},
                         canCreate = (userId === {{ ome.user.id }} || userId === -1);
@@ -980,8 +980,7 @@
             <li class="seperator">
 
 			<li><input id="createshareButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_share2.png" %}" alt="Create Share" title="Create Share"></li>
-            <li><input id="createchatButton" class="button button" type="image" src="{% static "webclient/image/icon_toolbar_chat2.png" %}" alt="Create Chat" title="Create Chat"></li>
-			
+
 			<li class="seperator"></li>
 			
 			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> </li>

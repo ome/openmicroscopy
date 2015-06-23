@@ -2219,10 +2219,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
         if o_type == "share" :
-            if len(request.REQUEST.getlist('image')) > 0:
-                images_to_share = list(
-                    conn.getObjects("Image",
-                                    request.REQUEST.getlist('image')))
+            images_to_share = list(
+                conn.getObjects("Image",
+                                request.REQUEST.getlist('image')))
             if request.method == 'POST':
                 form = ShareFormWithImages(
                     initial={'experimenters': experimenters,
@@ -2249,29 +2248,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     'selected': request.REQUEST.getlist('image')
                 }
                 form = ShareFormWithImages(initial=initial)
-        elif o_type == "chat" :
-            if request.method == 'POST':
-                form = ShareForm(
-                    initial={'experimenters': experimenters},
-                    data=request.REQUEST.copy())
-                if form.is_valid():
-                    message = form.cleaned_data['message']
-                    expiration = form.cleaned_data['expiration']
-                    members = form.cleaned_data['members']
-                    # guests = request.REQUEST['guests']
-                    enable = form.cleaned_data['enable']
-                    host = "%s?server=%i" % (request.build_absolute_uri(
-                        reverse("load_template", args=["public"])),
-                        int(conn.server_id))
-                    manager.createDiscussion(
-                        host, message, members, enable, expiration)
-                    return HttpResponse("success")
-            else:
-                initial = {
-                    'experimenters': experimenters,
-                    'enable': True
-                }
-                form = ShareForm(initial=initial)
         template = "webclient/public/share_form.html"
         context = {'manager': manager, 'form': form }
 
