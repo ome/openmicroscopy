@@ -2218,7 +2218,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         template = "webclient/public/share_form.html"
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
-        if o_type == "share" :
+        if o_type == "share":
             images_to_share = list(
                 conn.getObjects("Image",
                                 request.REQUEST.getlist('image')))
@@ -2249,7 +2249,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 }
                 form = ShareFormWithImages(initial=initial)
         template = "webclient/public/share_form.html"
-        context = {'manager': manager, 'form': form }
+        context = {'manager': manager, 'form': form}
 
     elif action == 'edit':
         # form for editing an Object. E.g. Project etc. TODO: not used now?
@@ -2797,6 +2797,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
+
 
 @login_required(setGroupContext=True)
 @render_response()
