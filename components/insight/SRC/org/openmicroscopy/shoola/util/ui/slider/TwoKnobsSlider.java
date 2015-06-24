@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -24,23 +24,17 @@
 package org.openmicroscopy.shoola.util.ui.slider;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
 * A two knobs slider.
@@ -273,23 +267,8 @@ public class TwoKnobsSlider
 		}
 
 		if (knobControl == LEFT) { //left knob moved.
-			/*
-			if (left < xmin) {
-				left = xmin;
-			} else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
-			else {
-				if (left > right && right < xmax) left = right-1;
-			}
-			*/
 			model.setStartValue(uiDelegate.xValueForPosition(left, true));
 		} else if (knobControl == RIGHT) { //right knob moved.
-			/*
-			if (right > xmax) right = xmax;
-			else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
-			else {
-				if (right < left && left > xmin) right = left+1;
-			}
-			*/
 			model.setEndValue(uiDelegate.xValueForPosition(right, false));
 		}
 		repaint();
