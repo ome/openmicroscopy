@@ -300,18 +300,20 @@
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}, D =/o I"
                                        p:changes="I:{r}"/>
 
-        <!-- If a container is given then consider its contents for giving if they are deletable and not going to a private group. -->
-
         <!-- In considering giving a container's contents, do not give an object if it is in another container. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E]{ia}, L.child = D:[E]{r}" p:changes="D:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [E]{ia}, L.child = I:[E]{r}" p:changes="I:{a}"/>
 
-        <!-- A private group cannot have container and contents differently owned. -->
+        <!-- Only a read-write group may have container and contents differently owned. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[I];perms=??-???, L.child = D:[E]{r}, P =/!o D"
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[I];perms=???-??, L.child = D:[E]{r}, P =/!o D"
                                        p:changes="D:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I];perms=??-???, L.child = I:[E]{r}, D =/!o I"
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I];perms=???-??, L.child = I:[E]{r}, D =/!o I"
+                                       p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[I];perms=???a??, L.child = D:[E]{r}, P =/!o D"
+                                       p:changes="D:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I];perms=???a??, L.child = I:[E]{r}, D =/!o I"
                                        p:changes="I:{a}"/>
 
         <!-- Give orphaned datasets. -->
