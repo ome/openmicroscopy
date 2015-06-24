@@ -449,6 +449,7 @@
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
 
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[!O]" p:changes="P:[-]"/>  <!-- for ROI masks -->
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>
 
         <!-- DISPLAY -->
@@ -548,19 +549,23 @@
 
         <!-- ROI -->
 
-        <!-- Give the ROIs of the owner of a given image. -->
+        <!-- Give the ROIs, shapes and mask images of the owner of a given image. -->
 
         <bean parent="graphPolicyRule" p:matches="Image[I].rois =/o ROI:[E]" p:changes="ROI:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]" p:changes="I:[I]"/>
 
-        <!-- Cannot give ROI out of image in a private group. -->
+        <!-- Cannot give ROI out of image in a private or read-only group. -->
 
-        <bean parent="graphPolicyRule" p:matches="I:Image[E].rois = ROI:[I];perms=??-???"
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].rois = ROI:[I];perms=???-??"
                                        p:error="cannot give {ROI} while {I} remains"/>
 
-        <!-- Give contained objects: shapes of given ROIs, pixels of given masks. -->
+        <!-- Cannot separate mask from its image in a private group. -->
 
-        <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[E]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="M:Mask[I].pixels = P:[E];perms=??-???, P.image = I:[E]"
+                                       p:error="cannot give {M} while {I} remains"/>
+        <bean parent="graphPolicyRule" p:matches="M:Mask[E].pixels = P:[I];perms=??-???, P.image = I:[I]"
+                                       p:error="cannot give {I} while {M} remains"/>
 
         <!-- SCREEN -->
 

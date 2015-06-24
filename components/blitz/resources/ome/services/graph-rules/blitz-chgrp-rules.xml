@@ -437,6 +437,7 @@
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
 
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[!O]" p:changes="P:[-]"/>  <!-- for ROI masks -->
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>
 
         <!-- DISPLAY -->
@@ -568,12 +569,11 @@
         <!-- Move contained objects: shapes of moved ROIs, pixels of moved masks. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[E]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]{i}" p:changes="I:{r}"/>
 
-        <!-- Delete contained objects: shapes of deleted ROIs, pixels of deleted masks. -->
+        <!-- Delete the shapes of deleted ROIs. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[D]"/>
 
         <!-- SCREEN -->
 
