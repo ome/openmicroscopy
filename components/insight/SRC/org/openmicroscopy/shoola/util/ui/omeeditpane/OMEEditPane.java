@@ -35,6 +35,8 @@ import java.util.Map;
 
 import javax.swing.JEditorPane;
 import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -120,6 +122,21 @@ class OMEEditPane
 			
 		});
 	    addFocusListener(this);
+	    getDocument().addDocumentListener(new DocumentListener() {
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                component.onUpdate();
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                component.onUpdate();
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}
+        });
 	}
 	
 	/**
