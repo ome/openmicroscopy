@@ -268,7 +268,7 @@ public class PixelsData extends DataObject {
      */
     public Length getPixelSizeX(UnitsLength unit) throws BigResult {
     	Length l = asPixels().getPhysicalSizeX();
-    	if(l == null)
+        if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
     		return null;
     	return unit == null ? l : new LengthI(l, unit);
     }
@@ -320,7 +320,7 @@ public class PixelsData extends DataObject {
      */
     public Length getPixelSizeY(UnitsLength unit) throws BigResult {
     	Length l = asPixels().getPhysicalSizeY();
-    	if(l == null)
+    	if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
     		return null;
     	return unit == null ? l : new LengthI(l, unit);
     }
@@ -372,7 +372,7 @@ public class PixelsData extends DataObject {
      */
     public Length getPixelSizeZ(UnitsLength unit) throws BigResult {
     	Length l = asPixels().getPhysicalSizeZ();
-    	if(l == null)
+    	if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
     		return null;
     	return unit == null ? l : new LengthI(l, unit);
     }
