@@ -14,6 +14,7 @@
 """
 
 import sys
+import traceback
 
 from path import path
 from omero.cli import CLI
@@ -21,7 +22,7 @@ from omero.cli import BaseControl
 from omero.cli import ExistingFile
 from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
-from omero.util import edit_path, get_user_dir
+from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
 from omero_ext import portalocker
 
@@ -52,7 +53,7 @@ def getprefs(args, dir):
     """
     if not isinstance(args, list):
         raise Exception("Not a list")
-    cmd = ["prefs"]+list(args)
+    cmd = ["prefs"] + list(args)
     return omero.java.run(cmd, chdir=dir)
 
 
@@ -90,7 +91,20 @@ def with_rw_config(func):
     return wraps(func)(_make_open_and_close_config(func, False))
 
 
-class PrefsControl(BaseControl):
+class WriteableConfigControl(BaseControl):
+    """
+    Base class for controls which need write access to the OMERO configuration
+    using the @with_rw_config decorator
+
+    Note BaseControl should be used for read-only access using @with_config
+    """
+
+    def die_on_ro(self, config):
+        if not config.save_on_close:
+            self.ctx.die(333, "Cannot modify %s" % config.filename)
+
+
+class PrefsControl(WriteableConfigControl):
 
     def _configure(self, parser):
         parser.add_argument(
@@ -123,6 +137,9 @@ class PrefsControl(BaseControl):
         get.set_defaults(func=self.get)
         get.add_argument(
             "KEY", nargs="*", help="Names of keys in the current profile")
+        get.add_argument(
+            "--hide-password", action="store_true",
+            help="Hide values of password keys in the current profile")
 
         set = parser.add(
             sub, self.set,
@@ -165,7 +182,7 @@ class PrefsControl(BaseControl):
         parse = parser.add(
             sub, self.parse,
             "Parse the configuration properties from the etc/omero.properties"
-            " file for readability.")
+            " file and Web properties for readability.")
         parse.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Alternative location for a Java properties file")
@@ -182,6 +199,9 @@ class PrefsControl(BaseControl):
         parse_group.add_argument(
             "--headers", action="store_true",
             help="Print all headers from omero.properties")
+        parse.add_argument(
+            "--no-web", action="store_true",
+            help="Do not parse Web properties")
 
         parser.add(sub, self.edit, "Present the properties for the current"
                    " profile in your editor. Saving them will update your"
@@ -198,10 +218,6 @@ class PrefsControl(BaseControl):
                          " system using Java preferences")
         old.add_argument("target", nargs="*")
 
-    def die_on_ro(self, config):
-        if not config.save_on_close:
-            self.ctx.die(333, "Cannot modify %s" % config.filename)
-
     def open_config(self, args):
         if args.source:
             cfg_xml = path(args.source)
@@ -212,8 +228,7 @@ class PrefsControl(BaseControl):
             if grid_dir.exists():
                 cfg_xml = grid_dir / "config.xml"
             else:
-                userdir = path(get_user_dir())
-                usr_xml = userdir / "omero" / "config.xml"
+                usr_xml = get_omero_userdir() / "config.xml"
                 self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
                 cfg_xml = usr_xml
         try:
@@ -255,20 +270,29 @@ class PrefsControl(BaseControl):
             for k in config.IGNORE:
                 k in keys and keys.remove(k)
 
+        hide_password = 'hide_password' in args and args.hide_password
+        is_password = lambda x: x.endswith('.pass') or x.endswith('.password')
         for k in keys:
             if k not in orig:
                 continue
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                self.ctx.out("%s=%s" % (k, config[k]))
+                if (hide_password and is_password(k)):
+                    self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
+                else:
+                    self.ctx.out("%s=%s" % (k, config[k]))
 
     @with_rw_config
     def set(self, args, config):
-        if "=" in args.KEY and args.VALUE is None:
+        if "=" in args.KEY:
             k, v = args.KEY.split("=", 1)
-            self.ctx.err(""" "=" in key name. Did you mean "...set %s %s"?"""
-                         % (k, v))
+            msg = """ "=" in key name. Did you mean "...set %s %s"?"""
+            if args.VALUE is None:
+                k, v = args.KEY.split("=", 1)
+                self.ctx.err(msg % (k, v))
+            elif args.KEY.endswith("="):
+                self.ctx.err(msg % (k, args.VALUE))
         elif args.file:
             if args.file == "-":
                 # Read from standard input
@@ -353,15 +377,26 @@ class PrefsControl(BaseControl):
 
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
-        pp.parse(str(cfg.abspath()))
+        pp.parse_file(str(cfg.abspath()))
+
+        # Parse PSQL profile file
+        for p in pp:
+            if p.key == "omero.db.profile":
+                psql_file = self.dir / "etc" / "profiles" / p.val
+                pp.parse_file(str(psql_file.abspath()))
+                break
+
+        # Parse OMERO.web configuration properties
+        if not args.no_web:
+            pp.parse_module('omeroweb.settings')
+
+        # Display options
         if args.headers:
             pp.print_headers()
         elif args.keys:
             pp.print_keys()
         elif args.rst:
             pp.print_rst()
-            from omero.install.web_parser import WebSettings
-            WebSettings().print_rst()
         else:
             pp.print_defaults()
 
@@ -402,6 +437,7 @@ class PrefsControl(BaseControl):
         try:
             edit_path(temp_file, start_text)
         except RuntimeError, re:
+            self.ctx.dbg(traceback.format_exc())
             self.ctx.die(954, "%s: Failed to edit %s"
                          % (getattr(re, "pid", "Unknown"), temp_file))
         args.NAME = config.default()

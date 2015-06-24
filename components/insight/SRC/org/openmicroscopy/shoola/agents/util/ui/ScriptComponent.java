@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.ScriptComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,14 +22,13 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -42,13 +41,11 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -257,6 +254,13 @@ class ScriptComponent
     }
 
     /**
+     * Sets the parameter name.
+     *
+     * @param name The value to set.
+     */
+    void setParameterName(String name) { this.name = name;}
+
+    /**
      * Returns the name of the parameter.
      * 
      * @return See above.
@@ -271,7 +275,7 @@ class ScriptComponent
      */
     void setInfo(String text)
     {
-        if (StringUtils.isBlank(text)) return;
+        if (CommonsLangUtils.isBlank(text)) return;
         info = new JLabel();
         Font f = info.getFont();
         info.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
@@ -300,7 +304,7 @@ class ScriptComponent
      */
     void setUnit(String text)
     {
-        if (StringUtils.isBlank(text)) return;
+        if (CommonsLangUtils.isBlank(text)) return;
         if (unitLabel == null) unitLabel = new JLabel();
         unitLabel.setText(text);
     }
@@ -316,7 +320,9 @@ class ScriptComponent
     void buildUI()
     {
         int width = TAB*getTabulationLevel();
-        if (DEFAULT_TEXT.equals(name)) width = 0;
+        if (DEFAULT_TEXT.equals(name) || CommonsLangUtils.isNumber(name)){
+            width = 0;
+        }
         if (CollectionUtils.isEmpty(children)) {
             double[][] size = {{width, TableLayout.PREFERRED, 5,
                 TableLayout.FILL}, {TableLayout.PREFERRED}};
@@ -336,7 +342,12 @@ class ScriptComponent
             int index = 1;
             while (i.hasNext()) {
                 child = i.next();
+                String v = child.parentIndex;
+                if (name != null && name.equals(v)) {
+                    child.parentIndex = null;
+                }
                 child.buildUI();
+                child.parentIndex = v;
                 layout.insertRow(index, TableLayout.PREFERRED);
                 add(child, "0, "+index);
                 index++;
@@ -378,7 +389,7 @@ class ScriptComponent
         } else if (c instanceof JTextField) {
             JTextField field = (JTextField) c;
             String value = field.getText();
-            if (StringUtils.isBlank(value))
+            if (CommonsLangUtils.isBlank(value))
                 return null;
             return value;
         } else if (c instanceof JComboBox) {

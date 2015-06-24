@@ -6,6 +6,7 @@ ${OMERO PORT}           %(PORT)s
 
 ${ROOT USERNAME}        root
 ${ROOT PASSWORD}        %(ROOTPASS)s
+${ROOT FULL NAME}		root root
 
 ${USERNAME}             %(USER)s
 ${PASSWORD}             %(PASS)s
@@ -19,10 +20,10 @@ ${SERVER_ID}            1
 ${BROWSER}              Firefox
 ${DELAY}                0
 
-${LOGIN URL}            http://${WEB HOST}${WEB PREFIX}/webclient/login/
-${WELCOME URL}          http://${WEB HOST}${WEB PREFIX}/webclient/
+${LOGIN URL}            %(PROTOCOL)s://${WEB HOST}${WEB PREFIX}/webclient/login/
+${WELCOME URL}          %(PROTOCOL)s://${WEB HOST}${WEB PREFIX}/webclient/
 
-${WEBADMIN WELCOME URL}     http://${WEB HOST}${WEB PREFIX}/webadmin/
+${WEBADMIN WELCOME URL}     %(PROTOCOL)s://${WEB HOST}${WEB PREFIX}/webadmin/
 ${WEBADMIN LOGIN URL}       ${LOGIN URL}?url=%(QWEBPREFIX)s%(QSEP)swebadmin%(QSEP)s
 ${WEBCLIENT LOGIN URL}      ${LOGIN URL}?url=%(QWEBPREFIX)s%(QSEP)swebclient%(QSEP)s
 

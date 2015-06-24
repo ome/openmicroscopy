@@ -454,4 +454,26 @@ public class CheckedPath {
         return ofile;
     }
 
+    /**
+     * {@inheritDoc}
+     * Instances are equal if their string representations match.
+     * On Windows systems the comparison is not case-sensitive.
+     */
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (!(object instanceof CheckedPath))
+            return false;
+        return this.file.equals(((CheckedPath) object).file);
+    }
+
+    /**
+     * {@inheritDoc}
+     * On Windows systems the calculation is not case-sensitive.
+     */
+    @Override
+    public int hashCode() {
+        return this.file.hashCode() * 98;
+    }
 }

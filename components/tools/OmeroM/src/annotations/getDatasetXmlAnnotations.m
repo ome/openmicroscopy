@@ -27,8 +27,10 @@ function xas = getDatasetXmlAnnotations(session, ids, varargin)
 %        xas = getDatasetXmlAnnotations(session, ids, 'exclude', exclude)
 %        xas = getDatasetXmlAnnotations(session, ids, 'owner', -1)
 %
-% See also: GETOBJECTANNOTATIONS, GETDATASETCOMMENTANNOTATIONS,
-% GETDATASETTAGANNOTATIONS, GETDATASETFILEANNOTATIONS
+% See also: GETDATASETCOMMENTANNOTATIONS, GETDATASETDOUBLEANNOTATIONS,
+% GETDATASETFILEANNOTATIONS, GETDATASETLONGANNOTATIONS,
+% GETDATASETTAGANNOTATIONS, GETDATASETTIMESTAMPANNOTATIONS,
+% GETOBJECTANNOTATIONS
 
 % Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

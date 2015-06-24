@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
 import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
@@ -56,7 +55,6 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -1050,6 +1048,21 @@ class RendererModel
 	}
 
 	/**
+	 * Sets the selected z-section.
+	 *
+	 * @param z The z-section to set.
+	 * @throws RenderingServiceException If an error occurred while setting
+	 *                                  the value.
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+    void setSelectedZ(int z)
+        throws RenderingServiceException, DSOutOfServiceException
+    {
+        if (rndControl == null) return;
+        if (z >= 0 && z != getDefaultZ()) rndControl.setDefaultZ(z);
+    }
+
+	/**
 	 * Turns on or off the specified channel.
 	 * 
 	 * @param index The index of the channel.
@@ -1335,8 +1348,6 @@ class RendererModel
 	 * Renders the specified plane.
 	 * 
 	 * @param pDef The plane to render.
-	 * @param region The region to render, If <code>null</code> the plane
-	 * 				 is rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while setting
 	 * 									the value.
@@ -1351,20 +1362,21 @@ class RendererModel
 
 	/**
 	 * Renders the specified plane.
-	 *
+	 * 
 	 * @param pDef The plane to render.
+	 * @param compression The compression level.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
-	 * 									the value.
+	 * @throws RenderingServiceException If an error occurred while setting
+	 *                                  the value.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	TextureData renderPlaneAsTexture(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
+	BufferedImage render(PlaneDef pDef, int compression)
+	        throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (rndControl == null) return null;
-		return rndControl.renderAsTexture(pDef);
+	    if (rndControl == null) return null;
+	    return rndControl.render(pDef, compression);
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * that the current one, <code>false</code> otherwise.

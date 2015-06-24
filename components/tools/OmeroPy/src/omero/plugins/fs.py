@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2014-2015 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -39,21 +39,11 @@ from omero.rtypes import rstring
 from omero.rtypes import unwrap
 from omero.sys import Principal
 from omero.util.temp_files import create_path
+from omero.util.text import filesizeformat
+from omero.fs import TRANSFERS
 
 
 HELP = """Filesystem utilities"""
-
-#
-# Copied from:
-# blitz/src/ome/formats/importer/transfers/AbstractFileTransfer.java
-#
-TRANSFERS = {
-    "ome.formats.importer.transfers.HardlinkFileTransfer": "ln",
-    "ome.formats.importer.transfers.MoveFileTransfer": "ln_rm",
-    "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
-    "ome.formats.importer.transfers.UploadRmFileTransfer": "upload_rm",
-    "ome.formats.importer.transfers.UploadFileTransfer": "",
-    }
 
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
@@ -83,8 +73,7 @@ def prep_directory(client, mrepo):
     then deleting the created fileset.
     """
 
-    from omero.cmd import Delete
-    from omero.cmd import DoAll
+    from omero.cmd import Delete2, DoAll
     from omero.grid import ImportSettings
 
     from omero.model import ChecksumAlgorithmI
@@ -125,12 +114,8 @@ def prep_directory(client, mrepo):
         oid = dir.items()[0][1].get("id")
         ofile = client.sf.getQueryService().get("OriginalFile", oid)
 
-        delete1 = Delete()
-        delete1.type = "/Fileset"
-        delete1.id = fs.id.val
-        delete2 = Delete()
-        delete2.type = "/OriginalFile"
-        delete2.id = ofile.id.val
+        delete1 = Delete2(targetObjects={'Fileset': [fs.id.val]})
+        delete2 = Delete2(targetObjects={'OriginalFile': [ofile.id.val]})
         doall = DoAll()
         doall.requests = [delete1, delete2]
         cb = client.submit(doall)
@@ -283,20 +268,38 @@ class FsControl(CmdControl):
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=-1)
         usage.add_argument(
-            "--size_only", action="store_true",
+            "--size-only", action="store_true",
             help="Print total bytes used in bytes")
         usage.add_argument(
             "--report", action="store_true",
             help="Print detailed breakdown of disk usage")
         usage.add_argument(
+            "--sum-by", nargs="+", choices=("user", "group", "component"),
+            help=("Breakdown of disk usage by a combination of "
+                  "user, group and component"))
+        usage.add_argument(
+            "--sort-by", nargs="+",
+            choices=("user", "group", "component", "size", "files"),
+            help=("Sort the report table by one or more of "
+                  "user, group, component, size and files"))
+        usage.add_argument(
+            "--reverse", action="store_true",
+            help="Reverse sort order")
+        unit_group = usage.add_mutually_exclusive_group()
+        unit_group.add_argument(
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
+        unit_group.add_argument(
+            "--human-readable", action="store_true",
+            help="Use most appropriate units")
         usage.add_argument(
             "--groups",  action="store_true",
             help="Print size for all current user's groups")
         usage.add_argument(
             "obj", nargs="*",
-            help="Objects to be queried in the form '<Class>:<Id>[,<Id> ...]'")
+            help=("Objects to be queried in the form "
+                  "'<Class>:<Id>[,<Id> ...]', or '<Class>:*' "
+                  "to query all the objects of the given type "))
 
         for x in (images, sets):
             x.add_argument(
@@ -315,7 +318,6 @@ class FsControl(CmdControl):
     def _extended_info(self, client, row, values):
 
         from omero.cmd import ManageImageBinaries
-        from omero.util.text import filesizeformat
 
         rsp = None
         try:
@@ -361,7 +363,6 @@ Examples:
 
         from omero.rtypes import unwrap
         from omero.sys import ParametersI
-        from omero.util.text import filesizeformat
 
         select = (
             "select i.id, i.name, fs.id,"
@@ -418,6 +419,7 @@ Examples:
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
+    @admin_only
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
 
@@ -431,9 +433,6 @@ moved.
         uid = self.ctx.get_event_context().userId
         isAdmin = self.ctx.get_event_context().isAdmin
         query = client.sf.getQueryService()
-
-        if not isAdmin:
-            self.error_admin_only(fatal=True)
 
         try:
             fileset = query.get("Fileset", fid, {"omero.group": "-1"})
@@ -716,9 +715,13 @@ Examples:
     bin/omero fs usage --groups    # total usage for current user's groups
     # total usage for five images with minimal output
     bin/omero fs usage Image:1,2,3,4,5 --size_only
+    # total usage for all images with in a human readable format
+    bin/omero fs usage Image:* --human-readable
+    # total usage for all users broken down by user and group
+    bin/omero fs usage Experimenter:* --report --sum-by user group
     # total usage for two projects and one dataset Megabytes
     bin/omero fs usage Project:1,2 Dataset:5 --units M
-    # in this last case if the dataset was within one of the projects
+    # in this last case if the dataset was within project 1 or 2
     # then the size returned would be identical to:
     bin/omero fs usage Project:1,2 --units M
         """
@@ -738,7 +741,7 @@ Examples:
                 args.obj.append(
                     "ExperimenterGroup:%s" % ",".join(map(str, gids)))
 
-        req.objects = self._usage_obj(args.obj)
+        req.objects, req.classes = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)
@@ -750,21 +753,25 @@ Examples:
     def _usage_obj(self, obj):
         """
         Take the positional arguments and marshal them into
-        a dictionary for the command argument.
+        a dictionary and a list for the command argument.
         """
         objects = {}
+        classes = set()
         for o in obj:
             try:
                 parts = o.split(":", 1)
                 assert len(parts) == 2
-                type = parts[0]
-                ids = parts[1].split(",")
-                ids = map(long, ids)
-                objects[type] = ids
+                klass = parts[0]
+                if '*' in parts[1]:
+                    classes.add(klass)
+                else:
+                    ids = parts[1].split(",")
+                    ids = map(long, ids)
+                    objects[klass] = ids
             except:
                 raise ValueError("Bad object: ", o)
 
-        return objects
+        return (objects, list(classes))
 
     def _to_units(self, size, units):
         """
@@ -773,7 +780,7 @@ Examples:
         oneK = 1024.0
         powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
         if units in powers.keys():
-            return round(size/oneK**powers[units], 2)
+            return round(size/oneK**powers[units], 1)
         else:
             raise ValueError("Unrecognized units: ", units)
 
@@ -784,36 +791,111 @@ Examples:
         """
         err = self.get_error(rsp)
         if err:
-            self.ctx.err(err)
+            self.ctx.err("Error: " + rsp.parameters['message'])
         else:
+            size = sum(rsp.totalBytesUsed.values())
             if args.size_only:
-                self.ctx.out(rsp.totalBytesUsed)
-            elif args.units:
-                size = self._to_units(rsp.totalBytesUsed, args.units)
-                files = rsp.totalFileCount
-                self.ctx.out(
-                    "Total disk usage: %d %siB in %d files"
-                    % (size, args.units, files))
+                self.ctx.out(size)
             else:
+                files = sum(rsp.totalFileCount.values())
+                if args.units:
+                    size = ("%s %siB"
+                            % (self._to_units(size, args.units), args.units))
+                elif args.human_readable:
+                    size = filesizeformat(size)
                 self.ctx.out(
-                    "Total disk usage: %d bytes in %d files"
-                    % (rsp.totalBytesUsed, rsp.totalFileCount))
+                    "Total disk usage: %s bytes in %d files"
+                    % (size, files))
 
-        if args.report and not args.size_only:
-            self._detailed_usage_report(req, rsp, status, args)
+            if args.report and not args.size_only and size > 0:
+                self._detailed_usage_report(req, rsp, status, args)
 
     def _detailed_usage_report(self, req, rsp, status, args):
         """
-        Print a breakdown of disk usage in table form.
+        Print a breakdown of disk usage in table form, including user,
+        group and component information according to the args.
         """
         from omero.util.text import TableBuilder
-        tb = TableBuilder("component", "size (bytes)", "files")
+
+        sum_by = ("user", "group", "component")
+        if args.sum_by is not None:
+            sum_by = args.sum_by
+        showCols = list(sum_by)
+        showCols.extend(["size", "files"])
+
+        align = 'l'*len(sum_by)
+        align += 'rr'
+        tb = TableBuilder(*showCols)
+        tb.set_align(align)
         if args.style:
             tb.set_style(args.style)
 
-        for (element, size) in rsp.bytesUsedByReferer.items():
-            row = [element, size, rsp.fileCountByReferer[element]]
+        subtotals = {}
+        if "component" in sum_by:
+            for userGroup in rsp.bytesUsedByReferer.keys():
+                for (element, size) in rsp.bytesUsedByReferer[
+                        userGroup].items():
+                    files = rsp.fileCountByReferer[userGroup][element]
+                    keyList = []
+                    if "user" in sum_by:
+                        keyList.append(userGroup.first)
+                    if "group" in sum_by:
+                        keyList.append(userGroup.second)
+                    keyList.append(element)
+                    key = tuple(keyList)
+                    if key in subtotals.keys():
+                        subtotals[key][0] += size
+                        subtotals[key][1] += files
+                    else:
+                        subtotals[key] = [size, files]
+        else:
+            for userGroup in rsp.totalBytesUsed.keys():
+                size = rsp.totalBytesUsed[userGroup]
+                files = rsp.totalFileCount[userGroup]
+                keyList = []
+                if "user" in sum_by:
+                    keyList.append(userGroup.first)
+                if "group" in sum_by:
+                    keyList.append(userGroup.second)
+                key = tuple(keyList)
+                if key in subtotals.keys():
+                    subtotals[key][0] += size
+                    subtotals[key][1] += files
+                else:
+                    subtotals[key] = [size, files]
+
+        for key in subtotals.keys():
+            row = list(key)
+            row.extend(subtotals[key])
             tb.row(*tuple(row))
+
+        # Since an order in the response is not guaranteed if not sort keys
+        # are specified then sort by the first column at least.
+        if args.sort_by:
+            keys = []
+            for col in args.sort_by:
+                try:
+                    pos = showCols.index(col)
+                    keys.append(pos)
+                except:
+                    pass
+        else:
+            keys = [0]
+        tb.sort(cols=keys, reverse=args.reverse)
+
+        # Format the size column after sorting.
+        if args.units:
+            col = tb.get_col("size")
+            col = [self._to_units(val, args.units) for val in col]
+            tb.replace_col("size", col)
+            tb.replace_header("size", "size (%siB)" % args.units)
+        elif args.human_readable:
+            col = tb.get_col("size")
+            col = [filesizeformat(val) for val in col]
+            tb.replace_col("size", col)
+        else:
+            tb.replace_header("size", "size (bytes)")
+
         self.ctx.out(str(tb.build()))
 
 try:

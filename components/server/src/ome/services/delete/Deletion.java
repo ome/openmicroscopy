@@ -17,31 +17,23 @@
  */
 package ome.services.delete;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.AbstractFileSystemService;
-import ome.io.nio.PixelsService;
+import ome.services.delete.files.FileDeleter;
+import ome.services.delete.files.FileDeleterGraphState;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
-import ome.services.messages.DeleteLogMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.perf4j.StopWatch;
@@ -54,6 +46,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.google.common.collect.SetMultimap;
+
 /**
  * Maintain state about a delete itself. That makes a central class for
  * providing reusable delete logic. (Note: much of this code has been
@@ -64,7 +58,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @see ome.api.IDelete
  * @see ome.services.blitz.impl.DeleteHandleI
  * @see omero.cmd.graphs.DeleteI
+ * @deprecated all except setup and {@link #deleteFiles(SetMultimap)} will be removed in OMERO 5.2, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
 public class Deletion {
 
     /**
@@ -117,9 +114,6 @@ public class Deletion {
 
     private static final Logger log = LoggerFactory.getLogger(Deletion.class);
 
-    private static final List<String> fileTypeList = Collections.unmodifiableList(
-            Arrays.asList( "OriginalFile", "Pixels", "Thumbnail"));
-
     //
     // Ctor/injection state
     //
@@ -166,13 +160,9 @@ public class Deletion {
 
     private long stop;
 
-    private long bytesFailed = 0;
-
-    private long filesFailed = 0;
-
     private long actualDeletes = 0;
 
-    private HashMap<String, long[]> undeletedFiles;
+    private FileDeleter files;
 
     public Deletion(ApplicationContext specs, DeleteStepFactory factory,
             AbstractFileSystemService afs, OmeroContext ctx) {
@@ -217,7 +207,7 @@ public class Deletion {
     }
 
     public Map<String, long[]> getUndeletedFiles() {
-        return undeletedFiles;
+        return files == null ? null : files.getUndeletedFiles();
     }
 
     //
@@ -282,6 +272,7 @@ public class Deletion {
                 + ") Delete a subgraph first.");
         }
 
+        this.files = new FileDeleterGraphState(ctx, afs, state, type, id);
         return (int) scheduledDeletes;
 
     }
@@ -357,130 +348,32 @@ public class Deletion {
     public void deleteFiles() {
         StopWatch sw = new Slf4JStopWatch();
         try {
-            _deleteFiles();
+            files.run();
+            if (files.getFailedFilesCount() > 0) {
+                String warning = files.getWarning();
+                this.warning.append(warning);
+                log.warn(warning);
+            }
         } finally {
             sw.stop("omero.delete.binary");
         }
     }
 
-    private void _deleteFiles() {
-
-        File file;
-        String filePath;
-
-        HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
-
-        bytesFailed = 0;
-        filesFailed = 0;
-        for (String fileType : fileTypeList) {
-            Set<Long> deletedIds = state.getProcessedIds(fileType);
-            failedMap.put(fileType, new ArrayList<Long>());
-            if (deletedIds != null && deletedIds.size() > 0) {
-                log.debug(String.format("Binary delete of %s for %s:%s: %s",
-                        fileType, type, id,
-                        deletedIds));
-                for (Long id : deletedIds) {
-                    file = null; // Clear
-                    if (fileType.equals("OriginalFile")) {
-                        // First we give the repositories a chance to delete
-                        // FS-based files.
-                        DeleteLogMessage dlm = new DeleteLogMessage(this, id);
-                        try {
-                            ctx.publishMessage(dlm);
-                        }
-                        catch (Throwable e) {
-                            log.warn("Error on DeleteLogMessage", e);
-                            filesFailed++;
-                            failedMap.get(fileType).add(id);
-                            // No way to calculate size!
-                        }
-                        // Regardless of what type of exception may have been
-                        // thrown above, if no logs were found via the publish
-                        // message, we have to assume that the files are local.
-                        // This may just log that the file doesn't exist.
-                        if (dlm.count() == 0) {
-                            filePath = afs.getFilesPath(id);
-                            file = new File(filePath);
-                        }
-                    } else if (fileType.equals("Thumbnail")) {
-                        filePath = afs.getThumbnailPath(id);
-                        file = new File(filePath);
-                    } else { // Pixels
-                        filePath = afs.getPixelsPath(id);
-                        file = new File(filePath);
-                        // Try to remove a _pyramid file if it exists
-                        File pyrFile = new File(filePath + PixelsService.PYRAMID_SUFFIX);
-                        deleteSingleFile(pyrFile, fileType, id, failedMap);
-
-                        File dir = file.getParentFile();
-                        // Now any lock file
-                        File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX
-                                + BfPyramidPixelBuffer.PYR_LOCK_EXT);
-                        deleteSingleFile(lockFile, fileType, id, failedMap);
-
-                        // Now any tmp files
-                        FileFilter tmpFileFilter = new WildcardFileFilter("."
-                                + id + PixelsService.PYRAMID_SUFFIX + "*.tmp");
-                        File[] tmpFiles = dir.listFiles(tmpFileFilter);
-                        if(tmpFiles != null) {
-                            for (int i = 0; i < tmpFiles.length; i++) {
-                                deleteSingleFile(tmpFiles[i], fileType, id, failedMap);
-                            }
-                        }
-                    }
-
-                    // File will be null, for example if this is a repository
-                    // file.
-                    if (file != null) {
-                        // Finally delete main file for any type.
-                        deleteSingleFile(file, fileType, id, failedMap);
-                    }
-                }
-            }
-        }
-
-        undeletedFiles = new HashMap<String, long[]>();
-        for (String key : failedMap.keySet()) {
-            List<Long> ids = failedMap.get(key);
-            long[] array = new long[ids.size()];
-            for (int i = 0; i < array.length; i++) {
-                array[i] = ids.get(i);
-            }
-            undeletedFiles.put(key, array);
-        }
-        if (filesFailed > 0) {
-            String warning = "Warning: " + Long.toString(filesFailed) + " file(s) comprising "
-                    + Long.toString(bytesFailed) + " bytes were not removed.";
-            this.warning.append(warning);
-            log.warn(warning);
-        }
-        if (log.isDebugEnabled()) {
-            for (String table : failedMap.keySet()) {
-                log.debug("Failed to delete files : " + table + ":"
-                        + failedMap.get(table).toString());
-            }
-        }
-    }
-
     /**
-     * Helper to delete and log
-     */
-    private void deleteSingleFile(File file, String fileType, Long id,
-            HashMap<String, ArrayList<Long>> failedMap)
-    {
-        if (file.exists()) {
-            if (file.delete()) {
-                log.debug("DELETED: " + file.getAbsolutePath());
-            } else {
-                log.debug("Failed to delete " + file.getAbsolutePath());
-                failedMap.get(fileType).add(id);
-                filesFailed++;
-                bytesFailed += file.length();
+     * For each Report use the map of tables to deleted ids to remove the files
+     * under Files, Pixels and Thumbnails if the ids no longer exist in the db.
+     * Create a map of failed ids (not yet passed back to client).
+      */
+    public void deleteFiles(SetMultimap<String, Long> deleteTargets) {
+        final StopWatch sw = new Slf4JStopWatch();
+        try {
+            final FileDeleter files = new FileDeleter(ctx, afs, deleteTargets);
+            files.run();
+            if (files.getFailedFilesCount() > 0) {
+                log.warn(files.getWarning());
             }
-        } else {
-            log.debug("File " + file.getAbsolutePath() + " does not exist.");
+        } finally {
+            sw.stop("omero.delete.binary");
         }
     }
-
-
 }

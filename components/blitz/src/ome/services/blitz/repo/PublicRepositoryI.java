@@ -2,7 +2,7 @@
  * ome.services.blitz.repo.PublicRepositoryI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -93,10 +94,8 @@ import omero.api.RawPixelsStorePrxHelper;
 import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
 import omero.cmd.AMD_Session_submit;
-import omero.cmd.Delete;
-import omero.cmd.DoAll;
+import omero.cmd.Delete2;
 import omero.cmd.HandlePrx;
-import omero.cmd.Request;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.ChecksumAlgorithm;
@@ -304,17 +303,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
         // TODO: This could be refactored to be the default in shared servants
         final Ice.Current adjustedCurr = makeAdjustedCurrent(__current);
-        final String allId = DoAll.ice_staticId();
-        final String delId = Delete.ice_staticId();
-        final DoAll all = (DoAll) getFactory(allId, adjustedCurr).create(allId);
-        final Ice.ObjectFactory delFactory = getFactory(delId, adjustedCurr);
-        final List<Request> commands = new ArrayList<Request>();
-        all.requests = commands;
+        final String delId = Delete2.ice_staticId();
+        final Delete2 deleteRequest = (Delete2) getFactory(delId, adjustedCurr).create(delId);
+        final List<Long> fileIds = new ArrayList<Long>();
+        deleteRequest.targetObjects = new HashMap<String, List<Long>>();
+        deleteRequest.targetObjects.put("OriginalFile", fileIds);
 
         for (String path : files) {
             // treeList() calls checkedPath
             RMap map = treeList(path, __current);
-            _deletePaths(delFactory, map, commands);
+            _deletePaths(map, fileIds);
         }
 
         final FindServiceFactoryMessage msg
@@ -322,11 +320,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         publishMessage(msg);
         final ServiceFactoryI sf = msg.getServiceFactory();
 
-        AMD_submit submit = submitRequest(sf, all, adjustedCurr);
+        AMD_submit submit = submitRequest(sf, deleteRequest, adjustedCurr);
         return submit.ret;
     }
 
-    private void _deletePaths(Ice.ObjectFactory delFactory, RMap map, List<Request> commands) {
+    private void _deletePaths(RMap map, List<Long> fileIds) {
         if (map != null && map.getValue() != null) {
             // Each of the entries
             for (RType value : map.getValue().values()) {
@@ -338,14 +336,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                         // then we need to recurse. files points to the next
                         // "top" level.
                         RMap files = (RMap) val.getValue().get("files");
-                        _deletePaths(delFactory, files, commands);
+                        _deletePaths(files, fileIds);
                     }
-                    // Now after we've recursed, do the actual delete.
+                    // Now after we've recursed, note the actual delete.
                     RLong id = (RLong) val.getValue().get("id");
-                    Delete del = (Delete) delFactory.create(null);
-                    del.type = "/OriginalFile";
-                    del.id = id.getValue();
-                    commands.add(del);
+                    fileIds.add(id.getValue());
                 }
             }
         }
@@ -379,6 +374,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         BfPixelsStoreI rps;
         try {
             // FIXME ImportConfig should be injected
+            // Is this ever used? No Memoizer is active here!
+            // Perhaps better to use the PixelsService directly and
+            // omit OMEROWrapper.
             rps = new BfPixelsStoreI(path,
                     new OMEROWrapper(new ImportConfig()).getImageReader());
         } catch (Throwable t) {
@@ -505,7 +503,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 @Transactional(readOnly = false)
                 public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
                     final ome.model.core.OriginalFile persisted = sf.getUpdateService().saveAndReturnObject(originalFile);
-                    getSqlAction().setFileRepo(persisted.getId(), repoUuid);
+                    getSqlAction().setFileRepo(Collections.singleton(persisted.getId()), repoUuid);
                     return persisted;
                 }
             });

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.ModelMapper
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -32,13 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
-
-
-//Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -75,6 +69,9 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
+import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileAnnotationLink;
 import omero.model.OriginalFileAnnotationLinkI;
@@ -115,6 +112,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
@@ -470,7 +468,8 @@ public class ModelMapper
      * @param data              The annotation to create.
      * @return See above.
      */
-    public static Annotation createAnnotation(AnnotationData data)
+    @SuppressWarnings("unchecked")
+	public static Annotation createAnnotation(AnnotationData data)
     {
     	Annotation annotation = null;
     	if (data instanceof TextualAnnotationData) {
@@ -496,7 +495,7 @@ public class ModelMapper
     		annotation.setDescription(omero.rtypes.rstring(
     				((TagAnnotationData) data).getTagDescription()));
     		String ns = data.getNameSpace();
-    		if (StringUtils.isNotEmpty(ns)) {
+    		if (CommonsLangUtils.isNotEmpty(ns)) {
     			annotation.setNs(omero.rtypes.rstring(ns));
     		}
     	} else if (data instanceof BooleanAnnotationData) {
@@ -523,7 +522,15 @@ public class ModelMapper
     		annotation = new DoubleAnnotationI();
     		((DoubleAnnotation) annotation).setDoubleValue(omero.rtypes.rdouble(
     										(Double) data.getContent()));
-    	}
+		} else if (data instanceof MapAnnotationData) {
+			annotation = new MapAnnotationI();
+			String ns = data.getNameSpace();
+			if (CommonsLangUtils.isNotEmpty(ns)) {
+				annotation.setNs(omero.rtypes.rstring(ns));
+			}
+			((MapAnnotation) annotation).setMapValue((List<NamedValue>) data
+					.getContent());
+		}
     	return annotation;
     }
     

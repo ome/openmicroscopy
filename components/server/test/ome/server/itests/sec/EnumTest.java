@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -35,12 +35,14 @@ public class EnumTest extends AbstractManagedContextTest {
         String gid = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gid);
+        g.setLdap(false);
         iAdmin.createGroup(g);
 
         e = new Experimenter();
         e.setOmeName(UUID.randomUUID().toString());
         e.setFirstName("enums");
         e.setLastName("enums");
+        e.setLdap(false);
         e = factory.getAdminService().getExperimenter(
                 factory.getAdminService().createUser(e, gid));
 

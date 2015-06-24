@@ -1,9 +1,13 @@
 #include <list>
+
+#include <omero/IceNoWarnPush.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Config.h>
 #include <IceUtil/Handle.h>
-#include <omero/fixture.h>
+#include <omero/IceNoWarnPop.h>
+
 #include <omero/util/concurrency.h>
+#include <omero/fixture.h>
 
 using namespace omero::util::concurrency;
 using namespace omero;
@@ -67,13 +71,13 @@ TEST(ConcurrencyTest, testEventFlag)
 {
     Event event;
     ASSERT_FALSE(event.isSet());
-    
+
     event.set();
     ASSERT_TRUE(event.isSet());
-    
+
     event.clear();
     ASSERT_FALSE(event.isSet());
-    
+
     event.set();
     ASSERT_TRUE(event.wait(IceUtil::Time::milliSeconds(100)));
 }

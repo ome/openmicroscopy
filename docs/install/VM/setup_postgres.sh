@@ -12,7 +12,7 @@ chmod 600 .pgpass
 chown omero:omero .pgpass
 
 echo "CREATE USER omero PASSWORD 'omero'" | sudo -u postgres psql
-sudo -u postgres createdb -O omero omero
+sudo -u postgres createdb -E UTF8 -O omero omero
 sudo -u postgres createlang plpgsql omero || echo Already installed
 
 echo `psql -h localhost -U omero -l`

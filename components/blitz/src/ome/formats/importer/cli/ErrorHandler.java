@@ -8,9 +8,12 @@
 package ome.formats.importer.cli;
 
 import static ome.formats.importer.ImportEvent.*;
+import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.ImportCandidates.SCANNING;
@@ -47,12 +50,19 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
         }
 
         else if (event instanceof ImportEvent.DEBUG_SEND) {
-
+            boolean plate = false;
             for (ErrorContainer error : errors) {
                 error.setEmail(config.email.get());
                 error.setComment("Sent from CLI");
+                if (!plate) {
+                    ImportContainer ic = icMap.get(
+                            error.getSelectedFile().getAbsolutePath());
+                    if (ic != null) {
+                        Boolean b = ic.getIsSPW();
+                        plate = (b != null && b.booleanValue());
+                    }
+                }
             }
-
             if (errors.size() > 0) {
                 // Note: it wasn't the intent to have these variables set
                 // here. This requires that subclasses know to call
@@ -60,11 +70,21 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
                 // final and have an onOnUpdate, etc.
                 sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
                 sendLogs = ((ImportEvent.DEBUG_SEND) event).sendLogs;
-                log.info("Sending error report "
-                        + "(" + errors.size() + ")"
-                        + (sendFiles ? " with files " : " ") + "...");
-                if (sendLogs) log.info("Sending log file...");
+                if (plate) {
+                    log.info("To submit HCS data, please e-mail us.");
+                    sendFiles = false;
+                }
+                log.info("Sending error report "+ "(" + errors.size() + ")...");
                 sendErrors();
+                if (sendFiles) {
+                    if (sendLogs)
+                        log.info("Sent files and log file.");
+                    else log.info("Sent files.");
+                } else {
+                    if (sendLogs) {
+                        log.info("Sent log file.");
+                    }
+                }
             }
 
         }

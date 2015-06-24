@@ -2,7 +2,7 @@
  * pojos.PlateData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,20 +22,20 @@
  */
 package pojos;
 
-//Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.*;
+import ome.model.units.BigResult;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateI;
 import omero.model.ScreenPlateLink;
+import omero.model.enums.UnitsLength;
 
 /**
  * The data that makes up an <i>OME</i> Plate along with links to its contained
@@ -98,13 +98,6 @@ public class PlateData extends DataObject {
      * then this set will be empty &#151; but never <code>null</code>.
      */
     private Set<PlateAcquisitionData> plateAcquisitions;
-    
-    /**
-     * The number of annotations attached to this Plate. This field may be
-     * <code>null</code> meaning no count retrieved, and it may be less than
-     * the actual number if filtered by user.
-     */
-    private Long annotationCount;
 
     /**
      * Returns the index corresponding to the passed value.
@@ -352,11 +345,31 @@ public class PlateData extends DataObject {
     /**
      * Returns the x-coordinate in 2D-space of the well.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    public Length getWellOriginX(UnitsLength unit) throws BigResult
+    {
+    	Length value = asPlate().getWellOriginX();
+    	if (value == null) 
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	else 
+    		return unit == null ? value : new LengthI(value, unit);
+    }
+    
+    /**
+     * Returns the x-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     * @deprecated Replaced by {@link #getWellOriginX(UnitsLength)}
+     */
+    @Deprecated
     public double getWellOriginX()
     {
-    	omero.RDouble value = asPlate().getWellOriginX();
+    	Length value = asPlate().getWellOriginX();
     	if (value == null) return 0;
     	return value.getValue();
     }
@@ -364,11 +377,31 @@ public class PlateData extends DataObject {
     /**
      * Returns the y-coordinate in 2D-space of the well.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    public Length getWellOriginY(UnitsLength unit) throws BigResult
+    {
+    	Length value = asPlate().getWellOriginY();
+    	if (value == null)
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	else
+    		return unit == null ? value : new LengthI(value, unit);
+    }
+    
+    /**
+     * Returns the y-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     * @deprecated Replaced by {@link #getWellOriginY(UnitsLength)}
+     */
+    @Deprecated
     public double getWellOriginY()
     {
-    	omero.RDouble value = asPlate().getWellOriginY();
+    	Length value = asPlate().getWellOriginY();
     	if (value == null) return 0;
     	return value.getValue();
     }

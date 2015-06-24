@@ -276,6 +276,8 @@ endif(MSVC)
 
 set(OMERO_COMMON_STATIC_HEADERS
     src/omero/ClientErrors.h
+    src/omero/IceNoWarnPop.h
+    src/omero/IceNoWarnPush.h
     src/omero/ObjectFactoryRegistrar.h
     src/omero/RTypesI.h
     src/omero/templates.h)
@@ -302,11 +304,23 @@ set(OMERO_MODEL_STATIC_MODEL_HEADERS
     src/omero/model/DetailsI.h
     src/omero/model/ObjectFactory.h
     src/omero/model/PermissionsI.h
+    src/omero/model/ElectricPotentialI.h
+    src/omero/model/FrequencyI.h
+    src/omero/model/LengthI.h
+    src/omero/model/PowerI.h
+    src/omero/model/PressureI.h
+    src/omero/model/TemperatureI.h
     src/omero/model/TimeI.h)
 
 set(OMERO_MODEL_STATIC_SOURCES
     src/omero/model/DetailsI.cpp
     src/omero/model/PermissionsI.cpp
+    src/omero/model/ElectricPotentialI.cpp
+    src/omero/model/FrequencyI.cpp
+    src/omero/model/LengthI.cpp
+    src/omero/model/PowerI.cpp
+    src/omero/model/PressureI.cpp
+    src/omero/model/TemperatureI.cpp
     src/omero/model/TimeI.cpp)
 
 set(OMERO_MODEL_HEADERS
@@ -333,6 +347,7 @@ set(OMERO_CLIENT_STATIC_HEADERS
     src/omero/callbacks.h
     src/omero/client.h
     src/omero/clientF.h
+    src/omero/conversions.h
     src/omero/min.h
     src/omero/ObjectFactory.h)
 
@@ -347,6 +362,7 @@ set(OMERO_CLIENT_STATIC_SOURCES
     src/omero/clientF.cpp
     src/omero/ObjectFactory.cpp
     src/omero/util/concurrency.cpp
+    src/omero/conversions.cpp
     src/omero/util/tiles.cpp
     src/omero/util/uuid.cpp)
 
@@ -406,7 +422,7 @@ install(FILES ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
 set(LIBRARY_PREFIX OMERO_ICE)
 set(LIBRARY_NAME omero-ice)
 set(LIBRARY_HEADER omero/RTypes.h)
-configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+configure_file(${OMERO_CPP_SOURCE_DIR}/cmake/TemplateConfig.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake
         DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
@@ -414,10 +430,25 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake
 set(LIBRARY_PREFIX OMERO_CLIENT)
 set(LIBRARY_NAME omero-client)
 set(LIBRARY_HEADER omero/client.h)
-configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+configure_file(${OMERO_CPP_SOURCE_DIR}/cmake/TemplateConfig.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
         DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
 
+foreach(flag -Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -Wno-old-style-cast -Wno-deprecated-declarations)
+  string(REPLACE "/" "_" flag_var "${flag}")
+  set(test_cxx_flag "CXX_FLAG${flag_var}")
+  CHECK_CXX_COMPILER_FLAG(${flag} "${test_cxx_flag}")
+  if (${test_cxx_flag})
+     set(ICE_FLAGS "${ICE_FLAGS} ${flag}")
+  endif (${test_cxx_flag})
+endforeach(flag ${test_flags})
+
+set_source_files_properties(
+    ${OMERO_ICE_SOURCES}
+    PROPERTIES
+    COMPILE_FLAGS "${ICE_FLAGS}")
+
+# Last so that variables are propagated
 add_subdirectory(test)
 add_subdirectory(utils)

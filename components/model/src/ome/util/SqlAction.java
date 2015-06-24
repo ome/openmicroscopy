@@ -31,6 +31,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -39,6 +40,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 /**
  * Single wrapper for all JDBC activities.
@@ -58,6 +60,12 @@ public interface SqlAction {
     public static class IdRowMapper implements RowMapper<Long> {
         public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getLong(1);
+        }
+    }
+
+    public static class StringRowMapper implements RowMapper<String> {
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString(1);
         }
     }
 
@@ -170,6 +178,13 @@ public interface SqlAction {
      */
     Long findRepoFile(String uuid, String dirname, String basename,
             Set<String> mimetypes);
+
+    /**
+     * Like {@link #findRepoFile(String, String, String, Set)}, but queries in
+     * bulk and returns a map for the found IDs.
+     */
+    Map<String, Long> findRepoFiles(String uuid, String dirname,
+            List<String> basenames, Set<String> mimetypes);
 
     /**
      * Return a list of original file ids that all have a path value matching
@@ -394,6 +409,11 @@ public interface SqlAction {
     void delCurrentEventLog(String key);
 
     /**
+     * Convert the _updated_annotations table to REINDEX entries in the event log.
+     */
+    void refreshEventLogFromUpdatedAnnotations();
+
+    /**
      * The implementation of this method guarantees that even if the current
      * transaction fails that the value found will not be used by another
      * transaction. Database implementations can choose whether to do this
@@ -436,6 +456,13 @@ public interface SqlAction {
     String getUsername(long userId);
 
     /**
+     * Load all the non-empty email addresses for users in a given group.
+     * @param group id
+     * @return a non-null {@link Collection} of non-empty user email addresses.
+     */
+    Collection<String> getUserEmailsByGroup(long groupId);
+
+    /**
      * Gets the experimenters who have the <code>ldap</code> attribute enabled.
      * @return a list of user IDs.
      */
@@ -455,7 +482,7 @@ public interface SqlAction {
 
     List<String> getUserGroups(String userName);
 
-    void setFileRepo(long id, String repoId);
+    void setFileRepo(Collection<Long> ids, String repoId);
 
     void setPixelsNamePathRepo(long pixId, String name, String path,
             String repoId);
@@ -482,69 +509,22 @@ public interface SqlAction {
      */
     Map<Long, byte[]> getShareData(List<Long> ids);
 
-    //
-    // Previously PgArrayHelper
-    //
-
-    /**
-     * Returns only the (possibly empty) keys which are set on the given
-     * original file. If the given original file cannot be found, null is
-     * returned.
-     */
-    List<String> getPixelsParamKeys(long id) throws InternalException;
-
-    /**
-     * Loads all the (possibly empty) params for the given original file. If the
-     * id is not found, null is returned.
-     */
-    Map<String, String> getPixelsParams(final long id) throws InternalException;
-
     /**
      * Retrieves the name, path and repo for the given pixels set. If the
      * id is not found, null is returned.
      */
     List<String> getPixelsNamePathRepo(final long id) throws InternalException;
 
-    /**
-     * Resets the entire original file "params" field.
-     */
-    int setPixelsParams(final long id, Map<String, String> params);
-
-    /**
-     * Appends "{key, value}" onto the original file "params" field or replaces
-     * the value if already present.
-     */
-    int setPixelsParam(final long id, final String key, final String value);
-
-    /**
-     * Returns only the (possibly empty) keys which are set on the given
-     * original file. If the given original file cannot be found, null is
-     * returned.
-     */
-    List<String> getFileParamKeys(long id) throws InternalException;
-
-    /**
-     * Loads all the (possibly empty) params for the given original file. If the
-     * id is not found, null is returned.
-     */
-    Map<String, String> getFileParams(final long id) throws InternalException;
-
-    /**
-     * Resets the entire original file "params" field.
-     */
-    int setFileParams(final long id, Map<String, String> params);
-
-    /**
-     * Appends "{key, value}" onto the original file "params" field or replaces
-     * the value if already present.
-     */
-    int setFileParam(final long id, final String key, final String value);
-
     Set<String> currentUserNames();
 
     int changeGroupPermissions(Long id, Long internal);
 
     int changeTablePermissionsForGroup(String table, Long id, Long internal);
+
+    /**
+     * @return if the database's type system contains correctly encoded units of measure
+     */
+    boolean hasUnicodeUnits();
 
     /**
      * Add a unique message to the DB patch table within the current patch.
@@ -593,6 +573,8 @@ public interface SqlAction {
      */
     public static abstract class Impl implements SqlAction {
 
+        protected final static int MAX_IN_SIZE = 1000;
+
         protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
         protected abstract SimpleJdbcOperations _jdbc();
@@ -619,7 +601,7 @@ public interface SqlAction {
             if (value instanceof Collection) {
                 @SuppressWarnings({ "rawtypes" })
                 Collection l = (Collection) value;
-                if (l.size() > 1000) {
+                if (l.size() > MAX_IN_SIZE) {
                     for (Object o : l) {
                         if (!(o instanceof Long)) {
                             log.debug("Not replacing query; non-long");
@@ -732,18 +714,56 @@ public interface SqlAction {
 
         public Long findRepoFile(String uuid, String dirname, String basename,
                 Set<String> mimetypes) {
+            Map<String, Long> rv = findRepoFiles(uuid, dirname,
+                    Arrays.asList(basename), mimetypes);
+            if (rv == null) {
+                return null;
+            } else {
+                return rv.get(basename);
+            }
+        }
 
-            String findRepoFileSql = _lookup("find_repo_file"); //$NON-NLS-1$
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("repo", uuid);
-            params.put("path", dirname);
-            params.put("name", basename);
-            findRepoFileSql += addMimetypes(mimetypes, params);
-            try {
-                return _jdbc().queryForLong(findRepoFileSql, params);
-            } catch (EmptyResultDataAccessException e) {
+        public Map<String, Long> findRepoFiles(String uuid, String dirname,
+                List<String> basenames,
+                Set<String> mimetypes) {
+
+            if (basenames == null || basenames.size() == 0) {
                 return null;
             }
+
+            final List<List<String>> batches = Lists.partition(basenames, MAX_IN_SIZE);
+            final Map<String, Object> params = new HashMap<String, Object>();
+            String findRepoFileSql = _lookup("find_repo_files_by_name"); //$NON-NLS-1$
+            params.put("repo", uuid);
+            params.put("path", dirname);
+            findRepoFileSql += addMimetypes(mimetypes, params);
+            Map<String, Long> rv = null;
+
+            for (List<String> batch : batches) {
+                params.put("names", batch);
+                try {
+                    final Map<String, Long> tmp = new HashMap<String, Long>();
+                    _jdbc().query(findRepoFileSql,
+                            new RowMapper<Object>(){
+                                @Override
+                                public Object mapRow(ResultSet arg0, int arg1)
+                                        throws SQLException {
+                                    tmp.put(arg0.getString(1),  arg0.getLong(2));
+                                    return null;
+                                }}, params);
+                    if (rv == null) {
+                        rv = tmp;
+                    } else {
+                        rv.putAll(tmp);
+                    }
+                } catch (EmptyResultDataAccessException e) {
+                    // Do nothing. If there is only one batch, it will
+                    // return a null value as expected. If it's only one
+                    // batch that throws an ERDAE, then the rest should
+                    // be processed.
+                }
+            }
+            return rv;
         }
 
         public int repoScriptCount(String uuid, Set<String> mimetypes) {
@@ -844,7 +864,7 @@ public interface SqlAction {
                             rm, lastEventId, rows);
                 } else {
                     return _jdbc().query(
-                            _lookup("find_next_pixels_data__per_user_for_repo"), // $NON-NLS-1$
+                            _lookup("find_next_pixels_data_per_user_for_repo"), // $NON-NLS-1$
                             rm, lastEventId, repo, rows);
                 }
             } catch (EmptyResultDataAccessException erdae) {
@@ -903,6 +923,15 @@ public interface SqlAction {
                 id = null; // This means there's not one.
             }
             return id;
+        }
+
+        public Collection<String> getUserEmailsByGroup(long groupId) {
+            try {
+                return _jdbc().query(_lookup("user_emails_by_group"), //$NON-NLS-1$
+                        new StringRowMapper(), groupId);
+            } catch (EmptyResultDataAccessException e) {
+                return Collections.emptyList();
+            }
         }
 
         @Override
@@ -1086,6 +1115,29 @@ public interface SqlAction {
             _jdbc().update(
                 _lookup("log_loader_delete"), key); //$NON-NLS-1$
 
+        }
+
+        @Override
+        public void refreshEventLogFromUpdatedAnnotations() {
+            _jdbc().query(_lookup("event_log.refresh"), new RowMapper<Object>() {
+                @Override
+                public Object mapRow(ResultSet arg0, int arg1) {
+                    return null;
+                }});
+        }
+
+        @Override
+        public boolean hasUnicodeUnits() {
+            try {
+                _jdbc().query(_lookup("check_units"), new RowMapper<Object>() {
+                    @Override
+                    public Object mapRow(ResultSet rs, int rowNum) {
+                        return null;
+                    }});
+            } catch (DataAccessException dae) {
+                return false;
+            }
+            return true;
         }
 
         @Override

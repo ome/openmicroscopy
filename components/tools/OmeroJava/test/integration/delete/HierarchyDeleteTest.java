@@ -6,6 +6,11 @@
  */
 package integration.delete;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rstring;
+import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,8 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 import ome.parameters.Parameters;
 import omero.RLong;
 import omero.RType;
@@ -28,17 +31,21 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.Instrument;
+import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
@@ -57,9 +64,9 @@ import omero.sys.ParametersI;
 import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
@@ -74,7 +81,7 @@ import com.google.common.collect.Multimap;
 @Test(groups = "ticket:2615")
 public class HierarchyDeleteTest extends AbstractServerTest {
 
-    private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
+    private final static omero.RString t3031 = rstring("#3031");
 
     /**
      * Test to delete a dataset containing an image also contained in another
@@ -83,7 +90,6 @@ public class HierarchyDeleteTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"ticket:3031", "broken"})
     public void testDeletingDataset() throws Exception {
 
         newUserAndGroup("rwrw--");
@@ -111,8 +117,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i2);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, ds2.getId()
-                .getValue(), null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(ds2.getId().getValue()));
+        callback(true, client, dc);
 
         assertDoesNotExist(ds2);
         assertDoesNotExist(i2);
@@ -129,7 +138,6 @@ public class HierarchyDeleteTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"ticket:3031", "broken"})
     public void testDeletingDatasetDoesntRemoveImageAnnotation()
             throws Exception {
 
@@ -157,9 +165,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         link.setParent((Image) i.proxy());
         iUpdate.saveAndReturnObject(link);
 
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, ds2.getId()
-                .getValue(), null));
-
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(ds2.getId().getValue()));
+        callback(true, client, dc);
         assertDoesNotExist(ds2);
         assertExists(ds1);
         assertExists(i);
@@ -173,7 +183,6 @@ public class HierarchyDeleteTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"ticket:3031", "ticket:3032", "broken"})
     public void testDeletingDatasetDoesntRemoveImageRoi() throws Exception {
 
         newUserAndGroup("rwrw--");
@@ -194,8 +203,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, ds2.getId()
-                .getValue(), null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(ds2.getId().getValue()));
+        callback(true, client, dc);
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
@@ -231,8 +243,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         p2.linkDataset(d);
         p2 = (Project) iUpdate.saveAndReturnObject(p2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_PROJECT, p2.getId()
-                .getValue(), null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Project.class.getSimpleName(),
+                Collections.singletonList(p2.getId().getValue()));
+        callback(true, client, dc);
 
         assertDoesNotExist(p2);
         assertExists(p1);
@@ -267,8 +282,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         s2.linkPlate(p);
         s2 = (Screen) iUpdate.saveAndReturnObject(s2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, s2.getId()
-                .getValue(), null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Screen.class.getSimpleName(),
+                Collections.singletonList(s2.getId().getValue()));
+        callback(true, client, dc);
 
         assertDoesNotExist(s2);
         assertExists(s1);
@@ -288,7 +306,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup.setName(rstring(normalGroupName));
+        normalGroup.setLdap(rbool(false));
         normalGroup = rootAdminSvc.getGroup(rootAdminSvc.createGroup(normalGroup));
 
         /* Create a new user in that group. */
@@ -435,7 +454,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
             /* Follow links to determine which entities are expected to remain afterward. */
 
             final Set<Long> expectedRuns    = new HashSet<Long>();
-            final Set<Long> expectedWells   = new HashSet<Long>();
+            final Set<Long> expectedWells   = allWells;
             final Set<Long> expectedSamples = new HashSet<Long>();
             final Set<Long> expectedImages  = new HashSet<Long>();
 
@@ -445,14 +464,20 @@ public class HierarchyDeleteTest extends AbstractServerTest {
                 expectedSamples.addAll(runsToSamples.get(runId));
             }
             for (final Long sampleId : expectedSamples) {
-                expectedWells.add(samplesToWells.get(sampleId));
+                /* expectedWells.add(samplesToWells.get(sampleId));
+                 * if deleting a well's samples ought to delete the well
+                 */
                 expectedImages.add(samplesToImages.get(sampleId));
             }
 
             /* Delete the run. */
 
-            delete(client, new Delete(DeleteServiceTest.REF_PLATE_ACQUISITION, runIdToDelete, null));
-
+            final Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    PlateAcquisition.class.getSimpleName(),
+                    Collections.singletonList(runIdToDelete));
+            callback(true, client, dc);
+            
             /* Verify that exactly the expected entities remain. */
 
             checkIds(iQuery, "PlateAcquisition", allRuns, expectedRuns);
@@ -462,8 +487,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
        }
  
         /* Delete the plate. */
-
-        delete(client, new Delete(DeleteServiceTest.REF_PLATE, plateId, null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Plate.class.getSimpleName(),
+                Collections.singletonList(plateId));
+        callback(true, client, dc);
 
         /* Verify that no entities remain. */
 
@@ -495,5 +523,54 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         }
         Assert.assertTrue(CollectionUtils.isEqualCollection(actualIds, expectedIds),
                 "persisted entities not as expected: " + entityClass);
+    }
+
+    /**
+     * Test to delete a dataset containing an image whose projection is not in the dataset.
+     * The image should be deleted, but not its projection.
+     * @throws Exception unexpected
+     */
+    @Test(groups = {"ticket:12856", "broken"})
+    public void testDeletingDatasetWithProjectedImage() throws Exception {
+        newUserAndGroup("rw----");
+
+        /* create a dataset */
+        Dataset dataset = new DatasetI();
+        dataset.setName(omero.rtypes.rstring("ticket #12856"));
+        dataset = (Dataset) iUpdate.saveAndReturnObject(dataset).proxy();
+
+        /* create an instrument */
+        Instrument instrument = mmFactory.createInstrument();
+        instrument = (Instrument) iUpdate.saveAndReturnObject(instrument).proxy();
+
+        /* the original and its projection are related and share an instrument */
+        Image original = mmFactory.createImage();
+        original.setInstrument(instrument);
+        original = (Image) iUpdate.saveAndReturnObject(original);
+        Image projection = mmFactory.createImage();
+        projection.setInstrument(instrument);
+        projection.getPrimaryPixels().setRelatedTo((Pixels) original.getPrimaryPixels().proxy());
+        projection = (Image) iUpdate.saveAndReturnObject(projection);
+
+        original = (Image) original.proxy();
+        projection = (Image) projection.proxy();
+
+        /* only the original is in the dataset */
+        final DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(dataset);
+        link.setChild(original);
+        iUpdate.saveAndReturnObject(link);
+
+        /* delete the dataset */
+        final Delete2 delete = new Delete2();
+        delete.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(dataset.getId().getValue()));
+        callback(true, client, delete);
+
+        /* check what is left afterward */
+        assertDoesNotExist(dataset);
+        assertDoesNotExist(original);  // FIXME: still exists!
+        assertExists(projection);
     }
 }

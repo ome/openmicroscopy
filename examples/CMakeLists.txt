@@ -43,5 +43,5 @@ set(omero_exampledir "${CMAKE_INSTALL_FULL_LIBEXECDIR}/omero/examples")
 
 add_subdirectory(RegionsOfInterest)
 add_subdirectory(TreeList)
-add_subdirectory(Delete)
+# add_subdirectory(Delete) FIXME Needs to be rewritten for omero::cmd::Delete
 add_subdirectory(OmeroClients)

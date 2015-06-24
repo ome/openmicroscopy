@@ -2,7 +2,7 @@
  * pojos.DetectorData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,15 +22,15 @@
  */
 package pojos;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RString;
 import omero.model.Detector;
 import omero.model.DetectorType;
+import omero.model.ElectricPotential;
+import omero.model.ElectricPotentialI;
+import omero.model.enums.UnitsElectricPotential;
 
 /**
  * Hosts a detector.
@@ -64,14 +64,38 @@ public class DetectorData
 	/**
 	 * Returns the voltage of the detector.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
 	 */
+	public ElectricPotential getVoltage(UnitsElectricPotential unit) throws BigResult
+	{
+		Detector detector = (Detector) asIObject();
+		ElectricPotential e = detector.getVoltage();
+		if (e==null)
+			return null;
+		return unit == null ? e : new ElectricPotentialI(e, unit);
+	}
+	
+	/**
+	 * Returns the voltage of the detector.
+	 * 
+	 * @return See above
+	 * @deprecated Replaced by {@link #getVoltage(UnitsElectricPotential)}
+	 */
+	@Deprecated
 	public Double getVoltage()
 	{
 		Detector detector = (Detector) asIObject();
-		RDouble value = detector.getVoltage();
+		ElectricPotential value = detector.getVoltage();
 		if (value == null) return null;
-		return value.getValue();
+		try {
+            return new ElectricPotentialI(value, UnitsFactory.Detector_Voltage).getValue();
+        } catch (BigResult e) {
+            return e.result.doubleValue();
+        }
 	}
 	
 	/**
@@ -186,7 +210,7 @@ public class DetectorData
 	public String getLotNumber()
 	{
 		Detector detector = (Detector) asIObject();
-		RString value = null;//detector.getLotNumber();
+		RString value = detector.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}

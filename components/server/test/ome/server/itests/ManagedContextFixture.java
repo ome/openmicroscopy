@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests;
@@ -83,6 +83,7 @@ public class ManagedContextFixture {
         IAdmin admin = managedSf.getAdminService();
         ExperimenterGroup group = new ExperimenterGroup();
         group.setName(uuid);
+        group.setLdap(false);
         admin.createGroup(group);
         return newUser(uuid);
     }
@@ -98,6 +99,7 @@ public class ManagedContextFixture {
         e.setFirstName("managed");
         e.setMiddleName("context");
         e.setLastName("test");
+        e.setLdap(false);
         String oldusr = admin.getEventContext().getCurrentUserName();
         String oldgrp = admin.getEventContext().getCurrentGroupName();
         setCurrentUser("root");
@@ -125,6 +127,7 @@ public class ManagedContextFixture {
         String groupName = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(groupName);
+        g.setLdap(false);
         admin.createGroup(g);
         String name = newUser(groupName);
         setCurrentUser(name);
@@ -144,9 +147,9 @@ public class ManagedContextFixture {
         Principal p = new Principal(user, group, "Test");
         Session s = mgr.createWithAgent(p, "ManagedContextFixture", "127.0.0.1");
         p = new Principal(s.getUuid(), group, "Test");
-        login.p = p;        
+        login.p = p;
     }
-    
+
     public Principal getPrincipal() {
         return login.p;
     }

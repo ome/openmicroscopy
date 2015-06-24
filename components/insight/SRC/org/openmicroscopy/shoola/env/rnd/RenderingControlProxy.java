@@ -42,7 +42,6 @@ import java.util.Set;
 
 
 //Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.LockTimeout;
@@ -583,150 +582,6 @@ class RenderingControlProxy
 		}
         
         return img;
-	}
-	
-	 
-	/**
-	 * Renders the image without compression.
-	 * 
-	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-     *            or <i>Z</i> axes.
-	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
-     * the value.
-     * @throws DSOutOfServiceException If the connection is broken.
-	 */
-	private TextureData renderUncompressedAsTexture(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		//See if the requested image is in cache.
-		TextureData img = (TextureData) getFromCache(pDef);
-        if (img != null) return img;
-        try {
-            Point p = getSize(pDef);
-            img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
-		} catch (Throwable e) {
-			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
-				retry++;
-				return renderUncompressedAsTexture(pDef);
-			}
-			handleException(e, ERROR_RENDER+"the uncompressed plane as " +
-					"texture.");
-		}
-        return img;
-	}
-	
-    /**
-	 * Renders the compressed image.
-	 * 
-	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-     *            or <i>Z</i> axes.
-	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
-     * the value.
-     * @throws DSOutOfServiceException If the connection is broken.
-	 */
-	private TextureData renderCompressedAsTexture(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		try {
-			byte[] values = servant.renderCompressed(pDef);
-			values = WriterImage.bytesToBytes(values);
-			Point p = getSize(pDef); 
-			return PixelsServicesFactory.createTexture(values, p.x, p.y);
-		} catch (Throwable e) {
-			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
-				retry++;
-				return renderCompressedAsTexture(pDef);
-			}
-			handleException(e, ERROR_RENDER+"the compressed image " +
-					"as texture.");
-		} 
-		return null;
-	}
-
-	/**
-	 * Projects the selected section of the optical sections
-	 * and renders a compressed image.
-	 * 
-	 * @param startZ   The first optical section.
-	 * @param endZ     The last optical section.
-	 * @param stepping The stepping of the projection.
-	 * @param type     The projection type.
-	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
-     * the value.
-     * @throws DSOutOfServiceException If the connection is broken.
-	 */
-	private TextureData renderProjectedCompressedAsTexture(int startZ, 
-			int endZ, int stepping, int type)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		try {
-			int w = getPixelsDimensionsX();
-			int h = getPixelsDimensionsY();
-			BufferedImage img = renderProjectedCompressed(startZ, endZ, 
-					stepping, type);
-			if (img == null) return null;
-			DataBufferInt buf = (DataBufferInt) img.getData().getDataBuffer();
-			TextureData texture = createTexture(buf.getData(), w, h);
-			return texture;
-		} catch (Throwable e) {
-			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
-				retry++;
-				return renderProjectedCompressedAsTexture(startZ, endZ,
-						stepping, type);
-			}
-			handleException(e, ERROR_RENDER+"the projected selection.");
-		}
-		return null;
-	}
-	
-	/**
-	 * Projects the selected section of the optical sections
-	 * and renders a compressed image.
-	 * 
-	 * @param startZ   The first optical section.
-	 * @param endZ     The last optical section.
-	 * @param stepping The stepping of the projection.
-	 * @param type     The projection type.
-	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
-     * the value.
-     * @throws DSOutOfServiceException If the connection is broken.
-	 */
-	private TextureData renderProjectedUncompressedAsTexture(int startZ, 
-			int endZ, int stepping, int type)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-        try {
-            int[] buf = servant.renderProjectedAsPackedInt(
-            		ProjectionParam.convertType(type), 
-					getDefaultT(), stepping, startZ, endZ);
-            return createTexture(buf, getPixelsDimensionsX(), 
-            		getPixelsDimensionsY());
-		} catch (Throwable e) {
-			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
-				retry++;
-				return renderProjectedUncompressedAsTexture(startZ, endZ,
-						stepping, type);
-			}
-			handleException(e, ERROR_RENDER+"the projected selection.");
-		}
-        return null;
-	}
-	
-	/**
-	 * Creates the texture.
-	 * 
-	 * @param data The data to display.
-	 * @param w The width of the image.
-	 * @param h The height of the image.
-	 * @return See above.
-	 */
-	private TextureData createTexture(int[] data, int w, int h)
-	{
-		return PixelsServicesFactory.createTexture(data, w, h);
 	}
 
 	/**
@@ -1809,7 +1664,7 @@ class RenderingControlProxy
 	{
 		isSessionAlive();
 		try {
-    		servant.resetDefaultsNoSave();
+    		servant.resetDefaultSettings(false);
     		if (getPixelsDimensionsC() > 1) setModel(RGB);
     		List list = servant.getAvailableFamilies();
     		ChannelData m;
@@ -1868,35 +1723,7 @@ class RenderingControlProxy
         return img;
 	}
 
-	/** 
-	 * Implemented as specified by {@link RenderingControl}.
-	 * @see RenderingControl#renderProjectedAsTexture(int, int, int, int, List)
-	 */
-	public TextureData renderProjectedAsTexture(int startZ, int endZ,
-			int stepping, int type, List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		List<Integer> active = getActiveChannels();
-		for (int i = 0; i < getPixelsDimensionsC(); i++)
-			setActive(i, false);
-	
-		Iterator<Integer> j = channels.iterator();
-		while (j.hasNext()) 
-			setActive(j.next(), true);
-		TextureData img;
-		retry = 0;
-        if (isCompressed()) 
-        	img = renderProjectedCompressedAsTexture(startZ, endZ, stepping,
-        			type);
-        else img = renderProjectedUncompressedAsTexture(startZ, endZ, stepping,
-        		type);
-        //reset
-        j = active.iterator();
-        while (j.hasNext()) 
-			setActive(j.next(), true);
-        return img;
-	}
-	
+
 	/** 
 	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#copyRenderingSettings(RndProxyDef, List)
@@ -2033,26 +1860,6 @@ class RenderingControlProxy
 	 * @see RenderingControl#getPixelsID()
 	 */
 	public long getPixelsID() { return pixs.getId().getValue(); }
-
-	/** 
-	 * Implemented as specified by {@link RenderingControl}.
-	 * @see RenderingControl#renderAsTexture(PlaneDef)
-	 */
-	public TextureData renderAsTexture(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		if (pDef == null) 
-			throw new IllegalArgumentException("Plane def cannot be null.");
-		try {
-		    context.getImageService().isAlive(ctx);
-			servant.ice_ping();
-		} catch (Exception e) {
-			return null;
-		}
-		retry = 0;
-		if (isCompressed()) return renderCompressedAsTexture(pDef);
-		return renderUncompressedAsTexture(pDef);
-	}
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}.

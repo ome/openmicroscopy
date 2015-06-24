@@ -9,7 +9,7 @@
 
 """
 import omero
-import test.integration.library as lib
+import library as lib
 import pytest
 import Ice
 
@@ -19,13 +19,8 @@ from omero.rtypes import rint, rlong, rstring
 class TestTickets3000(lib.ITest):
 
     def test2396(self):
-        uuid = self.uuid()
-
         # create image
-        img = self.new_image()
-        img.setName(rstring('test2396-img-%s' % (uuid)))
-        img = self.update.saveAndReturnObject(img)
-        img.unload()
+        img = self.make_image(name='test2396-img-%s' % self.uuid())
 
         format = "txt"
         binary = "12345678910"
@@ -46,10 +41,8 @@ class TestTickets3000(lib.ITest):
 
         fa = omero.model.FileAnnotationI()
         fa.setFile(of)
-        l_ia = omero.model.ImageAnnotationLinkI()
-        l_ia.setParent(img)
-        l_ia.setChild(fa)
-        self.update.saveObject(l_ia)
+
+        self.link(img, fa)
 
         # Alternatively, unload the file
         of = self.update.saveAndReturnObject(oFile)
@@ -63,16 +56,9 @@ class TestTickets3000(lib.ITest):
 
         fa = omero.model.FileAnnotationI()
         fa.setFile(of)
-        l_ia = omero.model.ImageAnnotationLinkI()
-        l_ia.setParent(img)
-        l_ia.setChild(fa)
-        self.update.saveObject(l_ia)
 
-    # This test is no longer valid as it should not be possible to remove
-    # users from their only remaining group. It would be easy to make the
-    # test pass by adding extra groups but that would defeat the purpose
-    # of this test. Marking as xfail until the test has been reviewed.
-    @pytest.mark.xfail(reason="Is this test still valid? See #11465")
+        self.link(img, fa)
+
     def test2547(self):
         admin = self.root.sf.getAdminService()
         user = self.new_user()
@@ -91,7 +77,8 @@ class TestTickets3000(lib.ITest):
 
         # This was never supported
         with pytest.raises(
-                (Ice.UnmarshalOutOfBoundsException, Ice.UnknownUserException)):
+                (Ice.UnmarshalOutOfBoundsException, Ice.UnknownUserException,
+                 Ice.UnknownLocalException)):
             q.findAllByQuery(sql, None)
 
         p1 = omero.sys.Parameters()
@@ -100,13 +87,14 @@ class TestTickets3000(lib.ITest):
         p1.theFilter = f1
 
         # Nor was this
-        with pytest.raises(Ice.UnknownUserException):
+        with pytest.raises((Ice.UnknownUserException,
+                            Ice.UnknownLocalException)):
             q.findAllByQuery(sql, p1)
 
         # Only IQuery.projection can return non-IObject types
         q.projection(sql, p1)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test2952(self):
 
         la = omero.model.LongAnnotationI()
@@ -122,7 +110,7 @@ class TestTickets3000(lib.ITest):
 
         assert la.id.val in [x.id.val for x in res]
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test2762(self):
         """
         Test that the page (limit/offset) settings on a ParametersI

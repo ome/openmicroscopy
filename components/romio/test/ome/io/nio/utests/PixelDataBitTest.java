@@ -63,7 +63,7 @@ public class PixelDataBitTest
     	// 14
     	assertEquals(0.0, data.getPixelValue(14));
     	data.setPixelValue(14, 1.0);
-    	assertEquals(1.0, data.getPixelValue(14));    	
+    	assertEquals(1.0, data.getPixelValue(14));
     }
     
     public void testSize()

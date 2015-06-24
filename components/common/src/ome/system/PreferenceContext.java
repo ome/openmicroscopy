@@ -12,7 +12,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
+
+import com.google.common.collect.MapMaker;
 
 /**
  * Central configuration for OMERO properties from (in order):
@@ -46,11 +48,9 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
 
     private final static Logger log = LoggerFactory.getLogger(PreferenceContext.class);
 
-    final private Map<String, Preference> preferences = new ConcurrentHashMap<String, Preference>();
+    private final Map<String, Preference> preferences = new MapMaker().makeMap();
 
     private PropertyPlaceholderHelper helper;
-    
-    private String path;
 
     /**
      * By default, configures this instance for
@@ -144,6 +144,10 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
         }
 
         return key;
+    }
+
+    public Set<String> getKeySet() {
+        return preferences.keySet();
     }
 
     public boolean checkDatabase(String key) {

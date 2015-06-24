@@ -1,0 +1,277 @@
+*** Settings ***
+Documentation     Tests copying, pasting and applying Rendering settings.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Variables ***
+
+${importedChColor}                  rgb(128, 128, 128)
+${importedMax}                      255
+${sizeZ}                            3
+${defaultZ}                         2
+${currZ}                            3
+
+*** Keywords ***
+
+Log Out
+    Click Element                   xpath=//div[@id='show_user_dropdown']/span
+    Click Link                      link=Logout
+    Location Should Be              ${WEBCLIENT LOGIN URL}
+
+Pick Color
+    [Arguments]          ${btnColor}        ${hexColor}       ${rgbColor}
+    Click Element                           xpath=//button[@id="wblitz-ch0-color"]
+    Wait Until Element Is Visible           id=cbpicker-box
+    # Click yellow color-picker button
+    Click Element                           xpath=//button[contains(@class, "preset-color-btn")][contains(@style, "background-color: #${btnColor}")]
+    Textfield Value Should Be               cbpicker-tb         ${hexColor}
+    Click Element                           cbpicker-OK-btn
+    # Wait for the channel toggle button to turn yellow
+    Wait For Channel Color                  ${rgbColor}
+
+Wait For Channel Color
+    [Arguments]          ${rgbColor}
+    Wait Until Page Contains Element        xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]
+
+Wait For BlockUI
+    # Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
+    Sleep                                   0.1
+    Wait For Condition                      return ($("div.blockOverlay").length == 0)
+
+Wait For Preview Load
+    # Wait For Condition                      return ($("#viewport-img").length == 0)
+    Sleep                                   0.5
+    Wait Until Page Contains Element        xpath=//button[@id="wblitz-ch0-color"]
+
+Wait For Image Panel
+    Wait Until Page Contains Element        xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
+    ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+    [Return]                                ${imageId}
+
+Right Click Rendering Settings
+    [Arguments]            ${treeId}        ${optionText}
+    Open Context Menu                       xpath=//li[@id='${treeId}']/a
+    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "${optionText}")]
+    Click Dialog Button                     OK
+
+*** Test Cases ***
+
+Test Rdef Copy Paste Save
+    [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
+
+    Select Experimenter
+    Select And Expand Image
+    ${imageId}=                             Wait For Image Panel
+    Click Link                              Preview
+    Wait For Preview Load
+
+    # Undo, Redo & Save should be disabled
+    Element Should Be Disabled              id=rdef-undo-btn
+    Element Should Be Disabled              id=rdef-redo-btn
+    Element Should Be Disabled              id=rdef-setdef-btn
+
+    # Change Z-index: on callback, Save is enabled but not Undo/Redo
+    Element Text Should Be                  id=wblitz-z-count       ${sizeZ}
+    Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
+    Click Element                           id=viewport-zsl-bup
+    Wait Until Page Contains Element        xpath=//button[@id='rdef-setdef-btn'][not(@disabled="disabled")]
+    Element Text Should Be                  id=wblitz-z-curr        ${currZ}
+    Element Should Be Disabled              id=rdef-undo-btn
+    Element Should Be Disabled              id=rdef-redo-btn
+    # change back again...
+    Click Element                           id=viewport-zsl-bdn
+    Wait Until Page Contains Element        xpath=//button[@id='rdef-setdef-btn'][@disabled="disabled"]
+    Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
+
+    # Color-picker, Yellow then Blue.
+    Pick Color          ff0       FFFF00        rgb(255, 255, 0)
+    Pick Color          00f       0000FF        rgb(0, 0, 255)
+
+    # ONLY Redo should be disabled
+    Element Should Be Enabled               id=rdef-undo-btn
+    Element Should Be Disabled              id=rdef-redo-btn
+    Element Should Be Enabled               id=rdef-setdef-btn
+    # Click Undo - Channel should be Yellow
+    Click Element                           id=rdef-undo-btn
+    Wait For Channel Color                  rgb(255, 255, 0)
+    # And all buttons Undo, Redo & Save enabled
+    Element Should Be Enabled               id=rdef-undo-btn
+    Element Should Be Enabled               id=rdef-redo-btn
+    Element Should Be Enabled               id=rdef-setdef-btn
+
+    # Save (with Yellow channel) & wait for thumbnail to update
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("button.clicked img.rdef").attr('src'))
+    Click Element                           id=rdef-setdef-btn
+    Wait For BlockUI
+    Wait For Condition                      return ($.trim($("button.clicked img.rdef").attr('src')) != '${thumbSrc}')
+    # Redo (to Blue channel)
+    Click Element                           id=rdef-redo-btn
+    Wait For Channel Color                  rgb(0, 0, 255)
+    # Copy (paste button is enabled)
+    Click Element                           xpath=//button[contains(@class, "copy_rdef")]
+    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+
+    # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
+    Click Element                           id=image_icon-${imageId}
+    Wait For Preview Load
+    # Channel should be Yellow
+    Wait For Channel Color                  rgb(255, 255, 0)
+
+    # Select Next Image by using 'Down Arrow'
+    Key Down                                40
+    Wait For Preview Load
+    # Images should be compatible, so 'Paste' should become enabled.
+    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+
+    # Paste (Blue channel)
+    Click Element                           xpath=//button[contains(@class, "paste_rdef")]
+    Wait For Channel Color                  rgb(0, 0, 255)
+
+    # Save to all (Blue channel)
+    Click Element                           id=rdef-save-all
+
+    # Return to Previous Image (now Blue)
+    Click Element                           id=image_icon-${imageId}
+    Wait For Preview Load
+    Wait For Channel Color                  rgb(0, 0, 255)
+
+
+Test Owners Rdef
+    [Documentation]     Log in as non-owner and apply Imported and Owner's settings.
+
+    Go To                                   ${WELCOME URL}
+    Select Experimenter
+    Select And Expand Image
+    ${imageId}=                             Wait For Image Panel
+    Click Link                              Preview
+    Wait For Preview Load
+
+    # Set to "Imported"
+    Click Element                           id=rdef-reset-btn
+    Wait For Channel Color                  ${importedChColor}
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+
+    # Need user to save an Rdef that is different from 'Imported'
+    # Save Channel 'Green' and Window End: 100
+    Unselect Checkbox                       rd-wblitz-rmodel
+    Pick Color                              0f0         00FF00          rgb(0, 255, 0)
+    Input Text                              id=wblitz-ch0-cw-end        100
+    Click Element                           id=rdef-setdef-btn
+    Wait For BlockUI
+
+    # Get Id for next Image by using 'Down Arrow'
+    Click Link                              General
+    Key Down                                40
+    ${imageId_2}=                            Wait For Image Panel
+    Log Out
+
+    # Log in as Root - go to user's Image
+    User "${ROOT USERNAME}" logs in with password "${ROOT PASSWORD}"
+    Maximize Browser Window
+    Go To                                   ${WELCOME URL}?show=image-${imageId}
+    Wait For Image Panel
+    Click Link                              Preview
+    Wait For Preview Load
+
+    # Bit more reliable with this, but try to remove it if possible...
+    Set Selenium Speed                      0.5
+
+    # Set to "Imported"
+    Click Element                           id=rdef-reset-btn
+    Wait For Channel Color                  ${importedChColor}
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Checkbox Should Be Selected             rd-wblitz-rmodel
+
+    # Set to Owner's (click on thumbnail)
+    Click Element                           xpath=//button[contains(@class, 'rdef')][descendant::span[contains(@class, 'owner')]]
+    Wait For Channel Color                  rgb(0, 255, 0)
+    Textfield Value Should Be               wblitz-ch0-cw-end           100
+    Checkbox Should Not Be Selected         rd-wblitz-rmodel
+
+    # Set to Full Range
+    Click Element                           id=rdef-fullrange-btn
+    Wait For Channel Color                  rgb(0, 255, 0)
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Checkbox Should Not Be Selected         rd-wblitz-rmodel
+
+    # 'Save All' with some different settings (Red channel)
+    Unselect Checkbox                       rd-wblitz-rmodel
+    Pick Color                              f00         FF0000          rgb(255, 0, 0)
+    Click Element                           id=rdef-save-all
+    Wait For BlockUI
+
+    # Min/Max
+    Click Element                           id=rdef-minmax-btn
+    Wait For Channel Color                  rgb(255, 0, 0)
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+
+    # New settings (White channel, max 200) and 'Copy'
+    # Set Selenium Speed                      1
+    Input Text                              id=wblitz-ch0-cw-end        200
+    Pick Color                              fff         FFFFFF          rgb(255, 255, 255)
+    Click Element                           xpath=//button[contains(@class, "copy_rdef")]
+    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+    
+    # Test 'Paste and Save' with right-click on different Image in tree
+    # (check thumb refresh by change of src)
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("#image_icon-${imageId_2} img").attr('src'))
+    Right Click Rendering Settings          image-${imageId_2}            Paste and Save
+    Wait For Condition                      return ($.trim($("#image_icon-${imageId_2} img").attr('src')) != '${thumbSrc}')
+    # Check applied by refresh right panel
+    Click Element                           id=image_icon-${imageId_2}
+    Wait For Preview Load
+    Wait For Channel Color                  rgb(255, 255, 255)
+    Textfield Value Should Be               wblitz-ch0-cw-end           200
+
+    # Test Set Owner's in same way on first Image
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("#image_icon-${imageId} img").attr('src'))
+    Right Click Rendering Settings          image-${imageId}            Set Owner's and Save
+    Wait For Condition                      return ($.trim($("#image_icon-${imageId} img").attr('src')) != '${thumbSrc}')
+    # Check applied by refresh right panel
+    Click Element                           id=image_icon-${imageId}
+    Wait For Preview Load
+    Wait For Channel Color                  rgb(0, 255, 0)
+    Textfield Value Should Be               wblitz-ch0-cw-end           100
+
+    # Test "Set Imported" on first Image
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("#image_icon-${imageId} img").attr('src'))
+    Right Click Rendering Settings          image-${imageId}            Set Imported and Save
+    Wait For Condition                      return ($.trim($("#image_icon-${imageId} img").attr('src')) != '${thumbSrc}')
+    # Check applied by refresh right panel
+    Click Element                           id=image_icon-${imageId}
+    Wait For Preview Load
+    Wait For Channel Color                  ${importedChColor}
+    Textfield Value Should Be               wblitz-ch0-cw-end           ${importedMax}
+
+    # Open full image viewer
+    # Toggle the color, then paste settings and check it has reverted
+    Go To                                   ${WELCOME URL}img_detail/${imageId}
+    Wait Until Page Contains Element        id=wblitz-ch0
+    ${checked1}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    Click Element                           id=wblitz-rmodel
+    ${checked2}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    Should Not Be True                      "${checked1}" == "${checked2}"
+    Click Link                              Edit
+    # We are currently at 'Imported' settings
+    Textfield Value Should Be               wblitz-ch0-cw-end    255
+
+    # Paste to settings above
+    Click Element                           xpath=//button[contains(@class, "paste_rdef")]
+    # Save
+    Click Element                           id=rdef-setdef-btn
+    # Wait for response
+    Wait Until Page Contains Element        id=weblitz-viewport-msg
+    Wait For Condition                      return ($(".blockUI").length == 0)
+
+    # Refresh page to check Save
+    Reload Page
+    Wait Until Page Contains Element        id=wblitz-ch0
+    Click Link                              Edit
+    Textfield Value Should Be               wblitz-ch0-cw-end    200
+

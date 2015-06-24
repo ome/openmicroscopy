@@ -196,7 +196,7 @@ class TestConfig(object):
         config = ConfigXml(filename=str(p))
         m = config.as_map()
         for k, v in m.items():
-            assert "4.2.1" == v
+            assert "5.1.0" == v
 
     def testOldVersionDetected(self):
         p = create_path()
@@ -243,6 +243,57 @@ class TestConfig(object):
             m = config.as_map()
             assert "member=@{dn}" == m["omero.ldap.new_user_group"]
             assert "member=@{dn}" == m["omero.ldap.new_user_group_2"]
+        finally:
+            config.close()
+
+    def testSettings510Upgrade(self):
+        """
+        When upgraded 5.0.x properties to 5.1.0 or later,
+        if omero.web.ui.top_links is set, we need to prepend
+        'Data', 'History' and 'Help' links
+        """
+
+        beforeUpdate = '[["Figure", "figure_index"]]'
+        afterUpdate = '[["Data", "webindex", ' \
+            '{"title": "Browse Data via Projects, Tags etc"}], ' \
+            '["History", "history", ' \
+            '{"title": "History"}], ' \
+            '["Help", "http://help.openmicroscopy.org/", ' \
+            '{"target": "new", "title": ' \
+            '"Open OMERO user guide in a new tab"}], ' \
+            '["Figure", "figure_index"]]'
+        p = create_path()
+
+        XML = Element("icegrid")
+        active = SubElement(XML, "properties", id="__ACTIVE__")
+        default = SubElement(XML, "properties", id="default")
+        for properties in (active, default):
+            # Include a property to indicate version is post-4.2.0
+            SubElement(
+                properties, "property", name="omero.config.version",
+                value="4.2.1")
+            SubElement(
+                properties, "property", name="omero.web.ui.top_links",
+                value=beforeUpdate)
+        string = tostring(XML, 'utf-8')
+        txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
+        p.write_text(txt)
+
+        config = ConfigXml(filename=str(p), env_config="default")
+        try:
+            m = config.as_map()
+            assert m["omero.web.ui.top_links"] == afterUpdate
+        finally:
+            config.close()
+
+        # After config.close() calls config.save() new version should be 5.1.0
+        config = ConfigXml(filename=str(p), env_config="default")
+        try:
+            # Check version has been updated
+            assert config.version() == "5.1.0"
+            m = config.as_map()
+            # And that top_links has not been modified further
+            assert m["omero.web.ui.top_links"] == afterUpdate
         finally:
             config.close()
 

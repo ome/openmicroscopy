@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2008-2015 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 from omero.rtypes import rstring
@@ -33,25 +33,22 @@ from omero.rtypes import rstring
 class TestAdmin(lib.ITest):
 
     def testGetGroup(self):
-        a = self.client.getSession().getAdminService()
+        a = self.sf.getAdminService()
         l = a.lookupGroups()
         g = a.getGroup(l[0].getId().val)
         assert 0 != g.sizeOfGroupExperimenterMap()
 
     def testSetGroup(self):
-        a = self.client.getSession().getAdminService()
-        ec = a.getEventContext()
-        uid = ec.userId
-
         # Add user to new group to test setting default
-        e = a.getExperimenter(uid)
+        uid = self.user.id.val
+        e = self.sf.getAdminService().getExperimenter(uid)
         admin = self.root.sf.getAdminService()
         grp = self.new_group()
         admin.addGroups(e, [grp])
 
-        a.setDefaultGroup(e, grp)
+        admin.setDefaultGroup(e, grp)
 
-        dg = self.client.getSession().getAdminService().getDefaultGroup(uid)
+        dg = self.sf.getAdminService().getDefaultGroup(uid)
         assert dg.id.val == grp.id.val
 
     def testChangePassword(self):
@@ -102,7 +99,8 @@ class TestAdmin(lib.ITest):
         whenFoo = query.projection(hql, getOnlyOne)[0][0].val
         assert whenFoo > whenOme
 
-    @pytest.mark.xfail(reason="Empty password disabled by config")
+    @pytest.mark.broken(reason="Empty password disabled by config",
+                        ticket="3201")
     def testChangePasswordWhenUnset(self):
         """
         Shows that it's possible to use the
@@ -146,9 +144,8 @@ class TestAdmin(lib.ITest):
         """
         Tests the "freshness" of the iAdmin.getEventContext() call.
         """
-        client = self.new_client()
         group = self.new_group()
-        admin = client.sf.getAdminService()
+        admin = self.sf.getAdminService()
         root_admin = self.root.sf.getAdminService()
 
         ec1 = admin.getEventContext()
@@ -169,7 +166,6 @@ class TestAdmin(lib.ITest):
         assert len(ec1.memberOfGroups)+1 == len(ec2.memberOfGroups)
         assert group.id.val in ec2.memberOfGroups
 
-    @pytest.mark.xfail(reason="This test fails since #11465")
     def testUserRoles4056(self):
         """
         Tests for optimistic lock exception when modifying roles.
@@ -230,8 +226,8 @@ class TestAdmin(lib.ITest):
     # This test is no longer valid as it shpuld not be possible to remove
     # users from their only remaining group. It would be easy to may the
     # test pass by adding extra groups but that would defeat the purpose
-    # of this test. Marking as xfail until the test has been reviewed.
-    @pytest.mark.xfail(reason="Is this test still valid? See #11465")
+    # of this test. Marking as broken until the test has been reviewed.
+    @pytest.mark.broken(reason="Is this test still valid?", ticket="11465")
     def test9193(self):
         # Test the removal of removing users
         # from a group when the group in question

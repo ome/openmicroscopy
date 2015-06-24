@@ -19,6 +19,7 @@ config.log
 config.status
 config.sub
 configure
+cppbuild
 depcomp
 install-sh
 libtool

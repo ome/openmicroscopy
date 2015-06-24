@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 import sys
 import omero
-import Usage, AllProjects, PrintProjects
+import Usage
+import AllProjects
+import PrintProjects
 
 if __name__ == "__main__":
     try:
@@ -20,4 +22,3 @@ if __name__ == "__main__":
         PrintProjects.print_(projects)
     finally:
         client.closeSession()
-

@@ -39,6 +39,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
+import omero.cmd.graphs.GraphUtil;
 import omero.cmd.graphs.Preprocessor;
 
 /**
@@ -104,7 +105,9 @@ public class DoAllI extends DoAll implements IRequest {
          * value after being calculated via {@link #offset}
          */
         Object step(int step) {
-            return r.step(step - offset);
+            final int substep = step - offset;
+            h.getStatus().currentStep = substep;
+            return r.step(substep);
         }
 
         /**
@@ -263,8 +266,13 @@ public class DoAllI extends DoAll implements IRequest {
             allgroups.put("omero.group", "-1");
             ctx.publishMessage(new ContextMessage.Push(this, allgroups));
             try {
+                final String isWrapGraphRequests = ctx.getProperty("omero.graphs.wrap");
                 // Process within -1 block.
-                new Preprocessor(this.requests, this.helper);
+                if (Boolean.parseBoolean(isWrapGraphRequests)) {
+                    GraphUtil.combineFacadeRequests(this.requests);
+                } else {
+                    new Preprocessor(this.requests, this.helper);
+                }
             } finally {
                 ctx.publishMessage(new ContextMessage.Pop(this, allgroups));
             }

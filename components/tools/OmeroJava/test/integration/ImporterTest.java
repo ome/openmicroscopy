@@ -103,9 +103,6 @@ import org.testng.annotations.Test;
  */
 public class ImporterTest extends AbstractServerTest {
 
-    /** The collection of files that have to be deleted. */
-    private List<File> files;
-
     /** {@link EventContext} that is set on {@link #loginMethod()} */
     private EventContext ownerEc;
 
@@ -138,7 +135,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(objective.getNominalMagnification().getValue(),
                 xml.getNominalMagnification());
         assertEquals(objective.getWorkingDistance().getValue(),
-                xml.getWorkingDistance());
+                xml.getWorkingDistance().value());
     }
 
     /**
@@ -159,6 +156,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(detector.getAmplificationGain().getValue(), xml
                 .getAmplificationGain().doubleValue());
         assertEquals(detector.getGain().getValue(), xml.getGain());
+        assertEquals(detector.getZoom().getValue(), xml.getZoom());
     }
 
     /**
@@ -174,7 +172,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(arc.getModel().getValue(), xml.getModel());
         assertEquals(arc.getSerialNumber().getValue(), xml.getSerialNumber());
         assertEquals(arc.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(arc.getPower().getValue(), xml.getPower());
+        assertEquals(arc.getPower().getValue(), xml.getPower().value());
         assertEquals(arc.getType().getValue().getValue(),
                 XMLMockObjects.ARC_TYPE.getValue());
     }
@@ -192,9 +190,21 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(laser.getModel().getValue(), xml.getModel());
         assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
         assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(laser.getPower().getValue(), xml.getPower());
+        assertEquals(laser.getPower().getValue(), xml.getPower().value());
         assertEquals(laser.getType().getValue().getValue(),
                 XMLMockObjects.LASER_TYPE.getValue());
+        assertEquals(laser.getFrequencyMultiplication().getValue(),
+                xml.getFrequencyMultiplication().getValue().intValue());
+        assertEquals(laser.getLaserMedium().getValue().getValue(),
+               xml.getLaserMedium().getValue());
+        assertEquals(laser.getPockelCell().getValue(),
+                xml.getPockelCell().booleanValue());
+        assertEquals(laser.getTuneable().getValue(),
+                xml.getTuneable().booleanValue());
+        assertEquals(laser.getRepetitionRate().getValue(),
+                xml.getRepetitionRate().value());
+        assertEquals(laser.getWavelength().getValue(),
+                xml.getWavelength().value());
     }
 
     /**
@@ -212,7 +222,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(filament.getSerialNumber().getValue(),
                 xml.getSerialNumber());
         assertEquals(filament.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(filament.getPower().getValue(), xml.getPower());
+        assertEquals(filament.getPower().getValue(), xml.getPower().value());
         assertEquals(filament.getType().getValue().getValue(),
                 XMLMockObjects.FILAMENT_TYPE.getValue());
     }
@@ -234,14 +244,11 @@ public class ImporterTest extends AbstractServerTest {
                 .getValue());
         TransmittanceRange tr = filter.getTransmittanceRange();
         ome.xml.model.TransmittanceRange xmlTr = xml.getTransmittanceRange();
-        assertEquals(tr.getCutIn().getValue(), xmlTr.getCutIn().getValue()
-                .intValue());
-        assertEquals(tr.getCutOut().getValue(), xmlTr.getCutOut().getValue()
-                .intValue());
-        assertEquals(tr.getCutInTolerance().getValue(), xmlTr
-                .getCutInTolerance().getValue().intValue());
-        assertEquals(tr.getCutOutTolerance().getValue(), xmlTr
-                .getCutOutTolerance().getValue().intValue());
+        assertEquals(tr.getCutIn().getValue(), xmlTr.getCutIn().value());
+        assertEquals(tr.getCutOut().getValue(), xmlTr.getCutOut().value());
+        assertEquals(tr.getCutInTolerance().getValue(), xmlTr.getCutInTolerance().value());
+        assertEquals(tr.getCutOutTolerance().getValue(), xmlTr.getCutOutTolerance().value());
+        assertEquals(tr.getTransmittance().getValue(), xmlTr.getTransmittance().getValue().doubleValue());
     }
 
     /**
@@ -275,7 +282,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(diode.getModel().getValue(), xml.getModel());
         assertEquals(diode.getSerialNumber().getValue(), xml.getSerialNumber());
         assertEquals(diode.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(diode.getPower().getValue(), xml.getPower());
+        assertEquals(diode.getPower().getValue(), xml.getPower().value());
     }
 
     /**
@@ -292,8 +299,9 @@ public class ImporterTest extends AbstractServerTest {
                 .getBinning().getValue());
         assertEquals(settings.getGain().getValue(), xml.getGain());
         assertEquals(settings.getOffsetValue().getValue(), xml.getOffset());
-        assertEquals(settings.getReadOutRate().getValue(), xml.getReadOutRate());
-        assertEquals(settings.getVoltage().getValue(), xml.getVoltage());
+        assertEquals(settings.getReadOutRate().getValue(),
+                xml.getReadOutRate().value());
+        assertEquals(settings.getVoltage().getValue(), xml.getVoltage().value());
     }
 
     /**
@@ -327,7 +335,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(settings.getAttenuation().getValue(), xml.getAttenuation()
                 .getValue().doubleValue());
         assertEquals(settings.getWavelength().getValue(), xml.getWavelength()
-                .getValue().doubleValue());
+                .value());
     }
 
     /**
@@ -341,13 +349,13 @@ public class ImporterTest extends AbstractServerTest {
     private void validateImagingEnvironment(ImagingEnvironment env,
             ome.xml.model.ImagingEnvironment xml) {
         assertEquals(env.getAirPressure().getValue(), xml.getAirPressure()
-                .doubleValue());
+                .value());
         assertEquals(env.getCo2percent().getValue(), xml.getCO2Percent()
                 .getValue().doubleValue());
         assertEquals(env.getHumidity().getValue(), xml.getHumidity().getValue()
                 .doubleValue());
         assertEquals(env.getTemperature().getValue(), xml.getTemperature()
-                .doubleValue());
+                .value());
     }
 
     /**
@@ -361,9 +369,9 @@ public class ImporterTest extends AbstractServerTest {
     private void validateStageLabel(StageLabel label,
             ome.xml.model.StageLabel xml) {
         assertEquals(label.getName().getValue(), xml.getName());
-        assertEquals(label.getPositionX().getValue(), xml.getX().doubleValue());
-        assertEquals(label.getPositionY().getValue(), xml.getY().doubleValue());
-        assertEquals(label.getPositionZ().getValue(), xml.getZ().doubleValue());
+        assertEquals(label.getPositionX().getValue(), xml.getX().value());
+        assertEquals(label.getPositionY().getValue(), xml.getY().value());
+        assertEquals(label.getPositionZ().getValue(), xml.getZ().value());
     }
 
     /**
@@ -403,9 +411,9 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(lc.getContrastMethod().getValue().getValue(), xml
                 .getContrastMethod().getValue());
         assertEquals(lc.getEmissionWave().getValue(), xml
-                .getEmissionWavelength().getValue().doubleValue());
+                .getEmissionWavelength().value());
         assertEquals(lc.getExcitationWave().getValue(), xml
-                .getExcitationWavelength().getValue().doubleValue());
+                .getExcitationWavelength().value());
         assertEquals(lc.getFluor().getValue(), xml.getFluor());
         assertEquals(lc.getNdFilter().getValue(), xml.getNDFilter());
         assertEquals(lc.getPockelCellSetting().getValue(), xml
@@ -434,9 +442,9 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(plate.getExternalIdentifier().getValue(),
                 xml.getExternalIdentifier());
         assertEquals(plate.getWellOriginX().getValue(), xml.getWellOriginX()
-                .doubleValue());
+                .value().doubleValue());
         assertEquals(plate.getWellOriginY().getValue(), xml.getWellOriginY()
-                .doubleValue());
+                .value().doubleValue());
         assertEquals(plate.getStatus().getValue(), xml.getStatus());
     }
 
@@ -503,8 +511,8 @@ public class ImporterTest extends AbstractServerTest {
      *            The XML version.
      */
     private void validateWellSample(WellSample ws, ome.xml.model.WellSample xml) {
-        assertEquals(ws.getPosX().getValue(), xml.getPositionX().doubleValue());
-        assertEquals(ws.getPosY().getValue(), xml.getPositionY().doubleValue());
+        assertEquals(ws.getPosX().getValue(), xml.getPositionX().value());
+        assertEquals(ws.getPosY().getValue(), xml.getPositionY().value());
         Timestamp ts = new Timestamp(xml.getTimepoint().asInstant().getMillis());
         assertEquals(ws.getTimepoint().getValue(), ts.getTime());
     }
@@ -586,7 +594,6 @@ public class ImporterTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        files = new ArrayList<File>();
     }
 
     /**
@@ -597,11 +604,6 @@ public class ImporterTest extends AbstractServerTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-        Iterator<File> i = files.iterator();
-        while (i.hasNext()) {
-            i.next().delete();
-        }
-        files.clear();
     }
 
     /**
@@ -619,8 +621,7 @@ public class ImporterTest extends AbstractServerTest {
                     + ModelMockFactory.FORMATS[i], "."
                     + ModelMockFactory.FORMATS[i]);
             mmFactory.createImageFile(f, ModelMockFactory.FORMATS[i]);
-            files.add(f);
-            List<Pixels> pix = null;
+            f.deleteOnExit();
             try {
                 importFile(f, ModelMockFactory.FORMATS[i]);
             } catch (Throwable e) {
@@ -648,7 +649,7 @@ public class ImporterTest extends AbstractServerTest {
     @Test
     public void testImportSimpleImage() throws Exception {
         File f = File.createTempFile("testImportSimpleImage", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -708,7 +709,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportSimpleImageMetadataOnly() throws Exception {
         File f = File.createTempFile("testImportSimpleImageMetadataOnly", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -732,7 +733,7 @@ public class ImporterTest extends AbstractServerTest {
         File f = File.createTempFile(
                 "testImportSimpleImageMetadataOnlyNoBinaryInFile", "."
                         + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), false);
@@ -754,7 +755,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportAnnotatedImage() throws Exception {
         File f = File.createTempFile("testImportAnnotatedImage", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createAnnotatedImage(), true);
@@ -806,7 +807,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportImageWithAcquisitionData() throws Exception {
         File f = File.createTempFile("testImportImageWithAcquisitionData", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createImageWithAcquisitionData();
@@ -1004,7 +1005,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportImageWithROI() throws Exception {
         File f = File
                 .createTempFile("testImportImageWithROI", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithROI(), true);
@@ -1060,7 +1061,7 @@ public class ImporterTest extends AbstractServerTest {
     @Test
     public void testImportPlate() throws Exception {
         File f = File.createTempFile("testImportPlate", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createPopulatedPlate(0);
@@ -1090,11 +1091,11 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"broken", "ticket:12601"})
+    @Test(groups = {"ticket12601"})
     public void testImportScreenWithOnePlate() throws Exception {
         File f = File.createTempFile("testImportScreenWithOnePlate", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         int rows = 2;
@@ -1190,11 +1191,11 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"broken", "ticket12601"})
+    @Test(groups = {"ticket12601"})
     public void testImportScreenWithTwoPlates() throws Exception {
         File f = File.createTempFile("testImportScreenWithTwoPlates", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         int rows = 2;
@@ -1289,7 +1290,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportPlateOnePlateAcquisition() throws Exception {
         File f = File.createTempFile("testImportPlateOnePlateAcquisition", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createPopulatedPlate(1);
@@ -1326,11 +1327,11 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"broken", "ticket12601"})
+    @Test(groups = {"ticket12601"})
     public void testImportPlateMultiplePlateAcquisitions() throws Exception {
         File f = File.createTempFile(
                 "testImportPlateMultiplePlateAcquisitions", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         int n = 3;
         int fields = 3;
         XMLMockObjects xml = new XMLMockObjects();
@@ -1395,7 +1396,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportPlateWithReagent() throws Exception {
         File f = File.createTempFile("testImportPlateWithReagent", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createBasicPlateWithReagent();
@@ -1460,7 +1461,7 @@ public class ImporterTest extends AbstractServerTest {
 
         File f = File.createTempFile("testImportImageIntoDataset", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -1504,7 +1505,7 @@ public class ImporterTest extends AbstractServerTest {
 
         File f = File.createTempFile("testImportImageIntoDataset", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -1547,7 +1548,7 @@ public class ImporterTest extends AbstractServerTest {
 
         File f = File.createTempFile("testImportImageIntoDataset", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);

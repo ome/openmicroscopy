@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+       default-lazy-init="false">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright 2015 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+  <description>
+      Listeners which wait for internal messages from other server
+      components and act on them. These are placed in a flexible
+      location, because if a listener is causing issues or is only
+      temporarily necessary, an admin should not need to package a
+      jar to make the modification. Note however:
+
+                  MODIFICATIONS REQUIRE A RESTART.
+
+                   CHANGES WILL NOT BE PERSISTED.
+
+  </description>
+
+  <!--
+       MAIL LISTENERS ============================================
+  -->
+
+  <bean id="abstractMailSender" abstract="true">
+      <property name="enabled" value="${omero.mail.config}"/>
+      <property name="executor" ref="executor"/>
+      <property name="queryService" ref="internal-ome.api.IQuery"/>
+      <property name="mailUtil" ref="mailUtil"/>
+      <property name="roles" ref="roles"/>
+  </bean>
+
+  <bean id="newUserMailSender" parent="abstractMailSender"
+      class="ome.services.mail.ObjectMailSender">
+      <property name="action" value="INSERT"/>
+      <property name="objectClass" value="ome.model.meta.Experimenter"/>
+      <!-- Send to all admins -->
+      <property name="queryString" value="select g from ExperimenterGroup g where g.id = :systemGroupId"/>
+  </bean>
+
+  <bean id="newCommentMailSender" parent="abstractMailSender"
+      class="ome.services.mail.ObjectMailSender">
+      <property name="action" value="INSERT"/>
+      <property name="objectClass" value="ome.model.annotations.CommentAnnotation"/>
+      <!-- Mail to owner of a Image if someone else comments-->
+      <property name="queryString">
+          <value>
+              select i.details.owner from ImageAnnotationLink l
+                join l.parent as i join l.child as c
+               where c.id = :id and c.details.owner.id != i.details.owner.id
+          </value>
+      </property>
+  </bean>
+
+  <bean id="failedLoginMailSender" parent="abstractMailSender"
+      class="ome.services.mail.FailedLoginMailSender">
+      <property name="contactSystem" value="true"/>
+      <property name="onSpecificUsers" value="root"/>
+  </bean>
+
+  <bean id="serverUpMailSender" class="ome.services.mail.ServerUpMailSender">
+      <constructor-arg>
+          <bean class="ome.services.mail.MailSender" parent="abstractMailSender"/>
+      </constructor-arg>
+  </bean>
+
+  <bean id="serverDownMailSender" parent="abstractMailSender"
+      class="ome.services.mail.ServerDownMailSender"/>
+
+</beans>

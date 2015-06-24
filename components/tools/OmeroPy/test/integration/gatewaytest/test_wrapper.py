@@ -4,7 +4,7 @@
 """
    gateway tests - Object Wrappers
 
-   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -24,7 +24,6 @@ class TestWrapper(object):
         gatewaywrapper.loginAsAuthor()
         self.TESTIMG = gatewaywrapper.getTestImage()
 
-    @pytest.mark.xfail(reason="ticket 11610")
     def testAllObjectsWrapped(self, author_testimg):
         """
         Blitz object wrapper should ensure that all values returned are also
@@ -71,6 +70,7 @@ class TestWrapper(object):
         gatewaywrapper.loginAsAuthor()
         p = gatewaywrapper.getTestProject()
         pid = p.getId()
+        gid = p.getDetails().getGroup().getId()
         m = p.simpleMarshal()
         assert m['name'] == p.getName()
         assert m['description'] == p.getDescription()
@@ -92,22 +92,26 @@ class TestWrapper(object):
         assert m['child_count'] == p.countChildren_cached()
         # Verify canOwnerWrite
         gatewaywrapper.loginAsAdmin()
-        admin = gatewaywrapper.gateway.getAdminService()
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        chmod = omero.cmd.Chmod2(targetObjects={'ExperimenterGroup': [gid]})
         p = gatewaywrapper.gateway.getObject('project', pid)
         perms = str(p.getDetails().getGroup().getDetails().permissions)
-        admin.changePermissions(
-            p.getDetails().getGroup()._obj,
-            omero.model.PermissionsI('rw' + perms[2:]))
+
+        # try making the group writable by owner
+        chmod.permissions = 'rw' + perms[2:]
+        gatewaywrapper.gateway.c.submit(chmod)
         p = gatewaywrapper.gateway.getObject('project', pid)
         assert p.canOwnerWrite() is True
-        admin.changePermissions(
-            p.getDetails().getGroup()._obj,
-            omero.model.PermissionsI('r-' + perms[2:]))
+
+        # try making the group not writable by owner
+        chmod.permissions = 'r-' + perms[2:]
+        gatewaywrapper.gateway.c.submit(chmod)
         p = gatewaywrapper.gateway.getObject('project', pid)
         assert p.canOwnerWrite() is False
-        admin.changePermissions(
-            p.getDetails().getGroup()._obj, omero.model.PermissionsI(perms))
+
+        # put the group back as it was
+        chmod.permissions = perms
+        gatewaywrapper.gateway.c.submit(chmod)
 
     def testDatasetWrapper(self, gatewaywrapper, author_testimg):
         # author_testimg above is only included to populate the dataset

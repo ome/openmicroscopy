@@ -44,9 +44,9 @@ jQuery.fn.viewportImage = function(options) {
     mediaroot = mediaroot || '/appmedia';
     
 
-    wrapdiv.prepend('<span class="wb_zoomIn" style="top: 10px;"><img src="'+mediaroot+'/3rdparty/panojs/images/32px_plus.png" title="Zoom in" style="width: 20px;"></span>');
-    wrapdiv.prepend('<span class="wb_zoom11" style="top: 40px;"><img src="'+mediaroot+'/3rdparty/panojs/images/32px_11.png" title="Zoom 1:1" style="width: 20px;"></span>');
-    wrapdiv.prepend('<span class="wb_zoomOut" style="top: 70px;"><img src="'+mediaroot+'/3rdparty/panojs/images/32px_minus.png" title="Zoom out" style="width: 20px;"></span>');
+    wrapdiv.prepend('<span class="wb_zoomIn" style="top: 10px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_plus.png" title="Zoom in" style="width: 20px;"></span>');
+    wrapdiv.prepend('<span class="wb_zoom11" style="top: 40px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_11.png" title="Zoom 1:1" style="width: 20px;"></span>');
+    wrapdiv.prepend('<span class="wb_zoomOut" style="top: 70px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_minus.png" title="Zoom out" style="width: 20px;"></span>');
 
     if (panbars) {
     /* Panning sides */
@@ -198,6 +198,18 @@ jQuery.fn.viewportImage = function(options) {
 
     this.overlayVisible = function () {
       return overlay.is(':visible') || overlay.is('.loading');
+    };
+
+    this.setPixelated = function (pixelated) {
+      // Handle images for regular viewer and big image viewer
+      var $tiledViewer = $(".viewer", wrapdiv);
+      if (pixelated) {
+        image.addClass("pixelated");
+        $tiledViewer.addClass("pixelated");
+      } else {
+        image.removeClass("pixelated");
+        $tiledViewer.removeClass("pixelated");
+      }
     };
 
     /**
@@ -356,6 +368,8 @@ jQuery.fn.viewportImage = function(options) {
         }, 20);
       }
       image.trigger("instant_zoom", [cur_zoom]);
+      dragdiv.width(width);
+      dragdiv.height(height);
       image.attr({width: width, height: height});
       overlay.attr({width: width, height: height});
      };
@@ -522,12 +536,13 @@ jQuery.fn.viewportImage = function(options) {
         myProvider.thumbnailUrl(thref);
         
         if (viewerBean == null) {
-            $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
+            var viewerBeanId = this.id + '-tiles';
+            $('<div id="'+viewerBeanId+'" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
             
             PanoJS.CREATE_CONTROL_MAXIMIZE = true;
             PanoJS.PRE_CACHE_AMOUNT = 2;
             PanoJS.USE_WHEEL_FOR_ZOOM = true;
-            viewerBean = new PanoJS('weblitz-viewport-tiles', {
+            viewerBean = new PanoJS(viewerBeanId, {
                 tileUrlProvider : myProvider,
                 xTileSize       : myPyramid.xtilesize,
                 yTileSize       : myPyramid.ytilesize,
@@ -535,9 +550,9 @@ jQuery.fn.viewportImage = function(options) {
                 imageWidth      : myPyramid.width,
                 imageHeight     : myPyramid.height,
                 initialZoom     : init_zoom,
-                staticBaseURL   : mediaroot+'3rdparty/panojs/images/',
-                blankTile       : mediaroot+'3rdparty/panojs/images/blank.gif',
-                loadingTile     : mediaroot+'3rdparty/panojs/images/blank.gif',
+                staticBaseURL   : mediaroot+'3rdparty/panojs-2.0.0/images/',
+                blankTile       : mediaroot+'3rdparty/panojs-2.0.0/images/blank.gif',
+                loadingTile     : mediaroot+'3rdparty/panojs-2.0.0/images/blank.gif',
                 zoomLevelScaling : zoomLevelScaling,
                 delay           : 300
             });
@@ -619,6 +634,9 @@ jQuery.fn.viewportImage = function(options) {
             if (!viewerBean.roi_control) {
                 viewerBean.roi_control = new ROIControl(viewerBean);
             }
+            if (!viewerBean.scalebar_control) {
+                viewerBean.scalebar_control = new ScaleBarControl(viewerBean);
+            }
             
             // not supported elements
             jQuery('#wblitz-zoom').parent().hide();
@@ -629,7 +647,7 @@ jQuery.fn.viewportImage = function(options) {
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();
         }
-        cur_zoom = viewerBean.zoomLevel;
+        cur_zoom = viewerBean.currentScale() * 100;
     };
 
     // Simply causes all tiles to refresh their src
@@ -640,7 +658,7 @@ jQuery.fn.viewportImage = function(options) {
     };
     
     this.destroyTiles = function () {
-        jQuery('#weblitz-viewport-tiles').remove();
+        jQuery(viewerBeanId).remove();
         viewerBean = null;
     };
 

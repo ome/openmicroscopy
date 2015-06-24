@@ -32,7 +32,6 @@ import java.util.Map;
 
 
 //Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -72,7 +71,7 @@ public interface RenderingControl
 	public static final int		MAX_SIZE_THREE = 3*MAX_SIZE;
 	
 	/** The maximum number of channels. */
-	public static final int		MAX_CHANNELS = 10;
+	public static final int		MAX_CHANNELS = 100;
 	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int		UNCOMPRESSED = 0;
@@ -698,25 +697,7 @@ public interface RenderingControl
     public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
     									int type, List<Integer> channels)
     	throws RenderingServiceException, DSOutOfServiceException;
-    
-    /**
-     * Projects the selected optical sections for the currently selected 
-     * time-point and the active channels and returned a projected image.
-     * 
-     * @param startZ   The first optical section.
-     * @param endZ     The last optical section.
-     * @param stepping Stepping value to use while calculating the projection.
-     * @param type 	   One of the projection type defined by this class.
-     * @param channels The collection of channels to project.
-     * @return See above.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-     */
-    public TextureData renderProjectedAsTexture(int startZ, int endZ, 
-    		int stepping, int type, List<Integer> channels)
-    	throws RenderingServiceException, DSOutOfServiceException;
-    
+
     /**
      * Copies rendering settings from the original image to the projected
      * one.
@@ -792,18 +773,6 @@ public interface RenderingControl
      */
     public void setOverlays(long tableID, Map<Long, Integer> overlays)
     	throws RenderingServiceException, DSOutOfServiceException;
-
-	/**
-	 * Renders the specified {@link PlaneDef 2D-plane}.
-	 * 
-	 * @param pDef   Information about the plane to render.
-	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
-	public TextureData renderAsTexture(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException;
 	
 	/**
 	 * Returns the possible resolution levels. This method should only be used

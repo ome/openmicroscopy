@@ -13,7 +13,7 @@
         
         <p>{% trans "Fields marked in red are mandatory." %}</p>
         
-        <form action="{% url 'fsend' %}" method="post" class="standard_form">
+        <form action="{% url 'fsend' %}" method="post" class="standard_form">{% csrf_token %}
             {% for field in form %}
                 {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
                 {{ field }}

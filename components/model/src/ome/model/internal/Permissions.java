@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
@@ -157,7 +159,7 @@ public class Permissions implements Serializable {
                     "Make sure that you have not passed omero.group=-1 for a save without context");
         }
         this.revokeAll(p);
-        copyRestrictions(p.restrictions);
+        copyRestrictions(p.restrictions, p.extendedRestrictions);
     }
 
     // ~ Fields
@@ -173,11 +175,19 @@ public class Permissions implements Serializable {
     public static final int EDITRESTRICTION = 1;
     public static final int DELETERESTRICTION = 2;
     public static final int ANNOTATERESTRICTION = 3;
+
     /**
      * Calculated restrictions which are based on both the store
      * representation({@link #perm1}) and the current calling context.
      */
     private boolean[] restrictions;
+
+    /**
+     * Further calculated restrictions which can be defined individually by
+     * any service. Individual service methods should specify in their
+     * documentation which strings must be checked by clients.
+     */
+    private String[] extendedRestrictions;
 
     // ~ Getters
     // =========================================================================
@@ -291,6 +301,27 @@ public class Permissions implements Serializable {
         return isDisallow(restrictions, LINKRESTRICTION);
     }
 
+    public void addExtendedRestrictions(Set<String> extendedRestrictions) {
+        if (extendedRestrictions == null || extendedRestrictions.isEmpty()) {
+            return;
+        }
+
+        if (this.extendedRestrictions == null) {
+            this.extendedRestrictions = extendedRestrictions.toArray(
+                    new String[extendedRestrictions.size()]);
+        } else {
+            // Should be a much less likely case since these will
+            // likely not have been loaded/set yet.
+            Set<String> copy = new HashSet<String>();
+            for (String er : this.extendedRestrictions) {
+                copy.add(er);
+            }
+            copy.addAll(extendedRestrictions);
+            this.extendedRestrictions = copy.toArray(
+                    new String[copy.size()]);
+        }
+    }
+
     /**
      * Produce a copy of restrictions for use elsewhere.
      */
@@ -304,10 +335,32 @@ public class Permissions implements Serializable {
     }
 
     /**
+     * Produce a copy of restrictions for use elsewhere.
+     */
+    public String[] copyExtendedRestrictions() {
+        if (extendedRestrictions == null) {
+            return null;
+        }
+        String[] copy = new String[extendedRestrictions.length];
+        System.arraycopy(extendedRestrictions, 0,
+                copy, 0, extendedRestrictions.length);
+        return copy;
+    }
+
+    /**
      * Safely copy the source array. If it is null or contains no "true" values,
      * then the restrictions field will remain null.
      */
-    public void copyRestrictions(final boolean[] source) {
+    public void copyRestrictions(final boolean[] source, String[] extendedRestrictions) {
+
+        if (extendedRestrictions == null || extendedRestrictions.length == 0) {
+            this.extendedRestrictions = null;
+        } else {
+            final int sz = extendedRestrictions.length;
+            this.extendedRestrictions = new String[sz];
+            System.arraycopy(extendedRestrictions, 0, this.extendedRestrictions, 0, sz);
+        }
+
         if (noTrues(source)) {
             this.restrictions = null;
         } else {
@@ -321,7 +374,15 @@ public class Permissions implements Serializable {
     /**
      * Copy restrictions based on the integer returned by BasicACLVoter.
      */
-    public void copyRestrictions(int allow) {
+    public void copyRestrictions(int allow, Set<String> extendedRestrictions) {
+
+        if (extendedRestrictions == null || extendedRestrictions.isEmpty()) {
+            this.extendedRestrictions = null;
+        } else {
+            this.extendedRestrictions = extendedRestrictions.toArray(
+                    new String[extendedRestrictions.size()]);
+        }
+
         if (allow == 15) { // Would be all false.
             this.restrictions = null;
             return;

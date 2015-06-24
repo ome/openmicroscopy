@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -351,7 +352,7 @@ class ImporterUIElement
 		components = new LinkedHashMap<String, FileImportComponent>();
 		List<ImportableFile> files = object.getFiles();
 		FileImportComponent c;
-		File f;
+		
 		Iterator<ImportableFile> i = files.iterator();
 		ImportableFile importable;
 		type = -1;
@@ -377,9 +378,10 @@ class ImporterUIElement
 		}
 		JLabel l;
 		boolean single = model.isSingleGroup();
+		FileObject f;
 		while (i.hasNext()) {
 			importable = i.next();
-			f = (File) importable.getFile();
+			f = (FileObject) importable.getFile();
 			c = new FileImportComponent(importable,
 					!controller.isMaster(), single, getID(), object.getTags());
 			c.setType(type);
@@ -442,7 +444,7 @@ class ImporterUIElement
 				}
 			} else {
 				if (importable.isFolderAsContainer()) {
-					String name = f.getParentFile().getName();
+					String name = f.getParentName();
 					//first check if the name is already there.
 					Entry<JLabel, Object> entry;
 					Iterator<Entry<JLabel, Object>>
@@ -455,6 +457,9 @@ class ImporterUIElement
 							exist = true;
 							break;
 						}
+					}
+					if (name == null) {
+					    name = f.getName();
 					}
 					if (!exist) {
 						foldersName.put(new JLabel(name), c);
@@ -728,7 +733,7 @@ class ImporterUIElement
 	{
 		if (c == null) return null;
 		c.uploadComplete(result);
-		File file = c.getFile();
+		FileObject file = c.getFile();
 		Object r = null;
 		if (file.isFile()) {
 			countUploaded++;
@@ -738,7 +743,7 @@ class ImporterUIElement
 			//Check that the result has not been set.
 			//if (!c.hasResult()) {
 			if (result instanceof Exception) {
-				r = new ImportErrorObject(file, (Exception) result,
+				r = new ImportErrorObject(file.getTrueFile(), (Exception) result,
 						c.getGroupID());
 				if (c.hasResult()) return null;
 				setImportResult(c, result);
@@ -801,7 +806,7 @@ class ImporterUIElement
 	void setImportResult(FileImportComponent fc, Object result)
 	{
 		if (fc == null) return;
-		File file = fc.getFile();
+		FileObject file = fc.getFile();
 		if (file.isFile()) {
 			fc.setStatus(result);
 			countImported++;
@@ -897,7 +902,7 @@ class ImporterUIElement
 	boolean hasImportToCancel()
 	{
 	    for (final FileImportComponent fic : components.values()) {
-	    	if (!(fic.hasImportStarted() || fic.isCancelled())) {
+	    	if (fic.hasImportToCancel()) {
 	            return true;
 	        }
 	    }

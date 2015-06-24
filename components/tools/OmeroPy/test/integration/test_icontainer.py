@@ -24,135 +24,57 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import omero
-from omero_model_ImageI import ImageI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
-from omero.rtypes import rbool, rstring, rtime
+from omero.rtypes import rstring
 from uuid import uuid4
 
 
 class TestIContainer(lib.ITest):
 
+    DEFAULT_PERMS = "rw----"
+
     def testFindAnnotations(self):
         ipojo = self.client.sf.getContainerService()
-        i = ImageI()
-        i.setName(rstring("name"))
+        i = self.new_image(name="name")
         i = ipojo.createDataObject(i, None)
 
     def testFindAndCountAnnotationsForSharedData(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
 
-        # create new users
-        # group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
+        # create users
+        group = self.new_group(perms="rwra--")
+        client1, user1 = self.new_client_and_user(group=group)
 
-        # new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.ldap = rbool(False)
-
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-
-        eid = admin.createExperimenterWithPassword(
-            new_exp, rstring("ome"), defaultGroup, listOfGroups)
-
-        # new user2
-        new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
-        new_exp2.firstName = rstring("New2")
-        new_exp2.lastName = rstring("Test2")
-        new_exp2.ldap = rbool(False)
-
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-
-        eid2 = admin.createExperimenterWithPassword(
-            new_exp2, rstring("ome"), defaultGroup, listOfGroups)
-
-        # get users
-        user1 = admin.getExperimenter(eid)
-        user2 = admin.getExperimenter(eid2)
-
-        # login as user1
-        cl1 = self.new_client(user=user1, password="ome")
-        update1 = cl1.sf.getUpdateService()
-        ipojo1 = cl1.sf.getContainerService()
-
-        # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-
-        # default permission 'rw----':
-        img = update1.saveAndReturnObject(img)
-        img.unload()
-
-        ann1 = CommentAnnotationI()
-        ann1.textValue = rstring("user comment - %s" % uuid)
-        l_ann1 = ImageAnnotationLinkI()
-        l_ann1.setParent(img)
-        l_ann1.setChild(ann1)
-        update1.saveObject(l_ann1)
+        # create image with comment annotation
+        img = self.make_image(name='test1154-img-%s' % self.uuid(),
+                              client=client1)
+        ann1 = self.new_object(
+            CommentAnnotationI, name="user comment - %s" % self.uuid())
+        self.link(img, ann1, client=client1)
 
         # user retrives the annotations for image
+        ipojo1 = client1.sf.getContainerService()
         coll_count = ipojo1.getCollectionCount(
             "Image", "ome.model.containers.Image_annotationLinks",
             [img.id.val], None)
         assert 1 == coll_count.get(img.id.val, [])
-        # assert 1 ==  len(ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
 
         # login as user2
-        cl2 = self.new_client(user=user2, password="ome")
-        update2 = cl1.sf.getUpdateService()
-
-        ann = CommentAnnotationI()
-        ann.textValue = rstring("user2 comment - %s" % uuid)
-        l_ann = ImageAnnotationLinkI()
-        l_ann.setParent(img)
-        l_ann.setChild(ann)
-        update2.saveObject(l_ann)
+        client2, user2 = self.new_client_and_user(group=group)
+        ann2 = self.new_object(
+            CommentAnnotationI, name="user2 comment - %s" % self.uuid())
+        self.link(img, ann2, client=client2)
 
         # do they see the same vals?
-        # print ipojo1.getCollectionCount(
-        #     "Image", "ome.model.containers.Image_annotationLinks",
-        #     [img.id.val], None)
-        # print ipojo.getCollectionCount(
-        #     "Image", "ome.model.containers.Image_annotationLinks",
-        #     [img.id.val], None)
-        # print len(ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
-        # print len(ipojo.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
         coll_count = ipojo1.getCollectionCount(
             "Image", "ome.model.containers.Image_annotationLinks",
             [img.id.val], None)
         assert 2 == coll_count.get(img.id.val, [])
-        # anns = ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, [])
-        # assert 2 ==  len(anns)
-
-        # assert anns[0].details.permissions == 'rw----'
-        # assert anns[1].details.permissions == 'rw----'
-
-        cl1.sf.closeOnDestroy()
-        cl2.sf.closeOnDestroy()
 
     def testCreateAfterBlitzPort(self):
         ipojo = self.client.sf.getContainerService()
-        i = ImageI()
-        i.setName(rstring("name"))
+        i = self.new_image(name="name")
         i = ipojo.createDataObject(i, None)
         o = i.getDetails().owner
         assert -1 == o.sizeOfGroupExperimenterMap()
@@ -160,13 +82,13 @@ class TestIContainer(lib.ITest):
 
 class TestSplitFilesets(lib.ITest):
 
-    def checkSplitFilesets(self, client, dtypeIdsMap, expected):
+    def checkSplitFilesets(self, dtypeIdsMap, expected):
         """
         To check we get the expected result from
         iContainer.getImagesBySplitFilesets() we do the query with dtype & ids
         and compare the returned data with the specified dict.
         """
-        container = client.sf.getContainerService()
+        container = self.client.sf.getContainerService()
         result = container.getImagesBySplitFilesets(dtypeIdsMap, None)
 
         def cmpLists(listOne, listTwo):
@@ -193,119 +115,88 @@ class TestSplitFilesets(lib.ITest):
         """
         Fileset of 2 Images, we test split using 1 Image ID
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        images = self.importMIF(2, client=client)
+        images = self.importMIF(2)
 
         # Lookup the fileset
         imgId = images[0].id.val
-        query = client.sf.getQueryService()
-        filesetId = query.get('Image', imgId).fileset.id.val
+        filesetId = self.query.get('Image', imgId).fileset.id.val
 
         # Define what we expect & query split fileset
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
-        self.checkSplitFilesets(client, {'Image': [imgId]}, expected)
+        self.checkSplitFilesets({'Image': [imgId]}, expected)
 
     def testFilesetNotSplitByImage(self):
         """
         Fileset of 2 Images with No split (query with both Image IDs)
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        images = self.importMIF(2, client=client)
+        images = self.importMIF(2)
 
         imgIds = [i.id.val for i in images]
 
         # Define what we expect & query split fileset
         expected = {}
-        self.checkSplitFilesets(client, {'Image': imgIds}, expected)
+        self.checkSplitFilesets({'Image': imgIds}, expected)
 
     def testFilesetSplitByDatasetAndProject(self):
         """
         Fileset of 2 Images, one in a Dataset. Test split using Dataset ID
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        update = client.sf.getUpdateService()
-        query = client.sf.getQueryService()
-
         # Dataset contains 1 image of a 2-image fileset
-        images = self.importMIF(2, client=client)
-        ds = omero.model.DatasetI()
-        ds.name = omero.rtypes.rstring("testFilesetSplitByDataset")
-        ds = update.saveAndReturnObject(ds)
-        link = omero.model.DatasetImageLinkI()
-        link.setParent(ds.proxy())
-        link.setChild(images[0].proxy())
-        link = update.saveAndReturnObject(link)
+        images = self.importMIF(2)
+        ds = self.make_dataset("testFilesetSplitByDataset")
+        self.link(ds, images[0])
 
         # Dataset in Project
-        pr = omero.model.ProjectI()
-        pr.name = omero.rtypes.rstring("testFilesetSplitByProject")
-        pr = update.saveAndReturnObject(pr)
-        link = omero.model.ProjectDatasetLinkI()
-        link.setParent(pr.proxy())
-        link.setChild(ds.proxy())
-        link = update.saveAndReturnObject(link)
+        pr = self.make_project("testFilesetSplitByProject")
+        self.link(pr, ds)
 
         # Lookup the fileset
         imgId = images[0].id.val
-        filesetId = query.get('Image', imgId).fileset.id.val
+        filesetId = self.query.get('Image', imgId).fileset.id.val
 
         # Define what we expect & query split fileset
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
-        self.checkSplitFilesets(client, {'Dataset': [ds.id.val]}, expected)
+        self.checkSplitFilesets({'Dataset': [ds.id.val]}, expected)
         # Expect same result if query via Project
-        self.checkSplitFilesets(client, {'Project': [pr.id.val]}, expected)
+        self.checkSplitFilesets({'Project': [pr.id.val]}, expected)
 
         # No split if we include the extra image ID
         expected = {}
         idsMap = {'Dataset': [ds.id.val], "Image": [images[1].id.val]}
-        self.checkSplitFilesets(client, idsMap, expected)
+        self.checkSplitFilesets(idsMap, expected)
         idsMap = {'Project': [pr.id.val], "Image": [images[1].id.val]}
-        self.checkSplitFilesets(client, idsMap, expected)
+        self.checkSplitFilesets(idsMap, expected)
 
     def testFilesetNotSplitByDatasets(self):
         """
         Fileset of 2 Images, both in different Datasets.
         Test Not split using Dataset IDs
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        update = client.sf.getUpdateService()
-        query = client.sf.getQueryService()
-
         # Datasets each contain 1 image of a 2-image fileset
-        datasets = self.createDatasets(
-            2, "testFilesetNotSplitByDatasets", client=client)
-        images = self.importMIF(2, client=client)
+        datasets = self.createDatasets(2, "testFilesetNotSplitByDatasets")
+        images = self.importMIF(2)
         for i in range(2):
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(datasets[i].proxy())
-            link.setChild(images[i].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(datasets[i], images[i])
 
         # Another Dataset contains both images
-        ds = omero.model.DatasetI()
-        ds.name = omero.rtypes.rstring("testFilesetNotSplitByDatasets")
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name="testFilesetNotSplitByDatasets")
         for i in images:
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(i.proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(ds, i)
 
         # Lookup the fileset
         imgId = images[0].id.val
-        filesetId = query.get('Image', imgId).fileset.id.val
+        filesetId = self.query.get('Image', imgId).fileset.id.val
 
         # No split if we pass in both Dataset IDs...
         dsIds = [d.id.val for d in datasets]
         expected = {}
-        self.checkSplitFilesets(client, {'Dataset': dsIds}, expected)
+        self.checkSplitFilesets({'Dataset': dsIds}, expected)
         # ...or the Dataset that contains both images
-        self.checkSplitFilesets(client, {'Dataset': [ds.id.val]}, expected)
+        self.checkSplitFilesets({'Dataset': [ds.id.val]}, expected)
 
         # confirm split if we choose one Dataset
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
-        self.checkSplitFilesets(
-            client, {'Dataset': [datasets[0].id.val]}, expected)
+        self.checkSplitFilesets({'Dataset': [datasets[0].id.val]}, expected)
 
     def testGetImagesBySplitFilesetsManyCases(self):
         query = self.client.sf.getQueryService()
@@ -412,16 +303,12 @@ class TestSplitFilesets(lib.ITest):
 
         for project_index in set(all_inputs['Project']
                                  + parents(project_dataset_hierarchy)):
-            project = omero.model.ProjectI()
-            project.name = rstring('Project #%i' % project_index)
-            project.id = update.saveAndReturnObject(project).id
+            project = self.make_project(name='Project #%i' % project_index)
             projects.append(query.get('Project', project.id.val))
         for dataset_index in set(all_inputs['Dataset']
                                  + children(project_dataset_hierarchy)
                                  + parents(dataset_image_hierarchy)):
-            dataset = omero.model.DatasetI()
-            dataset.name = rstring('Dataset #%i' % dataset_index)
-            dataset.id = update.saveAndReturnObject(dataset).id
+            dataset = self.make_dataset(name='Dataset #%i' % dataset_index)
             datasets.append(query.get('Dataset', dataset.id.val))
         for screen_index in set(all_inputs['Screen']
                                 + parents(screen_plate_hierarchy)):
@@ -453,27 +340,18 @@ class TestSplitFilesets(lib.ITest):
                                + children(dataset_image_hierarchy)
                                + children(well_image_hierarchy)
                                + children(fileset_image_hierarchy)):
-            image = omero.model.ImageI()
-            image.name = rstring('Image #%i' % image_index)
-            image.acquisitionDate = rtime(0L)
-            image.id = update.saveAndReturnObject(image).id
+            image = self.make_image('Image #%i' % image_index)
             images.append(query.get('Image', image.id.val))
 
         # associate test entities
 
         for project_index, dataset_indices in project_dataset_hierarchy:
             for dataset_index in dataset_indices:
-                project_dataset = omero.model.ProjectDatasetLinkI()
-                project_dataset.parent = projects[project_index]
-                project_dataset.child = datasets[dataset_index]
-                update.saveAndReturnObject(project_dataset)
+                self.link(projects[project_index], datasets[dataset_index])
 
         for dataset_index, image_indices in dataset_image_hierarchy:
             for image_index in image_indices:
-                dataset_image = omero.model.DatasetImageLinkI()
-                dataset_image.parent = datasets[dataset_index]
-                dataset_image.child = images[image_index]
-                update.saveAndReturnObject(dataset_image)
+                self.link(datasets[dataset_index], images[image_index])
 
         for screen_index, plate_indices in screen_plate_hierarchy:
             for plate_index in plate_indices:

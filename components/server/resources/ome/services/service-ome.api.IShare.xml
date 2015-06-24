@@ -30,6 +30,7 @@
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="shareStore"/>
     <constructor-arg ref="executor"/>
+    <constructor-arg ref="mailUtil"/>
   </bean> 
  
   <bean name="managed-ome.api.IShare" parent="managedService">

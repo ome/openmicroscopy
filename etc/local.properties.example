@@ -25,6 +25,7 @@ javac.debuglevel=lines,vars,source
 javac.maxmem=1050m
 javadoc.maxmem=1050m
 exe4j.home=/opt/exe4j
+package-extra=true
 
 artifactory.username=hudson
 artifactory.username=SECRET
@@ -62,8 +63,6 @@ jarsign.validity=1000
 #
 # Prevents test failures from stopping the build
 test.with.fail=false
-# Turns on code-coverage measurements during testing
-emma.enabled=false
 # Output verbosity from testng
 testng.verbose=2
 testng.useDefaultListeners=false

@@ -23,6 +23,7 @@
 Test of the omero/plugins/tx.py module
 """
 
+import pytest
 from omero.api import IQueryPrx
 from omero.api import IUpdatePrx
 from omero.api import ServiceFactoryPrx
@@ -94,6 +95,7 @@ class TestObjControl(TxBase):
     def setup_method(self, method):
         super(TestObjControl, self).setup_method(method)
         self.cli.register("obj", ObjControl, "TEST")
+        self.args = ["obj"]
 
     def test_simple_new_usage(self):
         self.saves(ProjectI(1, False))
@@ -108,3 +110,12 @@ class TestObjControl(TxBase):
         self.cli.invoke(("obj update Project:1 name=bar "
                         "description=loooong"), strict=True)
         assert self.cli._out == ["Project:1"]
+
+    def testHelp(self):
+        self.args += ["-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.parametrize('subcommand', ObjControl().get_subcommands())
+    def testSubcommandHelp(self, subcommand):
+        self.args += [subcommand, "-h"]
+        self.cli.invoke(self.args, strict=True)

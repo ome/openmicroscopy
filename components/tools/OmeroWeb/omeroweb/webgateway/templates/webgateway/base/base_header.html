@@ -24,13 +24,13 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.header.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.header.css"|add:url_suffix %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css"|add:url_suffix %}" type="text/css" media="screen"/>
 	
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.header_ie.css" %}" />
-		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/layout_ie.css" %}" />
-		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/dusty_ie.css" %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.header_ie.css"|add:url_suffix %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/layout_ie.css"|add:url_suffix %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/dusty_ie.css"|add:url_suffix %}" />
 	<![endif]-->
 	
 	

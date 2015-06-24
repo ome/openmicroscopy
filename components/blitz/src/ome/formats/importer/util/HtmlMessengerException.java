@@ -2,7 +2,7 @@
  * ome.formats.importer.HTMLMessengerException
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,11 +32,24 @@ package ome.formats.importer.util;
 public class HtmlMessengerException extends Exception
 {
     /**
-     * @param message
-     * @param exception
+     * Creates a new instance.
+     *
+     * @param message The message to handle.
+     * @param exception The exception thrown.
      */
     public HtmlMessengerException(String message, Exception exception)
     {
         super(message, exception);
     }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param message The message to handle.
+     */
+    public HtmlMessengerException(String message)
+    {
+        super(message);
+    }
+    
 }

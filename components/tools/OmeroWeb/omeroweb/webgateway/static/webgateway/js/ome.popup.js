@@ -26,51 +26,154 @@ if (typeof OME === "undefined") {
 // Use userAgent to detect mobile devices
 // from http://stackoverflow.com/questions/3514784/what-is-the-best-way-to-detect-a-handheld-device-in-jquery
 OME.isMobileDevice = function() {
-    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|IEMobile|Opera Mini|Mobile Safari|Silk/i).test(navigator.userAgent)
+    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|IEMobile|Opera Mini|Mobile Safari|Silk/i).test(navigator.userAgent);
 };
 
-Number.prototype.filesizeformat = function () {
+OME.rgbToHex = function rgbToHex(rgb) {
+    if (rgb.substring(0,1) == '#') {
+        return rgb.substring(1);
+    }
+    var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(rgb);
+    if (!rgbvals) return rgb;
+    var rval = parseInt(rgbvals[1], 10).toString(16);
+    var gval = parseInt(rgbvals[2], 10).toString(16);
+    var bval = parseInt(rgbvals[3], 10).toString(16);
+    if (rval.length == 1) rval = '0' + rval;
+    if (gval.length == 1) gval = '0' + gval;
+    if (bval.length == 1) bval = '0' + bval;
+    return (
+        rval +
+        gval +
+        bval
+    ).toUpperCase();
+};
+
+OME.hexToRgb = function hexToRgb(hex) {
+    hex = OME.rgbToHex(hex);    // in case 'hex' is actually rgb!
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+};
+
+// Calculate value, saturation and hue as in org.openmicroscopy.shoola.util.ui.colour.HSV
+OME.isDark = function(color) {
+
+    var c = OME.hexToRgb(color);
+
+    var min, max, delta;
+    var v, s, h;
+
+    min = Math.min(c.r, c.g, c.b);
+    max = Math.max(c.r, c.g, c.b);
+
+    v = max;
+    delta = max-min;
+
+    if (max !== 0) {
+        s = delta/max;
+    }
+    else {
+        v = 0;
+        s = 0;
+        h = 0;
+    }
+
+    if (c.r==max) {
+        h = (c.g-c.b)/delta;
+    } else if (c.g == max) {
+        h = 2 + (c.b-c.r)/delta;
+    } else {
+        h = 4 +(c.r-c.g)/delta;
+    }
+
+    h = h * 60;
+    if (h < 0) {
+        h += 360;
+    }
+    h = h/360;
+    v = v/255;
+
+    return (v < 0.6 || (h > 0.6 && s > 0.7));
+};
+
+function isInt(n){
+    return typeof n== "number" && isFinite(n) && n%1===0;
+}
+
+Number.prototype.filesizeformat = function (round) {
     /*
     Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
     102 bytes, etc).*/
+    
+    if (round === undefined || !isInt(round)) round = 2;
     
     var bytes = this;
     if (bytes < 1024) {
         return bytes + ' B';
     } else if (bytes < (1024*1024)) {
-        return (bytes / 1024).toFixed(2) + ' KB';
+        return (bytes / 1024).toFixed(round) + ' KB';
     } else if (bytes < (1024*1024*1024)) {
-        return (bytes / (1024*1024)).toFixed(2) + ' MB';
+        return (bytes / (1024*1024)).toFixed(round) + ' MB';
     } else if (bytes < (1024*1024*1024*1024)) {
-        return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
+        return (bytes / (1024*1024*1024)).toFixed(round) + ' GB';
     } else if (bytes < (1024*1024*1024*1024*1024)) {
-        return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
+        return (bytes / (1024*1024*1024*1024)).toFixed(round) + ' TB';
     } else {
-        return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
+        return (bytes / (1024*1024*1024*1024*1024)).toFixed(round) + ' PB';
     }
     
-}
+};
 
-Number.prototype.lengthformat = function () {
+Number.prototype.lengthformat = function (round) {
+    if (round === undefined || !isInt(round)) round = 2;
+    
     var length = this;
     if (length < 0.001) {
-        return (length * 1000 * 1000).toFixed(2) + ' pm';
+        return (length * 1000 * 1000).toFixed(round) + ' pm';
     } else if (length < 0.1) {
-        return (length * 1000 * 10).toFixed(2) + ' &#8491;';
+        return (length * 1000 * 10).toFixed(round) + ' &#8491;';
     } else if (length < 1) {
-        return (length * 1000).toFixed(2) + ' nm';
+        return (length * 1000).toFixed(round) + ' nm';
     } else if (length < 1000) {
-        return length.toFixed(2) + ' &#181m';
+        return length.toFixed(round) + ' &#181m';
     } else if (length < 1000 * 100) {
-        return (length / 1000).toFixed(2) + ' mm';
+        return (length / 1000).toFixed(round) + ' mm';
     } else if (length < 1000 * 100 * 10) {
-        return (length / 1000 / 100).toFixed(2) + ' cm';
+        return (length / 1000 / 100).toFixed(round) + ' cm';
     } else if (length < 1000 * 100 * 10 * 100) {
-        return (length / 1000 / 100 / 10).toFixed(2) + ' m';
+        return (length / 1000 / 100 / 10).toFixed(round) + ' m';
     } else {
-        return (length / 1000 / 100 / 10 / 1000).toFixed(2) + ' km';
+        return (length / 1000 / 100 / 10 / 1000).toFixed(round) + ' km';
     }
-}
+};
+
+String.prototype.escapeHTML = function(){
+    /*
+    HTML Escape Before Inserting Untrusted Data into HTML Element Content
+    https://www.owasp.org/index.php/XSS_%28Cross_Site_Scripting%29_Prevention
+    _Cheat_Sheet#RULE_.231_-_HTML_Escape_Before_Inserting_Untrusted_Data_into
+    _HTML_Element_Content
+    */
+    var s = this;
+    if (!s) {
+        return "";
+    }
+    s = s + "";
+    return s.replace(/[\&"<>\\]/g, function(s) {
+        switch(s) {
+            case "&": return "&amp;";
+            case "\\": return "&#92;";
+            case '"': return '\"';
+            case "<": return "&lt;";
+            case ">": return "&gt;";
+            default: return s;
+        }
+    });
+};
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
@@ -795,7 +898,7 @@ if (false) {                    // set to 'true' to run. NB: Need to uncomment '
         exceptions.push("sanitizeHexColor", "toRGB", "rgbToHex", "parseQuery", "downloadLandingDialog"); // from ome.gs_utils.js
         // All these from PanoJS
         exceptions.push("PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid", "formatInt");
-        exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl");
+        exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl", "ScaleBarControl");
         exceptions.push("Tile", "ZoomifyLevel", "ZoomifyPyramid", "SvgControl", "ThumbnailControl", "trim");
         i = exceptions.length;
         while (--i) {

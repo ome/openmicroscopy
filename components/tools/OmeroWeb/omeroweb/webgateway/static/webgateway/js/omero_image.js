@@ -16,59 +16,6 @@
         }
     }
 
-    function hexToRgb(hex) {
-        hex = rgbToHex(hex);    // in case 'hex' is actually rgb!
-
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : null;
-    }
-
-    // Calculate value, saturation and hue as in org.openmicroscopy.shoola.util.ui.colour.HSV
-    function isDark(color) {
-
-        var c = hexToRgb(color);
-
-        var min, max, delta;
-        var v, s, h;
-
-        min = Math.min(c.r, c.g, c.b);
-        max = Math.max(c.r, c.g, c.b);
-
-        v = max;
-        delta = max-min;
-
-        if (max !== 0) {
-            s = delta/max;
-        }
-        else {
-            v = 0;
-            s = 0;
-            h = 0;
-        }
-
-        if (c.r==max) {
-            h = (c.g-c.b)/delta;
-        } else if (c.g == max) {
-            h = 2 + (c.b-c.r)/delta;
-        } else {
-            h = 4 +(c.r-c.g)/delta;
-        }
-
-        h = h * 60;
-        if (h < 0) {
-            h += 360;
-        }
-        h = h/360;
-        v = v/255;
-
-        return (v < 0.6 || (h > 0.6 && s > 0.7));
-    }
-
-
     window.resetRDCW = function (viewport) {
         viewport.reset_channels();
         syncRDCW(viewport);
@@ -121,6 +68,7 @@
         viewport.viewportmsg.html("Resetting...").show();
         $.getJSON(viewport.viewport_server + '/imgData/' + viewport.loadedImg.id + '/?getDefaults=true',
             function(data){
+                viewport.viewportmsg.hide();
                 viewport.loadedImg._load(data);
 
                 // seems we need to do a lot of work to update UI
@@ -197,7 +145,7 @@
         }
         //var t = $('#rd-wblitz-ch'+idx).get(0);
         //if (t != undefined) t.checked=ch.active;
-        $('#wblitz-ch'+idx).css('background-color', "#"+rgbToHex(ch.color)).attr('title', ch.label);
+        $('#wblitz-ch'+idx).css('background-color', "#"+OME.rgbToHex(ch.color)).attr('title', ch.label);
     };
 
 
@@ -210,6 +158,8 @@
         if (viewport.hasLinePlot() || $('#wblitz-lp-enable').prop('checked')) {
             viewport.refreshPlot();
         }
+        // Z/T change update Save button
+        updateUndoRedo(viewport);
     };
 
     window.syncChannelsActive = function(viewport) {
@@ -246,20 +196,20 @@
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
-            $('#rdef-undo-btn').prop('disabled', false);
+            $('#rdef-undo-btn').removeAttr('disabled').removeClass("button-disabled");
         } else {
-            $('#rdef-undo-btn').prop('disabled', true);
+            $('#rdef-undo-btn').attr("disabled", "disabled").addClass("button-disabled");
         }
         if (viewport.has_channels_redo()) {
-            $('#rdef-redo-btn').prop('disabled', false);
+            $('#rdef-redo-btn').removeAttr('disabled').removeClass("button-disabled");
         } else {
-            $('#rdef-redo-btn').prop('disabled', true);
+            $('#rdef-redo-btn').attr("disabled", "disabled").addClass("button-disabled");
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
-            $("#rdef-setdef-btn").prop('disabled', true);
+            $("#rdef-setdef-btn").attr("disabled", "disabled").addClass("button-disabled");
         } else {
-            $("#rdef-setdef-btn").prop('disabled', false);
+            $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
         }
     };
 
@@ -325,7 +275,7 @@
         for (i=0; i<channels.length; i++) {
             $('<button id="wblitz-ch'+i+
                 '"class="squared' + (channels[i].active?' pressed':'') +
-                '"style="background-color: #' + rgbToHex(channels[i].color) +
+                '"style="background-color: #' + OME.rgbToHex(channels[i].color) +
                 '"title="' + channels[i].label +
                 '">'+channels[i].label+'</button>')
             .appendTo(box)
@@ -388,10 +338,13 @@
         $('#wblitz-image-z-count').html(tmp.z);
         $('#wblitz-image-t-count').html(tmp.t);
         tmp = viewport.getPixelSizes();
-        $('#wblitz-image-pixel-size-x').html(tmp.x===0?'-':(tmp.x.lengthformat()));
-        $('#wblitz-image-pixel-size-y').html(tmp.y===0?'-':(tmp.y.lengthformat()));
-        $('#wblitz-image-pixel-size-z').html(tmp.z===0?'-':(tmp.z.lengthformat()));
+        $('#wblitz-image-pixel-size-x').html(tmp.x===null?'-':(tmp.x.lengthformat()));
+        $('#wblitz-image-pixel-size-y').html(tmp.y===null?'-':(tmp.y.lengthformat()));
+        $('#wblitz-image-pixel-size-z').html(tmp.z===null?'-':(tmp.z.lengthformat()));
 
+        if (tmp.x!==0) {
+            $("#wblitz-scalebar").prop("disabled", false);
+        }
         /* Fill in the Rendering Details box */
 
         $(".picker").unbind('prepared').unbind('showing').unbind('hiding');
@@ -490,7 +443,7 @@
         for (i=channels.length-1; i>=0; i--) {
 
             var btnClass = channels[i].active?'pressed':'';
-            if (isDark(channels[i].color)) {
+            if (OME.isDark(channels[i].color)) {
                 btnClass += " fontWhite";
             }
 
@@ -500,7 +453,7 @@
             }
             tmp.after(template
                 .replace(/\$class/g, btnClass)
-                .replace(/\$col/g, rgbToHex(channels[i].color))
+                .replace(/\$col/g, OME.rgbToHex(channels[i].color))
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based

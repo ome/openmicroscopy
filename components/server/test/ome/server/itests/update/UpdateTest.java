@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.update;
@@ -37,13 +37,16 @@ import ome.model.display.Thumbnail;
 import ome.model.enums.Correction;
 import ome.model.enums.Immersion;
 import ome.model.enums.Medium;
+import ome.model.enums.UnitsLength;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.roi.Line;
 import ome.model.roi.Rect;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
+import ome.model.units.Length;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -51,8 +54,6 @@ import ome.testing.ObjectFactory;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
-import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
-import org.springframework.orm.hibernate3.HibernateInterceptor;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -163,9 +164,12 @@ public class UpdateTest extends AbstractUpdateTest {
         e.setOmeName("j.b." + System.currentTimeMillis());
         e.setFirstName(" Joe ");
         e.setLastName(" Brown ");
+        e.setLdap(false);
 
         g_1.setName("DEFAULT: " + System.currentTimeMillis());
         g_2.setName("NOTDEFAULT: " + System.currentTimeMillis());
+        g_1.setLdap(false);
+        g_2.setLdap(false);
 
         // The instances must be unloaded to prevent spurious deletes!
         // Need versions. See:
@@ -395,7 +399,7 @@ public class UpdateTest extends AbstractUpdateTest {
         iUpdate.saveObject(p1);
 
     }
-    
+
     @Test(enabled=false)
     public void testMultiThreadedPostJta() throws Exception {
         class T extends Thread {
@@ -412,9 +416,9 @@ public class UpdateTest extends AbstractUpdateTest {
         for (T t : ts) {
             t.join();
         }
-        
+
     }
-    
+
     @Test
     public void testPixelsIndexStartsWith0() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
@@ -423,7 +427,7 @@ public class UpdateTest extends AbstractUpdateTest {
         assertEquals(1, i.sizeOfPixels());
         assertNotNull(i.collectPixels(null).get(0));
     }
-    
+
     @Test(groups ="ticket:1183")
     public void testSaveAndReturnWithAnnotation() {
         Project p = new Project("ticket:1183");
@@ -432,7 +436,7 @@ public class UpdateTest extends AbstractUpdateTest {
         p.setDescription("something else");
         iUpdate.saveAndReturnObject(p);
     }
-    
+
     @Test(groups ="ticket:1183")
     public void testImageWithObjectSettings() {
         Image i = ObjectFactory.createPixelGraph(null).getImage();
@@ -451,7 +455,7 @@ public class UpdateTest extends AbstractUpdateTest {
         assertNotNull(i.getObjectiveSettings());
         i.setObjectiveSettings(new ObjectiveSettings(i.getObjectiveSettings().getId(),false));
         i = iUpdate.saveAndReturnObject(i);
-    }    
+    }
 
     @Test(groups = "ticket:2547")
     public void testChannelMoveWithFullArrayGoesToEnd() {
@@ -648,10 +652,19 @@ public class UpdateTest extends AbstractUpdateTest {
         */
 
     }
-    
+
     @Test(groups = "ticket:2710")
     public void testRoiWithoutImage() {
         Roi r = new Roi();
+        iUpdate.saveAndReturnObject(r);
+    }
+
+    @Test
+    public void testRoiWithStrokeWidth() {
+        Roi r = new Roi();
+        Line l = new Line();
+        l.setStrokeWidth(new Length(1.0, UnitsLength.MILLIMETER));
+        r.addShape(l);
         iUpdate.saveAndReturnObject(r);
     }
 

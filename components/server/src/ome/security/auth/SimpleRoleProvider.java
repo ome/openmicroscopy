@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -69,12 +69,18 @@ public class SimpleRoleProvider implements RoleProvider {
     }
 
     public long createGroup(String name, Permissions perms, boolean strict) {
+        return this.createGroup(name, perms, strict, false);
+    }
+
+    public long createGroup(String name, Permissions perms, boolean strict,
+            boolean isLdap) {
         Session s = sf.getSession();
         ExperimenterGroup g = groupByName(name, s);
 
         if (g == null) {
             g = new ExperimenterGroup();
             g.setName(name);
+            g.setLdap(isLdap);
             if (perms == null) {
                 perms = Permissions.USER_PRIVATE; // ticket:1434
             }
@@ -149,6 +155,28 @@ public class SimpleRoleProvider implements RoleProvider {
         // and after the !newDefaultSet check.
         sec.doAction(new SecureMerge(session), foundUser);
 
+    }
+
+    public void setGroupOwner(Experimenter user, ExperimenterGroup group, boolean value) {
+        Session session = sf.getSession();
+        Experimenter foundUser = userById(user.getId(), session);
+        ExperimenterGroup foundGroup = groupById(group.getId(), session);
+        Set<GroupExperimenterMap> foundMaps = foundUser
+                .findGroupExperimenterMap(foundGroup);
+        if (foundMaps.size() < 1) {
+            throw new ApiUsageException("Group " + group.getId() + " was not "
+                    + "found for user " + user.getId());
+        } else if (foundMaps.size() > 1) {
+            log.warn(foundMaps.size() + " copies of " + foundGroup
+                    + " found for " + foundUser);
+        } else {
+            // May throw an exception
+            GroupExperimenterMap newDef = foundMaps.iterator().next();
+            log.info(String.format("Seeting ownership flag on user %s to %s for %s",
+                    foundUser.getId(), value, group.getId()));
+            newDef.setOwner(value);
+            sec.doAction(new SecureMerge(session), newDef);
+        }
     }
 
     public void addGroups(final Experimenter user,
@@ -280,6 +308,8 @@ public class SimpleRoleProvider implements RoleProvider {
         ExperimenterGroup copy = new ExperimenterGroup();
         copy.setDescription(g.getDescription());
         copy.setName(g.getName());
+        copy.setLdap(g.getLdap());
+        copy.setConfig(g.getConfig());
         copy.getDetails().copy(sec.newTransientDetails(g));
         copy.getDetails().setPermissions(g.getDetails().getPermissions());
         // TODO see shallow copy comment on copy user

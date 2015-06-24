@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ome.system.OmeroContext;
+import ome.util.messages.ShutdownMessage;
 import ome.util.messages.UserSignalMessage;
 
 import org.slf4j.Logger;
@@ -244,13 +245,14 @@ public class Entry {
         // Finally shutdown the whole context
         if (ctx != null) {
             try {
+                ctx.publishMessage(new ShutdownMessage(this));
                 log.info("Calling close on context " + name);
                 OmeroContext forClose = ctx;
                 ctx = null;
                 forClose.closeAll();
                 log.info("Finished shutdown.");
-            } catch (Exception e) {
-                log.error("Error shutting down " + name, e);
+            } catch (Throwable t) {
+                log.error("Error shutting down " + name, t);
                 status = 3;
             }
         }

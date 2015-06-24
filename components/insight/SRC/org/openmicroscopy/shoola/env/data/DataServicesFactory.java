@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.DataServicesFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,10 +23,8 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,7 +32,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -43,11 +40,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.client;
+
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.Environment;
@@ -74,7 +68,6 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.file.IOUtil;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -94,10 +87,6 @@ import pojos.GroupData;
  */
 public class DataServicesFactory
 {
-
-	
-	/** The name of the fs configuration file in the configuration directory. */
-	private static final String		FS_CONFIG_FILE = "fs.config";
 
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
@@ -154,37 +143,10 @@ public class DataServicesFactory
 	
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
-	
-    /** The fs properties. */
-    private Properties 					fsConfig;
 
     /** Flag indicating that we try to re-establish the connection.*/
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
-    /**
-	 * Reads in the specified file as a property object.
-	 * 
-	 * @param file	Absolute pathname to the file.
-	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occurred.
-	 */
-	private static Properties loadConfig(String file)
-	{
-		Properties config = new Properties();
-		InputStream fis = null;
-		try {
-			fis = IOUtil.readConfigFile(file);
-			config.load(fis);
-		} catch (Exception e) {
-			return null;
-		} finally {
-			try {
-				if (fis != null) fis.close();
-			} catch (Exception ex) {}
-		}
-		return config;
-	}
-    
 	/**
 	 * Attempts to create a new instance.
      * 
@@ -212,8 +174,6 @@ public class DataServicesFactory
         RegistryFactory.linkAdmin(admin, registry);
         RegistryFactory.linkIS(is, registry);
         
-        //fs stuff
-        fsConfig = loadConfig(c.getConfigFileRelative(FS_CONFIG_FILE));
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
         if (omeroGateway.isUpgradeRequired()) {
@@ -601,7 +561,10 @@ public class DataServicesFactory
     	String clientVersion = "";
     	if (v != null && v instanceof String)
     		clientVersion = (String) v;
-    	
+    	if (uc.getUserName().equals(client.getSessionId())) {
+    	    container.getRegistry().bind(LookupNames.SESSION_KEY, Boolean.TRUE);
+    	}
+    	;
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
         Boolean check = checkClientServerCompatibility(version, clientVersion);
@@ -616,10 +579,10 @@ public class DataServicesFactory
         	omeroGateway.logout();
         	return;
         }
-        
-        ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
-        		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-        		uc.getGroup(), uc.getPort());
+
+        ExperimenterData exp = omeroGateway.login(client,
+                uc.getHostName(), determineCompression(uc.getSpeedLevel()),
+                uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
@@ -633,24 +596,42 @@ public class DataServicesFactory
         Entry<String, String> entry;
         Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {
-        	entry = k.next();
-        	msg.println(entry.getKey()+": "+entry.getValue());
-		}
+            entry = k.next();
+            msg.println(entry.getKey()+": "+entry.getValue());
+        }
         registry.getLogger().info(this, msg);
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);
         executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
-        
-        //String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
-        //registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
+
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
         
+        try {
+            // Load the omero client properties from the server
+            List agents = (List) registry.lookup(LookupNames.AGENTS);
+            Map<String, String> props = omeroGateway.getOmeroClientProperties();
+            for (String key : props.keySet()) {
+                if (registry.lookup(key) == null)
+                    registry.bind(key, props.get(key));
+
+                Registry agentReg;
+                for (Object agent : agents) {
+                    agentReg = ((AgentInfo) agent).getRegistry();
+                    if (agentReg != null && agentReg.lookup(key) == null)
+                        agentReg.bind(key, props.get(key));
+                }
+            }
+        } catch (DSAccessException e1) {
+            registry.getLogger().warn(this, "Could not load omero client properties from the server");
+        }
+        
         Collection<GroupData> groups;
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
+        String ldap = null;
         try {
             GroupData defaultGroup = null;
             long gid = exp.getDefaultGroup().getId();
@@ -710,11 +691,11 @@ public class DataServicesFactory
 		AgentInfo agentInfo;
 		Registry reg;
 		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
+		String url = (String) registry.lookup(LookupNames.HELP_ON_LINE_SEARCH);
 		while (kk.hasNext()) {
 			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
 				reg = agentInfo.getRegistry();
-				//reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
@@ -722,6 +703,7 @@ public class DataServicesFactory
 				reg.bind(LookupNames.CONNECTION_SPEED, 
 						isFastConnection(uc.getSpeedLevel()));
 				reg.bind(LookupNames.BINARY_AVAILABLE, b);
+				reg.bind(LookupNames.HELP_ON_LINE_SEARCH, url);
 			}
 		}
 	}
@@ -753,7 +735,7 @@ public class DataServicesFactory
     { 
 		//Need to write the current group.
 		//if (!omeroGateway.isConnected()) return;
-		omeroGateway.logout();
+		if (omeroGateway != null) omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 

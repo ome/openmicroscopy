@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -39,15 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
@@ -64,6 +59,7 @@ import org.openmicroscopy.shoola.agents.metadata.FilesetLoader;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.ImageSizeLoader;
 import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.LDAPLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalMetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
@@ -81,16 +77,12 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -104,13 +96,13 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -127,6 +119,7 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -172,6 +165,13 @@ class EditorModel
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
+	/** Enum to distinguish between different kind of 
+	 * {@link MapAnnotationData}, see {@link #getMapAnnotations(MapAnnotationType)}
+	 */
+	public static enum MapAnnotationType {
+		USER, OTHER_USERS, OTHER
+	}
+	
 	/** The file namespaces to exclude.*/
 	private final static List<String> EXCLUDED_FILE_NS;
 	
@@ -373,11 +373,9 @@ class EditorModel
 	        IconManager icons = IconManager.getInstance();
 	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
 	        SecurityContext ctx = getSecurityContext();
-	        while (i.hasNext()) {
-	            p = new DownloadArchivedActivityParam(file, i.next(), icon);
-	            p.setOverride(override);
-	            un.notifyActivity(ctx, p);
-	        }
+            p = new DownloadArchivedActivityParam(file, images, icon);
+            p.setOverride(override);
+            un.notifyActivity(ctx, p);
 	    }
 	}
 
@@ -738,6 +736,9 @@ class EditorModel
         		refObject instanceof DoubleAnnotationData) {
         	return "Numerical value";
         }
+        else if (refObject instanceof BooleanAnnotationData) {
+        	return "Boolean value";
+        }
 		return "";
 	}
 	
@@ -770,7 +771,7 @@ class EditorModel
 				description = ws.getWellType();
 			}
 			ImageData img = ((WellSampleData) ref).getImage();
-			if (!StringUtils.isEmpty(img.getDescription()))
+			if (!CommonsLangUtils.isEmpty(img.getDescription()))
 			    description = img.getDescription();
 		} else if (ref instanceof FileData) 
 			description = null;//((FileData) ref).getDescription();
@@ -1923,6 +1924,49 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the collection of map annotations.
+	 * 
+	 * @param type The kind of map annotations to return, see {@link MapAnnotationType}
+	 * @return See above.
+	 */
+	List<MapAnnotationData> getMapAnnotations(MapAnnotationType type) {
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null)
+			return Collections.emptyList();
+
+		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
+
+		Collection<MapAnnotationData> maps = data.getMapAnnotations();
+		if (!CollectionUtils.isEmpty(maps)) {
+			for (MapAnnotationData d : maps) {
+				if ((type == MapAnnotationType.USER || type == MapAnnotationType.OTHER_USERS ) && MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())) {
+					if (type == MapAnnotationType.USER && MetadataViewerAgent.getUserDetails().getId() == d
+							.getOwner().getId())
+						result.add(d);
+					else if(type == MapAnnotationType.OTHER_USERS && MetadataViewerAgent.getUserDetails().getId() != d
+							.getOwner().getId())
+						result.add(d);
+				} else if (type == MapAnnotationType.OTHER && !MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())){
+					result.add(d);
+				}
+			}
+		}
+		
+		// Just to make sure, to always get the same order
+		Comparator<MapAnnotationData> comp = new Comparator<MapAnnotationData>() {
+			@Override
+			public int compare(MapAnnotationData o1, MapAnnotationData o2) {
+				if(o1.getId()<o2.getId())
+					return -1;
+				else
+					return 1;
+			}
+		};
+		Collections.sort(result, comp);
+		return result;
+	}
+	
+	/**
 	 * Returns the collection of the other annotations linked to the 
 	 * <code>DataObject</code>.
 	 * 
@@ -2328,10 +2372,10 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		Collection<RatingAnnotationData> ratings = data.getRatings();
-		if (ratings == null || ratings.size() == 0) return null;
+		if (CollectionUtils.isEmpty(ratings)) return null;
 		Iterator<RatingAnnotationData> i = ratings.iterator();
 		RatingAnnotationData rate;
-		long id = getUserID();
+		long id = getCurrentUser().getId();
 		while (i.hasNext()) {
 			rate = i.next();
 			if (rate.getOwner().getId() == id)
@@ -3993,12 +4037,11 @@ class EditorModel
      */
     private List<ScriptObject> getScriptsWithUI()
     {
-    	/*
     	if (scriptsWithUI != null) return scriptsWithUI;
     	try {
     		OmeroImageService svc = 
     			MetadataViewerAgent.getRegistry().getImageService();
-    		scriptsWithUI = svc.loadAvailableScriptsWithUI();
+    		scriptsWithUI = svc.loadAvailableScriptsWithUI(getSecurityContext());
     		return scriptsWithUI;
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
@@ -4006,7 +4049,6 @@ class EditorModel
 			msg.print(e);
 			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
 		}
-		*/
     	return new ArrayList<ScriptObject>();
     }
     
@@ -4136,7 +4178,7 @@ class EditorModel
 	 * @param folder The folder where to save the images.
 	 * @param format The format to use.
 	 */
-	void saveAs(File folder, int format)
+	void saveAs(File folder, int format, String filename)
 	{
 	    Collection l = parent.getRelatedNodes();
 	    List<DataObject> objects = new ArrayList<DataObject>();
@@ -4158,6 +4200,8 @@ class EditorModel
 	        SaveAsParam p = new SaveAsParam(folder, objects);
 	        p.setIndex(format);
 	        p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
+	        p.setBatchExportFilename(filename);
+	        p.setDeleteWhenFinished(true);
 	        UserNotifier un =
 	                MetadataViewerAgent.getRegistry().getUserNotifier();
 	        un.notifyActivity(getSecurityContext(), p);
@@ -4427,12 +4471,51 @@ class EditorModel
     }
     
     /**
-     * Returns <code>true</code> if the file is an inplace import <code>false</code> otherwise.
+     * Returns the {@link ImportType}
      * @return See above.
      */
-    boolean isInplaceImport() {
-    	StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return false;
-    	return CollectionUtils.isNotEmpty(data.getTransferLinks());
+    ImportType getImportType() {
+        StructuredDataResults data = parent.getStructuredData();
+        if (data != null) {
+            Collection<AnnotationData> tfl = data.getTransferLinks();
+            if (tfl != null) {
+                for (AnnotationData an : tfl) {
+                    if (AnnotationData.FILE_TRANSFER_NS.equals(an
+                            .getNameSpace())) {
+                        String content = an.getContent().toString();
+                        return ImportType.getImportType(content);
+                    }
+                }
+            }
+        }
+        // if nothing's specified it's the default UPLOAD import type
+        return ImportType.UPLOAD;
+    }
+
+    /**
+     * Fires an asynchronous call to retrieve the LDAP details.
+     */
+    void fireLDAPDetailsLoading()
+    {
+        if (!(getRefObject() instanceof ExperimenterData)) return;
+        ExperimenterData exp = (ExperimenterData) getRefObject();
+        EditorLoader l = new LDAPLoader(component, getSecurityContext(),
+                exp.getId());
+        l.load();
+    }
+
+    /**
+     * Returns <code>true</code> if the user is connected via LDAP,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    boolean isLDAP()
+    {
+        if (getRefObject() instanceof ExperimenterData) {
+            ExperimenterData exp = (ExperimenterData) getRefObject();
+            return exp.isLDAP();
+        }
+        return false;
     }
 }

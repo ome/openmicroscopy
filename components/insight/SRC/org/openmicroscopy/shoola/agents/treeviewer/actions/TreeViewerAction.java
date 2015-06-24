@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-//Java imports
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -33,10 +32,8 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -128,7 +125,7 @@ public abstract class TreeViewerAction
      */
     public String getActionName()
     { 
-        if (StringUtils.isEmpty(name)) return (String) getValue(Action.NAME);
+        if (CommonsLangUtils.isEmpty(name)) return (String) getValue(Action.NAME);
         return name;
     }
 
@@ -139,7 +136,7 @@ public abstract class TreeViewerAction
      */
     public String getActionDescription()
     { 
-        if (StringUtils.isEmpty(description))
+        if (CommonsLangUtils.isEmpty(description))
             return (String) getValue(Action.SHORT_DESCRIPTION);
         return description;
     }

@@ -88,6 +88,13 @@ public class LuceneQueryBuilderTest extends TestCase{
         raw = "test AND dv";  expected = "((test) AND (dv))";
         checkQuery(fields, raw, expected);
        
+        // MapAnnotations specific search terms
+        
+        raw = "has_key:foo"; expected = "has_key:foo";
+        checkQuery(fields, raw, expected);
+        
+        raw = "foo:bar"; expected = "foo:bar";
+        checkQuery(fields, raw, expected);
         
         
         // single field
@@ -132,6 +139,13 @@ public class LuceneQueryBuilderTest extends TestCase{
         raw = "test AND dv";  expected = "((name:test) AND (name:dv))";
         checkQuery(fields, raw, expected);
         
+        // MapAnnotations specific search terms
+        
+        raw = "has_key:foo"; expected = "has_key:foo";
+        checkQuery(fields, raw, expected);
+        
+        raw = "foo:bar"; expected = "foo:bar";
+        checkQuery(fields, raw, expected);
         
         // multiple fields
         fields.add("description");
@@ -149,6 +163,14 @@ public class LuceneQueryBuilderTest extends TestCase{
         checkQuery(fields, raw, expected);
         
         raw = "a b AND c AND d f";  expected = "name:a description:a name:f description:f ((name:b description:b) AND (name:c description:c) AND (name:d description:d))";
+        checkQuery(fields, raw, expected);
+        
+        // MapAnnotations specific search terms
+        
+        raw = "has_key:foo"; expected = "has_key:foo";
+        checkQuery(fields, raw, expected);
+        
+        raw = "foo:bar"; expected = "foo:bar";
         checkQuery(fields, raw, expected);
         
         // date search

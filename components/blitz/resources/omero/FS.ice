@@ -13,7 +13,7 @@
 module omero {
  module grid {
   module monitors {
-      
+
     /*
      *  ==========================
      *  MonitorClient Declarations
@@ -160,7 +160,7 @@ module omero {
      */
 
     interface FileServer {
-        
+
         /*
          * Directory level methods
          * -----------------------
@@ -168,7 +168,7 @@ module omero {
 
         /**
          * Get an absolute directory from an OMERO.fs server.
-         * 
+         *
          * The returned list will contain just the file names for each directory entry.
          *
          * An exception will be raised if the path does not exist or is inaccessible to the
@@ -182,10 +182,10 @@ module omero {
          **/
         idempotent Ice::StringSeq getDirectory(string absPath, string filter)
             throws omero::OmeroFSError;
-            
+
         /**
-         * Get an absolute directory from an OMERO.fs server. 
-         * 
+         * Get an absolute directory from an OMERO.fs server.
+         *
          * The returned list will contain the file stats for each directory entry.
          *
          * An exception will be raised if the path does not exist or is inaccessible to the
@@ -385,6 +385,7 @@ module omero {
          * @param blockSize, the number of events to pack into each notification (int).
          * @param ignoreSysFiles, ignore system files or not (bool).
          * @param ignoreDirEvents, ignore directory events (bool).
+         * @param platformCheck, if true strictly check platform (bool).
          * @return monitorId, a uuid1 (string).
          * @throws omero::OmeroFSError
          **/
@@ -398,6 +399,7 @@ module omero {
                                 int blockSize,
                                 bool ignoreSysFiles,
                                 bool ignoreDirEvents,
+                                bool platformCheck,
                                 MonitorClient* proxy)
             throws omero::OmeroFSError;
 
@@ -461,7 +463,7 @@ module omero {
 
 
 
-    }; /* end interface MonitorServer */    
+    }; /* end interface MonitorServer */
   }; /* end module monitors */
  }; /* end module grid */
 }; /* end module omero */

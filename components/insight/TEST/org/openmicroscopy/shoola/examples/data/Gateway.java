@@ -305,7 +305,7 @@ public class Gateway
 		services.clear();
 		reServices.clear();
 		try {
-			secureClient.closeSession();
+			if (secureClient != null) secureClient.__del__();
 			secureClient = null;
 			entryEncrypted = null;
 		} catch (Exception e) {
@@ -396,7 +396,7 @@ public class Gateway
 			reServices.put(pixelsID, service);
 			service.lookupPixels(pixelsID);
 			if (!(service.lookupRenderingDef(pixelsID))) {
-				service.resetDefaults();
+				service.resetDefaultSettings(true);
 				service.lookupRenderingDef(pixelsID);
 			}
 			service.load();

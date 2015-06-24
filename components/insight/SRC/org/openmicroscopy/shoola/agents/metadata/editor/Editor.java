@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
-//Java imports
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -33,9 +33,6 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -47,7 +44,7 @@ import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.AnnotationData;
+
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
@@ -481,14 +478,19 @@ public interface Editor
 	void analysisResultsLoaded(AnalysisResultsItem analysis);
 
 	/**
-	 * Saves the selected images as <code>JPEG</code>, <code>PNG</code>
-	 * or <code>TIFF</code>.
+	 * Saves the selected images as <code>JPEG</code>, <code>PNG</code> or
+	 * <code>TIFF</code>.
 	 * 
-	 * @param folder The folder to save.
-	 * @param format The format to use.
+	 * @param folder
+	 *            The folder to save.
+	 * @param format
+	 *            The format to use.
+	 * @param filename
+	 *            The filename to use for the batch export file (without
+	 *            extension)
 	 * @see org.openmicroscopy.shoola.env.data.model.FigureParam
 	 */
-	public void saveAs(File folder, int format);
+	public void saveAs(File folder, int format, String filename);
 
 	/** 
 	 * Invokes when the user has switched group.
@@ -527,19 +529,24 @@ public interface Editor
 	 */
 	void setFileset(Set<FilesetData> result);
 
-	/** Loads the file set associated to the image.
-	 * 
-	 * @param trigger The action which triggered the loading,
-	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
-	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}; 
-	 * (pass -1 or any other unreserved value to load the filesets automatically
-	 *  without user trigger)
+	/** 
+	 * Loads the file set associated to the image.
 	 * */
-	void loadFileset(int trigger);
+	void loadFileset();
 
 	/**
 	 * Loads the rendering engine depending on the selected pane or component
 	 * usage.
 	 */
 	void loadRnd();
+
+	/**
+	 * Sets the LDAP details of the specified user.
+	 *
+	 * @param userID The user's id.
+	 * @param result The value to set.
+	 */
+    void setLDAPDetails(long userID, String result);
+
+    ScriptObject getScriptFromName(String name);
 }

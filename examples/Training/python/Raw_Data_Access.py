@@ -12,18 +12,14 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-imageId = 27544
 
 
 # Retrieve a given plane
@@ -44,7 +40,7 @@ print "\nPlane at zct: ", z, c, t
 print plane
 print "shape: ", plane.shape
 print "min:", plane.min(), " max:", plane.max(),\
-        "pixel type:", plane.dtype.name
+    "pixel type:", plane.dtype.name
 
 
 # Retrieve a given stack
@@ -56,13 +52,13 @@ print "min:", plane.min(), " max:", plane.max(),\
 c, t = 0, 0                 # First channel and timepoint
 tile = (50, 50, 10, 10)     # x, y, width, height of tile
 
-# list of [ (0,0,0,(x,y,w,h)), (1,0,0,(x,y,w,h)), (2,0,0,(x,y,w,h))....etc... ]
-zctList = [(z, c, t, tile) for z in range(sizeZ)]
+# list of [ (0,0,0,(x,y,w,h)), (1,0,0,(x,y,w,h)), (2,0,0,(x,y,w,h))... ]
+zctList = [(iz, c, t, tile) for iz in range(sizeZ)]
 print "\nZ stack of tiles:"
 planes = pixels.getTiles(zctList)
 for i, p in enumerate(planes):
     print "Tile:", zctList[i], " min:", p.min(),\
-            " max:", p.max(), " sum:", p.sum()
+        " max:", p.max(), " sum:", p.sum()
 
 
 # Retrieve a given hypercube

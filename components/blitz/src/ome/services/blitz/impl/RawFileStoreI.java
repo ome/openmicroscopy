@@ -61,6 +61,11 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.sf = sf;
+        setHolder(sf.holder);
+    }
+
+    public ServiceFactoryI getServiceFactory() throws ServerError {
+        return this.sf;
     }
 
     public void setTie(TieBase tie) throws ServerError {
@@ -98,14 +103,16 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
             } else {
                 callInvokerOnRawArgs(__cb, __current, fileId);
             }
+        } catch (ome.conditions.SecurityViolation e) {
+            final omero.SecurityViolation sv = new omero.SecurityViolation();
+            IceMapper.fillServerError(sv, e);
+            __cb.ice_exception(sv);
+        } catch (Exception e) {
+            __cb.ice_exception((Exception) e);
         } catch (Throwable e) {
-            if (e instanceof Exception) {
-                __cb.ice_exception((Exception) e);
-            } else {
-                omero.InternalException ie = new omero.InternalException();
-                IceMapper.fillServerError(ie, e);
-                __cb.ice_exception(ie);
-            }
+            final omero.InternalException ie = new omero.InternalException();
+            IceMapper.fillServerError(ie, e);
+            __cb.ice_exception(ie);
         }
     }
 
@@ -180,6 +187,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         final RawFileStorePrx rfsPrx = repoPrx.fileById(fileId, adjustedCtx);
         OpsDelegate ops = new OpsDelegate(be, rfsTie, this, rfsPrx);
         ops.setApplicationContext(ctx);
+        ops.setHolder(holder);
         tie.ice_delegate(ops);
         return true;
     }

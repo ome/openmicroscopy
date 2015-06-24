@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 //Application-internal dependencies
 import pojos.WellSampleData;
+import ome.model.units.BigResult;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Display the primary image associated to the wellSample.
@@ -97,7 +99,12 @@ public class WellSampleNode
 	public double getPositionX()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionX();
+		try {
+            return data.getPositionX(UnitsLength.REFERENCEFRAME).getValue();
+        } catch (BigResult e) {
+            // can't do anything sensible at this point
+            throw new RuntimeException(e);
+        }
 	}
 	
 	/**
@@ -108,7 +115,12 @@ public class WellSampleNode
 	public double getPositionY()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionY();
+		try {
+            return data.getPositionY(UnitsLength.REFERENCEFRAME).getValue();
+        } catch (BigResult e) {
+            // can't do anything sensible at this point
+            throw new RuntimeException(e);
+        }
 	}
 	
 	/**

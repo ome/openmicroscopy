@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.EditorUtil 
+ * org.openmicroscopy.shoola.agents.util.EditorUtil
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,11 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,14 +40,21 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.lang.StringUtils;
-//Third-party libraries
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
-
-//Application-internal dependencies
-import omero.RDouble;
+import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
+import ome.units.UNITS;
+import omero.model.ElectricPotential;
+import omero.model.Frequency;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.PlaneInfo;
+import omero.model.Power;
+import omero.model.Pressure;
+import omero.model.Temperature;
+import omero.model.enums.UnitsLength;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -61,7 +67,6 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 import com.google.common.math.DoubleMath;
 
@@ -90,7 +95,7 @@ import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
-/** 
+/**
  * Collection of helper methods to format data objects.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -103,6 +108,9 @@ import pojos.WellSampleData;
 public class EditorUtil
 {
 
+    /** Default number formatter instance */
+    public static final NumberFormat NF = new DecimalFormat("0.##");
+    
     /** The maximum number of characters.*/
     public static final int MAX_CHAR = 256;
 
@@ -184,7 +192,7 @@ public class EditorUtil
     public static final String GROUP_VISIBLE = "Collaborative";
 
     /** Text describing the <code>Group</code> permission. */
-    public static final String	 ROUP_DESCRIPTION = 
+    public static final String	 ROUP_DESCRIPTION =
             "Visible to members of the Group only.";
 
     /** Text describing the <code>Private</code> permission. */
@@ -197,10 +205,10 @@ public class EditorUtil
     public static final String EMAIL = "E-mail";
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS_NO_BRACKET = UnitsObject.MICRONS;
+    public static final String MICRONS_NO_BRACKET = LengthI.lookupSymbol(UnitsLength.MICROMETER);
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS = "("+UnitsObject.MICRONS+")";
+    public static final String MICRONS = "("+MICRONS_NO_BRACKET+")";
 
     /** String to represent the celsius symbol. */
     public static final String CELSIUS = "(℃)";
@@ -242,10 +250,10 @@ public class EditorUtil
     public static final String NAME = "Name";
 
     /** Identifies the <code>Acquisition date</code> field. */
-    public static final String ACQUISITION_DATE = "Acquired";
+    public static final String ACQUISITION_DATE = "Acquisition Date";
 
     /** Identifies the <code>Imported date</code> field. */
-    public static final String IMPORTED_DATE = "Imported";
+    public static final String IMPORTED_DATE = "Import Date";
 
     /** Identifies the <code>Archived</code> field. */
     public static final String ARCHIVED = "Archived";
@@ -254,7 +262,7 @@ public class EditorUtil
     public static final String XY_DIMENSION = "Dimensions (XY)";
 
     /** Identifies the <code>Z-sections/Timepoints</code> field. */
-    public static final String Z_T_FIELDS = "z-sections/timepoints";
+    public static final String Z_T_FIELDS = "Z-sections/Timepoints";
 
     /** Identifies the <code>Lifetime</code> field. */
     public static final String SMALL_T_VARIABLE = "t";
@@ -266,7 +274,7 @@ public class EditorUtil
     public static final String EXCITATION = "Excitation";
 
     /** Identifies the <code>Pin hole size</code> field. */
-    public static final String PIN_HOLE_SIZE = "Pinhole size "+MICRONS;
+    public static final String PIN_HOLE_SIZE = "Pinhole size";
 
     /** Identifies the <code>ND filter</code> field. */
     public static final String ND_FILTER = "NDFilter "+PERCENT;
@@ -289,7 +297,7 @@ public class EditorUtil
     /** Identifies the Objective's <code>Nominal Magnification</code> field. */
     public static final String NOMINAL_MAGNIFICATION = "Nominal Magnification";
 
-    /** 
+    /**
      * Identifies the Objective's <code>Calibrated Magnification</code> field.
      */
     public static final String CALIBRATED_MAGNIFICATION = "Calibrated " +
@@ -317,16 +325,16 @@ public class EditorUtil
     public static final String REFRACTIVE_INDEX = "Refractive index";
 
     /** Identifies the Environment <code>temperature</code> field. */
-    public static final String TEMPERATURE = "Temperature "+CELSIUS;
+    public static final String TEMPERATURE = "Temperature";
 
     /** Identifies the Environment <code>Air pressure</code> field. */
-    public static final String AIR_PRESSURE = "Air Pressure "+MILLIBARS;
+    public static final String AIR_PRESSURE = "Air Pressure";
 
     /** Identifies the Environment <code>Humidity</code> field. */
-    public static final String HUMIDITY = "Humidity "+PERCENT;
+    public static final String HUMIDITY = "Humidity";
 
     /** Identifies the Environment <code>CO2 Percent</code> field. */
-    public static final String CO2_PERCENT = "CO2 Percent "+PERCENT;
+    public static final String CO2_PERCENT = "CO2 Percent";
 
     /** Identifies the <code>Model</code> field. */
     public static final String MODEL = "Model";
@@ -395,7 +403,7 @@ public class EditorUtil
     public static final String POCKEL_CELL = "PockelCell";
 
     /** Identifies the <code>Repetition rate</code> of the laser. */
-    public static final String REPETITION_RATE = "Repetition Rate (Hz)";
+    public static final String REPETITION_RATE = "Repetition Rate";
 
     /** Identifies the <code>Repetition rate</code> of the laser. */
     public static final String PUMP = "Pump";
@@ -415,7 +423,7 @@ public class EditorUtil
 
     /** Identifies the ROI count field. */
     public static final String ROI_COUNT = "ROI Count";
-    
+
     /** The text for the external identifier. */
     public static final String EXTERNAL_IDENTIFIER = "External Identifier";
 
@@ -509,7 +517,13 @@ public class EditorUtil
     /** Identifies the <code>Violet</code> color. */
     private static final Color VIOLET = new Color(238, 130, 238);
 
-    /** 
+    /** Unicode character for a non-breaking space */
+    public static final String NONBRSPACE = "\u00A0";
+
+    /** The date format for the date pickers */
+    public static final String DATE_PICKER_FORMAT = "yyyy-MM-dd";
+
+    /**
      * The value to multiply the server value by when it is a percent fraction.
      */
     private static final int PERCENT_FRACTION = 100;
@@ -574,17 +588,6 @@ public class EditorUtil
     }
 
     /**
-     * Transforms the size and returns the value and units.
-     * 
-     * @param value The value to transform.
-     * @return See above.
-     */
-    public static UnitsObject transformSize(Double value)
-    {
-        return UIUtilities.transformSize(value);
-    }
-
-    /**
      * Returns the pixels size as a string.
      *
      * @param details The map to convert.
@@ -593,31 +596,27 @@ public class EditorUtil
     private static String formatPixelsSize(Map details)
     {
         String units = null;
-        UnitsObject o;
-        String x = (String) details.get(PIXEL_SIZE_X);
-        String y = (String) details.get(PIXEL_SIZE_Y);
-        String z = (String) details.get(PIXEL_SIZE_Z);
+        Length x = (Length) details.get(PIXEL_SIZE_X);
+        Length y = (Length) details.get(PIXEL_SIZE_Y);
+        Length z = (Length) details.get(PIXEL_SIZE_Z);
         Double dx = null, dy = null, dz = null;
         NumberFormat nf = NumberFormat.getInstance();
         try {
-            dx = Double.parseDouble(x);
-            o = transformSize(dx);
-            units = o.getUnits();
-            dx = o.getValue();
+        	x = UIUtilities.transformSize(x);
+            dx = x.getValue();
+            units = ((LengthI)x).getSymbol();
         } catch (Exception e) {
         }
         try {
-            dy = Double.parseDouble(y);
-            o = transformSize(dy);
-            if (units == null) units = o.getUnits();
-            dy = o.getValue();
+        	y = UIUtilities.transformSize(y);
+            dy = y.getValue();
+            if (units == null) units = ((LengthI)y).getSymbol();
         } catch (Exception e) {
         }
         try {
-            dz = Double.parseDouble(z);
-            o = transformSize(dz);
-            if (units == null) units = o.getUnits();
-            dz = o.getValue();
+        	z = UIUtilities.transformSize(z);
+            dz = z.getValue();
+            if (units == null) units = ((LengthI)z).getSymbol();
         } catch (Exception e) {
         }
 
@@ -639,7 +638,7 @@ public class EditorUtil
         }
         label += ") ";
         if (value.length() == 0) return null;
-        if (units == null) units = UnitsObject.MICRONS;
+        if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
         return label+units+": </b>"+value;
     }
 
@@ -656,11 +655,11 @@ public class EditorUtil
         if (decimal <= 2) return UIUtilities.roundTwoDecimals(v);
         return UIUtilities.ceil(v, decimal+1);
     }
-
+    
     /**
-     * Transforms the specified {@link ExperimenterData} object into 
+     * Transforms the specified {@link ExperimenterData} object into
      * a visualization form.
-     * 
+     *
      * @param data The {@link ExperimenterData} object to transform.
      * @return See above.
      */
@@ -685,14 +684,15 @@ public class EditorUtil
             }
 
     /**
-     * Transforms the specified {@link PixelsData} object into 
+     * Transforms the specified {@link PixelsData} object into
      * a visualization form.
-     * 
+     *
      * @param data The {@link PixelsData} object to transform.
      * @return See above.
      */
     public static Map<String, Object> transformPixelsData(PixelsData data)
     {
+    	Length nullLength = new LengthI(0, UnitsLength.PIXEL);
         LinkedHashMap<String, Object> details =
                 new LinkedHashMap<String, Object>(9);
         if (data == null) {
@@ -700,9 +700,9 @@ public class EditorUtil
             details.put(SIZE_Y, "");
             details.put(SECTIONS, "");
             details.put(TIMEPOINTS, "");
-            details.put(PIXEL_SIZE_X, "");
-            details.put(PIXEL_SIZE_Y, "");
-            details.put(PIXEL_SIZE_Z, "");
+            details.put(PIXEL_SIZE_X, nullLength);
+            details.put(PIXEL_SIZE_Y, nullLength);
+            details.put(PIXEL_SIZE_Z, nullLength);
             details.put(PIXEL_TYPE, "");
             details.put(CHANNELS, "");
         } else {
@@ -711,18 +711,26 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
+            Length l = null;
             try {
-                details.put(PIXEL_SIZE_X, ""+data.getPixelSizeX());
-                details.put(PIXEL_SIZE_Y, ""+data.getPixelSizeY());
-                details.put(PIXEL_SIZE_Z, ""+data.getPixelSizeZ());
-                details.put(PIXEL_TYPE,
-                        PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
-            } catch (Exception e) {
-                details.put(PIXEL_SIZE_X, "");
-                details.put(PIXEL_SIZE_Y, "");
-                details.put(PIXEL_SIZE_Z, "");
-                details.put(PIXEL_TYPE, "");
+                l = data.getPixelSizeX(UnitsLength.MICROMETER);
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_X, e);
             }
+			details.put(PIXEL_SIZE_X,  l == null ? nullLength : l);
+			try {
+                l = data.getPixelSizeY(UnitsLength.MICROMETER);
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_Y, e);
+            }
+			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
+			try {
+                l = data.getPixelSizeZ(UnitsLength.MICROMETER);
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_Z, e);
+            }
+			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
+			details.put(PIXEL_TYPE, data.getPixelType());
         }
         details.put(EMISSION+" "+WAVELENGTH+"s", "");
         return details;
@@ -735,10 +743,10 @@ public class EditorUtil
      * @param image The {@link ImageData} object to transform.
      * @return See above
      */
-    public static Map<String, String> transformImageData(ImageData image)
+    public static Map<String, Object> transformImageData(ImageData image)
     {
-        LinkedHashMap<String, String> details =
-                new LinkedHashMap<String, String>(10);
+        LinkedHashMap<String, Object> details =
+                new LinkedHashMap<String, Object>(10);
         if (image == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");
@@ -747,7 +755,7 @@ public class EditorUtil
             details.put(PIXEL_SIZE_X, "");
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
-            details.put(PIXEL_TYPE, "");  
+            details.put(PIXEL_TYPE, "");
             details.put(EMISSION+" "+WAVELENGTH+"s", "");
             details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
             return details;
@@ -764,29 +772,37 @@ public class EditorUtil
             details.put(PIXEL_SIZE_Z, "");
             details.put(PIXEL_TYPE, "");
         } else {
-            NumberFormat nf = NumberFormat.getInstance();
             details.put(SIZE_X, ""+data.getSizeX());
             details.put(SIZE_Y, ""+data.getSizeY());
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             try {
-                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
-                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
-                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
-                details.put(PIXEL_TYPE,
-                        PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
-            } catch (Exception e) {
-                details.put(PIXEL_SIZE_X, "");
-                details.put(PIXEL_SIZE_Y, "");
-                details.put(PIXEL_SIZE_Z, "");
-                details.put(PIXEL_TYPE, "");
+                details.put(PIXEL_SIZE_X,
+                        NF.format(data.getPixelSizeX(UnitsLength.MICROMETER)));
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_X, e);
             }
+            try {
+                details.put(PIXEL_SIZE_Y,
+                        NF.format(data.getPixelSizeY(UnitsLength.MICROMETER)));
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_Y, e);
+            }
+            try {
+                details.put(PIXEL_SIZE_Z,
+                        NF.format(data.getPixelSizeZ(UnitsLength.MICROMETER)));
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_Z, e);
+            }
+            details.put(PIXEL_TYPE,
+                    PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
         }
-        details.put(EMISSION+" "+WAVELENGTH+"s", ""); 
+        
+        details.put(EMISSION+" "+WAVELENGTH+"s", "");
         Timestamp date = getAcquisitionTime(image);
-        if (date == null) 
+        if (date == null)
             details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
-        else 
+        else
             details.put(ACQUISITION_DATE, UIUtilities.formatTime(date));
         return details;
     }
@@ -843,7 +859,7 @@ public class EditorUtil
      *                   <code>false</code> otherwise.
      * @return See above.
      */
-    public static String formatExperimenterInitial(ExperimenterData exp, 
+    public static String formatExperimenterInitial(ExperimenterData exp,
             boolean capitalize)
     {
         if (exp == null) return "";
@@ -867,7 +883,7 @@ public class EditorUtil
     }
 
     /**
-     * Transforms the specified {@link ExperimenterData} object into 
+     * Transforms the specified {@link ExperimenterData} object into
      * a visualization form.
      *
      * @param data The {@link ExperimenterData} object to transform.
@@ -916,7 +932,7 @@ public class EditorUtil
     /**
      * Returns <code>true</code> it the object has been annotated,
      * <code>false</code> otherwise.
-     * 
+     *
      * @param object The object to handle.
      * @return See above.
      */
@@ -949,7 +965,7 @@ public class EditorUtil
             int n = 1;
             try {
                 String format = image.getFormat();
-                if (format != null && 
+                if (format != null &&
                         FORMATS_WITH_COMPANION.contains(format.toLowerCase()))
                     n = 2;
             } catch (Exception e) {
@@ -991,7 +1007,7 @@ public class EditorUtil
         Map<Long, Long> counts = null;
         if (object instanceof DatasetData)
             counts = ((DatasetData) object).getAnnotationsCounts();
-        else if (object instanceof ProjectData) 
+        else if (object instanceof ProjectData)
             counts = ((ProjectData) object).getAnnotationsCounts();
         else if (object instanceof ImageData)
             counts = ((ImageData) object).getAnnotationsCounts();
@@ -1053,7 +1069,7 @@ public class EditorUtil
     /**
      * Returns the last characters of the name when the name is longer that the
      * specified value.
-     * 
+     *
      * @param name The name to truncate.
      * @return See above.
      */
@@ -1087,7 +1103,7 @@ public class EditorUtil
     /**
      * Returns the last characters of the name when the name is longer that the
      * specified value.
-     * 
+     *
      * @param name The name to truncate.
      * @param maxLength The maximum length.
      * @return See above.
@@ -1117,7 +1133,7 @@ public class EditorUtil
     /**
      * Returns <code>true</code> if the specified data object is readable,
      * <code>false</code> otherwise, depending on the permission.
-     * 
+     *
      * @param ho The data object to check.
      * @return See above.
      */
@@ -1192,8 +1208,8 @@ public class EditorUtil
         details.put(NAME, "");
         details.put(EXCITATION, Integer.valueOf(0));
         details.put(EMISSION, Integer.valueOf(0));
-        details.put(ND_FILTER, Float.valueOf(0));
-        details.put(PIN_HOLE_SIZE, Float.valueOf(0));
+        details.put(ND_FILTER, NF.format(Float.valueOf(0)));
+        details.put(PIN_HOLE_SIZE, NF.format(Float.valueOf(0)));
         details.put(FLUOR, "");
         details.put(ILLUMINATION, "");
         details.put(CONTRAST_METHOD, "");
@@ -1214,71 +1230,88 @@ public class EditorUtil
             return details;
         }
         String s = data.getName();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Double wave =  data.getEmissionWavelength();
-        if (wave == null) {
-            details.put(EMISSION, null);
+        Length wl = null;
+        try {
+            wl = data.getEmissionWavelength(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (wl == null) {
+        	notSet.add(EMISSION);
         } else {
+        	double wave = wl.getValue();
             if (wave <= 100) {
                 notSet.add(EMISSION);
-                details.put(EMISSION, Integer.valueOf(0));
             } else {
                 //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EMISSION, new Integer(wave.intValue()));
+                    details.put(EMISSION, (int)wave+NONBRSPACE+wl.getSymbol());
                 } else {
-                    details.put(EMISSION, wave);
+                    details.put(EMISSION, NF.format(wave)+NONBRSPACE+wl.getSymbol());
                 }
             }
         }
 
-        wave =  data.getExcitationWavelength();
-        if (wave == null) {
-            details.put(EXCITATION, null);
+        try {
+            wl = data.getExcitationWavelength(null);
+        } catch (BigResult e) {
+         // can't happen as null is passed to the method
+        }
+        if (wl == null) {
+        	notSet.add(EXCITATION);
         } else {
+        	double wave =  wl.getValue();
             if (wave <= 100) {
                 notSet.add(EXCITATION);
-                details.put(EXCITATION, Integer.valueOf(0));
             } else {
               //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EXCITATION, new Integer(wave.intValue()));
+                    details.put(EXCITATION, ((int)wave)+ NONBRSPACE + wl.getSymbol());
                 } else {
-                    details.put(EXCITATION, wave);
+                    details.put(EXCITATION, NF.format(wave)+ NONBRSPACE +wl.getSymbol());
                 }
             }
         }
 
         double f = data.getNDFilter();
-        if (f < 0) {
-            f = 0;
+        if (f < 0)
             notSet.add(ND_FILTER);
+        else
+        	details.put(ND_FILTER, NF.format(f*100));
+
+        Length ph = null ;
+        try {
+            ph = data.getPinholeSize(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
         }
-        details.put(ND_FILTER, f*100);
-        f = data.getPinholeSize();
-        if (f < 0) {
-            f = 0;
+        if (ph == null) {
             notSet.add(PIN_HOLE_SIZE);
-        };
-        details.put(PIN_HOLE_SIZE, f);
+        }
+        else {
+        	f = ph.getValue();
+        	details.put(PIN_HOLE_SIZE, NF.format(f)+NONBRSPACE+ph.getSymbol());
+        }
+
         s = data.getFluor();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(FLUOR);
         details.put(FLUOR, s);
         s = data.getIllumination();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(ILLUMINATION);
         details.put(ILLUMINATION, s);
         s = data.getContrastMethod();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(CONTRAST_METHOD);
         details.put(CONTRAST_METHOD, s);
         s = data.getMode();
 
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODE);
         details.put(MODE, s);
         int i = data.getPockelCell();
@@ -1316,19 +1349,19 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         details.put(NOT_SET, notSet);
@@ -1362,25 +1395,25 @@ public class EditorUtil
             return details;
         }
         String s = data.getMicroscopeModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getMicroscopeManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getMicroscopeSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getMicroscopeLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         s = data.getMicroscopeType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
-        details.put(TYPE, s); 
+        details.put(TYPE, s);
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -1428,20 +1461,20 @@ public class EditorUtil
         }
         details.put(IRIS, o);
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
 
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         double f = data.getNominalMagnification();
@@ -1449,13 +1482,13 @@ public class EditorUtil
             f = 0;
             notSet.add(NOMINAL_MAGNIFICATION);
         }
-        details.put(NOMINAL_MAGNIFICATION, f);
+        details.put(NOMINAL_MAGNIFICATION, NF.format(f));
         f = data.getCalibratedMagnification();
         if (f < 0) {
             f = 0;
             notSet.add(CALIBRATED_MAGNIFICATION);
         }
-        details.put(CALIBRATED_MAGNIFICATION, f);
+        details.put(CALIBRATED_MAGNIFICATION, NF.format(f));
         f = data.getLensNA();
         if (f < 0) {
             f = 0;
@@ -1463,19 +1496,26 @@ public class EditorUtil
         }
         details.put(LENSNA, f);
         s = data.getImmersion();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(IMMERSION);
         details.put(IMMERSION, s);
         s = data.getCorrection();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        f = data.getWorkingDistance();
-        if (f < 0) {
-            f = 0;
+        Length wd = null;
+        try {
+            wd = data.getWorkingDistance(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (wd==null) {
             notSet.add(WORKING_DISTANCE);
         }
-        details.put(WORKING_DISTANCE, f);
+        else {
+        	f = wd.getValue();
+        	details.put(WORKING_DISTANCE, NF.format(f)+NONBRSPACE+wd.getSymbol());
+        }
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -1515,9 +1555,9 @@ public class EditorUtil
             f = 0;
             notSet.add(CORRECTION_COLLAR);
         }
-        details.put(CORRECTION_COLLAR, f);
+        details.put(CORRECTION_COLLAR, NF.format(f));
         String s = data.getMedium();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MEDIUM);
         details.put(MEDIUM, s);
         f = data.getRefractiveIndex();
@@ -1525,14 +1565,14 @@ public class EditorUtil
             f = 0;
             notSet.add(REFRACTIVE_INDEX);
         }
-        details.put(REFRACTIVE_INDEX, f);
+        details.put(REFRACTIVE_INDEX, NF.format(f));
         details.put(NOT_SET, notSet);
         return details;
     }
 
     /**
      * Transforms the acquisition's condition.
-     * 
+     *
      * @param data The value to convert.
      * @return See above.
      */
@@ -1542,10 +1582,10 @@ public class EditorUtil
         LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>(4);
         List<String> notSet = new ArrayList<String>();
-        details.put(TEMPERATURE, new Double(0));
-        details.put(AIR_PRESSURE, new Double(0));
-        details.put(HUMIDITY, new Double(0));
-        details.put(CO2_PERCENT, new Double(0));
+        details.put(TEMPERATURE, Double.valueOf(0));
+        details.put(AIR_PRESSURE, Double.valueOf(0));
+        details.put(HUMIDITY, Double.valueOf(0));
+        details.put(CO2_PERCENT, Double.valueOf(0));
 
         if (data == null) {
             notSet.add(TEMPERATURE);
@@ -1555,30 +1595,48 @@ public class EditorUtil
             details.put(NOT_SET, notSet);
             return details;
         }
-        Object o = data.getTemperature();
-        double f = 0;
-        if (o == null) {
-            notSet.add(TEMPERATURE);
-        } else f = (Double) o;
-        details.put(TEMPERATURE, f);
-        f = data.getAirPressure();
-        if (f < 0) {
-            notSet.add(AIR_PRESSURE);
-            f = 0;
+        Temperature t = null;
+        try {
+            t = data.getTemperature(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
         }
-        details.put(AIR_PRESSURE, f);
+        double f = 0;
+        if (t == null) {
+            notSet.add(TEMPERATURE);
+        } else {
+        	f = t.getValue();
+        	details.put(TEMPERATURE, NF.format(f)+NONBRSPACE+t.getSymbol());
+        }
+
+        Pressure p = null;
+        try {
+            p = data.getAirPressure(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (p == null) {
+            notSet.add(AIR_PRESSURE);
+        }
+        else {
+        	f = p.getValue();
+        	details.put(AIR_PRESSURE, NF.format(f)+NONBRSPACE+p.getSymbol());
+        }
+
         f = data.getHumidity();
         if (f < 0) {
             notSet.add(HUMIDITY);
-            f = 0;
         }
-        details.put(HUMIDITY, f*PERCENT_FRACTION);
+        else {
+        	details.put(HUMIDITY, NF.format(f*PERCENT_FRACTION)+NONBRSPACE+"%");
+        }
         f = data.getCo2Percent();
         if (f < 0) {
             notSet.add(CO2_PERCENT);
-            f = 0;
         }
-        details.put(CO2_PERCENT, f*PERCENT_FRACTION);
+        else {
+        	details.put(CO2_PERCENT, NF.format(f*PERCENT_FRACTION)+NONBRSPACE+"%");
+        }
         details.put(NOT_SET, notSet);
         return details;
      }
@@ -1596,9 +1654,9 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(4);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(POSITION_X, new Double(0));
-        details.put(POSITION_Y, new Double(0));
-        details.put(POSITION_Z, new Double(0));
+        details.put(POSITION_X, Double.valueOf(0));
+        details.put(POSITION_Y, Double.valueOf(0));
+        details.put(POSITION_Z, Double.valueOf(0));
 
         if (data == null) {
             notSet.add(NAME);
@@ -1609,25 +1667,44 @@ public class EditorUtil
             return details;
         }
         String s = data.getLabelName();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Object o = data.getPositionX();
-        double f = 0;
-        if (o == null) {
-            notSet.add(POSITION_X);
-        } else f = (Double) o;
-        details.put(POSITION_X, f);
-        f = 0;
-        if (o == null) {
-            notSet.add(POSITION_Y);
-        } else f = (Double) o;
-        details.put(POSITION_Y, f);
-        f = 0;
-        if (o == null) {
-            notSet.add(POSITION_Z);
-        } else f = (Double) o;
-        details.put(POSITION_Z, f);
+        Length p;
+        double f;
+        try {
+            p = data.getPositionX(UnitsLength.REFERENCEFRAME);
+            f = 0;
+            if (p == null) {
+                notSet.add(POSITION_X);
+            } else
+                f = p.getValue();
+            details.put(POSITION_X, NF.format(f));
+        } catch (BigResult e) {
+            details.put(POSITION_X, e);
+        }
+
+        try {
+            p = data.getPositionY(UnitsLength.REFERENCEFRAME);
+            f = 0;
+            if (p == null) {
+                notSet.add(POSITION_Y);
+            } else f = p.getValue();
+            details.put(POSITION_Y, NF.format(f));
+        } catch (BigResult e) {
+            details.put(POSITION_Y, e);
+        }
+       
+        try {
+            p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
+            f = 0;
+            if (p == null) {
+                notSet.add(POSITION_Z);
+            } else f = p.getValue();
+            details.put(POSITION_Z, NF.format(f));
+        } catch (BigResult e) {
+            details.put(POSITION_Z, e);
+        }
 
         details.put(NOT_SET, notSet);
         return details;
@@ -1659,19 +1736,19 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         details.put(NOT_SET, notSet);
@@ -1680,7 +1757,7 @@ public class EditorUtil
 
     /**
      * Transforms the filter.
-     * 
+     *
      * @param data The value to convert.
      * @return See above.
      */
@@ -1717,53 +1794,81 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s)) 
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         s = data.getType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
-        details.put(TYPE, s); 
+        details.put(TYPE, s);
         s = data.getFilterWheel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Integer v = data.getCutIn();
+        Length wl = null;
+        try {
+            wl = data.getCutIn(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         int i = 0;
-        if (v == null) notSet.add(CUT_IN);
-        else i = v;
-        details.put(CUT_IN, i);
-        v = data.getCutOut();
-        if (v == null) {
-            notSet.add(CUT_OUT);
-            i = 0;
-        } else i = v;
-        details.put(CUT_OUT, i);
-        v = data.getCutInTolerance();
-        if (v == null) {
-            i = 0;
-            notSet.add(CUT_IN_TOLERANCE);
-        } else i = v;
-        details.put(CUT_IN_TOLERANCE, i);
+        if (wl == null)
+        	notSet.add(CUT_IN);
+        else  {
+        	i = (int)wl.getValue();
+        	 details.put(CUT_IN, i+NONBRSPACE+wl.getSymbol());
+        }
 
-        v = data.getCutOutTolerance();
-        if (v == null) {
-            i = 0;
+        try {
+            wl = data.getCutOut(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (wl == null) {
+            notSet.add(CUT_OUT);
+        }
+        else {
+        	i = (int)wl.getValue();
+        	details.put(CUT_OUT, i+NONBRSPACE+wl.getSymbol());
+        }
+
+        try {
+            wl = data.getCutInTolerance(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (wl == null) {
+            notSet.add(CUT_IN_TOLERANCE);
+        }
+        else {
+        	i = (int)wl.getValue();
+        	details.put(CUT_IN_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
+        }
+
+        try {
+            wl = data.getCutOutTolerance(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (wl == null) {
             notSet.add(CUT_OUT_TOLERANCE);
-        } else i = v;
-        details.put(CUT_OUT_TOLERANCE, i);
+        }
+        else {
+        	i = (int)wl.getValue();
+        	details.put(CUT_OUT_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
+        }
 
         Double d = data.getTransmittance();
         double dv = 0;
@@ -1771,7 +1876,7 @@ public class EditorUtil
             notSet.add(TRANSMITTANCE);
         } else dv = d;
 
-        details.put(TRANSMITTANCE, dv);
+        details.put(TRANSMITTANCE, NF.format(dv));
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -1785,7 +1890,7 @@ public class EditorUtil
     public static Map<String, Object> transformLightSourceAndSetting(
             ChannelAcquisitionData data)
     {
-        LinkedHashMap<String, Object> 
+        LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>();
         Map<String, Object> m;
 
@@ -1794,7 +1899,7 @@ public class EditorUtil
         List<String> notSet = (List) m.get(NOT_SET);
         m.remove(NOT_SET);
         details.putAll(m);
-        details.put(ATTENUATION, new Double(0));
+        details.put(ATTENUATION, Double.valueOf(0));
         if (data == null) {
             details.put(WAVELENGTH, Float.valueOf(0));
             notSet.add(ATTENUATION);
@@ -1806,18 +1911,28 @@ public class EditorUtil
         double v = 0;
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
-        details.put(ATTENUATION, v*PERCENT_FRACTION);
- 
-        Double wave = data.getLightSettingsWavelength();
+        details.put(ATTENUATION, NF.format(v*PERCENT_FRACTION));
+
+        Length wl = null;
+        try {
+            wl = data.getLightSettingsWavelength(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (details.containsKey(WAVELENGTH)) {
-            if (wave != null) { //override the value.
-                details.put(WAVELENGTH, new Float(wave));
+            if (wl != null) { //override the value.
+                details.put(WAVELENGTH, NF.format(wl.getValue())+NONBRSPACE+wl.getSymbol());
+                notSet.remove(WAVELENGTH);
             }
         } else {
-            float vi = 0;
-            if (wave == null) notSet.add(WAVELENGTH);
-            else vi = new Float(wave);
-            details.put(WAVELENGTH, vi);
+            Double vi = 0.0;
+            if (wl == null)
+            	notSet.add(WAVELENGTH);
+            else  {
+            	vi = wl.getValue();
+            	details.put(WAVELENGTH, NF.format(vi)+NONBRSPACE+wl.getSymbol());
+            	notSet.remove(WAVELENGTH);
+            }
         }
         details.put(NOT_SET, notSet);
         return details;
@@ -1840,7 +1955,7 @@ public class EditorUtil
         details.put(SERIAL_NUMBER, "");
         details.put(LOT_NUMBER, "");
         details.put(LIGHT_TYPE, "");
-        details.put(POWER, new Double(0));
+        details.put(POWER, Double.valueOf(0));
         details.put(TYPE, "");
         if (data == null) {
             notSet.add(MODEL);
@@ -1854,32 +1969,40 @@ public class EditorUtil
             return details;
         }
         String s = data.getLightSourceModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
 
         s = data.getKind();
         details.put(LIGHT_TYPE, s);
-        double f = data.getPower();
-        if (f < 0) {
-            notSet.add(POWER);
-            f = 0;
+        Power p = null;
+        try {
+            p = data.getPower(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
         }
-        details.put(POWER, f);
+        double f = 0;
+        if (p == null) {
+            notSet.add(POWER);
+        }
+        else {
+        	f = p.getValue();
+        	details.put(POWER, NF.format(f)+NONBRSPACE+p.getSymbol());
+        }
         s = data.getType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
         details.put(TYPE, s);
         s = data.getKind();
@@ -1888,36 +2011,46 @@ public class EditorUtil
             if (pump != null) {
                 String value = getLightSourceType(pump.getKind());
                 s = pump.getLightSourceModel();
-                if (StringUtils.isBlank(s)) {
+                if (CommonsLangUtils.isBlank(s)) {
                     s = pump.getManufacturer();
-                    if (StringUtils.isBlank(s)) {
+                    if (CommonsLangUtils.isBlank(s)) {
                         s = pump.getSerialNumber();
-                        if (StringUtils.isBlank(s)) {
+                        if (CommonsLangUtils.isBlank(s)) {
                             s = pump.getLotNumber();
                         }
-                        if (StringUtils.isBlank(s))
+                        if (CommonsLangUtils.isBlank(s))
                             s = ""+pump.getId();
                     }
                 }
                 details.put(PUMP, value+": "+s);
             } else notSet.add(PUMP);
             s = data.getLaserMedium();
-            if (StringUtils.isBlank(s))
+            if (CommonsLangUtils.isBlank(s))
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Double wave = data.getLaserWavelength();
-            if (wave != null && wave < 0) {
-                wave = Double.valueOf(0);
+            Length wl = null;
+            try {
+                wl = data.getLaserWavelength(null);
+            } catch (BigResult e) {
+                // can't happen as null is passed to the method
+            }
+            double wave = 0;
+            if (wl == null) {
                 notSet.add(WAVELENGTH);
             }
-            details.put(WAVELENGTH, new Float(wave)); 
+            else {
+            	wave = wl.getValue();
+            	details.put(WAVELENGTH, NF.format((wave))+NONBRSPACE+wl.getSymbol());
+            }
+
             int i = data.getLaserFrequencyMultiplication();
             if (i < 0) {
-                i = 0;
                 notSet.add(FREQUENCY_MULTIPLICATION);
             }
-            details.put(FREQUENCY_MULTIPLICATION, i);
+            else {
+            	details.put(FREQUENCY_MULTIPLICATION, i);
+            }
             Object o = data.getLaserTuneable();
             if (o == null) {
                 notSet.add(TUNEABLE);
@@ -1925,15 +2058,22 @@ public class EditorUtil
             details.put(TUNEABLE, o);
 
             s = data.getLaserPulse();
-            if (StringUtils.isBlank(s))
+            if (CommonsLangUtils.isBlank(s))
                 notSet.add(PULSE);
             details.put(PULSE, s);
-            f = data.getLaserRepetitionRate();
-            if (f < 0) {
-                f = 0;
+            Frequency freq = null; 
+            try {
+                freq = data.getLaserRepetitionRate(null);
+            } catch (BigResult e) {
+                // can't happen as null is passed to the method
+            }
+            if (freq == null) {
                 notSet.add(REPETITION_RATE);
             }
-            details.put(REPETITION_RATE, f);
+            else {
+            	f = freq.getValue();
+            	details.put(REPETITION_RATE, NF.format(f)+NONBRSPACE+freq.getSymbol());
+            }
             o = data.getLaserPockelCell();
             if (o == null) {
                 notSet.add(POCKEL_CELL);
@@ -1954,17 +2094,17 @@ public class EditorUtil
     public static Map<String, Object> transformDetector(DetectorData data)
     {
 
-        LinkedHashMap<String, Object> 
+        LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>();
         details.put(MODEL, "");
         details.put(MANUFACTURER, "");
         details.put(SERIAL_NUMBER, "");
         details.put(LOT_NUMBER, "");
-        details.put(TYPE, ""); 
-        details.put(GAIN, new Double(0));
-        details.put(VOLTAGE, new Double(0));
-        details.put(OFFSET, new Double(0));
-        details.put(ZOOM, new Double(0));
+        details.put(TYPE, "");
+        details.put(GAIN, Double.valueOf(0));
+        details.put(VOLTAGE, Double.valueOf(0));
+        details.put(OFFSET, Double.valueOf(0));
+        details.put(ZOOM, Double.valueOf(0));
         details.put(AMPLIFICATION, "");
         List<String> notSet = new ArrayList<String>();
         if (data == null) {
@@ -1982,19 +2122,19 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
 
@@ -2002,35 +2142,49 @@ public class EditorUtil
         double v = 0;
         if (f == null) notSet.add(GAIN);
         else v = f.doubleValue();
-        details.put(GAIN, v);
-        f = data.getVoltage();
-        if (f == null) {
-            v = 0;
+        details.put(GAIN, NF.format(v));
+        ElectricPotential p = null;
+        try {
+            p = data.getVoltage(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (p == null) {
             notSet.add(VOLTAGE);
-        } else v = f.doubleValue();
-        details.put(VOLTAGE, v);
+        }
+        else {
+        	v = p.getValue();
+        	details.put(VOLTAGE, NF.format(v)+NONBRSPACE+p.getSymbol());
+        }
         f = data.getOffset();
         if (f == null) {
-            v = 0;
             notSet.add(OFFSET);
-        } else v = f.doubleValue();
-        details.put(OFFSET, v);
+        }
+        else {
+        	v = f.doubleValue();
+        	details.put(OFFSET, NF.format(v));
+        }
         f = data.getZoom();
         if (f == null) {
-            v = 0;
             notSet.add(ZOOM);
-        } else v = f.doubleValue();
-        details.put(ZOOM, v);
+        }
+        else {
+        	v = f.doubleValue();
+        	details.put(ZOOM, NF.format(v));
+        }
         f = data.getAmplificationGain();
         if (f == null) {
-            v = 0;
             notSet.add(AMPLIFICATION);
-        } else v = f.doubleValue();
-        details.put(AMPLIFICATION, v);
+        }
+        else {
+        	v = f.doubleValue();
+        	 details.put(AMPLIFICATION, NF.format(v));
+        }
         s = data.getType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
-        details.put(TYPE, s); 
+        else
+        	details.put(TYPE, s);
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -2053,7 +2207,7 @@ public class EditorUtil
         List<String> notSet = (List) m.get(NOT_SET);
         m.remove(NOT_SET);
         details.putAll(m);
-        details.put(READ_OUT_RATE, new Double(0));
+        details.put(READ_OUT_RATE, Double.valueOf(0));
         details.put(BINNING, "");
         if (data == null) {
             notSet.add(READ_OUT_RATE);
@@ -2065,31 +2219,42 @@ public class EditorUtil
         Double f = data.getDetectorSettingsGain();
 
         if (f != null)  {
-            details.put(GAIN, f);
+            details.put(GAIN, NF.format(f));
             notSet.remove(GAIN);
         }
 
-        f = data.getDetectorSettingsVoltage();
-        if (f != null) {
+        ElectricPotential p = null;
+        try {
+            p = data.getDetectorSettingsVoltage(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (p != null) {
+        	f = p.getValue();
             notSet.remove(VOLTAGE);
-            details.put(VOLTAGE, UIUtilities.roundTwoDecimals(f));
+            details.put(VOLTAGE, NF.format(f)+NONBRSPACE+p.getSymbol());
         }
 
         f = data.getDetectorSettingsOffset();
         if (f != null) {
             notSet.remove(OFFSET);
-            details.put(OFFSET, UIUtilities.roundTwoDecimals(f));
+            details.put(OFFSET, NF.format(f));
         }
 
-        f = data.getDetectorSettingsReadOutRate();
-        double v = 0;
-        if (f == null) {
-            v = 0;
+        Frequency freq = null;
+        try {
+            freq = data.getDetectorSettingsReadOutRate(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
+        if (freq == null) {
             notSet.add(READ_OUT_RATE);
-        } else v = UIUtilities.roundTwoDecimals(f);
-        details.put(READ_OUT_RATE, v);
+        }
+        else {
+        	details.put(READ_OUT_RATE, NF.format(freq.getValue())+NONBRSPACE+freq.getSymbol());
+        }
         String s = data.getDetectorSettingsBinning();
-        if (StringUtils.isBlank(s)) {
+        if (CommonsLangUtils.isBlank(s)) {
             notSet.add(BINNING);
         }
         details.put(BINNING, s);
@@ -2117,14 +2282,14 @@ public class EditorUtil
      */
     public static Map<String, Object> transformPlaneInfo(PlaneInfo plane)
     {
-        LinkedHashMap<String, Object> 
+        LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>(4);
-        details.put(DELTA_T, new Double(0));
-        details.put(EXPOSURE_TIME, new Double(0));
-        details.put(POSITION_X, new Double(0));
-        details.put(POSITION_Y, new Double(0));
-        details.put(POSITION_Z, new Double(0));
-        List<String> notSet = new ArrayList<String>();
+        details.put(DELTA_T, Double.valueOf(0));
+        details.put(EXPOSURE_TIME, Double.valueOf(0));
+        details.put(POSITION_X, Double.valueOf(0));
+        details.put(POSITION_Y, Double.valueOf(0));
+        details.put(POSITION_Z, Double.valueOf(0));
+        final List<String> notSet = new ArrayList<String>(5);
         notSet.add(DELTA_T);
         notSet.add(EXPOSURE_TIME);
         notSet.add(POSITION_X);
@@ -2135,28 +2300,36 @@ public class EditorUtil
             omero.model.Time t = plane.getDeltaT();
             if (t != null)  {
                 notSet.remove(DELTA_T);
-                details.put(DELTA_T, roundValue(t.getValue()));
+                try {
+                    details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                } catch (BigResult e) {
+                    details.put(DELTA_T, e);
+                }
             }
             t = plane.getExposureTime();
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
-                details.put(EXPOSURE_TIME, roundValue(t.getValue()));
+                try {
+                    details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                } catch (BigResult e) {
+                    details.put(EXPOSURE_TIME, e);
+                }
             }
 
-            omero.RDouble o = plane.getPositionX();
+            Length o = plane.getPositionX();
             if (o != null) {
                 notSet.remove(POSITION_X);
-                details.put(POSITION_X, roundValue(o.getValue()));
+                details.put(POSITION_X, NF.format(o.getValue()));
             }
             o = plane.getPositionY();
             if (o != null) {
                 notSet.remove(POSITION_Y);
-                details.put(POSITION_Y, roundValue(o.getValue()));
+                details.put(POSITION_Y, NF.format(o.getValue()));
             }
             o = plane.getPositionZ();
             if (o != null) {
                 notSet.remove(POSITION_Z);
-                details.put(POSITION_Z, roundValue(o.getValue()));
+                details.put(POSITION_Z, NF.format(o.getValue()));
             }
         }
         return details;
@@ -2164,7 +2337,7 @@ public class EditorUtil
 
     /**
      * Initializes a <code>JComboBox</code>.
-     * 
+     *
      * @param values The values to display.
      * @param decrement The value by which the font size is reduced.
      * @param backgoundColor The backgoundColor of the combo box.
@@ -2190,7 +2363,7 @@ public class EditorUtil
 
     /**
      * Initializes a <code>JComboBox</code>.
-     * 
+     *
      * @param values The values to display.
      * @param decrement The value by which the font size is reduced.
      * @return See above.
@@ -2243,7 +2416,7 @@ public class EditorUtil
 
     /**
      * Formats the label for a required field.
-     * 
+     *
      * @param value The value to display.
      * @param required Pass <code>true</code> if the field is required,
      *                 <code>false</code> otherwise.
@@ -2292,13 +2465,19 @@ public class EditorUtil
     {
         String date = "";
         Timestamp time = null;
-        if (object == null) return date;
+        if (object == null) 
+            return date;
+        
         if (object instanceof AnnotationData)
             time = ((AnnotationData) object).getLastModified();
-        else if (object instanceof ImageData) 
+        else if (object instanceof ImageData)
             time = getAcquisitionTime((ImageData) object);
-        else time = object.getCreated();
-        if (time != null) date = UIUtilities.formatShortDateTime(time);
+        else 
+            time = object.getCreated();
+        
+        if (time != null && time.getTime()>0) 
+            date = UIUtilities.formatDefaultDate(time);
+        
         return date;
     }
 
@@ -2361,7 +2540,7 @@ public class EditorUtil
         l.add(v);
         try {
             v = "<b>"+IMPORTED_DATE+": </b>"+
-                    UIUtilities.formatShortDateTime(img.getInserted());
+                    UIUtilities.formatDefaultDate(img.getInserted());
             l.add(v);
         } catch (Exception e) {}
         PixelsData data = null;
@@ -2491,5 +2670,16 @@ public class EditorUtil
             return false;
         }
         return false;
+    }
+    
+    /**
+     * Checks if the given namespace is an internal one.
+     * 
+     * @param ns
+     *            The namespace to check
+     * @return See above
+     */
+    public static boolean isInternalNS(String ns) {
+        return ns.startsWith("openmicroscopy.org") || ns.startsWith("omero.");
     }
 }

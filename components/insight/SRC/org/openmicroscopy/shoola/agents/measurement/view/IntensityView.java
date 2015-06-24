@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.IntensityView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -576,7 +576,7 @@ class IntensityView
 			if (x >= sizeX || y >= sizeY) continue;
 			
 			if (pixels.containsKey(point)) value = entry.getValue();
-			else value = new Double(0);
+			else value = 0.0;
 			data[x][y] = value;
 		}
 		tableModel = new IntensityModel(data);
@@ -661,13 +661,13 @@ class IntensityView
 	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], 
 			int channel, int count)
 	{
-		data[count][6] = AnnotationKeys.AREA.get(fig.getROIShape());
+		data[count][6] = AnnotationKeys.AREA.get(fig.getROIShape()).getValue();
 		data[count][7] = fig.getBounds().getX();
 		data[count][8] = fig.getBounds().getY();
-		data[count][9] = AnnotationKeys.WIDTH.get(fig.getROIShape());
-		data[count][10] = AnnotationKeys.HEIGHT.get(fig.getROIShape());
-		data[count][11] = AnnotationKeys.CENTREX.get(fig.getROIShape());
-		data[count][12] = AnnotationKeys.CENTREY.get(fig.getROIShape());
+		data[count][9] = AnnotationKeys.WIDTH.get(fig.getROIShape()).getValue();
+		data[count][10] = AnnotationKeys.HEIGHT.get(fig.getROIShape()).getValue();
+		data[count][11] = AnnotationKeys.CENTREX.get(fig.getROIShape()).getValue();
+		data[count][12] = AnnotationKeys.CENTREY.get(fig.getROIShape()).getValue();
 	}
 	
 	/**
@@ -680,12 +680,12 @@ class IntensityView
 	private void addValuesForLineFigure(ROIFigure fig, Double data[][], 
 			int channel, int count)
 	{
-		data[count][6] = AnnotationKeys.STARTPOINTX.get(shape);
-		data[count][7] = AnnotationKeys.STARTPOINTY.get(shape);
-		data[count][8] = AnnotationKeys.ENDPOINTX.get(shape);
-		data[count][9] = AnnotationKeys.ENDPOINTY.get(shape);
-		data[count][10] = AnnotationKeys.CENTREX.get(shape);
-		data[count][11] = AnnotationKeys.CENTREY.get(shape);
+		data[count][6] = AnnotationKeys.STARTPOINTX.get(shape).getValue();
+		data[count][7] = AnnotationKeys.STARTPOINTY.get(shape).getValue();
+		data[count][8] = AnnotationKeys.ENDPOINTX.get(shape).getValue();
+		data[count][9] = AnnotationKeys.ENDPOINTY.get(shape).getValue();
+		data[count][10] = AnnotationKeys.CENTREX.get(shape).getValue();
+		data[count][11] = AnnotationKeys.CENTREY.get(shape).getValue();
 	}
 	
 
@@ -699,8 +699,8 @@ class IntensityView
 	private void addValuesForPointFigure(ROIFigure fig, Double data[][], 
 			int channel, int count)
 	{
-		data[count][6] = AnnotationKeys.CENTREX.get(shape);
-		data[count][7] = AnnotationKeys.CENTREY.get(shape);
+		data[count][6] = AnnotationKeys.CENTREX.get(shape).getValue();
+		data[count][7] = AnnotationKeys.CENTREY.get(shape).getValue();
 	}
 	
 	/**
@@ -795,7 +795,7 @@ class IntensityView
 			if (x >= sizeX || y >= sizeY) continue;
 			
 			if (pixels.containsKey(point)) value = entry.getValue();
-			else value = new Double(0);
+			else value = 0.0;
 			data[x][y] = value;
 		}
 		tableModel = new IntensityModel(data);

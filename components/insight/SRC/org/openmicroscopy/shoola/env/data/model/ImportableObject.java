@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import ij.IJ;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,8 +35,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+
+
 
 //Third-party libraries
 import loci.formats.FormatTools;
@@ -46,6 +49,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -382,30 +386,20 @@ public class ImportableObject
 	public DataObject createFolderAsContainer(ImportableFile file, boolean hcs)
 	{
 		if (file == null) return null;
-		Class klass = type;
+		Class<?> klass = type;
 		if (hcs) klass = ScreenData.class;
-		File f = file.getFile();
-		//if (f.isFile()) return null;
+		FileObject f = file.getFile();
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
-		File parentFile;
+		String name = f.getFolderAsContainerName();
+		if (CommonsLangUtils.isBlank(name)) return null;
 		if (DatasetData.class.equals(klass)) {
 			DatasetData dataset = new DatasetData();
-			if (f.isFile()) {
-				parentFile = f.getParentFile();
-				if (parentFile == null)
-					return null;
-				dataset.setName(parentFile.getName());
-			} else dataset.setName(f.getName());
+			dataset.setName(name);
 			return dataset;
 		} else if (ScreenData.class.equals(klass)) {
 			ScreenData screen = new ScreenData();
-			if (f.isFile()) {
-				parentFile = f.getParentFile();
-				if (parentFile == null)
-					return null;
-				screen.setName(parentFile.getName());
-			} else screen.setName(f.getName());
+			screen.setName(name);
 			return screen;
 		}
 		return null;
@@ -494,30 +488,18 @@ public class ImportableObject
 	 * @param f The file to handle.
 	 * @return See above.
 	 */
-	public static boolean isHCSFile(File f)
+	public static boolean isHCSFile(FileObject f)
 	{
 		if (f == null) return false;
-		return isHCSFile(f.getAbsolutePath());
-	}
-	
-	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is a HCS files, <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	public static boolean isHCSFile(String path)
-	{
-		if (path == null) return false;
+		String path = f.getAbsolutePath();
 		if (FILTER.accept(path)) return false;
-		String name = path;
-		if (!name.contains(".")) return false; 
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		if (ext == null) return false;
-		return HCS_FILES_EXTENSION.contains(ext.toLowerCase());
+        String name = path;
+        if (!name.contains(".")) return false; 
+        String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+        if (ext == null) return false;
+        return HCS_FILES_EXTENSION.contains(ext.toLowerCase());
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the passed format is a HCS format,
 	 * <code>false</code> otherwise.

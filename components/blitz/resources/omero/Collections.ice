@@ -104,6 +104,12 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.ChecksumAlgorithm>:java.util.List<omero.model.ChecksumAlgorithm>"]
             sequence<omero::model::ChecksumAlgorithm> ChecksumAlgorithmList;
 
+        ["java:type:java.util.ArrayList<omero.model.NamedValue>:java.util.List<omero.model.NamedValue>"]
+        sequence<omero::model::NamedValue> NamedValueList;
+
+        ["java:type:java.util.ArrayList<omero.sys.EventContext>:java.util.List<omero.sys.EventContext>"]
+        sequence<omero::sys::EventContext> EventContextList;
+
         // Arrays
 
         sequence<bool> BoolArray;
@@ -141,6 +147,17 @@ module omero {
         dictionary<string, StringArray>                StringStringArrayMap;
         dictionary<string, long>                       StringLongMap;
         dictionary<string, int>                        StringIntMap;
+
+        // if using to store owner and group ID, use first=owner, second=group
+        struct LongPair {
+          long first;
+          long second;
+        };
+
+        dictionary<LongPair, long>                     LongPairLongMap;
+        dictionary<LongPair, int>                      LongPairIntMap;
+        dictionary<LongPair, StringLongMap>            LongPairToStringLongMap;
+        dictionary<LongPair, StringIntMap>             LongPairToStringIntMap;
 
         // Multimaps (dictionaries with sequence values)
 

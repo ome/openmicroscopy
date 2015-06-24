@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.DetailsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,9 +35,8 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
-
-
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Displays information about the displayed image.
@@ -63,17 +62,14 @@ class DetailsPane
     private static final String SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    private static final String PIXEL_SIZE_X = "Pixel size X "+
-    											UnitsObject.MICRONS;
-    
+    private static final String PIXEL_SIZE_X = "Pixel size X "+LengthI.lookupSymbol(UnitsLength.MICROMETER);
+
     /** Identifies the <code>PixelSizeY</code> field. */
-    private static final String PIXEL_SIZE_Y = "Pixel size Y "+
-    UnitsObject.MICRONS;
-    
+    private static final String PIXEL_SIZE_Y = "Pixel size Y "+LengthI.lookupSymbol(UnitsLength.MICROMETER);
+
     /** Identifies the <code>PixelSizeZ</code> field. */
-    private static final String PIXEL_SIZE_Z = "Pixel size Z "+
-    UnitsObject.MICRONS;
-    
+    private static final String PIXEL_SIZE_Z = "Pixel size Z "+LengthI.lookupSymbol(UnitsLength.MICROMETER);
+
     /**
      * Creates a non-editable text field.
      * 

@@ -259,4 +259,15 @@ public interface AdminView
      */
     public CallHandle changeGroup(SecurityContext ctx, GroupData group,
             ExperimenterData experimenter, AgentEventListener observer);
+
+    /**
+     * Changes the default group of the specified user or <code>null</code>.
+     * 
+     * @param ctx The security context.
+     * @param userID The identifier of the user to handle.
+     * @param observer Call-back handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle lookupLdapAuthExperimenter(SecurityContext ctx,
+            long userID, AgentEventListener observer);
 }

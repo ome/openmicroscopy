@@ -91,6 +91,17 @@ class UpgradeCheck(object):
         self.upgradeUrl = results
         self.exc = e
 
+    def getOSVersion(self):
+        try:
+            if len(platform.mac_ver()[0]) > 0:
+                version = "%s;%s" % (platform.platform(),
+                                     platform.mac_ver()[0])
+            else:
+                version = platform.platform()
+        except:
+            version = platform.platform()
+        return version
+
     def run(self):
         """
         If the {@link #url} has been set to null or the empty string, then no
@@ -110,7 +121,7 @@ class UpgradeCheck(object):
             params["version"] = self.version
             params["os.name"] = platform.system()
             params["os.arch"] = platform.machine()
-            params["os.version"] = platform.version()
+            params["os.version"] = self.getOSVersion()
             params["python.version"] = platform.python_version()
             params["python.compiler"] = platform.python_compiler()
             params["python.build"] = platform.python_build()

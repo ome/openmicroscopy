@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,10 +52,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-
 
 
 //Third-party libraries
@@ -67,6 +69,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
@@ -75,6 +78,8 @@ import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -165,42 +170,13 @@ class ToolBar
 	private JButton viewButton;
 
 	/** The Button displaying the path to the file on the server.*/
-	private JMenuItem pathButton;
+	private JButton pathButton;
 	
-	/** Button display the links like path, html.*/
-	private JButton linkButton;
+	/** Menu for displaying the 'Located in' information */
+	private JButton locationButton;
 	
 	/** The component where the mouse clicked occurred.*/
 	private Component component;
-	
-	/** The menu displaying the link option. */
-	private JPopupMenu linkMenu;
-	
-	/** 
-	 * Component used to download the original metadata associated to the
-	 * image.
-	 */
-	private JMenuItem downloadOriginalMetadataItem;
-	
-	/** 
-	 * Creates or recycles the link menu.
-	 * 
-	 * @return See above.
-	 */
-    private JPopupMenu createLinkMenu()
-    {
-    	if (linkMenu != null) return linkMenu;
-    	linkMenu = new JPopupMenu();
-		IconManager icons = IconManager.getInstance();
-		pathButton = new JMenuItem(icons.getIcon(IconManager.FILE_PATH));
-		pathButton.setText("Show File Paths...");
-		pathButton.setToolTipText("Show file paths on the server.");
-		pathButton.addActionListener(controller);
-		pathButton.setActionCommand(""+EditorControl.FILE_PATH_TOOLBAR);
-		pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
-		linkMenu.add(pathButton);
-    	return linkMenu;
-    }
 
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
@@ -237,21 +213,6 @@ class ToolBar
         downloadItem.setEnabled(b);
         saveAsMenu.add(downloadItem);
 
-        downloadOriginalMetadataItem = new JMenuItem(
-                icons.getIcon(IconManager.DOWNLOAD));
-        downloadOriginalMetadataItem.setToolTipText("Download the " +
-                "metadata read from the image files.");
-        downloadOriginalMetadataItem.setText(
-                "Download Original metadata...");
-        downloadOriginalMetadataItem.addActionListener(controller);
-        downloadOriginalMetadataItem.setActionCommand(
-                ""+EditorControl.DOWNLOAD_METADATA);
-        downloadOriginalMetadataItem.setBackground(
-                UIUtilities.BACKGROUND_COLOR);
-        downloadOriginalMetadataItem.setEnabled(
-                model.hasOriginalMetadata());
-        saveAsMenu.add(downloadOriginalMetadataItem);
-
         exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
                 IconManager.EXPORT_AS_OMETIFF));
         exportAsOmeTiffItem.setText("Export as OME-TIFF...");
@@ -266,14 +227,7 @@ class ToolBar
         }
         exportAsOmeTiffItem.setEnabled(b);
         saveAsMenu.add(exportAsOmeTiffItem);
-        JMenu menu = new JMenu();
-        menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
-        menu.setText("Save as...");
-        menu.setToolTipText("Save the images at full size as JPEG. PNG or" +
-                "TIFF.");
         ActionListener l = new ActionListener() {
-
-
             public void actionPerformed(ActionEvent e) {
                 int index = Integer.parseInt(e.getActionCommand());
                 controller.saveAs(index);
@@ -288,14 +242,14 @@ class ToolBar
                 ho instanceof WellSampleData || ho instanceof DatasetData);
         while (i.hasNext()) {
             e = i.next();
-            item = new JMenuItem();
-            item.setText(e.getValue());
+            item = new JMenuItem(icons.getIcon(
+                    IconManager.EXPORT_AS_OMETIFF));
+            item.setText("Export as "+e.getValue()+"...");
             item.addActionListener(l);
             item.setActionCommand(""+e.getKey());
             item.setEnabled(enabled);
-            menu.add(item);
+            saveAsMenu.add(item);
         }
-        saveAsMenu.add(menu);
         setRootObject();
     	return saveAsMenu;
     }
@@ -445,9 +399,9 @@ class ToolBar
 		});
 		saveAsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
-		viewButton = new JButton(icons.getIcon(IconManager.VIEW));
-		viewButton.setToolTipText("Open the Image Viewer");
-		if (MetadataViewerAgent.runAsPlugin() == MetadataViewer.IMAGE_J) {
+		viewButton = new JButton("Full Viewer");
+		viewButton.setToolTipText("Open full viewer.");
+		if (MetadataViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 			viewButton.addMouseListener(new MouseAdapter() {
 				
 				/**
@@ -462,25 +416,31 @@ class ToolBar
 			viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
 	    	viewButton.addActionListener(controller);
 		}
-		linkButton = new JButton(icons.getIcon(IconManager.LINK));
-		linkButton.addMouseListener(new MouseAdapter() {
-		    
-                    /**
-                     * Launches the dialog when the user releases the mouse.
-                     * MouseAdapter#mouseReleased(MouseEvent)
-                     */
-                    public void mouseReleased(MouseEvent e) {
-                        if (linkButton.isEnabled()) {
-                            location = e.getPoint();
-                            component = (Component) e.getSource();
-                            createLinkMenu().show(component, location.x, location.y);
-                        }
-                    }
-                    
-		});
 		
-		UIUtilities.unifiedButtonLookAndFeel(linkButton);
-		UIUtilities.unifiedButtonLookAndFeel(viewButton);
+        MouseListener pathLocML = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                location = e.getPoint();
+                component = (Component) e.getSource();
+            }
+        };
+		
+		pathButton = new JButton(icons.getIcon(IconManager.FILE_PATH));
+        pathButton.setToolTipText("Show file paths on server.");
+        pathButton.addActionListener(controller);
+        pathButton.setActionCommand(""+EditorControl.SHOW_FILE_PATHS);
+        pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+        pathButton.addMouseListener(pathLocML);
+        
+        locationButton = new JButton(icons.getIcon(IconManager.DATASET));
+        locationButton.setToolTipText("Show parent Projects & Datasets.");
+        locationButton.addActionListener(controller);
+        locationButton.setActionCommand(""+EditorControl.SHOW_LOCATION);
+        locationButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+        locationButton.addMouseListener(pathLocML);
+		
+		UIUtilities.unifiedButtonLookAndFeel(pathButton);
+		UIUtilities.unifiedButtonLookAndFeel(locationButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
@@ -511,59 +471,31 @@ class ToolBar
     	bar.setFloatable(false);
     	bar.setRollover(true);
     	bar.setBorder(null);
+    	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+    	
+        bar.add(viewButton);
+        bar.add(Box.createHorizontalGlue());
     	bar.add(saveButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(refreshButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(viewButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(linkButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(saveAsButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(publishingButton);
-    	/*
-    	if (MetadataViewerAgent.isAdministrator()) {
-    		bar.add(Box.createHorizontalStrut(5));
-        	bar.add(uploadScriptButton);
-    	}
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(scriptsButton);
-    	*/
-    	//bar.add(scriptsButton);
+        bar.add(publishingButton);
+        bar.add(Box.createHorizontalStrut(5));
+        bar.add(locationButton);
+        bar.add(Box.createHorizontalStrut(5));
+        bar.add(pathButton);
+        bar.add(Box.createHorizontalStrut(5));
+        bar.add(saveAsButton);
+        bar.add(Box.createHorizontalStrut(20));
+        bar.add(busyLabel);
+        
     	return bar;
-    }
-    
-    /**
-     * Enables or disables the Show File path button
-     * @param b <code>true</code> enables the button; disables the button otherwise
-     */
-    public void enableFilePathButton(boolean b) {
-        if(!model.isSingleMode() || model.getImage() == null) {
-            b = false;
-        }
-        linkButton.setEnabled(b);
     }
     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	JPanel bars = new JPanel();
-    	bars.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
-    	bars.add(buildGeneralBar());
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-    	JPanel pp = UIUtilities.buildComponentPanel(bars);
-    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(pp);
-    	pp = UIUtilities.buildComponentPanelRight(busyLabel);
-    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(pp);
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	add(p);
+    	add(buildGeneralBar());
     	add(new JSeparator());
     }
     
@@ -730,38 +662,35 @@ class ToolBar
     /** Sets the root object. */
 	private void setRootObject()
 	{ 
-		Object ref = model.getRefObject();
-		if (ref instanceof ExperimenterData || ref instanceof GroupData) {
-			publishingButton.setEnabled(false);
-			analysisButton.setEnabled(false);
-			scriptsButton.setEnabled(false);
-			return;
-		}
-                if (!(ref instanceof ImageData)) {
-                    linkButton.setEnabled(false);
-                }
-		viewButton.setEnabled(false);
-    	exportAsOmeTiffButton.setEnabled(false);
-    	if (pathButton != null) pathButton.setEnabled(false);
-		if (exportAsOmeTiffButton != null)
-			exportAsOmeTiffButton.setEnabled(false);
-    	if (downloadOriginalMetadataItem != null)
-    		downloadOriginalMetadataItem.setEnabled(false);
-    	if (model.isSingleMode() && model.getImage() != null) {
-    		if (exportAsOmeTiffItem != null)
-				exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
-			viewButton.setEnabled(true);
-			if (pathButton != null) pathButton.setEnabled(true);
-			if (downloadOriginalMetadataItem != null)
-				downloadOriginalMetadataItem.setEnabled(
-					model.hasOriginalMetadata());
-    	}
-    	
-		publishingButton.setEnabled(true);
-		analysisButton.setEnabled(true);
-		scriptsButton.setEnabled(true);
-		if (publishingDialog != null) publishingDialog.setRootObject();
-		if (analysisDialog != null) analysisDialog.setRootObject();
+        Object ref = model.getRefObject();
+        if (ref instanceof ExperimenterData || ref instanceof GroupData) {
+            publishingButton.setEnabled(false);
+            analysisButton.setEnabled(false);
+            scriptsButton.setEnabled(false);
+            return;
+        }
+        
+        pathButton.setEnabled(false);
+        locationButton.setEnabled(false);
+        viewButton.setEnabled(false);
+        exportAsOmeTiffButton.setEnabled(false);
+        
+        if (model.isSingleMode()) {
+            exportAsOmeTiffButton.setEnabled(model.getImage() != null
+                    && !model.isLargeImage());
+            viewButton.setEnabled(model.getImage() != null);
+            pathButton.setEnabled(model.getImage() != null);
+            locationButton.setEnabled((model.getImage() != null || model
+                    .getRefObject() instanceof DatasetData));
+        }
+
+        publishingButton.setEnabled(true);
+        analysisButton.setEnabled(true);
+        scriptsButton.setEnabled(true);
+        if (publishingDialog != null)
+            publishingDialog.setRootObject();
+        if (analysisDialog != null)
+            analysisDialog.setRootObject();
 	}
 
 	/**
@@ -817,8 +746,32 @@ class ToolBar
         void displayFileset() {
             SwingUtilities.convertPointToScreen(location, component);
             FilesetInfoDialog d = new FilesetInfoDialog();
-            d.setData(model.getFileset(), model.isInplaceImport());
+            d.setData(model.getFileset(), model.getImportType());
+            d.pack();
+            if (location != null) {
+                location = new Point(location.x - d.getSize().width,
+                        location.y + 10);
+            }
             d.open(location);
+        }
+        
+        /**
+         * Shows the location dialog
+         */
+        void displayLocation() {
+            JComponent comp = model.getBrowser().getUI();
+            model.loadParents();      
+            SwingUtilities.convertPointToScreen(location, component);
+            TinyDialog d = new TinyDialog(null, new JScrollPane(comp), TinyDialog.CLOSE_ONLY);
+            d.getContentPane().setBackground(comp.getBackground());
+            if (location != null) {
+                location = new Point(location.x - 400,
+                        location.y + 10);
+            }
+            d.setLocation(location);
+            d.setSize(new Dimension(400,130));
+            d.setResizable(true);
+            d.setVisible(true);
         }
 }
 

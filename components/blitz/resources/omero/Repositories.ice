@@ -63,7 +63,7 @@ module omero {
 
             /**
              * Return the OriginalFile descriptor for this Repository. It will have
-             * the path "/"
+             * the path of the repository's root on the underlying filesystem.
              **/
             omero::model::OriginalFile root() throws ServerError;
 
@@ -85,7 +85,7 @@ module omero {
             omero::api::StringSet list(string path) throws ServerError;
 
             /**
-             * Returns an array of abstract pathanam objects denoting the
+             * Returns an array of abstract pathname objects denoting the
              * files in the directory denoted by an abstract pathname.  It
              * is expected that at a minimum the "name", "path", "size" and
              * "mtime" attributes will be present for each
@@ -173,8 +173,8 @@ module omero {
 
             /**
              * Delete several individual paths. Internally, this converts
-             * each of the paths into an [omero::cmd::Delete] command and
-             * submits all of them via [omero::cmd::DoAll].
+             * all of the paths into a single [omero::cmd::Delete2] command
+             * and submits it.
              *
              * If a "recursively" is true, then directories will be searched
              * and all of their contained files will be placed before them in
@@ -284,6 +284,11 @@ module omero {
               * Whether or not the thumbnailing action should be performed.
               **/
              omero::RBool doThumbnails;
+
+             /**
+              * Whether we are to disable StatsInfo population.
+              **/
+             omero::RBool noStatsInfo;
 
              /**
               * User choice of checksum algorithm for verifying upload.

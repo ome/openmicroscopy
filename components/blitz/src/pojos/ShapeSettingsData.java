@@ -2,7 +2,7 @@
  * pojos.ShapeSettingsData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,18 +22,19 @@
  */
 package pojos;
 
-//Java imports
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Shape;
+import omero.model.enums.UnitsLength;
 
 /**
  * Stores the settings related to a given shape.
@@ -72,8 +73,8 @@ public class ShapeSettingsData
 	public final static Color DEFAULT_STROKE_COLOUR = new Color(196, 196, 196, 
 			196);
 
-	/** The default font size. */
-	public static final int 	DEFAULT_FONT_SIZE = 12;
+	/** The default font size in "pt". */
+	public static final int DEFAULT_FONT_SIZE = 12;
 	
 	/** The default font family. */
 	public static final String 	DEFAULT_FONT_FAMILY = "sans-serif";
@@ -164,7 +165,7 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Set the fill colour.
+	 * Set the fill color.
 	 * 
 	 * @param fillColour See above.
 	 */
@@ -173,6 +174,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (fillColour == null) return;
 		shape.setFillColor(rtypes.rint(fillColour.getRGB()));
 		setDirty(true);
 	}
@@ -192,7 +194,7 @@ public class ShapeSettingsData
 	}
 
 	/**
-	 * Set the stroke colour.
+	 * Set the stroke color.
 	 * 
 	 * @param strokeColour See above.
 	 */
@@ -201,6 +203,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (strokeColour == null) return;
 		shape.setStrokeColor(rtypes.rint(strokeColour.getRGB()));
 		setDirty(true);
 	}
@@ -209,26 +212,66 @@ public class ShapeSettingsData
 	 * Returns the stroke's width.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getStrokeWidth(UnitsLength)}
 	 */
+	@Deprecated
 	public double getStrokeWidth()
 	{
 		Shape shape = (Shape) asIObject();
-		RInt value = shape.getStrokeWidth();
-		if (value == null) return 1;
-		return value.getValue();
+		Length value = shape.getStrokeWidth();
+		if (value == null) return 1.0;
+		try {
+            return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
+        } catch (BigResult e) {
+            return value.getValue();
+        }
+	}
+	
+	/**
+	 * Returns the stroke's width (or 1 px if it's not set or <= 0)
+	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
+	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
+	 */
+	public Length getStrokeWidth(UnitsLength unit) throws BigResult
+	{
+		Shape shape = (Shape) asIObject();
+		Length value = shape.getStrokeWidth();
+		if (value == null || value.getValue()<=0) 
+			return new LengthI(1, UnitsLength.PIXEL);
+		return unit == null ? value : new LengthI(value, unit);
 	}
 
 	/**
 	 * Set the stroke width.
 	 * 
 	 * @param strokeWidth See above.
+	 * @deprecated Replaced by {@link #setStrokeWidth(Length)}
 	 */
-	public void setStrokeWidth(double strokeWidth)
+	@Deprecated
+	public void setStrokeWidth(Double strokeWidth)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setStrokeWidth(rtypes.rint((int)strokeWidth));
+		shape.setStrokeWidth(new LengthI(strokeWidth, UnitsFactory.Shape_StrokeWidth));
+		setDirty(true);
+	}
+	
+	/**
+	 * Set the stroke width.
+	 * 
+	 * @param strokeWidth See above.
+	 */
+	public void setStrokeWidth(Length strokeWidth)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setStrokeWidth(strokeWidth);
 		setDirty(true);
 	}
 	
@@ -253,7 +296,7 @@ public class ShapeSettingsData
 	/**
 	 * Set the stroke dashes.
 	 * 
-	 * @param See above.
+	 * @param dashArray See above.
 	 */
 	public void setStrokeDashArray(double [] dashArray)
 	{
@@ -325,7 +368,7 @@ public class ShapeSettingsData
 			style = style | Font.BOLD;
 		if (isFontItalic())
 			style = style | Font.ITALIC;
-		return new Font(getFontFamily(), style, getFontSize());
+		return new Font(getFontFamily(), style, (int) getFontSize());
 	}
 	
 	/**
@@ -345,8 +388,6 @@ public class ShapeSettingsData
 
 	/**
 	 * Returns the stroke.
-	 * 
-	 * @return See above.
 	 */
 	public void setFontFamily(String fontFamily)
 	{
@@ -363,29 +404,71 @@ public class ShapeSettingsData
 	 * Returns the stroke.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getFontSize(UnitsLength)}
 	 */
-	public int getFontSize()
+	@Deprecated
+	public double getFontSize()
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		RInt size = shape.getFontSize();
-		if (size != null) return size.getValue();
+		Length size = shape.getFontSize();
+		if (size != null) {
+		    try {
+                return (new LengthI(size, UnitsLength.POINT)).getValue();
+            } catch (BigResult e) {
+                return e.result.doubleValue();
+            }
+		}
 		return DEFAULT_FONT_SIZE;
 	}
-
+	
 	/**
-	 * Set the size of the font.
+	 * Returns the stroke.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
+	public Length getFontSize(UnitsLength unit) throws BigResult
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		Length size = shape.getFontSize();
+		if (size != null) 
+			return unit == null ? size : new LengthI(size, unit);
+		return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
+	}
+
+    /**
+	 * Set the size of the font.
+	 * @deprecated Replaced by {@link #setFontSize(Length)}
+	 */
+	@Deprecated
 	public void setFontSize(int fontSize)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
-		shape.setFontSize(rtypes.rint(fontSize));
+		shape.setFontSize(new LengthI(fontSize, UnitsLength.POINT));
+		setDirty(true);
+	}
+	
+	/**
+	 * Set the size of the font.
+	 */
+	public void setFontSize(Length fontSize)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		if (fontSize ==null)
+			fontSize = new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
+		shape.setFontSize(fontSize);
 		setDirty(true);
 	}
 	
@@ -406,8 +489,6 @@ public class ShapeSettingsData
 
 	/**
 	 * Sets the style of the font.
-	 * 
-	 * @return See above.
 	 */
 	public void setFontStyle(String fontStyle)
 	{
@@ -453,7 +534,7 @@ public class ShapeSettingsData
 	/**
 	 * Returns the marker end.
 	 * 
-	 * @param start The value to set.
+	 * @param end The value to set.
 	 */
 	public String setMarkerEnd(String end)
 	{

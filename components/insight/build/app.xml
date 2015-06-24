@@ -45,14 +45,15 @@
   <property name="app.compiled.dir" location="${app.dir}/compiled"/>
   <property name="app.config.dir" location="${app.dir}/config"/>
   <property name="app.lib.dir" location="${app.dir}/libs"/>
-  <property name="app.vmparameters" value="-Xms256M -Xmx1024M"/>
+   <property name="app.vmparameters" value="-Xms256M -Xmx1024M"/>
+  <property name="app.vmparameters.xmx" value="-Xmx1024M"/>
+  <property name="app.vmparameters.xms" value="-Xms256M"/>
   <available classname="javax.media.j3d.SceneGraphObject" property="app.j3d"/>
   <patternset id="app.sources">
     <include name="**/*.java"/>
   </patternset>
   <fileset id="app.libs" dir="${base.runtimelib.dir}" includes="*.jar"/>
   <fileset id="app.libs.no-bioformats-no-logback" dir="${base.runtimelib.dir}" includes="*.jar" excludes="formats-api.jar,formats-bsd.jar,formats-common.jar,formats-gpl.jar,jai_imageio.jar,mdbtools-java.jar,metakit.jar,ome-xml.jar,ome-poi.jar,turbojpeg.jar, logback-classic.jar,logback-core.jar"/>
-  <fileset id="app.libs.opengl" dir="${base.runtimelib.dir}" includes="*.jar"/>
   <fileset id="app.resources" dir="${base.src.dir}" excludes="**/*.java"/>
   <fileset id="app.config" dir="${base.config.dir}"/>
   <path id="app.compile.classpath">
@@ -112,7 +113,9 @@
     <replace dir="${app.config.dir}"
         token="@OMERO_DISPLAY_VERSION@"
         value="${omero.display_version}"/>
-
+    <replace dir="${app.config.dir}"
+        token="@QA_BASEURL@"
+        value="${env.QA_BASEURL}"/>
     <copy todir="${app.lib.dir}">
       <fileset refid="app.libs"/>
     </copy>
@@ -131,6 +134,7 @@
           depends="app-init"
           description="Compile the whole app.">
     <javac srcdir="${base.src.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.dir}"
            includeantruntime="no"
@@ -143,6 +147,7 @@
       <patternset refid="app.sources"/>
     </javac>
     <javac srcdir="${base.src.util.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
@@ -155,6 +160,7 @@
       <patternset refid="app.sources"/>
     </javac>
     <javac srcdir="${base.src.svc.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"

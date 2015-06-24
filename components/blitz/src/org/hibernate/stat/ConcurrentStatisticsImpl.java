@@ -23,8 +23,8 @@
  */
 package org.hibernate.stat;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -33,6 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.cache.Region;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.util.ArrayHelper;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
  * Implementation of {@link Statistics}, as well as {@link StatisticsImplementor}, based on the
@@ -91,19 +94,20 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	/**
 	 * second level cache statistics per region
 	 */
-	private final ConcurrentMap secondLevelCacheStatistics = new ConcurrentHashMap();
+	private final Cache<String, ConcurrentSecondLevelCacheStatisticsImpl> secondLevelCacheStatistics =
+	        CacheBuilder.newBuilder().build();
 	/**
 	 * entity statistics per name
 	 */
-	private final ConcurrentMap entityStatistics = new ConcurrentHashMap();
+	private final Cache<String, ConcurrentEntityStatisticsImpl> entityStatistics = CacheBuilder.newBuilder().build();
 	/**
 	 * collection statistics per name
 	 */
-	private final ConcurrentMap collectionStatistics = new ConcurrentHashMap();
+	private final Cache<String, ConcurrentCollectionStatisticsImpl> collectionStatistics = CacheBuilder.newBuilder().build();
 	/**
 	 * entity statistics per query string (HQL or SQL)
 	 */
-	private final ConcurrentMap queryStatistics = null;
+	private final Cache<String, ConcurrentQueryStatisticsImpl> queryStatistics = null;
 
 	public ConcurrentStatisticsImpl() {
 		clear();
@@ -154,9 +158,9 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 
 		optimisticFailureCount.set( 0 );
 
-		secondLevelCacheStatistics.clear();
-		entityStatistics.clear();
-		collectionStatistics.clear();
+		secondLevelCacheStatistics.invalidateAll();
+		entityStatistics.invalidateAll();
+		collectionStatistics.invalidateAll();
 		// queryStatistics.clear();
 
 		startTime = System.currentTimeMillis();
@@ -195,18 +199,18 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	 *
 	 * @return EntityStatistics object
 	 */
-	public EntityStatistics getEntityStatistics(String entityName) {
-		ConcurrentEntityStatisticsImpl es = (ConcurrentEntityStatisticsImpl) entityStatistics.get( entityName );
-		if ( es == null ) {
-			es = new ConcurrentEntityStatisticsImpl( entityName );
-			ConcurrentEntityStatisticsImpl previous;
-			if ( ( previous = (ConcurrentEntityStatisticsImpl) entityStatistics.putIfAbsent(
-					entityName, es
-			) ) != null ) {
-				es = previous;
-			}
-		}
-		return es;
+	public EntityStatistics getEntityStatistics(final String entityName) {
+        try {
+            return entityStatistics.get(entityName, new Callable<ConcurrentEntityStatisticsImpl>() {
+                @Override
+                public ConcurrentEntityStatisticsImpl call() {
+                    return new ConcurrentEntityStatisticsImpl(entityName);
+                }
+            });
+        } catch (ExecutionException e) {
+            /* constructor cannot fail */
+            return null;
+        }
 	}
 
 	public void updateEntity(String entityName) {
@@ -234,18 +238,18 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	 *
 	 * @return CollectionStatistics
 	 */
-	public CollectionStatistics getCollectionStatistics(String role) {
-		ConcurrentCollectionStatisticsImpl cs = (ConcurrentCollectionStatisticsImpl) collectionStatistics.get( role );
-		if ( cs == null ) {
-			cs = new ConcurrentCollectionStatisticsImpl( role );
-			ConcurrentCollectionStatisticsImpl previous;
-			if ( ( previous = (ConcurrentCollectionStatisticsImpl) collectionStatistics.putIfAbsent(
-					role, cs
-			) ) != null ) {
-				cs = previous;
-			}
-		}
-		return cs;
+	public CollectionStatistics getCollectionStatistics(final String role) {
+        try {
+            return collectionStatistics.get(role, new Callable<ConcurrentCollectionStatisticsImpl>() {
+                @Override
+                public ConcurrentCollectionStatisticsImpl call() {
+                    return new ConcurrentCollectionStatisticsImpl(role);
+                }
+            });
+        } catch (ExecutionException e) {
+            /* constructor cannot fail */
+            return null;
+        }
 	}
 
 	public void loadCollection(String role) {
@@ -281,26 +285,29 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	 * @return SecondLevelCacheStatistics
 	 */
 	public SecondLevelCacheStatistics getSecondLevelCacheStatistics(String regionName) {
-		ConcurrentSecondLevelCacheStatisticsImpl slcs
-				= (ConcurrentSecondLevelCacheStatisticsImpl) secondLevelCacheStatistics.get( regionName );
-		if ( slcs == null ) {
-			if ( sessionFactory == null ) {
-				return null;
-			}
-			Region region = sessionFactory.getSecondLevelCacheRegion( regionName );
-			if ( region == null ) {
-				return null;
-			}
-			slcs = new ConcurrentSecondLevelCacheStatisticsImpl( region );
-			ConcurrentSecondLevelCacheStatisticsImpl previous;
-			if ( ( previous = (ConcurrentSecondLevelCacheStatisticsImpl) secondLevelCacheStatistics.putIfAbsent(
-					regionName, slcs
-			) ) != null ) {
-				slcs = previous;
-			}
-		}
-		return slcs;
-	}
+        final ConcurrentSecondLevelCacheStatisticsImpl slcs = secondLevelCacheStatistics.getIfPresent(regionName);
+        if (slcs != null) {
+            return slcs;
+        }
+        if (sessionFactory == null) {
+            return null;
+        }
+        final Region region = sessionFactory.getSecondLevelCacheRegion(regionName);
+        if (region == null) {
+            return null;
+        }
+        try {
+            return secondLevelCacheStatistics.get(regionName, new Callable<ConcurrentSecondLevelCacheStatisticsImpl>() {
+                @Override
+                public ConcurrentSecondLevelCacheStatisticsImpl call() {
+                    return new ConcurrentSecondLevelCacheStatisticsImpl(region);
+                }
+            });
+        } catch (ExecutionException e) {
+            /* constructor cannot fail */
+            return null;
+        }
+    }
 
 	public void secondLevelCachePut(String regionName) {
 		secondLevelCachePutCount.getAndIncrement();
@@ -379,20 +386,8 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	 * @return QueryStatistics
 	 */
 	public QueryStatistics getQueryStatistics(String queryString) {
-                return new ConcurrentQueryStatisticsImpl( queryString );
-                /*
-		ConcurrentQueryStatisticsImpl qs = (ConcurrentQueryStatisticsImpl) queryStatistics.get( queryString );
-		if ( qs == null ) {
-			qs = new ConcurrentQueryStatisticsImpl( queryString );
-			ConcurrentQueryStatisticsImpl previous;
-			if ( ( previous = (ConcurrentQueryStatisticsImpl) queryStatistics.putIfAbsent(
-					queryString, qs
-			) ) != null ) {
-				qs = previous;
-			}
-		}
-		return qs;
-                */
+	    /* follow the pattern from other statistics getters should you wish to use a cache */
+	    return new ConcurrentQueryStatisticsImpl( queryString );
 	}
 
 	/**
@@ -607,7 +602,7 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	 */
 	public String[] getEntityNames() {
 		if ( sessionFactory == null ) {
-			return ArrayHelper.toStringArray( entityStatistics.keySet() );
+			return ArrayHelper.toStringArray( entityStatistics.asMap().keySet() );
 		}
 		else {
 			return ArrayHelper.toStringArray( sessionFactory.getAllClassMetadata().keySet() );
@@ -619,7 +614,7 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	 */
 	public String[] getCollectionRoleNames() {
 		if ( sessionFactory == null ) {
-			return ArrayHelper.toStringArray( collectionStatistics.keySet() );
+			return ArrayHelper.toStringArray( collectionStatistics.asMap().keySet() );
 		}
 		else {
 			return ArrayHelper.toStringArray( sessionFactory.getAllCollectionMetadata().keySet() );
@@ -631,7 +626,7 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	 */
 	public String[] getSecondLevelCacheRegionNames() {
 		if ( sessionFactory == null ) {
-			return ArrayHelper.toStringArray( secondLevelCacheStatistics.keySet() );
+			return ArrayHelper.toStringArray( secondLevelCacheStatistics.asMap().keySet() );
 		}
 		else {
 			return ArrayHelper.toStringArray( sessionFactory.getAllSecondLevelCacheRegions().keySet() );

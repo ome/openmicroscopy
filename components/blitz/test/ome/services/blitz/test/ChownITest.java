@@ -18,7 +18,6 @@ import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
 import omero.ServerError;
-import omero.api.IDeletePrx;
 import omero.cmd.Chown;
 import omero.cmd.HandleI;
 import omero.cmd._HandleTie;
@@ -62,11 +61,9 @@ import org.testng.annotations.Test;
 
 
 /**
- * Tests call to {@link IDeletePrx}, especially important for testing the
- * {@link IDeletePrx#queueDelete(omero.api.delete.DeleteCommand[]) since it is
- * not available from {@link ome.api.IDelete}
  */
 @Test(groups = { "integration", "chown" })
+@SuppressWarnings("deprecation")
 public class ChownITest extends AbstractGraphTest {
 
     long newUserId = 0L;

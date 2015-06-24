@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -40,7 +39,6 @@ import java.text.AttributedString;
 import java.util.Collection;
 import java.util.LinkedList;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
@@ -50,9 +48,7 @@ import org.jhotdraw.draw.Tool;
 import org.jhotdraw.draw.TransformHandleKit;
 import org.jhotdraw.geom.Insets2D;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.TransformedDrawingTextTool;
 
@@ -108,12 +104,12 @@ public class EllipseTextFigure
     	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
     	setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
 		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
-		setAttribute(MeasurementAttributes.WIDTH, w);
-		setAttribute(MeasurementAttributes.HEIGHT, h);
+		super.setAttribute(MeasurementAttributes.WIDTH, w);
+		super.setAttribute(MeasurementAttributes.HEIGHT, h);
   		setText(t);
 		textBounds = null;
 		editable = true;
-		fromTransformUpdate = false;
+		fromTransformUpdate = true;
 	}	
 	
 	/**
@@ -123,21 +119,19 @@ public class EllipseTextFigure
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
 		super.setAttribute(key, newValue);
-		/* TODO: To fix
 		if (!fromTransformUpdate)
 		{
-			if (key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+			if (MeasurementAttributes.HEIGHT.getKey().equals(key.getKey()))
 			{
 				double newHeight = MeasurementAttributes.HEIGHT.get(this);
-				this.setHeight(newHeight);	
+				this.setHeight(newHeight);
 			}
-			if (key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+			if (MeasurementAttributes.WIDTH.getKey().equals(key.getKey()))
 			{
 				double newWidth = MeasurementAttributes.WIDTH.get(this);
-				this.setWidth(newWidth);	
+				this.setWidth(newWidth);
 			}
 		}
-		*/
 	}
 	
 	/**
@@ -271,16 +265,6 @@ public class EllipseTextFigure
 			LineBreakMeasurer measurer = new LineBreakMeasurer(i, frc);
 
 			// draw
-			g.setColor(UIUtilities.TOOLTIP_COLOR);
-			g.fillRect((int) x-1, (int) textBounds.getY(),
-					(int) textBounds.getWidth()+2,
-					(int) textBounds.getHeight()+1);
-			g.setColor(FigureUtil.TEXT_COLOR);
-			/*
-			g.drawRect((int) x-1, (int) textBounds.getY(),
-					(int) textBounds.getWidth()+2,
-					(int) textBounds.getHeight()+1);
-					*/
 			int w = (int) width;
 			TextLayout layout;
 			while (measurer.getPosition() < text.length()) {
@@ -424,6 +408,8 @@ public class EllipseTextFigure
 	{
 		EllipseTextFigure that = (EllipseTextFigure) super.clone();
 		that.setText(this.getText());
+		that.editable = true;
+		that.fromTransformUpdate = true;
 		return that;
 	}
 	

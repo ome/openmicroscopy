@@ -7,7 +7,10 @@
 
 package integration;
 
+import static omero.rtypes.rbool;
 import static omero.rtypes.rlong;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
@@ -106,9 +109,9 @@ public class PojosServiceTest extends AbstractServerTest {
      */
     private void checkPixels(PixelsData pixels) throws Exception {
         assertNotNull(pixels);
-        assertNotNull(pixels.getPixelSizeX());
-        assertNotNull(pixels.getPixelSizeY());
-        assertNotNull(pixels.getPixelSizeZ());
+        assertNotNull(pixels.getPixelSizeX(null));
+        assertNotNull(pixels.getPixelSizeY(null));
+        assertNotNull(pixels.getPixelSizeZ(null));
         assertNotNull(pixels.getPixelType());
         assertNotNull(pixels.getImage());
         assertNotNull(pixels.getOwner());
@@ -288,7 +291,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleProjectData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         List results = iContainer.loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
         assertTrue(results.size() > 0);
@@ -321,7 +324,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleScreenData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         List results = iContainer.loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
         assertTrue(results.size() > 0);
@@ -357,7 +360,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleProjectData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         param.orphan();
         List results = iContainer.loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
@@ -394,7 +397,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         param.orphan();
         List results = iContainer.loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
@@ -662,12 +665,14 @@ public class PojosServiceTest extends AbstractServerTest {
         // Create 2 groups and add a user
         String uuid1 = UUID.randomUUID().toString();
         ExperimenterGroup g1 = new ExperimenterGroupI();
-        g1.setName(omero.rtypes.rstring(uuid1));
+        g1.setName(rstring(uuid1));
+        g1.setLdap(rbool(false));
         g1.getDetails().setPermissions(new PermissionsI("rw----"));
 
         String uuid2 = UUID.randomUUID().toString();
         ExperimenterGroup g2 = new ExperimenterGroupI();
-        g2.setName(omero.rtypes.rstring(uuid2));
+        g2.setName(rstring(uuid2));
+        g2.setLdap(rbool(false));
         g2.getDetails().setPermissions(new PermissionsI("rw----"));
 
         IAdminPrx svc = root.getSession().getAdminService();
@@ -688,10 +693,10 @@ public class PojosServiceTest extends AbstractServerTest {
                 "select distinct g from ExperimenterGroup g where g.id = :id",
                 p);
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid1));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
-        e.setLdap(omero.rtypes.rbool(false));
+        e.setOmeName(rstring(uuid1));
+        e.setFirstName(rstring("user"));
+        e.setLastName(rstring("user"));
+        e.setLdap(rbool(false));
 
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
@@ -838,7 +843,7 @@ public class PojosServiceTest extends AbstractServerTest {
         long id = fixture.e.getId().getValue();
         ParametersI param = new ParametersI();
         param.leaves();
-        param.exp(omero.rtypes.rlong(id));
+        param.exp(rlong(id));
 
         Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
@@ -878,7 +883,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(id));
+        param.exp(rlong(id));
 
         List<Long> ids = fixture.getProjectIds();
         List results = iContainer.loadContainerHierarchy(
@@ -906,7 +911,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
         ParametersI param = new ParametersI();
-        param.grp(omero.rtypes.rlong(id));
+        param.grp(rlong(id));
 
         List<Long> ids = fixture.getProjectIds();
         List results = iContainer.loadContainerHierarchy(
@@ -936,9 +941,9 @@ public class PojosServiceTest extends AbstractServerTest {
         long startTime = gc.getTime().getTime();
         ParametersI po = new ParametersI();
         po.leaves();
-        po.startTime(omero.rtypes.rtime(startTime - 1));
+        po.startTime(rtime(startTime - 1));
         Image i = mmFactory.simpleImage();
-        i.setAcquisitionDate(omero.rtypes.rtime(startTime));
+        i.setAcquisitionDate(rtime(startTime));
         i = (Image) iUpdate.saveAndReturnObject(i);
 
         List result = iContainer.getImagesByOptions(po);
@@ -967,7 +972,7 @@ public class PojosServiceTest extends AbstractServerTest {
         startTime = gc.getTime().getTime();
         po = new ParametersI();
         po.leaves();
-        po.startTime(omero.rtypes.rtime(startTime));
+        po.startTime(rtime(startTime));
         result = iContainer.getImagesByOptions(po);
         assertEquals(result.size(), 0);
     }
@@ -1097,7 +1102,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment Project"));
+        comment.setTextValue(rstring("comment Project"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Project
         ProjectAnnotationLinkI pal = new ProjectAnnotationLinkI();
@@ -1105,7 +1110,7 @@ public class PojosServiceTest extends AbstractServerTest {
         pal.setChild(comment);
         iUpdate.saveAndReturnObject(pal);
         comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment Dataset"));
+        comment.setTextValue(rstring("comment Dataset"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Project
         DatasetAnnotationLinkI dal = new DatasetAnnotationLinkI();
@@ -1184,7 +1189,7 @@ public class PojosServiceTest extends AbstractServerTest {
 
         // Now create and attach comments to each
         CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment Screen"));
+        comment.setTextValue(rstring("comment Screen"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Screen
         ScreenAnnotationLinkI sal = new ScreenAnnotationLinkI();
@@ -1193,7 +1198,7 @@ public class PojosServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(sal);
 
         comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment Plate"));
+        comment.setTextValue(rstring("comment Plate"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Plate
         PlateAnnotationLinkI pal = new PlateAnnotationLinkI();
@@ -1202,7 +1207,7 @@ public class PojosServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(pal);
 
         comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment PlateAcquisition"));
+        comment.setTextValue(rstring("comment PlateAcquisition"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Plate
         PlateAcquisitionAnnotationLinkI aal = new PlateAcquisitionAnnotationLinkI();
@@ -1417,7 +1422,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         List results = iContainer.loadContainerHierarchy(Plate.class.getName(),
                 new ArrayList(), param);
         assertTrue(results.size() > 0);
@@ -2049,4 +2054,53 @@ public class PojosServiceTest extends AbstractServerTest {
             }
         }
     }
+    
+	/**
+	 * Checks if the creation date is loaded for all container {@link IObject}s
+	 * 
+	 * @throws Exception
+	 *             Thrown if an error occurred.
+	 */
+	@Test
+	public void testContainerCreationDateLoaded() throws Exception {
+		Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
+				.simpleProjectData().asIObject());
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(p.getId().getValue());
+		p = (Project) iContainer
+				.loadContainerHierarchy(Project.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(p.getDetails().getCreationEvent().isLoaded());
+
+		Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+				.simpleDatasetData().asIObject());
+		ids = new ArrayList<Long>();
+		ids.add(d.getId().getValue());
+		d = (Dataset) iContainer
+				.loadContainerHierarchy(Dataset.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(d.getDetails().getCreationEvent().isLoaded());
+
+		Screen s = (Screen) iUpdate.saveAndReturnObject(mmFactory
+				.simpleScreenData().asIObject());
+		ids = new ArrayList<Long>();
+		ids.add(s.getId().getValue());
+		s = (Screen) iContainer
+				.loadContainerHierarchy(Screen.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(s.getDetails().getCreationEvent().isLoaded());
+
+		Plate pl = (Plate) iUpdate.saveAndReturnObject(mmFactory
+				.simplePlateData().asIObject());
+		ids = new ArrayList<Long>();
+		ids.add(pl.getId().getValue());
+		pl = (Plate) iContainer
+				.loadContainerHierarchy(Plate.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(pl.getDetails().getCreationEvent().isLoaded());
+	}
 }

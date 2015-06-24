@@ -23,7 +23,7 @@
         <div>
             <h1>
                 <span id="{{ manager.obj_type }}name-{{ manager.obj_id }}-name" style="word-wrap: break-word;">
-                    {{ nameText }}
+                    {{ nameText|escape }}
                 </span>
             </h1>
             <button class="btn silver btn_edit" alt="e" title="edit">
@@ -32,5 +32,38 @@
         </div>
     </div>
 {% else %}
-    <h1 style="word-wrap: break-word;">{{ nameText }}</h1>
+    <div class="data_heading">
+      <h1 style="word-wrap: break-word;">{{ nameText|escape }}</h1>
+    </div>
 {% endif %}
+
+<div style="position:relative">
+    {% if inPlace %}
+      <img title="This file in an in-place import. The data might not be located within the OMERO data directory."
+        style="position: absolute; top: 0; right: 3px"
+        src="{% static 'webclient/image/inPlace_16.png' %}"/>
+    {% endif %}
+    <table style="width: 50%">
+        {% if wellImageId %}
+        <tr>
+            <th>Image ID:</th>
+            <td><strong>{{ wellImageId }}</strong></td>
+        </tr>
+        {% endif %}
+        <tr class="data_heading_id">
+            <th>{{ manager.obj_type|title }} ID:</th>
+            <td><strong>{{ manager.obj_id }}</strong></td>
+        </tr>
+        <tr>
+            <th>Owner:</th>
+            <td id='owner_fullname'>{{ obj.getOwner.getFullName }}</td>
+        </tr>
+    </table>
+
+    {% if manager.openAstexViewerCompatible %}
+        <button style="position: absolute; right:0; top:0" class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url 'open_astex_viewer' 'image_8bit' manager.image.id %}')"
+                title="Open with Open Astex Viewer">
+            <span>Volume viewer</span>
+        </button>
+    {% endif %}
+</div>

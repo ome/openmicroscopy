@@ -1,0 +1,72 @@
+*** Settings ***
+
+Documentation       A test suite with a single test for valid login.
+...
+...                 This test has a workflow that is created using keywords in
+...                 the imported resource file.
+
+Resource            ../../resources/web/webadmin.txt
+Resource            ../../resources/config.txt
+
+Suite Setup         Run Keywords    Open Browser And Log In As User     Maximize Browser Window
+Suite Teardown      Logout and Teardown
+
+
+*** Test Cases ***
+
+User Settings
+    [Documentation]     Test regular user edit of their own settings.
+
+    Click Element           id=show_user_dropdown
+    Click Link              User settings
+    Location Should Be      ${WEBADMIN WELCOME URL}myaccount/edit/
+    ${orig_middle_name}=    Get Element Attribute     xpath=//input[@id='id_middle_name']@value
+    ${middle_name}=         Unique name         middle_name
+    Input Text              id_middle_name      ${middle_name}
+    Click Button            Save
+    Page Should Contain Element   xpath=//input[@id='id_middle_name'][@value='${middle_name}']
+    # reset
+    Input Text              id_middle_name      ${orig_middle_name}
+    Click Button            Save
+
+    # Edit Password
+    ${temp_password}=       Set Variable        tempPassword
+    Click Element           id=change_password
+    Input Text              id_old_password     ${PASSWORD}
+    Input Text              id_password         ${temp_password}
+    Input Text              id_confirmation     ${temp_password}
+    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Wait Until Page Contains  Password reset OK
+
+    # Reset Password back to original
+    Reload Page             # clears 'OK'
+    Click Element           id=change_password
+    Input Text              id_old_password     ${temp_password}
+    Input Text              id_password         ${PASSWORD}
+    Input Text              id_confirmation     ${PASSWORD}
+    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Wait Until Page Contains  Password reset OK
+
+
+Owner Group Edit
+    [Documentation]     Test group owner edit of their group.
+
+    Click Element               id=show_user_dropdown
+    Click Link                  User settings
+    Location Should Be          ${WEBADMIN WELCOME URL}myaccount/edit/
+    Click Element               css=#group_settings_tab a
+    Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
+
+    # Edit permissions
+    Radio Button Should Be Set To   permissions     2       # we should start off as 'read-annotate'
+    Select Radio Button             permissions     1
+    Submit Form                     css=form.settings_form
+
+    # Return to edit group, to check permissions were saved and reset
+    Location Should Be          ${WEBADMIN WELCOME URL}myaccount/
+    Click Element               css=#group_settings_tab a
+    Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
+    Radio Button Should Be Set To   permissions     1
+    Select Radio Button             permissions     2
+    Submit Form                     css=form.settings_form
+

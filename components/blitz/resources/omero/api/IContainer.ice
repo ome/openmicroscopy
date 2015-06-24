@@ -19,7 +19,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IContainer.html">IContainer.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/IContainer.html">IContainer.html</a>
          **/
         ["ami", "amd"] interface IContainer extends ServiceInterface
             {
@@ -39,12 +39,6 @@ module omero {
                 IObjectList link(IObjectList links, omero::sys::Parameters options) throws ServerError;
                 omero::model::IObject updateDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
                 IObjectList updateDataObjects(IObjectList objs, omero::sys::Parameters options) throws ServerError;
-
-                ["deprecated: use omero::model::IDelete::queueDelete instead"]
-                void deleteDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
-
-                ["deprecated: use omero::model::IDelete::queueDelete instead"]
-                void deleteDataObjects(IObjectList objs, omero::sys::Parameters options) throws ServerError;
             };
 
     };

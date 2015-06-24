@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.ui.ActivityComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -57,7 +57,7 @@ import javax.swing.JToolBar;
 
 import omero.model.OriginalFile;
 
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -276,12 +276,7 @@ public abstract class ActivityComponent
 	{
 		exceptionButton = createButton("Failure", EXCEPTION, this);
 		exceptionButton.setVisible(false);
-		//removeButton = createButton("Remove", REMOVE, this);
-		IconManager icons = IconManager.getInstance(registry);
-		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
-		UIUtilities.unifiedButtonLookAndFeel(removeButton);
-		removeButton.setActionCommand(""+REMOVE);
-		removeButton.addActionListener(this);
+		removeButton = createButton("Remove", REMOVE, this);
 		cancelButton = createButton("Cancel", CANCEL, this);
 		//if (index == ADVANCED)
 		resultButtons = new ArrayList<ActivityResultRow>();
@@ -350,7 +345,7 @@ public abstract class ActivityComponent
 		Font f = l.getFont();
 		l.setForeground(UIUtilities.LIGHT_GREY.darker());
 		l.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-		String s = UIUtilities.formatShortDateTime(null);
+		String s = UIUtilities.formatDefaultDate(null);
 		String[] values = s.split(" ");
 		if (values.length > 1) {
 			String v = values[1];
@@ -496,9 +491,9 @@ public abstract class ActivityComponent
 			}
 		}
         if (!exist) return original;
-        if (StringUtils.isEmpty(fileName)) return original;
+        if (CommonsLangUtils.isEmpty(fileName)) return original;
     	
-    	if (!StringUtils.isEmpty(extension)) {
+    	if (CommonsLangUtils.isNotEmpty(extension)) {
     		int n = fileName.lastIndexOf(extension);
     		String v = fileName.substring(0, n)+"_("+index+")"+extension;
     		index++;
@@ -563,8 +558,9 @@ public abstract class ActivityComponent
 	 * @param text   The text used if the object is not loaded.
 	 * @param object The object to handle.
 	 * @param folder Indicates where to download the file or <code>null</code>.
+	 * @param deleteWhenFinished If set file is deleted after download finished
 	 */
-	void download(String text, Object object, File folder)
+	void download(String text, Object object, File folder, final boolean deleteWhenFinished)
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
@@ -574,15 +570,16 @@ public abstract class ActivityComponent
 		String description = "";
 		long dataID = -1;
 		OriginalFile of = null;
+		FileAnnotationData fa = null;
 		if (object instanceof FileAnnotationData) {
-			FileAnnotationData data = (FileAnnotationData) object;
-			if (data.isLoaded()) {
-				name = data.getFileName();
-				description = data.getDescription();
-				of = (OriginalFile) data.getContent();
+			fa = (FileAnnotationData) object;
+			if (fa.isLoaded()) {
+				name = fa.getFileName();
+				description = fa.getDescription();
+				of = (OriginalFile) fa.getContent();
 			} else {
 				of = null;
-				dataID = data.getId();
+				dataID = fa.getId();
 				index = DownloadActivityParam.FILE_ANNOTATION;
 				if (text.length() == 0) text = "Annotation";
 				name = text+"_"+dataID;
@@ -614,7 +611,10 @@ public abstract class ActivityComponent
 						folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			}
 			activity.setLegend(desc);
-			activity.setUIRegister(false);
+			activity.setUIRegister(true);
+			if (fa != null && deleteWhenFinished)
+				activity.setToDelete(fa);
+			activity.setOverwrite(true);
 			viewer.notifyActivity(ctx, activity);
 			return;
 		}
@@ -626,6 +626,7 @@ public abstract class ActivityComponent
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setSelectedFileFull(name);
 		chooser.setApproveButtonText("Download");
+		final FileAnnotationData anno = fa;
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -645,6 +646,8 @@ public abstract class ActivityComponent
 								folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					}
 					activity.setLegend(desc);
+					if (anno != null && deleteWhenFinished)
+						activity.setToDelete(anno);
 					viewer.notifyActivity(ctx, activity);
 				}
 			}
@@ -660,7 +663,7 @@ public abstract class ActivityComponent
 	 */
 	void download(String text, Object object)
 	{
-		download(text, object, null);
+		download(text, object, null, false);
 	}
 	
 	/**

@@ -26,9 +26,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
@@ -36,6 +38,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -95,14 +98,14 @@ public class ViewInPluginAction
 		
 		IconManager icons = IconManager.getInstance();
 		switch (plugin) {
-			case DataBrowser.IMAGE_J:
+			case LookupNames.IMAGE_J:
 				putValue(Action.NAME, NAME_IJ);
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_IJ));
 		        putValue(Action.SMALL_ICON, 
 		        		icons.getIcon(IconManager.VIEWER_IJ));
 				break;
-			case DataBrowser.KNIME:
+			case LookupNames.KNIME:
 				putValue(Action.NAME, NAME_KNIME);
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_KNIME));

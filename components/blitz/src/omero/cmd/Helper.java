@@ -281,7 +281,7 @@ public class Helper {
      * Like {@link #fail(ERR, String, String...)} throws a
      * {@link Cancel} exception.
      *
-     * A {@link Cancel} is thrown, even though one is also specificed as the
+     * A {@link Cancel} is thrown, even though one is also specified as the
      * return value. This permits:
      * <pre>
      * } catch (Throwable t) {
@@ -365,6 +365,7 @@ public class Helper {
         return ec;
     }
 
+    @Deprecated
     public Cancel graphException(GraphException ge, long step, long id) {
         ERR err = new ERR();
         if (ge instanceof GraphConstraintException) {

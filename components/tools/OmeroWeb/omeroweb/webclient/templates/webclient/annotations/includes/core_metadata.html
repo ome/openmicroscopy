@@ -1,7 +1,7 @@
 {% load common_filters %}
 {% comment %}
 <!--
-  Copyright (C) 2012-2013 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2012-2014 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -21,16 +21,14 @@
 
 
 <table class="core_metadata">
-    <tr>
-        <th>Owner:</th>
-        <td id='owner_fullname'>{{ image.getOwner.getFullName }}</td>
-    </tr>
+    {% if image.getAcquisitionDate %}
     <tr>
         <th>Acquisition Date:</th>
-        <td id='acqu_date'>{{ image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+        <td id='acqu_date'>{{ image.getAcquisitionDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
     </tr>
+    {% endif %}
     <tr>
-        <th>Imported Date:</th>
+        <th>Import Date:</th>
         <td id='import_date'>{{ image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
     </tr>
     <tr>
@@ -42,13 +40,13 @@
         <td id='pixels_type'>{{ image.getPixelsType }}</td>
     </tr>
     <tr>
-        <th>Pixels Size (XYZ) ({{ image.getPixelSizeX|lengthunit}}):</th>
+        <th>Pixels Size (XYZ) ({{ image.getPixelSizeXMicrons|lengthunit}}):</th>
         <td id='pixels_size'>
-            <div class='tooltip'>{{ image.getPixelSizeX|lengthformat|floatformat:2 }} x {{ image.getPixelSizeY|lengthformat|floatformat:2 }} 
-                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ|lengthformat|floatformat:2 }} {% endif %}
+            <div class='tooltip'>{{ image.getPixelSizeXMicrons|lengthformat|floatformat:2 }} x {{ image.getPixelSizeYMicrons|lengthformat|floatformat:2 }} 
+                {% if image.getPixelSizeZMicrons %} x {{ image.getPixelSizeZMicrons|lengthformat|floatformat:2 }} {% endif %}
             </div>
-            <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeX }} x {{ image.getPixelSizeY }}
-                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ }} {% endif %} (&#181m)
+            <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeXMicrons }} x {{ image.getPixelSizeYMicrons }}
+                {% if image.getPixelSizeZMicrons %} x {{ image.getPixelSizeZMicrons }} {% endif %} (&#181m)
             </span>
         </td>
     </tr>
@@ -60,14 +58,15 @@
         <th>Channels:</th>
         <td id='channel_names'>
             <div>
-                {% if image.getChannels %}
+                {% with channelLabels=image.getChannelLabels %}
+                {% if channelLabels %}
                     <div id="channel_names_display">
-                    {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel }}</span>{% endfor %}
+                    {% for label in channelLabels %}{% if not forloop.first %}, {% endif %}<span>{{ label|escape }}</span>{% endfor %}
                     </div>
                     <!-- form for editing channel names (initially hidden)-->
                     <form action="{% url 'edit_channel_names' image.id %}" method="POST" id="channel_names_edit" style="display:none">
-                        {% for c in image.getChannels %}
-                            <input type="text" name="channel{{ forloop.counter0 }}" value="{{ c.getLabel }}" size=20/><br/>
+                        {% for label in channelLabels %}
+                            <input type="text" name="channel{{ forloop.counter0 }}" value="{{ label }}" size=20/><br/>
                         {% endfor %}
                         <!-- hidden input for 'apply to dataset' options -->
                         <input type="text" name="parentId" size=5 style="display:none" />
@@ -92,11 +91,12 @@
                 {% else %}
                     <span class="error">No channel specified</span>
                 {% endif %}
+                {% endwith %}
             </div>
         </td>
     </tr>
     <tr>
-        <th>ROI count:</th>
+        <th>ROI Count:</th>
         <td>{{ image.getROICount }}</td>
     </tr>
     {% if manager.well %}

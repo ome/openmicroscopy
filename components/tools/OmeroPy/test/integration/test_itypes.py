@@ -9,7 +9,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import test.integration.library as lib
+import library as lib
 
 from omero.rtypes import rstring
 

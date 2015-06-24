@@ -1,22 +1,15 @@
 /*
  * omeis.providers.re.quantum.QuantumStrategy
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package omeis.providers.re.quantum;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-import com.google.common.collect.Range;
-
+import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
 
@@ -103,8 +96,8 @@ public abstract class QuantumStrategy {
     /** Reference to a quantumDef object. */
     protected final QuantumDef qDef;
 
-    /** The type of pixels this strategy is for. */
-    protected final PixelsType type;
+    /** The pixels this strategy is for. */
+    protected final Pixels pixels;
 
     /** Reference to the value mapper. */
     protected QuantumMap valueMapper;
@@ -150,43 +143,44 @@ public abstract class QuantumStrategy {
      * 
      * The min value and max value could be out of pixel type range b/c of an
      * error occurred during the calculations of the statistics.
-     * 
+     * Returns <code>true</code> if the interval is valid according to the
+     * pixels type, <code>false</code> otherwise.
+     *
      * @param min
      *            The lower bound of the interval.
      * @param max
      *            The upper bound of the interval.
+     * @return See above.
      */
-    private void verifyInterval(double min, double max) {
+    private boolean verifyInterval(double min, double max) {
         boolean b = false;
         if (min <= max) {
             double range = max - min;
-            if (PlaneFactory.in(type,
+            if (PlaneFactory.in(pixels.getPixelsType(),
             		new String[] { PlaneFactory.INT8, PlaneFactory.UINT8 })) {
                 if (range < 0x100) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { PlaneFactory.INT16,
-                    		PlaneFactory.UINT16 })) {
+                    .in(pixels.getPixelsType(), new String[] {
+                            PlaneFactory.INT16, PlaneFactory.UINT16 })) {
                 if (range < 0x10000) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { PlaneFactory.INT32,
-                            PlaneFactory.UINT32 })) {
+                    .in(pixels.getPixelsType(), new String[] {
+                            PlaneFactory.INT32, PlaneFactory.UINT32 })) {
                 if (range < 0x100000000L) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { PlaneFactory.FLOAT_TYPE,
+                    .in(pixels.getPixelsType(), new String[] {
+                            PlaneFactory.FLOAT_TYPE,
                             PlaneFactory.DOUBLE_TYPE })) {
                 b = true;
             }
         }
-        if (!b) {
-            throw new IllegalArgumentException(
-            	"Min: " + min + " Max: " + max + " Interval not supported");
-        }
+        return b;
     }
 
     /** 
@@ -200,7 +194,7 @@ public abstract class QuantumStrategy {
     private void initPixelsRange(boolean withRange)
     {
         StatsFactory sf = new StatsFactory();
-        double[] values = sf.initPixelsRange(type);
+        double[] values = sf.initPixelsRange(pixels);
         pixelsTypeMin = values[0];
         pixelsTypeMax = values[1];
     }
@@ -209,9 +203,9 @@ public abstract class QuantumStrategy {
      * Creates a new instance.
      * 
      * @param qd The {@link QuantumDef} this strategy is for.
-     * @param pt The pixels type to handle.
+     * @param pixels The pixels to handle.
      */
-    protected QuantumStrategy(QuantumDef qd, PixelsType pt)
+    protected QuantumStrategy(QuantumDef qd, Pixels pixels)
     {
         windowStart = globalMin = 0.0;
         windowEnd = globalMax = 1.0;
@@ -222,10 +216,10 @@ public abstract class QuantumStrategy {
             throw new NullPointerException("No quantum definition");
         }
         this.qDef = qd;
-        if (pt == null) {
-            throw new NullPointerException("No pixel type");
+        if (pixels == null) {
+            throw new NullPointerException("No pixels");
         }
-        this.type = pt;
+        this.pixels = pixels;
         initPixelsRange(false);
     }
 
@@ -235,24 +229,19 @@ public abstract class QuantumStrategy {
      * @param value The value to handle
      * @return See above.
      */
-    protected Range<Double> getRange(double value)
+    protected Double getMiddleRange(double value)
     {
         //no range so we need to create it
         double min = getWindowStart();
         double max = getWindowEnd();
         double step = Math.abs(max-min)/(MAX-MIN+1);
-        double end = min+step;
         if (value == min) {
-            return Range.closedOpen(min, end);
+            return min+step/2;
         }
-        while (min+step < value) {
-            min += step;
-            end += step;
-        }
-        if (end == max) return Range.closed(min, end);
-        return Range.closedOpen(min, end);
+        int v = (int) ((value-min)/step);
+        return (min+(v-1)*step+min+v*step)/2;
     }
-    
+
     /**
      * Sets the maximum range of the input window.
      * 
@@ -270,7 +259,11 @@ public abstract class QuantumStrategy {
             globalMax = pixelsTypeMax;
         if (Double.isInfinite(globalMin) || globalMin < pixelsTypeMin)
             globalMin = pixelsTypeMin;
-        verifyInterval(globalMin, globalMax);
+        //Check if outside the pixel range so we set to the pixels type
+        if (!verifyInterval(globalMin, globalMax)) {
+            globalMax = pixelsTypeMax;
+            globalMin = pixelsTypeMin;
+        }
         this.globalMin = globalMin;
         this.globalMax = globalMax;
         this.windowStart = globalMin;
@@ -288,6 +281,11 @@ public abstract class QuantumStrategy {
      */
     public void setWindow(double start, double end) {
         verifyInterval(start, end);
+       //Check if outside the pixel range so we set to the pixels type
+        if (!verifyInterval(start, end)) {
+            end = pixelsTypeMax;
+            start = pixelsTypeMin;
+        }
         if (start < pixelsTypeMin) start = pixelsTypeMin;
         if (end > pixelsTypeMax) end = pixelsTypeMax;
         windowStart = start;

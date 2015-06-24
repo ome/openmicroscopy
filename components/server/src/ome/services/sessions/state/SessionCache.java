@@ -10,7 +10,6 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,17 +24,20 @@ import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.system.OmeroContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.MapMaker;
 
 /**
  * Synchronized and lockable state for the {@link SessionManager}. Maps from
@@ -43,7 +45,7 @@ import org.springframework.context.ApplicationContextAware;
  * also having an additional cache which may spill over to disk,
  * {@link StaleCacheListener listeners}.
  *
- * Uses {@link ConcurrentHashMap} and various implementations from
+ * Uses {@link MapMaker} and various implementations from
  * java.util.concurrent.atomic to provide a lock-free implementation.
  *
  * 
@@ -73,9 +75,9 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * Container which can be put in a single {@link AtomicReference} instance.
      * Contains all the data for a single session immutably. Therefore any
-     * thread that manages to get access to this instance (from the
-     * {@link ConcurrentHashMap} "data") can work with this data even if another
-     * thread is currently in the process of removing this from the map.
+     * thread that manages to get access to this instance can work with this
+     * data even if another thread is currently in the process of removing this
+     * from the map.
      */
     private static class Data {
 
@@ -216,7 +218,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      *
      */
-    private final Map<String, Data> sessions = new ConcurrentHashMap<String, Data>();
+    private final Map<String, Data> sessions;
 
     /**
      *
@@ -238,8 +240,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * 
      */
-    private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
-            64);
+    private final Map<String, Set<SessionCallback>> sessionCallbackMap;
 
     private final AtomicReference<StaleCacheListener> staleCacheListener = new AtomicReference<StaleCacheListener>();
 
@@ -253,6 +254,12 @@ public class SessionCache implements ApplicationContextAware {
      * {@link DestroySessionMessage} on {@link #removeSession(String)}
      */
     private OmeroContext context;
+
+    public SessionCache() {
+        final MapMaker mapMaker = new MapMaker();
+        sessions = mapMaker.makeMap();
+        sessionCallbackMap = mapMaker.makeMap();
+    }
 
     /**
      * Injection method, also performs the creation of {@link #sessions}
@@ -346,6 +353,38 @@ public class SessionCache implements ApplicationContextAware {
      * {@link RemovedSessionException} or {@link SessionTimeoutException}.
      */
     public SessionContext getSessionContext(String uuid) {
+        return getSessionContext(uuid, false);
+    }
+
+    /**
+     * Retrieve a session possibly raising either
+     * {@link RemovedSessionException} or {@link SessionTimeoutException}.
+     *
+     * @param quietly If true, then the access time for the given UUID
+     *                  will not be updated.
+     */
+    public SessionContext getSessionContext(String uuid, boolean quietly) {
+        if (uuid == null) {
+            throw new ApiUsageException("Uuid cannot be null.");
+        }
+
+        Data data = getDataNullOrThrowOnTimeout(uuid, true);
+
+        if (!quietly) {
+            // Up'ing access time
+            this.sessions.put(uuid, new Data(data));
+        }
+        return data.sessionContext;
+    }
+
+    /**
+     * Returns all the data contained in the internal implementation of
+     * this manger.
+     *
+     * @param quietly If true, then the access time for the given UUID
+     *                  will not be updated.
+     */
+    public Map<String, Object> getSessionData(String uuid, boolean quietly) {
 
         if (uuid == null) {
             throw new ApiUsageException("Uuid cannot be null.");
@@ -353,9 +392,18 @@ public class SessionCache implements ApplicationContextAware {
 
         Data data = getDataNullOrThrowOnTimeout(uuid, true);
 
-        // Up'ing access time
-        this.sessions.put(uuid, new Data(data));
-        return data.sessionContext;
+        if (!quietly) {
+            // Up'ing access time
+            this.sessions.put(uuid, new Data(data));
+        }
+
+        return new ImmutableMap.Builder<String, Object>()
+            .put("class", getClass().getName())
+            .put("sessionContext", data.sessionContext)
+            .put("hitCount", data.hitCount)
+            .put("lastAccessTime", data.lastAccessTime)
+            // .put("error", data.error.get())
+            .build();
     }
 
     /**
@@ -485,7 +533,6 @@ public class SessionCache implements ApplicationContextAware {
      * significantly effected.
      */
     public Set<String> getIds() {
-        // waitForUpdate();
         return sessions.keySet();
     }
 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.UserProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -61,20 +63,14 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Third-party libraries
-
-
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
-import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -188,6 +184,9 @@ class UserProfile
     /** Save the changes.*/
     private JButton saveButton;
 
+    /** The component hosting the password controls.*/
+    private JPanel passwordPanel;
+
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -196,15 +195,13 @@ class UserProfile
             StringBuffer buf = new StringBuffer();
             buf.append(passwordNew.getPassword());
             String newPass = buf.toString();
-            if (StringUtils.isBlank(newPass)) {
+            if (CommonsLangUtils.isBlank(newPass)) {
                 un = MetadataViewerAgent.getRegistry().getUserNotifier();
                 un.notifyInfo(PASSWORD_CHANGE_TITLE,
                         "Please enter the new password.");
                 passwordNew.requestFocus();
                 return;
             }
-            un = MetadataViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo(PASSWORD_CHANGE_TITLE, "Password changed.");
             passwordNew.setText("");
             model.resetPassword(newPass);
             return;
@@ -221,14 +218,14 @@ class UserProfile
         buf = new StringBuffer();
         buf.append(oldPassword.getPassword());
         String old = buf.toString();
-        if (StringUtils.isBlank(old)) {
+        if (CommonsLangUtils.isBlank(old)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please enter your old password.");
             oldPassword.requestFocus();
             return;
         }
-        if (StringUtils.isBlank(newPass)) {
+        if (CommonsLangUtils.isBlank(newPass)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please enter your new password.");
@@ -246,7 +243,7 @@ class UserProfile
             return;
         }
 
-        if (pass == null || StringUtils.isBlank(confirm) ||
+        if (pass == null || CommonsLangUtils.isBlank(confirm) ||
                 !pass.equals(confirm)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
@@ -349,6 +346,8 @@ class UserProfile
                 manageGroup();
             }
         });
+        passwordPanel = new JPanel();
+        passwordPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         passwordNew = new JPasswordField();
         passwordNew.setBackground(UIUtilities.BACKGROUND_COLOR);
         passwordConfirm = new JPasswordField();
@@ -377,8 +376,14 @@ class UserProfile
         }
         groupsBox.setModel(m);
         if (selected != null) groupsBox.setSelectedItem(selected);
+        groupsBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				hasDataToSave();
+			}
+		});
         permissionsPane = new PermissionsPane(defaultGroup.getPermissions(),
-                UIUtilities.BACKGROUND_COLOR);
+                UIUtilities.BACKGROUND_COLOR, model.isAdministrator());
         permissionsPane.disablePermissions();
 
         ExperimenterData logUser = model.getCurrentUser();
@@ -777,21 +782,20 @@ class UserProfile
      * Builds the UI component hosting the UI component used to modify 
      * the password.
      * 
+     * @param ldap
      * @return See above.
      */
-    private JPanel buildPasswordPanel()
+    private JPanel buildPasswordPanel(String ldap)
     {
+        passwordPanel.removeAll();
+        if (CommonsLangUtils.isNotBlank(ldap)) {
+            passwordPanel.setBorder( BorderFactory.createTitledBorder("LDAP"));
+            passwordPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+            passwordPanel.add(new JLabel(ldap));
+            return passwordPanel;
+        }
         JPanel content = new JPanel();
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        Registry reg = MetadataViewerAgent.getRegistry();
-        String ldap = (String) reg.lookup(LookupNames.USER_AUTHENTICATION);
-        if (ldap != null && ldap.length() > 0) {
-            content.setBorder(
-                    BorderFactory.createTitledBorder("LDAP Authentication"));
-            content.setLayout(new FlowLayout(FlowLayout.LEFT));
-            content.add(new JLabel(ldap));
-            return content;
-        }
         content.setBorder(
                 BorderFactory.createTitledBorder("Change Password"));
 
@@ -845,14 +849,14 @@ class UserProfile
             c.gridx = 0;
         }
 
-        JPanel p = new JPanel();
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(content);
+        passwordPanel = new JPanel();
+        passwordPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        passwordPanel.setLayout(new BoxLayout(passwordPanel, BoxLayout.Y_AXIS));
+        passwordPanel.add(content);
         JPanel buttonPanel = UIUtilities.buildComponentPanel(passwordButton);
         buttonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(buttonPanel);
-        return p;
+        passwordPanel.add(buttonPanel);
+        return passwordPanel;
     }
 
     /** Message displayed when one of the required fields is left blank. */
@@ -905,7 +909,15 @@ class UserProfile
             c.gridy++;
             add(Box.createVerticalStrut(5), c);
             c.gridy++;
-            add(buildPasswordPanel(), c);
+            boolean ldap = model.isLDAP();
+            loginArea.setEnabled(!ldap);
+            loginArea.setEditable(!ldap);
+            if (ldap) {
+                model.fireLDAPDetailsLoading();
+            } else {
+                buildPasswordPanel(null);
+            }
+            add(passwordPanel, c);
         }
         ExperimenterData exp = (ExperimenterData) model.getRefObject();
         BufferedImage photo = model.getUserPhoto(exp.getId());
@@ -932,13 +944,17 @@ class UserProfile
     {
         saveButton.setEnabled(false);
         String text = loginArea.getText();
-        if (StringUtils.isBlank(text)) return false;
+        if (CommonsLangUtils.isBlank(text)) return false;
         text = text.trim();
         ExperimenterData original = (ExperimenterData) model.getRefObject();
         if (!text.equals(original.getUserName())) {
             saveButton.setEnabled(true);
             return true;
         }
+		if (original.getDefaultGroup().getId() != getSelectedGroup().getId()) {
+			saveButton.setEnabled(true);
+			return true;
+		}
         //if (selectedIndex != originalIndex) return true;
         if (details == null) return false;
         Entry<String, String> entry;
@@ -955,7 +971,7 @@ class UserProfile
                 field = items.get(key);
                 if (field != null) {
                     v = field.getText();
-                    if (StringUtils.isBlank(v)) {
+                    if (CommonsLangUtils.isBlank(v)) {
                         if (EditorUtil.FIRST_NAME.equals(key) ||
                                 EditorUtil.LAST_NAME.equals(key)) {
                             return false;
@@ -1111,6 +1127,17 @@ class UserProfile
         if (parentRootObject instanceof GroupData) {
             setGroupOwner((GroupData) parentRootObject);
         }
+    }
+
+    /** Displays the LDAP details for the user.*/
+    void setLDAPDetails(String ldap)
+    {
+        loginArea.setEnabled(false);
+        loginArea.setEditable(false);
+        loginArea.getDocument().removeDocumentListener(this);
+        buildPasswordPanel(ldap);
+        revalidate();
+        repaint();
     }
 
     /** 

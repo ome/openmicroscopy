@@ -3,7 +3,7 @@
 """
    Startup plugin for command-line deletes
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -16,13 +16,33 @@ HELP = """Delete OMERO data.
 
 Remove entire graphs of data based on the ID of the top-node.
 
+By default linked tag, file and term annotations are not deleted.
+To delete linked annoations they must be explicitly included.
+
 Examples:
 
-    bin/omero delete --list   # Print all of the graphs
+    # Delete an image but not its linked tag, file and term annotations
+    omero delete Image:50
+    # Delete an image including linked tag, file and term annotations
+    omero delete Image:51 --include TagAnnotation,FileAnnotation,TermAnnotation
+    # Delete an image including all linked annotations
+    omero delete Image:52 --include Annotation
 
-    bin/omero delete /Image:50
-    bin/omero delete /Plate:1
-    bin/omero delete /Image:51 /Image:52 /OriginalFile:101
+    # Delete three images and two datasets including their contents
+    omero delete  omero delete Image:101,102,103 Dataset:201,202
+    # Delete a project excluding contained datasets and linked annotations
+    omero delete Project:101 --exclude Dataset,Annotation
+
+    # Delete all images contained under a project
+    omero delete Project/Dataset/Image:53
+    # Delete all images contained under two projects
+    omero delete Project/Image:201,202
+
+    # Do a dry run of a delete reporting the outcome if the delete had been run
+    omero delete Dataset:53 --dry-run
+    # Do a dry run of a delete, reporting all the objects
+    # that would have been deleted
+    omero delete Dataset:53 --dry-run --report
 
 """
 
@@ -32,35 +52,30 @@ class DeleteControl(GraphControl):
     def cmd_type(self):
         import omero
         import omero.all
-        return omero.cmd.Delete
+        return omero.cmd.Delete2
 
     def print_detailed_report(self, req, rsp, status):
         import omero
-        if isinstance(rsp, omero.cmd.DeleteRsp):
-            for k, v in rsp.undeletedFiles.items():
-                if v:
-                    self.ctx.out("Undeleted %s objects" % k)
-                    for i in v:
-                        self.ctx.out("%s:%s" % (k, i))
+        if isinstance(rsp, omero.cmd.DoAllRsp):
+            for response in rsp.responses:
+                if isinstance(response, omero.cmd.Delete2Response):
+                    self.print_delete_response(response)
+        elif isinstance(rsp, omero.cmd.Delete2Response):
+            self.print_delete_response(rsp)
 
-            self.ctx.out("Scheduled deletes: %s" % rsp.scheduledDeletes)
-            self.ctx.out("Actual deletes: %s" % rsp.actualDeletes)
-            if rsp.warning:
-                self.ctx.out("Warning message: %s" % rsp.warning)
-            self.ctx.out(" ")
+    def print_delete_response(self, rsp):
+        if rsp.deletedObjects:
+            self.ctx.out("Deleted objects")
+            objIds = self._get_object_ids(rsp.deletedObjects)
+            for k in objIds:
+                self.ctx.out("  %s:%s" % (k, objIds[k]))
 
-    def create_error_report(self, rsp):
-        import omero.cmd
-        if isinstance(rsp, omero.cmd.GraphConstraintERR):
-            if "Fileset" in rsp.constraints:
-                fileset = rsp.constraints.get("Fileset")
-                return "You cannot delete part of fileset %s; only complete" \
-                    " filesets can be deleted.\n" % \
-                    ", ".join(str(x) for x in fileset)
-            else:
-                return super(DeleteControl, self).create_error_report(rsp)
-        else:
-            return super(DeleteControl, self).create_error_report(rsp)
+    def default_exclude(self):
+        """
+        Don't delete these three types of Annotation by default
+        """
+        return ["TagAnnotation", "TermAnnotation", "FileAnnotation"]
+
 
 try:
     register("delete", DeleteControl, HELP)

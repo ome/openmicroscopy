@@ -13,6 +13,7 @@
         <type id="ome.model.roi.Roi" annotated="true" described="true">
                 <properties>
                         <!--optional name="union" type="boolean"/-->
+                        <optional name="name" type="string"/>
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
                         <optional name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>
@@ -58,10 +59,10 @@
                         <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
                         <optional name="strokeLineJoin" type="string"/><!-- miter, round, bevel -->
                         <optional name="strokeMiterLimit" type="int"/>
-                        <optional name="strokeWidth" type="int"/>
+                        <optional name="strokeWidth" type="ome.model.units.Length"/><!-- point default -->
                         <!-- Font -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
-                        <optional name="fontSize" type="int"/>
+                        <optional name="fontSize" type="ome.model.units.Length"/><!-- point default -->
                         <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
                         <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
                         <optional name="fontVariant" type="string"/><!-- normal, small-caps -->

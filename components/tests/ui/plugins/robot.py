@@ -36,8 +36,13 @@ class RobotControl(BaseControl):
         config.add_argument(
             "--config-file", type=str,
             help="Path to an ICE configuration file. Default: ICE_CONFIG")
+        config.add_argument(
+            "--protocol", type=str, default="http",
+            help="Protocol to use for the OMERO.web robot tests."
+            " Default: http")
 
     def config(self, args):
+        """Generate a configuration file for the Robot framework tests"""
 
         if args.config_file:
             init_args = ["--Ice.Config=%s" % args.config_file]
@@ -52,8 +57,8 @@ class RobotControl(BaseControl):
             "HOST": p.getPropertyWithDefault("omero.host", "localhost"),
             "USER": p.getPropertyWithDefault("omero.user", "root"),
             "PASS": p.getPropertyWithDefault("omero.pass", "omero"),
-            "ENCODED_WEBPREFIX": 'test',
             "ROOTPASS": p.getPropertyWithDefault("omero.rootpass", "omero"),
+            "PROTOCOL": args.protocol,
         }
 
         # Add OMERO.web substitutions
@@ -70,7 +75,7 @@ class RobotControl(BaseControl):
                                       settings.APPLICATION_SERVER_PORT)
 
         # Read robot.template file and substitute keywords
-        c = file(self.ctx.dir / "etc" / "robot.template").read()
+        c = file(self.ctx.dir / "etc" / "templates" / "robot.template").read()
         self.ctx.out(c % d)
 
 

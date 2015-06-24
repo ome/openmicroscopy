@@ -8,3 +8,7 @@
 # flake8: noqa
 
 from omero import ObjectFactoryRegistrar
+
+import IceImport
+
+IceImport.load("omero_model_NamedValue_ice")

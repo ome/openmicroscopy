@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-
-
-//Java imports
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -35,19 +32,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-
-
-//Third-party libraries
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
 import omero.model.Annotation;
@@ -63,24 +52,31 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
+import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Medium;
+import omero.model.NamedValue;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.Pressure;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.Temperature;
 import omero.model.TermAnnotation;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -107,6 +103,7 @@ import pojos.FilesetData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ROIData;
@@ -115,6 +112,9 @@ import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.XMLAnnotationData;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /** 
  * Implementation of the {@link OmeroMetadataService} I/F.
@@ -325,15 +325,37 @@ class OmeroMetadataServiceImpl
 				toUpdate.add(label);
 			}
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
-			Object o = data.getPositionX();
-			if (o != null)
-				label.setPositionX(omero.rtypes.rdouble((Float) o));
-			o = data.getPositionY();
-			if (o != null)
-				label.setPositionY(omero.rtypes.rdouble((Float) o));
-			o = data.getPositionZ();
-			if (o != null)
-				label.setPositionZ(omero.rtypes.rdouble((Float) o));
+            Length o = null;
+            try {
+                o = data.getPositionX(UnitsFactory.StageLabel_X);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get X position in "
+                                + UnitsFactory.StageLabel_X);
+            }
+            if (o != null)
+                label.setPositionX(o);
+            try {
+                o = data.getPositionY(UnitsFactory.StageLabel_Y);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get Y position in "
+                                + UnitsFactory.StageLabel_Y);
+            }
+            if (o != null)
+                label.setPositionY(o);
+            try {
+                o = data.getPositionZ(UnitsFactory.StageLabel_Z);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get Z position in "
+                                + UnitsFactory.StageLabel_Z);
+            }
+            if (o != null)
+                label.setPositionZ(o);
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {
@@ -347,13 +369,30 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(omero.rtypes.rdouble(
-					data.getAirPressure()));
+            try {
+                Pressure press = data
+                        .getAirPressure(UnitsFactory.ImagingEnvironment_AirPressure);
+                if (press != null)
+                    condition.setAirPressure(press);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get pressure in "
+                                + UnitsFactory.ImagingEnvironment_AirPressure);
+            }
 			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
-			Object o = data.getTemperature();
-			if (o != null)
-				condition.setTemperature(omero.rtypes.rdouble((Float) o));
+            try {
+                Temperature o = data
+                        .getTemperature(UnitsFactory.ImagingEnvironment_Temperature);
+                if (o != null)
+                    condition.setTemperature(o);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get temperature in "
+                                + UnitsFactory.ImagingEnvironment_Temperature);
+            }
 			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}
@@ -509,7 +548,8 @@ class OmeroMetadataServiceImpl
 			} else {
 				if (ann instanceof TagAnnotationData ||
 					ann instanceof TermAnnotationData ||
-					ann instanceof XMLAnnotationData) {
+					ann instanceof XMLAnnotationData ||
+					ann instanceof MapAnnotationData) {
 					//update description
 					tag = (AnnotationData) ann;
 					ann = (AnnotationData) updateAnnotationData(ctx, tag);
@@ -561,25 +601,23 @@ class OmeroMetadataServiceImpl
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
 		boolean exist = false;
-		
-		//Annotation an = (Annotation) gateway.findIObject(gateway.convertPojos(
-		//		annotation.getClass()), annotation.getId());
-		//ModelMapper.unloadCollections(an);
+
 		Annotation an = annotation.asAnnotation();
-		ExperimenterData exp = getUserDetails();
+        long[] expIds = new long[] { data.getOwner().getId(),
+                getUserDetails().getId() };
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
 			//tag a tag.
 			if (TagAnnotationData.class.equals(data.getClass())) {
-				link = gateway.findAnnotationLink(ctx,
+				link = findAnnotationLink(ctx,
 						AnnotationData.class, tag.getId(),
-						ho.getId().getValue(), exp.getId());
+						ho.getId().getValue(), expIds);
 				if (link == null) 
 					link = ModelMapper.linkAnnotation(an, (Annotation) ho);
 				else exist = true;
 			} else {
-				link = gateway.findAnnotationLink(ctx, ho.getClass(),
-						ho.getId().getValue(), tag.getId(), exp.getId());
+				link = findAnnotationLink(ctx, ho.getClass(),
+						ho.getId().getValue(), tag.getId(), expIds);
 				if (link == null)
 					link = ModelMapper.linkAnnotation(ho, an);
 				else {
@@ -587,7 +625,19 @@ class OmeroMetadataServiceImpl
 					exist = true;
 				}
 			}
-		} else if (annotation instanceof RatingAnnotationData) {
+		}
+		else if (annotation instanceof MapAnnotationData) {
+			MapAnnotationData map = (MapAnnotationData) annotation;
+			link = findAnnotationLink(ctx, ho.getClass(),
+					ho.getId().getValue(), map.getId(), expIds);
+			if (link == null)
+				link = ModelMapper.linkAnnotation(ho, an);
+			else {
+				updateAnnotationData(ctx, map);
+				exist = true;
+			}
+		}
+		else if (annotation instanceof RatingAnnotationData) {
 			clearAnnotation(ctx, data.getClass(), data.getId(),
 					RatingAnnotationData.class);
 			link = ModelMapper.linkAnnotation(ho, an);
@@ -597,6 +647,30 @@ class OmeroMetadataServiceImpl
 		if (link != null && !exist) 
 			gateway.createObject(ctx, link);
 	}
+	
+	/**
+	 * Calls {@link OMEROGateway#findAnnotationLink(SecurityContext, Class, long, long, long)}
+	 * for multiple {@link ExperimenterData} ids.
+	 * @param ctx The {@link SecurityContext}
+	 * @param type The class
+	 * @param parentID The parent Id
+	 * @param childID The child Id
+	 * @param userIDs Array of {@link ExperimenterData} ids
+	 * @return The link (if found, <code>null</code> otherwise)
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+    private IObject findAnnotationLink(SecurityContext ctx, Class type,
+            long parentID, long childID, long[] userIDs)
+            throws DSOutOfServiceException, DSAccessException {
+        for (long userID : userIDs) {
+            IObject obj = gateway.findAnnotationLink(ctx, type, parentID,
+                    childID, userID);
+            if (obj != null)
+                return obj;
+        }
+        return null;
+    }
 	
 	/**
 	 * Updates the passed annotation.
@@ -668,6 +742,16 @@ class OmeroMetadataServiceImpl
 					ioType, id);
 			ho.setBoolValue(omero.rtypes.rbool(tag.getValue()));
 			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		}
+		else if (ann instanceof MapAnnotationData && ann.isDirty()) {
+			MapAnnotationData map = (MapAnnotationData) ann;
+			id = map.getId();
+			ioType = gateway.convertPojos(MapAnnotationData.class).getName();
+			MapAnnotation m = (MapAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			m.setMapValue((List<NamedValue>) map.getContent());
+			IObject object = gateway.updateObject(ctx, m, new Parameters());
 			return PojoMapper.asDataObject(object);
 		}
 		return ann;
@@ -836,6 +920,8 @@ class OmeroMetadataServiceImpl
             ratings = new ArrayList<RatingAnnotationData>();
             List<XMLAnnotationData> 
             xml = new ArrayList<XMLAnnotationData>();
+            List<MapAnnotationData> 
+            maps = new ArrayList<MapAnnotationData>();
             
             List<AnnotationData> 
             other = new ArrayList<AnnotationData>();
@@ -866,7 +952,11 @@ class OmeroMetadataServiceImpl
                 } else if (data instanceof XMLAnnotationData) {
                     annotationIds.add(data.getId());
                     xml.add((XMLAnnotationData) data);
-                } else {
+                } else if (data instanceof MapAnnotationData) {
+                    annotationIds.add(data.getId());
+                    maps.add((MapAnnotationData) data);
+                } 
+                else {
                     annotationIds.add(data.getId());
                     other.add(data);
                 }
@@ -886,6 +976,7 @@ class OmeroMetadataServiceImpl
             results.setTags(tags);
             results.setRatings(ratings);
             results.setAttachments(attachments);
+            results.setMapAnnotations(maps);
         }
     }
     

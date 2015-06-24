@@ -28,9 +28,11 @@ import tempfile
 import omero
 import omero.clients
 import omero.grid
-import test.integration.library as lib
+import library as lib
+import pytest
 
 from omero import columns
+from omero.rtypes import rint
 
 
 class TestBackwardsCompatibility(lib.ITest):
@@ -300,3 +302,19 @@ class TestBackwardsCompatibility(lib.ITest):
         testl2 = data2.columns[7].values
         assert -1 == testl2[0]
         assert 12345 == testl2[1]
+
+    def testMetadataException(self):
+        """
+        Check whether metadata set methods are blocked on a v1 (pre-5.1) table
+        """
+        ofile = self.uploadHdf5("service-reference-dev_4_4_5.h5.bz2")
+
+        grid = self.client.sf.sharedResources()
+        table = grid.openTable(ofile)
+
+        expected = 'Tables metadata is only supported for OMERO.tables >= 2'
+        with pytest.raises(omero.ApiUsageException) as exc:
+            table.setMetadata('a', rint(1))
+        with pytest.raises(omero.ApiUsageException) as exc:
+            table.setAllMetadata({'a': rint(1)})
+        assert exc.value.message == expected

@@ -18,7 +18,7 @@
 #include <omero/model/ExperimenterI.h>
 
 // gtest
-#include "gtest/gtest.h"
+#include <safegtest.h>
 
 #ifdef LINUX
 // stackframe

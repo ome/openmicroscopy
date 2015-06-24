@@ -458,17 +458,26 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-src-git" description="Package the git source tree (git)"
             depends="check-git" if="git.exists">
         <mkdir dir="${target.dir}"/>
+        <ant antfile="build.xml" dir="components/bioformats" target="store-version" inheritAll="false"/>
+        <property file="components/bioformats/artifacts/bioformats.properties"/>
         <exec executable="python" failonerror="true">
-            <arg value="${omero.home}/components/antlib/scripts/source-archive"/>
+            <arg value="${omero.home}/components/antlib/scripts/source-archive.py"/>
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
+            <arg value="${omero.vcs.shortrevision}"/>
             <arg value="${omero.vcs.revision}"/>
             <arg value="${omero.vcs.date}"/>
-            <arg value="components/antlib/resources/gitversion.xml"/>
-            <arg value="components/tools/OmeroCpp/cmake/GitVersion.cmake"/>
+            <arg value="${omero.vcs.date_unix}"/>
+            <arg value="${release.shortversion}"/>
+            <arg value="${release.version}"/>
+            <arg value="${vcs.shortrevision}"/>
+            <arg value="${vcs.revision}"/>
+            <arg value="${vcs.date}"/>
+            <arg value="${vcs.date_unix}"/>
             <arg value="${target.dir}"/>
         </exec>
+
     </target>
 
     <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
@@ -513,11 +522,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer-${omero.version}\1.zip"/>
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
-
-        <apply executable="python" dir="${target.dir}" failonerror="true">
-           <env key="OMERO_VERSION" value="${omero.version}"/>
-           <fileset dir="${omero.home}/lib" includes="composite.py"/>
-       </apply>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
@@ -544,24 +548,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="findbugs"/>
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
-    </target>
-
-    <target name="release-coverage" depends="build-eclipse"
-        description="Merge code coverage reports into single top-level report">
-        <path id="omero.classpath">
-                <fileset dir="${omero.home}/target/libs" />
-        </path>
-        <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
-        <emma>
-            <merge outfile="${target.dir}/coverage.es" >
-                <fileset dir="components" includes="**/target/coverage.emma,**/target/metadata.emma"/>
-            </merge>
-            <report sourcepath="${src.dir}" >
-                <fileset dir="${target.dir}" includes="coverage.es"/>
-                <html outfile="${target.dir}/coverage.html" />
-                <xml outfile="${target.dir}/coverage.xml" />
-            </report>
-        </emma>
     </target>
 
     <target name="release-docs" depends="release-javadoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
@@ -684,7 +670,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
                 <doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
                 <bottom><![CDATA[
-                <div id="ome-logo-for-top" style="display:none"><a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/" target="_top"><div id="ome-logo-inner"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME Docs"></a></div></div>
+                <div id="ome-logo-for-top" style="display:none"><div id="ome-logo-inner"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME Docs"></div></div>
                 <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava Api</b></div>
                 <p><i>Version: ${omero.version}</i></p>
                 <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
@@ -751,22 +737,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="nobf.buildpath" target="artifactory"/>
     </target>
 
-    <target name="release-nsis" description="Creates a Windows installer with NSIS">
-        <taskdef name="nsis" classname="net.sf.nsisant.Task">
-            <classpath location="lib/repository/nsisant-${versions.nsisant}.jar"/>
-        </taskdef>
-        <property name="nsis.dir" value="${omero.home}/components/antlib/nsis"/>
-        <nsis script="${nsis.dir}/omero.nsi" verbosity="4" noconfig="yes" nocd="yes"><!-- out="target/nsis.log"-->
-            <define name="VERSION" value="4.1.0.0"/><!--${omero.version} Last digit build?"-->
-            <define name="OMERO_VERSION" value="${omero.version}"/>
-            <define name="DBVERSION" value="${omero.db.version}"/>
-            <define name="DBPATCH" value="${omero.db.patch}"/>
-            <define name="INCLUDE_DIR" value="${nsis.dir}"/>
-            <define name="INSTALLER_NAME" value="${omero.home}/target/omero_installer-${omero.version}.exe"/>
-            <!--scriptcmd cmd="AutoCloseWindow true"/-->
-        </nsis>
-    </target>
-
     <target name="release-training" description="Produces a zip with the examples/Training files">
         <zip destfile="${omero.home}/target/OMERO.training-${omero.version}.zip">
             <zipfileset dir="${omero.home}/examples/Training" prefix="OMERO.training-${omero.version}" includes="**" excludes="markup.py"/>
@@ -778,7 +748,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version,create-workdirs"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -797,8 +767,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
                 </fileset>
-                <fileset dir="${omero.home}/components/tests/ui/resources" includes="robot.template"/>
             </copy>
+            <copy file="${omero.home}/components/tests/ui/resources/robot.template" todir="${dist.dir}/etc/templates"/>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
     </target>
@@ -823,6 +793,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
+
+    <target name="create-workdirs" depends="init">
+            <mkdir dir="${dist.dir}/var"/>
     </target>
 
     <macrodef name="jar_update_if">
@@ -982,11 +956,6 @@ omero.version=${omero.version}
     <target name="hot-server" depends="init" description="Re-launch running server with new server.jar">
         <property name="targets" value="install"/>
         <hotdeploy component="${server.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-bioformats" depends="init" description="Re-launch running bioformats with new bioformats.jar">
-        <property name="targets" value="dist"/>
-        <hotdeploy component="${basedir}/components/bioformats" targets="${targets}"/>
     </target>
 
 

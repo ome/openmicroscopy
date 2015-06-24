@@ -32,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -41,6 +42,7 @@ import org.jdesktop.swingx.VerticalLayout;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 
@@ -92,7 +94,7 @@ class UserUI
 		profile.addPropertyChangeListener(control);
 		
 		JXTaskPane pane = EditorUtil.createTaskPane(TITLE_DETAILS);
-		pane.add(profile, null, 0);
+		//pane.add(profile, null, 0);
 		pane.setCollapsed(false);
 		
 		diskSpace = new UserDiskSpace(this);
@@ -109,7 +111,7 @@ class UserUI
 		container.add(pane);
 		//container.add(diskTask);
 		setLayout(new BorderLayout());
-		add(container, BorderLayout.NORTH);
+		add(profile, BorderLayout.NORTH);
 	}
 	
 	/**
@@ -169,7 +171,16 @@ class UserUI
 	{
 		profile.setParentRootObject();
 	}
-	
+
+	/**
+	 * Sets the LDAP details.
+	 *
+	 * @param userID The user's id.
+	 */
+	void setLDAPDetails(String result) {
+	    profile.setLDAPDetails(result);
+	}
+
 	/**
 	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()

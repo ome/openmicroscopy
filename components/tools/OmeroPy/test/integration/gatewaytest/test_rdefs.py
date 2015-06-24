@@ -290,24 +290,55 @@ class TestRDefs (object):
 
     def testResetDefaults(self, gatewaywrapper):
         """
-        Test we can resetDefaults with or without saving.
+        Test we can resetDefaultSettings with or without saving.
         """
-        # Author saves Rdef (greyscale)
         gatewaywrapper.loginAsAuthor()
-        self.image = gatewaywrapper.getTestImage()
-        self.image.setGreyscaleRenderingModel()
-        self.image.saveDefaults()
+        userId = gatewaywrapper.gateway.getUser().getId()
+        # Admin creates a new group with user
+        gatewaywrapper.loginAsAdmin()
+        uuid = gatewaywrapper.gateway.getEventContext().sessionUuid
+        gid = gatewaywrapper.gateway.createGroup(
+            "testResetDefaults-%s" % uuid, member_Ids=[userId], perms='rw----')
 
-        # resetDefaults without saving - shouldn't be greyscale
-        self.image.resetDefaults(save=False)
-        assert not self.image.isGreyscaleRenderingModel()
+        # login as Author again (into 'default' group)
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
+        # Try to create image in another group
+        conn.SERVICE_OPTS.setOmeroGroup(gid)
 
-        # retrieve the image again... Should still be greyscale
-        self.image = gatewaywrapper.getTestImage()
-        assert self.image.isGreyscaleRenderingModel()
+        # Author saves Rdef (greyscale)
+        image = gatewaywrapper.createTestImage()
+        # test image is greyscale initially
+        assert image.isGreyscaleRenderingModel()
+        image.setColorRenderingModel()
+        image.saveDefaults()
+        iid = image.getId()
+
+        # resetDefaults without saving - should be greyscale
+        image.resetDefaults(save=False)
+        assert image.isGreyscaleRenderingModel()
+
+        # retrieve the image again... Should still be color
+        image = gatewaywrapper.gateway.getObject("Image", iid)
+        assert not image.isGreyscaleRenderingModel()
         # Then reset and Save
-        self.image.resetDefaults(save=True)
+        image.resetDefaults()
 
-        # retrieve the image again... Should not be greyscale
-        self.image = gatewaywrapper.getTestImage()
-        assert not self.image.isGreyscaleRenderingModel()
+        # retrieve the image again... Should be greyscale
+        image = gatewaywrapper.gateway.getObject("Image", iid)
+        assert image.isGreyscaleRenderingModel()
+        # Finally save as Color again, so Admin can test reset
+        image.setColorRenderingModel()
+        image.saveDefaults()
+
+        # Login as Admin and try resetting...
+        gatewaywrapper.loginAsAdmin()
+        gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        i = gatewaywrapper.gateway.getObject("Image", iid)
+        # will be color (owner's settings by default)
+        assert not i.isGreyscaleRenderingModel()
+        # Shouldn't be able to annotate image in Private group
+        assert not i.canAnnotate()
+        # Try resetting (save=True will be ignored, but reset will work)
+        i.resetDefaults(save=True)
+        assert i.isGreyscaleRenderingModel()

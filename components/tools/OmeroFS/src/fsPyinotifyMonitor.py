@@ -88,11 +88,14 @@ class PlatformMonitor(AbstractPlatformMonitor):
             self.wm, ProcessEvent(
                 wm=self.wm, cb=self.propagateEvents, et=self.eTypes,
                 ignoreDirEvents=self.ignoreDirEvents))
-        self.wm.addBaseWatch(
-            self.pathsToMonitor, (pyinotify.ALL_EVENTS), rec=recurse,
-            auto_add=follow)
-        self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
-        self.log.info('Monitoring %s events', str(self.eTypes))
+        try:
+            self.wm.addBaseWatch(
+                self.pathsToMonitor, (pyinotify.ALL_EVENTS), rec=recurse,
+                auto_add=follow)
+            self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
+            self.log.info('Monitoring %s events', str(self.eTypes))
+        except:
+            self.log.error('Monitor failed on: %s', str(self.pathsToMonitor))
 
     def start(self):
         """
@@ -143,50 +146,64 @@ class MyWatchManager(pyinotify.WatchManager):
         return pathString in self.watchPaths.keys()
 
     def addBaseWatch(self, path, mask, rec=False, auto_add=False):
-        res = pyinotify.WatchManager.add_watch(
-            self, path, mask, rec=False, auto_add=False)
-        self.watchPaths.update(res)
-        self.watchParams[path] = WatchParameters(
-            mask, rec=rec, auto_add=auto_add)
-        if rec:
-            for d in pathModule.path(path).dirs():
-                self.addWatch(str(d), mask)
-        self.log.info('Base watch created on: %s', path)
+        try:
+            res = pyinotify.WatchManager.add_watch(
+                self, path, mask, rec=False, auto_add=False, quiet=False)
+            self.watchPaths.update(res)
+            self.watchParams[path] = WatchParameters(
+                mask, rec=rec, auto_add=auto_add)
+            self.log.info('Base watch created on: %s', path)
+            if rec:
+                for d in pathModule.path(path).dirs():
+                    self.addWatch(str(d), mask)
+        except Exception, e:
+            self.log.error(
+                'Unable to create base watch on: %s : %s', path, str(e))
+            raise e
 
     def addWatch(self, path, mask):
         if not self.isPathWatched(path):
-            res = pyinotify.WatchManager.add_watch(
-                self, path, mask, rec=False, auto_add=False)
-            self.watchPaths.update(res)
-            self.watchParams[path] = copy.copy(
-                self.watchParams[pathModule.path(path).parent])
-            if self.watchParams[path].getRec():
-                for d in pathModule.path(path).dirs():
-                    self.addWatch(str(d), mask)
-            if self.isPathWatched(path):
-                self.log.info('Watch added on: %s', path)
-            else:
-                self.log.info('Unable to add watch on: %s', path)
+            try:
+                res = pyinotify.WatchManager.add_watch(
+                    self, path, mask, rec=False, auto_add=False, quiet=False)
+                self.watchPaths.update(res)
+                self.watchParams[path] = copy.copy(
+                    self.watchParams[pathModule.path(path).parent])
+                if self.watchParams[path].getRec():
+                    for d in pathModule.path(path).dirs():
+                        self.addWatch(str(d), mask)
+                if self.isPathWatched(path):
+                    self.log.info('Watch added on: %s', path)
+                else:
+                    self.log.info('Unable to add watch on: %s', path)
+            except Exception, e:
+                self.log.error(
+                    'Unable to add watch on: %s : %s', path, str(e))
 
     def removeWatch(self, path):
         if self.isPathWatched(path):
-            removeDict = {}
-            self.log.info('Trying to remove : %s', path)
-            removeDict[self.watchPaths[path]] = path
-            for d in self.watchPaths.keys():
-                if d.find(path + '/') == 0:
-                    self.log.info('    ... and : %s', d)
-                    removeDict[self.watchPaths[d]] = d
-            res = pyinotify.WatchManager.rm_watch(self, removeDict.keys())
-            for wd in res.keys():
-                if res[wd]:
-                    self.watchPaths.pop(removeDict[wd], True)
-                    self.watchParams.pop(removeDict[wd], True)
-                    self.log.info('Watch removed on: %s', removeDict[wd])
-                else:
-                    self.log.info(
-                        'Watch remove failed, wd=%s, on: %s',
-                        wd, removeDict[wd])
+            try:
+                removeDict = {}
+                self.log.info('Trying to remove : %s', path)
+                removeDict[self.watchPaths[path]] = path
+                for d in self.watchPaths.keys():
+                    if d.find(path + '/') == 0:
+                        self.log.info('    ... and : %s', d)
+                        removeDict[self.watchPaths[d]] = d
+                res = pyinotify.WatchManager.rm_watch(
+                    self, removeDict.keys(), quiet=False)
+                for wd in res.keys():
+                    if res[wd]:
+                        self.watchPaths.pop(removeDict[wd], True)
+                        self.watchParams.pop(removeDict[wd], True)
+                        self.log.info('Watch removed on: %s', removeDict[wd])
+                    else:
+                        self.log.info(
+                            'Watch remove failed, wd=%s, on: %s',
+                            wd, removeDict[wd])
+            except Exception, e:
+                self.log.error(
+                    'Unable to remove watch on: %s : %s', path, str(e))
 
     def getWatchPaths(self):
         for (path, wd) in self.watchPaths.items():
@@ -243,9 +260,11 @@ class ProcessEvent(pyinotify.ProcessEvent):
                 'Event with "-unknown-path" of type %s : %s', maskname, name)
             name = name.replace('-unknown-path', '')
 
-        # New directory within watch area, either created or moved into.
-        if event.mask == (pyinotify.IN_CREATE | pyinotify.IN_ISDIR) \
-                or event.mask == (pyinotify.IN_MOVED_TO | pyinotify.IN_ISDIR):
+        # New directory within watch area,
+        # either created, moved in or modfied attributes, ie now readable.
+        if (event.mask == (pyinotify.IN_CREATE | pyinotify.IN_ISDIR)
+                or event.mask == (pyinotify.IN_MOVED_TO | pyinotify.IN_ISDIR)
+                or event.mask == (pyinotify.IN_ATTRIB | pyinotify.IN_ISDIR)):
             self.log.info(
                 'New directory event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
@@ -261,41 +280,50 @@ class ProcessEvent(pyinotify.ProcessEvent):
                         self.wm.addWatch(
                             name, self.wm.watchParams[
                                 pathModule.path(name).parent].getMask())
-                        if self.wm.watchParams[
-                                pathModule.path(name).parent].getRec():
-                            for d in pathModule.path(name).walkdirs():
-                                self.log.info(
-                                    'NON-INOTIFY event: New directory at: %s',
-                                    str(d))
-                                if not self.ignoreDirEvents:
+                        if self.wm.isPathWatched(name):
+                            if self.wm.watchParams[
+                                    pathModule.path(name).parent].getRec():
+                                for d in pathModule.path(name).walkdirs(
+                                        errors='warn'):
+                                    self.log.info(
+                                        ('NON-INOTIFY event: '
+                                         'New directory at: %s'),
+                                        str(d))
+                                    if not self.ignoreDirEvents:
+                                        el.append((
+                                            str(d),
+                                            monitors.EventType.Create))
+                                    else:
+                                        self.log.info('Not propagated.')
+                                    self.wm.addWatch(
+                                        str(d), self.wm.watchParams[
+                                            pathModule.path(
+                                                name).parent].getMask())
+                                for f in pathModule.path(name).walkfiles(
+                                        errors='warn'):
+                                    self.log.info(
+                                        'NON-INOTIFY event: New file at: %s',
+                                        str(f))
                                     el.append(
-                                        (str(d), monitors.EventType.Create))
-                                else:
-                                    self.log.info('Not propagated.')
-                                self.wm.addWatch(
-                                    str(d), self.wm.watchParams[
-                                        pathModule.path(
-                                            name).parent].getMask())
-                            for f in pathModule.path(name).walkfiles():
-                                self.log.info(
-                                    'NON-INOTIFY event: New file at: %s',
-                                    str(f))
-                                el.append((str(f), monitors.EventType.Create))
-                        else:
-                            for d in pathModule.path(name).dirs():
-                                self.log.info(
-                                    'NON-INOTIFY event: New directory at: %s',
-                                    str(d))
-                                if not self.ignoreDirEvents:
+                                        (str(f), monitors.EventType.Create))
+                            else:
+                                for d in pathModule.path(name).dirs():
+                                    self.log.info(
+                                        ('NON-INOTIFY event: '
+                                         'New directory at: %s'),
+                                        str(d))
+                                    if not self.ignoreDirEvents:
+                                        el.append((
+                                            str(d),
+                                            monitors.EventType.Create))
+                                    else:
+                                        self.log.info('Not propagated.')
+                                for f in pathModule.path(name).files():
+                                    self.log.info(
+                                        'NON-INOTIFY event: New file at: %s',
+                                        str(f))
                                     el.append(
-                                        (str(d), monitors.EventType.Create))
-                                else:
-                                    self.log.info('Not propagated.')
-                            for f in pathModule.path(name).files():
-                                self.log.info(
-                                    'NON-INOTIFY event: New file at: %s',
-                                    str(f))
-                                el.append((str(f), monitors.EventType.Create))
+                                        (str(f), monitors.EventType.Create))
                 else:
                     self.log.info('Created "untitled folder" ignored.')
             else:
@@ -378,7 +406,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
 
         # These are all the currently ignored events.
         elif event.mask == pyinotify.IN_ATTRIB:
-            # Attributes have changed? Useful?
+            # File attributes have changed? Useful?
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif (event.mask == pyinotify.IN_DELETE_SELF
                 or event.mask == pyinotify.IN_IGNORED):

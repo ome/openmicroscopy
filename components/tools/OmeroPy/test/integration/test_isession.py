@@ -25,11 +25,17 @@
 """
 import os
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import traceback
 import omero
-from omero.rtypes import rint, rstring
+
+from omero.rtypes import rint
+from omero.rtypes import rlong
+from omero.rtypes import rstring
+from omero.rtypes import unwrap
+
+from omero.cmd import UpdateSessionTimeoutRequest
 
 
 class TestISession(lib.ITest):
@@ -93,23 +99,69 @@ class TestISession(lib.ITest):
         finally:
             c1.__del__()
 
-# Removing test for 'guest' user.
-# This currently fails but there is some question
-# as to whether we should have a guest user.
-#
-#     def testCreateSessionForGuest(self):
-#         p = omero.sys.Principal()
-#         p.name  = "guest"
-#         p.group = "guest"
-#         p.eventType = "guest"
-#         sess  = self.root.sf.getSessionService().createSessionWithTimeout(
-#             p, 10000) # 10 secs
-#
-#        guest_client = omero.client()
-#        guest_sess = guest_client.createSession("guest",sess.uuid)
-#        guest_client.closeSession()
+    @pytest.mark.parametrize("who", (
+        ("root", -1, None),
+        ("root", 1, None),
+        ("user", -1, None),
+        ("baduser", 1, None)))
+    def testUpdateSessions(self, who):
+        who, idlediff, livediff = who
+        if who.startswith("root"):
+            client = self.root
+        else:
+            client = self.client
 
-    @pytest.mark.xfail(reason="See tickets #11494 and #11542")
+        uuid = client.getSessionId()
+        service = client.sf.getSessionService()
+        obj_before = service.getSession(uuid)
+        live = unwrap(obj_before.timeToLive)
+        idle = unwrap(obj_before.timeToIdle)
+
+        req = UpdateSessionTimeoutRequest()
+        req.session = uuid
+        if livediff is not None:
+            req.timeToLive = rlong(live+livediff)
+        if idlediff is not None:
+            req.timeToIdle = rlong(idle+idlediff)
+        try:
+            cb = client.submit(req)
+            cb.getResponse()
+            cb.close(True)
+            assert not who.startswith("bad")  # must throw
+        except omero.CmdError, ce:
+            if who.startswith("bad"):
+                assert ce.err.name == "non-admin-increase"
+                return
+            else:
+                print ce.err.parameters.get("stacktrace")
+                raise Exception(ce.err.category,
+                                ce.err.name)
+
+        obj_after = client.sf.getQueryService().findByQuery(
+            ("select s from Session s "
+             "where s.id = %s") % obj_before.id.val, None)
+        assert obj_before.id == obj_after.id
+        assert obj_before.uuid == obj_after.uuid
+        assert req.timeToLive is None \
+            or req.timeToLive == obj_after.timeToLive
+        assert req.timeToIdle is None \
+            or req.timeToIdle == obj_after.timeToIdle
+
+        # Now try again! (required SessionManager fix)
+        obj_after = service.getSession(uuid)
+        assert req.timeToIdle.val == obj_after.timeToIdle.val
+
+    def testCreateSessionForGuest(self):
+        p = omero.sys.Principal()
+        p.name = "guest"
+        p.group = "guest"
+        p.eventType = "User"
+        sess = self.root.sf.getSessionService().createSessionWithTimeout(
+            p, 10000)  # 10 secs
+        guest_client = omero.client()
+        guest_client.joinSession(sess.uuid.val)
+        guest_client.closeSession()
+
     def test1018CreationDestructionClosing(self):
         c1, c2, c3, c4 = None, None, None, None
         try:
@@ -135,7 +187,9 @@ class TestISession(lib.ITest):
             s3 = c3.createSession(uuid, uuid)
             s3.closeOnDestroy()
             s3.getAdminService().getEventContext()
-            c3.closeSession()
+
+            # Guarantee that the session is closed.
+            c3.killSession()
 
             # Now a connection should not be possible
             c4 = omero.client()  # ok rather than new_client since has __del__

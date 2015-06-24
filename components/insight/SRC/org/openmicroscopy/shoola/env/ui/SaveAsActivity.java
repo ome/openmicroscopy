@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.SaveAsActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.io.File;
+import java.util.Map;
 
 //Third-party libraries
 import org.apache.commons.io.FilenameUtils;
@@ -95,9 +96,6 @@ public class SaveAsActivity
 		this.parameters = parameters;
 		initialize(DESCRIPTION_CREATION+parameters.getIndexAsString(),
 				parameters.getIcon());
-		File folder = parameters.getFolder();
-		messageLabel.setText("in "+folder.getName());
-		messageLabel.setToolTipText(folder.getAbsolutePath());
 	}
 
 	/**
@@ -110,23 +108,56 @@ public class SaveAsActivity
 		return loader;
 	}
 
+	
+	@Override
+	public void endActivity(Object result) {
+		if(parameters.isDeleteWhenFinished()) {
+			if (result instanceof Map) {
+				FileAnnotationData fa = null;
+				Map<String, Object> m = (Map<String, Object>) result;
+				for(Object obj : m.values()) {
+					if(obj instanceof FileAnnotationData) {
+						fa = (FileAnnotationData) obj;
+						break;
+					}
+				}
+				
+				if(fa!=null && fa.isLoaded()) {
+					download("", fa, new File(parameters.getFolder(), fa.getFileName()), parameters.isDeleteWhenFinished());
+					// call super method to stop busy label
+					super.endActivity(null);
+				}
+				else
+					super.endActivity(result);
+			}
+		}
+		else
+			super.endActivity(result);
+	}
+
 	/**
 	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityEnd()
 	 */
 	protected void notifyActivityEnd()
 	{
-		//Download the file.
-		if (result instanceof FileAnnotationData) {
-			FileAnnotationData data = (FileAnnotationData) result;
-			String name = "";
-			if (data.isLoaded()) name = data.getFileName();
-			else name = "Annotation_"+data.getId();
-			name = getFileName(name);
-			download("", result, new File(parameters.getFolder(), name));
+		if (!parameters.isDeleteWhenFinished()) {
+			// Download the file.
+			if (result instanceof FileAnnotationData) {
+				FileAnnotationData data = (FileAnnotationData) result;
+				String name = "";
+				if (data.isLoaded())
+					name = data.getFileName();
+				else
+					name = "Annotation_" + data.getId();
+				name = getFileName(name);
+				download("", result, new File(parameters.getFolder(), name),
+						false);
+			}
+
+			type.setText(DESCRIPTION_CREATED + " "
+					+ parameters.getFolder().getName());
 		}
-		
-		type.setText(DESCRIPTION_CREATED+" "+parameters.getFolder().getName());
 	}
 
 	/**

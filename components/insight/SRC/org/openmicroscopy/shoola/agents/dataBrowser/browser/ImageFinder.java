@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -68,7 +68,7 @@ public class ImageFinder
     private Set<DataObject>		images;
     
     /** Set of <code>ImageNode</code>s */
-    private List<ImageNode>		visibleImageNodes;
+    private Set<ImageNode>		visibleImageNodes;
     
     /** Set of corresponding visible <code>DataObject</code>s */
     private Set<DataObject>		visibleImages;
@@ -79,7 +79,7 @@ public class ImageFinder
     	 images = new HashSet<DataObject>();
          imageNodes = new HashSet<ImageDisplay>();
          visibleImages = new HashSet<DataObject>();
-         visibleImageNodes = new ArrayList<ImageNode>();
+         visibleImageNodes = new HashSet<ImageNode>();
     }
    
     /** 
@@ -101,7 +101,7 @@ public class ImageFinder
      * 
      * @return See above.
      */
-    public List<ImageNode> getVisibleImageNodes()
+    public Set<ImageNode> getVisibleImageNodes()
     { 
     	return visibleImageNodes; 
     }
@@ -120,6 +120,7 @@ public class ImageFinder
     public void visit(ImageNode node)
     {
         imageNodes.add(node);
+        visibleImageNodes.add(node);
         Object ho = node.getHierarchyObject();
         if (ho instanceof WellSampleData) {
         	WellSampleData wsd = (WellSampleData) ho;

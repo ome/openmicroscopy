@@ -61,6 +61,7 @@ import omero.model.Image;
 import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
+import omero.model.OriginalFile;
 import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -87,7 +88,7 @@ import ch.qos.logback.classic.ClassicConstants;
  */
 public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
-    private static final long serialVersionUID = -303948503984L;
+    private static final long serialVersionUID = -303948503985L;
 
     private static Logger log = LoggerFactory.getLogger(ManagedImportRequestI.class);
 
@@ -132,6 +133,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private List<Annotation> annotationList = null;
 
     private boolean doThumbnails = true;
+
+    private boolean noStatsInfo = false;
 
     private String fileName = null;
 
@@ -214,7 +217,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             annotationList = settings.userSpecifiedAnnotationList;
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
-
+            noStatsInfo = settings.noStatsInfo == null ? false :
+                settings.noStatsInfo.getValue();
             detectAutoClose();
 
             fileName = file.getFullFsPath();
@@ -358,12 +362,31 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         try {
             cleanupReader();
             cleanupStore();
+
+            log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
+            /* hereafter back to normal log destination, not import log file*/
+            MDC.clear();
+            try {
+                /* requires usable session */
+                setLogFileSize();
+            } catch (ServerError se) {
+                log.error("failed to set import log file size", se);
+            }
+
             cleanupSession();
         } finally {
             autoClose();
         }
-        log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
-        MDC.clear();
+    }
+
+    /**
+     * Set the import log file's size in the database to its current size on the filesystem.
+     * @throws ServerError if the import log's size could not be updated in the database
+     */
+    private void setLogFileSize() throws ServerError {
+        final OriginalFile logFile = (OriginalFile) sf.getQueryService().get(OriginalFile.class.getSimpleName(), logPath.getId());
+        logFile.setSize(omero.rtypes.rlong(logPath.size()));
+        sf.getUpdateService().saveObject(logFile);
     }
 
     public Object step(int step) {
@@ -514,8 +537,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         pixList = (List) objects.get(Pixels.class.getSimpleName());
         imageList = (List) objects.get(Image.class.getSimpleName());
         plateList = (List) objects.get(Plate.class.getSimpleName());
-        //TODO: below line has to be moved to store.saveToDB()
-        store.attachCompanionFilesToImage(activity.getParent(), imageList);
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 
@@ -525,40 +546,37 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     public Object pixelData(PixelDataJob pdj) throws Throwable {
 
-        boolean saveSha1 = false;
-        // Parse the binary data to generate min/max values
-        int seriesCount = reader.getSeriesCount();
-        for (int series = 0; series < seriesCount; series++) {
-            ImportSize size = new ImportSize(fileName,
-                    pixList.get(series), reader.getDimensionOrder());
-            Pixels pixels = pixList.get(series);
-            MessageDigest md = parseData(fileName, series, size);
-            if (md != null) {
-                final String s = Hex.encodeHexString(md.digest());
-                pixels.setSha1(store.toRType(s));
-                saveSha1 = true;
+        if (!reader.isMinMaxSet() && !noStatsInfo)
+        {
+            // Parse the binary data to generate min/max values
+            int seriesCount = reader.getSeriesCount();
+            for (int series = 0; series < seriesCount; series++) {
+                ImportSize size = new ImportSize(fileName,
+                        pixList.get(series), reader.getDimensionOrder());
+                Pixels pixels = pixList.get(series);
+                MessageDigest md = parseData(fileName, series, size);
+                if (md != null) {
+                   final String s = Hex.encodeHexString(md.digest());
+                   pixels.setSha1(store.toRType(s));
+                }
             }
         }
 
-        // As we're in metadata only mode  on we need to
-        // tell the server which Pixels set matches up to which series.
-        final String targetName = file.getFullFsPath();
+        // As we're in metadata-only mode on we need to
+        // tell the server which Image matches which series.
         int series = 0;
-        for (Long pixelsId : pixelIds())
-        {
-            store.setPixelsParams(pixelsId, series, targetName, repoUuid);
-            series++;
+        for (final Pixels pixels : pixList) {
+            store.setPixelsFile(pixels.getId().getValue(), fileName, repoUuid);
+            pixels.getImage().setSeries(store.toRType(series++));
         }
 
-        if (saveSha1)
-        {
-            for (Image image : imageList) {
-                image.unloadAnnotationLinks();
-            }
-            store.updatePixels(pixList);
+        for (final Image image : imageList) {
+            image.unloadAnnotationLinks();
         }
 
-        if (!reader.isMinMaxSet())
+        store.updatePixels(pixList);
+
+        if (!reader.isMinMaxSet() && !noStatsInfo)
         {
             store.populateMinMax();
         }
@@ -641,14 +659,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         int maxPlaneSize = sizes.getMaxPlaneWidth() * sizes.getMaxPlaneHeight();
         if (((long) reader.getSizeX()
              * (long) reader.getSizeY()) > maxPlaneSize) {
-            int pixelType = reader.getPixelType();
-            long[] minMax = FormatTools.defaultMinMax(pixelType);
-            for (int c = 0; c < reader.getSizeC(); c++) {
-                store.setChannelGlobalMinMax(
-                        c, minMax[0], minMax[1], series);
-            }
             return null;
         }
+
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
         MessageDigest md;
         try {
@@ -675,7 +688,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
 
     /**
-     * Read a plane to cause min/max valus to be calculated.
+     * Read a plane and update the pixels checksum
      *
      * @param size Sizes of the Pixels set.
      * @param z The Z-section offset to write to.

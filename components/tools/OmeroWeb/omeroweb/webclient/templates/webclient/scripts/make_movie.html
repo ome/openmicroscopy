@@ -1,0 +1,176 @@
+{% extends "webclient/scripts/base_custom_dialog.html" %}
+{% load i18n %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% comment %}
+<!--
+    This page displays a UI for Make Movie script.
+-->
+{% endcomment %}
+
+{% block title %}
+    Make Movie
+{% endblock %}
+
+
+
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.make_movie.js"|add:url_suffix %}"></script>
+
+    <style type="text/css">
+        
+        button.pressed {
+            border-style: inset;
+        }
+        button.fontWhite {
+            color: white;
+        }
+        .ztRangeControls>* {
+            float:left;
+        }
+    </style>
+{% endblock %}
+
+
+
+    {% block script_form %}
+
+        <h1>Make Movie</h1>
+
+        <hr/>
+
+        <!-- Data_Type and IDs are already set (we can hide these) -->
+        <input name="Data_Type" style="display:none" value="{{ dtype }}" />
+        <input type="text" name="IDs" value="{{ idString }}" style="display:none">
+
+        <span title="File name of the movie to save.">
+            Name:
+            <input type="text" name="Movie_Name"  value="{{ movieName }}" style="width:250px" />
+        </span>
+
+        <hr/>
+
+        <span title="Format to save image">
+            Format:
+            <select name="Format">
+                <option value="Quicktime"  selected="True"  >Quick Time</option>
+                <option value="MPEG"  >MPEG</option>
+                <option value="WMV"  >Windows Media Play</option>
+            </select>
+        </span>
+
+        <span style="padding-left: 20px">
+            Frame Rate:
+            <input type="number" name="FPS" class="number" value="25" style="width: 50px" />
+            fps
+        </span>
+
+        <hr/>
+
+        <span>
+            Channels Selection:
+            <!-- hidden Channels field updated by buttons -->
+            <input type="text" name="Channels" style="display:none"/>
+            {% for ch in channels %}
+                <button class="ch-btn{% if ch.active %} pressed{% endif %}"
+                        style="background-color: #{{ch.color}}">
+                    {{ ch.label }}
+                </button>
+            {% endfor %}
+        </span>
+
+        <hr/>
+
+        <span id="tRangeControls" class="ztRangeControls">
+            <input type="checkbox" class="sliderToggle" checked/>
+            <div style="width: 125px">Time Interval:</div>
+            <div>
+                <div id="tSlider" style="margin: 10px 20px"></div>
+                <!-- we have hidden fields of true T_Start etc, and display fields where value is +1 -->
+                Start:
+                <input name="T_Start" value="0" type="number" style="display:none" class="number"/>
+                <input name="T_StartPlus1" value="1" type="number" style="width: 50px" class="number"/>
+                End:
+                <input name="T_End" value="{{ sizeT|add:'-1'  }}" type="number" style="display:none" class="number"/>
+                <input name="T_EndPlus1" value="{{ sizeT  }}" type="number" style="width: 50px" class="number"/>
+            </div>
+        </span>
+        <div style="clear:both"></div>
+
+        <hr/>
+
+        <span id="zRangeControls" class="ztRangeControls">
+            <input type="checkbox" class="sliderToggle" checked />
+            <div style="width: 125px">Z-section Interval:</div>
+            <div>
+                <div id="zSlider" style="margin: 10px 20px"></div>
+                Start:
+                <input name="Z_Start" value="0" type="number" style="display:none" class="number"/>
+                <input name="Z_StartPlus1" value="1" type="number" style="width: 50px" class="number"/>
+                End:
+                <input name="Z_End" value="{{ sizeZ|add:'-1' }}" type="number" style="display:none" class="number"/>
+                <input name="Z_EndPlus1" value="{{ sizeZ }}" type="number" style="width: 50px" class="number"/>
+            </div>
+        </span>
+        <div style="clear:both"></div>
+
+        <hr/>
+
+        <input type="checkbox" id="scalebarToggle" checked />
+        Scale Bar:
+        <input type="number" name="Scalebar" class="number" value="5" style="width: 50px" />
+        microns
+        <select name="Overlay_Colour" style="margin-left:20px">
+            <option value='White'/>White</option>
+            <option value='Red'/>Red</option>
+            <option value='Green'/>Green</option>
+            <option value='Blue'/>Blue</option>
+            <option value='Yellow'/>Yellow</option>
+            <option value='Violet'/>Violet</option>
+            <option value='Indigo'/>Indigo</option>
+            <option value='Black'/>Black</option>
+            <option value='Orange'/>Orange</option>
+            <option value='Gray'/>Gray</option>
+        </select>
+
+        <hr />
+
+        <span title="Add time stamps and Z/T labels" >
+            <input name="Show_Plane_Info" type="checkbox"/>
+            Show Labels
+            <!-- also need to pass 'Show_Time' to script - keep in sync with 'Show_Plane_Info' -->
+            <input name="Show_Time" type="checkbox" style="display:none"/>
+        </span>
+
+        <!-- Hidden fields to pass extra params to script -->
+        <input type="checkbox" name="Do_Link" checked style="display:none" />
+
+
+    {% endblock %}
+
+<!-- remove preview block -->
+{% block figure_preview_container %}
+{% endblock %}
+
+{% block submit_text %}Make Movie{% endblock %}
+

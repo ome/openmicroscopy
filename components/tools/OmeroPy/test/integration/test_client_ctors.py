@@ -25,8 +25,7 @@
 """
 
 import os
-import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 import Ice
 
@@ -36,7 +35,6 @@ here = os.path.abspath(os.path.dirname(__file__))
 class TestClientConstructors(lib.ITest):
 
     def setup_method(self, method):
-        lib.ITest.setup_method(self, method)
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             self.host = c.ic.getProperties().getProperty('omero.host')
@@ -55,7 +53,6 @@ class TestClientConstructors(lib.ITest):
         except:
             c.__del__()
 
-    @pytest.mark.xfail(reason="See ticket #11541")
     def testInitializationDataConstructor(self):
         id = Ice.InitializationData()
         id.properties = Ice.createProperties()

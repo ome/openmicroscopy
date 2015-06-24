@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -70,10 +70,6 @@ import pojos.ImageData;
  * @since 5.0
  */
 public class SearchResultTable extends JXTable {
-
-    /** Defines the format how the date is shown */
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss"); //2013-04-20 18:13:43
     
     /** Reference to the DataBrowserModel */
     private AdvancedResultSearchModel model;
@@ -285,7 +281,7 @@ public class SearchResultTable extends JXTable {
                 JLabel l = new JLabel((Icon) value);
                 p.add(l);
             } else if (value instanceof Date) {
-                JLabel l = new JLabel(DATE_FORMAT.format((Date)value));
+                JLabel l = new JLabel(UIUtilities.formatDefaultDate(((Date)value)));
                 p.add(l);
             }
             else {

@@ -50,10 +50,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -94,12 +94,9 @@ public class SearchPanel extends JPanel {
     /** The number of columns of the search areas. */
     private static final int AREA_COLUMNS = 12;
 
-    /** The date format for the date pickers */
-    private static final String DATE_PICKER_FORMAT = "yyyy-MM-dd";
-
     private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format YYYY-MM-DD (e. g. 2014-07-10)</html>";
  
-    private static final String DATE_TYPE_TOOLTIP = "Select the type of date (Acquisition date applies to images only)";
+    public static final String DATE_TYPE_TOOLTIP = "Select the type of date (Acquisition date applies to images only)";
 
     /** The terms to search for. */
     private JTextField fullTextArea;
@@ -168,7 +165,7 @@ public class SearchPanel extends JPanel {
         scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
         types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
         IconManager icons = IconManager.getInstance();
-        fromDate = UIUtilities.createDatePicker(true, DATE_PICKER_FORMAT);
+        fromDate = UIUtilities.createDatePicker(true, EditorUtil.DATE_PICKER_FORMAT);
         fromDate.setBackground(UIUtilities.BACKGROUND_COLOR);
         fromDate.addPropertyChangeListener("date",
                 new PropertyChangeListener() {
@@ -196,7 +193,7 @@ public class SearchPanel extends JPanel {
                 });
         fromDate.setToolTipText(DATE_TOOLTIP);
         
-        toDate = UIUtilities.createDatePicker(true, DATE_PICKER_FORMAT);
+        toDate = UIUtilities.createDatePicker(true, EditorUtil.DATE_PICKER_FORMAT);
         toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
         toDate.setToolTipText(DATE_TOOLTIP);
         toDate.addPropertyChangeListener("date", new PropertyChangeListener() {
@@ -706,7 +703,8 @@ public class SearchPanel extends JPanel {
         Iterator<String> i = terms.iterator();
         while (i.hasNext()) {
             text.append(i.next());
-            text.append(SearchUtil.SPACE_SEPARATOR);
+            if(i.hasNext())
+                text.append(SearchUtil.SPACE_SEPARATOR);
         }
 
         fullTextArea.setText(text.toString());
@@ -724,10 +722,10 @@ public class SearchPanel extends JPanel {
     String[] getQueryTerms() {
         String text;
         text = fullTextArea.getText();
-        if (!StringUtils.isBlank(text)) {
+        if (CommonsLangUtils.isNotBlank(text)) {
             List<String> l = SearchUtil.splitTerms(text);
             if (l.size() > 0)
-                return l.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
+                return l.toArray(new String[0]);
         }
 
         List<String> l = SearchUtil.splitTerms(text);

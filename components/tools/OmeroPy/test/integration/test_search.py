@@ -9,10 +9,11 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 import os
+import time
 
 
 class TestSearch(lib.ITest):
@@ -35,29 +36,39 @@ class TestSearch(lib.ITest):
     def test3164Private(self):
         group = self.new_group(perms="rw----")
         owner = self.new_client(group)
-        self._3164(owner, owner)
+        self._3164_setup(owner)
+        failed = self._3164_search(owner)
+        self._3164_assert(failed)
 
     def test3164ReadOnlySelf(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
-        self._3164(owner, owner)
+        self._3164_setup(owner)
+        failed = self._3164_search(owner)
+        self._3164_assert(failed)
 
     def test3164ReadOnlyOther(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
         searcher = self.new_client(group)
-        self._3164(owner, searcher)
+        self._3164_setup(owner)
+        failed = self._3164_search(searcher)
+        self._3164_assert(failed)
 
     def test3164CollabSelf(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
-        self._3164(owner, owner)
+        self._3164_setup(owner)
+        failed = self._3164_search(owner)
+        self._3164_assert(failed)
 
     def test3164CollabOther(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
         searcher = self.new_client(group)
-        self._3164(owner, searcher)
+        self._3164_setup(owner)
+        failed = self._3164_search(searcher)
+        self._3164_assert(failed)
 
     def test3721Ordering(self):
         """
@@ -102,13 +113,11 @@ class TestSearch(lib.ITest):
     #
     # Helpers
     #
-    def _3164(self, owner, searcher):
+    def _3164_setup(self, owner):
 
         images = list()
         for i in range(0, 5):
-            img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("search_test_%i.tif" % i)
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            img = self.new_image(name="search_test_%i.tif" % i)
             tag = omero.model.TagAnnotationI()
             tag.textValue = omero.rtypes.rstring("tag %i" % i)
             img.linkAnnotation(tag)
@@ -126,7 +135,7 @@ class TestSearch(lib.ITest):
         res = owner.sf.getQueryService().findAllByQuery(sql, p)
         assert 5 == len(res)
 
-        # Searching
+    def _3164_search(self, searcher, runs=10, pause=1):
         texts = ("*earch", "*h", "search tif", "search",
                  "test", "tag", "t*", "search_test",
                  "s .tif", ".tif", "tif", "*tif")
@@ -140,16 +149,24 @@ class TestSearch(lib.ITest):
         search.addOrderByAsc("name")
         search.setAllowLeadingWildcard(True)
 
-        failed = {}
-        for text in texts:
-            search.byFullText(str(text))
-            if search.hasNext():
-                sz = len(search.results())
-            else:
-                sz = 0
-            if 5 != sz:
-                failed[text] = sz
+        for r in range(runs):
+            failed = {}
+            for text in texts:
+                search.byFullText(str(text))
+                if search.hasNext():
+                    sz = len(search.results())
+                else:
+                    sz = 0
+                if 5 != sz:
+                    failed[text] = sz
+            if not failed:
+                break
+            print "Failed run %i with %i fails" % (r + 1, len(failed))
+            time.sleep(pause)
 
+        return failed
+
+    def _3164_assert(self, failed):
         msg = ""
         for k in sorted(failed):
             msg += """\nFAILED: `%s` returned %s""" % (k, failed[k])
@@ -168,7 +185,7 @@ class TestSearch(lib.ITest):
             p = x.ljust(6, "-")
             g = self.new_group(perms=p)
             u = self.new_client(group=g)
-            a = self.new_client(group=g, admin=True)
+            a = self.new_client(group=g, owner=True)
 
             uuid = self.uuid().replace("-", "")
 
@@ -261,11 +278,9 @@ class TestSearch(lib.ITest):
         ofile.path = _(os.path.dirname(path))
         ofile.name = _(os.path.basename(path))
         ofile = client.upload(path, ofile=ofile)
-        link = omero.model.ImageAnnotationLinkI()
-        link.parent = image
-        link.child = omero.model.FileAnnotationI()
-        link.child.file = ofile.proxy()
-        link = client.sf.getUpdateService().saveObject(link)
+        fa = omero.model.FileAnnotationI()
+        fa.file = ofile.proxy()
+        self.link(image, fa, client=client)
         self.root.sf.getUpdateService().indexObject(image)
         return image
 
@@ -354,9 +369,7 @@ class TestSearch(lib.ITest):
     ))
     def test_hyphen_underscore(self, name, test):
         client = self.new_client()
-        proj = omero.model.ProjectI()
-        proj.name = omero.rtypes.rstring(name)
-        proj = client.sf.getUpdateService().saveAndReturnObject(proj)
+        proj = self.make_project(name, client=client)
         self.root.sf.getUpdateService().indexObject(proj)
 
         search = client.sf.createSearchService()
@@ -368,5 +381,42 @@ class TestSearch(lib.ITest):
             assert proj.id.val in [
                 x.id.val for x in search.results()
             ]
+        finally:
+            search.close()
+
+    def test_map_annotations(self):
+        client = self.new_client()
+        key = "k" + self.simple_uuid()
+        val = "v" + self.simple_uuid()
+        ann = omero.model.MapAnnotationI()
+        ann.setMapValue([
+            omero.model.NamedValue(key, val)
+        ])
+        proj = self.new_project(name="test_map_annotations")
+        proj.linkAnnotation(ann)
+        proj = client.sf.getUpdateService().saveAndReturnObject(proj)
+        self.root.sf.getUpdateService().indexObject(proj)
+
+        search = client.sf.createSearchService()
+        search.onlyType("Project")
+
+        try:
+            for txt in (key, val,
+                        "%s:%s" % (key, val),
+                        "has_key:%s" % key):
+                search.byFullText(txt)
+                assert search.hasNext(), txt
+                assert proj.id.val in [
+                    x.id.val for x in search.results()
+                ], txt
+
+            # The value should not be found as the key
+            # Nor should the inverse v/k pair return a result.
+            for txt in ("%s:%s" % (val, key),
+                        "%s:%s" % ("has_key", val)):
+
+                search.byFullText(txt)
+                assert not search.hasNext(), txt
+
         finally:
             search.close()

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.DownloadActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@ import java.util.List;
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -83,6 +84,9 @@ public class DownloadActivity extends ActivityComponent {
 	/** The local name of the file. */
 	private String localFileName;
 
+	/** Overwrite if local file already exists */
+	private boolean overwrite = false;
+	
 	/** The supported file filters. */
 	private static final List<CustomizedFileFilter> FILTERS;
 
@@ -189,6 +193,8 @@ public class DownloadActivity extends ActivityComponent {
 		else
 			localFileName = folder.toString();
 		messageLabel.setText(localFileName);
+		
+		this.overwrite = parameters.isOverwrite();
 	}
 
 	/**
@@ -206,7 +212,7 @@ public class DownloadActivity extends ActivityComponent {
 		registry.getLogger().debug(this, file.getAbsolutePath());
 
 		boolean load = true;
-		if (file.exists())
+		if (file.exists() && !overwrite)
 			load = false;
 
 		switch (parameters.getIndex()) {
@@ -265,6 +271,14 @@ public class DownloadActivity extends ActivityComponent {
 			else
 				url = FILE + "/" + localFileName;
 			registry.getTaskBar().openURL(url);
+		}
+		
+		if (parameters.getToDelete() != null) {
+			List<DeletableObject> tmp = new ArrayList<DeletableObject>();
+			tmp.add(new DeletableObject(parameters.getToDelete()));
+			DataObjectRemover eraser = new DataObjectRemover(viewer, registry,
+					tmp, null);
+			eraser.load();
 		}
 	}
 

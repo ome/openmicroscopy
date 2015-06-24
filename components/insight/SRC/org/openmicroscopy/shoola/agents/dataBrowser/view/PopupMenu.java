@@ -28,6 +28,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -35,6 +36,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +48,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.ActivatedUserAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.LookupNames;
 
 import pojos.ExperimenterData;
 
@@ -97,6 +100,9 @@ class PopupMenu
 
     /** Button to reset the password. */
     private JMenuItem resetPassword;
+
+    /** Button to download the files.*/
+    private JMenuItem download;
 
     /** Button to activate or not user. */
     private JCheckBoxMenuItem activatedUser;
@@ -165,6 +171,8 @@ class PopupMenu
         tagElement = new JMenuItem(controller.getAction(
                 DataBrowserControl.TAG));
         view = new JMenuItem(controller.getAction(DataBrowserControl.VIEW));
+        download = new JMenuItem(controller.getAction(
+                DataBrowserControl.DOWNLOAD));
         copyElement = new JMenuItem(
                 controller.getAction(DataBrowserControl.COPY_OBJECT));
         cutElement = new JMenuItem(
@@ -233,14 +241,15 @@ class PopupMenu
             JMenu menu;
             String text = "View";
             switch (DataBrowserAgent.runAsPlugin()) {
-            case DataBrowser.IMAGE_J:
+            case LookupNames.IMAGE_J:
+            case LookupNames.IMAGE_J_IMPORT:
                 menu = new JMenu(text);
                 menu.setIcon(view.getIcon());
                 menu.add(view);
                 menu.add(controller.getAction(DataBrowserControl.VIEW_IN_IJ));
                 add(menu);
                 break;
-            case DataBrowser.KNIME:
+            case LookupNames.KNIME:
                 menu = new JMenu(text);
                 menu.setIcon(view.getIcon());
                 menu.add(view);
@@ -252,6 +261,7 @@ class PopupMenu
                 add(view);
             };
             add(openWithMenu);
+            add(download);
             add(new JSeparator(JSeparator.HORIZONTAL));
             add(buildEditMenu());
             add(removeElement);

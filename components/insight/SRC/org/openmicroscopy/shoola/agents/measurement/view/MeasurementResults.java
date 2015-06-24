@@ -432,7 +432,8 @@ class MeasurementResults
 				//row.addElement(shape.getROI().getID());
 				if (shape.getROI().isClientSide())
 					row.addElement("--");
-				else row.addElement(shape.getROIShapeID());
+				else
+					row.addElement(shape.getROIShapeID());
 				row.addElement(shape.getCoord3D().getZSection()+1);
 				row.addElement(shape.getCoord3D().getTimePoint()+1);
 				row.addElement(shape.getFigure().getType());

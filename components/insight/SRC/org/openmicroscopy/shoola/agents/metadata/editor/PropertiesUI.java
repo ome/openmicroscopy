@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.editor.PropertiesUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,73 +25,76 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JToolBar;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.Document;
 
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
+
+import com.google.common.base.CharMatcher;
+
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
-import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
-import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
-import org.openmicroscopy.shoola.util.ui.ClickableTooltip;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 
+import ome.model.units.BigResult;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 import pojos.AnnotationData;
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileData;
@@ -120,7 +123,7 @@ import pojos.WellSampleData;
  */
 public class PropertiesUI
 	extends AnnotationUI
-	implements ActionListener, DocumentListener, FocusListener, 
+	implements DocumentListener, FocusListener, 
 	PropertyChangeListener
 {
     
@@ -128,22 +131,16 @@ public class PropertiesUI
 	static final String			TITLE = "Properties";
 	
 	/** The default description. */
-    private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
+    private static final String	DEFAULT_DESCRIPTION_TEXT = "Add Description";
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
     
+    /** The text for the creation date. */
+    private static final String CREATIONDATE_TEXT = "Creation Date: ";
+    
     /** The text for the owner. */
     private static final String OWNER_TEXT = "Owner: ";
-    
-    /** Action ID indicating to edit the name.*/
-    private static final int	EDIT_NAME = 0;
-    
-    /** Action ID indicating to edit the description.*/
-    private static final int	EDIT_DESC = 1;
-    
-    /** Action ID indicating to edit the channels.*/
-    private static final int	EDIT_CHANNEL = 2;
     
     /** Text indicating to edit the name.*/
     private static final String EDIT_NAME_TEXT = "Edit the name";
@@ -153,11 +150,6 @@ public class PropertiesUI
     
     /**Text indicating to edit the channels.*/
     private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
-
-    /**Text indicating that this file is an inplace import*/
-    private static final String INPLACE_IMPORT_TOOLTIP_TEXT = "<html>This file is an in-place import.<br>The data might not be located within the<br>OMERO data directory.</html>";
-    
-    private static final String INPLACE_IMPORT_TOOLTIP_ACTION_TEXT = "Show File Paths...";
     
     /** The default height of the description.*/
     private static final int HEIGHT = 120;
@@ -165,11 +157,16 @@ public class PropertiesUI
     /** The default width of the description.*/
     private static final int WIDTH = 100;
     
+    /** Maximum number of characters shown per line in the
+     *  channel names component
+     */
+    private static final int MAX_CHANNELNAMES_LENGTH_IN_CHARS = 40;
+    
     /** Button to edit the name. */
-	private JButton				editName;
+	private JToggleButton				editName;
 	
 	/** Button to edit the description. */
-	private JButton				descriptionButtonEdit;
+	private JToggleButton				descriptionButtonEdit;
 	
     /** The name before possible modification.*/
     private String				originalName;
@@ -196,10 +193,7 @@ public class PropertiesUI
     private JPanel				descriptionPanel;
     
     /** The component hosting the id of the <code>DataObject</code>. */
-    private JLabel				idLabel;
-    
-    /** The component hosting the icon for inplace imported images */
-    private JLabel 				inplaceIcon;
+    private JTextField				idLabel;
     
     /** 
      * The component hosting the owner of the <code>DataObject</code>.
@@ -233,12 +227,6 @@ public class PropertiesUI
 
 	/** ScrollPane hosting the {@link #descriptionWiki} component.*/
 	private JScrollPane			descriptionScrollPane;
-
-	/** The menu displaying the view options.*/
-	private JPopupMenu			viewMenu;
-
-	/** Flag indicating that the name is editable mode or not.*/
-	private boolean editableName;
 	
 	/** Button to edit the channels. */
 	private JButton editChannel;
@@ -251,7 +239,7 @@ public class PropertiesUI
 	
 	/** The label showing the ROI count */
 	private JLabel roiCountLabel;
-
+	
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
 	{
@@ -331,24 +319,43 @@ public class PropertiesUI
        	wellLabel.setFont(newFont);
        	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	
-       	idLabel = UIUtilities.setTextFont("");
-       	idLabel.setName("ID label");
-       	inplaceIcon = new JLabel(IconManager.getInstance().getIcon(IconManager.INPLACE_IMPORT));
-       	ClickableTooltip inplaceIconTooltip = new ClickableTooltip(INPLACE_IMPORT_TOOLTIP_TEXT, createInplaceIconAction());
-        inplaceIconTooltip.attach(inplaceIcon);
+       	idLabel = new JTextField();
+       	idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
+       	idLabel.setEditable(false);
+       	idLabel.setBorder(BorderFactory.createEmptyBorder());
         
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	ownerLabel.setFont(f.deriveFont(Font.BOLD));
     	namePane = createTextPane();
     	namePane.setEditable(false);
-    	editableName = false;
     	typePane = createTextPane();
     	typePane.setEditable(false);
     	namePane.addFocusListener(this);
     	f = namePane.getFont(); 
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
+    	namePane.addKeyListener(new KeyListener() {
+            
+            @Override
+            public void keyTyped(KeyEvent arg0) {
+                
+            }
+            
+            @Override
+            public void keyReleased(KeyEvent arg0) {
+                if(arg0.getKeyCode()==KeyEvent.VK_ENTER) {
+                	save();
+                }
+            }
+            
+            @Override
+            public void keyPressed(KeyEvent arg0) {
+                
+            }
+        });
     	
     	descriptionWiki = new OMEWikiComponent(false);
+    	descriptionWiki.setDefaultText(DEFAULT_DESCRIPTION_TEXT);
     	descriptionWiki.installObjectFormatters();
     	descriptionWiki.setFont(newFont);
     	descriptionWiki.setEnabled(false);
@@ -370,37 +377,49 @@ public class PropertiesUI
     	f = wellLabel.getFont();
     	wellLabel.setFont(f.deriveFont(Font.BOLD));
     	wellLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-    	f = ownerLabel.getFont();
-    	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
+
     	channelsArea = UIUtilities.createComponent(null);
     	
     	channelsPane = channelsArea;
     	IconManager icons = IconManager.getInstance();
-		editName = new JButton(icons.getIcon(IconManager.EDIT_12));
-		formatButton(editName, EDIT_NAME_TEXT, EDIT_NAME);
-		descriptionButtonEdit = new JButton(icons.getIcon(IconManager.EDIT_12));
-		formatButton(descriptionButtonEdit, EDIT_DESC_TEXT, EDIT_DESC);
+		editName = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
+		formatButton(editName, EDIT_NAME_TEXT);
+		descriptionButtonEdit = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
+		formatButton(descriptionButtonEdit, EDIT_DESC_TEXT);
+		
 		editChannel = new JButton(icons.getIcon(IconManager.EDIT_12));
-		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
-		editChannel.setEnabled(false);
+		formatButton(editChannel, EDIT_CHANNEL_TEXT);
 		descriptionWiki.setEnabled(false);
-    }
-    
-    /**
-     * Creates the action for the inplace import icon tooltip
-     * @return
-     */
-    private Action createInplaceIconAction() {
-        Action inplaceIconAction = new AbstractAction(INPLACE_IMPORT_TOOLTIP_ACTION_TEXT) {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // Just pass this on to the controller
-                controller.actionPerformed(arg0);
-            }
-        };
-        inplaceIconAction.putValue(Action.ACTION_COMMAND_KEY, ""+EditorControl.FILE_PATH_INPLACE_ICON);
-        return inplaceIconAction;
+		
+		ItemListener l = new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getSource() instanceof JToggleButton) {
+					JToggleButton b = (JToggleButton) e.getSource();
+					if (b == editName) {
+						if (b.isSelected())
+							editField(namePane);
+						else
+							save();
+					} else if (b == descriptionButtonEdit) {
+						if (b.isSelected()) {
+							expandDescriptionField(true);
+							editField(descriptionWiki);
+						} else
+							save();
+					}
+				}	
+			}
+		};
+		
+		editName.addItemListener(l);
+		descriptionButtonEdit.addItemListener(l);
+		
+		editChannel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				editChannels();
+			}
+		});
+		
     }
     
     /**
@@ -410,14 +429,27 @@ public class PropertiesUI
      * @param text The tool tip text.
      * @param actionID The action command id.
      */
-    private void formatButton(JButton button, String text, int actionID)
+    private void formatButton(JButton button, String text)
     {
     	button.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(button);
 		button.setBackground(UIUtilities.BACKGROUND_COLOR);
 		button.setToolTipText(text);
-		button.addActionListener(this);
-		button.setActionCommand(""+actionID);
+    }
+    
+    /**
+     * Formats the specified button.
+     * 
+     * @param button The button to handle.
+     * @param text The tool tip text.
+     * @param actionID The action command id.
+     */
+    private void formatButton(JToggleButton button, String text)
+    {
+    	button.setOpaque(false);
+		button.setBackground(UIUtilities.BACKGROUND_COLOR);
+		button.setBorder(new EmptyBorder(2, 2, 2, 2));
+		button.setToolTipText(text);
     }
     
     /**
@@ -621,35 +653,48 @@ public class PropertiesUI
      */
     private String formatPixelsSize(Map details, JLabel component)
     {
-    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
-    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
+        // First make sure that no conversion exception has occurred
+        Object obj = details.get(EditorUtil.PIXEL_SIZE_X);
+        if (obj instanceof BigResult) {
+            MetadataViewerAgent.logBigResultExeption(this, obj, EditorUtil.PIXEL_SIZE_X);
+            return "N/A";
+        }
+        obj = details.get(EditorUtil.PIXEL_SIZE_Y);
+        if (obj instanceof BigResult) {
+            MetadataViewerAgent.logBigResultExeption(this, obj, EditorUtil.PIXEL_SIZE_Y);
+            return "N/A";
+        }
+        obj = details.get(EditorUtil.PIXEL_SIZE_Z);
+        if (obj instanceof BigResult) {
+            MetadataViewerAgent.logBigResultExeption(this, obj, EditorUtil.PIXEL_SIZE_Z);
+            return "N/A";
+        }
+        
+    	Length x = (Length) details.get(EditorUtil.PIXEL_SIZE_X);
+    	Length y = (Length) details.get(EditorUtil.PIXEL_SIZE_Y);
+    	Length z = (Length) details.get(EditorUtil.PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
-    	NumberFormat nf = NumberFormat.getInstance();
+    	NumberFormat nf = new DecimalFormat("0.00");
     	String units = null;
-    	UnitsObject o;
     	try {
-			dx = Double.parseDouble(x);
-			o = EditorUtil.transformSize(dx);
-			units = o.getUnits();
-			dx = o.getValue();
+    		x = UIUtilities.transformSize(x);
+			dx = x.getValue();
+			units = ((LengthI)x).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			dy = Double.parseDouble(y);
-			o = EditorUtil.transformSize(dy);
-			if (units == null) units = o.getUnits();
-			dy = o.getValue();
+			y = UIUtilities.transformSize(y);
+			dy = y.getValue();
+			if (units == null) units = ((LengthI)y).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			dz = Double.parseDouble(z);
-			o = EditorUtil.transformSize(dz);
-			if (units == null) units = o.getUnits();
-			dz = o.getValue();
+			z = UIUtilities.transformSize(z);
+			dz = z.getValue();
+			if (units == null) units = ((LengthI)z).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
@@ -683,9 +728,9 @@ public class PropertiesUI
     	}
     	if (value.length() == 0) return null;
     	component.setText(value);
-    	if (units == null) units = UnitsObject.MICRONS;
-    	label += units;
-    	return label;
+    	if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
+    	label += "("+units+")";
+    	return label+":";
     }
 
 	/**
@@ -702,49 +747,44 @@ public class PropertiesUI
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
     	content.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
+		c.fill = GridBagConstraints.NONE;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(0, 0, 2, 2);
 		c.gridy = 0;
 		c.gridx = 0;
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont(EditorUtil.ARCHIVED,
-    			Font.BOLD, size);
-    	JCheckBox box = new JCheckBox();
-    	box.setEnabled(false);
-    	box.setBackground(UIUtilities.BACKGROUND);
-    	box.setSelected(model.isArchived());
-    	content.add(label, c);
-    	c.gridx = c.gridx+2;
-    	content.add(box, c);
-    	c.gridy++;
-    	c.gridx = 0;
-    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE,
-    			Font.BOLD, size);
-    	JLabel value = UIUtilities.createComponent(null);
+    	JLabel label;
+    	JLabel value;
     	String v = model.formatDate(image);
-    	value.setText(v);
-    	content.add(label, c);
-    	c.gridx = c.gridx+2;
-    	content.add(value, c);
-    	c.gridy++;
-    	c.gridx = 0;
+    	if(!CommonsLangUtils.isEmpty(v)) {
+	    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
+	    			Font.BOLD, size);
+	    	value = UIUtilities.createComponent(null);
+	    	value.setText(v);
+	    	content.add(label, c);
+	    	c.gridx++;
+	    	content.add(value, c);
+	    	c.gridy++;
+	    	c.gridx = 0;
+    	}
+    	
     	try { //just to be on the save side
-    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE,
+    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE+":",
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
-        	v =  UIUtilities.formatShortDateTime(image.getInserted());
+        	v =  UIUtilities.formatDefaultDate(image.getInserted());
         	value.setText(v);
         	content.add(label, c);
-        	c.gridx = c.gridx+2;
+        	c.gridx++;
         	content.add(value, c);
         	c.gridy++; 
 		} catch (Exception e) {
-			
 		}
-    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD,
+    	
+    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION+":", Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
@@ -753,15 +793,15 @@ public class PropertiesUI
     	value.setText(v);
     	c.gridx = 0;
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(value, c);
     	c.gridy++;
-    	label = UIUtilities.setTextFont(EditorUtil.PIXEL_TYPE, Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.PIXEL_TYPE+":", Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setText((String) details.get(EditorUtil.PIXEL_TYPE));
     	c.gridx = 0;
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(value, c);
     	
     	value = UIUtilities.createComponent(null);
@@ -771,14 +811,14 @@ public class PropertiesUI
         	label = UIUtilities.setTextFont(s, Font.BOLD, size);
         	c.gridx = 0;
         	content.add(label, c);
-        	c.gridx = c.gridx+2;
+        	c.gridx++;
         	content.add(value, c);
     	}
     	//parse modulo T.
     	Map<Integer, ModuloInfo> modulo = model.getModulo();
     	ModuloInfo moduloT = modulo.get(ModuloInfo.T);
     	c.gridy++;
-    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD,
+    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS+":", Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
@@ -793,7 +833,7 @@ public class PropertiesUI
     	value.setText(v);
     	c.gridx = 0;
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(value, c);
     	c.gridy++;
     	if (moduloT != null) {
@@ -803,37 +843,35 @@ public class PropertiesUI
             value.setText(""+moduloT.getSize());
             c.gridx = 0;
             content.add(label, c);
-            c.gridx = c.gridx+2;
+            c.gridx++;
             content.add(value, c);
             c.gridy++;
     	}
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
-    		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
+    		label = UIUtilities.setTextFont(EditorUtil.CHANNELS+":",
     				Font.BOLD, size);
     		c.gridx = 0;
-    		c.anchor = GridBagConstraints.NORTHEAST;
         	content.add(label, c);
-        	c.anchor = GridBagConstraints.CENTER;
+        	c.gridx++;
+        	c.fill = GridBagConstraints.HORIZONTAL;
+        	content.add(channelsPane, c);
+        	c.fill = GridBagConstraints.NONE;
         	c.gridx++;
         	content.add(editChannel, c);
-        	c.gridx++;
-        	content.add(channelsPane, c);
         	c.gridy++;
     	}
     	
     	label = new JLabel("...");
-    	label = UIUtilities.setTextFont(EditorUtil.ROI_COUNT, Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.ROI_COUNT+":", Font.BOLD, size);
         c.gridx = 0;
         content.add(label, c);
-        c.gridx = c.gridx+2;
+        c.gridx++;
         roiCountLabel = UIUtilities.createComponent(null);
         roiCountLabel.setText("...");
         content.add(roiCountLabel, c);
         loadROICount(image);
         
-    	JPanel p = UIUtilities.buildComponentPanel(content);
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        return p;
+        return content;
     }
     
     /** 
@@ -844,7 +882,6 @@ public class PropertiesUI
     private JTextArea createTextPane()
     {
     	JTextArea pane = new JTextArea();
-    	pane.setWrapStyleWord(true);
     	pane.setOpaque(false);
     	pane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	return pane;
@@ -855,77 +892,33 @@ public class PropertiesUI
      * 
      * @param button    The component to lay out.
      * @param component	The component to lay out.
+     * @param sizeRow   The size of the row.
      * @return See above.
      */
     private JPanel layoutEditablefield(Component button, JComponent component)
     {
-    	return layoutEditablefield(button, component, -1);
-    }
-    
-    /**
-     * Lays out the components using a <code>FlowLayout</code>.
-     * 
-     * @param button    The component to lay out.
-     * @param component	The component to lay out.
-     * @param sizeRow   The size of the row.
-     * @return See above.
-     */
-    private JPanel layoutEditablefield(Component button, JComponent component,
-    		int sizeRow)
-    {
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridy = 0;
-		c.gridx = 0;
-		if (button != null) {
-    		JToolBar bar = new JToolBar();
-        	bar.setBorder(null);
-        	bar.setFloatable(false);
-        	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	bar.add(button);
-        	p.add(bar, c);
-        	c.gridx++;
-    	}
-		if (sizeRow > 0) {
-			c.ipady = sizeRow;
-			c.gridheight = 2;
-		}
-		p.add(component, c);
-    	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
-    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	return content;
-    }
-    
-    /**
-     * Creates or recycles the menu.
-     * 
-     * @param invoker The component invoking the menu.
-     * @param loc The location of the mouse clicked.
-     */
-    private void showViewMenu(JComponent invoker, Point loc)
-    {
-    	if (viewMenu == null) {
-    		viewMenu = new JPopupMenu();
-    		IconManager icons = IconManager.getInstance();
-        	JMenuItem button = new JMenuItem(icons.getIcon(IconManager.VIEW));
-        	button.setText(ViewAction.NAME);
-        	button.setToolTipText(ViewAction.DESCRIPTION);
-        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
-        	button.addActionListener(controller);
-        	viewMenu.add(button);
-        	button = new JMenuItem(icons.getIcon(IconManager.VIEWER_IJ));
-        	button.setText(ViewAction.NAME_IJ);
-        	button.setToolTipText(ViewAction.DESCRIPTION_IJ);
-        	button.setActionCommand(""+EditorControl.VIEW_IMAGE_IN_IJ);
-        	button.addActionListener(controller);
-        	viewMenu.add(button);
-    	}
-    	viewMenu.show(invoker, loc.x, loc.y);
+        JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(2, 2, 2, 2);
+        c.gridy = 0;
+        c.gridx = 0;
+        c.weightx = 1;
+        
+        p.add(component, c);
+        c.gridx++;
+        
+        if (button != null) {
+        	c.fill = GridBagConstraints.NONE;
+        	c.weightx = 0;
+        	c.anchor = GridBagConstraints.EAST;
+            p.add(button, c);
+        }
+       
+        return p;
     }
     
     /**
@@ -941,19 +934,20 @@ public class PropertiesUI
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
-        JPanel idPanel = new JPanel();
-        idPanel.setLayout(new BoxLayout(idPanel, BoxLayout.X_AXIS));
-        idPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        namePanel = layoutEditablefield(editName, namePane);
+        p.add(namePanel);
+        p.add(Box.createVerticalStrut(2));
+        
         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        idPanel.add(l);
-        idPanel.add(Box.createHorizontalGlue());
-        idPanel.add(inplaceIcon);
-        p.add(idPanel);
+        p.add(l);
+        p.add(Box.createVerticalStrut(2));
         
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(l);
+        p.add(Box.createVerticalStrut(2));
+        
         int w = editName.getIcon().getIconWidth()+4;
         l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -964,10 +958,6 @@ public class PropertiesUI
         l = UIUtilities.buildComponentPanel(wellLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
-
-         namePanel = layoutEditablefield(editName, namePane);
-         p.add(namePanel);
-         p.add(Box.createVerticalStrut(5));
          
          if (refObject instanceof ImageData ||
             refObject instanceof DatasetData ||
@@ -979,28 +969,53 @@ public class PropertiesUI
         	refObject instanceof PlateAcquisitionData) {
         	
         	descriptionScrollPane = new JScrollPane(descriptionWiki);
-        	descriptionScrollPane.setHorizontalScrollBarPolicy(
-        			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         	descriptionScrollPane.setBorder(AnnotationUI.EDIT_BORDER);
-        	Dimension viewportSize = new Dimension(WIDTH, HEIGHT); 
-        	descriptionScrollPane.getViewport().setPreferredSize(viewportSize);
         	
-        	double[][] design = new double[][]
-        			{
-        				{TableLayout.PREFERRED, TableLayout.FILL},
-        				{TableLayout.PREFERRED}
-        			};
-        	
-        	TableLayout table = new TableLayout(design);
-        	descriptionPanel = new JPanel(table);
+        	descriptionPanel = new JPanel(new GridBagLayout());
         	descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	descriptionPanel.add(descriptionButtonEdit, "0, 0, c, t");
-        	descriptionPanel.add(descriptionScrollPane, "1, 0");
+
+        	GridBagConstraints c = new GridBagConstraints();
+        	c.insets = new Insets(2, 2, 2, 2);
+        	
+        	c.gridx = 0;
+        	c.gridy = 0;
+        	c.gridheight = 2;
+        	c.fill = GridBagConstraints.BOTH;
+        	c.weightx = 1;
+        	c.weighty = 1;
+        	c.anchor = GridBagConstraints.NORTHWEST;
+        	descriptionPanel.add(descriptionScrollPane, c);
+        	
+        	c.gridx = 1;
+        	c.gridy = 0;
+        	c.gridheight = 1;
+        	c.fill = GridBagConstraints.NONE;
+        	c.weightx = 0;
+        	c.weighty = 0;
+        	c.anchor = GridBagConstraints.NORTHEAST;
+        	descriptionPanel.add(descriptionButtonEdit, c);
+        	
+        	boolean hasDescription = !descriptionWiki.getText().equals(DEFAULT_DESCRIPTION_TEXT);
+        	expandDescriptionField(hasDescription);
         	
         	p.add(descriptionPanel);
             p.add(Box.createVerticalStrut(5));
          }
          return p;
+    }
+    
+    /** Expands/Collapses the description text field */
+    private void expandDescriptionField(boolean expand) {
+        if (descriptionScrollPane == null)
+            return;
+
+        if (expand) {
+            Dimension viewportSize = new Dimension(WIDTH, HEIGHT);
+            descriptionScrollPane.getViewport().setPreferredSize(viewportSize);
+        } else {
+            descriptionScrollPane.getViewport().setPreferredSize(null);
+        }
+        revalidate();
     }
     
     /**
@@ -1035,9 +1050,41 @@ public class PropertiesUI
         	add(Box.createVerticalStrut(5));
         	add(layoutScreenContent((ScreenData) refObject));
         }
-        if (data == null) return;
-        add(Box.createVerticalStrut(5));
-    	add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
+        
+		add(Box.createVerticalStrut(5));
+		
+		if (data != null) {
+			add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
+		} else if (refObject instanceof DatasetData
+				|| refObject instanceof ProjectData
+				|| refObject instanceof PlateData
+				|| refObject instanceof PlateAcquisitionData
+				|| refObject instanceof ScreenData) {
+			DataObject dob = (DataObject) refObject;
+			
+			Timestamp crDate = dob.getCreated();
+			if (crDate != null) {
+                JLabel createDateLabel = new JLabel();
+                Font font = createDateLabel.getFont();
+                int size = font.getSize() - 2;
+                createDateLabel.setFont((new JLabel()).getFont().deriveFont(
+                        Font.BOLD, size));
+                createDateLabel.setText(CREATIONDATE_TEXT);
+
+                JLabel createDateValue = new JLabel();
+                createDateValue.setFont((new JLabel()).getFont().deriveFont(
+                        Font.PLAIN, size));
+                createDateValue.setText(UIUtilities.formatDefaultDate(crDate));
+
+                JPanel p = new JPanel();
+                p.setLayout(new GridLayout(1, 2));
+                p.add(createDateLabel);
+                p.add(createDateValue);
+                p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+                p.setBackground(UIUtilities.BACKGROUND_COLOR);
+                add(p);
+			}
+		}
     }
 
 	/**
@@ -1046,51 +1093,36 @@ public class PropertiesUI
 	 * 
 	 * @param panel     The panel to handle.
 	 * @param field		The field to handle.
-	 * @param button	The button to handle.
 	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JComponent field, JButton button,
-			boolean editable)
+	private void editField(JComponent field)
 	{
 		if (field == namePane) {
-			//namePane.setEnabled(editable);
-			editableName = editable;
-			namePane.setEditable(editable);
-			if (editable) {
-				panel.setBorder(EDIT_BORDER_BLACK);
-				field.requestFocus();
-			} else {
-				panel.setBorder(defaultBorder);
-			}
+			namePane.setEditable(true);
+			namePane.setBorder(EDIT_BORDER_BLACK);
+			field.requestFocus();
+
 			namePane.getDocument().removeDocumentListener(this);
 			String text = namePane.getText();
-			if (text != null) text = text.trim();
-			if (editable) namePane.setText(modifiedName);
-			else namePane.setText(UIUtilities.formatPartialName(text));
+			if (text != null) 
+				text = text.trim();
+			
+			// the user might have finished editing by hitting return key, therefore
+			// remove line break characters
+			modifiedName = CharMatcher.JAVA_ISO_CONTROL.removeFrom(modifiedName);
+			namePane.setText(modifiedName);
+			namePane.setMaximumSize(namePane.getSize());
+			namePane.setLineWrap(true);
+
 			namePane.getDocument().addDocumentListener(this);
 			namePane.select(0, 0);
 			namePane.setCaretPosition(0);
 		} else if (field == descriptionWiki) {
-			descriptionWiki.setEnabled(editable); //was editable
-			if (editable) {
-				descriptionScrollPane.setBorder(EDIT_BORDER_BLACK);
-				field.requestFocus();
-			} else {
-				descriptionScrollPane.setBorder(EDIT_BORDER);
-			}
+			descriptionWiki.setEnabled(true);
+			descriptionScrollPane.setBorder(EDIT_BORDER_BLACK);
+			field.requestFocus();
 		}
-	}
-	
-	/**
-	 * Sets the new name of the edited object.
-	 * 
-	 * @param document The document to handle.
-	 */
-	private void handleNameChanged(Document document)
-	{
-		Document d = namePane.getDocument();
-		if (d == document) modifiedName = namePane.getText();
 	}
 	
 	/**
@@ -1175,7 +1207,6 @@ public class PropertiesUI
         namePane.setEnabled(b);
         editName.setEnabled(b);
         descriptionButtonEdit.setEnabled(b);
-        editChannel.setEnabled(b);
     }
 
     /**
@@ -1185,7 +1216,6 @@ public class PropertiesUI
     protected void buildUI()
     {
         removeAll();
-        editableName = false;
         namePane.setEditable(false);
         Object refObject = model.getRefObject();
         text = model.getObjectTypeAsString(refObject);
@@ -1197,6 +1227,9 @@ public class PropertiesUI
         originalDisplayedName = UIUtilities.formatPartialName(originalName);
         namePane.setText(originalDisplayedName);
         namePane.setToolTipText(originalName);
+        // disable line wrap and only enable it in editing mode;
+        // otherwise keeping it enabled has a weird effect on the layout
+        namePane.setLineWrap(false);
 
         boolean b = model.canEdit();
         String t = text;
@@ -1207,16 +1240,15 @@ public class PropertiesUI
             t += " (Image ID: "+wsd.getImage().getId()+")";
         }
         idLabel.setText(t);
-        inplaceIcon.setVisible(model.isInplaceImport());
         String ownerName = model.getOwnerName();
         ownerLabel.setText("");
         if (ownerName != null && ownerName.length() > 0)
             ownerLabel.setText(OWNER_TEXT+ownerName);
         originalDescription = model.getRefObjectDescription();
-        if (StringUtils.isEmpty(originalDescription))
+        if (CommonsLangUtils.isEmpty(originalDescription))
             originalDescription = DEFAULT_DESCRIPTION_TEXT;
         descriptionWiki.setText(originalDescription);
-        //wrap();
+        expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
         descriptionWiki.setCaretPosition(0);
         descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
         descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -1253,13 +1285,22 @@ public class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionWiki.setText(originalDescription);
+		expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
         boolean b = model.canEdit();
         descriptionButtonEdit.setEnabled(b);
+        descriptionButtonEdit.setSelected(false);
+        editName.setEnabled(b);
+        editName.setSelected(false);
         if (b) {
         	descriptionWiki.addDocumentListener(this);
         }
 	}
-
+	
+	void save() {
+		updateDataObject();
+		model.fireAnnotationSaving(null, Collections.emptyList(), false);
+	}
+	
 	/** Updates the data object. */
 	void updateDataObject() 
 	{
@@ -1267,54 +1308,43 @@ public class PropertiesUI
 		Object object =  model.getRefObject();
 		String name = modifiedName;
 		String desc = descriptionWiki.getText().trim();
-		if (name != null) {
-			if (name.equals(originalName) || name.equals(originalDisplayedName))
-				name = "";
-		}
-		String value = desc;
-		if (desc != null) {
-			String v = OMEWikiComponent.prepare(originalDescription.trim(),
-					true);
-			String v2 = OMEWikiComponent.prepare(desc.trim(), true);
-			if (v2.equals(v)) value = "";
-		}
-		if (value == null) value = "";
+		if (desc == null) desc = "";
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof DatasetData) {
 			DatasetData p = (DatasetData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
 			if (name.length() > 0) p.setTagValue(name);
-			p.setTagDescription(value);
+			p.setTagDescription(desc);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof PlateData) {
 			PlateData p = (PlateData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof WellSampleData) {
 			WellSampleData well = (WellSampleData) object;
 			ImageData img = well.getImage();
 			if (name.length() > 0) img.setName(name);
-			img.setDescription(value);
+			img.setDescription(desc);
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
 			if (name.length() > 0) pa.setName(name);
-			pa.setDescription(value);
+			pa.setDescription(desc);
 		}
 	}
 	
@@ -1346,52 +1376,16 @@ public class PropertiesUI
 		StringBuffer buffer = new StringBuffer();
 		while (k.hasNext()) {
 			buffer.append(((ChannelData) k.next()).getChannelLabeling());
-			if (j != n) buffer.append(", ");
+			if (j != n) 
+				buffer.append(", ");
 			j++;
 		}
-		channelsArea.setText(buffer.toString());
+		
+		String text = CommonsLangUtils.wrap(buffer.toString(),
+		        MAX_CHANNELNAMES_LENGTH_IN_CHARS, "<br>", true);
+		channelsArea.setText("<html>"+text+"</html>");
 		channelsArea.revalidate();
 		channelsArea.repaint();
-	}
-
-	/** 
-	 * Sets the extent size
-	 * 
-	 * @param width The value to set.
-	 */
-	void setExtentWidth(int width)
-	{
-		/*
-		int diff = 10;
-		int newWidth = width-diff;
-		
-		if (this.width != 0 && 
-				(this.width-diff <= newWidth && newWidth <= this.width+diff)) return;
-		
-		this.width = newWidth;
-		
-		if (descriptionPanel != null) {
-			Dimension viewportSize = new Dimension(width, HEIGHT);
-			pane.getViewport().setPreferredSize(viewportSize);
-			
-			Dimension paneSize = pane.getSize();
-			int h = paneSize.height;
-			if (h < HEIGHT) h = HEIGHT;
-			
-			String newLineStr = null;
-			if (pane.getVerticalScrollBar().isVisible())
-				newLineStr = "\n";
-		
-			Dimension descriptionSize = new Dimension(this.width, HEIGHT);
-			
-			descriptionPane.setSize(descriptionSize);
-			descriptionPane.setPreferredSize(descriptionSize);
-		    descriptionPane.wrapText(this.width, newLineStr);
-		    
-			descriptionPanel.setSize(descriptionSize);
-			descriptionPanel.setPreferredSize(descriptionSize);
-		}
-		*/
 	}
 	
 	/**
@@ -1451,27 +1445,28 @@ public class PropertiesUI
 	 */
 	protected void clearData(Object oldObject)
 	{
-	    editableName = false;
 	    originalName = model.getRefObjectName();
 	    originalDisplayedName = originalName;
 	    originalDescription = model.getRefObjectDescription();
 	    namePane.getDocument().removeDocumentListener(this);
 	    descriptionWiki.removeDocumentListener(this);
 	    namePane.setText(originalName);
-	    if (StringUtils.isEmpty(originalDescription))
+	    if (CommonsLangUtils.isEmpty(originalDescription))
 	        originalDescription = DEFAULT_DESCRIPTION_TEXT;
 	    descriptionWiki.setText(originalDescription);
+	    expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
 	    namePane.getDocument().addDocumentListener(this);
+	    namePane.setBorder(defaultBorder);
+	    editName.setSelected(false);
+	    descriptionButtonEdit.setSelected(false);
 	    descriptionWiki.addDocumentListener(this);
 	    channelEditPane = null;
-	    editChannel.setEnabled(false);
 	    descriptionWiki.setEnabled(false);
 	    editNames();
 	    if (oldObject == null) return;
 	    if (!model.isSameObject(oldObject)) {
 	        channelsArea.setText("");
 	        idLabel.setText("");
-	        inplaceIcon.setVisible(false);
 	        ownerLabel.setText("");
 	        parentLabel.setText("");
 	        wellLabel.setText("");
@@ -1491,16 +1486,18 @@ public class PropertiesUI
 	 */
 	protected void setComponentTitle() {}
 	
-	/**
-	 * Fires property indicating that some text has been entered.
-	 * @see DocumentListener#insertUpdate(DocumentEvent)
-	 */
-	public void insertUpdate(DocumentEvent e)
-	{
-		handleNameChanged(e.getDocument());
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
-				Boolean.valueOf(true));
-	}
+        /**
+         * Fires property indicating that some text has been entered.
+         * 
+         * @see DocumentListener#insertUpdate(DocumentEvent)
+         */
+        public void insertUpdate(DocumentEvent e) {
+            if (e.getDocument() == namePane.getDocument()) {
+                modifiedName = namePane.getText();
+                firePropertyChange(EditorControl.SAVE_PROPERTY,
+                        Boolean.valueOf(false), Boolean.valueOf(true));
+            } 
+        }
 
 	/**
 	 * Fires property indicating that some text has been entered.
@@ -1508,28 +1505,10 @@ public class PropertiesUI
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		handleNameChanged(e.getDocument());
+	    if (e.getDocument() == namePane.getDocument()) {
+	        modifiedName = namePane.getText();
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
-	}
-
-	/** 
-	 * Edits the components displaying the name and description
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{
-	    int index = Integer.parseInt(e.getActionCommand());
-	    switch (index) {
-	    case EDIT_NAME:
-	        editField(namePanel, namePane, editName, !editableName);
-	        break;
-	    case EDIT_DESC:
-	        editField(descriptionPanel, descriptionWiki,
-	                descriptionButtonEdit, !descriptionWiki.isEnabled());
-	        break;
-	    case EDIT_CHANNEL:
-	        editChannels();
 	    }
 	}
 	
@@ -1544,7 +1523,7 @@ public class PropertiesUI
 		if (src == namePane) {
 			String text = namePane.getText();
 			editNames();
-			if (StringUtils.isBlank(text)) {
+			if (CommonsLangUtils.isBlank(text)) {
 				namePane.getDocument().removeDocumentListener(this);
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
@@ -1554,7 +1533,7 @@ public class PropertiesUI
 		} else if (src == descriptionWiki) {
 			String text = descriptionWiki.getText();
 			editNames();
-			if (StringUtils.isBlank(text)) {
+			if (CommonsLangUtils.isBlank(text)) {
 				descriptionWiki.removeDocumentListener(this);
 				descriptionWiki.setText(DEFAULT_DESCRIPTION_TEXT);
 				descriptionWiki.addDocumentListener(this);
@@ -1575,7 +1554,8 @@ public class PropertiesUI
 	 * Listens to property changes fired by the {@link #descriptionWiki}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
-	public void propertyChange(PropertyChangeEvent evt)
+	@SuppressWarnings("unchecked")
+   	 public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
@@ -1628,27 +1608,13 @@ public class PropertiesUI
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
-
-	/** Displays the file set associated to the image. */
-        void displayFileset() {
-            Point location = inplaceIcon.getLocation();
-            SwingUtilities.convertPointToScreen(location, inplaceIcon.getParent());
-            // as the inplaceIcon already is on the right edge of the window
-            // move it a bit more to the left
-            location.translate(
-                    -FilesetInfoDialog.DEFAULT_WIDTH + inplaceIcon.getWidth(),
-                    inplaceIcon.getHeight());
-            FilesetInfoDialog d = new FilesetInfoDialog();
-            d.setData(model.getFileset(), model.isInplaceImport());
-            d.open(location);
-        }
         
         /** 
          * Starts an asyc. call to load the number of ROIs
          */
         void loadROICount(ImageData image) {
             ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-            ROICountLoader l = new ROICountLoader(new SecurityContext(exp.getGroupId()), this, image.getId(), exp.getId());
+            ROICountLoader l = new ROICountLoader(new SecurityContext(image.getGroupId()), this, image.getId(), exp.getId());
             l.load();
         }
         

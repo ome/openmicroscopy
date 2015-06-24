@@ -5,7 +5,10 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
+
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Initialize.h>
+#include <omero/IceNoWarnPop.h>
 #include <omero/client.h>
 #include <omero/model/ExperimenterI.h>
 #include <omero/model/GroupExperimenterMapI.h>

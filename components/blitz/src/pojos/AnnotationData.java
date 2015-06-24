@@ -1,7 +1,7 @@
 /*
  * pojos.AnnotationData
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -105,6 +105,28 @@ public abstract class AnnotationData extends DataObject {
         return timeOfEvent(getDetails().getCreationEvent());
     }
 
+	/**
+	 * Retrieves the {@link Annotation#getDescription() description} of the
+	 * underlying {@link Annotation} instance.
+	 * 
+	 * @return See above
+	 */
+	public String getDescription() {
+		omero.RString desc = asAnnotation().getDescription();
+		return desc == null ? null : desc.getValue();
+	}
+
+	/**
+	 * Sets the description of the underlying {@link Annotation} instance.
+	 * 
+	 * @param description
+	 *            The description
+	 */
+	public void setDescription(String description) {
+		asAnnotation().setDescription(
+				description == null ? null : rstring(description));
+	}
+    
     /**
      * Sets the annotation value. If the improper content is given for the
      * current {@link Annotation}, then an

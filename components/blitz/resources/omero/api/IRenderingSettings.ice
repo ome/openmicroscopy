@@ -20,12 +20,12 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRenderingSettings.html">IRenderingSettings.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/IRenderingSettings.html">IRenderingSettings.html</a>
          **/
         ["ami", "amd"] interface IRenderingSettings extends ServiceInterface
             {
-                bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
-                omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
+                idempotent bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
+                idempotent omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
                 omero::model::RenderingDef createNewRenderingDef(omero::model::Pixels pixels) throws ServerError;
                 void resetDefaults(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
                 omero::model::RenderingDef resetDefaultsNoSave(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;

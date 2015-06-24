@@ -27,8 +27,6 @@ import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.system.EventContext;
 
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteReport;
 import omero.cmd.Delete;
 import omero.cmd.DeleteRsp;
 import omero.cmd.ERR;
@@ -42,7 +40,10 @@ import omero.cmd.Response;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
+ * @deprecated will be removed in OMERO 5.2, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
 @SuppressWarnings("deprecation")
 public class DeleteI extends Delete implements IGraphModifyRequest {
 
@@ -64,19 +65,6 @@ public class DeleteI extends Delete implements IGraphModifyRequest {
     //
     public Deletion getDeletion() {
         return delegate;
-    }
-
-    public DeleteReport getDeleteReport() {
-        DeleteReport rpt = new DeleteReport();
-        rpt.command = new DeleteCommand(type, id, options);
-        rpt.actualDeletes = delegate.getActualDeletes();
-        rpt.error = delegate.getError();
-        rpt.scheduledDeletes = delegate.getScheduledDeletes();
-        rpt.start = delegate.getStart();
-        rpt.stop = delegate.getStop();
-        rpt.undeletedFiles = delegate.getUndeletedFiles();
-        rpt.warning = delegate.getWarning();
-        return rpt;
     }
 
     //

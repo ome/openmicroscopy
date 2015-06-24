@@ -451,7 +451,7 @@ namespace omero {
         }
 
         Ice::Int RArrayI::size(const Ice::Current& /* current */) {
-            return this->val.size();
+            return static_cast<Ice::Int>(this->val.size());
         }
 
         void RArrayI::add(const omero::RTypePtr& val, const Ice::Current& /* current */) {
@@ -502,7 +502,7 @@ namespace omero {
         }
 
         Ice::Int RListI::size(const Ice::Current& /* current */) {
-            return this->val.size();
+            return static_cast<Ice::Int>(this->val.size());
         }
 
         void RListI::add(const omero::RTypePtr& val, const Ice::Current& /* current */) {
@@ -553,7 +553,7 @@ namespace omero {
         }
 
         Ice::Int RSetI::size(const Ice::Current& /* current */) {
-            return this->val.size();
+            return static_cast<Ice::Int>(this->val.size());
         }
 
         void RSetI::add(const omero::RTypePtr& val, const Ice::Current& /* current */) {
@@ -596,7 +596,7 @@ namespace omero {
         }
 
         Ice::Int RMapI::size(const Ice::Current& /* current */) {
-            return this->val.size();
+            return static_cast<Ice::Int>(this->val.size());
         }
 
         // Helpers

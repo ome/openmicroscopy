@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.util.ui;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -33,6 +32,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -43,6 +44,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,10 +54,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
-
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -81,14 +83,15 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * A collection of static methods to perform common UI tasks.
@@ -107,7 +110,10 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
  */
 public class UIUtilities
 {
-	
+	/** Defines the format how the date is shown */
+    private static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss"); //2013-04-20 18:13:43
+    
 	/** Bound property indicating that the font changes.*/
 	public static final String HINTS_PROPERTY = "awt.font.desktophints";
 	
@@ -238,6 +244,9 @@ public class UIUtilities
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
+	
+	/** Degree symbol */
+	public final static String				DEGREE_SYMBOL = "°";
     
 	/** Background color of the highlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 
@@ -1459,6 +1468,32 @@ public class UIUtilities
     }
     
     /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Timestamp time) 
+    {
+    	if (time == null)  
+    		time = getDefaultTimestamp();
+    	return DEFAULT_DATE_FORMAT.format(time);
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Date date) 
+    {
+    	if (date == null)  
+    		return formatDefaultDate((Timestamp)null);
+    	return DEFAULT_DATE_FORMAT.format(date);
+    }
+    
+    /**
      * Formats as a <code>String</code> the specified time.
      * format: E dd MMM yyyy, HH:mm:ss
      * 
@@ -2067,9 +2102,8 @@ public class UIUtilities
 	 */
 	public static boolean isMacOS()
 	{
-		//String osName = System.getProperty("os.name").toLowerCase();
-		//return osName.startsWith("mac os");
-		return (SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX);
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.startsWith("mac");
 	}
 	
 	/**
@@ -2080,13 +2114,8 @@ public class UIUtilities
 	 */
 	public static boolean isWindowsOS()
 	{
-		//String osName = System.getProperty("os.name").toLowerCase();
-		//return osName.startsWith("windows");
-		return (SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_WINDOWS_2000 ||
-				SystemUtils.IS_OS_WINDOWS_7 || SystemUtils.IS_OS_WINDOWS_95 || 
-				SystemUtils.IS_OS_WINDOWS_98 || SystemUtils.IS_OS_WINDOWS_ME|| 
-				SystemUtils.IS_OS_WINDOWS_NT || SystemUtils.IS_OS_WINDOWS_VISTA ||
-				SystemUtils.IS_OS_WINDOWS_XP);
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.startsWith("windows");
 	}
 	
 	/**
@@ -2097,9 +2126,9 @@ public class UIUtilities
 	 */
 	public static boolean isLinuxOS()
 	{
-		return SystemUtils.IS_OS_LINUX;
+		return !(isMacOS() || isWindowsOS());
 	}
-	
+
 	/**
      * Returns the partial name of the image's name
      * 
@@ -2345,7 +2374,7 @@ public class UIUtilities
     {
     	if (family == null) return "";
     	String value = FONTS.get(family);
-    	if (StringUtils.isBlank(value)) return "";
+    	if (CommonsLangUtils.isBlank(value)) return "";
     	return value;
     }
     
@@ -2494,109 +2523,141 @@ public class UIUtilities
     }
 
     /**
-     * Transforms the size and returns the value and units.
-     * 
-     * @param value The value to transform.
-     * @return See above.
+     * Transforms the given value (it's assumed it's in microns) to
+     * a more readable value
+     * @param value The value to transform
+     * @return The transformed value as unit object
      */
-    public static UnitsObject transformSquareSize(Double value)
-    {
-        double v = value.doubleValue();
-        double pow = Math.pow(10, 6);
-        String units = UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL;
-        if (v > 0.0 && v < 0.0001) {
-            units = UnitsObject.NANOMETER;
-            v *= pow;
-            if (v < 100) {
-                units = UnitsObject.ANGSTROM;
-                v *= 100;
-            }
-            return new UnitsObject(units, v);
-        }
-        
-        if (v > pow) {
-            units = UnitsObject.MILLIMETER+UIUtilities.SQUARED_SYMBOL;
-            v /= pow;
-        }
-        if (v > pow) {
-            units = UnitsObject.CENTIMETER+UIUtilities.SQUARED_SYMBOL;
-            v /= pow;
-        }
-        if (v > pow) {
-            units = UnitsObject.METER+UIUtilities.SQUARED_SYMBOL;
-            v /= pow;
-        }
-        return new UnitsObject(units, v);
-    }
-
-    /**
-	 * Transforms the size and returns the value and units.
-	 * 
-	 * @param value The value to transform.
-	 * @return See above.
-	 */
-	public static UnitsObject transformSize(Double value)
-	{
-		double v = value.doubleValue();
-		String units = UnitsObject.MICRONS;
-		if (v > 0.0 && v < 0.01) {
-			units = UnitsObject.NANOMETER;
-			v *= 1000;
-			if (v < 1) {
-				units = UnitsObject.ANGSTROM;
-				v *= 10;
-			}
-			return new UnitsObject(units, v);
-		}
-		if (v > 1000) {
-			units = UnitsObject.MILLIMETER;
-			v /= 1000;
-		}
-		if (v > 1000) {
-			units = UnitsObject.CENTIMETER;
-			v /= 1000;
-		}
-		if (v > 1000) {
-			units = UnitsObject.METER;
-			v /= 1000;
-		}
-		return new UnitsObject(units, v);
+    public static Length transformSize(double value) {
+    	return transformSize(new LengthI(value, UnitsLength.MICROMETER));
 	}
-
+    
     /**
-     * Transforms the size and returns the value and units.
-     * 
-     * @param value The value to transform.
-     * @param refUnits The units of reference.
-     * @return See above.
+     * Transforms the given value to a more readable value
+     * @param value The value to transform
+     * @return The transformed value
      */
-    public static double transformSize(Double value, String refUnits)
+	public static Length transformSize(Length value) {
+		
+		if(value.getUnit().equals(UnitsLength.MICROMETER)) { 
+			double v = value.getValue();
+			UnitsLength unit = UnitsLength.MICROMETER;
+			if (v > 0.0 && v < 0.1) {
+				unit = UnitsLength.NANOMETER;
+				v *= 1000;
+				if (v < 1) {
+					unit = UnitsLength.ANGSTROM;
+					v *= 10;
+				}
+				return new LengthI(v, unit);
+			}
+			if (v > 1000) {
+				unit = UnitsLength.MILLIMETER;
+				v /= 1000;
+			}
+			if (v > 1000) {
+				unit = UnitsLength.CENTIMETER;
+				v /= 1000;
+			}
+			if (v > 1000) {
+				unit = UnitsLength.METER;
+				v /= 1000;
+			}
+			
+			return new LengthI(v, unit);
+		}
+		
+		return value;
+	}
+	
+	/**
+     * Transforms the given (squared) value to a more readable value;
+     * Only use with squared values (e. g. area), for plain values
+     * use {@link #transformSize(Length)}
+     * @param value The value to transform
+     * @return The transformed value
+     */
+	public static Length transformSquareSize(Length value)
     {
-        double v = value.doubleValue();
-        String units = UnitsObject.MICRONS;
-        if (v > 0.0 && v < 0.01) {
-            units = UnitsObject.NANOMETER;
-            if (units.equals(refUnits)) v *= 1000;
-            if (v < 1) {
-                units = UnitsObject.ANGSTROM;
-                if (units.equals(refUnits)) v *= 10;
-            }
-            return v;
-        }
-        if (v > 1000) {
-            units = UnitsObject.MILLIMETER;
-            if (units.equals(refUnits)) v /= 1000;
-        }
-        if (v > 1000) {
-            units = UnitsObject.CENTIMETER;
-            if (units.equals(refUnits)) v /= 1000;
-        }
-        if (v > 1000) {
-            units = UnitsObject.METER;
-            if (units.equals(refUnits)) v /= 1000;
-        }
-        return v;
+		if(value.getUnit().equals(UnitsLength.MICROMETER)) { 
+	        double v = value.getValue();
+	        double pow = Math.pow(10, 6);
+	        UnitsLength unit = UnitsLength.MICROMETER;
+	        if (v > 0.0 && v < 0.1) {
+	            unit = UnitsLength.NANOMETER;
+	            v *= pow;
+	            if (v < 100) {
+	                unit = UnitsLength.ANGSTROM;
+	                v *= 100;
+	            }
+	            return new LengthI(v, unit);
+	        }
+	        
+	        if (v > pow) {
+	            unit = UnitsLength.MILLIMETER;
+	            v /= pow;
+	        }
+	        if (v > pow) {
+	            unit = UnitsLength.CENTIMETER;;
+	            v /= pow;
+	        }
+	        if (v > pow) {
+	            unit = UnitsLength.METER;
+	            v /= pow;
+	        }
+        
+	        return new LengthI(v, unit);
+		}
+		
+        return value;
     }
+	
+	/**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached
+     * @param value The value to format
+     * @return See above. 
+     */
+	public static String formatValue(Length value) {
+		return formatValue(value, false);
+	}
+	
+	/**
+     * Creates a readable String representation of the given value
+     * (assumed it's a value in Microns), i. e.
+     * transformed into a suitable unit, with unit symbol attached
+     * @param value The value to format
+     * @return See above. 
+     */
+	public static String formatValue(double value) {
+		return formatValue(new LengthI(value, UnitsLength.MICROMETER), false);
+	}
+	
+	/**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached and
+     * if squared flag is set, also attaches the square symbol.
+     * @param value The value to format
+     * @param squared Pass <code>true</code> to attach the square symbol
+     * @return See above. 
+     */
+	public static String formatValue(Length value, boolean squared) {
+		Length converted = squared ? transformSquareSize(value) : transformSize(value);
+		String v;
+		if (value.getUnit().equals(UnitsLength.PIXEL))
+			v = value.getValue() == 0 ? null : ""+((int)value.getValue());
+		else
+			v = UIUtilities.twoDecimalPlaces(converted.getValue());
+		
+		if (v==null)
+			return "";
+		
+		v += ((LengthI)converted).getSymbol();
+		if (squared && !value.getUnit().equals(UnitsLength.PIXEL))
+			v += UIUtilities.SQUARED_SYMBOL;
+		
+		return v;
+	}
     
 	/**
      * Formats the passed value in seconds.
@@ -2651,5 +2712,91 @@ public class UIUtilities
             return name.substring(0, maxLength)+UIUtilities.DOTS;
         }
         return name;
+    }
+    
+    /**
+     * Generates an unique filename in form 'folder'/'name'(INCREMENT).'ext', whereas
+     * INCREMENT is chosen in such a way, that the file does not exist yet.
+     * 
+     * @param folder The folder where the file is intended to be stored
+     * @param name The base name of the file
+     * @param ext The extension of the file
+     * @return The generated unique filename
+     */
+    public static File generateFileName(File folder, String name, String ext) {
+		int i = 0;
+		File file = new File(folder, name+"."+ext);
+		while(file.exists()) {
+			i++;
+			file = new File(folder, name+"("+i+")."+ext);
+		}
+		return file;
+	}
+    
+    /**
+     * Adds an empty JPanel to component which takes up excessive space, a bit
+     * like {@link Box#createHorizontalGlue()} and {@link Box#createVerticalGlue()}
+     * just for {@link GridBagLayout}
+     * 
+     * @param component
+     *            The component to add the filler to
+     * @param c
+     *            The last used GridBagConstraints (c.gridx, respectively c.gridy
+     *            will be incremented)
+     * @param vertical
+     *            Add a vertical (<code>true</code>) or horizontal (
+     *            <code>false</code>) filler
+     */
+    public static void addFiller(JComponent component, GridBagConstraints c,
+            boolean vertical) {
+        if (!(component.getLayout() instanceof GridBagLayout)) {
+            throw new IllegalArgumentException(
+                    "Component does not use GridBagLayout!");
+        }
+
+        double weightx = c.weightx;
+        double weighty = c.weighty;
+        int fill = c.fill;
+
+        c.weightx = vertical ? c.weightx : 1;
+        c.weighty = vertical ? 1 : c.weighty;
+        c.fill = GridBagConstraints.BOTH;
+
+        JPanel filler = new JPanel();
+        filler.setBackground(BACKGROUND_COLOR);
+        component.add(filler, c);
+
+        c.weightx = weightx;
+        c.weighty = weighty;
+        c.fill = fill;
+        if (vertical)
+            c.gridy++;
+        else
+            c.gridx++;
+    }
+
+    /**
+     * Finds the parent of the component identified by the specified class.
+     * Returns the found component or <code>null</code> if 
+     * none found.
+     * 
+     * @param comp The component to visit. Mustn't be <code>null</code>.
+     * @param c The class identifying the component to find.
+     * @return See above.
+     */
+    public static Component findParent(Component comp, Class c)
+    {
+        if (c == null || comp == null)
+            throw new IllegalArgumentException("The parameters cannot be " +
+                    "null");
+        if (c.isAssignableFrom(comp.getClass())) return comp;
+        
+        if (comp instanceof Container) {
+            Component parent = ((Container) comp).getParent();
+            if (parent == null) return null;
+            if (parent.getClass().equals(c)) return parent;
+            return findParent(parent, c);
+        }
+        return null;
     }
 }

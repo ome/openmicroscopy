@@ -21,23 +21,23 @@
 module omero {
 
     module cmd {
- 
+
          /**
          * Requests an email to be send to all users of the omero
          * determines inactive users, an active members of given groups
          * and/or specific users.
-         * 
+         *
          * examples:
-         *  - omero.cmd.SendEmailRequest(subject, body)
-         *		sends message to everyone who has email set
-         *		and is an active user
-         *  - omero.cmd.SendEmailRequest(subject, body, inactive)
-         *		sends message to everyone who has email set,
-         *		even inactive users
+         *  - omero.cmd.SendEmailRequest(subject, body, everyone=True)
+         *      sends message to everyone who has email set
+         *      and is an active user
+         *  - omero.cmd.SendEmailRequest(subject, body, everyone=True, inactive=True)
+         *      sends message to everyone who has email set,
+         *      even inactive users
          *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...],
-         *		userIds=[...] )
-         *		sends email to active members of given groups and selected users
-         * 	- extra=[...] allows to set extra email address if not in DB
+         *      userIds=[...] )
+         *      sends email to active members of given groups and selected users
+         *  - extra=[...] allows to set extra email address if not in DB
          **/
          class SendEmailRequest extends Request {
              string subject;
@@ -47,6 +47,7 @@ module omero {
              omero::sys::LongList groupIds;
              omero::api::StringSet extra;
              bool inactive;
+             bool everyone;
          };
 
          /**
@@ -55,18 +56,18 @@ module omero {
          * If no recipients or invalid users found, an [ERR] will be returned.
          *
          * - invalidusers is a list of userIds that email didn't pass criteria
-         *					such as was empty or less then 5 characters
+         *                  such as was empty or less then 5 characters
          * - invalidemails is a list of email addresses that send email failed
          * - total is a total number of email in the pull to be sent.
          * - success is a number of emails that were sent successfully.
          **/
          class SendEmailResponse extends Response {
-         	 long total;
-         	 long success;
+             long total;
+             long success;
              omero::api::LongList invalidusers;
              omero::api::StringSet invalidemails;
          };
-        
+
     };
 };
 

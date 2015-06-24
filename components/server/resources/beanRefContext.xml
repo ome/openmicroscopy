@@ -53,6 +53,8 @@
         <value>classpath*:ome/services/service-*.xml</value>
         <value>classpath:ome/services/sec-system.xml</value>
         <value>classpath:ome/services/startup.xml</value>
+        <!-- Allow user added files -->
+        <value>classpath*:blitz/*.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" ref="ome.model"/>

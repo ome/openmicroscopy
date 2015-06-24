@@ -12,25 +12,27 @@ import static org.testng.AssertJUnit.assertNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 import omero.SecurityViolation;
 import omero.api.IProjectionPrx;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Deleted projected image and/or source image.
@@ -73,7 +75,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      * Creates an image and projects it either by the owner or by another
      * member of the group. The image is then deleted by the owner of the image
      * or by another user.
-     * 
+     *
      * @param src The permissions of the source group.
      * @param memberRole The role of the other group member projecting the
      * image or <code>-1</code> if the owner projects the image.
@@ -83,6 +85,28 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      * @throws Exception Thrown if an error occurred.
      */
     private void deleteImage(String src, int memberRole,
+            int deleteMemberRole, int action)
+            throws Exception
+    {
+        deleteImage(true, src, memberRole, deleteMemberRole, action);
+    }
+
+    /** 
+     * Creates an image and projects it either by the owner or by another
+     * member of the group. The image is then deleted by the owner of the image
+     * or by another user.
+     *
+     * @param passes if the delete request's response is expected to be
+     * {@link omero.cmd.OK}
+     * @param src The permissions of the source group.
+     * @param memberRole The role of the other group member projecting the
+     * image or <code>-1</code> if the owner projects the image.
+     * @param deleteMemberRole The role of the member deleting the image
+     * image or <code>-1</code> if the owner projects the image.
+     * @param action One of the constants defined by this class.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void deleteImage(boolean passes, String src, int memberRole,
             int deleteMemberRole, int action)
             throws Exception
     {
@@ -111,22 +135,37 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         if (deleteMemberRole == AbstractServerTest.ADMIN)
             logRootIntoGroup(ctx);
         //delete the image(s)
+        Delete2 dc;
         switch (action) {
         case SOURCE_IMAGE:
-            delete(client, new Delete(DeleteServiceTest.REF_IMAGE, id, null));
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(id));
+            callback(passes, client, dc);
             break;
         case PROJECTED_IMAGE:
-            delete(client, new Delete(DeleteServiceTest.REF_IMAGE, projectedID,
-                    null));
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(projectedID));
+            callback(passes, client, dc);
             break;
         case BOTH_IMAGES:
             List<Request> commands = new ArrayList<Request>();
-            commands.add(new Delete(DeleteServiceTest.REF_IMAGE, id, null));
-            commands.add(new Delete(DeleteServiceTest.REF_IMAGE, projectedID,
-                    null));
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(id));
+            commands.add(dc);
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(projectedID));
+            commands.add(dc);
             DoAll all = new DoAll();
             all.requests = commands;
-            doChange(all);
+            doChange(client, factory, all, passes, null);
         }
 
         //Check the result
@@ -604,7 +643,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      */
     @Test(expectedExceptions = SecurityViolation.class)
     public void testSourceImageByMemberdeleteByOwnerRW() throws Exception {
-        deleteImage("rw----", AbstractServerTest.MEMBER,
+        deleteImage(false, "rw----", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
     }
 

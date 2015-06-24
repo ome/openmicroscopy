@@ -25,7 +25,7 @@ sensible usages of ImageWrapper.getThumbnail()
 """
 
 
-import test.integration.library as lib
+import library as lib
 
 
 def generate_parameters():

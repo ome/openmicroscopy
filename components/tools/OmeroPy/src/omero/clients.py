@@ -24,7 +24,7 @@ import threading
 import logging
 import IceImport
 import Ice
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 IceImport.load("Glacier2_Router_ice")
 import Glacier2
@@ -195,6 +195,7 @@ class BaseClient(object):
         id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
         id.properties.setProperty("IceSSL.Ciphers", "ADH")
         id.properties.setProperty("IceSSL.VerifyPeer", "0")
+        id.properties.setProperty("IceSSL.Protocols", "tls1")
 
         # Setting block size
         blockSize = id.properties.getProperty("omero.block_size")
@@ -895,8 +896,10 @@ class BaseClient(object):
         try:
             callback = omero.callbacks.CmdCallbackI(self, handle)
         except:
-            # Since the callback won't escape this method, close it.
-            callback.close(closehandle)
+            # Since the callback won't escape this method,
+            # close the handle if requested.
+            if closehandle and handle:
+                handle.close()
             raise
 
         try:

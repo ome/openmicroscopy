@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -40,22 +40,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-//Third-party libraries
+import loci.common.Constants;
 import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
-
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RawPixelsStorePrx;
@@ -82,6 +82,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -92,6 +93,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.data.util.Resolver;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -104,6 +106,7 @@ import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -232,9 +235,7 @@ class OmeroImageServiceImpl
 							importIc.setCustomAnnotationList(list);
 							label.setCallback(gateway.importImageFile(ctx,
 									object, ioContainer, importIc,
-									label, toClose,
-									ImportableObject.isHCSFile(file),
-									userName));
+									label, toClose, userName));
 						}
 					}
 				} catch (Exception e) {
@@ -511,15 +512,16 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef, boolean, boolean)
+	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef,
+	 * boolean, int)
 	 */
 	public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-		boolean asTexture, boolean largeImage)
+		boolean largeImage, int compression)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.render(context, ctx,
-						Long.valueOf(pixelsID), pDef, asTexture, largeImage);
+						Long.valueOf(pixelsID), pDef, largeImage, compression);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
@@ -834,21 +836,7 @@ class OmeroImageServiceImpl
 		return PixelsServicesFactory.renderProjected(context, pixelsID, startZ,
 				endZ, type, stepping, channels);
 	}
-	
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderProjectedAsTexture(SecurityContext, long,
-	 * int, int, int, int, List)
-	 */
-	public TextureData renderProjectedAsTexture(SecurityContext ctx,
-		long pixelsID, int startZ, int endZ, int stepping, int type,
-		List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		return PixelsServicesFactory.renderProjectedAsTexture(context, 
-				pixelsID, startZ, endZ, type, stepping, channels);
-	}
-	
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#projectImage(SecurityContext, ProjectionParam)
@@ -950,7 +938,7 @@ class OmeroImageServiceImpl
 	 */
 	private boolean isHCS(List<ImportContainer> containers)
 	{
-		if (containers == null || containers.size() == 0) return false;
+		if (CollectionUtils.isEmpty(containers)) return false;
 		int count = 0;
 		Iterator<ImportContainer> i = containers.iterator();
 		ImportContainer ic;
@@ -1007,7 +995,9 @@ class OmeroImageServiceImpl
 			}
 			//save the tag.
 			try {
-				l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    if (l.size() > 0) {
+			        l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    }
 				Iterator<IObject> j = l.iterator();
 				Annotation a;
 				while (j.hasNext()) {
@@ -1027,7 +1017,7 @@ class OmeroImageServiceImpl
 		//prepare the container.
 		List<String> candidates;
 		ImportCandidates ic = null;
-		File file = importable.getFile();
+		File file = importable.getFile().getFileToImport();
 		DatasetData dataset = importable.getDataset();
 		DataObject container = importable.getParent();
 		IObject ioContainer = null;
@@ -1040,41 +1030,38 @@ class OmeroImageServiceImpl
 		ImportContainer importIc;
 		List<ImportContainer> icContainers;
 		if (file.isFile()) {
-			hcsFile = ImportableObject.isHCSFile(file);
+			ic = gateway.getImportCandidates(ctx, object, file, status);
+			if (CollectionUtils.isEmpty(ic.getContainers())) {
+			    Object o = status.getImportResult();
+                if (o instanceof ImportException) {
+                    return o;
+                }
+                ImportException e = new ImportException(
+                        ImportException.FILE_NOT_VALID_TEXT);
+                status.setCallback(e);
+                status.setText(ImportException.FILE_NOT_VALID_TEXT);
+                return e;
+			}
+			hcsFile = isHCS(ic.getContainers());
 			//Create the container if required.
 			if (hcsFile) {
-				boolean b = ImportableObject.isArbitraryFile(file);
-				if (b) { //check if it is actually a HCS file.
-					ic = gateway.getImportCandidates(ctx, object, file, status);
-					if (ic != null) {
-						candidates = ic.getPaths();
-						if (candidates.size() == 1) { 
-							String value = candidates.get(0);
-							if (!file.getAbsolutePath().equals(value) && 
-								object.isFileinQueue(value)) {
-								if (close) gateway.closeImport(ctx, userName);
-								status.markedAsDuplicate();
-								return Boolean.valueOf(true);
-							}
-							if (!file.getName().endsWith(
-									ImportableObject.DAT_EXTENSION)) {
-								hcsFile = isHCS(ic.getContainers());
-							} else hcsFile = false;
-						}
-					}
-				}
-			}
-			if (!hcsFile && ImportableObject.isOMEFile(file)) {
-				ic = gateway.getImportCandidates(ctx, object, file, status);
 				if (ic != null) {
-					hcsFile = isHCS(ic.getContainers());
-				}
-			}
-			if (hcsFile) {
+                    candidates = ic.getPaths();
+                    if (candidates.size() == 1) { 
+                        String value = candidates.get(0);
+                        if (!file.getAbsolutePath().equals(value) && 
+                            object.isFileinQueue(value)) {
+                            if (close) gateway.closeImport(ctx, userName);
+                            status.markedAsDuplicate();
+                            return Boolean.valueOf(true);
+                        }
+                    }
+                }
 				dataset = null;
-				if (!(container instanceof ScreenData))
-					container = null;
+                if (!(container instanceof ScreenData))
+                    container = null;
 			}
+
 			//remove hcs check if we want to create screen from folder.
 			if (!hcsFile && importable.isFolderAsContainer()) {
 				//we have to import the image in this container.
@@ -1145,8 +1132,11 @@ class OmeroImageServiceImpl
                     if (o instanceof ImportException) {
                         return o;
                     }
-                    return new ImportException(
+                    ImportException e = new ImportException(
                             ImportException.FILE_NOT_VALID_TEXT);
+                    status.setCallback(e);
+                    status.setText(ImportException.FILE_NOT_VALID_TEXT);
+                    return e;
 				}
 				else if (size == 1) {
 					String value = candidates.get(0);
@@ -1160,13 +1150,13 @@ class OmeroImageServiceImpl
 					status.resetFile(f);
 					if (ioContainer == null) status.setNoContainer();
 					importIc = ic.getContainers().get(0);
+					importIc.setCustomAnnotationList(customAnnotationList);
 					status.setUsedFiles(importIc.getUsedFiles());
 					//Check after scanning
 					if (status.isMarkedAsCancel())
 						return Boolean.valueOf(false);
 					return gateway.importImageFile(ctx, object, ioContainer,
-							importIc, status, close,
-							ImportableObject.isHCSFile(f),userName);
+							importIc, status, close, userName);
 				} else {
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
@@ -1178,7 +1168,7 @@ class OmeroImageServiceImpl
 					File f;
 					while (i.hasNext()) {
 					    f = new File(i.next());
-						label = new StatusLabel(f);
+						label = new StatusLabel(new FileObject(f));
 						label.setUsedFiles(containers.get(index).getUsedFiles());
 						files.put(f, label);
 						index++;
@@ -1210,8 +1200,7 @@ class OmeroImageServiceImpl
 				if (status.isMarkedAsCancel())
 					return Boolean.valueOf(false);
 				return gateway.importImageFile(ctx, object, ioContainer,
-						importIc,
-					status, close, ImportableObject.isHCSFile(file), userName);
+						importIc, status, close, userName);
 			}
 		} //file import ends.
 		//Checks folder import.
@@ -1241,7 +1230,7 @@ class OmeroImageServiceImpl
 			c = j.next();
 			hcs = c.getIsSPW();
 			f = c.getFile();
-			sl = new StatusLabel(f);
+			sl = new StatusLabel(new FileObject(f));
 			sl.setUsedFiles(c.getUsedFiles());
 			if (hcs) {
 				if (n == 1 && file.list().length > 1)
@@ -1359,8 +1348,6 @@ class OmeroImageServiceImpl
 	public FileFilter[] getSupportedFileFormats()
 	{
 		if (filters != null) return filters;
-		//Retrieve values from bio-formats
-		//filters = new ArrayList<FileFilter>();
 		//improve that code.
 		ImageReader reader = new ImageReader();
 		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
@@ -1418,7 +1405,64 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No image specified.");
 		return gateway.saveROI(ctx, imageID, userID, roiList);
 	}
-	
+
+	/**
+     * Applies the transforms to the specified XML file.
+     *
+     * @param inputXML
+     *            The file to transforms.
+     * @param transforms
+     *            The collection of transforms.
+     * @param encoding The encoding to use.
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred during the transformations.
+     */
+    private File applyTransforms(File inputXML, List<InputStream> transforms,
+            String encoding)
+            throws Exception {
+        TransformerFactory factory;
+        Transformer transformer;
+        InputStream stream;
+        Iterator<InputStream> i = transforms.iterator();
+        File output;
+        InputStream in = null;
+        OutputStream out = null;
+        Resolver resolver = null;
+        while (i.hasNext()) {
+            stream = i.next();
+            try {
+                factory = TransformerFactory.newInstance();
+                resolver = new Resolver();
+                factory.setURIResolver(resolver);
+                output = File.createTempFile(
+                        RandomStringUtils.random(60, false, true),
+                        "."+XMLFilter.OME_XML);
+                output.deleteOnExit();
+                Source src = new StreamSource(stream);
+                Templates template = factory.newTemplates(src);
+                transformer = template.newTransformer();
+                transformer.setParameter(OutputKeys.ENCODING, encoding);
+                out = new FileOutputStream(output);
+                in = new FileInputStream(inputXML);
+                transformer.transform(new StreamSource(in),
+                        new StreamResult(out));
+                inputXML = output; 
+            } catch (Exception e) {
+                throw new Exception("Cannot apply transform", e);
+            } finally {
+                if (resolver != null) resolver.close();
+                if (stream != null) stream.close();
+                if (in != null) in.close();
+                if (out != null) out.close();
+            }
+        }
+        File f = File.createTempFile(
+                RandomStringUtils.random(60, false, true), "."+XMLFilter.OME_XML);
+        FileUtils.copyFile(inputXML, f);
+        return f;
+    }
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#exportImageAsOMEObject(SecurityContext, int, long,
@@ -1455,80 +1499,49 @@ class OmeroImageServiceImpl
 		if (target == null) return f;
 		//Apply the transformations
 		List<InputStream> transforms = target.getTransforms();
-		if (transforms == null || transforms.size() == 0) return f;
+		if (CollectionUtils.isEmpty(transforms)) return f;
 		//Apply each transform one after another.
-		Iterator<InputStream> i = transforms.iterator();
-		//Create a tmp file then we will copy to the correct location
 		
-		TransformerFactory factory;
-        Transformer transformer;
-		InputStream stream;
 		File r;
-		File output = null;
-		String ext = "."+XMLFilter.OME_XML;
-		List<File> files = new ArrayList<File>();
-		InputStream in = null;
-		OutputStream out = null;
 		File tmp = null;
+		File result = null;
+		File transformed = null;
+		RandomAccessInputStream ra = null;
+		String encoding = Constants.ENCODING;
 		try {
-			File inputXML = File.createTempFile(RandomStringUtils.random(10),
-					ext);
-			files.add(inputXML);
 			if (index == EXPORT_AS_OMETIFF) {
-				tmp = File.createTempFile(RandomStringUtils.random(10),
-						"."+OMETIFFFilter.OME_TIFF);
-				files.add(tmp);
-				FileUtils.copyFile(f, tmp);
+				tmp = File.createTempFile(RandomStringUtils.random(60, false, true),
+	                    "."+XMLFilter.OME_XML);
 				String c = new TiffParser(f.getAbsolutePath()).getComment();
-				FileUtils.writeStringToFile(inputXML, c);
+				FileUtils.writeStringToFile(tmp, c, encoding);
+				transformed = applyTransforms(tmp, transforms, encoding);
 			} else {
-				FileUtils.copyFile(f, inputXML);
+			    transformed = applyTransforms(f, transforms, encoding);
 			}
-			while (i.hasNext()) {
-				factory = TransformerFactory.newInstance();
-				stream = i.next();
-				output = File.createTempFile(RandomStringUtils.random(10), ext);
-				transformer = factory.newTransformer(new StreamSource(stream));
-				out = new FileOutputStream(output);
-				in =  new FileInputStream(inputXML);
-				transformer.transform(new StreamSource(in),
-						new StreamResult(out));
-				files.add(output);
-				inputXML = output;
-				stream.close();
-				out.close();
-				in.close();
-			}
-			
-			file.delete();
 			//Copy the result
-			r = new File(path);
-			if (index == EXPORT_AS_OME_XML)
-				FileUtils.copyFile(inputXML, r);
-			else {
-				FileUtils.copyFile(tmp, r);
-				TiffSaver saver = new TiffSaver(path);
-				RandomAccessInputStream ra = new RandomAccessInputStream(path);
-				saver.overwriteComment(ra, 
-						FileUtils.readFileToString(inputXML));
-				ra.close();
-			}
-			//delete file
-			Iterator<File> j = files.iterator();
-			while (j.hasNext()) {
-				j.next().delete();
+			if (index == EXPORT_AS_OME_XML) {
+			    file.delete();
+			    r = new File(path);
+			    FileUtils.copyFile(transformed, r);
+			    return r;
+			} else {
+				TiffSaver saver = new TiffSaver(file.getAbsolutePath());
+				ra = new RandomAccessInputStream(file.getAbsolutePath());
+				saver.overwriteComment(ra,
+				        FileUtils.readFileToString(transformed, encoding));
+				return file;
 			}
 		} catch (Exception e) {
-			try {
-				if (in != null) in.close();
-				if (out != null) out.close();
-			} catch (Exception ex) {}
-			
 			throw new IllegalArgumentException("Unable to apply the transforms",
 					e);
+		} finally {
+		    if (transformed != null) transformed.delete();
+		    if (tmp != null) tmp.delete();
+		    try {
+		        if (ra != null) ra.close();
+            } catch (Exception e2) {}
+		    if (result != null) result.delete();
 		}
-		
-		return r;
 	}
 
 	/** 
@@ -1566,16 +1579,15 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderOverLays(SecurityContext, long, PlaneDef,
-	 * long, Map, boolean)
+	 * long, Map)
 	 */
 	public Object renderOverLays(SecurityContext ctx, long pixelsID,
-		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture)
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.renderOverlays(context,
-					pixelsID, pd, tableID, overlays, asTexture);
+					pixelsID, pd, tableID, overlays);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
@@ -1885,7 +1897,17 @@ class OmeroImageServiceImpl
 			throws DSAccessException, DSOutOfServiceException
 	{
 		if (ctx == null) return null;
+		//check import as
 		Connector c = gateway.getConnector(ctx, true, false);
+		ExperimenterData exp = ctx.getExperimenterData();
+        if (exp != null && ctx.isSudo()) {
+            try {
+                c = c.getConnector(exp.getUserName());
+            } catch (Throwable e) {
+                throw new DSOutOfServiceException(
+                        "Cannot create ThumbnailStore", e);
+            }
+        }
 		// Pass close responsibility off to the caller.
 		return c.getThumbnailService();
 	}

@@ -34,19 +34,19 @@ dbhelpers.DATASETS = {
 
 dbhelpers.IMAGES = {
     'testimg1': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image', 'imgs/CHOBI_d3d.dv', 'testds1'),
+        'weblitz_test_priv_image', 'CHOBI_d3d.dv', 'testds1'),
     'testimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image2', 'imgs/CHOBI_d3d.dv', 'testds1'),
+        'weblitz_test_priv_image2', 'CHOBI_d3d.dv', 'testds1'),
     'tinyimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny', 'imgs/tinyTest.d3d.dv', 'testds1'),
+        'weblitz_test_priv_image_tiny', 'tinyTest.d3d.dv', 'testds1'),
     'badimg': dbhelpers.ImageEntry(
         'weblitz_test_priv_image_bad', False, 'testds1'),
     'tinyimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny2', 'imgs/tinyTest.d3d.dv', 'testds2'),
+        'weblitz_test_priv_image_tiny2', 'tinyTest.d3d.dv', 'testds2'),
     'tinyimg3': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny3', 'imgs/tinyTest.d3d.dv', 'testds3'),
+        'weblitz_test_priv_image_tiny3', 'tinyTest.d3d.dv', 'testds3'),
     'bigimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_big', 'imgs/big.tiff', 'testds3'),
+        'weblitz_test_priv_image_big', 'big.tiff', 'testds3'),
 }
 
 

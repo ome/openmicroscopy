@@ -47,13 +47,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
-
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
@@ -210,12 +203,7 @@ class BrowserUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        if (ImViewerAgent.hasOpenGLSupport()) {
-        	canvas = new BrowserCanvas(model, this);
-        } else {
-        	 canvas = new BrowserBICanvas(model, this);
-        }
-       
+        canvas = new BrowserBICanvas(model, this);
         //The image canvas is always at the bottom of the pile.
         layeredPane.add(canvas, Integer.valueOf(0));
        
@@ -291,18 +279,6 @@ class BrowserUI
         buildGUI();
     }
 
-	/** Creates the image to save. */
-	BufferedImage activeFileSave()
-	{
-		if (canvas instanceof BrowserCanvas) {
-			BrowserCanvas bc = (BrowserCanvas) canvas;
-			bc.activeSave();
-			canvas.repaint();
-			return bc.getImageToSave();
-		}
-		return null;
-	}
-	
     /** 
      * Sets the component related to this component when the bounds of 
      * the view are reset.
@@ -424,48 +400,27 @@ class BrowserUI
      */
     void paintMainImage()
     {
-    	if (canvas instanceof BrowserCanvas) {
-    		TextureData img = model.getRenderedImageAsTexture();
-        	if (img == null) return;
-        	double zoom = model.getZoomFactor();
-        	int w = (int) (img.getWidth()*zoom);
-        	int h = (int) (img.getHeight()*zoom);
-        	canvasListener.setAreaSize(w, h);
-        	canvas.repaint();
-    	} else {
-    		if (model.getRenderedImage() == null) return;
-    		model.createDisplayedImage();
-    		BufferedImage img = model.getDisplayedImage();
-    		if (img == null) return;
-    		canvasListener.setAreaSize(img.getWidth(), img.getHeight());
-    		canvas.repaint();
-    	}
+        if (model.getRenderedImage() == null) return;
+        model.createDisplayedImage();
+        BufferedImage img = model.getDisplayedImage();
+        if (img == null) return;
+        canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+        canvas.repaint();
     }
     
     /** Displays the zoomed image. */
     void zoomImage()
     {
     	adjusting = false;
-    	if (canvas instanceof BrowserCanvas) {
-    		TextureData img = model.getRenderedImageAsTexture();
-        	if (img == null) return;
-        	double zoom = model.getZoomFactor();
-        	int w = (int) (img.getWidth()*zoom);
-        	int h = (int) (img.getHeight()*zoom);
-        	setComponentsSize(w, h);
-        	canvasListener.setAreaSize(img.getWidth(), img.getHeight());
-        	
-    	} else {
-    		if (model.getRenderedImage() == null) return;
-    		model.createDisplayedImage();
-    		BufferedImage img = model.getDisplayedImage();
-    		if (img == null) return;
-    		setComponentsSize(img.getWidth(), img.getHeight());
-    		canvasListener.setAreaSize(img.getWidth(), img.getHeight());
-    		getViewport().setViewPosition(new Point(-1, -1));
-    		canvas.repaint();
-    		setBounds(getBounds());
-    	}
+    	if (model.getRenderedImage() == null) return;
+        model.createDisplayedImage();
+        BufferedImage img = model.getDisplayedImage();
+        if (img == null) return;
+        setComponentsSize(img.getWidth(), img.getHeight());
+        canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+        getViewport().setViewPosition(new Point(-1, -1));
+        canvas.repaint();
+        setBounds(getBounds());
     	getViewport().setViewPosition(new Point(-1, -1));
     	canvas.repaint();
     	setBounds(getBounds());

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.filechooser.CustomizedFileChooser 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,10 +35,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.RegExFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -184,7 +182,7 @@ class CustomizedFileChooser
 		if (nameArea == null) return; //should happen
 		String text = nameArea.getText();
 		originalName = text;
-		view.setControlsEnabled(!StringUtils.isEmpty(text));
+		view.setControlsEnabled(CommonsLangUtils.isNotEmpty(text));
 	}
 	
 	/**
@@ -273,7 +271,7 @@ class CustomizedFileChooser
 		File f = getSelectedFile();
 		if (f != null) {
 			String format = getExtension(getFileFilter());
-			if (StringUtils.isEmpty(format))
+			if (CommonsLangUtils.isEmpty(format))
 				return f;
 			
 			String fileName = f.getAbsolutePath();
@@ -389,7 +387,7 @@ class CustomizedFileChooser
 			return super.getSelectedFile();
 		if (nameArea == null) return super.getSelectedFile();
 		String name = nameArea.getText();
-		if (StringUtils.isEmpty(name))
+		if (CommonsLangUtils.isEmpty(name))
 			return super.getSelectedFile();
 		return new File(getCurrentDirectory().toString(), name);
 	}

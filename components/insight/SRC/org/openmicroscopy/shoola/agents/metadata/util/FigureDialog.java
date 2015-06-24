@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.FigureDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -65,6 +65,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
@@ -91,6 +92,7 @@ import org.jhotdraw.draw.Drawing;
 //Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
+import ome.model.units.BigResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -476,26 +478,23 @@ public class FigureDialog
 	{
 		if (optionMenu != null) return optionMenu;
 		optionMenu = new JPopupMenu();
-		optionMenu.add(createButton("Download", DOWNLOAD));
-		optionMenu.add(createButton("View", VIEW));
+		optionMenu.add(createMenuItem("Download", DOWNLOAD));
+		optionMenu.add(createMenuItem("View", VIEW));
 		return optionMenu;
 	}
 	
 	/**
-	 * Creates a button.
+	 * Creates a menu item.
 	 * 
 	 * @param text The text of the button.
 	 * @param actionID The action command id.
-	 * @param l The action listener.
 	 * @return See above.
 	 */
-	private JButton createButton(String text, int actionID)
+	private JMenuItem createMenuItem(String text, int actionID)
     {
-    	JButton b = new JButton(text);
+	    JMenuItem b = new JMenuItem(text);
 		b.setActionCommand(""+actionID);
 		b.addActionListener(this);
-		b.setOpaque(false);
-		UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
     }
 	
@@ -863,7 +862,7 @@ public class FigureDialog
 			}
 			int rw = (int) roiBox.getWidth();
 			int rh = (int) roiBox.getHeight();
-			lens = new LensComponent((JFrame) getOwner(), false, rw, rh);
+			lens = new LensComponent((JFrame) getOwner(), rw, rh);
 			lens.setLensLocation((int) roiBox.getX(), (int) roiBox.getY());
 			setFactor();
 			canvasView.setDrawing(drawing);
@@ -2115,8 +2114,13 @@ public class FigureDialog
 			details = EditorUtil.transformPlaneInfo(pi);
 			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 			if (!notSet.contains(EditorUtil.DELTA_T)) {
+			    if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
+			        MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T), EditorUtil.DELTA_T);
+			        value = "N/A";
+			    } else {
 				value = EditorUtil.formatTimeInSeconds(
 						(Double) details.get(EditorUtil.DELTA_T));
+			    }
 				values.put(pi.getTheT().getValue(), value);
 			}
 		}

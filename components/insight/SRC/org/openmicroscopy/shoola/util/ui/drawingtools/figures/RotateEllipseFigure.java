@@ -178,10 +178,8 @@ public class RotateEllipseFigure
 		newT.setToRotation(theta);
 		Point2D rotatedPoint = new Point2D.Double();
 		newT.transform(new Point2D.Double(x, y), rotatedPoint);
-		if(containsEllipseAlgorithm(rotatedPoint.getX(), rotatedPoint.getY(),
-				0,0, ellipse.getWidth(), ellipse.getHeight()))
-			return true;
-		return false;
+		return containsEllipseAlgorithm(rotatedPoint.getX(), rotatedPoint.getY(),
+				0,0, ellipse.getWidth(), ellipse.getHeight());
 	}
 	
 	private boolean containsEllipseAlgorithm(double x, double y, 
@@ -193,9 +191,7 @@ public class RotateEllipseFigure
 		double xx = x-cx;
 		double yy = y-cy;
 		double dist = (xx*xx)/(wr*wr)+(yy*yy)/(hr*hr);
-		if(dist<1)
-			return true;
-		return false;
+		return dist< 1;
 	}
 
 	

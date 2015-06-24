@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.views.ImViewerViewImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -33,12 +33,16 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
+
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -58,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ResultsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.SaveAsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptRunner;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptUploader;
@@ -123,14 +128,14 @@ class ImageDataViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#render(long, PlaneDef, boolean, boolean, 
+     * @see ImageDataView#render(SecurityContext, long, PlaneDef, boolean, int,
      * AgentEventListener)
      */
     public CallHandle render(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    		boolean asTexture, boolean largeImage, AgentEventListener observer)
+    		boolean largeImage, int compression, AgentEventListener observer)
     {
-        BatchCallTree cmd = new ImageRenderer(ctx, pixelsID, pd, asTexture,
-        		largeImage);
+        BatchCallTree cmd = new ImageRenderer(ctx, pixelsID, pd,
+        		largeImage, compression);
         return cmd.exec(observer);
     }
 
@@ -186,11 +191,10 @@ class ImageDataViewImpl
      */
 	public CallHandle renderProjected(SecurityContext ctx,
 		long pixelsID, int startZ, int endZ, int stepping, int algorithm,
-		List<Integer> channels, boolean openGLSupport,
-		AgentEventListener observer)
+		List<Integer> channels, AgentEventListener observer)
     {
 		BatchCallTree cmd = new ProjectionSaver(ctx, pixelsID, startZ, endZ,
-				                  stepping, algorithm, channels, openGLSupport);
+				                  stepping, algorithm, channels);
 		return cmd.exec(observer);
 	}
 
@@ -393,15 +397,15 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#renderOverLays(long, PlaneDef, long, Map, boolean, 
+     * @see ImageDataView#renderOverLays(long, PlaneDef, long, Map,
      * AgentEventListener)
      */
 	public CallHandle renderOverLays(SecurityContext ctx, long pixelsID,
 		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture, AgentEventListener observer)
+		AgentEventListener observer)
 	{
 		BatchCallTree cmd = new OverlaysRenderer(ctx, pixelsID, pd, tableID,
-				overlays, asTexture);
+				overlays);
 		return cmd.exec(observer);
 	}
 
@@ -463,15 +467,13 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadTiles(long, PlaneDef, List, boolean,
-     * AgentEventListener)
+     * @see ImageDataView#loadTiles(long, PlaneDef, List, AgentEventListener)
      */
 	public CallHandle loadTiles(SecurityContext ctx, long pixelsID,
 		PlaneDef pDef, RenderingControl proxy, Collection<Tile> tiles,
-		boolean asTexture, AgentEventListener observer)
+		AgentEventListener observer)
 	{
-		BatchCallTree cmd = new TileLoader(ctx, pixelsID, pDef, proxy, tiles,
-				asTexture);
+		BatchCallTree cmd = new TileLoader(ctx, pixelsID, pDef, proxy, tiles);
 		return cmd.exec(observer);
 	}
 	
@@ -485,6 +487,17 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new RenderingControlLoader(ctx, pixelsID,
 				RenderingControlLoader.SHUTDOWN);
         return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see ImageDataView#saveResults(SecurityContext, ResultsObject, AgentEventListener)
+	 */
+	public CallHandle saveResults(SecurityContext ctx,
+	        ResultsObject results, AgentEventListener observer)
+	{
+	    BatchCallTree cmd = new ResultsSaver(ctx, results);
+	    return cmd.exec(observer);
 	}
 
 }

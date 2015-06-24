@@ -25,13 +25,13 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webadmin/javascript/jquery.imgareaselect/css/imgareaselect-default.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/javascript/jquery.imgareaselect-0.9.10/css/imgareaselect-default.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
 
-    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect/jquery.imgareaselect.js" %}"></script>
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect-0.9.10/jquery.imgareaselect.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -106,7 +106,7 @@
     <div class="clear"> </div>
     <p>Drag or adjust the region on the image to select an area.</p>
     
-    <form name="thumbnail" action="{% url 'wamanageavatar' ome.eventContext.userId "crop" %}" method="post" class="standard_form">
+    <form name="thumbnail" action="{% url 'wamanageavatar' ome.eventContext.userId "crop" %}" method="post" class="standard_form">{% csrf_token %}
         <input type="hidden" name="x1" value="" id="x1" />
         <input type="hidden" name="y1" value="" id="y1" />
         <input type="hidden" name="x2" value="" id="x2" />
@@ -126,7 +126,7 @@
     
     <div >
       {% if photo_size %}<p><a href="{% url 'wamanageavatar' ome.eventContext.userId "editphoto" %}"> Edit picture <img title="Crop" src="{% static "webadmin/image/frame_edit.png" %}" /></a></p>{% endif %}
-        <form enctype="multipart/form-data" method="post" action="{% url 'wamanageavatar' ome.eventContext.userId "upload" %}" class="standard_form settings_form">
+        <form enctype="multipart/form-data" method="post" action="{% url 'wamanageavatar' ome.eventContext.userId "upload" %}" class="standard_form settings_form">{% csrf_token %}
             <p>Upload new picture. Select an image file on your computer (max 200KB):</p>
             
             {% for field in form_file %}

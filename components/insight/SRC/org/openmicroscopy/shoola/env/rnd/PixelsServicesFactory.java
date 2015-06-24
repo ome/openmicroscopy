@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.RenderingControlFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,8 +28,6 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,11 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.media.opengl.GL;
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
 import omero.model.Pixels;
@@ -57,9 +50,6 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -95,43 +85,7 @@ public class PixelsServicesFactory
 
 	/** The maximum amount of memory in bytes used for caching. */
 	private static int						maxSize;
-	
-	/**
-	 * Creates the texture using an array of integer.
-	 * 
-	 * @param data  The data to display.
-	 * @param w	    The width of the image.
-	 * @param h		The height of the image.
-	 * @return See above.
-	 */
-	public static TextureData createTexture(int[] data, int w, int h)
-	{
-		IntBuffer bb = IntBuffer.wrap(data);
-		bb.position(0);
-		bb.mark();
-		TextureData texture = new TextureData(GL.GL_RGBA, w, h, 0, GL.GL_BGRA, 
-        		GL.GL_UNSIGNED_INT_8_8_8_8_REV, false, false, false, bb, null);
-		return texture;
-	}
-	
-	/**
-	 * Creates the texture using an array of byte.
-	 * 
-	 * @param data  The data to display.
-	 * @param w	    The width of the image.
-	 * @param h		The height of the image.
-	 * @return See above.
-	 */
-	public static TextureData createTexture(byte[] data, int w, int h)
-	{
-		ByteBuffer bb = ByteBuffer.wrap(data);
-		bb.position(0);
-		bb.mark();
-		TextureData texture = new TextureData(GL.GL_RGBA, w, h, 0, GL.GL_RGBA, 
-        		GL.GL_UNSIGNED_BYTE, false, false, false, bb, null);
-		return texture;
-	}
-	
+
 	/**
 	 * Converts the {@link RenderingDef} into a {@link RndProxyDef}.
 	 * 
@@ -516,9 +470,8 @@ public class PixelsServicesFactory
 	 *                  container's registry.
 	 * @param pixelsID  The id of the pixels set.
 	 * @param pDef      The plane to render.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImage Indicates to set the resolution to <code>0</code>.
+	 * @param compression The compression level.
 	 * @return          The image representing the plane.
 	 * @return See above.
 	 * 
@@ -527,7 +480,8 @@ public class PixelsServicesFactory
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static Object render(Registry context, SecurityContext ctx,
-			Long pixelsID, PlaneDef pDef, boolean asTexture, boolean largeImage)
+			Long pixelsID, PlaneDef pDef, boolean largeImage,
+			int compression)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))
@@ -537,10 +491,13 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
-		if (asTexture) return proxy.renderAsTexture(pDef);
 		int level = proxy.getSelectedResolutionLevel();
+		if (compression < RenderingControl.UNCOMPRESSED)
+		    compression = RenderingControl.UNCOMPRESSED;
+		if (compression > RenderingControl.LOW) 
+		    compression = RenderingControl.LOW;
+		proxy.setCompression(compression);
 		if (largeImage) {
-			proxy.setCompression(RenderingControl.LOW);
 			proxy.setSelectedResolutionLevel(0);
 		}
 		Object o = proxy.render(pDef);
@@ -558,8 +515,6 @@ public class PixelsServicesFactory
 	 * @param pDef      The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @return See above.
 	 * 
      * @throws RenderingServiceException 	If an error occurred while setting 
@@ -567,8 +522,7 @@ public class PixelsServicesFactory
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static Object renderOverlays(Registry context, long pixelsID, 
-			PlaneDef pd, long tableID, Map<Long, Integer> overlays, 
-			boolean asTexture)
+			PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))
@@ -579,7 +533,6 @@ public class PixelsServicesFactory
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
 		proxy.setOverlays(tableID, overlays);
-		if (asTexture) return proxy.renderAsTexture(pd);
 		return proxy.render(pd);
 	}
 	
@@ -615,42 +568,7 @@ public class PixelsServicesFactory
 		
 		return proxy.renderProjected(startZ, endZ, stepping, type, channels);
 	}
-	
-	/**
-	 * Renders the projected images.
-	 * 
-	 * @param context	Reference to the registry. To ensure that agents cannot
-	 *                  call the method. It must be a reference to the
-	 *                  container's registry.
-	 * @param pixelsID  The id of the pixels set.
-	 * @param startZ	The first optical section.
-     * @param endZ     	The last optical section.
-     * @param stepping 	Stepping value to use while calculating the projection.
-     * @param type 	   	One of the projection type defined by this class.
-     * @param channels The collection of channels to project.
-     * @return See above.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
-	public static TextureData renderProjectedAsTexture(Registry context, 
-			Long pixelsID, int startZ, int endZ, int type, int stepping, 
-			List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		if (!(context.equals(registry)))
-			throw new IllegalArgumentException("Not allow to access method.");
-		RenderingControlProxy proxy = 
-			(RenderingControlProxy) singleton.rndSvcProxies.get(pixelsID);
-		if (proxy == null) 
-			throw new RuntimeException("No rendering service " +
-			"initialized for the specified pixels set.");
-		
-		return proxy.renderProjectedAsTexture(startZ, endZ, stepping, type, 
-				channels);
-	}
-	
-	
+
 	/**
 	 * Returns the compression quality related to the passed level.
 	 * 

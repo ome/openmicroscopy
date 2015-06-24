@@ -71,28 +71,47 @@
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
 
+  <alias name="${omero.policy.bean}" alias="policyService"/>
+
+  <bean id="defaultPolicyService" class="ome.security.policy.DefaultPolicyService"/>
+
+  <bean id="RESTRICT-BINARY-ACCESS" class="ome.security.policy.BinaryAccessPolicy">
+    <constructor-arg>
+      <set>
+        <value>ome.model.annotations.FileAnnotation</value>
+        <value>ome.model.core.Image</value>
+        <value>ome.model.core.OriginalFile</value>
+        <value>ome.model.screen.Plate</value>
+        <value>ome.model.screen.Well</value>
+      </set>
+    </constructor-arg>
+    <constructor-arg ref="aclVoter"/>
+    <constructor-arg value="${omero.policy.binary_access}"/>
+  </bean>
+
   <bean id="aclVoter" class="ome.security.CompositeACLVoter">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="sharingACLVoter"/>
     <constructor-arg ref="basicACLVoter"/>
   </bean>
-    
+
   <bean id="sharingACLVoter" class="ome.security.sharing.SharingACLVoter">
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="shareStore"/>
     <constructor-arg ref="tokenHolder"/>
   </bean>
-  
+
   <bean id="basicACLVoter" class="ome.security.basic.BasicACLVoter">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="securityFilterHolder"/>
+    <constructor-arg ref="policyService"/>
     <constructor-arg ref="roles"/>
   </bean>
 
-  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
+  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">
     <property name="cacheManager"  ref="cacheManager"/>
     <property name="updateInterval" value="${omero.sessions.sync_force}"/><!-- ms -->
   </bean>
@@ -114,7 +133,7 @@
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
     <property name="sessionManager" ref="sessionManager"/>
   </bean>
-  
+
   <!-- Throttling primitives -->
 
   <bean id="threadCounterFactory" class="ome.services.sessions.stats.CounterFactory">
@@ -126,7 +145,7 @@
   <bean id="sessionCounterFactory" class="ome.services.sessions.stats.CounterFactory"/>
 
   <!--
-  The following stats types 
+  The following stats types
   -->
 
   <bean id="perSessionStats" class="ome.services.sessions.stats.PerSessionStats">

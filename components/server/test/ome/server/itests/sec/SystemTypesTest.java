@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -42,12 +42,14 @@ public class SystemTypesTest extends AbstractManagedContextTest {
         String gname = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gname);
+        g.setLdap(false);
         iAdmin.createGroup(g);
 
         e = new Experimenter();
         e.setOmeName(UUID.randomUUID().toString());
         e.setFirstName(ticket156);
         e.setLastName(ticket156);
+        e.setLdap(false);
         e = factory.getAdminService().getExperimenter(
                 factory.getAdminService().createUser(e, gname));
 
@@ -66,6 +68,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
         test.setOmeName(UUID.randomUUID().toString());
         test.setFirstName(ticket156);
         test.setLastName(ticket156);
+        test.setLdap(false);
         factory.getUpdateService().saveObject(test);
     }
 
@@ -76,6 +79,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 
         ExperimenterGroup test = new ExperimenterGroup();
         test.setName(UUID.randomUUID().toString());
+        test.setLdap(false);
         factory.getUpdateService().saveObject(test);
     }
 

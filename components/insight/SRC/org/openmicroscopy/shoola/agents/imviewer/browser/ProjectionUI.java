@@ -33,12 +33,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-
 /** 
  * Hosts the UI components displaying the projected image.
  * Note that the layout manager of the viewport is set to <code>null</code>.
@@ -76,9 +70,7 @@ class ProjectionUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        if (ImViewerAgent.hasOpenGLSupport())
-        	canvas = new ProjectionCanvas(model, view);
-        else canvas = new ProjectionBICanvas(model, view, this);
+        canvas = new ProjectionBICanvas(model, view, this);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, Integer.valueOf(0));
@@ -137,19 +129,7 @@ class ProjectionUI
 		initComponents();
 		buildGUI();
 	}
-	
-	/** Creates the image to save. */
-	BufferedImage activeFileSave()
-	{
-		if (canvas instanceof ProjectionCanvas) {
-			ProjectionCanvas pc = (ProjectionCanvas) canvas;
-			pc.activeSave();
-			canvas.repaint();
-			return pc.getImageToSave();
-		}
-		return null;
-	}
-	
+
     /** 
      * Returns the current size of the viewport. 
      * 
@@ -165,32 +145,23 @@ class ProjectionUI
     void zoomImage(boolean resetLocation)
     {
     	int w, h;
-    	if (canvas instanceof ProjectionCanvas) {
-    		TextureData img = model.getRenderedImageAsTexture();
-        	if (img == null) return;
-        	double zoom = model.getZoomFactor();
-        	w = (int) (img.getWidth()*zoom);
-        	h = (int) (img.getHeight()*zoom);
-        	setComponentsSize(w, h);
+    	if (model.getProjectedImage() == null) {
+    	    double f = model.getZoomFactor();
+    	    w = (int) (model.getMaxX()*f);
+    	    h =	(int) (model.getMaxY()*f);
     	} else {
-    		if (model.getProjectedImage() == null) {
-    			double f = model.getZoomFactor();
-    			w = (int) (model.getMaxX()*f);
-    			h =	(int) (model.getMaxY()*f);
-    		} else {
-    			model.createDisplayedProjectedImage();
-    			BufferedImage img = model.getDisplayedProjectedImage();
-    			if (img == null) {
-    				double f = model.getZoomFactor();
-        			w = (int) (model.getMaxX()*f);
-        			h =	(int) (model.getMaxY()*f);
-    			} else {
-    				w = img.getWidth();
-    				h = img.getHeight();
-    			}
-    		}
-    		setComponentsSize(w, h);
+    	    model.createDisplayedProjectedImage();
+    	    BufferedImage img = model.getDisplayedProjectedImage();
+    	    if (img == null) {
+    	        double f = model.getZoomFactor();
+    	        w = (int) (model.getMaxX()*f);
+    	        h =	(int) (model.getMaxY()*f);
+    	    } else {
+    	        w = img.getWidth();
+    	        h = img.getHeight();
+    	    }
     	}
+    	setComponentsSize(w, h);
     	if (resetLocation)
     		getViewport().setViewPosition(new Point(-1, -1));
     	canvas.repaint();

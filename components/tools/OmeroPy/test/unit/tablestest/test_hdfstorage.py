@@ -14,8 +14,12 @@ import pytest
 import omero.columns
 import omero.tables
 import logging
+import tables
 import threading
 import Ice
+
+from omero_ext.mox import Mox
+from omero.rtypes import rint, rstring
 
 from library import TestCase
 from path import path
@@ -86,11 +90,9 @@ class TestHdfStorage(TestCase):
     def testLocking(self):
         tmp = str(self.hdfpath())
         hdf1 = omero.tables.HdfStorage(tmp, self.lock)
-        try:
+        with pytest.raises(omero.LockTimeout) as exc_info:
             omero.tables.HdfStorage(tmp, self.lock)
-            assert False, "should be locked"
-        except omero.LockTimeout:
-            pass
+        assert exc_info.value.message.startswith('Path already in HdfList: ')
         hdf1.cleanup()
         hdf3 = omero.tables.HdfStorage(tmp, self.lock)
         hdf3.cleanup()
@@ -146,6 +148,20 @@ class TestHdfStorage(TestCase):
         # Doesn't work yet.
         hdf.cleanup()
 
+    def testInitializeInvalidColoumnNames(self):
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+
+        with pytest.raises(omero.ApiUsageException) as exc:
+            hdf.initialize([omero.columns.LongColumnI('')], None)
+        assert exc.value.message.startswith('Column unnamed:')
+
+        with pytest.raises(omero.ApiUsageException) as exc:
+            hdf.initialize([omero.columns.LongColumnI('__a')], None)
+        assert exc.value.message == 'Reserved column name: __a'
+
+        hdf.initialize([omero.columns.LongColumnI('a')], None)
+        hdf.cleanup()
+
     def testInitializationOnInitializedFileFails(self):
         p = self.hdfpath()
         hdf = omero.tables.HdfStorage(p, self.lock)
@@ -176,6 +192,39 @@ class TestHdfStorage(TestCase):
         h = t / "test.h5"
         assert t.exists()
         hdf = omero.tables.HdfStorage(h, self.lock)
+        hdf.cleanup()
+
+    def testGetSetMetaMap(self):
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        self.init(hdf, False)
+
+        hdf.add_meta_map({'a': rint(1)})
+        m1 = hdf.get_meta_map()
+        assert len(m1) == 3
+        assert m1['__initialized'].val > 0
+        assert m1['__version'] == rstring('2')
+        assert m1['a'] == rint(1)
+
+        with pytest.raises(omero.ApiUsageException) as exc:
+            hdf.add_meta_map({'b': rint(1), '__c': rint(2)})
+        assert exc.value.message == 'Reserved attribute name: __c'
+        assert hdf.get_meta_map() == m1
+
+        with pytest.raises(omero.ValidationException) as exc:
+            hdf.add_meta_map({'d': rint(None)})
+        assert exc.value.serverStackTrace.startswith('Unsupported type:')
+        assert hdf.get_meta_map() == m1
+
+        hdf.add_meta_map({}, replace=True)
+        m2 = hdf.get_meta_map()
+        assert len(m2) == 2
+        assert m2 == {
+            '__initialized': m1['__initialized'], '__version': rstring('2')}
+
+        hdf.add_meta_map({'__test': 1}, replace=True, init=True)
+        m3 = hdf.get_meta_map()
+        assert m3 == {'__test': rint(1)}
+
         hdf.cleanup()
 
     def testStringCol(self):
@@ -229,3 +278,55 @@ class TestHdfStorage(TestCase):
         assert 7 == test.h[1]
         assert [0 == 1, 2, 3, 4], test.bytes[1]
         hdf.cleanup()
+
+
+class TestHdfList(TestCase):
+
+    def setup_method(self, method):
+        TestCase.setup_method(self, method)
+        self.mox = Mox()
+
+    def hdfpath(self):
+        tmpdir = self.tmpdir()
+        return path(tmpdir) / "test.h5"
+
+    def testLocking(self, monkeypatch):
+        lock1 = threading.RLock()
+        hdflist2 = omero.tables.HdfList()
+        lock2 = threading.RLock()
+        tmp = str(self.hdfpath())
+
+        # Using omero.tables.HDFLIST
+        hdf1 = omero.tables.HdfStorage(tmp, lock1)
+
+        # There are multiple guards against opening the same HDF5 file
+
+        # PyTables includes a check
+        monkeypatch.setattr(omero.tables, 'HDFLIST', hdflist2)
+        with pytest.raises(ValueError) as exc_info:
+            omero.tables.HdfStorage(tmp, lock2)
+
+        assert exc_info.value.message.startswith(
+            "The file '%s' is already opened. " % tmp)
+        monkeypatch.undo()
+
+        # HdfList uses portalocker, test by mocking tables.openFile
+        self.mox.StubOutWithMock(tables, 'openFile')
+        tables.openFile(tmp, mode='w', title='OMERO HDF Measurement Storage',
+                        rootUEP='/').AndReturn(open(tmp))
+
+        self.mox.ReplayAll()
+
+        monkeypatch.setattr(omero.tables, 'HDFLIST', hdflist2)
+        with pytest.raises(omero.LockTimeout) as exc_info:
+            omero.tables.HdfStorage(tmp, lock2)
+        print exc_info.value
+        assert (exc_info.value.message ==
+                'Cannot acquire exclusive lock on: %s' % tmp)
+
+        monkeypatch.undo()
+
+        hdf1.cleanup()
+
+        self.mox.UnsetStubs()
+        self.mox.VerifyAll()

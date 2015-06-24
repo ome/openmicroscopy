@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.StructuredDataResults 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
@@ -77,6 +78,9 @@ public class StructuredDataResults
 	
 	/** Collection of annotations not already stored. */
 	private Collection<AnnotationData>     otherAnnotation;
+	
+	/** The MapAnnotations. */
+	private Collection<MapAnnotationData>     mapAnnotations;
 	
 	/** The object the results are for. */
 	private DataObject					relatedObject;
@@ -346,4 +350,24 @@ public class StructuredDataResults
 	{
 		return transferlinks;
 	}
+
+	/**
+	 * Returns the collection of {@link MapAnnotationData}.
+	 * 
+	 * @return See above.
+	 */
+	public Collection<MapAnnotationData> getMapAnnotations() {
+		return mapAnnotations;
+	}
+
+	/**
+	 * Sets the collection of {@link MapAnnotationData}.
+	 * 
+	 * @return See above.
+	 */
+	public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations) {
+		this.mapAnnotations = mapAnnotations;
+	}
+	
+	
 }

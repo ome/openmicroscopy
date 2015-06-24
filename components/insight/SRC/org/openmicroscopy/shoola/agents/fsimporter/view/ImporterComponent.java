@@ -38,6 +38,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportLocationSettings;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -48,8 +49,10 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -61,6 +64,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
+import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -169,7 +173,7 @@ class ImporterComponent
 			Class<?> rootType = ProjectData.class;
 			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
 				rootType = ScreenData.class;
-			model.fireContainerLoading(rootType, true, false, -1);
+			model.fireContainerLoading(rootType, true, false, null);
 			fireStateChange();
 		}
 	}
@@ -251,6 +255,14 @@ class ImporterComponent
 				model.getGroupId());
 	}
 
+	/** Shuts down the component.*/
+    void shutDown()
+    {
+        view.setVisible(false);
+        discard();
+        model.setState(NEW);
+    }
+    
 	/**
 	 * Sets the display mode.
 	 * 
@@ -294,6 +306,45 @@ class ImporterComponent
         return sortedGroups;
 	}
 
+	/**
+	 * Brings up the dialog to select the import location.
+	 *
+	 * @param type The type of dialog e.g. screen view.
+	 * @param selectedContainer The selected container e.g. dataset
+	 * @param objects The collection of containers.
+	 * @param userId The user to import for.
+	 * @param display Pass <code>true</code> to display the view,
+	 *                <code>false</code> otherwise.
+	 */
+    private void activate(int type, TreeImageDisplay selectedContainer,
+           Collection<TreeImageDisplay> objects, long userId, boolean display)
+    {
+        if (model.getState() == DISCARDED) return;
+        boolean reactivate = chooser != null;
+        model.setImportFor(userId);
+        if (chooser == null) {
+            chooser = new ImportDialog(view, model.getSupportedFormats(),
+                    selectedContainer, objects, type,
+                    controller.getAction(ImporterControl.CANCEL_BUTTON), this);
+            chooser.addPropertyChangeListener(controller);
+            view.addComponent(chooser);
+        } else {
+            chooser.reset(selectedContainer, objects, type, model.getGroupId(),
+                    model.getImportFor());
+            chooser.requestFocusInWindow();
+            view.selectChooser();
+        }
+        chooser.setSelectedGroup(getSelectedGroup());
+        if (model.isMaster() || CollectionUtils.isEmpty(objects) || !reactivate)
+            refreshContainers(new ImportLocationDetails(type));
+        //load available disk space
+        model.fireDiskSpaceLoading();
+        if (display) {
+            view.setOnScreen();
+            view.toFront();
+        }
+    }
+
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#activate(int, TreeImageDisplay, Collection, long)
@@ -301,28 +352,7 @@ class ImporterComponent
 	public void activate(int type, TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects, long userId)
 	{
-		if (model.getState() == DISCARDED) return;
-		boolean reactivate = chooser != null;
-		model.setImportFor(userId);
-		if (chooser == null) {
-			chooser = new ImportDialog(view, model.getSupportedFormats(),
-					selectedContainer, objects, type,
-					controller.getAction(ImporterControl.CANCEL_BUTTON), this);
-			chooser.addPropertyChangeListener(controller);
-			view.addComponent(chooser);
-		} else {
-			chooser.reset(selectedContainer, objects, type, model.getGroupId(),
-					model.getImportFor());
-			chooser.requestFocusInWindow();
-			view.selectChooser();
-		}
-		chooser.setSelectedGroup(getSelectedGroup());
-		if (model.isMaster() || CollectionUtils.isEmpty(objects) || !reactivate)
-			refreshContainers(new ImportLocationDetails(type));
-		//load available disk space
-		model.fireDiskSpaceLoading();
-		view.setOnScreen();
-		view.toFront();
+		activate(type, selectedContainer, objects, userId, true);
 	}
 
 	/** 
@@ -587,7 +617,7 @@ class ImporterComponent
 		Class<?> rootType = ProjectData.class;
 		if (details.getDataType() == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
-		model.fireContainerLoading(rootType, false, false, details.getUserId());
+		model.fireContainerLoading(rootType, false, false, details.getUser());
 	}
 
 	/** 
@@ -734,7 +764,7 @@ class ImporterComponent
 		Class rootType = ProjectData.class;
 		if (chooser.getType() == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
-		model.fireContainerLoading(rootType, false, true, -1);
+		model.fireContainerLoading(rootType, false, true, null);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 
@@ -818,37 +848,43 @@ class ImporterComponent
 		Object result = component.getImportResult();
 		if (result instanceof Exception) {
 			if (component.getFile().isFile()) {
-				ImportErrorObject r = new ImportErrorObject(component.getFile(),
+				ImportErrorObject r = new ImportErrorObject(
+				        component.getFile().getTrueFile(),
 						(Exception) result, component.getGroupID());
 				element.setImportResult(component, result);
 				handleCompletion(element, r, !component.hasParent());
 			}
 			return;
 		}
+		
 		element.setImportResult(component, result);
 		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
 		if (CollectionUtils.isEmpty(pixels)) return;
-		Collection<DataObject> l = new ArrayList<DataObject>();
+		List<DataObject> l = new ArrayList<DataObject>();
 		Iterator<PixelsData> i = pixels.iterator();
 		Class<?> klass = ThumbnailData.class;
-		int n = FileImportComponent.MAX_THUMBNAILS;
 		if (component.isHCS()) {
-			n = 1;
 			klass = PlateData.class;
 		}
-		int index = 0;
 		PixelsData pxd;
+		List<ImageData> ids = new ArrayList<ImageData>();
 		while (i.hasNext()) {
-			if (index == n) break;
 			pxd = i.next();
+			ids.add(pxd.getImage());
+			pxd.getImage().getId();
 			if (pxd.getSizeX()*pxd.getSizeY() < MAX_SIZE) {
 				l.add(pxd);
-				index++;
 			}
 		}
-		if (l.size() > 0)
-			model.fireImportResultLoading(l, klass, component);
+		model.saveROI(component, ids);
+        if (l.size() > 0 && !PlateData.class.equals(klass)) {
+            if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
+                l = l.subList(0, FileImportComponent.MAX_THUMBNAILS);
+            }
+            model.fireImportResultLoading(l, klass, component,
+                    component.getImportableFile().getUser());
+        }
 	}
 
 	/** 
@@ -912,5 +948,26 @@ class ImporterComponent
     public boolean isSystemGroup(long groupID, String key)
     {
         return model.isSystemGroup(groupID, key);
+    }
+
+    /** 
+     * Implemented as specified by the {@link Importer} interface.
+     * @see Importer#importResults(ResultsObject, boolean)
+     */
+    public void importResults(ResultsObject object, boolean importImage)
+    {
+        if (object == null) return;
+        if (importImage) {
+            //Import images first
+            activate(Importer.PROJECT_TYPE, null, null, getImportFor(), false);
+            List<FileObject> files = (List) object.getRefObjects();
+            ImportLocationSettings settings = chooser.createLocationDialog();
+            if (settings != null) {
+                view.setOnScreen();
+                view.toFront();
+                chooser.addImageJFiles(files, settings);
+                chooser.importFiles();
+            }
+        }
     }
 }

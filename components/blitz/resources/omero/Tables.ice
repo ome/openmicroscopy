@@ -21,7 +21,7 @@
  * The Tables API is intended to provide a storage mechanism
  * for tabular data.
  *
- * See http://www.openmicroscopy.org/site/support/omero5/developers/Tables.html
+ * See http://www.openmicroscopy.org/site/support/omero5.1/developers/Tables.html
  */
 module omero {
 
@@ -140,6 +140,7 @@ module omero {
             // Reading ======================================================
             //
 
+            idempotent
             omero::model::OriginalFile
                 getOriginalFile()
                 throws omero::ServerError;
@@ -147,10 +148,12 @@ module omero {
             /**
              * Returns empty columns.
              **/
+            idempotent
             ColumnArray
                 getHeaders()
                 throws omero::ServerError;
 
+            idempotent
             long
                 getNumberOfRows()
                 throws omero::ServerError;
@@ -163,6 +166,7 @@ module omero {
              * TODO:Test effect of returning a billion rows matching getWhereList()
              *
              **/
+            idempotent
             omero::api::LongArray
                 getWhereList(string condition, omero::RTypeDict variables, long start, long stop, long step)
                 throws omero::ServerError;
@@ -173,6 +177,7 @@ module omero {
              * [rowNumbers] must contain at least one element or an
              * [omero::ApiUsageException] will be thrown.
              **/
+            idempotent
             Data
                 readCoordinates(omero::api::LongArray rowNumbers)
                 throws omero::ServerError;
@@ -180,6 +185,7 @@ module omero {
             /**
              * http://www.pytables.org/docs/manual/ch04.html#Table.read
              **/
+            idempotent
             Data
                 read(omero::api::LongArray colNumbers, long start, long stop)
                 throws omero::ServerError;
@@ -200,6 +206,7 @@ module omero {
              * assert data.rowNumbers == [3,2,1]
              * </pre>
              **/
+            idempotent
             Data
                 slice(omero::api::LongArray colNumbers, omero::api::LongArray rowNumbers)
                 throws omero::ServerError;
@@ -226,18 +233,22 @@ module omero {
             // Metadata =======================================================
             //
 
+            idempotent
             omero::RTypeDict
                 getAllMetadata()
                 throws omero::ServerError;
 
+            idempotent
             omero::RType
                 getMetadata(string key)
                 throws omero::ServerError;
 
+            idempotent
             void
                 setAllMetadata(omero::RTypeDict dict)
                 throws omero::ServerError;
 
+            idempotent
             void
                 setMetadata(string key, omero::RType value)
                 throws omero::ServerError;
@@ -287,6 +298,7 @@ module omero {
             /**
              * Returns the Repository which this Tables service is watching.
              **/
+            idempotent
              omero::grid::Repository*
                 getRepository()
                 throws omero::ServerError;
@@ -298,6 +310,7 @@ module omero {
              * the server asked to update the database record. This is done
              * via services in the [omero::api::ServiceFactory].
              */
+            idempotent
             Table*
                 getTable(omero::model::OriginalFile file, omero::api::ServiceFactory* sf)
                 throws omero::ServerError;

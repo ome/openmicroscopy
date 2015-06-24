@@ -68,7 +68,7 @@
            default if you are seeing "Protocol family unavailable"
            errors. To do that, use bin/omero config set Ice.IPv6 0
 
-           See https://www.openmicroscopy.org/site/support/omero5/sysadmins/troubleshooting.html#server-fails-to-start
+           See https://www.openmicroscopy.org/site/support/omero5.1/sysadmins/troubleshooting.html#server-fails-to-start
            for more information.
         -->
         <property name="Ice.IPv6" value="0"/>
@@ -125,6 +125,7 @@
        <property name="omero.fs.maxRetries"  value="5"/>
        <property name="omero.fs.retryInterval"  value="3"/>
        <property name="omero.fs.defaultDropBoxDir"  value="DropBox"/>
+       <property name="omero.fs.platformCheck"  value="True"/>
        <!--
           The remaining items can take the form of a semicolon separated list,
           one item for each user in the first property. Properties that
@@ -211,8 +212,8 @@
             <option>-Dcom.sun.management.jmxremote.ssl=false</option>
             <option>-Djava.rmi.server.hostname=${jmxhost}</option>
         </target>
-        <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>ome.services.blitz.Entry</option>
+        <env>CLASSPATH=${OMERO_JARS}*${SEP}${OMERO_ETC}${SEP}$${OMERO_PROFILE}${SEP}$${OMERO_PROFILE}*${SEP}%OMERO_PROFILE%${SEP}${SEP}%OMERO_PROFILE%*</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
         <properties>
           <properties refid="JavaServer"/>
@@ -470,6 +471,7 @@
           <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
           <property name="IceSSL.Ciphers" value="ADH"/>
           <property name="IceSSL.VerifyPeer" value="0"/>
+          <property name="IceSSL.Protocols" value="tls1"/>
           <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
           <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
           <property name="Glacier2.InstanceName" value="${instance-name}"/>

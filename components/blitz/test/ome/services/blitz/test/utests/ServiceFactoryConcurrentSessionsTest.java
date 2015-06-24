@@ -62,7 +62,8 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
                 "classpath:ome/config.xml",
                 "classpath:omero/test.xml",
                 "classpath:ome/services/throttling/throttling.xml",
-                "classpath:ome/services/blitz-servantDefinitions.xml" });
+                "classpath:ome/services/blitz-servantDefinitions.xml",
+                "classpath:ome/services/blitz-graph-rules.xml" });
 
         CacheFactory factory1 = new CacheFactory(), factory2 = new CacheFactory();
         factory1.setOverflowToDisk(false);

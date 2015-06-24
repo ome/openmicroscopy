@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.util.player;
 
 
-//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -39,11 +38,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
@@ -277,17 +273,17 @@ class MoviePlayerControl
         String startT = ""+(model.getStartT()+1);
         String endT = ""+(model.getEndT()+1);
         String startVal = view.startT.getText(), endVal = view.endT.getText();
-        if (StringUtils.isBlank(startVal) || !startVal.equals(startT))
+        if (CommonsLangUtils.isBlank(startVal) || !startVal.equals(startT))
              view.startT.setText(startT);
-        if (StringUtils.isBlank(endVal) || !endVal.equals(endT)) 
+        if (CommonsLangUtils.isBlank(endVal) || !endVal.equals(endT)) 
             view.endT.setText(endT);
         String startZ = ""+(model.getStartZ()+1);
         String endZ = ""+(model.getEndZ()+1);
         startVal = view.startZ.getText();
         endVal = view.endZ.getText();
-        if (StringUtils.isBlank(startVal) || !startVal.equals(startZ))
+        if (CommonsLangUtils.isBlank(startVal) || !startVal.equals(startZ))
             view.startZ.setText(startZ);
-        if (StringUtils.isBlank(endVal) || !endVal.equals(endZ)) 
+        if (CommonsLangUtils.isBlank(endVal) || !endVal.equals(endZ)) 
             view.endZ.setText(endZ);
     }
 

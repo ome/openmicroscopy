@@ -11,8 +11,19 @@
       </run>        
     </groups>
     <packages>
-      <package name="ome.formats.*"/>
-      <package name="ome.services.*"/>
+      <package name="ome.formats.*">
+      <exclude name="ome.formats.importer"/>
+      <exclude name="ome.formats.test.util"/>
+      <exclude name="ome.formats.utests"/>
+      </package>
+      <package name="ome.services.*">
+        <!--  included via the jar -->
+        <exclude name="ome.services.blitz.test.utests"/>
+        <exclude name="ome.services.repo.test"/>
+        <exclude name="ome.services.roi.test"/>
+      </package>
+      <package name="omero.cmd.graphs.*"/>
+      <package name="omero.model.*"/>
       <package name="omero.util.*"/>
     </packages>
   </test>

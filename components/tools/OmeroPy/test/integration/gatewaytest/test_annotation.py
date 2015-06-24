@@ -4,7 +4,7 @@
 """
    gateway tests - Annotation Wrapper
 
-   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -156,6 +156,30 @@ def testLongAnnotation(author_testimg_generated):
                     TESTANN_NS, 1000L)
 
 
+def testMapAnnotation(author_testimg_generated):
+    data = [("foo", "bar"),
+            ("test key", "test value")]
+    _testAnnotation(author_testimg_generated,
+                    omero.gateway.MapAnnotationWrapper,
+                    TESTANN_NS, data)
+    # test getObjects()
+    conn = author_testimg_generated._conn
+    ann = omero.gateway.MapAnnotationWrapper(conn)
+    ann.setValue(data)
+    ann.save()
+    aId = ann.getId()
+    ann2 = conn.getObject("MapAnnotation", aId)
+    assert ann2 is not None
+    assert ann2.getValue() == data
+    # delete to clean up
+    handle = conn.deleteObjects('/Annotation', [aId])
+    try:
+        conn._waitOnCmd(handle)
+    finally:
+        handle.close()
+    assert conn.getObject("MapAnnotation", aId) is None
+
+
 def testDualLinkedAnnotation(author_testimg_generated):
     """ Tests linking the same annotation to 2 separate objects """
     dataset = author_testimg_generated.getParent()
@@ -279,10 +303,8 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
 
     # delete what we created
     assert gateway.getObject("Annotation", annId) is not None
-    link = ann.link
-    gateway.deleteObjectDirect(link._obj)        # delete link
-    gateway.deleteObjectDirect(ann._obj)         # then the annotation
-    gateway.deleteObjectDirect(ann._obj.file)    # then the file
+    handle = gateway.deleteObjects("Annotation", [annId])
+    gateway._waitOnCmd(handle)
     assert gateway.getObject("Annotation", annId) is None
 
 

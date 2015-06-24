@@ -28,9 +28,11 @@ function xas = getProjectXmlAnnotations(session, ids, varargin)
 %        xas = getProjectXmlAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPROJECTCOMMENTANNOTATIONS,
-% GETPROJECTTAGANNOTATIONS, GETPROJECTFILEANNOTATIONS
+% GETPROJECTDOUBLEANNOTATIONS, GETPROJECTFILEANNOTATIONS,
+% GETPROJECTLONGANNOTATIONS, GETPROJECTTAGANNOTATIONS,
+% GETPROJECTTIMESTAMPANNOTATIONS
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

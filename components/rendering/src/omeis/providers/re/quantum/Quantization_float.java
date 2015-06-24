@@ -26,13 +26,12 @@ package omeis.providers.re.quantum;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Range;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -170,12 +169,11 @@ public class Quantization_float extends QuantumStrategy {
      * @param qd
      *            Quantum definition object, contained mapping data.
      * @param type
-     *            The pixel type;
+     *            The pixels
      */
-    public Quantization_float(QuantumDef qd, PixelsType type) {
-        super(qd, type);
+    public Quantization_float(QuantumDef qd, Pixels pixels) {
+        super(qd, pixels);
         values = CacheBuilder.newBuilder()
-                .maximumSize(MAX-MIN+1)
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build(new CacheLoader<Double, Integer>() {
                     public Integer load(Double key) throws Exception {
@@ -230,8 +228,7 @@ public class Quantization_float extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         try {
-            Range<Double> r = getRange(value);
-            double v = (r.upperEndpoint()+r.lowerEndpoint())/2;
+            double v = getMiddleRange(value);
             return values.get(v);
         } catch (ExecutionException e) {
             throw new QuantizationException(e);

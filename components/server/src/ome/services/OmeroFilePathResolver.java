@@ -9,7 +9,6 @@ package ome.services;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,13 +74,5 @@ public class OmeroFilePathResolver implements FilePathResolver
             return originalFilePath;
         }
         return null;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.io.nio.FilePathResolver#getPixelsParams(ome.model.core.Pixels)
-     */
-    public Map<String, String> getPixelsParams(Pixels pixels)
-    {
-        return sql.getPixelsParams(pixels.getId());
     }
 }

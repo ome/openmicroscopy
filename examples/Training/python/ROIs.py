@@ -14,7 +14,8 @@ FOR TRAINING PURPOSES ONLY!
 import omero
 from omero.rtypes import rdouble, rint, rstring
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 
 # Create a connection
@@ -24,18 +25,13 @@ conn.connect()
 updateService = conn.getUpdateService()
 
 
-# Configuration
-# =================================================================
-imageId = 27544
-
-
 # Create ROI.
 # =================================================================
-# We are using the core Python API and omero.model objects here, since ROIs are
-# not yet supported in the Python Blitz Gateway.
+# We are using the core Python API and omero.model objects here, since ROIs
+# are not yet supported in the Python Blitz Gateway.
 #
-# In this example, we create an ROI with a rectangular shape and attach it to an
-# image.
+# In this example, we create an ROI with a rectangular shape and attach it to
+# an image.
 x = 50
 y = 200
 width = 100
@@ -43,12 +39,13 @@ height = 50
 image = conn.getObject("Image", imageId)
 theZ = image.getSizeZ() / 2
 theT = 0
-print "Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height: %s" % \
-        (theZ, theT, x, y, width, height)
+print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
+       " height: %s" % (theZ, theT, x, y, width, height))
 
 # create an ROI, link it to Image
 roi = omero.model.RoiI()
-roi.setImage(image._obj)    # use the omero.model.ImageI that underlies the 'image' wrapper
+# use the omero.model.ImageI that underlies the 'image' wrapper
+roi.setImage(image._obj)
 
 # create a rectangle shape and add to ROI
 rect = omero.model.RectI()
@@ -71,6 +68,26 @@ ellipse.theZ = rint(theZ)
 ellipse.theT = rint(theT)
 ellipse.textValue = rstring("test-Ellipse")
 roi.addShape(ellipse)
+
+# create a line shape and add to ROI
+line = omero.model.LineI()
+line.x1 = rdouble(x)
+line.x2 = rdouble(x+width)
+line.y1 = rdouble(y)
+line.y2 = rdouble(y+height)
+line.theZ = rint(theZ)
+line.theT = rint(theT)
+line.textValue = rstring("test-Line")
+roi.addShape(line)
+
+# create a point shape and add to ROI
+point = omero.model.PointI()
+point.x = rdouble(x)
+point.y = rdouble(y)
+point.theZ = rint(theZ)
+point.theT = rint(theT)
+point.textValue = rstring("test-Point")
+
 
 # Save the ROI (saves any linked shapes too)
 r = updateService.saveAndReturnObject(roi)
@@ -111,7 +128,8 @@ for roi in result.rois:
             shape['x2'] = s.getX2().getValue()
             shape['y1'] = s.getY1().getValue()
             shape['y2'] = s.getY2().getValue()
-        elif type(s) in (omero.model.MaskI, omero.model.LabelI, omero.model.PolygonI):
+        elif type(s) in (
+                omero.model.MaskI, omero.model.LabelI, omero.model.PolygonI):
             print type(s), " Not supported by this code"
         # Do some processing here, or just print:
         print "   Shape:",

@@ -24,12 +24,12 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/calendar.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/calendar.css"|add:url_suffix %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css"|add:url_suffix %}" type="text/css" media="screen"/>
 	
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/calendar_ie.css" %}" />
-		<link rel="stylesheet" href="{% static "webgateway/css/ome.table_ie.css" %}" type="text/css" media="screen"/>
+		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/calendar_ie.css"|add:url_suffix %}" />
+		<link rel="stylesheet" href="{% static "webgateway/css/ome.table_ie.css"|add:url_suffix %}" type="text/css" media="screen"/>
 	<![endif]-->
 	
 	
@@ -40,8 +40,6 @@
 {% block script %}
     {{ block.super }}
     
-    <script src="{% static 'webclient/javascript/jquery.infieldlabel.js' %}" type="text/javascript"></script>
-
     <script type="text/javascript">
         $(document).ready(function() 
             {

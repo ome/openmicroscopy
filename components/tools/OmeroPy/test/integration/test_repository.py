@@ -4,7 +4,7 @@
 """
    Integration test focused on the Repository API
 
-   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -12,10 +12,11 @@
 import platform
 import locale
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 
 from omero import CmdError
+from omero.model import NamedValue as NV
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
 from omero.rtypes import rbool
@@ -28,7 +29,6 @@ from omero_version import omero_version
 class AbstractRepoTest(lib.ITest):
 
     def setup_method(self, method):
-        super(AbstractRepoTest, self).setup_method(method)
         self.unique_dir = self.test_dir()
 
     def test_dir(self, client=None):
@@ -180,14 +180,15 @@ class AbstractRepoTest(lib.ITest):
         # Fill version info
         system, node, release, version, machine, processor = platform.uname()
 
-        clientVersionInfo = {
-            'omero.version': rstring(omero_version),
-            'os.name': rstring(system),
-            'os.version': rstring(release),
-            'os.architecture': rstring(machine)
-        }
+        clientVersionInfo = [
+            NV('omero.version', omero_version),
+            NV('os.name', system),
+            NV('os.version', release),
+            NV('os.architecture', machine)
+        ]
         try:
-            clientVersionInfo['locale'] = rstring(locale.getdefaultlocale()[0])
+            clientVersionInfo.append(
+                NV('locale', locale.getdefaultlocale()[0]))
         except:
             pass
 
@@ -199,6 +200,7 @@ class AbstractRepoTest(lib.ITest):
     def create_settings(self):
         settings = omero.grid.ImportSettings()
         settings.doThumbnails = rbool(True)
+        settings.noStatsInfo = rbool(False)
         settings.userSpecifiedTarget = None
         settings.userSpecifiedName = None
         settings.userSpecifiedDescription = None
@@ -811,3 +813,32 @@ class TestOriginalMetadata(AbstractRepoTest):
             assert dict == type(rsp.seriesMetadata)
         finally:
             handle.close()
+
+
+class TestDeletePerformance(AbstractRepoTest):
+
+    def testImport(self):
+        import time
+        s1 = time.time()
+        client = self.new_client()
+        mrepo = self.getManagedRepo(client)
+        folder = create_path(folder=True)
+        for x in range(200):
+            name = "%s.unknown" % x
+            (folder / name).touch()
+        paths = folder.files()
+        proc = mrepo.importPaths(paths)
+        hashes = self.upload_folder(proc, folder)
+        handle = proc.verifyUpload(hashes)
+        req = handle.getRequest()
+        fs = req.activity.getParent()
+        cb = CmdCallbackI(client, handle)
+        self.assertError(cb, loops=200)
+        delete = omero.cmd.Delete2()
+        delete.targetObjects = {'Fileset': [fs.id.val]}
+        s2 = time.time()
+        print s2 - s1,
+        t1 = time.time()
+        client.submit(delete, loops=200)
+        t2 = time.time()
+        print " ", t2-t1,

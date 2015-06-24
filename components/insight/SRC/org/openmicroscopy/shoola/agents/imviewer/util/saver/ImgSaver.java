@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ import java.beans.PropertyChangeListener;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -49,11 +50,11 @@ import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.Encoder;
+import org.openmicroscopy.shoola.util.image.io.EncoderException;
 import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -221,9 +222,11 @@ public class ImgSaver
      * @param image		The image to create.
      * @param constrain	The constrain indicating to add the scale bar.
      * @param name		The name of the image.
+     * @throws EncoderException 
+     * @throws IOException
      */
     private void writeSingleImage(BufferedImage image, boolean constrain, 
-    							String name)
+    							String name) throws EncoderException, IOException
     {
     	int width = image.getWidth();
         int h = image.getHeight();
@@ -304,29 +307,22 @@ public class ImgSaver
      * 
      * @param image The image to write to the file.
      * @param n     The name of the image.
+     * @throws EncoderException 
+     * @throws IOException
      */
-    private void writeImage(BufferedImage image, String n)
+    private void writeImage(BufferedImage image, String n) throws EncoderException, IOException
     {
         //n += "."+format;
         String extendedName = getExtendedName(n, format);
         File f = new File(extendedName);
-        try {
-            if (TIFFFilter.TIF.equals(format)) {
-                Encoder encoder = new TIFFEncoder(Factory.createImage(image), 
-                        new DataOutputStream(new FileOutputStream(f)));
-                WriterImage.saveImage(encoder);
-            } else WriterImage.saveImage(f, image, format);
-            
-            close();
-        } catch (Exception e) {
-        	Logger logger = ImViewerAgent.getRegistry().getLogger();
-        	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-        	String message = e.getMessage();
-            if (!f.delete())
-            	message += "\nCannot delete the file.";
-            logger.error(this, message);
-            un.notifyError("Save image failure", "Unable to save the image", e);
-        }
+		if (TIFFFilter.TIF.equals(format)) {
+			Encoder encoder = new TIFFEncoder(Factory.createImage(image),
+					new DataOutputStream(new FileOutputStream(f)));
+			WriterImage.saveImage(encoder);
+		} else
+			WriterImage.saveImage(f, image, format);
+
+		close();
     }
     
     /** Sets the properties of the dialog. */
@@ -354,24 +350,6 @@ public class ImgSaver
 		}
     }
 
-    /** Invokes when the openGL flag is turned on. */
-    private void saveAsTexture()
-    {
-    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    	try {
-    		BufferedImage img = model.createImageFromTexture(
-    				uiDelegate.getSavingType(), uiDelegate.includeROI());
-    		writeSingleImage(img, false, uiDelegate.getSelectedFilePath());
-    	} catch (Exception e) {
-    		un.notifyInfo("Saving Image", "An error occurred while saving " +
-    		"the image.");
-    		return;
-    	}
-    	notifySave(getExtendedName(uiDelegate.getSelectedFilePath(), format));
-    	if (uiDelegate.isSetDefaultFolder())
-    		UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
-    }
-    
     /**
      * Creates a new instance.
      * 
@@ -500,11 +478,6 @@ public class ImgSaver
      */
     void saveImage(boolean init)
     {
-    	if (ImViewerAgent.hasOpenGLSupport()) {
-    		saveAsTexture();
-    		return;
-    	}
-
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	if (init) createImages(uiDelegate.getSavingType());
         //Builds the image to display.
@@ -575,9 +548,16 @@ public class ImgSaver
             	}
             }
 		} catch (Exception e) {
-			 un.notifyInfo("Saving Image", "An error occurred while saving " +
-			 		"the image.");
-			 return;
+			if (e instanceof IOException || e.getCause() instanceof IOException)
+				un.notifyInfo(
+						"Save Image failure",
+						"Could not access file "
+								+ uiDelegate.getSelectedFilePath()
+								+ "\nMake sure you have the necessary permissions to perform this action.");
+			else
+				un.notifyError("Save Image failure",
+						"An error occurred while saving the image.", e);
+			return;
 		}
         notifySave(getExtendedName(uiDelegate.getSelectedFilePath(), format));
         if (uiDelegate.isSetDefaultFolder())

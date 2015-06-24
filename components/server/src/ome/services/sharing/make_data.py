@@ -10,7 +10,12 @@ Copyright (c) 2008, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
-import sys, os, subprocess, time, glob
+import sys
+import os
+import subprocess
+import time
+import glob
+
 
 def readlink(file=sys.argv[0]):
     import stat
@@ -36,48 +41,56 @@ top = os.path.join(src, os.pardir, os.pardir, os.pardir)
 rep = os.path.join(top, "lib", "repository")
 rep = os.path.normpath(rep)
 
+
 def call(cmd, cwd="."):
     rc = subprocess.call(cmd, shell=True, cwd=cwd)
     if rc != 0:
         print "Halting..."
         sys.exit(rc)
 
+
 def clean(dir=dat):
         if os.path.exists(dat):
-            print "Removing %s. Cancel now if necessary. Waiting 5 seconds." % dat
+            print "Removing %s. Cancel now if necessary. Waiting 5 seconds." \
+                % dat
             time.sleep(5)
             ls = os.listdir(dat)
             for file in ls:
                 print "Removing %s" % file
-                os.remove(os.path.join(dat,file))
+                os.remove(os.path.join(dat, file))
             os.rmdir(dat)
+
 
 def slice(dir=dat):
         os.mkdir(dat)
-        README = open(os.path.join(dat,"README.txt"),"w")
+        README = open(os.path.join(dat, "README.txt"), "w")
         README.write("""
         THE FILES IN THIS DIRECTORY ARE GENERATE
         AND WILL BE AUTOMATICALLY DELETED
         """)
         README.flush()
         README.close()
-        call("""slice2freezej --dict ome.services.sharing.data.ShareMap,long,ome::services::sharing::data::ShareData \
-	--dict-index ome.services.sharing.data.ShareMap,id \
-	--dict-index ome.services.sharing.data.ShareMap,owner \
-        --output-dir %s \
-	Share.ice""" % src)
-        call("""slice2freezej --dict ome.services.sharing.data.ShareItems,long,ome::services::sharing::data::ShareItem \
-	--dict-index ome.services.sharing.data.ShareItems,type \
-	--dict-index ome.services.sharing.data.ShareItems,share \
-        --output-dir %s \
-	Share.ice""" % src)
+        call("""slice2freezej \
+--dict ome.services.sharing.data.ShareMap,\
+long,ome::services::sharing::data::ShareData \
+--dict-index ome.services.sharing.data.ShareMap,id \
+--dict-index ome.services.sharing.data.ShareMap,owner \
+--output-dir %s Share.ice""" % src)
+        call("""slice2freezej \
+--dict ome.services.sharing.data.ShareItems,\
+long,ome::services::sharing::data::ShareItem \
+--dict-index ome.services.sharing.data.ShareItems,type \
+--dict-index ome.services.sharing.data.ShareItems,share \
+--output-dir %s Share.ice""" % src)
         call("""slice2java --output-dir %s Share.ice""" % src)
 
+
 def compile(dir=dat):
-        proc = subprocess.Popen("slice2java --version", \
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                shell=True)
+        proc = subprocess.Popen(
+            "slice2java --version",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True)
         version = proc.communicate()[1].strip()
         pat = "%s/ice*%s.jar" % (rep, version)
         cp = ":".join(glob.glob(pat))

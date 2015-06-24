@@ -57,7 +57,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
             re = factory.createRenderingEngine();
             re.lookupPixels(pixelsID);
             if (!(re.lookupRenderingDef(pixelsID))) {
-               re.resetDefaults();
+               re.resetDefaultSettings(true);
                re.lookupRenderingDef(pixelsID);
             }
             re.load();
@@ -104,13 +104,13 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
         Fixture f = new Fixture();
 
-        f.re.resetDefaults();
+        f.re.resetDefaultSettings(true);
 
         boolean active = f.re.isActive(0);
         f.re.setActive(0, !active);
         assertEquals(!active,f.re.isActive(0));
 
-        f.re.resetDefaults();
+        f.re.resetDefaultSettings(true);
         assertEquals(active, f.re.isActive(0));
 
         f.re.setActive(0, !active);
@@ -139,7 +139,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         try {
             re.lookupPixels(pix.getId());
             if (!re.lookupRenderingDef(pix.getId())) {
-                re.resetDefaults();
+                re.resetDefaultSettings(true);
                 re.lookupRenderingDef(pix.getId());
             }
 
@@ -148,18 +148,18 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
             re.saveCurrentSettings();
 
             re.setChannelWindow(0, 0, re.getChannelWindowEnd(0) - 0.00002);
-            re.resetDefaults();
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
+            re.resetDefaultSettings(true);
 
             re.setChannelWindow(0, 0, re.getChannelWindowEnd(0) - 0.00003);
             re.saveCurrentSettings();
             re.saveCurrentSettings();
 
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
             re.saveCurrentSettings();
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
             re.renderAsPackedInt(new PlaneDef(0, 0));
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
 
         } finally {
             re.close();
@@ -207,7 +207,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         re.lookupPixels(pix_id);
         boolean available = re.lookupRenderingDef(pix_id);
         if (!available) {
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(pix_id);
         }
         re.load();
@@ -302,7 +302,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         RenderingEngine reUser = sf.createRenderingEngine();
         reUser.lookupPixels(pix.getId());
         assertFalse(reUser.lookupRenderingDef(pix.getId()));
-        reUser.resetDefaults();
+        reUser.resetDefaultSettings(true);
         reUser.load();
     }
 
@@ -315,7 +315,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         RenderingEngine reUser = sf.createRenderingEngine();
         reUser.lookupPixels(pix.getId());
         assertFalse(reUser.lookupRenderingDef(pix.getId()));
-        reUser.resetDefaults();
+        reUser.resetDefaultSettings(true);
         reUser.lookupRenderingDef(pix.getId());
         reUser.load();
         // XXX: Slow and may crash the JVM
@@ -465,7 +465,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         RenderingEngine reUser = sf.createRenderingEngine();
         reUser.lookupPixels(pix.getId());
         assertFalse(reUser.lookupRenderingDef(pix.getId()));
-        reUser.resetDefaults();
+        reUser.resetDefaultSettings(true);
         reUser.load();
     }
 
@@ -481,7 +481,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         RenderingEngine reUser = sf.createRenderingEngine();
         reUser.lookupPixels(pix.getId());
         assertFalse(reUser.lookupRenderingDef(pix.getId()));
-        reUser.resetDefaults();
+        reUser.resetDefaultSettings(true);
         reUser.lookupRenderingDef(pix.getId());
         reUser.load();
         // XXX: Slow and may crash the JVM
@@ -499,7 +499,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         RenderingEngine reUser = sf.createRenderingEngine();
         reUser.lookupPixels(pix.getId());
         assertFalse(reUser.lookupRenderingDef(pix.getId()));
-        reUser.resetDefaults();
+        reUser.resetDefaultSettings(true);
         reUser.lookupRenderingDef(pix.getId());
         reUser.load();
         // XXX: Slow and may crash the JVM
@@ -604,7 +604,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
           RenderingEngine reUser = sf.createRenderingEngine();
           reUser.lookupPixels(pix.getId());
           assertFalse(reUser.lookupRenderingDef(pix.getId()));
-          reUser.resetDefaults();
+          reUser.resetDefaultSettings(true);
       }
 
       @Test(groups = {"ticket:1801"})
@@ -734,7 +734,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         RenderingEngine reUser = sf.createRenderingEngine();
         reUser.lookupPixels(pix.getId());
         assertFalse(reUser.lookupRenderingDef(pix.getId()));
-        reUser.resetDefaults();
+        reUser.resetDefaultSettings(true);
     }
 
     @Test(groups = {"ticket:1434","shoola:ticket:1157"})

@@ -9,9 +9,14 @@
         <exclude name="ignore"/>
         <exclude name="integration"/>
         <exclude name="ldap"/>
-      </run>        
+      </run>
     </groups>
     <packages>
+      <package name="ome.formats.*">
+      <exclude name="ome.formats.importer"/>
+      <exclude name="ome.formats.test.util"/>
+      <exclude name="ome.formats.utests"/>
+      </package>
       <package name="ome.server.*"/>
       <package name="ome.services.*">
         <!--  included via the jar -->

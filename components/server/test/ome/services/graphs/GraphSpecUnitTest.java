@@ -33,6 +33,7 @@ import org.springframework.beans.FatalBeanException;
 import org.testng.annotations.Test;
 
 @Test
+@SuppressWarnings("deprecation")
 public class GraphSpecUnitTest extends MockGraphTest {
 
     private final static Op DEFAULT = Op.HARD;

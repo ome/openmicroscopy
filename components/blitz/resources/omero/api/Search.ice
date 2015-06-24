@@ -18,26 +18,26 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/Search.html">Search.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/Search.html">Search.html</a>
          **/
         ["ami", "amd"] interface Search extends StatefulServiceInterface
             {
 
                 // Non-query state ~~~~~~~~~~~~~~~~~~~~~~
 
-                int activeQueries() throws ServerError;
-                void setBatchSize(int size) throws ServerError;
-                int getBatchSize() throws ServerError;
-                void setMergedBatches(bool merge) throws ServerError;
-                bool isMergedBatches() throws ServerError;
-                void setCaseSentivice(bool caseSensitive) throws ServerError;
-                bool isCaseSensitive() throws ServerError;
-                void setUseProjections(bool useProjections) throws ServerError;
-                bool isUseProjections() throws ServerError;
-                void setReturnUnloaded(bool returnUnloaded) throws ServerError;
-                bool isReturnUnloaded() throws ServerError;
-                void setAllowLeadingWildcard(bool allowLeadingWildcard) throws ServerError;
-                bool isAllowLeadingWildcard() throws ServerError;
+                idempotent int activeQueries() throws ServerError;
+                idempotent void setBatchSize(int size) throws ServerError;
+                idempotent int getBatchSize() throws ServerError;
+                idempotent void setMergedBatches(bool merge) throws ServerError;
+                idempotent bool isMergedBatches() throws ServerError;
+                idempotent void setCaseSentivice(bool caseSensitive) throws ServerError;
+                idempotent bool isCaseSensitive() throws ServerError;
+                idempotent void setUseProjections(bool useProjections) throws ServerError;
+                idempotent bool isUseProjections() throws ServerError;
+                idempotent void setReturnUnloaded(bool returnUnloaded) throws ServerError;
+                idempotent bool isReturnUnloaded() throws ServerError;
+                idempotent void setAllowLeadingWildcard(bool allowLeadingWildcard) throws ServerError;
+                idempotent bool isAllowLeadingWildcard() throws ServerError;
 
 
                 // Filters ~~~~~~~~~~~~~~~~~~~~~~
@@ -89,13 +89,13 @@ module omero {
 
                 // Retrieval  ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                bool hasNext() throws ServerError;
+                idempotent bool hasNext() throws ServerError;
                 omero::model::IObject next() throws ServerError;
                 IObjectList results() throws ServerError;
 
                 // Currently unused
-                SearchMetadata currentMetadata() throws ServerError;
-                SearchMetadataList currentMetadataList() throws ServerError;
+                idempotent SearchMetadata currentMetadata() throws ServerError;
+                idempotent SearchMetadataList currentMetadataList() throws ServerError;
 
                 // Unused; Part of Java Iterator interface
                 void remove() throws ServerError;

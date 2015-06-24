@@ -27,10 +27,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.Action;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -41,6 +44,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -216,7 +220,8 @@ public class BrowseContainerAction
         	String description = DESCRIPTION_DEFAULT;
         	
             if (selectedDisplay instanceof TreeImageSet) {
-            	long n = ((TreeImageSet) selectedDisplay).getNumberItems();
+                TreeImageSet tim = (TreeImageSet) selectedDisplay;
+            	long n = tim.getNumberItems();
             	if (ho instanceof ScreenData) setEnabled(false);
                 else if (ho instanceof PlateData) {
                 	List l = selectedDisplay.getChildrenDisplay();
@@ -227,7 +232,21 @@ public class BrowseContainerAction
                 	setEnabled(true);
                 } else if (ho instanceof ProjectData) {
                 	description = DESCRIPTION_PROJECT;
-                	setEnabled(n > 0);
+                	if (n > 0) {
+                	    List children = tim.getChildrenDisplay();
+                	    Iterator i = children.iterator();
+                	    boolean enabled = false;
+                	    while (i.hasNext()) {
+                            TreeImageDisplay node = (TreeImageDisplay) i.next();
+                            if (node.getNumberOfItems() > 0) {
+                                enabled = true;
+                                break;
+                            }
+                        }
+                	    setEnabled(enabled);
+                	} else {
+                	    setEnabled(false);
+                	}
                 	if (!withThumbnails) setEnabled(false);
                 } else if (ho instanceof DatasetData) {
                 	description = DESCRIPTION_DATASET;

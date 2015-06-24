@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.SelectionWizard 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -60,10 +58,8 @@ import javax.swing.event.DocumentListener;
 
 
 import org.apache.commons.collections.CollectionUtils;
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
 
-//Application-internal dependencies
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -150,7 +146,7 @@ public class SelectionWizard
     private void setControls()
     {
         String text = addField.getText();
-        addNewButton.setEnabled(StringUtils.isNotBlank(text) &&
+        addNewButton.setEnabled(CommonsLangUtils.isNotBlank(text) &&
                 !DEFAULT_TEXT.equals(text));
     }
 
@@ -428,7 +424,7 @@ public class SelectionWizard
     {
         if (TagAnnotationData.class.equals(type)) {
             String text = addField.getText();
-            if (StringUtils.isEmpty(text)) return;
+            if (CommonsLangUtils.isEmpty(text)) return;
             String[] names = text.split(SearchUtil.COMMA_SEPARATOR);
             List<DataObject> objects = new ArrayList<DataObject>();
             String v;
@@ -440,7 +436,7 @@ public class SelectionWizard
             for (int i = 0; i < names.length; i++) {
                 v = names[i];
                 TagAnnotationData tag;
-                if (StringUtils.isNotBlank(v)) {
+                if (CommonsLangUtils.isNotBlank(v)) {
                     tag = new TagAnnotationData(v.trim());
                     if (description != null) {
                         tag.setTagDescription(description);
@@ -653,12 +649,12 @@ public class SelectionWizard
         Object src = evt.getSource();
         if (src == addField) {
             String value = addField.getText();
-            if (StringUtils.isBlank(value)) {
+            if (CommonsLangUtils.isBlank(value)) {
                 setTextFieldDefault(addField, DEFAULT_TEXT);
             }
         } else if (src == descriptionField) {
             String value = descriptionField.getText();
-            if (StringUtils.isBlank(value)) {
+            if (CommonsLangUtils.isBlank(value)) {
                 setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
             }
         }

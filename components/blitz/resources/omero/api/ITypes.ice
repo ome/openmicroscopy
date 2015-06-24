@@ -19,7 +19,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ITypes.html">ITypes.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/ITypes.html">ITypes.html</a>
          **/
         ["ami", "amd"] interface ITypes extends ServiceInterface
             {
@@ -32,7 +32,7 @@ module omero {
                 idempotent StringSet getEnumerationTypes() throws ServerError;
                 idempotent StringSet getAnnotationTypes() throws ServerError;
                 idempotent IObjectListMap getEnumerationsWithEntries() throws ServerError;
-                IObjectList getOriginalEnumerations() throws ServerError;
+                idempotent IObjectList getOriginalEnumerations() throws ServerError;
                 void resetEnumerations(string enumClass) throws ServerError;
             };
 

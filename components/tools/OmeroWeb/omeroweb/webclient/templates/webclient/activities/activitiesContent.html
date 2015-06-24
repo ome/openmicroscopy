@@ -1,6 +1,7 @@
 <html>
 {% load i18n %}
 {% load common_filters %}
+{% load common_tags %}
 
 
 {% comment %}
@@ -87,6 +88,55 @@
                     </tr>
                 {% endifequal %}
 
+                <!-- sending_email jobs -->
+                {% ifequal j.job_type "send_email" %}
+                    <tr id="{{ j.id }}" class="{% if j.new %}new_result{% endif %}{% ifequal j.status 'in progress' %} in_progress{% endifequal %}" >
+                        <td width="25px">
+                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
+                            {% else %}
+                                {% if j.error %}
+                                    <img alt="Failed to send email" src="{% static "webgateway/img/failed.png" %}" />
+                                {% else %}
+                                    <img class="icon" src="{% static "webgateway/img/success.png" %}" />
+                                {% endif %}
+                            {% endifequal %}
+                        </td>
+                        <td class="script_description" colspan='2'>
+                            <span class="activity_title">
+                                Send email
+                            </span>
+                            <span class="message">
+                                {% ifequal j.status "in progress" %}
+                                    Sending admin email...
+                                {% else %}
+                                    {% ifequal j.status "finished" %}
+                                        Sent {{ j.rsp.success }} {% plural j.rsp.success 'email' 'emails' %} of {{ j.rsp.total }}
+                                    {% endifequal %}
+                                    {% if j.report %}
+                                        <div class="chgrp_error">
+                                            <a href="#" title="Click to Open in new Window"> More...</a>
+                                            <div style="display:none">
+                                                <p>{{ j.report.error }}</p>
+                                                {% if j.report.invalidusers %}
+                                                <p>Invalid users:</p>
+                                                {% for u in j.report.invalidusers %}
+                                                    User: {{ u }}</br>
+                                                {% endfor %}
+                                                {% endif %}
+                                                {% if j.report.invalidemails %}
+                                                <p>Invalid emails:</p>
+                                                {% for u in j.report.invalidemails %}
+                                                    Email: {{ u }}</br>
+                                                {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endifequal %}
+                            </span>
+                        </td>
+                    </tr>
+                {% endifequal %}
 
                 <!-- Delete jobs -->
                 {% ifequal j.job_type "delete" %}
@@ -178,111 +228,74 @@
 						
 						<!-- General Script Info -->
                         <td class="script_description">
-                            {% ifequal j.status 'no processor available' %}
 
-                            <span class="activity_title">No Processor Available</span>
-                            <span class="message">Please try again later.<br/>
-                                See <a target="new" href="http://trac.openmicroscopy.org.uk/ome/ticket/8266">more info</a> for Admins.
-                            </span>
-
-                            {% else %}
-                            <span class="activity_title">{{ j.job_name }}</span>
-                            <span class="message">{{ j.Message }}</span>
-                            {% endifequal %}
-                        </td>
-						
-						
-						<!-- I need to put this back in -->
-						<!--{{ j.start_time|date:"H:i" }}-->
-						
-						<!-- Out until there is a better way of displaying -->
-						<!--<span class="status">{{ j.status }}</span>-->
-						
-						
-						
-						
-						<!-- Result of script -->
-                        <td class="results">
-                            
-
-							<!-- Drop Down -->
+                            <!-- Drop Down -->
                             {% for k,v in j.results.iteritems %}
                                 <div>
                                     {% if v.type and v.id %}
-									    
-										{% comment %}
-											{% if v.name %} 
-												{{ v.name|truncatebefor:"30" }} {% else %} {{ v.type }} ID: {{ v.id }}
-											{% endif %}
+
+                                        {% comment %}
+                                            {% if v.name %} 
+                                                {{ v.name|truncatebefor:"30" }} {% else %} {{ v.type }} ID: {{ v.id }}
+                                            {% endif %}
                                         {% endcomment %}
-										
-										    <ul class="menu_btns silver">
-												
-												<!-- Browser to file in tree -->
+
+                                            <ul class="menu_btns silver">
+
+                                                <!-- Browser to file in tree -->
                                                 {% if v.browse_url %}
                                                     <li class="btn_folder">
-														<a href='{{ v.browse_url }}' class='browse' title="Navigate to {{ v.type }} in the main window">
-                                                        	Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
-														</a>
-													</li>
+                                                        <a href='{{ v.browse_url }}' class='browse' title="Navigate to {{ v.type }} in the main window">
+                                                            Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
+                                                        </a>
+                                                    </li>
                                                 {% endif %}
-												
-													
+
                                                 {% ifequal v.type "FileAnnotation" %}
-												
-													<!-- Download -->
+                                                
+                                                    <!-- Download -->
                                                     <li class="btn_download">
-														<a href="{% url 'download_annotation' v.id %}" title="Download File">Download</a>
-													</li>
-                                                    
-													{% if v.fileId %}
-														<!-- View File Type -->
+                                                        <a href="{% url 'download_annotation' v.id %}" title="Download File">Download</a>
+                                                    </li>
+
+                                                    {% if v.fileId %}
+                                                        <!-- View File Type -->
                                                         <li class="btn_filetype">
-															<a href="#" onClick="return OME.openPopup('{% url 'get_original_file' v.fileId %}');"
-															    title="Show file in new window">View {{ v.fileType }}</a>
-														</li>
+                                                            <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' v.fileId %}');"
+                                                                title="Show file in new window">View {{ v.fileType }}</a>
+                                                        </li>
                                                     {% endif %}
-												{% else %}
-												
+                                                {% else %}
+
                                                     {% ifequal v.type "Image" %}
-														<!-- View Image -->
+                                                        <!-- View Image -->
                                                         <li class="btn_view">
-															<a href="#" onClick="return OME.openPopup('{% url 'webgateway.views.full_viewer' v.id %}');" title="Open Image in Viewer">View Image</a>
-														</li>
+                                                            <a href="#" onClick="return OME.openPopup('{% url 'webgateway.views.full_viewer' v.id %}');" title="Open Image in Viewer">View Image</a>
+                                                        </li>
                                                     {% endifequal %}
-													
+
                                                 {% endifequal %}
 
 
                                                 <!-- add stderr and stdout to first result only -->
                                                 {% if forloop.first %}
                                                     {% if j.stderr %}
-                                                        
-														<!-- View error -->
-														<li class="btn_view_error">
-															<a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.stderr %}');"
+
+                                                        <!-- View error -->
+                                                        <li class="btn_view_error">
+                                                            <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.stderr %}');"
                                                             title="Show error produced by the script">Error</a>
-														</li>
+                                                        </li>
                                                     {% endif %}
-													
+
                                                     {% if j.stdout %}
-                                                        
-														<!-- More Information -->
-														<li class="btn_info">
-															<a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.stdout %}');" 
+                                                        <!-- More Information -->
+                                                        <li class="btn_info">
+                                                            <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.stdout %}');" 
                                                             title="Show additional info generated by the script">Info</a>
-														</li>
+                                                        </li>
                                                     {% endif %}
                                                 {% endif %}
-												
-												<!-- No need to clear from the list
-												<li class="btn_trash">
-													<a href="#" title="Remove from List" id="{{ j.key }}" class="remove" title="Show additional info generated by the script">
-                                                    	Delete
-                                                	</a>
-												</li>
-												-->
-												
                                             </ul>
                                         </span>
                                     {% else %}
@@ -297,18 +310,46 @@
 
                             <!-- if there were no results items, we have to display info and error here -->
                             {% if not j.results %}
-							<ul class="menu_btns silver">
+                            <ul class="menu_btns silver">
                                 <li class="btn_view_error" style='float:left'>
                                     {% if j.stderr %}<a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.stderr %}');"
                                         title="Show error produced by the script">Error</a>{% endif %}
                                 </li>
-								
+                                
                                 <li class="btn_info">
                                     {% if j.stdout %}<a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.stdout %}');"
                                         title="Show additional info generated by the script">Info</a>{% endif %}
                                 </li>
-							</ul>
-							{% endif %}
+                            </ul>
+                            {% endif %}
+
+
+
+                            {% ifequal j.status 'no processor available' %}
+
+                            <span class="activity_title">No Processor Available</span>
+                            <span class="message">Please try again later.<br/>
+                                See <a target="new" href="http://trac.openmicroscopy.org.uk/ome/ticket/8266">more info</a> for Admins.
+                            </span>
+
+                            {% else %}
+                            <span class="activity_title">{{ j.job_name }}</span>
+                            <span class="message">{{ j.Message }}</span>
+                            {% endifequal %}
+                        <!-- </td> -->
+						
+						
+						<!-- I need to put this back in -->
+						<!--{{ j.start_time|date:"H:i" }}-->
+						
+						<!-- Out until there is a better way of displaying -->
+						<!--<span class="status">{{ j.status }}</span>-->
+						
+						
+						
+						
+						<!-- Result of script -->
+                        <!-- <td class="results" style="position:relative"> -->
 							
                         </td>
 						

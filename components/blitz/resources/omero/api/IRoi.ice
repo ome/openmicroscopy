@@ -31,7 +31,7 @@ module omero {
                 omero::RInt        offset;
                 omero::RLong       userId;
                 omero::RLong       groupId;
-				omero::RString	   namespace;
+                omero::RString     namespace;
             };
 
         /**
@@ -134,6 +134,7 @@ module omero {
                  * All Shapes are loaded, as is the Pixels and Image object.
                  * TODO: Annotations?
                  **/
+                idempotent
                 RoiResult findByRoi(long roiId, RoiOptions opts) throws omero::ServerError;
 
                 /**
@@ -141,6 +142,7 @@ module omero {
                  *
                  * Loads Rois as findByRoi.
                  **/
+                idempotent
                 RoiResult findByImage(long imageId, RoiOptions opts) throws omero::ServerError;
 
                 /**
@@ -148,26 +150,31 @@ module omero {
                  *
                  * Loads Rois as findByRoi.
                  **/
+                idempotent
                 RoiResult findByPlane(long imageId, int z, int t, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Calculate the points contained within a given shape
                  **/
+                idempotent
                 ShapePoints getPoints(long shapeId) throws omero::ServerError;
 
                 /**
                  * Calculate stats for all the shapes within the given Roi.
                  **/
+                idempotent
                 RoiStats getRoiStats(long roiId) throws omero::ServerError;
 
                 /**
                  * Calculate the stats for the points within the given Shape.
                  **/
+                idempotent
                 ShapeStats getShapeStats(long shapeId) throws omero::ServerError;
 
                 /**
                  * Calculate the stats for the points within the given Shapes.
                  **/
+                idempotent
                 ShapeStatsList getShapeStatsList(LongList shapeIdList) throws omero::ServerError;
 
                 //
@@ -177,10 +184,11 @@ module omero {
                 /**
                  * Returns a list of [omero::model::FileAnnotation] instances with the namespace
                  * "openmicroscopy.org/measurements" which are attached to the [omero::model::Plate]
-		 * containing the given image AND which are attached to at least one [omero::model::Roi]
+                 * containing the given image AND which are attached to at least one [omero::model::Roi]
                  *
                  * @param opts, userId and groupId are respected based on the ownership of the annotation.
                  **/
+                idempotent
                 AnnotationList getRoiMeasurements(long imageId, RoiOptions opts) throws omero::ServerError;
 
                 /**
@@ -189,6 +197,7 @@ module omero {
                  *
                  * @param annotationId if -1, logic is identical to findByImage(imageId, opts)
                  **/
+                idempotent
                 RoiResult getMeasuredRois(long imageId, long annotationId, RoiOptions opts) throws omero::ServerError;
 
                 /**
@@ -196,14 +205,16 @@ module omero {
                  * Logic is identical to getMeasuredRois, but Roi data will not be duplicated. (i.e.
                  * the objects are referentially identical)
                  **/
+                idempotent
                 LongRoiResultMap getMeasuredRoisMap(long imageId, LongList annotationIds, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Returns the OMERO.tables service via the [omero::model::FileAnnotation] id returned
                  * by getImageMeasurements.
                  **/
+                idempotent
                 omero::grid::Table* getTable(long annotationId) throws omero::ServerError;
-                
+
                 void uploadMask(long roiId, int z, int t, Ice::ByteSeq bytes) throws omero::ServerError;
 
             };

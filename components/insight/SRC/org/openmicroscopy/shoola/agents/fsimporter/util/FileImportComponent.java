@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -60,7 +60,6 @@ import javax.swing.JPopupMenu;
 
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
-
 import omero.cmd.CmdCallback;
 import omero.cmd.CmdCallbackI;
 
@@ -78,14 +77,15 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ThumbnailLabel;
 import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
-import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -344,8 +344,7 @@ public class FileImportComponent
 	            displayLogFile();
 	        }
 	    });
-	    item.setEnabled(statusLabel.getLogFileID() > 0 ||
-	            statusLabel.getFileset() != null);
+	    item.setEnabled(statusLabel.getLogFileID() > 0);
 	    menu.add(item);
 
 	    item = new JMenuItem(new AbstractAction(checksumText) {
@@ -538,14 +537,14 @@ public class FileImportComponent
 	private void cancel(boolean fire)
 	{
 		boolean b = statusLabel.isCancellable() || getFile().isDirectory();
-		if (!isCancelled() && !hasImportFailed() && b) {
+		if (!isCancelled() && !hasImportFailed() && b &&
+		        !statusLabel.isMarkedAsDuplicate()) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();
 			cancelButton.setEnabled(false);
 			cancelButton.setVisible(false);
-			//if (fire)
-				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
+			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
 
@@ -804,8 +803,15 @@ public class FileImportComponent
 	 * 
 	 * @return See above.
 	 */
-	public File getFile() { return importable.getFile(); }
+	public FileObject getFile() { return importable.getFile(); }
 	
+	/**
+     * Returns the file hosted by this component.
+     * 
+     * @return See above.
+     */
+    public FileObject getOriginalFile() { return importable.getOriginalFile(); }
+    
 	/**
 	 * Sets the location where to import the files.
 	 * 
@@ -922,7 +928,13 @@ public class FileImportComponent
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
-			imageLabel.setData(list.get(0));
+			ThumbnailData data = list.get(0);
+			long iid = data.getImageID();
+			if (data.getImage() != null) {
+			    iid = data.getImage().getId();
+			}
+			getFile().setImageID(iid);
+			imageLabel.setData(data);
 			list.remove(0);
 			if (list.size() > 0) {
 				ThumbnailLabel label = imageLabels.get(0);
@@ -1002,6 +1014,13 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public long getGroupID() { return importable.getGroup().getId(); }
+
+	/**
+     * Returns the id of the experimenter.
+     * 
+     * @return See above.
+     */
+    public long getExperimenterID() { return importable.getUser().getId(); }
 	
 	/**
 	 * Returns the import error object.
@@ -1015,10 +1034,9 @@ public class FileImportComponent
 		if (r instanceof Exception) e = (Exception) r;
 		else if (image instanceof Exception) e = (Exception) image;
 		if (e == null) return null;
-		ImportErrorObject object = new ImportErrorObject(getFile(), e,
-				getGroupID());
-		object.setReaderType(statusLabel.getReaderType());
-		object.setUsedFiles(statusLabel.getUsedFiles());
+		ImportErrorObject object = new ImportErrorObject(
+		        getFile().getTrueFile(), e, getGroupID());
+		object.setImportContainer(statusLabel.getImportContainer());
 		long id = statusLabel.getLogFileID();
 		if (id <= 0) {
 			FilesetData data = statusLabel.getFileset();
@@ -1074,7 +1092,29 @@ public class FileImportComponent
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if the component has imports to cancel,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    public boolean hasImportToCancel()
+    {
+        boolean b = statusLabel.isMarkedAsCancel();
+        if (b) return false;
+        if (getFile().isFile() && !hasImportStarted()) return true;
+        if (components == null) return false;
+        Iterator<FileImportComponent> i = components.values().iterator();
+        FileImportComponent fc;
+        while (i.hasNext()) {
+            fc = i.next();
+            if (!fc.isCancelled() && !fc.hasImportStarted())
+                return true;
+        }
+        return false;
+    }
+    
 	/**
 	 * Returns <code>true</code> if the file can be re-imported,
 	 * <code>false</code> otherwise.
@@ -1128,7 +1168,7 @@ public class FileImportComponent
 		}
 		return count == components.size();
 	}
-	
+
 	/**
 	 * Returns <code>true</code> the error can be submitted, <code>false</code>
 	 * otherwise.
@@ -1345,19 +1385,6 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public DataObject getContainerFromFolder() { return containerFromFolder; }
-	
-	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is a HCS files, <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	public boolean isHCSFile()
-	{
-		if (isFolderAsContainer()) return false;
-		return ImportableObject.isHCSFile(getFile());
-	}
 
 	/**
 	 * Returns <code>true</code> if the file has already been marked for
@@ -1458,6 +1485,21 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public ImportableFile getImportableFile() { return importable; }
+
+	/**
+	 * Indicates the results saving status.
+	 *
+	 * @param message The message to display
+	 * @param busy Pass <code>true</code> when saving,
+	 *             <code>false</code> otherwise.
+	 */
+	public void onResultsSaving(String message, boolean busy)
+	{
+	    statusLabel.updatePostProcessing(message, !busy);
+	    busyLabel.setVisible(busy);
+	    busyLabel.setBusy(busy);
+	}
+
 	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.

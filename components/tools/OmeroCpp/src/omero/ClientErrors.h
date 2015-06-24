@@ -9,7 +9,10 @@
 #ifndef OMERO_CLIENT_ERRORS_H
 #define OMERO_CLIENT_ERRORS_H
 
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Ice.h>
+#include <omero/IceNoWarnPop.h>
+
 #include <ostream>
 #include <iostream>
 #include <exception>

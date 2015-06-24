@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,11 +31,8 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -47,11 +44,14 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /**
  * Rectangle figure with measurement.
@@ -108,31 +108,9 @@ public class MeasureRectangleFigure
 	 * {@link ROIFigure#MOVING}. 
 	 */
 	protected int 					status;
-
-	/** The units of reference.*/
-	private String refUnits;
 	
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
-
-	/**
-	 * Formats the area.
-	 * 
-	 * @param value The value to format.
-	 * @return See above.
-	 */
-	private String formatValue(double value)
-	{
-	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-        if (units.isInMicrons()){ 
-            UnitsObject v = UIUtilities.transformSquareSize(value);
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(formatter.format(v.getValue()));
-            buffer.append(v.getUnits());
-            return buffer.toString();
-        }
-        return addUnits(formatter.format(value));
-	}
 
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
@@ -240,6 +218,7 @@ public class MeasureRectangleFigure
 		setAttribute(MeasurementAttributes.HEIGHT, height);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+        setAttribute(MeasurementAttributes.SCALE_PROPORTIONALLY, Boolean.FALSE);
         shape = null;
 		roi = null;
 		status = IDLE;
@@ -249,7 +228,6 @@ public class MeasureRectangleFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
-   		refUnits = UnitsObject.MICRONS;
     }
     
     /** 
@@ -257,13 +235,9 @@ public class MeasureRectangleFigure
      * 
      * @return see above.
      */
-    public double getMeasurementX() 
+    public Length getMeasurementX() 
     {
-    	if (units.isInMicrons()) {
-    		return UIUtilities.transformSize(
-					getX()*units.getMicronsPixelX(), refUnits);
-    	}
-    	return getX();
+    	return transformX(getX());
     }
     
     /** 
@@ -271,13 +245,9 @@ public class MeasureRectangleFigure
      * 
      * @return see above.
      */
-    public double getMeasurementY() 
+    public Length getMeasurementY() 
     {
-    	if (units.isInMicrons()) {
-    		return UIUtilities.transformSize(
-					getY()*units.getMicronsPixelY(), refUnits);
-    	}
-    	return getY();
+    	return transformY(getY());
     }
     
     
@@ -286,13 +256,9 @@ public class MeasureRectangleFigure
      * 
      * @return see above.
      */
-    public double getMeasurementWidth() 
+    public Length getMeasurementWidth() 
     {
-    	if (units.isInMicrons()) {
-    		return UIUtilities.transformSize(
-					getWidth()*units.getMicronsPixelX(), refUnits);
-    	}
-    	return getWidth();
+    	return transformY(getWidth());
     }
     
     /** 
@@ -300,13 +266,9 @@ public class MeasureRectangleFigure
      * 
      * @return see above.
      */
-    public double getMeasurementHeight() 
+    public Length getMeasurementHeight() 
     {
-    	if (units.isInMicrons()) {
-    		return UIUtilities.transformSize(
-					getHeight()*units.getMicronsPixelY(), refUnits);
-    	}
-    	return getHeight();
+    	return transformY(getHeight());
     }
     
     /** 
@@ -348,7 +310,8 @@ public class MeasureRectangleFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
-			String rectangleArea = formatValue(getArea());
+			Length a = getArea();
+			String rectangleArea = UIUtilities.formatValue(a, true);
 			Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
             Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
             if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
@@ -466,52 +429,33 @@ public class MeasureRectangleFigure
 	}
 
 	/**
-	 * Add units to the string 
-	 * @param str see above.
-	 * @return returns the string with the units added. 
-	 */
-	public String addUnits(String str)
-	{
-		if (shape == null) return str;
-		if (units.isInMicrons()) 
-			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
-		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
-	}
-
-
-	/**
 	 * Calculate the area of the figure. 
 	 * @return see above.
 	 */
-	public double getArea()
+	public Length getArea()
 	{
-		return getMeasurementWidth()*getMeasurementHeight();
+		return new LengthI(getMeasurementWidth().getValue()*getMeasurementHeight().getValue(), getUnit());
 	}
 	
 	/**
 	 * Calculate the perimeter of the figure. 
 	 * @return see above.
 	 */
-	public double getPerimeter()
+	public Length getPerimeter()
 	{
-		return getMeasurementWidth()*2+getMeasurementHeight()*2;
+		return new LengthI(getMeasurementWidth().getValue()*2+getMeasurementHeight().getValue()*2, getUnit());
 	}
 
 	/** 
 	 * Calculate the centre of the figure. 
 	 * @return see above.
 	 */
-	public Point2D getCentre()
+	public UnitPoint getCentre()
 	{
-     	if (units.isInMicrons()) {
-     		double tx = UIUtilities.transformSize(
-     				rectangle.getCenterX()*units.getMicronsPixelX(), refUnits);
-     		double ty = UIUtilities.transformSize(
-     				rectangle.getCenterY()*units.getMicronsPixelY(), refUnits);
-     		return new Point2D.Double(tx, ty);
-     	}
-    	return new Point2D.Double(rectangle.getCenterX(), 
-    							rectangle.getCenterY());
+		double cx = rectangle.getCenterX();
+		double cy = rectangle.getCenterY();
+		
+     	return new UnitPoint(transformX(cx), transformY(cy));
 	}
 
 	/**
@@ -549,8 +493,8 @@ public class MeasureRectangleFigure
 		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());		
 		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());		
 		AnnotationKeys.PERIMETER.set(shape, getPerimeter());		
-		AnnotationKeys.CENTREX.set(shape, getCentre().getX());
-		AnnotationKeys.CENTREY.set(shape, getCentre().getY());
+		AnnotationKeys.CENTREX.set(shape, getCentre().x);
+		AnnotationKeys.CENTREY.set(shape, getCentre().y);
 	}
 
 	/**
@@ -566,8 +510,6 @@ public class MeasureRectangleFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
-		refUnits = UIUtilities.transformSize(
-				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
@@ -735,4 +677,51 @@ public class MeasureRectangleFigure
 	 */
 	public boolean canInteract() { return interactable; }
 
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(double x) {
+		return transformX((int)x);
+	}
+	
+	/**
+	 * Transforms the given y pixel value into a unit object
+	 * @param y A pixel value in y direction
+	 */
+	private Length transformY(double y) {
+		return transformY((int)y);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(int x) {
+		if(units.getPixelSizeX()!=null) 
+			return new LengthI(x*units.getPixelSizeX().getValue(), units.getPixelSizeX().getUnit());
+		else
+			return new LengthI(x, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformY(int y) {
+		if(units.getPixelSizeY()!=null) 
+			return new LengthI(y*units.getPixelSizeY().getValue(), units.getPixelSizeY().getUnit());
+		else
+			return new LengthI(y, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Get the unit which is used for the pixel sizes
+	 */
+	private UnitsLength getUnit() {
+		if(units.getPixelSizeX()!=null)
+			return units.getPixelSizeX().getUnit();
+		else
+			return UnitsLength.PIXEL;
+	}
 }

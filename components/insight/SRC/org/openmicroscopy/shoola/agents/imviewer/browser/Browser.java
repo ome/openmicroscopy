@@ -33,10 +33,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -370,28 +366,7 @@ public interface Browser
 
 	/** Invokes when the color model changes. */
 	public void onColorModelChange();
-	
-	/**
-	 * Creates an image to save.
-	 * 
-	 * @param type The type of image to save.
-	 */
-	public BufferedImage createImageFromTexture(int type);
 
-	/**
-	 * Returns the main image as a texture data.
-	 * 
-	 * @return See above.
-	 */
-	public TextureData getImageAsTexture();
-	
-	/**
-	 * Returns the projected image as a texture data.
-	 * 
-	 * @return See above.
-	 */
-	public TextureData getProjectedImageAsTexture();
-	
 	/**
 	 * Sets the image displayed in the bird eye view.
 	 * 

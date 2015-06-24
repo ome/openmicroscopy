@@ -53,15 +53,6 @@
                     };
                 };
                 $(".metadata_details").click(toggleInvalidRows);
-                                
-                $('input#search_global').quicksearch('table#global_metadata tbody tr', {
-                    'delay': 300,
-                    'loader': 'span.loading_global'
-                });
-                $('input#search_series').quicksearch('table#series_metadata tbody tr', {
-                    'delay': 300,
-                    'loader': 'span.loading_series'
-                });
 
                 
                 $('.can-collapse').click(function () {
@@ -70,6 +61,49 @@
 
                 $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
 
+                // Load Original Metadata...
+                var origMetadataLoaded = false;
+                function loadOriginalMetadata () {
+                    if (!origMetadataLoaded) {
+                        origMetadataLoaded = true;
+                        var loadingHtml = '<img alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">'
+                                        + 'Loading Original Metadata...'
+                        var url = $("#orig_metadata_link").prop('href');
+                        $("#orig_metadata")
+                            .html(loadingHtml)
+                            .load(url, function( response, status, xhr ) {
+                                if (xhr.status == 408) {
+                                    origMetadataLoaded = false;
+                                    $("#orig_metadata").html("Timeout. <a href='#' class='load_original_metadata'>Try again</a>");
+                                } else {
+                                    // setup quick search fields (but not if MANY rows, since it crashes!)
+                                    if ($("#global_metadata tr").length < 60000) {
+                                        $('input#search_global').quicksearch('table#global_metadata tbody tr', {
+                                            'delay': 300,
+                                            'loader': 'span.loading_global'
+                                        });
+                                    } else {
+                                        $("#quicksearch_global").hide();
+                                    }
+                                    if ($("#series_metadata tr").length < 60000) {
+                                        $('input#search_series').quicksearch('table#series_metadata tbody tr', {
+                                            'delay': 300,
+                                            'loader': 'span.loading_series'
+                                        });
+                                    } else {
+                                        $("#quicksearch_series").hide();
+                                    }
+                                }
+                            });
+                    }
+                };
+                // Load either when we first expand tab, or on retry
+                $("h1.load_original_metadata").click(function() {
+                    if (!$(this).hasClass('closed')){
+                        loadOriginalMetadata();
+                    }
+                });
+                $("#orig_metadata" ).on( "click", "a.load_original_metadata", loadOriginalMetadata);
             });
     </script>
 
@@ -95,48 +129,21 @@
                 </div>
             {% endif %}
             
-            {% if manager.global_metadata or manager.series_metadata %}
-            <h1 class="can-collapse defclose">{% trans "Original Metadata" %}</h1>
-                <div>
-                    {% if manager.image %}
-                    <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
-                        onClick="document.location.href='{% url 'download_orig_metadata' manager.image.id %}';"/>
-                    {% endif %}
+            {% if not share_id %}
+            <!-- Original Metadata is loaded when tab expanded -->
+            <h1 class="can-collapse defclose load_original_metadata">{% trans "Original Metadata" %}</h1>
+            <div id="orig_metadata">
+            </div>
+            <!-- hidden link provides url -->
+            <a id="orig_metadata_link" style="display: none"
                     {% if manager.well %}
-                    <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
-                        onClick="document.location.href='{% url 'download_orig_metadata' manager.well.getWellSample.image.id %}';"/>
+                        href="{% url 'load_original_metadata' manager.well.getWellSample.image.id %}"
+                    {% elif manager.image %}
+                        href="{% url 'load_original_metadata' manager.image.id %}"
                     {% endif %}
-                    {% if manager.global_metadata %}
-                    <h1>Global Metadata</h1>
-                    <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global"> <span class="loading_global"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-                        <table id="global_metadata" class="metadata_details"
-                            style="word-wrap: break-word;"><tbody>
-                            {% for gm in manager.global_metadata %}
-                            <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
-                            {% endfor %}
-                        <tr><th colspan="2"><br/></th></tr>
-                        </tbody></table>
-                    </div>
-                    {% endif %}
-            
-                    {% if manager.series_metadata %}
-                    <hr />
-                    <h1>Series Metadata</h1>
-                    <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series"> <span class="loading_series"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-                        <table id="series_metadata" class="metadata_details"
-                            style="word-wrap: break-word;"><tbody>
-                            {% for sm in manager.series_metadata %}
-                            <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
-                            {% endfor %}
-                            <tr><th colspan="2"><br/></th></tr>
-                        </tbody></table>
-                    </div>
-                    {% endif %}
-                </div>
+                >Load Original Metadata</a>
             {% endif %}
-                        
+
             <!-- Microscope -->
             {% if form_objective or form_filters or form_detectors %}
             <h1 class="can-collapse defclose">{% trans "Microscope" %}</h1>
@@ -192,7 +199,7 @@
                 {% endfor %}
                 {% for form in form_lasers %}
                 <table class="metadata_details">
-                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    <tr><th><br/>{{ form.lightSourceType }}:</th><th colspan="2"></th></tr>
                     {% for field in form %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                         <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
@@ -278,7 +285,7 @@
                     {% endfor %}
                     {% endif %}                
                     {% if ch.form_light_source %}
-                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    <tr><th><br/>{{ ch.form_light_source.lightSourceType }}:</th><th colspan="2"></th></tr>
                     {% for field in ch.form_light_source %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                         <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
@@ -328,11 +335,11 @@
                 {% if ch.plane_info %}
                 <h2>Exposure times</h2>
                 <div class="plane_info">
-                <table border='0' cellpadding='0' cellspacing='0'><tr>
+                <table class="exposureTimeData"><tr>
                     <td>
                         <div>t index </div>
-                        <div>Delta T (sec)</div>
-                        <div style="white-space:nowrap;">Exposure (sec)</div>
+                        <div>Delta T</div>
+                        <div style="white-space:nowrap;">Exposure</div>
                     </td>
                     {% for pi in ch.plane_info %}
                         <td>

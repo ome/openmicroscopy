@@ -35,7 +35,6 @@ import ome.util.SqlAction;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -82,7 +81,7 @@ public class MTPixelDataTest extends MockObjectTestCase {
 
         // nio settings
         TileSizes tileSizes = new ConfiguredTileSizes(5, 5, 10, 10);
-        PixelsService service = new PixelsService(path, resolver, backOff, tileSizes);
+        PixelsService service = new PixelsService(path, resolver, backOff, tileSizes, null);
 
         // session mocks
         Mock mgrMock = mock(SessionManager.class);

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -40,11 +40,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -60,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -206,7 +209,10 @@ class EditorUI
 	 * @param desc The description of (i. e. tooltip for) the tap
 	 */
 	private void addTab(String title, Component comp, String desc) {
-	    tabPane.addTab(title, null, new JScrollPane(comp), desc);
+		JScrollPane sp = new JScrollPane(comp);
+		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+	    tabPane.addTab(title, null, sp, desc);
 	}
 	
 	/** Initializes the UI components. */
@@ -310,9 +316,10 @@ class EditorUI
     {
         ImageData img = model.getImage();
         if (img == null) return;
-        tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
+        boolean multi = model.isMultiSelection();
         boolean preview = model.isPreviewAvailable();
-        tabPane.setEnabledAt(RND_INDEX, preview);
+        tabPane.setEnabledAt(RND_INDEX, preview && !multi);
+        tabPane.setEnabledAt(ACQUISITION_INDEX, !multi && img.getId() > 0);
         if (!preview) {
             tabPane.setToolTipTextAt(RND_INDEX, 
                     "Only available for non big images.");
@@ -338,8 +345,6 @@ class EditorUI
 		setDataToSave(false);
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
-		boolean preview = false;
-		int selected = getSelectedTab();
 		if (!(uo instanceof DataObject)) {
 			//saved = false;
 			setDataToSave(false);
@@ -991,17 +996,7 @@ class EditorUI
     	model.loadScripts();
     	toolBar.setStatus(true);
     }
-    
-    /**
-     * Returns the script corresponding to the specified name.
-     * 
-     * @return See above.
-     */
-    ScriptObject getScriptFromName(String name)
-    { 
-    	return model.getScriptFromName(name);
-    }
-    
+
 	/**
 	 * Returns <code>true</code> if it is an image with a lot of channels.
 	 * <code>false</code> otherwise.
@@ -1047,26 +1042,16 @@ class EditorUI
  	 *
 	 * @param trigger The action which triggered the loading,
 	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
-	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}
 	 * */
-	void displayFileset(int trigger) { 
-	    if (CollectionUtils.isEmpty(model.getFileset())) {
-	        toolBar.enableFilePathButton(false);
-	    }
-	    else {
-	        toolBar.enableFilePathButton(true);
-	        // show the filepaths if this was triggered by the user
-	        switch (trigger) {
-	                case EditorControl.FILE_PATH_TOOLBAR:
-	                    toolBar.displayFileset();
-	                    break;
-	                case EditorControl.FILE_PATH_INPLACE_ICON:
-	                    generalPane.getPropertiesUI().displayFileset();
-	                    break;
-	                default:
-	                    return;
-	            }
-	    }
+	void displayFileset() { 
+	    toolBar.displayFileset();
+	}
+	
+	/**
+	 * Shows the location dialog
+	 */
+	void displayLocation() {
+	    toolBar.displayLocation();
 	}
 	
 	/**
@@ -1104,14 +1089,12 @@ class EditorUI
 	}
 
 	/**
-	 * Overridden to wrap the description.
-	 * @see JComponent#setSize(Dimension)
-	 */
-	public void setSize(Dimension d)
-	{
-		super.setSize(d);
-		if (generalPane != null) 
-			generalPane.setExtentWidth(getVisibleRect().width);
+     * Sets the LDAP details.
+     *
+     * @param userID The user's id.
+     */
+	void setLDAPDetails(String result) {
+	    userUI.setLDAPDetails(result);
 	}
 
 }

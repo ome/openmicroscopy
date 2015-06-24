@@ -58,6 +58,9 @@ public class SecurityContext
 	/** The compression level. */
 	private float compression;
 	
+	/** Indicates to generate session for another user.*/
+	private boolean sudo;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -67,8 +70,20 @@ public class SecurityContext
 	{
 		this.groupID = groupID;
 		experimenter = null;
+		sudo = false;
 	}
-	
+
+	/** Indicates to create a session for another user.*/
+	public void sudo() { this.sudo = true; }
+
+	/**
+	 * Returns <code>true</code> if a session has to be created for another
+	 * user, <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	public boolean isSudo() { return sudo; }
+
 	/**
 	 * Sets the experimenter
 	 * 

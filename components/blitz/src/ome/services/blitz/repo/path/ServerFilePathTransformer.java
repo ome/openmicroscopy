@@ -92,7 +92,7 @@ public class ServerFilePathTransformer {
      * Set the repository root directory, to which {@link FsFile} instances are considered to be relative.
      * @throws IOException if the absolute path of the root directory could not be found
      * @throws IllegalArgumentException if the root directory does not exist
-     * @param rootDir the repository root directory
+     * @param baseDirFile the repository root directory
      */
     public void setBaseDirFile(File baseDirFile) {
         if (!baseDirFile.isDirectory())

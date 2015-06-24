@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+// Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 // All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ jQuery.fn.hide_if_empty = function() {
 
 OME.addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
-    if (selected != null && selected.length > 0) {
+    if (selected && selected.length > 0) {
         selected.each(function(i) {
             productListQuery[i+1]= $(this).attr('id').replace("-","=");
         });
@@ -125,7 +125,6 @@ OME.clear_selected = function(force_refresh) {
 OME.field_selection_changed = function(field) {
 
     var datatree = $.jstree._focused();
-    datatree.data.ui.last_selected;
     $("body")
         .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
         .trigger("selection_change.ome", $(this).attr('id'));
@@ -137,7 +136,7 @@ OME.select_fileset_images = function(filesetId) {
     $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
         datatree.select_node(this);
     });
-}
+};
 
 // actually called when share is edited, to refresh right-hand panel
 OME.share_selection_changed = function(share_id) {
@@ -247,7 +246,7 @@ OME.doPagination = function(view, page) {
     $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
     $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
-}
+};
 
 
 
@@ -259,7 +258,9 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
     // /webclient/action/remove/comment/461/?parent=image-257
     var $parent = $(event.target).parents(domClass);
     var $annContainer = $parent.parent();
-    var confirm_remove = OME.confirm_dialog('Remove '+ dType + '?',
+    var r = 'Remove ';
+    if (dType === 'comment') r = 'Delete ';
+    var confirm_remove = OME.confirm_dialog(r + dType + '?',
         function() {
             if(confirm_remove.data("clicked_button") == "OK") {
                 $.ajax({
@@ -313,6 +314,47 @@ OME.deleteItem = function(event, domClass, url) {
     );
     event.preventDefault();
     return false;
+};
+
+// Used to filter annotations in the metadata_general and batch_anntotate panels.
+// Assumes a single #annotationFilter select on the page.
+OME.filterAnnotationsAddedBy = function() {
+    var $this = $("#annotationFilter"),
+        val = $this.val(),
+        userId = $this.attr('data-userId');
+
+    // select made smaller if only 'Show all' text
+    if (val === "all") {
+        $this.css('width', '80px');
+    } else {
+        $this.css('width', '180px');
+    }
+
+    $('.tag_annotation_wrapper, .keyValueTable, .file_ann_wrapper, .ann_comment_wrapper, #custom_annotations tr')
+            .each(function() {
+        var $ann = $(this),
+            addby = $ann.attr('data-added-by').split(",");
+        var show = false;
+        switch (val) {
+            case "me":
+                show = ($.inArray(userId, addby) > -1);
+                break;
+            case "others":
+                for (var i=0; i<addby.length; i++) {
+                    if (addby[i] !== userId) {
+                        show = true;
+                    }
+                }
+                break;
+            default:    // 'all'
+                show = true;
+        }
+        if (show) {
+            $ann.show();
+        } else {
+            $ann.hide();
+        }
+    });
 };
 
 // More code that is shared between metadata_general and batch_annotate panels
@@ -394,6 +436,7 @@ OME.truncateNames = (function(){
                 name = $this.attr('data-name'),
                 truncatedName,
                 chars = name.length;
+            name = name.escapeHTML();
             // if we know maxChars and we're longer than that...
             if (maxChars && name.length > maxChars) {
                 chars = maxChars;
@@ -415,6 +458,115 @@ OME.truncateNames = (function(){
     };
     return truncateNames;
 }());
+
+
+// Handle deletion of selected objects in jsTree in container_tags.html and containers.html
+OME.handleDelete = function() {
+    var datatree = $.jstree._focused();
+    var selected = datatree.get_selected();
+
+    var del_form = $( "#delete-dialog-form" );
+    del_form.dialog( "open" )
+        .removeData("clicked_button");
+    // clear previous stuff from form
+    $.removeData(del_form, "clicked_button");
+    $("#delete_contents_form").show();
+    del_form.unbind("dialogclose");
+    del_form.find("input[type='checkbox']").prop('checked', false);
+
+    // set up form - process all the objects for data-types and children
+    var ajax_data = [];
+    var q = false;
+    var dtypes = {};
+    var first_parent;   // select this when we're done deleting
+    var notOwned = false;
+    selected.each(function (i) {
+        if (!first_parent) first_parent = datatree._get_parent(this);
+        var $this = $(this);
+        ajax_data[i] = $this.attr('id').replace("-","=");
+        var dtype = $this.attr('rel').replace("-locked", "");
+        if (dtype in dtypes) dtypes[dtype] += 1;
+        else dtypes[dtype] = 1;
+        if (!q && $this.attr('rel').indexOf('image')<0) q = true;
+        console.log($this, $this.hasClass('isOwned'));
+        if (!$this.hasClass('isOwned')) notOwned = true;
+    });
+    if (notOwned) {
+        $("#deleteOthersWarning").show();
+    } else {
+        $("#deleteOthersWarning").hide();
+    }
+    var type_strings = [];
+    for (var key in dtypes) {
+        if (key === "acquisition") key = "Plate Run";
+        type_strings.push(key.capitalize() + (dtypes[key]>1 && "s" || ""));
+    }
+    var type_str = type_strings.join(" & ");    // For delete dialog: E.g. 'Project & Datasets'
+    $("#delete_type").text(type_str);
+    if (!q) $("#delete_contents_form").hide();  // don't ask about deleting contents
+
+    // callback when delete dialog is closed
+    del_form.bind("dialogclose", function(event, ui) {
+        if (del_form.data("clicked_button") == "Yes") {
+            var delete_anns = $("#delete_anns").prop('checked');
+            var delete_content = true;      // $("#delete_content").prop('checked');
+            if (delete_content) ajax_data[ajax_data.length] = 'child=true';
+            if (delete_anns) ajax_data[ajax_data.length] = 'anns=true';
+            var url = del_form.attr('data-url');
+            datatree.deselect_all();
+            $.ajax({
+                async : false,
+                url: url,
+                data : ajax_data.join("&"),
+                dataType: "json",
+                type: "POST",
+                success: function(r){
+                    if(eval(r.bad)) {
+                          $.jstree.rollback(data.rlbk);
+                          alert(r.errs);
+                      } else {
+                          // If deleting 'Plate Run', clear selection
+                          if (type_str.indexOf('Plate Run') > -1) {
+                            OME.clear_selected(true);
+                          } else {
+                            // otherwise, select parent
+                            OME.tree_selection_changed();   // clear center and right panels etc
+                            first_parent.children("a").click();
+                          }
+                          // remove node from tree
+                          datatree.delete_node(selected);
+                          OME.refreshActivities();
+                      }
+                },
+                error: function(response) {
+                    $.jstree.rollback(data.rlbk);
+                    alert("Internal server error. Cannot remove object.");
+                }
+            });
+        }
+    });
+
+    // Check if delete will attempt to partially delete a Fileset.
+    var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
+        $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span'),
+        filesetCheckUrl = del_form.attr('data-fileset-check-url');
+    $.get(filesetCheckUrl + "?" + OME.get_tree_selection(), function(html){
+        if($('div.split_fileset', html).length > 0) {
+            var $del_form_content = del_form.children().hide();
+            del_form.append(html);
+            $deleteYesBtn.hide();
+            $deleteNoBtn.text("Cancel");
+            // On dialog close, clean-up what we changed above
+            del_form.bind("dialogclose", function(event, ui) {
+                $deleteYesBtn.show();
+                $deleteNoBtn.text("No");
+                $("#chgrp_split_filesets", del_form).remove();
+                $del_form_content.show();
+            });
+        }
+    });
+};
+
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({

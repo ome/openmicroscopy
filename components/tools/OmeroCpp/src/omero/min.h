@@ -13,9 +13,12 @@
     #if !defined(OMERO_IMPORT_STYLE)
         #define OMERO_IMPORT_STYLE 'M'
     #endif
+#include <omero/IceNoWarnPush.h>
 #include<omero/API.h>
 #include<omero/ServicesF.h>
 #include<omero/Constants.h>
-#include<omero/RTypesI.h>
 #include<omero/cmd/API.h>
+#include <omero/IceNoWarnPop.h>
+#include<omero/RTypesI.h>
+#include<omero/model/NamedValue.h>
 #endif

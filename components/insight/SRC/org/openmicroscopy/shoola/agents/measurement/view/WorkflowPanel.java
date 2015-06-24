@@ -209,15 +209,6 @@ class WorkflowPanel
 	{
 		fig.getROI().setAnnotation(AnnotationKeys.NAMESPACE, 
 				model.getWorkflow().getNameSpace());
-		List<String> keywordList = model.getKeywords();
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0 ; i < keywordList.size() ; i++)
-		{
-			buffer.append(keywordList.get(i));
-			if (i < keywordList.size()-1)
-				buffer.append(", ");
-		}
-		fig.getROI().setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());
 	}
 	
 	/**

@@ -24,7 +24,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
-import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
 import ome.api.ILdap;
 import ome.api.ServiceInterface;
@@ -40,8 +39,10 @@ import ome.security.SecuritySystem;
 import ome.security.auth.AttributeNewUserGroupBean;
 import ome.security.auth.AttributeSet;
 import ome.security.auth.GroupAttributeMapper;
+import ome.security.auth.GroupContextMapper;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.NewUserGroupBean;
+import ome.security.auth.NewUserGroupOwnerBean;
 import ome.security.auth.OrgUnitNewUserGroupBean;
 import ome.security.auth.PersonContextMapper;
 import ome.security.auth.QueryNewUserGroupBean;
@@ -50,6 +51,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -122,7 +124,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     public List<Experimenter> searchAll() {
         return ldap.search(DistinguishedName.EMPTY_PATH, config.getUserFilter()
-                .encode(), getContextMapper());
+                .encode(), getPersonContextMapper());
     }
 
     @SuppressWarnings("unchecked")
@@ -142,7 +144,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             AndFilter filter = new AndFilter();
             filter.and(config.getUserFilter());
             filter.and(new EqualsFilter(attr, value));
-            return ldap.search(dn, filter.encode(), getContextMapper());
+            return ldap.search(dn, filter.encode(), getPersonContextMapper());
         } else {
             return Collections.emptyList();
         }
@@ -151,20 +153,31 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     public Experimenter searchByDN(String dns) {
         DistinguishedName dn = new DistinguishedName(dns);
-        return (Experimenter) ldap.lookup(dn, getContextMapper());
+        return (Experimenter) ldap.lookup(dn, getPersonContextMapper());
     }
 
     @RolesAllowed("system")
     public String findDN(String username) {
-        PersonContextMapper mapper = getContextMapper();
-        Experimenter exp = mapUserName(username, mapper);
-        return mapper.getDn(exp);
+        PersonContextMapper mapper = getPersonContextMapper();
+        return mapper.getDn(findExperimenter(username));
+    }
+
+    @RolesAllowed("system")
+    public String findGroupDN(String groupname) {
+        GroupContextMapper mapper = getGroupContextMapper();
+        return mapper.getDn(findGroup(groupname));
     }
 
     @RolesAllowed("system")
     public Experimenter findExperimenter(String username) {
-        PersonContextMapper mapper = getContextMapper();
+        PersonContextMapper mapper = getPersonContextMapper();
         return mapUserName(username, mapper);
+    }
+
+    @RolesAllowed("system")
+    public ExperimenterGroup findGroup(String groupname) {
+        GroupContextMapper mapper = getGroupContextMapper();
+        return mapGroupName(groupname, mapper);
     }
 
     /**
@@ -197,8 +210,24 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             }
         }
         throw new ApiUsageException(
-                "Cannot find unique DistinguishedName: found=" + p.size());
+                "Cannot find unique user DistinguishedName: found=" + p.size());
+    }
 
+    @SuppressWarnings("unchecked")
+    private ExperimenterGroup mapGroupName(String groupname,
+            GroupContextMapper mapper) {
+        Filter filter = config.groupnameFilter(groupname);
+        List<ExperimenterGroup> g = ldap.search("", filter.encode(),
+                mapper.getControls(), mapper);
+
+        if (g.size() == 1 && g.get(0) != null) {
+            ExperimenterGroup grp = g.get(0);
+            if (grp.getName().equals(groupname)) {
+                return g.get(0);
+            }
+        }
+        throw new ApiUsageException(
+                "Cannot find unique group DistinguishedName: found=" + g.size());
     }
 
     @RolesAllowed("system")
@@ -228,15 +257,16 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             filter.and(new EqualsFilter(attributes[i], values[i]));
         }
         return ldap.search(new DistinguishedName(dn), filter.encode(),
-                getContextMapper());
+                getPersonContextMapper());
     }
 
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public void setDN(long experimenterID, boolean isLdap) {
+    @Deprecated
+    public void setDN(Long experimenterID, String dn) {
         Experimenter experimenter = iQuery.get(Experimenter.class,
                 experimenterID);
-        experimenter.setLdap(isLdap);
+        experimenter.setLdap(StringUtils.isNotBlank(dn));
         iUpdate.saveObject(experimenter);
     }
 
@@ -264,24 +294,37 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         Experimenter omeExp = iQuery.findByString(Experimenter.class,
                 "omeName", username);
         Experimenter ldapExp = findExperimenter(username);
-        String ldapDN = getContextMapper().getDn(ldapExp);
+        String ldapDN = getPersonContextMapper().getDn(ldapExp);
         DistinguishedName dn = new DistinguishedName(ldapDN);
-        List<Long> ldapGroups = loadLdapGroups(username, dn);
-        List<Object[]> omeGroups = iQuery
+        GroupLoader loader = new GroupLoader(username, dn);
+        List<Long> ldapGroups = loader.getGroups();
+        List<Long> ownedGroups = loader.getOwnedGroups();
+        List<Object[]> currentGroups = iQuery
                 .projection(
-                        "select g.id from ExperimenterGroup g "
+                        "select g.id, g.ldap from ExperimenterGroup g "
                                 + "join g.groupExperimenterMap m join m.child e where e.id = :id",
                         new Parameters().addId(omeExp.getId()));
 
-        Set<Long> omeGroupIds = new HashSet<Long>();
-        for (Object[] objs : omeGroups) {
-            omeGroupIds.add((Long) objs[0]);
+        final Set<Long> currentLdapGroups = new HashSet<Long>();
+        for (Object[] objs : currentGroups) {
+            Long id = (Long) objs[0];
+            Boolean isLdap = (Boolean) objs[1];
+            if (isLdap) {
+                currentLdapGroups.add(id);
+            }
         }
 
-        // All the omeGroups not in ldapGroups should be removed.
-        modifyGroups(omeExp, omeGroupIds, ldapGroups, false);
-        // All the ldapGroups not in omeGroups shoud be added.
-        modifyGroups(omeExp, ldapGroups, omeGroupIds, true);
+        // All the currentLdapGroups not in ldapGroups should be removed.
+        modifyGroups(omeExp, currentLdapGroups, ldapGroups, false);
+        // All the ldapGroups not in currentLdapGroups should be added.
+        modifyGroups(omeExp, ldapGroups, currentLdapGroups, true);
+        // Then for all remaining groups, set the ownership flag based
+        // on ownedGroups
+        for (Long ldapGroupId : ldapGroups) {
+            provider.setGroupOwner(omeExp,
+                    new ExperimenterGroup(ldapGroupId, false),
+                    ownedGroups.contains(ldapGroupId));
+        }
 
         List<String> fields = Arrays.asList(Experimenter.FIRSTNAME,
                 Experimenter.MIDDLENAME, Experimenter.LASTNAME,
@@ -432,7 +475,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
 
         Experimenter exp = findExperimenter(username);
-        String ldapDn = getContextMapper().getDn(exp);
+        String ldapDn = getPersonContextMapper().getDn(exp);
         DistinguishedName dn = new DistinguishedName(ldapDn);
 
         boolean access = true;
@@ -441,7 +484,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
 
         if (access) {
-            List<Long> groups = loadLdapGroups(username, dn);
+            GroupLoader loader = new GroupLoader(username, dn);
+            List<Long> groups = loader.getGroups();
+            List<Long> ownerOfGroups = loader.getOwnedGroups();
 
             if (groups.size() == 0) {
                 throw new ValidationException("No group found for: " + dn);
@@ -461,6 +506,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(),
                     false);
             long uid = provider.createExperimenter(exp, grp1, grpOther);
+            for (Long toBeOwned : ownerOfGroups) {
+                provider.setGroupOwner(
+                        new Experimenter(uid, false),
+                        new ExperimenterGroup(toBeOwned, false), true);
+            }
             return iQuery.get(Experimenter.class, uid);
         } else {
             return null;
@@ -473,54 +523,100 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             "dn_attribute|filtered_dn_attribute|" +
             "query|bean):(.*)$");
 
+    @Deprecated // Use GroupLoader to handle ownership
     public List<Long> loadLdapGroups(String username, DistinguishedName dn) {
-        final String grpSpec = config.getNewUserGroup();
-        final List<Long> groups = new ArrayList<Long>();
+        return new GroupLoader(username, dn).getGroups();
+    }
 
-        if (!grpSpec.startsWith(":")) {
-            // The default case is the original logic: use the spec as name
-            groups.add(provider.createGroup(grpSpec, null, false));
-            return groups; // EARLY EXIT!
+    /**
+     * Data class which stores the state of the {@link NewUserGroupBean} and
+     * {@link NewUserGroupOwnerBean} operations.
+     */
+    public class GroupLoader {
+
+        final String username;
+        final DistinguishedName dn;
+        final String grpSpec;
+        final List<Long> groups;
+        final List<Long> ownedGroups;
+        final NewUserGroupBean bean;
+        final AttributeSet attrSet;
+
+        /**
+         * Return the found groups for the given username.
+         * @return Never null.
+         */
+        List<Long> getGroups() {
+            return groups;
         }
 
-        final Matcher m = p.matcher(grpSpec);
-        if (!m.matches()) {
-            throw new ValidationException(grpSpec
-                    + " spec currently not supported.");
+        /**
+         * Return the found owned groups for the given username.
+         * @return Never null.
+         */
+        public List<Long> getOwnedGroups() {
+            return ownedGroups;
         }
 
-        final String type = m.group(1);
-        final String data = m.group(2);
-        NewUserGroupBean bean = null;
-        AttributeSet attrSet = null;
+        GroupLoader(String username, DistinguishedName dn) {
+            this.username = username;
+            this.dn = dn;
 
-        if ("ou".equals(type)) {
-            bean = new OrgUnitNewUserGroupBean(dn);
-            attrSet = getAttributeSet(username, getContextMapper());
-        } else if ("filtered_attribute".equals(type)) {
-            bean = new AttributeNewUserGroupBean(data, true, false);
-            attrSet = getAttributeSet(username, getContextMapper(data));
-        } else if ("attribute".equals(type)) {
-            bean = new AttributeNewUserGroupBean(data, false, false);
-            attrSet = getAttributeSet(username, getContextMapper(data));
-        } else if ("filtered_dn_attribute".equals(type)) {
-            bean = new AttributeNewUserGroupBean(data, true, true);
-            attrSet = getAttributeSet(username, getContextMapper(data));
-        } else if ("dn_attribute".equals(type)) {
-            bean = new AttributeNewUserGroupBean(data, false, true);
-            attrSet = getAttributeSet(username, getContextMapper(data));
-        } else if ("query".equals(type)) {
-            bean = new QueryNewUserGroupBean(data);
-            attrSet = getAttributeSet(username, getContextMapper());
-        } else if ("bean".equals(type)) {
-            bean = appContext.getBean(data, NewUserGroupBean.class);
-            // Likely, this should be added to the API in order to allow bean
-            // implementations to provide an attribute set.
-            attrSet = getAttributeSet(username, getContextMapper());
+            grpSpec = config.getNewUserGroup();
+            groups = new ArrayList<Long>();
+            ownedGroups = new ArrayList<Long>();
+
+            if (!grpSpec.startsWith(":")) {
+                // The default case is the original logic: use the spec as name
+                // No support for group ownership.
+                groups.add(provider.createGroup(grpSpec, null, false, true));
+                bean = null;
+                attrSet = null;
+                return; // EARLY EXIT!
+            }
+
+            final Matcher m = p.matcher(grpSpec);
+            if (!m.matches()) {
+                throw new ValidationException(grpSpec
+                        + " spec currently not supported.");
+            }
+
+            final String type = m.group(1);
+            final String data = m.group(2);
+
+            if ("ou".equals(type)) {
+                bean = new OrgUnitNewUserGroupBean(dn);
+                attrSet = getAttributeSet(username, getPersonContextMapper());
+            } else if ("filtered_attribute".equals(type)) {
+                bean = new AttributeNewUserGroupBean(data, true, false);
+                attrSet = getAttributeSet(username, getPersonContextMapper(data));
+            } else if ("attribute".equals(type)) {
+                bean = new AttributeNewUserGroupBean(data, false, false);
+                attrSet = getAttributeSet(username, getPersonContextMapper(data));
+            } else if ("filtered_dn_attribute".equals(type)) {
+                bean = new AttributeNewUserGroupBean(data, true, true);
+                attrSet = getAttributeSet(username, getPersonContextMapper(data));
+            } else if ("dn_attribute".equals(type)) {
+                bean = new AttributeNewUserGroupBean(data, false, true);
+                attrSet = getAttributeSet(username, getPersonContextMapper(data));
+            } else if ("query".equals(type)) {
+                bean = new QueryNewUserGroupBean(data);
+                attrSet = getAttributeSet(username, getPersonContextMapper());
+            } else if ("bean".equals(type)) {
+                bean = appContext.getBean(data, NewUserGroupBean.class);
+                // Likely, this should be added to the API in order to allow bean
+                // implementations to provide an attribute set.
+                attrSet = getAttributeSet(username, getPersonContextMapper());
+            } else {
+                throw new RuntimeException("Unknown spec: " + grpSpec);
+            }
+
+            groups.addAll(bean.groups(username, config, ldap, provider, attrSet));
+            if (bean instanceof NewUserGroupOwnerBean) {
+                ownedGroups.addAll(((NewUserGroupOwnerBean) bean).ownerOfGroups(
+                        username, config, ldap, provider, attrSet));
+            }
         }
-
-        groups.addAll(bean.groups(username, config, ldap, provider, attrSet));
-        return groups;
     }
 
     private AttributeSet getAttributeSet(String username,
@@ -564,7 +660,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         for (Long id : ldapExperimenters) {
             Map<String, Object> values = Maps.newHashMap();
             // This will break whenever the mapping in AdminI changes
-            values.put("dn", lookupLdapAuthExperimenter(id));
+            try {
+                values.put("dn", lookupLdapAuthExperimenter(id));
+            } catch (ApiUsageException aue) {
+                values.put("dn", "ERROR");
+            }
             values.put("experimenter_id", id);
             rv.add(values);
         }
@@ -614,15 +714,48 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         return discoveredExperimenters;
     }
 
+    @RolesAllowed("system")
+    public List<ExperimenterGroup> discoverGroups() {
+        List<ExperimenterGroup> discoveredGroups = Lists.newArrayList();
+        Roles r = getSecuritySystem().getSecurityRoles();
+
+        List<ExperimenterGroup> localGroups = iQuery.findAllByQuery(
+                "select distinct g from ExperimenterGroup g "
+                        + "where id not in (:ids) and ldap = :ldap",
+                new Parameters().addIds(
+                        Lists.newArrayList(r.getGuestGroupId(),
+                                r.getSystemGroupId(), r.getUserGroupId()))
+                        .addBoolean("ldap", false));
+
+        for (ExperimenterGroup g : localGroups) {
+            try {
+                findGroup(g.getName());
+            } catch (ApiUsageException aue) {
+                // This group doesn't exist in the LDAP server
+                continue;
+            }
+            discoveredGroups.add(g);
+        }
+        return discoveredGroups;
+    }
+
     // Helpers
     // =========================================================================
 
-    private PersonContextMapper getContextMapper() {
+    private PersonContextMapper getPersonContextMapper() {
         return new PersonContextMapper(config, getBase());
     }
 
-    private PersonContextMapper getContextMapper(String attr) {
+    private PersonContextMapper getPersonContextMapper(String attr) {
         return new PersonContextMapper(config, getBase(), attr);
+    }
+
+    private GroupContextMapper getGroupContextMapper() {
+        return new GroupContextMapper(config, getBase());
+    }
+
+    private GroupContextMapper getGroupContextMapper(String attr) {
+        return new GroupContextMapper(config, getBase(), attr);
     }
 
     /**

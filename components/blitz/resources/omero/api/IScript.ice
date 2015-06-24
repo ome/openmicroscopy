@@ -16,8 +16,8 @@ module omero {
 
     module api {
 
-	/**
-	 * Utility service for managing and launching scripts for execution by the Processor API.
+        /**
+         * Utility service for managing and launching scripts for execution by the Processor API.
          *
          * Typical usage might include (PYTHON):
          * <pre>
@@ -48,17 +48,17 @@ module omero {
          *     proc.close(False)
          *
          * </pre>
-	 * See <a href="http://www.openmicroscopy.org/site/support/omero5/developers/scripts/">OMERO.scripts</a> for more information.
-	 **/
-	["ami","amd"] interface IScript extends ServiceInterface
-	    {
+         * See <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/scripts/">OMERO.scripts</a> for more information.
+         **/
+        ["ami","amd"] interface IScript extends ServiceInterface
+            {
 
                 //
                 // Script management
                 //
 
-		/**
-		 * This method returns official server scripts as a list of [omero::model::OriginalFile] objects.
+                /**
+                 * This method returns official server scripts as a list of [omero::model::OriginalFile] objects.
                  * These scripts will be executed by the server if submitted via [runScript]. The input parameters
                  * necessary for proper functioning can be retrieved via [getParams].
                  *
@@ -73,12 +73,12 @@ module omero {
                  *     path = path.replace("/",".")
                  *     print "Possible import: %s" % path
                  * </pre>
-		 *
-		 * @return see above.
-		 * @throws ApiUsageException
-		 * @throws SecurityViolation
-		 **/
-		idempotent OriginalFileList getScripts() throws ServerError;
+                 *
+                 * @return see above.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                idempotent OriginalFileList getScripts() throws ServerError;
 
                 /**
                  * Returns non-official scripts which have been uploaded by individual users.
@@ -86,43 +86,43 @@ module omero {
                  * start a personal "usermode processor" which will allow the scripts to be
                  * executed. This is particularly useful for testing new scripts.
                  */
-		idempotent OriginalFileList getUserScripts(IObjectList acceptsList) throws ServerError;
+                idempotent OriginalFileList getUserScripts(IObjectList acceptsList) throws ServerError;
 
-		/**
-		 * Get the id of an official script by the script path.
+                /**
+                 * Get the id of an official script by the script path.
                  * The script service ensures that all script paths are unique.
                  *
                  * Note: there is no similar method for user scripts (e.g. getUserScriptID)
                  * since the path is not guaranteed to be unique.
                  *
-		 * @param scriptName The name of the script.
-		 * @return see above.
-		 * @throws ApiUsageException
-		 * @throws SecurityViolation
-		 **/
-		idempotent long getScriptID(string path) throws  ServerError;
+                 * @param scriptName The name of the script.
+                 * @return see above.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                idempotent long getScriptID(string path) throws  ServerError;
 
-		/**
-		 * Get the text from the server for the script with given id.
+                /**
+                 * Get the text from the server for the script with given id.
                  *
-		 * @param scriptID see above.
-		 * @return see above.
-		 * @throws ApiUsageException
-		 **/
-		idempotent string getScriptText(long scriptID) throws ServerError;
+                 * @param scriptID see above.
+                 * @return see above.
+                 * @throws ApiUsageException
+                 **/
+                idempotent string getScriptText(long scriptID) throws ServerError;
 
-		/**
-		 * Upload a user script to the server and return the id. This method checks that
-		 * a script with that names does not exist and that the script has parameters
+                /**
+                 * Upload a user script to the server and return the id. This method checks that
+                 * a script with that names does not exist and that the script has parameters
                  * <em>if possible</em>, i.e. a usermode processor is running which for the
                  * current user.
                  *
-		 * @param script see above.
-		 * @return The new id of the script.
-		 * @throws ApiUsageException
-		 * @throws SecurityViolation
-		 **/
-		long uploadScript(string path, string scriptText) throws ServerError;
+                 * @param script see above.
+                 * @return The new id of the script.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                long uploadScript(string path, string scriptText) throws ServerError;
 
                 /**
                  * Like [uploadScript] but is only callable by administrators. The parameters
@@ -130,47 +130,47 @@ module omero {
                  **/
                 long uploadOfficialScript(string path, string scriptText) throws ServerError;
 
-		/**
-		 * Modify the text for the given script object.
+                /**
+                 * Modify the text for the given script object.
                  *
-		 * @param script see above.
-		 * @throws ApiUsageException
-		 * @throws SecurityViolation
-		 **/
-		void editScript(omero::model::OriginalFile fileObject, string scriptText) throws ServerError;
+                 * @param script see above.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                void editScript(omero::model::OriginalFile fileObject, string scriptText) throws ServerError;
 
-		/**
-		 * Get the script from the server with details from OriginalFile
-		 * @param scriptID see above
-		 * @return see above
-		 * @throws ApiUsageException
-		 **/
-		idempotent RTypeDict getScriptWithDetails(long scriptID) throws ServerError;
+                /**
+                 * Get the script from the server with details from OriginalFile
+                 * @param scriptID see above
+                 * @return see above
+                 * @throws ApiUsageException
+                 **/
+                idempotent RTypeDict getScriptWithDetails(long scriptID) throws ServerError;
 
-		/**
-		 * Get the parameters that the script takes and returns, along with
+                /**
+                 * Get the parameters that the script takes and returns, along with
                  * other metadata available from the script.
-		 *
-		 * @param scriptID see above.
-		 * @return see above.
-		 * @throws ApiUsageException
-		 **/
-		idempotent omero::grid::JobParams getParams(long scriptID) throws ServerError;
-
-		/**
-		 * Delete the script on the server with id. The file will also be removed from disk.
                  *
-		 * @param scriptID Id of the script to delete.
-		 * @throws ApiUsageException
-		 * @throws SecurityViolation
-		 **/
-		void deleteScript(long scriptID) throws ServerError;
+                 * @param scriptID see above.
+                 * @return see above.
+                 * @throws ApiUsageException
+                 **/
+                idempotent omero::grid::JobParams getParams(long scriptID) throws ServerError;
+
+                /**
+                 * Delete the script on the server with id. The file will also be removed from disk.
+                 *
+                 * @param scriptID Id of the script to delete.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                void deleteScript(long scriptID) throws ServerError;
 
                 // Planned methods
                 // ===============
-		// idempotent OriginalFileList getImageScripts(Parameters params) throws ServerError;
-		// idempotent OriginalFileList getScriptsByName(string name, Parameters params) throws ServerError;
-		// idempotent OriginalFileList getScriptsByKeyword(string keyword, Parameters params) throws ServerError;
+                // idempotent OriginalFileList getImageScripts(Parameters params) throws ServerError;
+                // idempotent OriginalFileList getScriptsByName(string name, Parameters params) throws ServerError;
+                // idempotent OriginalFileList getScriptsByKeyword(string keyword, Parameters params) throws ServerError;
 
                 //
                 // Process/Job Management
@@ -213,6 +213,7 @@ module omero {
                  * </p>
                  *
                  **/
+                idempotent
                 bool canRunScript(long scriptID) throws ServerError;
 
                 /**
@@ -225,6 +226,7 @@ module omero {
                  *
                  * A valid script will be returned if it exists; otherwise null.
                  **/
+                idempotent
                 omero::model::OriginalFile validateScript(omero::model::Job j, omero::api::IObjectList acceptsList) throws ServerError;
 
                 // Planned methods
@@ -238,7 +240,7 @@ module omero {
                 // long cancelRunningJobs() throws ServerError;
                 // long cancelWaitingJobs() throws ServerError;
 
-	    };
+            };
 
     };
 

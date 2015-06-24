@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -119,9 +119,8 @@ public class HistogramPlot
 	{
 		super(title);
 		if (newLegends == null || newData == null || newColours == null || 
-			newLegends.size() != newData.size() && 
-			newLegends.size() != newColours.size())// || 
-			//newLegends.size() == 0 || bins < 1)
+			newLegends.size() != newData.size() || 
+			newLegends.size() != newColours.size())
 			throw new IllegalArgumentException("Mismatch between argument " +
 						"length");
 		initialize();

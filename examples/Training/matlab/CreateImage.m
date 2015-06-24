@@ -64,9 +64,11 @@ try
     channels = loadChannels(session, imageNew);
     for i = 1: numel(channels)
         channelName = ['Channel ' num2str(i)'];
-        emissionWave = 550;
+        emissionWave = omero.model.LengthI;
+        emissionWave.setValue(550);
+        emissionWave.setUnit(omero.model.enums.UnitsLength.NANOMETER);
         channels(i).getLogicalChannel().setName(rstring(channelName));
-        channels(i).getLogicalChannel().setEmissionWave(rdouble(emissionWave));
+        channels(i).getLogicalChannel().setEmissionWave(emissionWave);
     end
     session.getUpdateService().saveArray(toJavaList(channels));
     

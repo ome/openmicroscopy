@@ -1,18 +1,15 @@
 /*
  * omeis.providers.re.metadata.StatsFactory
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package omeis.providers.re.metadata;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import java.awt.Dimension;
+
+import loci.formats.FormatTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,19 +146,6 @@ public class StatsFactory {
         for (int i = 0; i < totals.length; i++) {
             locationStats[i] += totals[i] / total;
         }
-        // Default, we assume that we have at least 3 sub-intervals.
-        /*
-        inputStart = segments[0].x2;// segments[0].getPoint(1).x1;
-        inputEnd = segments[NB_BIN - 1].x2;// segments[NB_BIN -
-                                            // 1].getPoint(1).x1;
-        total = total - totals[0] - totals[NB_BIN - 1];
-        if (totals[0] >= totals[NB_BIN - 1]) {
-            inputEnd = accumulateCloseToMin(totals, segments, total, epsilon);
-        } else {
-            inputStart = accumulateCloseToMax(totals, segments, total, epsilon);
-        }
-        
-        */
         double s = segments[0].x2;
         double end = segments[NB_BIN - 1].x2;
         total = total - totals[0] - totals[NB_BIN - 1];
@@ -236,49 +220,44 @@ public class StatsFactory {
         return s;
     }
 
-
     /** 
      * Determines the minimum and maximum corresponding to the passed
-     * pixels type.
+     * pixels.
      * 
-     * @param type The pixels type to handle.
+     * @param metadata The pixels to handle.
      */
-    public double[] initPixelsRange(PixelsType type)
+    public double[] initPixelsRange(Pixels metadata)
     {
-    	double[] minmax = new double[2];
-    	minmax[0] = 0;
-    	minmax[1] = 1;
-    	if (type == null) return minmax;
-    	String typeAsString = type.getValue();
-    	if (PlaneFactory.INT8.equals(typeAsString)) {
-    		minmax[0] = -Math.pow(2, 8)/2;
-    		minmax[1] = Math.pow(2, 8)/2-1;
-    	} else if (PlaneFactory.UINT8.equals(typeAsString)) {
-    		minmax[0] = 0;
-    		minmax[1] = Math.pow(2, 8)-1;
-    	} else if (PlaneFactory.INT16.equals(typeAsString)) {
-    		minmax[0] = -Math.pow(2, 16)/2;
-    		minmax[1] = Math.pow(2, 16)/2-1;
-    	} else if (PlaneFactory.UINT16.equals(typeAsString)) {
-    		minmax[0] = 0;
-    		minmax[1] = Math.pow(2, 16)-1;
-    	} else if (PlaneFactory.INT32.equals(typeAsString)) {
-    		minmax[0] = -Math.pow(2, 32)/2;
-			minmax[1] = Math.pow(2, 32)/2-1;
-    	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
-    		minmax[0] = 0;
-			minmax[1] = Math.pow(2, 32)-1;
-    	} else if (PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
-    		//b/c we don't know if it is signed or not
-    		minmax[0] = -Double.MAX_VALUE;
-			minmax[1] = Double.MAX_VALUE;
-    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString)) {
-    	    minmax[0] = -Float.MAX_VALUE;
-            minmax[1] = Float.MAX_VALUE;
-    	}
-    	return minmax;
+        PixelsType type = metadata.getPixelsType();
+        double[] minmax = new double[] {0, 1};
+        if (type == null) return minmax;
+        String typeAsString = type.getValue();
+        int bfPixelsType = FormatTools.pixelTypeFromString(typeAsString);
+
+        // Handle floating point types first
+        if (FormatTools.isFloatingPoint(bfPixelsType)) {
+            long[] values = FormatTools.defaultMinMax(bfPixelsType);
+            minmax[0] = values[0];
+            minmax[1] = values[1];
+            return minmax;
+        }
+
+        // Use significant bits if they are available for integral pixel types.
+        Integer significantBits = metadata.getSignificantBits();
+        if (significantBits == null) {
+            significantBits = type.getBitSize();
+        }
+        significantBits = Math.min(significantBits, type.getBitSize());
+        if (FormatTools.isSigned(bfPixelsType)) {
+            minmax[0] = -Math.pow(2, significantBits - 1);
+            minmax[1] = Math.pow(2,  significantBits - 1) - 1;
+        } else {
+            minmax[0] = 0;
+            minmax[1] = Math.pow(2, significantBits) - 1;
+        }
+        return minmax;
     }
-    
+
     /**
      * Helper object to determine the location of the pixels' values, the
      * inputWindow i.e. <code>inputStart</code> and <code>inputEnd</code>
@@ -298,9 +277,9 @@ public class StatsFactory {
         inputStart = 0;
         inputEnd = 1;
         if (stats == null) {
-        	double[] values = initPixelsRange(metadata.getPixelsType());
-        	inputStart = values[0];
-        	inputEnd = values[1];
+            double[] values = initPixelsRange(metadata);
+            inputStart = values[0];
+            inputEnd = values[1];
         } else {
             inputStart = stats.getGlobalMin().doubleValue();
             inputEnd = stats.getGlobalMax().doubleValue();

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -29,14 +29,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
-import javax.swing.JCheckBox;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.GroupData;
 import pojos.ExperimenterData;
+
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 
 /**
  * Hosts the experimenter or the group to add to the menu.
@@ -46,7 +47,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
  * @since 4.4
  */
 public class DataMenuItem
-    extends JCheckBox
+    extends SelectableMenuItem
     implements ActionListener
 {
 
@@ -91,8 +92,7 @@ public class DataMenuItem
      */
     public DataMenuItem(Object data, Icon icon, boolean canBeEnabled)
     {
-        if (data == null) 
-            throw new IllegalArgumentException("No data");
+        super(false, data.toString(), canBeEnabled);
         if (data instanceof ExperimenterData)
             setText(EditorUtil.formatExperimenter((ExperimenterData) data));
         else if (data instanceof GroupData)

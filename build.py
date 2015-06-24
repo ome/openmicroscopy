@@ -9,21 +9,19 @@
 # General build scripts.
 
 import os
-import re
 import sys
-import time
 import subprocess
 
 BUILD_PY = "-Dbuild.py=true"
 
 
 def popen(args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
-        copy = os.environ.copy()
-        return subprocess.Popen(args,
-                env=copy,
-                stdin=stdin,
-                stdout=stdout,
-                stderr=stderr)
+    copy = os.environ.copy()
+    return subprocess.Popen(args,
+                            env=copy,
+                            stdin=stdin,
+                            stdout=stdout,
+                            stderr=stderr)
 
 
 def execute(args):
@@ -43,48 +41,58 @@ def notification(msg, prio):
         return
 
     try:
-        p = popen(["growlnotify","-t","OMERO Build Status","-p",str(prio)], stdin=subprocess.PIPE)
+        p = popen(["growlnotify", "-t", "OMERO Build Status", "-p",
+                   str(prio)], stdin=subprocess.PIPE)
         p.communicate(msg)
         rc = p.wait()
         if rc != 0:
-            pass # growl didn't work
+            pass  # growl didn't work
     except OSError:
-        pass # No growlnotify found, may want to use another tool
+        pass  # No growlnotify found, may want to use another tool
+
 
 def java_omero(args):
-    command = [ find_java() ]
-    p = os.path.join( os.path.curdir, "lib", "log4j-build.xml")
+    command = [find_java()]
+    p = os.path.join(os.path.curdir, "lib", "log4j-build.xml")
     command.append("-Dlog4j.configuration=%s" % p)
     command.append(BUILD_PY)
-    command.extend( calculate_memory_args() )
+    command.extend(calculate_memory_args())
     command.extend(["omero"])
-    if isinstance(args,str):
+    if isinstance(args, str):
         command.append(args)
     else:
         command.extend(args)
     execute(command)
 
+
 def find_java():
     return "java"
 
+
 def calculate_memory_args():
-    return "-Xmx600M -XX:MaxPermSize=256m".split(" ")
+    return (
+        "-Xmx600M",
+        "-XX:MaxPermSize=256m",
+        "-XX:+IgnoreUnrecognizedVMOptions"
+    )
+
 
 def handle_tools(args):
     _ = os.path.sep.join
     additions = []
     mappings = {
         "-top": _(["build.xml"]),
-        "-cpp": _(["components","tools","OmeroCpp","build.xml"]),
-        "-fs": _(["components","tools","OmeroFS","build.xml"]),
-        "-java": _(["components","tools","OmeroJava","build.xml"]),
-        "-py": _(["components","tools","OmeroPy","build.xml"]),
-        "-web": _(["components","tools","OmeroWeb","build.xml"]),
+        "-cpp": _(["components", "tools", "OmeroCpp", "build.xml"]),
+        "-fs": _(["components", "tools", "OmeroFS", "build.xml"]),
+        "-java": _(["components", "tools", "OmeroJava", "build.xml"]),
+        "-py": _(["components", "tools", "OmeroPy", "build.xml"]),
+        "-web": _(["components", "tools", "OmeroWeb", "build.xml"]),
     }
     while len(args) > 0 and args[0] in mappings.keys()+["-perf"]:
         if args[0] == "-perf":
             args.pop(0)
-            A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split()
+            A = ["-listener",
+                 "net.sf.antcontrib.perf.AntPerformanceListener"]
             additions.extend(A)
         elif args[0] in mappings.keys():
             F = mappings[args.pop(0)]

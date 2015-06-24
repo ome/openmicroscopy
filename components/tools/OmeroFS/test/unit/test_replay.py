@@ -46,7 +46,7 @@ class TestReplay(object):
         MyReplay(self.dir, source, None).run()
         self.driver.run()
 
-    @pytest.mark.xfail(reason="ticket 12566")
+    @pytest.mark.broken(ticket="12566")
     @with_driver
     def testOutOfSync(self):
         source = path(".") / "test" / "records" / "outofsync.txt"

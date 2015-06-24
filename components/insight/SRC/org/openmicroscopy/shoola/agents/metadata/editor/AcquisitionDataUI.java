@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.AcquisitionDataUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -467,10 +467,14 @@ class AcquisitionDataUI
 	void setImageAcquisitionData()
 	{
 		imageAcquisition.setImageAcquisitionData();
+		revalidate();
 	}
 	
 	/** Sets the instrument and its components. */
-	void setInstrumentData() { instrument.setInstrumentData(); }
+	void setInstrumentData() { 
+		instrument.setInstrumentData();
+		revalidate();
+	}
 	
 	/**
 	 * Displays the acquisition data for the passed channel.
@@ -482,6 +486,7 @@ class AcquisitionDataUI
 		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
 		while (i.hasNext()) 
 			i.next().setChannelAcquisitionData(index);
+		revalidate();
 	}
 	
 	/**

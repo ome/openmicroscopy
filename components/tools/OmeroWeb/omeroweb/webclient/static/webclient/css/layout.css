@@ -298,144 +298,10 @@
 					top:1px;
 					background-color:#F0F2F5;
                 }
-            
-            
-
-
-    /* Left Panel - Toolbar */
-    
-    
-    .toolbar {
-        border-bottom: solid 1px hsl(210,10%,90%);
-		border-right:solid 1px hsl( 210, 10%, 85% );
-        overflow:hidden;
-        background: none repeat scroll 0 0 #EFF1F4;
-    }
-	
-        .toolbar li {
-            float:left;
-            position:relative;
-			height:26px;
-        }
-		
-        
-            .toolbar input.button {
-                background-color: transparent;
-                vertical-align:middle;
-                padding: 6px 5px;
-            }
-        
-            .toolbar input.button:hover {
-                background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,.2)), to(rgba(255,255,255,.4)));
-				
-				background-color:transparent; /* Old browsers */
-				background-image:-moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,.2) 100%); /* FF3.6+ */
-				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,255,.2))); /* Chrome,Safari4+ */
-				background-image:-webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,.2) 100%); /* Chrome10+,Safari5.1+ */
-				background-image:-o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,.2) 100%); /* Opera11.10+ */
-				background-image:-ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,.2) 100%); /* IE10+ */
-				background:linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,.2) 100%); /* W3C */ 
-						
-                -webkit-transition: background .2s linear;
-				
-				-webkit-transition:background .2s linear;		
-				   -moz-transition:background .2s linear;
-				     -o-transition:background .2s linear;
-				        transition:background .2s linear; 
-				
-                cursor:pointer;
-            }
-			
-            .toolbar input.button:active, .toolbar input.button:focus {
-                background: rgba(0,0,0,.1) -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,.4)), to(rgba(255,255,255,.2)));
-				
-				background:rgba(0,0,0,.1); /* Old browsers */
-				background-image:-moz-linear-gradient(top, rgba(255,255,255,.2) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
-				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,255,.4))); /* Chrome,Safari4+ */
-				background-image:-webkit-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
-				background-image:-o-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,1) 100%); /* Opera11.10+ */
-				background-image:-ms-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
-
-				background:linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,1) 100%); /* W3C */ 
-				
-				-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,.25);
-				
-				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.25); /* Saf3.0+, Chrome */
-				   -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.25); /* FF3.5+ */
-				        box-shadow: 0 1px 2px rgba(0,0,0,0.25); /* Opera 10.5, IE 9.0 */
-				
-                cursor:pointer;
-				-webkit-transition:none;		
-				   -moz-transition:none;
-				     -o-transition:none;
-				        transition:none 
-            }
-			
-        
-        
-            .toolbar input.button-disabled {
-                opacity:0.2;
-                cursor:default !important;
-            }
-        
-        
-            .toolbar input.button-disabled:hover {
-                opacity:0.2;
-                background:none;
-                cursor:default !important;
-            }
-			
-            .toolbar input.button-disabled:active, .toolbar input.button-disabled:focus {
-                -webkit-box-shadow:none;
-				
-				-webkit-box-shadow:none; /* Saf3.0+, Chrome */
-				   -moz-box-shadow:none; /* FF3.5+ */
-				        box-shadow:none; /* Opera 10.5, IE 9.0 */
-				
-				background:none;
-				border-top:solid 1px transparent;
-            }
-			
-        
-            .seperator, .seperator2 {
-                width:12px;
-                height:8px;
-                display:block;
-                border:solid 1px transparent;
-            }
-        
-            .seperator:before, .seperator2:before {
-                content:'';
-                width:1px;
-                height: 8px;
-                position:absolute;
-                left:5px;
-                top:9px;
-            }
-			
-			.seperator:before {
-				border-right:solid 1px rgba(255,255,255,1);
-				background:hsl(210,10%,80%);
-			}
-        
-		
-			.seperator2:before {
-				border-right:solid 1px rgba(255,255,255,.5);
-				background:hsl(210,10%,70%);
-			}
-        
-		
-
-
-
-
-
-
 
     .hiddenField {
         display: none;
     }
-
 
     .quote {
         background-color:   #eee;
@@ -448,19 +314,6 @@
         width:              85%;
         overflow:           auto;
     }
-
-
-
-
-
-   
-
-
-
-
-
-
-
 
 /*
 	===============================================
@@ -521,10 +374,18 @@
 		
         
         
-            
-            
-    
 
+    #toolbar_info_panel .panel_div {
+        border-top: solid #ddd 1px;
+    }
+    
+    #toolbar_info_panel p {
+        margin:5px
+    }
+
+    #toolbar_info_panel .show_more {
+        margin-left:10px
+    }
 
     
     
@@ -547,13 +408,55 @@
     /* Seperator */
     
     hr {
-        margin:10px 0;
+        margin: 8px 0;
         display:block;
         border:none;
         border-bottom: solid 1px rgba(255,255,255,.8);
         border-top: solid 1px hsl(210,10%,90%);
     }
     
+    /* Rating */
+    #rating_annotations {
+        border-color: transparent;
+    }
+    .rating {
+        float: left;
+        border: solid 1px hsl(210,20%,85%);
+        margin: 2px;
+        border-radius: 5px;
+        border-top: solid 1px hsl(210,20%,85%) !important;
+        border-bottom: solid 1px hsl(210,20%,85%) !important;
+    }
+    .lnfiles:empty {
+        display: none;
+    }
+    .myRating img, .addRating img{
+        cursor: pointer;
+    }
+    .addRating .removeRating {
+        display: none;
+    }
+    #rating_annotations a {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .removeRating {
+    	padding: 0px !important;
+    	top: 2px;
+    	right: 2px;
+    }
+    .rating .removeRating {
+    	visibility: hidden;
+    }
+    .rating:hover .removeRating {
+    	visibility: visible;
+    }
+    .rating img {
+    	opacity: 0.65;
+    }
+    .myRating img {
+    	opacity: 1.0;
+    }
         
         
     /* Tables */
@@ -564,7 +467,8 @@
     }
     
         #right_panel th, #right_panel td {
-            padding: 0 0 5px 0;
+            padding: 0 5px 5px 0;
+            white-space: nowrap;
         }
     
         #right_panel th{
@@ -586,7 +490,7 @@
     
     
 	.data_heading {
-		margin-bottom:15px;
+		margin-bottom:12px;
 		border-bottom:solid 1px hsl(210,10%,90%);
 		overflow:hidden;
 		-webkit-box-shadow:0 1px 0 rgba(255,255,255,.5);
@@ -638,7 +542,7 @@
     
 	    .data_heading_id strong {
 	        font-weight:bold;
-	        color:hsl(210,10%,30%);
+	        color: hsl(210,10%,50%);
 	    }
 
         #chgrp_split_filesets .split_fileset {
@@ -652,6 +556,21 @@
         }
         .fileset_image.extra {
             display:none;
+        }
+
+        .chgrpGroup {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset {
+        	width: 100%;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset button {
+        	float: right;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset button:first-child {
+        	float: left;
+        	margin-left: 10px;
         }
     
     
@@ -747,8 +666,13 @@
         margin: 2px 1px;
     }
     
-    
-    
+    .exposureTimeData {
+        border-width: 0
+    }
+
+    .exposureTimeData td {
+        white-space: nowrap;
+    }
         
         
     /* Tags, Attachments, Ratings, Comments */
@@ -904,15 +828,54 @@
         
     
     
-    
-    
-    
-    
-    /* Modal Dialog */
-    
-   
-    
-           
+    /* Map Annotations */
+
+    .mapAnnContainer {
+        position: relative;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+    .keyValueTable {
+        position: relative;
+        margin-bottom: 20px;
+        width: 98% !important;
+    }
+    .keyValueTable td, .keyValueTable th {
+        width: 50%;
+        max-width: 100px;    /* still expands to 50% */
+        overflow: hidden;
+        padding: 2px 5px !important;
+        color: hsl(210,10%,30%) !important;
+        vertical-align: middle;
+    }
+    .editableKeyValueTable td, .editableKeyValueTable th {
+        height: 20px;
+    }
+    .keyValueTable input {
+        width: 96%;
+    }
+    .keyValueTable tr:hover {
+        background-color: #eee;
+    }
+    .keyValueTable tr.ui-selected {
+        background-color: #cddcfc;
+    }
+    .keyValueTable tbody tr {
+        border: solid #ddd 1px;
+    }
+    .editableKeyValueTable tbody tr {
+        background-color: #fff;
+    }
+    .mapAnnToolbar {
+        position: absolute;
+        top: -5px;
+        right: 15px;
+        z-index: 100;
+    }
+    .editableKeyValueTable tr.placeholder td {
+        font-style: italic;
+        color: #999 !important;
+    }      
     
 	
 	/* Comments */
@@ -1054,7 +1017,6 @@
 			.removeComment {
 				float:right;
 				cursor:pointer;
-				display:none;
 				-webkit-border-radius:2px;
 				-webkit-border-radius:2px; /* Saf3+, Chrome */
 				   -moz-border-radius:2px; /* FF1+ */
@@ -1315,29 +1277,11 @@
 		
 		position:absolute;
 		right:10px;
-		top:3px;
+		top:0;
 		background:none;
 		overflow:hidden !important;
 	}
-	
-		#center_panel_header .toolbar li{
-			-webkit-border-radius:3px;	
-			
-			-webkit-border-radius:3px; /* Saf3+, Chrome */
-			   -moz-border-radius:3px; /* FF1+ */
-			        border-radius:3px; /* Opera 10.5, IE 9 */ 
-			
-		}
-		
-		#center_panel_header .toolbar input{
-			-webkit-border-radius:3px !important;
-			
-			-webkit-border-radius:3px !important; /* Saf3+, Chrome */
-			   -moz-border-radius:3px !important; /* FF1+ */
-			        border-radius:3px !important; /* Opera 10.5, IE 9 */ 
-			
-		}
-	
+
 
     #icon_layout {
         background: url("../image/icon_layout.png") no-repeat scroll center center transparent;

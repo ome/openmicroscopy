@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.svc.proxy.Request 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,40 +22,33 @@
  */
 package org.openmicroscopy.shoola.svc.proxy;
 
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.apache.http.client.methods.HttpUriRequest;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.apache.commons.httpclient.HttpMethod;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 
  * Top-class that each <code>Request</code> class should extend.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public abstract class Request
 {
 
-	/** Identifies the <code>method</code> parameter. */
-	protected static final String   METHOD_FIELD = "Method";
-	
-	/** The method used via http. */
-	protected String  method;
-	
-	/** Creates a new instance. */
+    /** Identifies the <code>method</code> parameter. */
+    protected static final String METHOD_FIELD = "Method";
+
+    /** The method used via http. */
+    protected String method;
+
+    /** Creates a new instance. */
     protected Request() {}
-    
+
     /**
      * Creates a new instance.
      * 
@@ -63,19 +56,20 @@ public abstract class Request
      */
     protected Request(String method)
     {
-        if (method == null)
+        if (CommonsLangUtils.isBlank(method))
             throw new NullPointerException("No method name.");
         this.method = method;
     }
-    
+
     /**
      * Prepares the <code>http</code> method.
      * 
+     * @param path The server path.
      * @return See above.
-     * @throws TransportException 	If an error occurred while preparing the 
-     * 								method.
+     * @throws TransportException If an error occurred while preparing the
+     *                            method.
      */
-    public abstract HttpMethod marshal()
-    	throws TransportException;
-    
+    public abstract HttpUriRequest marshal(String path)
+            throws TransportException;
+
 }

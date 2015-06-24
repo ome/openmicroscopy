@@ -6,7 +6,7 @@ function types = getAnnotationTypes()
 %
 % See also: GETOBJECTTYPES, GETANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,9 @@ function types = getAnnotationTypes()
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-names = {'tag', 'file', 'comment', 'xml'};
-classnames = {'TagAnnotation', 'FileAnnotation', 'CommentAnnotation',...
-    'XmlAnnotation'};
+names = {'comment', 'double', 'file', 'long', 'map', 'tag', 'timestamp',...
+    'xml'};
+classnames = {'CommentAnnotation', 'DoubleAnnotation', 'FileAnnotation',...
+    'LongAnnotation', 'MapAnnotation', 'TagAnnotation',...
+    'TimestampAnnotation', 'XmlAnnotation'};
 types = createObjectDictionary(names, classnames);

@@ -39,7 +39,11 @@ import omero.cmd.Response;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
+ * @deprecated will be removed in OMERO 5.2, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ChmodI extends Chmod implements IGraphModifyRequest {
 
     private static final long serialVersionUID = -33294230498203989L;
@@ -64,6 +68,7 @@ public class ChmodI extends Chmod implements IGraphModifyRequest {
     //
 
     @Override
+    @Deprecated
     public IGraphModifyRequest copy() {
         ChmodI copy = (ChmodI) ic.findObjectFactory(ice_id()).create(ChmodI.ice_staticId());
         copy.type = type;
@@ -116,6 +121,7 @@ public class ChmodI extends Chmod implements IGraphModifyRequest {
     }
 
     @Override
+    @Deprecated
     public void finish() throws Cancel {
         // no-op
     }
@@ -149,7 +155,7 @@ public class ChmodI extends Chmod implements IGraphModifyRequest {
                 IObject obj = (IObject)
                     helper.getSession().get(ExperimenterGroup.class, id);
                 if (obj == null) {
-                    helper.cancel(new ERR(), null, "unkown target", params());
+                    helper.cancel(new ERR(), null, "unknown target", params());
                 }
                 return obj;
             }

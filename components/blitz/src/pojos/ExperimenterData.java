@@ -14,8 +14,10 @@ import java.util.List;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import static omero.rtypes.*;
+import omero.RBool;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.GroupExperimenterMap;
@@ -316,6 +318,18 @@ public class ExperimenterData extends DataObject {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns <code>true</code> if the user is connected via LDAP.
+     *
+     * @return See above.
+     */
+    public boolean isLDAP()
+    {
+        RBool ldap = asExperimenter().getLdap();
+        if (ldap == null) return false;
+        return ldap.getValue();
     }
 
 }

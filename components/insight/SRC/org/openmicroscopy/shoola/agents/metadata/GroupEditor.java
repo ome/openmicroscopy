@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.GroupEditor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -131,8 +132,10 @@ public class GroupEditor
 	        handle = adminView.updateGroup(ctx, group, this);
 	        break;
 	    case CHANGE:
-	        handle = adminView.changeGroup(ctx, group, viewer.getCurrentUser(),
-	                this);
+	    	ExperimenterData exp = viewer.getCurrentUser();
+	    	if(viewer.getRefObject()!=null && viewer.getRefObject() instanceof ExperimenterData)
+	    		exp = (ExperimenterData) viewer.getRefObject();
+	        handle = adminView.changeGroup(ctx, group, exp, this);
 	    }
 	}
 	

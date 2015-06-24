@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests;
@@ -214,6 +214,7 @@ public class AbstractManagedContextTest extends TestCase {
         ExperimenterGroup group = new ExperimenterGroup();
         group.getDetails().setPermissions(p);
         group.setName(guid);
+        group.setLdap(false);
 
         iAdmin.createGroup(group);
 
@@ -222,6 +223,7 @@ public class AbstractManagedContextTest extends TestCase {
         e.setFirstName("New");
         e.setLastName("User");
         e.setOmeName(uuid);
+        e.setLdap(false);
 
         long uid = iAdmin.createUser(e, guid);
         user = iQuery.get(Experimenter.class, uid);
@@ -249,6 +251,7 @@ public class AbstractManagedContextTest extends TestCase {
         String name = uuid();
         ExperimenterGroup newGroup = new ExperimenterGroup();
         newGroup.setName(name);
+        newGroup.setLdap(false);
         long gid = iAdmin.createGroup(newGroup);
         iAdmin.addGroups(e1, new ExperimenterGroup(gid, false));
         login(e1.getOmeName(), name, "Test");

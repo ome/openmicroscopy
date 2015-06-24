@@ -1,0 +1,466 @@
+
+{% comment %}
+<!--
+  Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+<script>
+
+    $(function(){
+
+        // we are only ever editing a single cell at once:
+        var $input,
+            inputEdited = false,
+            saveInProgress = false,
+            saveTimeout, waitingToSave,
+            $lastRow = $("<tr class='placeholder'><td>Add Key</td><td>Add Value</td></tr>"),
+            multiSelectKey = OME.multi_key() + "Key";
+
+        // stop editing the current $input
+        var saveEdit = function saveEdit() {
+
+            if ($input) {
+                var val = $input.val().trim(),
+                    $td = $input.parent(),
+                    $table = $td.parent().parent().parent();
+                $input = undefined;
+                val = val.escapeHTML();
+                $td.html(val);
+
+                // save to server
+                if (inputEdited) {
+                    saveMapAnnotation($table);
+                }
+                inputEdited = false;
+            }
+        };
+
+        // Get the content of a $td (may contain <input>)
+        var getCellText = function getCellText($td) {
+            var $i = $td.children('input');
+            if ($i.length > 0) {
+                return $i.val().trim();
+            }
+            return $td.text().trim();
+        }
+        // Get the [key, value] data for a $tr
+        var getRowData = function getRowText($tr) {
+            var key = getCellText($tr.children('td:first')),
+                val = getCellText($tr.children('td:last'));
+            return [key, val]
+        }
+
+        var saveInASec = function saveInASec($table) {
+            if (waitingToSave) {
+                clearTimeout(waitingToSave)
+            }
+            waitingToSave = setTimeout(function() {
+                saveMapAnnotation($table);
+            }, 1000);
+        }
+
+        // Save $table data to OMERO via $.post()
+        var saveMapAnnotation = function saveMapAnnotation($table) {
+
+            // Don't want asynchronous saving. Wait for save to complete
+            if (saveInProgress) {
+                // Try again in a second
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                }
+                saveTimeout = setTimeout(function() {
+                    saveMapAnnotation($table);
+                }, 1000);
+                return;
+            };
+
+            var annId = $table.attr('data-annId'),
+                url = "{% url 'annotate_map' %}",
+                data = {"{{ manager.obj_type }}": {{ manager.obj_id }} },
+                $mapAnnotationSpinner = $(".mapAnnotationSpinner", $table.parent()),
+                tableData = [];
+
+            {% if index %}
+            // for wells, we need to know index
+            data['index'] = "{{ index }}";
+            {% endif %}
+
+            $table.find('tbody tr').each(function() {
+                var rowData = getRowData($(this)),
+                    k = rowData[0],
+                    v = rowData[1];
+                // Don't add empty rows
+                if ((k == "" || k == "Add Key") && (v == "" || v == "Add Value")) return;
+                tableData.push(rowData);
+            });
+            // If we are editing a saved map annotation...
+            if (annId) {
+                data.annId = annId;
+            }
+
+            data.mapAnnotation = JSON.stringify(tableData);
+
+            saveInProgress = true;
+            $mapAnnotationSpinner.show();
+            $.post( url, data)
+                .done(function( data ) {
+                    saveInProgress = false;
+                    $mapAnnotationSpinner.hide();
+                    $table.attr('data-annId', data.annId);
+                });
+        };
+
+        // start editing a td
+        var startEdit = function startEdit($td) {
+
+            var value = getCellText($td);
+            // If we're editing a placeholder row, clear both fields
+            $td.parent().removeClass("placeholder");
+            if (value == "Add Key") {
+                value = "";
+                if (getCellText($td.next()) == "Add Value") {
+                    $td.next().text("");
+                }
+            }
+            if (value == "Add Value") {
+                value = "";
+                if (getCellText($td.prev()) == "Add Key") {
+                    $td.prev().text("");
+                }
+            }
+            $input = $("<input value='" + value + "' />");
+            $td.empty().append($input);
+            $input.focus();
+            $input.get(0).select();
+        }
+
+
+        var startNewRow = function startRow($tr) {
+            var $newRow = $lastRow.clone();
+            $newRow.insertAfter($tr);
+
+            selectRows($newRow);
+            startEdit($newRow.find("td:first"));
+        }
+
+
+        // Insert after selected rows or at bottom of first table
+        var insertRow = function insertRow() {
+
+            var $newRow = $lastRow.clone(),
+                $selRows = $(".keyValueTable tr.ui-selected"),
+                $tbody = $selRows.length > 0 ? $selRows.parent() : $('.keyValueTable tbody:first');
+
+            addToTable($tbody, $newRow);
+            selectRows($newRow);
+            startEdit($newRow.find("td:first"));
+        }
+
+        var addToTable = function addToTable($tbody, $rows) {
+            // Either paste after last selected row, or at bottom of table
+            var $selRow = $tbody.find('tr.ui-selected:last')
+
+            if ($selRow.length > 0) {
+                $rows.insertAfter($selRow);
+            } else {
+                $rows.appendTo($tbody);
+            }
+
+            saveMapAnnotation($tbody.parent());
+        }
+
+        var deleteSelectedRows = function deleteSelectedRows() {
+
+            var $selRows = $('.keyValueTable tr.ui-selected'),
+                $tbody = $selRows.parent(),
+                $nextRow = $selRows.next(":last");
+
+            $selRows.remove();
+            saveMapAnnotation($tbody.parent());
+
+            // Add back a placeholder if table is empty (after saving!)
+            if ($tbody.find('tr').length == 0) {
+                $lastRow.clone().appendTo($tbody);
+            } else if ($nextRow.length > 0 ) {
+                // select next row
+                $nextRow.addClass('ui-selected');
+            } else {
+                // select last row
+                $tbody.find('tr:last').addClass('ui-selected');
+            }
+            enableToolbarButtons();
+        }
+
+        var selectRows = function selectRows($clickedRow, event) {
+
+            var $rows = $clickedRow.parent().children('tr');
+
+            // Use key modifiers to select range / toggle selection
+
+            // simplest case - no event OR key modifiers
+            if (!event || (!event.shiftKey && !event[multiSelectKey])) {
+                $('.keyValueTable tr').removeClass("ui-selected");
+                $clickedRow.addClass("ui-selected");
+            } else if (event.shiftKey) {
+
+                var clickedIndex = $rows.index($clickedRow),
+                    $selectedRow = $rows.filter(".ui-selected:first"),
+                    selIndex = -1;
+                if ($selectedRow.length > 0) {
+                    selIndex = $rows.index($selectedRow);
+                }
+                $('.keyValueTable tr').removeClass("ui-selected");
+                // user tried to select a range, but we don't have a first selection yet...
+                if ( selIndex == -1 ) {
+                    $clickedRow.addClass("ui-selected");
+                } else {
+                    // select range
+                    var start = Math.min(clickedIndex,selIndex);
+                    var end = Math.max(clickedIndex,selIndex);
+                    $rows.slice(start, end+1).addClass("ui-selected");
+                }
+            } else if (event[multiSelectKey]) {
+                // user wants to add/remove a single image to selection
+                var $selectedRows = $rows.filter(".ui-selected");
+                $('.keyValueTable tr').removeClass("ui-selected");
+                $selectedRows.addClass("ui-selected");
+                $clickedRow.toggleClass("ui-selected");
+            }
+
+            enableToolbarButtons();
+        }
+
+        var enableToolbarButtons = function enableToolbarButtons() {
+
+            var $selRows = $('.keyValueTable tr.ui-selected'),
+                enabled = {"Insert rows": false,
+                            "Copy rows": false,
+                            "Paste rows": false,
+                            "Delete rows": false},
+                data = window.mapAnnotationClipboard,
+                canPaste = (data && data.length > 0);
+
+            // Nothing selected - actions will apply to user's own table
+            if ($selRows.length == 0) {
+                var canEdit = $('.editableKeyValueTable:visible').length > 0;
+                enabled["Insert rows"] = canEdit;
+                enabled["Copy rows"] = false;
+                enabled["Paste rows"] = (canPaste && canEdit);
+                enabled["Delete rows"] = false;
+            } else {
+                var $table = $selRows.parent().parent(),
+                    canEdit = $table.hasClass('editableKeyValueTable');
+                enabled["Insert rows"] = canEdit;
+                enabled["Copy rows"] = true;
+                enabled["Paste rows"] = (canPaste && canEdit);
+                enabled["Delete rows"] = canEdit;
+            }
+            $(".mapAnnToolbar input").each(function(){
+                var $input = $(this),
+                    title = $input.attr("title");
+                if (enabled.hasOwnProperty(title)) {
+                    if (enabled[title]) $input.removeClass('button-disabled');
+                    else $input.addClass('button-disabled');
+                }
+            })
+        };
+        // Refresh enabled status on load...
+        enableToolbarButtons();
+
+        var copySelectedRows = function copySelectedRows() {
+
+            var data = [],
+                $selRows = $(".keyValueTable tr.ui-selected");
+            if ($selRows.length == 0) return;
+            $selRows.each(function(){
+                var rowData = getRowData($(this));
+                data.push(rowData);
+            });
+            window.mapAnnotationClipboard = data;
+            enableToolbarButtons();
+        };
+
+        // If we have data to paste, insert below selected row, or at bottom
+        var pasteSelectedRows = function pasteSelectedRows() {
+
+            var $selRows = $(".keyValueTable tr.ui-selected"),
+                $tbody = $selRows.length > 0 ? $selRows.parent() : $('.keyValueTable tbody:first'),
+                data = window.mapAnnotationClipboard,
+                row,
+                html = "";
+
+            if (!data || data.length == 0) return;
+
+            for (var r=0; r<data.length; r++) {
+                row = data[r];
+                html += "<tr><td>" + row[0].escapeHTML() + "</td><td>" + row[1].escapeHTML() + "</td></tr>";
+            }
+            // Either paste after last selected row, or at bottom of table
+            addToTable($tbody, $(html));
+
+            saveMapAnnotation($tbody.parent());
+        }
+
+        // Toolbar buttons
+        $( ".mapAnnToolbar" ).on( "click", "input", function(event) {
+            var $button = $(event.target),
+                disabled = $button.hasClass('button-disabled');
+                alt = $button.prop('alt');
+            if (disabled) return;
+
+            switch (alt) {
+                case "Delete rows":
+                    deleteSelectedRows();
+                    break;
+                case "Copy rows":
+                    copySelectedRows();
+                    break;
+                case "Paste rows":
+                    pasteSelectedRows();
+                    break;
+                case "Insert rows":
+                    insertRow();
+            }
+        });
+
+        // Select (and Start editing?) when you click a td
+        $( ".keyValueTable tbody" ).on( "click", "td", function(event) {
+            var $td = $(event.target);
+            // ignore clicks on other elements, e.g. <input>
+            if ($td[0].tagName.toLowerCase() != "td") return;
+
+            // Saving any other current editing is handled by 'blur' below.
+
+            // Select rows, depending on shift/command keys
+            selectRows($td.parent(), event);
+
+            if ($td.parent().parent().parent().hasClass('editableKeyValueTable')) {
+                startEdit($td);
+            }
+        });
+
+        // Handle keys when editing
+        // Start editing when you click a td
+        $( ".editableKeyValueTable tbody" ).on( "keydown", "input", function(event) {
+            var $td = $(event.target).parent();
+
+            switch (event.which) {
+                case 13:
+                    // Enter: save
+                case 9:
+                    // Tab: save
+                    saveEdit();
+                    // if we're on 'key', move to 'value'
+                    if ($td.next().length > 0) {
+                        startEdit($td.next());
+                    // if we have another row, move to 'key'
+                    } else if ($td.parent().next().length > 0) {
+                        selectRows($td.parent().next());
+                        startEdit($td.parent().next().find('td:first'));
+                    } else {
+                        startNewRow($td.parent());
+                    }
+                    break;
+                default:
+                    inputEdited = true;
+                    $table = $td.parent().parent().parent();
+                    saveInASec($table);
+            }
+
+            // Ignore Tab
+            if (event.which == 9) return false
+        });
+
+        $( ".keyValueTable tbody" ).on( "blur", "input", function(event) {
+            saveEdit();
+        });
+
+        // When we filter annotations by 'me'/'others', need to update toolbar
+        $("#annotationFilter").change(function(){
+            // wait for annotations to be shown/hidden
+            setTimeout(function(){
+                // de-select all rows first
+                $('.keyValueTable tr').removeClass("ui-selected");
+                enableToolbarButtons();
+            }, 50);
+        });
+    });
+
+</script>
+
+<div style="position: relative">
+    <ul class="toolbar mapAnnToolbar">
+        <!-- not really a button - just a handy place to put a spinner -->
+        <li class="mapAnnotationSpinner" style="display:none">
+            <input class="button" type="image"
+              src="{% static "webgateway/img/spinner.gif" %}" title="Saving to server..." /></li>
+        <li><input class="button button-disabled" type="image"
+            src="{% static "webclient/image/icon_toolbar_add.png" %}"
+            alt="Insert rows" title="Insert rows" /></li>
+        <li><input class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
+            alt="Copy rows" title="Copy rows" /></li>
+        <li><input class="button button-disabled" type="image"
+            src="{% static "webclient/image/icon_toolbar_paste.png" %}"
+            alt="Paste rows" title="Paste rows" /></li>
+        <li><input class="button button-disabled" type="image"
+            style="padding-top: 8px"
+            src="{% static "webclient/image/icon_basic_delete.png" %}"
+            alt="Delete rows" title="Delete rows" /></li>
+    </ul>
+</div>
+
+<div class="mapAnnContainer">
+
+{% if manager.my_client_map_annotations %}
+    {% for ma in manager.my_client_map_annotations %}
+        {% with canEdit=ma.canEdit showTableHead=True %}
+            {% include "webclient/annotations/mapannotation.html" %}
+        {% endwith %}
+    {% endfor %}
+{% elif manager.canAnnotate %}
+    <!-- Add an empty placeholder -->
+    {% with canEdit=True %}
+        {% include "webclient/annotations/mapannotation.html" %}
+    {% endwith %}
+{% endif %}
+
+{% if manager.client_map_annotations %}
+
+{% if manager.canAnnotate %}
+    <!-- only need this <hr> if there is something already above -->
+    <hr>
+{% endif %}
+
+{% for ma in manager.client_map_annotations %}
+    {% with canEdit=ma.canEdit %}
+        {% include "webclient/annotations/mapannotation.html" %}
+    {% endwith %}
+{% endfor %}
+{% endif %}
+
+{% if manager.map_annotations %}
+<hr>
+{% for ma in manager.map_annotations %}
+    {% with canEdit=False showNs=True %}
+        {% include "webclient/annotations/mapannotation.html" %}
+    {% endwith %}    
+{% endfor %}
+{% endif %}
+
+</div>

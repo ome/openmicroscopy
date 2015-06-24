@@ -39,7 +39,7 @@ class TestMonitor(object):
     def testEmptyAdd(self):
         MockMonitor().fsEventHappened('', [])  # Does nothing.
 
-    @pytest.mark.xfail(reason="ticket 12566")
+    @pytest.mark.broken(ticket="12566")
     @with_driver
     def testBasicAdd(self):
         self.driver.add(DirInfoEvent(1, monitors.EventInfo(
@@ -47,7 +47,7 @@ class TestMonitor(object):
             monitors.EventType.Create)))
         self.driver.run()
 
-    @pytest.mark.xfail(reason="ticket 12566")
+    @pytest.mark.broken(ticket="12566")
     @with_driver
     def testWithSingleImport(self):
         f = self.dir / "root" / "file"
@@ -57,7 +57,7 @@ class TestMonitor(object):
         self.driver.run()
         time.sleep(0.25)
 
-    @pytest.mark.xfail(reason="ticket 12566")
+    @pytest.mark.broken(ticket="12566")
     @with_driver
     def testWithMultiImport(self):
         f1 = str(self.dir / "root" / "file1")
@@ -77,7 +77,7 @@ class TestMonitor(object):
         time.sleep(1)
         self.driver.run()
 
-    @pytest.mark.xfail(reason="ticket 12566")
+    @pytest.mark.broken(ticket="12566")
     @with_driver
     def testDirectoryInDirectory(self):
         self.driver.add(DirInfoEvent(1, monitors.EventInfo(

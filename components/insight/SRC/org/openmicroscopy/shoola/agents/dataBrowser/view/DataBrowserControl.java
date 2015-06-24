@@ -37,15 +37,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.Action;
 
 
 //Third-party libraries
 
+
+
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ActivatedUserAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
@@ -70,12 +74,14 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.PlateGridObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -162,6 +168,9 @@ class DataBrowserControl
     /** Identifies the <code>USER ACTIVATED action</code>.*/
     static final Integer USER_ACTIVATED = Integer.valueOf(20);
 
+    /** Identifies the <code>Download action</code>.*/
+    static final Integer DOWNLOAD = Integer.valueOf(21);
+
     /** 
      * Reference to the {@link DataBrowser} component, which, in this context,
      * is regarded as the Model.
@@ -181,9 +190,9 @@ class DataBrowserControl
     private void createActions()
     {
         actionsMap.put(VIEW_IN_KNIME, new ViewInPluginAction(model,
-                DataBrowser.KNIME));
+                LookupNames.KNIME));
         actionsMap.put(VIEW_IN_IJ, new ViewInPluginAction(model,
-                DataBrowser.IMAGE_J));
+                LookupNames.IMAGE_J));
         actionsMap.put(VIEW, new ViewAction(model));
         actionsMap.put(COPY_OBJECT, new ManageObjectAction(model,
                 ManageObjectAction.COPY));
@@ -213,6 +222,7 @@ class DataBrowserControl
         actionsMap.put(SEND_FEEDBACK, new SendFeedbackAction(model));
         actionsMap.put(USER_ACTIVATED, new ActivatedUserAction(model));
         actionsMap.put(RESET_PASSWORD, new PasswordResetAction(model));
+        actionsMap.put(DOWNLOAD, new DownloadAction(model));
     }
 
     /** 

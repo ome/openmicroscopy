@@ -21,8 +21,9 @@ import omero.clients
 import omero.callbacks
 
 # For ease of use
+from omero import LockTimeout
 from omero.columns import columns2definition
-from omero.rtypes import rfloat, rint, rlong, rstring, unwrap, wrap
+from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
 from omero.util.decorators import remoted, locked, perf
 from omero_ext import portalocker
 from omero_ext.functional import wraps
@@ -30,6 +31,8 @@ from omero_ext.functional import wraps
 
 sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
+
+VERSION = '2'
 
 
 def slen(rv):
@@ -40,6 +43,13 @@ def slen(rv):
     if rv is None:
         return None
     return len(rv)
+
+
+def internal_attr(s):
+    """
+    Checks whether this attribute name is reserved for internal use
+    """
+    return s.startswith('__')
 
 
 def stamped(func, update=False):
@@ -102,12 +112,11 @@ class HdfList(object):
         self._lock = threading.RLock()
         self.__filenos = {}
         self.__paths = {}
-        self.__locks = {}
 
     @locked
     def addOrThrow(self, hdfpath, hdfstorage):
 
-        if hdfpath in self.__locks:
+        if hdfpath in self.__paths:
             raise omero.LockTimeout(
                 None, None, "Path already in HdfList: %s" % hdfpath)
 
@@ -116,24 +125,21 @@ class HdfList(object):
             raise omero.ApiUsageException(
                 None, None, "Parent directory does not exist: %s" % parent)
 
-        lock = None
+        hdffile = hdfstorage.openfile("a")
+        fileno = hdffile.fileno()
+
         try:
-            lock = open(hdfpath, "a+")
-            portalocker.lock(lock, portalocker.LOCK_NB | portalocker.LOCK_EX)
-            self.__locks[hdfpath] = lock
+            portalocker.lockno(
+                fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
         except portalocker.LockException:
-            if lock:
-                lock.close()
+            hdffile.close()
             raise omero.LockTimeout(
                 None, None,
                 "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
         except:
-            if lock:
-                lock.close()
+            hdffile.close()
             raise
 
-        hdffile = hdfstorage.openfile("a")
-        fileno = hdffile.fileno()
         if fileno in self.__filenos.keys():
             hdffile.close()
             raise omero.LockTimeout(
@@ -155,16 +161,6 @@ class HdfList(object):
     def remove(self, hdfpath, hdffile):
         del self.__filenos[hdffile.fileno()]
         del self.__paths[hdfpath]
-        try:
-            if hdfpath in self.__locks:
-                try:
-                    lock = self.__locks[hdfpath]
-                    lock.close()
-                finally:
-                    del self.__locks[hdfpath]
-        except Exception:
-            self.logger.warn("Exception on remove(%s)" %
-                             hdfpath, exc_info=True)
 
 # Global object for maintaining files
 HDFLIST = HdfList()
@@ -228,8 +224,9 @@ class HdfStorage(object):
             return tables.openFile(str(self.__hdf_path), mode=mode,
                                    title="OMERO HDF Measurement Storage",
                                    rootUEP="/")
-        except (tables.HDF5ExtError, IOError):
-            msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
+        except (tables.HDF5ExtError, IOError) as e:
+            msg = "HDFStorage initialized with bad path: %s: %s" % (
+                self.__hdf_path, e)
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
 
@@ -271,6 +268,27 @@ class HdfStorage(object):
                 raise omero.ApiUsageException(
                     None, None, "Rows not specified: %s" % rowNumbers)
 
+    def __getversion(self):
+        """
+        In OMERO.tables v2 the version attribute name was changed to __version
+        """
+        self.__initcheck()
+        k = '__version'
+        try:
+            v = self.__mea.attrs[k]
+            if isinstance(v, str):
+                return v
+        except KeyError:
+            k = 'version'
+            v = self.__mea.attrs[k]
+            if v == 'v1':
+                return '1'
+
+        msg = "Invalid version attribute (%s=%s) in path: %s" % (
+            k, v, self.__hdf_path)
+        self.logger.error(msg)
+        raise omero.ValidationException(None, None, msg)
+
     #
     # Locked methods
     #
@@ -304,6 +322,9 @@ class HdfStorage(object):
             if not c.name:
                 raise omero.ApiUsageException(
                     None, None, "Column unnamed: %s" % c)
+            if internal_attr(c.name):
+                raise omero.ApiUsageException(
+                    None, None, "Reserved column name: %s" % c.name)
 
         self.__definition = columns2definition(cols)
         self.__ome = self.__hdf_file.createGroup("/", "OME")
@@ -317,12 +338,12 @@ class HdfStorage(object):
         self.__hdf_file.createArray(
             self.__ome, "ColumnDescriptions", self.__descriptions)
 
-        self.__mea.attrs.version = "v1"
-        self.__mea.attrs.initialized = time.time()
+        md = {}
         if metadata:
-            for k, v in metadata.items():
-                self.__mea.attrs[k] = v
-                # See attrs._f_list("user") to retrieve these.
+            md = metadata.copy()
+        md['__version'] = VERSION
+        md['__initialized'] = time.time()
+        self.add_meta_map(md, replace=True, init=True)
 
         self.__hdf_file.flush()
         self.__initialized = True
@@ -366,13 +387,16 @@ class HdfStorage(object):
         ic = current.adapter.getCommunicator()
         types = self.__types
         names = self.__mea.colnames
+        descs = self.__descriptions
         cols = []
         for i in range(len(types)):
             t = types[i]
             n = names[i]
+            d = descs[i]
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
+                col.description = d
                 col.setsize(size)
                 col.settable(self.__mea)
                 cols.append(col)
@@ -390,13 +414,13 @@ class HdfStorage(object):
         keys = list(self.__mea.attrs._v_attrnamesuser)
         for key in keys:
             val = attr[key]
-            if type(val) == numpy.float64:
+            if isinstance(val, float):
                 val = rfloat(val)
-            elif type(val) == numpy.int32:
+            elif isinstance(val, int):
                 val = rint(val)
-            elif type(val) == numpy.int64:
+            elif isinstance(val, long):
                 val = rlong(val)
-            elif type(val) == numpy.string_:
+            elif isinstance(val, str):
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
@@ -405,12 +429,38 @@ class HdfStorage(object):
 
     @locked
     @modifies
-    def add_meta_map(self, m):
+    def add_meta_map(self, m, replace=False, init=False):
+        if not init:
+            if int(self.__getversion()) < 2:
+                # Metadata methods were generally broken for v1 tables so
+                # the introduction of internal metadata attributes is unlikely
+                # to affect anyone.
+                # http://trac.openmicroscopy.org.uk/ome/ticket/12606
+                msg = 'Tables metadata is only supported for OMERO.tables >= 2'
+                self.logger.error(msg)
+                raise omero.ApiUsageException(None, None, msg)
+
+            self.__initcheck()
+            for k, v in m.iteritems():
+                if internal_attr(k):
+                    raise omero.ApiUsageException(
+                        None, None, "Reserved attribute name: %s" % k)
+                if not isinstance(v, (
+                        omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
+                    raise omero.ValidationException(
+                        "Unsupported type: %s" % type(v))
+
+        attr = self.__mea.attrs
+        if replace:
+            for f in list(attr._v_attrnamesuser):
+                if init or not internal_attr(f):
+                    del attr[f]
         if not m:
             return
-        self.__initcheck()
-        attr = self.__mea.attrs
-        for k, v in m.items():
+
+        for k, v in m.iteritems():
+            # This uses the default pytables type conversion, which may
+            # convert it to a numpy type or keep it as a native Python type
             attr[k] = unwrap(v)
 
     @locked
@@ -615,11 +665,12 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def cleanup(self):
         """
         Decrements the counter on the held storage to allow it to
-        be cleaned up.
+        be cleaned up. Returns the current file-size.
         """
         if self.storage:
             try:
                 self.storage.decr(self)
+                return self.storage.size()
             finally:
                 self.storage = None
 
@@ -636,11 +687,10 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 unwrap(self.file_obj.id) if self.file_obj else None)
             return
 
-        size = self.storage.size()  # Size to reset the server object to
         modified = self.storage.modified()
 
         try:
-            self.cleanup()
+            size = self.cleanup()
             self.logger.info("Closed %s", self)
         except:
             self.logger.warn("Closed %s with errors", self)
@@ -656,6 +706,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 "omero.group": str(gid),
                 omero.constants.CLIENTUUID: client_uuid}
             try:
+                # Size to reset the server object to (must be checked after
+                # the underlying HDF file has been closed)
                 rfs = self.factory.createRawFileStore(ctx)
                 try:
                     rfs.setFileId(fid, ctx)
@@ -795,24 +847,31 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def delete(self, current=None):
         self.assert_write()
         self.close()
-        prx = self.factory.getDeleteService()
-        dc = omero.api.delete.DeleteCommand(
-            "/OriginalFile", self.file_obj.id.val, None)
-        handle = prx.queueDelete([dc])
+        dc = omero.cmd.Delete2(
+            targetObjects={"OriginalFile": [self.file_obj.id.val]}
+        )
+        handle = self.factory.submit(dc)
+        # Copied from clients.py since none is available
+        try:
+            callback = omero.callbacks.CmdCallbackI(
+                current.adapter, handle, "Fake")
+        except:
+            # Since the callback won't escape this method,
+            # close the handle if requested.
+            handle.close()
+            raise
+
+        try:
+            callback.loop(20, 500)
+        except LockTimeout:
+            callback.close(True)
+            raise omero.InternalException(None, None, "delete timed-out")
+
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            raise omero.InternalException(None, None, str(rsp))
+
         self.file_obj = None
-        # TODO: possible just return handle?
-        cb = omero.callbacks.DeleteCallbackI(current.adapter, handle)
-        count = 10
-        while count:
-            count -= 1
-            rv = cb.block(500)
-            if rv is not None:
-                report = handle.report()[0]
-                if rv > 0:
-                    raise omero.InternalException(None, None, report.error)
-                else:
-                    return
-        raise omero.InternalException(None, None, "delete timed-out")
 
     # TABLES METADATA API ===========================
 
@@ -842,7 +901,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def setAllMetadata(self, value, current=None):
         self.assert_write()
-        self.storage.add_meta_map({"key": wrap(value)})
+        self.storage.add_meta_map(value, replace=True)
         self.logger.info("%s.setMetadata() => number=%s", self, slen(value))
 
     # Column methods missing

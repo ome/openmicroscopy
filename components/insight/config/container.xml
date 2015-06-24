@@ -167,8 +167,8 @@
          This entry specifies the name of the server and 
          and e-mail address to submit comment.
     -->
-    <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
-    <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
+    <entry name="/services/DEBUGGER/hostnameToken">@QA_BASEURL@/initial/</entry>
+    <entry name="/services/DEBUGGER/hostnameProcessing">@QA_BASEURL@/upload_processing/</entry>
     <entry name="/services/DEBUGGER/applicationNameBug">4</entry>
     <entry name="/services/DEBUGGER/applicationNameComment">3</entry>
     <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
@@ -232,7 +232,7 @@
     </agent>
     <agent>
         <name>Importer</name>
-        <number>1</number>
+        <number>2</number>
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent</class>
         <config>importer.xml</config>
@@ -305,10 +305,11 @@
    * <entry name="SplashScreenLogo">client_splashscreen.png</entry>
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
     <entry name="Version">@OMERO_DISPLAY_VERSION@</entry>
-    <entry name="SoftwareName">OMERO.clients</entry>
+    <entry name="SoftwareName">OMERO.insight</entry>
     <entry name="AboutFile">about.xml</entry>
     <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
-    <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
+    <entry name="HelpOnLineSearch">http://help.openmicroscopy.org/search.html</entry>
+    <entry name="Forum">http://www.openmicroscopy.org/community/</entry>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating if the binary data are available. This should only

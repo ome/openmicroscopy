@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-//Java imports
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,12 +63,15 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
@@ -265,7 +267,6 @@ class ImporterControl
 	 */
 	void submitFiles(FileImportComponent fc)
 	{
-		
 		List<FileImportComponent> list;
 		if (fc != null) {
 			list = new ArrayList<FileImportComponent>();
@@ -273,6 +274,7 @@ class ImporterControl
 		} else {
 			list = view.getMarkedFiles();
 		}
+		
 		markedFailed = list;
 		//Now prepare the list of object to send.
 		Iterator<FileImportComponent> i = list.iterator();
@@ -287,13 +289,34 @@ class ImporterControl
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		String email = exp.getEmail();
 		if (email == null) email = "";
-		//Get log File
-		/*
-		File f = new File(ImporterAgent.getRegistry().getLogger().getLogFile());
-		object = new ImportErrorObject(f, null);
-		toSubmit.add(object);
-		*/
 		if (CollectionUtils.isEmpty(toSubmit)) return;
+		//Check reader used.
+        Iterator<ImportErrorObject> j = toSubmit.iterator();
+        boolean plate = false;
+        while (j.hasNext()) {
+            object = j.next();
+            Boolean b = object.isHCS();
+            if (b != null && b.booleanValue()) {
+                plate = true;
+                break;
+            }
+        }
+        if (plate) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("To submit HCS data, please e-mail us directly at ");
+            String address = (String) ImporterAgent.getRegistry().lookup(
+                    LookupNames.DEBUGGER_ADDRESS);
+            buffer.append(address);
+            buffer.append("\n");
+            buffer.append("Do you still wish to report the error?");
+            MessageBox box = new MessageBox(view, "Submit Error", buffer.toString());
+            if (box.centerMsgBox() == MessageBox.NO_OPTION) return;
+            //only submit error and log
+            j = toSubmit.iterator();
+            while (j.hasNext()) {
+                j.next().resetFile();
+            }
+        }
 		UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 		un.notifyError("Import Failures", "Files that failed to import", email, 
 				toSubmit, this);

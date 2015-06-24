@@ -1,5 +1,5 @@
 --
--- Copyright 2006-2014 University of Dundee. All rights reserved.
+-- Copyright 2006-2015 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -65,6 +65,10 @@
 #end
 #end
 #end
+
+CREATE INDEX annotation_name ON annotation(name);
+CREATE INDEX namespace_displayname ON namespace(displayname);
+CREATE INDEX roi_name ON roi(name);
 
 --
 -- Finally, a function for showing our permissions
@@ -239,39 +243,44 @@ CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
-    AS '
+CREATE TABLE _updated_annotations (
+    event_id BIGINT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id BIGINT NOT NULL,
+    CONSTRAINT FK_updated_annotations_event_id
+        FOREIGN KEY (event_id)
+        REFERENCES event);
+
+CREATE INDEX _updated_annotations_event_index
+    ON _updated_annotations (event_id);
+
+CREATE INDEX _updated_annotations_row_index
+    ON _updated_annotations (event_id, entity_type, entity_id);
+
+CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
+
     DECLARE
-        rec RECORD;
-        eid int8;
-        cnt int8;
+        pid BIGINT;
+        eid BIGINT;
+
     BEGIN
-
-        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_updated_annotations'') THEN
-            CREATE TEMP TABLE _updated_annotations (entitytype varchar, entityid int8) ON COMMIT DELETE ROWS;
-        END IF;
-
+        SELECT INTO eid _current_or_new_event();
+ 
 #foreach($type in $types)
 #if( ${type.annotated} && !${type.superclass})
-
-        FOR rec IN SELECT id, parent FROM ${type.tableName()}annotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''${type.id}'');
+        FOR pid IN SELECT DISTINCT parent FROM ${type.tableName()}annotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, '${type.id}', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = '${type.id}' AND ua.entity_id = pid);
         END LOOP;
+
 #end
 #end
-
-        SELECT INTO cnt count(*) FROM _updated_annotations;
-        IF cnt <> 0 THEN
-            SELECT INTO eid _current_or_new_event();
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, entityid, entitytype, eid
-                   FROM _updated_annotations;
-        END IF;
-
         RETURN new;
-
-    END;'
-LANGUAGE plpgsql;
+    END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER annotation_trigger
         AFTER UPDATE ON annotation
@@ -284,11 +293,14 @@ CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     AS '
     DECLARE
         eid int8;
-    BEGIN
 
+    BEGIN
         SELECT INTO eid _current_or_new_event();
-        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, new.parent, TG_ARGV[0], eid;
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], new.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
 
         RETURN new;
 
@@ -313,11 +325,14 @@ CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
     AS '
     DECLARE
         eid int8;
-    BEGIN
 
+    BEGIN
         SELECT INTO eid _current_or_new_event();
-        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, old.parent, TG_ARGV[0], eid;
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], old.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
 
         RETURN old;
 
@@ -333,6 +348,27 @@ CREATE TRIGGER ${type.tableName()}_annotation_link_delete_trigger
 #end
 #end
 
+
+-- move annotation updates from updated_annotations to eventlog REINDEX entries
+
+CREATE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+
+    DECLARE
+        row RECORD;
+
+    BEGIN
+        FOR row IN SELECT * FROM _updated_annotations ORDER BY event_id FOR UPDATE
+        LOOP
+            DELETE FROM _updated_annotations WHERE _updated_annotations = row;
+
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
+                WHERE NOT EXISTS (SELECT 1 FROM eventlog AS el
+                    WHERE el.entityid = row.entity_id AND el.entitytype = row.entity_type AND el.event = row.event_id);
+
+        END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
 
 --
 -- END #1390
@@ -417,6 +453,7 @@ alter table event alter column experimentergroup drop not null;
 -- Here we will create the root account and the necessary groups
 --
 alter table experimenter alter ldap set default false;
+alter table experimentergroup alter ldap set default false;
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
         values (0,0,0,'root','root','root');
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
@@ -468,12 +505,8 @@ alter table event alter column experimentergroup set not null;
 ##insert into event (id,version,name,e) select next, 0 as version, 'Bootstrap'
 ##  as name, next from (select ome_nextval('seq_event') as next) as nv;
 
-## ENUMS
-
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
-alter table unitstime alter column measurementsystem drop not null;
-
 
 #foreach($enum in $types)
 #foreach($prop in $enum.properties)
@@ -498,11 +531,8 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
-update unitstime set measurementsystem = 'SI.SECOND';
-
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
-alter table unitstime alter column measurementsystem set not null;
 
 --
 -- Cryptographic functions for specifying UUID
@@ -531,15 +561,15 @@ insert into configuration values ('omero.db.uuid',uuid());
 alter  table pixels add column path text;
 alter  table pixels add column name text;
 alter  table pixels add column repo varchar(36);
-alter  table pixels add column params text[2][];
 create index pixels_repo_index on pixels (repo);
 -- No unique index on (path, repo, name) since it depends on params
 
 alter  table originalfile alter column mimetype set default 'application/octet-stream';
 alter  table originalfile add column repo varchar(36);
-alter  table originalfile add column params text[2][];
 create index originalfile_mime_index on originalfile (mimetype);
+create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
+create index originalfile_hash_index on originalfile (hash);
 create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
 
 --
@@ -557,6 +587,17 @@ create unique index well_col_row on well (plate, "column", "row");
 create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
+create index annotation_discriminator on annotation(discriminator);
+create index annotation_ns on annotation(ns);
+
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if( $prop.class.name == "ome.dsl.MapField" )
+CREATE INDEX ${type.tableName()}_${prop.name}_name ON ${type.tableName()}_${prop.name}(name);
+CREATE INDEX ${type.tableName()}_${prop.name}_value ON ${type.tableName()}_${prop.name}(value);
+#end
+#end
+#end
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255),
     changed TIMESTAMP WITHOUT TIME ZONE);
@@ -572,20 +613,17 @@ insert into password values (1,'');
 -- Prevent the deletion of mimetype = "Directory" objects
 create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
     begin
-        if OLD.repo is not null then
-            if OLD.mimetype = 'Directory' then
-                --
-                -- If any children are found, prevent deletion
-                --
-                if exists(select id from originalfile
-                           where path = OLD.path || OLD.name || '/'
-                           limit 1) then
+        --
+        -- If any children are found, prevent deletion
+        --
+        if OLD.mimetype = 'Directory' and exists(
+            select id from originalfile
+            where repo = OLD.repo and path = OLD.path || OLD.name || '/'
+            limit 1) then
 
-                    -- CANCEL DELETE
-                    RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+                -- CANCEL DELETE
+                RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
 
-                end if;
-            end if;
         end if;
         return OLD; -- proceed
     end;
@@ -595,19 +633,19 @@ create trigger _fs_dir_delete
 before delete on originalfile
     for each row execute procedure _fs_dir_delete();
 
--- Prevent Directory entries in the originalfile table from having their mimetype changed.
-CREATE OR REPLACE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
+-- Prevent Directory and Repository entries in the originalfile table from having their mimetype changed.
+CREATE OR REPLACE FUNCTION _fs_protected_mimetype() RETURNS "trigger" AS $$
     BEGIN
-        IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
-            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
+        IF OLD.mimetype IN ('Directory', 'Repository') AND (NEW.mimetype IS NULL OR NEW.mimetype != OLD.mimetype) THEN
+            RAISE EXCEPTION 'cannot change media type %% of file id=%%', OLD.mimetype, OLD.id;
         END IF;
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER _fs_directory_mimetype
+CREATE TRIGGER _fs_protected_mimetype
     BEFORE UPDATE ON originalfile
-    FOR EACH ROW EXECUTE PROCEDURE _fs_directory_mimetype();
+    FOR EACH ROW EXECUTE PROCEDURE _fs_protected_mimetype();
 
 -- Prevent SQL DELETE from removing the root experimenter from the system or user group.
 CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
@@ -692,14 +730,21 @@ create table _fs_deletelog (
     group_id bigint not null,
     path text not null,
     name varchar(255) not null,
-    repo varchar(36) not null,
-    params text[2][]);
+    repo varchar(36) not null);
+
+create index _fs_deletelog_event on _fs_deletelog(event_id);
+create index _fs_deletelog_file on _fs_deletelog(file_id);
+create index _fs_deletelog_owner on _fs_deletelog(owner_id);
+create index _fs_deletelog_group on _fs_deletelog(group_id);
+create index _fs_deletelog_path on _fs_deletelog(path);
+create index _fs_deletelog_name on _fs_deletelog(name);
+create index _fs_deletelog_repo on _fs_deletelog(repo);
 
 create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
     begin
         if OLD.repo is not null then
-            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo, params)
-                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo, OLD.params;
+            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo)
+                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo;
         end if;
         return OLD;
     END;
@@ -709,6 +754,152 @@ create trigger _fs_log_delete
 after delete on originalfile
     for each row execute procedure _fs_log_delete();
 
+ALTER TABLE laser
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE lightsettings
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE logicalchannel
+    ALTER COLUMN emissionwave TYPE positive_float,
+    ALTER COLUMN excitationwave TYPE positive_float;
+
+ALTER TABLE pixels
+    ALTER COLUMN physicalsizex TYPE positive_float,
+    ALTER COLUMN physicalsizey TYPE positive_float,
+    ALTER COLUMN physicalsizez TYPE positive_float;
+
+ALTER TABLE transmittancerange
+    ALTER COLUMN cutin TYPE positive_float,
+    ALTER COLUMN cutintolerance TYPE nonnegative_float,
+    ALTER COLUMN cutout TYPE positive_float,
+    ALTER COLUMN cutouttolerance TYPE nonnegative_float;
+
+-- image.series should never be null
+
+ALTER TABLE image ALTER COLUMN series SET DEFAULT 0;
+ALTER TABLE image ALTER COLUMN series SET NOT NULL;
+
+CREATE FUNCTION image_series_default_zero() RETURNS "trigger" AS $$
+    BEGIN
+        IF NEW.series IS NULL THEN
+            NEW.series := 0;
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER image_series_default_zero
+    BEFORE INSERT OR UPDATE ON image
+    FOR EACH ROW EXECUTE PROCEDURE image_series_default_zero();
+
+-- ensure that all annotation namespaces are noted in namespace table
+
+CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF NOT (NEW.ns IS NULL OR EXISTS (SELECT 1 FROM namespace WHERE name = NEW.ns LIMIT 1)) THEN
+            INSERT INTO namespace (id, name, permissions)
+                SELECT ome_nextval('seq_namespace'), NEW.ns, -52;
+        END IF;
+
+        RETURN NULL;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION update_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF OLD.name <> NEW.name AND EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot rename namespace that is still used by annotation';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION delete_from_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot delete namespace that is still used by annotation';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER add_to_namespace
+    AFTER INSERT OR UPDATE ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE add_to_namespace();
+
+CREATE TRIGGER update_namespace
+    BEFORE UPDATE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE update_namespace();
+
+CREATE TRIGGER delete_from_namespace
+    BEFORE DELETE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE delete_from_namespace();
+
+-- Replace globals' annotation count tables with views.
+
+DROP TABLE count_experimenter_annotationlinks_by_owner;
+DROP TABLE count_experimentergroup_annotationlinks_by_owner;
+DROP TABLE count_namespace_annotationlinks_by_owner;
+DROP TABLE count_node_annotationlinks_by_owner;
+DROP TABLE count_session_annotationlinks_by_owner;
+
+CREATE VIEW count_experimenter_annotationlinks_by_owner (experimenter_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimenterannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_experimentergroup_annotationlinks_by_owner (experimentergroup_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimentergroupannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_namespace_annotationlinks_by_owner (namespace_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM namespaceannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_node_annotationlinks_by_owner (node_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM nodeannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_session_annotationlinks_by_owner (session_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM sessionannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+-- A property value is null if and only if the corresponding unit is null.
+
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if($prop.foreignKey && $prop.type.startsWith("ome.model.units."))
+ALTER TABLE ${prop.actualType.table} ADD CONSTRAINT ${prop.name}_unitpair
+    CHECK (${prop.name} IS NULL AND ${prop.name}Unit IS NULL
+        OR ${prop.name} IS NOT NULL AND ${prop.name}Unit IS NOT NULL);
+
+#end
+#end
+#end
+
+-- Temporary workaround for the width of map types
+
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if( $prop.class.name == "ome.dsl.MapField" )
+ALTER TABLE ${type.tableName()}_${prop.name} ALTER COLUMN name TYPE TEXT;
+ALTER TABLE ${type.tableName()}_${prop.name} ALTER COLUMN value TYPE TEXT;
+#end
+#end
+#end
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()

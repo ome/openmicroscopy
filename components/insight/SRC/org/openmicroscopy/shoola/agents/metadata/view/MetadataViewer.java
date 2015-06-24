@@ -77,9 +77,6 @@ public interface MetadataViewer
 	extends ObservableComponent
 {
 
-	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
-	public static final int		IMAGE_J = LookupNames.IMAGE_J;
-	
 	/** Indicates to run the script. */
 	public static final int		RUN = 100;
 	

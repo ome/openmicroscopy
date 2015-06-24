@@ -1,5 +1,5 @@
 function ann = writeTextAnnotation(session, type, text, varargin)
-% WRITETEXTANNOTATION Create and upload a text annotation onto the OMERO server
+% WRITETEXTANNOTATION Create and upload a text annotation onto OMERO
 %
 %    ann = writeTextAnnotation(session, type, text) creates and uploads an
 %    annotation of input type and input test owned by the session user.
@@ -18,9 +18,11 @@ function ann = writeTextAnnotation(session, type, text, varargin)
 %        ann = writeTextAnnotation(session, type, text, 'namespace',
 %        namespace)
 %
-% See also: WRITETAGANNOTATION, WRITECOMMENTANNOTATION, WRITEXMLANNOTATION
+% See also: WRITECOMMENTANNOTATION, WRITEDOUBLEANNOTATION,
+% WRITEFILEANNOTATION, WRITETAGANNOTATION, WRITETIMESTAMPANNOTATION,
+% WRITEXMLANNOTATION
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

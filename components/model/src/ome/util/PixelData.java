@@ -11,6 +11,8 @@ import java.lang.reflect.Method;
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
 
+import loci.formats.FormatTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,76 +145,46 @@ public class PixelData
     /** The maximum pixel value for the pixels type of the pixel data. */
     protected double maximum;
 
-	/**
-	 * Default constructor.
-	 *
-	 * @param pixelsType The OME pixels type.
-	 * @param data The raw pixel data.
-	 */
-	public PixelData(String pixelsType, ByteBuffer data)
-	{
-		this.data = data;
-		this.pixelsType = pixelsType;
-		bytesPerPixel = bytesPerPixel();
-		if (pixelsType.equals("int8")) {
-		    isSigned = true;
-		    isFloat = false;
-		    javaType = BYTE;
-		    minimum = Integer.MIN_VALUE;
-		    maximum = Integer.MAX_VALUE;
-		} else if (pixelsType.equals("uint8")) {
-		    isSigned = false;
-		    isFloat = false;
-		    javaType = BYTE;
-		    minimum = 0;
-		    maximum = 255;
-		} else if (pixelsType.equals("int16")) {
-		    isSigned = true;
-		    isFloat = false;
-		    javaType = SHORT;
-		    minimum = Short.MIN_VALUE;
-		    maximum = Short.MAX_VALUE;
-		} else if (pixelsType.equals("uint16")) {
-		    isSigned = false;
-		    isFloat = false;
-		    javaType = SHORT;
-		    minimum = 0;
-		    maximum = 65535;
-		} else if (pixelsType.equals("int32")) {
-		    isSigned = true;
-		    isFloat = false;
-		    javaType = INT;
-		    minimum = Integer.MIN_VALUE;
-		    maximum = Integer.MAX_VALUE;
-		} else if (pixelsType.equals("uint32")) {
-		    isSigned = false;
-		    isFloat = false;
-		    javaType = INT;
-		    minimum = 0;
-		    maximum = 4294967295L;
-		} else if (pixelsType.equals("float")) {
-		    isSigned = true;
-		    isFloat = true;
-		    javaType = FLOAT;
-		    minimum = Float.MIN_VALUE;
-		    maximum = Float.MAX_VALUE;
-		} else if (pixelsType.equals("double")) {
-		    isSigned = true;
-		    isFloat = true;
-		    javaType = DOUBLE;
-		    minimum = Double.MIN_VALUE;
-		    maximum = Double.MAX_VALUE;
-		} else if (pixelsType.equals("bit")) {
-		    isSigned = false;
-		    isFloat = false;
-		    javaType = BIT;
-		    minimum = 0;
-		    maximum = 1;
-		} else {
-	          throw new IllegalArgumentException(
-	                    "Unknown pixel type: " + pixelsType);
-		}
-	}
+    /**
+     * Default constructor.
+     *
+     * @param pixelsType The OME pixels type.
+     * @param data The raw pixel data.
+     */
+    public PixelData(String pixelsType, ByteBuffer data)
+    {
+        this.data = data;
+        this.pixelsType = pixelsType;
+        bytesPerPixel = bytesPerPixel();
+        int type = FormatTools.pixelTypeFromString(pixelsType);
+        long[] values = FormatTools.defaultMinMax(type);
+        isSigned = FormatTools.isSigned(type);
+        isFloat = FormatTools.isFloatingPoint(type);
+        minimum = values[0];
+        maximum = values[1];
+        switch(type) {
+            case FormatTools.INT8:
+            case FormatTools.UINT8:
+                javaType = BYTE;
+                break;
+            case FormatTools.INT16:
+            case FormatTools.UINT16:
+                javaType = SHORT;
+                break;
+            case FormatTools.INT32:
+            case FormatTools.UINT32:
+                javaType = INT;
+                break;
+            case FormatTools.FLOAT:
+                javaType = FLOAT;
+                break;
+            case FormatTools.DOUBLE:
+                javaType = DOUBLE;
+                break;
+            case FormatTools.BIT:
+                javaType = BIT;
+        }
+    }
 
     /**
      * Returns whether or not the pixel data type is is one of the elements in
@@ -237,21 +209,8 @@ public class PixelData
      */
     public int bytesPerPixel()
     {
-	if (pixelsType.equals("bit"))
-	{
-		return 1;
-	}
-	return getBitDepth(pixelsType) / 8;
-    }
-
-    /**
-     * Returns the Java type that has the same byte width of the pixel data.
-     *
-     * @return See above.
-     */
-    public int javaType()
-    {
-        return javaType;
+        int type = FormatTools.pixelTypeFromString(pixelsType);
+        return FormatTools.getBytesPerPixel(type);
     }
 
     /**
@@ -274,6 +233,15 @@ public class PixelData
         return isFloat;
     }
 
+    /**
+     * Returns the Java type that has the same byte width of the pixel data.
+     *
+     * @return See above.
+     */
+    public int javaType()
+    {
+        return javaType;
+    }
 
     /**
      * Returns the minimum pixel value this pixel data supports.
@@ -305,7 +273,7 @@ public class PixelData
      */
     public void setPixelValue(int offset, double value)
     {
-		setPixelValueDirect(offset * bytesPerPixel, value);
+        setPixelValueDirect(offset * bytesPerPixel, value);
     }
 
     /**
@@ -320,16 +288,16 @@ public class PixelData
     {
         switch (javaType)
         {
-		case BIT:
-			int byteOffset = offset / 8;
-			byte x = data.get(byteOffset);
-			if (value == 0)
-			{
-				data.put(byteOffset, (byte) (x & ~(1 << (7 - (offset % 8)))));
-				break;
-			}
-			data.put(byteOffset, (byte) (x | 1 << (7 - (offset % 8))));
-			break;
+            case BIT:
+                int byteOffset = offset / 8;
+                byte x = data.get(byteOffset);
+                if (value == 0)
+                {
+                    data.put(byteOffset, (byte) (x & ~(1 << (7 - (offset % 8)))));
+                    break;
+                }
+                data.put(byteOffset, (byte) (x | 1 << (7 - (offset % 8))));
+                break;
             case BYTE:
                 data.put(offset, (byte) value);
                 break;
@@ -358,7 +326,7 @@ public class PixelData
      */
     public double getPixelValue(int offset)
     {
-	return getPixelValueDirect(offset * bytesPerPixel);
+        return getPixelValueDirect(offset * bytesPerPixel);
     }
 
     /**
@@ -371,38 +339,38 @@ public class PixelData
      */
     public double getPixelValueDirect(int offset)
     {
-	if (isSigned()) {
-		switch (javaType)
-		{
-			case BYTE:
-				return data.get(offset);
-			case SHORT:
-				return data.getShort(offset);
-			case INT:
-				return data.getInt(offset);
-			case FLOAT:
-				return data.getFloat(offset);
-			case DOUBLE:
-				return data.getDouble(offset);
-		}
-	} else {
-		switch (javaType)
-		{
-				case BIT:
-					return data.get(offset / 8) >> (7 - (offset % 8)) & 1;
-			case BYTE:
-				return (short) (data.get(offset) & 0xFF);
-			case SHORT:
-				return data.getShort(offset) & 0xFFFF;
-			case INT:
-				return data.getInt(offset) & 0xFFFFFFFFL;
-			case FLOAT:
-				return data.getFloat(offset);
-			case DOUBLE:
-				return data.getDouble(offset);
-		}
-	}
-	throw new RuntimeException("Unknown pixel type.");
+        if (isSigned()) {
+            switch (javaType)
+            {
+                case BYTE:
+                    return data.get(offset);
+                case SHORT:
+                    return data.getShort(offset);
+                case INT:
+                    return data.getInt(offset);
+                case FLOAT:
+                    return data.getFloat(offset);
+                case DOUBLE:
+                    return data.getDouble(offset);
+            }
+        } else {
+            switch (javaType)
+            {
+                case BIT:
+                    return data.get(offset / 8) >> (7 - (offset % 8)) & 1;
+                case BYTE:
+                    return (short) (data.get(offset) & 0xFF);
+                case SHORT:
+                    return data.getShort(offset) & 0xFFFF;
+                case INT:
+                    return data.getInt(offset) & 0xFFFFFFFFL;
+                case FLOAT:
+                    return data.getFloat(offset);
+                case DOUBLE:
+                    return data.getDouble(offset);
+            }
+        }
+        throw new RuntimeException("Unknown pixel type.");
     }
 
     /**
@@ -412,7 +380,7 @@ public class PixelData
      */
     public ByteBuffer getData()
     {
-	return data;
+        return data;
     }
 
     /**
@@ -422,7 +390,7 @@ public class PixelData
      */
     public ByteOrder getOrder()
     {
-	return data.order();
+        return data.order();
     }
 
     /**
@@ -432,7 +400,7 @@ public class PixelData
      */
     public void setOrder(ByteOrder order)
     {
-	data.order(order);
+        data.order(order);
     }
 
     /**
@@ -442,7 +410,7 @@ public class PixelData
      */
     public int size()
     {
-	return data.capacity() / bytesPerPixel;
+        return data.capacity() / bytesPerPixel;
     }
 
     /**
@@ -453,21 +421,23 @@ public class PixelData
      * @return width of a single pixel value in bits.
      */
     public static int getBitDepth(String type) {
-        if (type.equals("int8") || type.equals("uint8")) {
-            return 8;
-        } else if (type.equals("int16")
-                || type.equals("uint16")) {
-            return 16;
-        } else if (type.equals("int32")
-                || type.equals("uint32")
-                || type.equals("float")) {
-            return 32;
-        } else if (type.equals("double")) {
-            return 64;
-        } else if (type.equals("bit")) {
-            return 1;
+        int value = FormatTools.pixelTypeFromString(type);
+        switch(value) {
+            case FormatTools.INT8:
+            case FormatTools.UINT8:
+                return 8;
+            case FormatTools.INT16:
+            case FormatTools.UINT16:
+                return 16;
+            case FormatTools.INT32:
+            case FormatTools.UINT32:
+            case FormatTools.FLOAT:
+                return 32;
+            case FormatTools.DOUBLE:
+                return 64;
+            case FormatTools.BIT:
+                return 1;
         }
-
         throw new RuntimeException("Pixels type '" + type
                 + "' unsupported by nio.");
     }

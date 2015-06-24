@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.WellsModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
@@ -64,6 +65,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WellGridElement;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import pojos.DataObject;
+import pojos.ImageData;
 import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -713,7 +715,9 @@ class WellsModel
 	protected  List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
-		if (!withThumbnails) return null;
+		if (!withThumbnails) 
+			return null;
+		
 		List<ImageDisplay> l = getNodes();
 		Iterator<ImageDisplay> i = l.iterator();
 		ImageSet node;
@@ -733,12 +737,16 @@ class WellsModel
 							Factory.createDefaultImageThumbnail(
 									wellDimension.width, wellDimension.height));
 				}
-				else 
-					images.add(data.getImage());
+				else {
+					ImageData img = data.getImage();
+					if(CollectionUtils.isEmpty(ids) || ids.contains(img.getId()))
+						images.add(data.getImage());
+				}
 			}
 		}
 
-		if (images.size() == 0) return null;
+		if (images.size() == 0) 
+			return null;
 		return createThumbnailsLoader(sorter.sort(images));
 	}
 	

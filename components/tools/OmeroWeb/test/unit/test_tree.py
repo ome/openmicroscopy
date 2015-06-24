@@ -33,6 +33,9 @@ class MockConnection(object):
     def getUserId(self):
         return 1L
 
+    def isAdmin(self):
+        return False
+
 
 @pytest.fixture(scope='module')
 def mock_conn():

@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.DocComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -34,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -52,20 +51,21 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ToolTipGenerator;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -89,6 +89,7 @@ import pojos.FileAnnotationData;
 import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TimeAnnotationData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -151,8 +152,8 @@ class DocComponent
 	private JMenuItem		downloadButton;
 	
 	/** Button to open the file linked to the annotation. */
-	private JMenuItem		openButton;
-	
+    private JMenuItem       openButton;
+    
 	/** Button to display information. */
 	private JMenuItem		infoButton;
 	
@@ -228,10 +229,6 @@ class DocComponent
 				downloadButton.setEnabled(false);
 				downloadButton.setVisible(false);
 			}
-			if (openButton != null) {
-				openButton.setEnabled(false);
-				openButton.setVisible(false);
-			}
 			return count > 0;
 		}
 		boolean b = false;
@@ -258,14 +255,41 @@ class DocComponent
 			if (b) count++;
 		}
 		if (openButton != null) {
-			b = true;
-			openButton.setEnabled(b);
-			openButton.setVisible(b);
-			if (b) count++;
-		}
+            b = true;
+            openButton.setEnabled(b);
+            openButton.setVisible(b);
+            if (b) count++;
+        }
 		return count > 0;
 	}
 
+    /** Opens the file. */
+    private void openFile() {
+        if (!(data instanceof FileAnnotationData))
+            return;
+
+        FileAnnotationData fa = (FileAnnotationData) data;
+        Registry reg = MetadataViewerAgent.getRegistry();
+        UserNotifier un = reg.getUserNotifier();
+        OriginalFile f = (OriginalFile) fa.getContent();
+        Environment env = (Environment) reg.lookup(LookupNames.ENV);
+        DownloadAndLaunchActivityParam activity;
+        final long dataId = fa.getId();
+        final File dir = new File(env.getOmeroFilesHome() + File.separatorChar
+                + "file annotation " + dataId);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        if (f != null && f.isLoaded()) {
+            activity = new DownloadAndLaunchActivityParam(f, dir, null);
+        } else {
+            activity = new DownloadAndLaunchActivityParam(dataId,
+                    DownloadAndLaunchActivityParam.FILE_ANNOTATION, dir, null);
+        }
+        un.notifyActivity(model.getSecurityContext(), activity);
+        return;
+    }
+    
 	/** 
 	 * Brings up the menu. 
 	 * 
@@ -305,7 +329,7 @@ class DocComponent
 		}
 		
 		TinyDialog d = new TinyDialog(null, comp, TinyDialog.CLOSE_ONLY);
-		d.setModal(true);
+		d.setModal(false);
 		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		SwingUtilities.convertPointToScreen(p, invoker);
 		d.pack();
@@ -316,19 +340,19 @@ class DocComponent
 	/**
 	 * Adds the experimenters who use the annotation if any.
 	 * 
-	 * @param buf The buffer
+	 * @param tt The {@link ToolTipGenerator} to add the information on to
 	 * @param annotation The annotation to handle.
 	 */
-	private void checkAnnotators(StringBuffer buf, AnnotationData annotation)
+	private void checkAnnotators(ToolTipGenerator tt, AnnotationData annotation)
 	{
 		List<ExperimenterData> annotators = model.getAnnotators(annotation);
 		if (annotators.size() == 0) return;
 		Iterator<ExperimenterData> i = annotators.iterator();
 		ExperimenterData annotator;
-		buf.append("<b>Linked by:</b><br>");
+		tt.addLine("Linked by:", true);
 		while (i.hasNext()) {
 			annotator =  i.next();
-			buf.append(EditorUtil.formatExperimenter(annotator)+"<br>");
+			tt.addLine(EditorUtil.formatExperimenter(annotator));
 		}
 		if (annotators.size() > 1) {
 			String text = label.getText();
@@ -380,8 +404,7 @@ class DocComponent
 	 */
 	private String formatToolTip(AnnotationData annotation, String name)
 	{
-		StringBuffer buf = new StringBuffer();
-		buf.append("<html><body>");
+		ToolTipGenerator tt = new ToolTipGenerator();
 		if (model.isMultiSelection()) {
 			Map<DataObject, Boolean> m = null;
 			Entry<DataObject, Boolean> e;
@@ -409,103 +432,72 @@ class DocComponent
 				if (k.next().booleanValue())
 					n++;
 			}
-			buf.append(text);
-			buf.append(n);
+			tt.addLineNoBr(text+""+n+" ");
 			int index = 0;
 			String s;
 			while (j.hasNext()) {
 				e = j.next();
 				if (index == 0) {
-					buf.append(" ");
-					buf.append("<b>");
-					buf.append(model.getObjectTypeAsString(e.getKey()));
-					if (n > 1) buf.append("s");
-					buf.append(":</b>");
-					buf.append("<br>");
+				    tt.addLine(model.getObjectTypeAsString(e.getKey())+"s", true);
 					index++;
 				}
-				buf.append("<b>");
-				buf.append("ID ");
-				buf.append(e.getKey().getId());
-				buf.append(":</b> ");
-				buf.append(UIUtilities.formatPartialName(
-						model.getObjectName(e.getKey())));
+				tt.addLine("ID "+e.getKey().getId(), UIUtilities.formatPartialName(
+                        model.getObjectName(e.getKey())), true);
 				//Indicates who annotates the object if not the user
 				//currently logged in.
 				s = formatAnnotators(e.getKey(), annotation);
-				if (s != null) buf.append(s);
-				buf.append("<br>");
+				if (s != null) 
+				    tt.addLine(s);
 			}
-			buf.append("</body></html>");
-			return buf.toString();
+			return tt.toString();
+		}
+		
+		if (name != null) {
+		    tt.addLine("Name", name, true);
 		}
 		
 		ExperimenterData exp = null;
-		if (name != null) {
-			buf.append("<b>");
-			buf.append("Name: ");
-			buf.append("</b>");
-			buf.append(name);
-			buf.append("<br>");
-		}
-		if (annotation.getId() > 0)
+		
+		if(annotation.getId()>0) {
 			exp = model.getOwner(annotation);
-		if (exp != null) {
-			buf.append("<b>");
-			buf.append("Owner: ");
-			buf.append("</b>");
-			buf.append(EditorUtil.formatExperimenter(exp));
-			buf.append("<br>");
+			tt.addLine("ID", ""+annotation.getId(), true);
+		}
+		
+		String ns = annotation.getNameSpace();
+		if(!CommonsLangUtils.isEmpty(ns) && !EditorUtil.isInternalNS(ns)) {
+		    tt.addLine("Namespace", ns, true);
+		}
+		
+		String desc = annotation.getDescription();
+		if(!CommonsLangUtils.isEmpty(desc)) {
+		    tt.addLine("Description", desc, true);
+		}
+		
+		if(exp!=null) {
+		    tt.addLine("Owner", EditorUtil.formatExperimenter(exp), true);
+		}
+		
+		Timestamp created = annotation.getCreated();
+		if(created !=null) {
+		    tt.addLine("Date", UIUtilities.formatDefaultDate(created), true);
 		}
 		
 		if (data instanceof FileAnnotationData) {
-			String ns = ((FileAnnotationData) data).getNameSpace();
-			if (annotation.getId() > 0) {
-				buf.append("<b>");
-				buf.append("Annotation ID: ");
-				buf.append("</b>");
-				buf.append(annotation.getId());
-				buf.append("<br>");
-				buf.append("<b>");
-				buf.append("File ID: ");
-				buf.append("</b>");
-				FileAnnotationData fa = (FileAnnotationData) data;
-				buf.append(fa.getFileID());
-				buf.append("<br>");
-				buf.append("<b>");
-				buf.append("Date Added: ");
-				buf.append("</b>");
-				buf.append(UIUtilities.formatWDMYDate(
-						annotation.getLastModified()));
-				buf.append("<br>");
-				buf.append("<b>");
-			}
-			
-			buf.append("Size: ");
-			buf.append("</b>");
-			//size not kb
-			long size = ((FileAnnotationData) annotation).getFileSize();
-			buf.append(UIUtilities.formatFileSize(size));
-			buf.append("<br>");
-			checkAnnotators(buf, annotation);
-			if (!StringUtils.isBlank(ns)) {
-			    buf.append("<b>");
-			    buf.append("Namespace: ");
-			    buf.append("</b>");
-			    buf.append(ns);
-			    buf.append("<br>");
-			}
+		    FileAnnotationData fa = (FileAnnotationData) data;
+		    long size = ((FileAnnotationData) annotation).getFileSize();
+		    tt.addLine("File ID", ""+fa.getFileID(), true);
+		    tt.addLine("Size", UIUtilities.formatFileSize(size)+"kb", true);
+			checkAnnotators(tt, annotation);
 		} else if (data instanceof TagAnnotationData || data instanceof
 				XMLAnnotationData || data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
 				data instanceof DoubleAnnotationData ||
 				data instanceof BooleanAnnotationData) {
-			checkAnnotators(buf, annotation);
+			checkAnnotators(tt, annotation);
 		}
-		buf.append("</body></html>");
-		return buf.toString();
+		return tt.toString();
 	}
-
+	
 	/** Initializes the various buttons. */
 	private void initButtons()
 	{
@@ -549,11 +541,11 @@ class DocComponent
 				
 				String ns = fa.getNameSpace();
 				openButton = new JMenuItem(icons.getIcon(
-						IconManager.VIEW_DOC_12));
-				openButton.setText("View");
-				openButton.setToolTipText("View the file.");
-				openButton.setActionCommand(""+OPEN);
-				openButton.addActionListener(this);
+                        IconManager.VIEW_DOC_12));
+                openButton.setText("View");
+                openButton.setToolTipText("View the file.");
+                openButton.setActionCommand(""+OPEN);
+                openButton.addActionListener(this);
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
@@ -562,7 +554,8 @@ class DocComponent
 				data instanceof XMLAnnotationData ||
 				data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
-				data instanceof DoubleAnnotationData) {
+				data instanceof DoubleAnnotationData ||
+				data instanceof BooleanAnnotationData) {
 			unlinkButton.setToolTipText("Remove the annotation.");
 			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
 			if (isModulo) editButton.setText("View");
@@ -680,6 +673,22 @@ class DocComponent
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			}
+			else if (data instanceof BooleanAnnotationData) {
+				BooleanAnnotationData tag = (BooleanAnnotationData) data;
+				label.setText(tag.getContentAsString());
+				label.setToolTipText(formatToolTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			}
+			else if (data instanceof TimeAnnotationData) {
+				TimeAnnotationData tag = (TimeAnnotationData) data;
+				label.setText(tag.getContentAsString());
+				label.setToolTipText(formatToolTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			}
 		}
 			
 		label.addMouseListener(new MouseAdapter() {
@@ -765,7 +774,7 @@ class DocComponent
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, true, true);
-		if (StringUtils.isNotBlank(name)) 
+		if (CommonsLangUtils.isNotBlank(name)) 
 			chooser.setSelectedFileFull(name);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
@@ -901,6 +910,9 @@ class DocComponent
 				break;
 			case DOWNLOAD:
 				download();
+			case OPEN:
+                openFile();
+                break;
 		}
 	}
 
@@ -921,6 +933,20 @@ class DocComponent
 				data instanceof XMLAnnotationData) {
 				annotation = (AnnotationData) data;
 				text = annotation.getContentAsString();
+				text = EditorUtil.truncate(text, TEXT_LENGTH,
+				        false);
+			}
+			if(data instanceof DoubleAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = ""+((DoubleAnnotationData) data).getDataValue();
+			}
+			if(data instanceof LongAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = ""+((LongAnnotationData) data).getDataValue();
+			}
+			if(data instanceof BooleanAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = ""+((BooleanAnnotationData) data).getValue();
 			}
 			description = model.getAnnotationDescription(annotation);
 			if (annotation == null) return;

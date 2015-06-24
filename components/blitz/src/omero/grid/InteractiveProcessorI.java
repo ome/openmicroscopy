@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import Glacier2.IdentitySetPrx;
 import Glacier2.SessionControlPrx;
 import Ice.Current;
 
@@ -269,11 +270,22 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                 setLauncher(__current);
                 currentProcess = prx.processJob(uuid, params, job, __current.ctx);
 
-                // Have to add the process to the control, otherwise the
-                // user won't be able to view it: ObjectNotExistException!
-                // ticket:1522
-                control.identities().add(
-                        new Ice.Identity[]{currentProcess.ice_getIdentity()});
+                // One of these fields is being returned as null on at least
+                // one system. Adding debugging to detect which.
+                if (control == null) {
+                    log.error("Control null on execute");
+                } else {
+                    IdentitySetPrx identities = control.identities();
+                    if (identities == null) {
+                        log.error("Identities null on execute");
+                    } else {
+                        // Have to add the process to the control, otherwise the
+                        // user won't be able to view it: ObjectNotExistException!
+                        // ticket:1522
+                        identities.add(
+                            new Ice.Identity[]{currentProcess.ice_getIdentity()});
+                    }
+                }
 
             } catch (omero.ValidationException ve) {
                 failJob(ve, __current);

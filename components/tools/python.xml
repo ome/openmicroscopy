@@ -5,6 +5,7 @@
 
     <property name="env.DESTDIR"    value="${up-two}/target/"/>
     <property name="env.ICE_CONFIG" value="${basedir}/../../../etc/ice.config"/>
+    <property name="MARK" value="not (long_running or broken)"/>
 
     <defineVariables/>
 
@@ -12,10 +13,10 @@
         <format property="python_build_year" pattern="yyyy"/>
     </tstamp>
     <echo file="${basedir}/omero_version.py">
-omero_version="${omero.version}"
-ice_compatibility="${versions.ice}"
-build_year="${python_build_year}"
-    </echo>
+omero_version = "${omero.version}"
+ice_compatibility = "${versions.ice}"
+build_year = "${python_build_year}"
+</echo>
 
     <target name="test-compile" description="Dummy target for python since no compile needed"/>
 
@@ -58,15 +59,31 @@ build_year="${python_build_year}"
 
     <target name="python-test-suite" unless="TEST">
         <mkdir dir="${testreports.dir}"/>
-        <py_test target="${basedir}/test/unit">
-            <optionalArgs/>
-        </py_test>
+        <if>
+            <not>
+                <equals arg1="${MARK}" arg2=""/>
+            </not>
+            <then>
+                <py_test target="${basedir}/test/unit">
+                    <optionalArgs>
+                        <arg value="-m ${MARK}"/>
+                    </optionalArgs>
+                </py_test>
+            </then>
+            <else>
+                <py_test target="${basedir}/test/unit">
+                    <optionalArgs/>
+                </py_test>
+            </else>
+        </if>
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
         <mkdir dir="${testreports.dir}"/>
         <if>
-            <isset property="MARK"/>
+            <not>
+                <equals arg1="${MARK}" arg2=""/>
+            </not>
             <then>
                 <py_test target="${basedir}/test/integration">
                     <optionalArgs>
@@ -92,7 +109,7 @@ build_year="${python_build_year}"
                 <arg value="test"/>
                 <optionalArgs/>
                 <arg value="-v"/>
-                <arg value="-s"/>
+                <arg value="-t"/>
                 <arg file="@{target}"/>
                 <arg value="--junitxml=${testreports.dir}/junit-results.xml"/>
             </setup_py>

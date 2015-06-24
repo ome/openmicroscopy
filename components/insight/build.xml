@@ -39,6 +39,8 @@
             <ant antfile="${basedir}/build/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
                 <property name="dont.run.tests" value="true"/>
                 <property name="omero.display_version" value="${omero.version}"/>
+                <property environment="env"/>
+                <property name="env.QA_BASEURL" value="http://qa.openmicroscopy.org.uk/qa"/>
             </ant>
         </sequential>
     </macrodef>

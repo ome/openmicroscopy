@@ -1,5 +1,5 @@
 /*
- *   Copyright 2014 University of Dundee. All rights reserved.
+ *   Copyright 2014-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -16,7 +16,7 @@ import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.util.Executor;
-import ome.services.util.MailUtil;
+import ome.services.mail.MailUtil;
 import ome.system.ServiceFactory;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -61,6 +61,7 @@ public class ResetPasswordRequestTest extends AbstractServantTest {
                 int j = 0;
                 while (j < status.steps) {
                     try {
+                        status.currentStep = j;
                         rv.add(req.step(j));
                     } catch (Cancel c) {
                         throw c;

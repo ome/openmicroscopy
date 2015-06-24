@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.NonWritableChannelException;
-import java.security.MessageDigest;
 import java.sql.SQLException;
 
 import ome.annotations.RolesAllowed;
@@ -41,16 +40,15 @@ import ome.conditions.SecurityViolation;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
+import ome.security.policy.BinaryAccessPolicy;
 import ome.util.ShallowCopy;
-import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 
-import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -187,21 +185,45 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
     }
 
+    /**
+     * Extends the check of the {@link #modified} flag performed by super
+     * with an additional check of the actual file size against the value
+     * stored in the database
+     */
+    @Override
+    protected boolean isModified() {
+        if (super.isModified()) {
+            return true;
+        }
+
+        // check that the real file size doesn't differ from the DB.
+        // If there's no file, though, we can't lookup anyway.
+        if (file == null || buffer == null || file.getSize() == null) {
+            return false;
+        }
+
+        long dbSize = file.getSize();
+        long fileSize = size();
+        return dbSize != fileSize;
+    }
+
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public synchronized OriginalFile save() {
-        if (isModified() || buffer != null && size() == 0) {
-            Long id = (file == null) ? null : file.getId();
-            if (id == null) {
-                return null;
-            }
 
-            String path = buffer.getPath();
+        final Long id = (file == null) ? null : file.getId();
+        if (id == null) {
+            return null;
+        }
+
+        if (isModified() || buffer != null && size() == 0) {
+
+            final String path = buffer.getPath();
 
             try {
                 buffer.flush(true);
             } catch (IOException ie) {
-                final String msg = "cannot flush " + buffer.getPath() + ": " + ie;
+                final String msg = "cannot flush " + path + ": " + ie;
                 log.warn(msg);
                 clean();
                 throw new ResourceError(msg);
@@ -384,6 +406,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     public byte[] read(long position, int length) {
         errorIfNotLoaded();
+        sec.checkRestriction(BinaryAccessPolicy.NAME, file);
+
         byte[] rawBuf = new byte[length];
         ByteBuffer buf = ByteBuffer.wrap(rawBuf);
 

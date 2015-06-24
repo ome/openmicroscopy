@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -42,6 +42,8 @@ public class LdapConfig {
 
     private final String newUserGroup;
 
+    private final String newUserGroupOwner;
+
     private final boolean enabled;
 
     private final boolean syncOnLogin;
@@ -66,6 +68,16 @@ public class LdapConfig {
     }
 
     /**
+     * Sets {@link #newUserGroupOwner} to null.
+     */
+    public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
+        String groupFilter, String userMapping, String groupMapping, boolean syncOnLogin,
+        String base) {
+        this(enabled, newUserGroup, userFilter, groupFilter, userMapping,
+            groupMapping, syncOnLogin, base, null);
+    }
+
+    /**
      * Base constructor which stores all {@link #parse(String)} and stores all
      * values for later lookup.
      */
@@ -73,7 +85,8 @@ public class LdapConfig {
             String newUserGroup,
             String userFilter, String groupFilter,
             String userMapping, String groupMapping,
-            boolean syncOnLogin, String base) {
+            boolean syncOnLogin, String base,
+            String newUserGroupOwner) {
         this.enabled = enabled;
         this.newUserGroup = newUserGroup;
         this.userFilter = new HardcodedFilter(userFilter);
@@ -82,6 +95,7 @@ public class LdapConfig {
         this.groupMapping = parse(groupMapping);
         this.syncOnLogin = syncOnLogin;
         this.base = base;
+        this.newUserGroupOwner = newUserGroupOwner;
     }
 
     // Helpers
@@ -91,6 +105,14 @@ public class LdapConfig {
         AndFilter filter = new AndFilter();
         filter.and(getUserFilter());
         filter.and(new EqualsFilter(attributeKey, username));
+        return filter;
+    }
+
+    public Filter groupnameFilter(String groupname) {
+        String attributeKey = getGroupAttribute("name");
+        AndFilter filter = new AndFilter();
+        filter.and(getGroupFilter());
+        filter.and(new EqualsFilter(attributeKey, groupname));
         return filter;
     }
 
@@ -134,6 +156,10 @@ public class LdapConfig {
 
     public String getNewUserGroup() {
         return newUserGroup;
+    }
+
+    public String getNewUserGroupOwner() {
+        return newUserGroupOwner;
     }
 
     public Filter getUserFilter() {

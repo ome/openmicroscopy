@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.chooser.DataNodeElement 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,12 +23,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
-//Java imports
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
 import pojos.DataObject;
@@ -69,6 +65,12 @@ class DataNodeElement
 	DataNodeElement(DataNode location, String value)
 	{
 		this.location = location;
+		if (this.location != null && this.location.isNoDataset()) {
+		    if (getParent() == null) {
+		        this.location = null;
+	            value = null;
+		    }
+		}
 		setName(value);
 	}
 
@@ -80,7 +82,7 @@ class DataNodeElement
 	void setName(String value)
 	{
 	    name = "";
-	    if (StringUtils.isEmpty(value)) {
+	    if (CommonsLangUtils.isBlank(value)) {
 	        if (location == null) name = NO_LOCATION;
 	        else {
 	            if (location.getDataObject() instanceof ScreenData ||
@@ -134,6 +136,7 @@ class DataNodeElement
 	 */
 	Boolean isHCSContainer()
 	{
+	    if (location == null) return null;
 		Object object = location.getDataObject();
 		if (object == null) {
 			DatasetData d = getLocation();

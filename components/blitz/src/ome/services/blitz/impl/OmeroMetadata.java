@@ -34,6 +34,9 @@ package ome.services.blitz.impl;
 
 import static omero.rtypes.rstring;
 
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.convertTime;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +70,7 @@ import omero.RLong;
 import omero.RString;
 import omero.RTime;
 import omero.model.Annotation;
+import omero.model.Length;
 import omero.model.XmlAnnotation;
 import omero.model.LongAnnotation;
 import omero.model.BooleanAnnotation;
@@ -236,9 +240,7 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("p.channels",         "c",        false, true);
                 qb.join("p.planeInfo",        "pinfo",    true, true);
                 qb.join("pinfo.deltaT",       "deltaT",   true, true);
-                qb.join("deltaT.unit",        "deltaTU",  true, true);
                 qb.join("pinfo.exposureTime", "expTime",  true, true);
-                qb.join("expTime.unit",       "expTimeU", true, true);
                 qb.join("c.logicalChannel",   "l",        false, true);
                 qb.join("l.mode",             "a_mode",   true, true);
                 qb.join("l.illumination",     "i_type",   true, true);
@@ -354,11 +356,6 @@ public class OmeroMetadata extends DummyMetadata {
         return v == null? null : v.getValue();
     }
 
-    private Long fromRType(RTime v)
-    {
-        return v == null? null : v.getValue();
-    }
-
     private String fromRType(RString v)
     {
         return v == null? null : v.getValue();
@@ -372,7 +369,7 @@ public class OmeroMetadata extends DummyMetadata {
     private Time fromRType(omero.model.Time v)
     {
         if (v == null) return null;
-        return loci.ome.io.OmeroReader.convertTime(v);
+        return convertTime(v);
     }
 
     private Integer fromRType(RInt v)
@@ -413,19 +410,6 @@ public class OmeroMetadata extends DummyMetadata {
         }
     }
 
-    private PositiveFloat toPositiveFloat(RDouble v)
-    {
-        try
-        {
-            Double asDouble = fromRType(v);
-            return asDouble != null? new PositiveFloat(asDouble) : null;
-        }
-        catch (IllegalArgumentException e)
-        {
-            log.warn("Using new PositiveFloat(1.0)!", e);
-            return new PositiveFloat(1.0);
-        }
-    }
 
     @Override
     public Timestamp getImageAcquisitionDate(int imageIndex)
@@ -518,26 +502,26 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public PositiveFloat getPixelsPhysicalSizeX(int imageIndex)
+    public ome.units.quantity.Length getPixelsPhysicalSizeX(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? toPositiveFloat(
+        return o != null? convertLength(
                 o.getPrimaryPixels().getPhysicalSizeX()) : null;
     }
 
     @Override
-    public PositiveFloat getPixelsPhysicalSizeY(int imageIndex)
+    public ome.units.quantity.Length getPixelsPhysicalSizeY(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? toPositiveFloat(
+        return o != null? convertLength(
                 o.getPrimaryPixels().getPhysicalSizeY()) : null;
     }
 
     @Override
-    public PositiveFloat getPixelsPhysicalSizeZ(int imageIndex)
+    public ome.units.quantity.Length getPixelsPhysicalSizeZ(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? toPositiveFloat(
+        return o != null? convertLength(
                 o.getPrimaryPixels().getPhysicalSizeZ()) : null;
     }
 
@@ -711,19 +695,19 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public PositiveFloat getChannelEmissionWavelength(int imageIndex,
+    public ome.units.quantity.Length getChannelEmissionWavelength(int imageIndex,
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveFloat(o.getLogicalChannel().getEmissionWave());
+        return convertLength(o.getLogicalChannel().getEmissionWave());
     }
 
     @Override
-    public PositiveFloat getChannelExcitationWavelength(int imageIndex,
+    public ome.units.quantity.Length getChannelExcitationWavelength(int imageIndex,
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveFloat(o.getLogicalChannel().getExcitationWave()); 
+        return convertLength(o.getLogicalChannel().getExcitationWave());
     }
 
     @Override
@@ -778,10 +762,10 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Double getChannelPinholeSize(int imageIndex, int channelIndex)
+    public ome.units.quantity.Length getChannelPinholeSize(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return o != null? fromRType(
+        return o != null? convertLength(
                 o.getLogicalChannel().getPinHoleSize()) : null;
     }
 
@@ -844,24 +828,24 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Double getPlanePositionX(int imageIndex, int planeIndex)
+    public ome.units.quantity.Length getPlanePositionX(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        return o != null? fromRType(o.getPositionX()) : null;
+        return o != null? convertLength(o.getPositionX()) : null;
     }
 
     @Override
-    public Double getPlanePositionY(int imageIndex, int planeIndex)
+    public ome.units.quantity.Length getPlanePositionY(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        return o != null? fromRType(o.getPositionY()) : null;
+        return o != null? convertLength(o.getPositionY()) : null;
     }
 
     @Override
-    public Double getPlanePositionZ(int imageIndex, int planeIndex)
+    public ome.units.quantity.Length getPlanePositionZ(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        return o != null? fromRType(o.getPositionZ()) : null;
+        return o != null? convertLength(o.getPositionZ()) : null;
     }
 
     @Override

@@ -49,7 +49,7 @@
     </structuredEntry>
 
     <!-- the value corresponding to the agent defined as the master
-    i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2
+    i.e. TreeViewerAgent = 0, ImporterAgent = 1
     The default value is 0.-->
     <entry name="/application/entryPoint" type="integer">2</entry>
 
@@ -158,8 +158,8 @@
          This entry specifies the name of the server and
          and e-mail address to submit comment.
     -->
-    <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
-    <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
+    <entry name="/services/DEBUGGER/hostnameToken">@QA_BASEURL@/initial/</entry>
+    <entry name="/services/DEBUGGER/hostnameProcessing">@QA_BASEURL@/upload_processing/</entry>
     <entry name="/services/DEBUGGER/applicationNameBug">2</entry>
     <entry name="/services/DEBUGGER/applicationNameComment">1</entry>
     <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
@@ -220,13 +220,6 @@
         <active>false</active>
         <class>org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent</class>
         <config>dataBrowser.xml</config>
-    </agent>
-    <agent>
-        <name>Editor</name>
-        <number>1</number>
-        <active>false</active>
-        <class>org.openmicroscopy.shoola.agents.editor.EditorAgent</class>
-        <config>editor.xml</config>
     </agent>
     <agent>
         <name>Importer</name>
@@ -303,10 +296,10 @@
    * <entry name="SplashScreenLogo">client_splashscreen.png</entry>
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <entry name="Version">@OMERO_DISPLAY_VERSION@</entry>
-  <entry name="SoftwareName">OMERO.clients</entry>
+  <entry name="SoftwareName">OMERO.importer</entry>
   <entry name="AboutFile">about.xml</entry>
   <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
-  <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
+  <entry name="Forum">http://www.openmicroscopy.org/community/</entry>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating if the binary data are available. This should only

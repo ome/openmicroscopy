@@ -1,0 +1,63 @@
+{% comment %}
+<!--
+  Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+	{% if error %}
+		<div class="error">{{ error }}</div>
+	{% endif %}
+
+	{% if global_metadata or series_metadata %}
+    <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
+        onClick="document.location.href='{% url 'download_orig_metadata' imageId %}';"/>
+    {% else %}
+    	No Original Metadata for this image
+    {% endif %}
+    
+    {% if global_metadata %}
+    <h1>Global Metadata</h1>
+    <div style="height:250px; overflow:auto">
+        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global">
+          <span class="loading_global" style="display: none">
+          <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+        <table id="global_metadata"
+            style="word-wrap: break-word;"><tbody>
+            {% for gm in global_metadata %}
+            <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
+            {% endfor %}
+        <tr><th colspan="2"><br/></th></tr>
+        </tbody></table>
+    </div>
+    {% endif %}
+
+    {% if series_metadata %}
+    <hr />
+    <h1>Series Metadata</h1>
+    <div style="height:250px; overflow:auto">
+        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series">
+          <span class="loading_series" style="display: none">
+          <img style="display: none" class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+        <table id="series_metadata" class="metadata_details"
+            style="word-wrap: break-word;"><tbody>
+            {% for sm in series_metadata %}
+            <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
+            {% endfor %}
+            <tr><th colspan="2"><br/></th></tr>
+        </tbody></table>
+    </div>
+{% endif %}

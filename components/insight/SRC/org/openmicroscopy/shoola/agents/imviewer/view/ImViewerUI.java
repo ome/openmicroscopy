@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,8 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -52,6 +54,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
@@ -69,15 +72,16 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
-import omero.model.PlaneInfo;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
+import ome.model.units.BigResult;
+import omero.model.PlaneInfo;
+import omero.model.Length;
+import omero.model.LengthI;
+
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -103,9 +107,9 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.GroupData;
@@ -179,6 +183,9 @@ class ImViewerUI
 	/** Reference to the Control. */
 	private ImViewerControl 					controller;
 
+	/** Two decimal places number format */
+	private static final NumberFormat NUMBERFORMAT = new DecimalFormat("#.##");
+	
 	/** Reference to the Model. */
 	private ImViewerModel   					model;
 
@@ -308,24 +315,6 @@ class ImViewerUI
 	
 	/** Item used to show or hide the unit bar. */
 	private JMenu scaleBarMenu;
-	
-	/**
-	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
-	 * hierarchy.
-	 * 
-	 * @param x A component.
-	 * @return The parent {@link HistoryItem} or <code>null</code> if none
-	 *         was found.
-	 */
-	private HistoryItem findParentDisplay(Object x)
-	{
-		while (true) {
-			if (x instanceof HistoryItem) return (HistoryItem) x;
-			if (x instanceof JComponent) x = ((JComponent) x).getParent();
-			else break;
-		}
-		return null;
-	}
 	
 	/**
 	 * Initializes and returns a split pane, either vertical or horizontal 
@@ -1070,6 +1059,7 @@ class ImViewerUI
 		boolean reset = false;
 		if (w > width) {
 			reset = true;
+			w = width;
 		}
 		if (h > height) {
 			reset = true;
@@ -1191,6 +1181,16 @@ class ImViewerUI
 	}
 
 	/**
+	 * Set the magnification status (basically refreshes the status bar)  
+	 */
+	void setMagnificationStatus() {
+        int index = ZoomAction.getIndex(model.getZoomFactor());
+        if (model.isBigImage())
+            index = model.getSelectedResolutionLevel();
+        setMagnificationStatus(model.getZoomFactor(), index);
+	}
+	
+	/**
 	 * Sets the magnification value in the status bar depending on the
 	 * selected tabbedPane.
 	 * 
@@ -1201,14 +1201,21 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
-			statusBar.setRigthStatus(
+			statusBar.setRightStatus(
 					Math.round(factor*model.getOriginalRatio()*100)+"%");
-		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
+		else statusBar.setRightStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
-			ResolutionLevel level = model.getResolutionDescription();
-			double f = UIUtilities.roundTwoDecimals(level.getRatio()*100);
-			bigImageMagnification = level.getRatio();
-			statusBar.setRigthStatus(f+"%");
+            ResolutionLevel level = model.getResolutionDescription();
+            double mag = model.getNominalMagnification();
+            bigImageMagnification = level.getRatio();
+            if (mag > 0) {
+                statusBar.setRightStatus(NUMBERFORMAT.format(level.getRatio()
+                        * mag)
+                        + "x");
+            } else {
+                double f = UIUtilities.roundTwoDecimals(level.getRatio() * 100);
+                statusBar.setRightStatus(f + "%");
+            }
 		}
 	}
 	
@@ -1316,8 +1323,8 @@ class ImViewerUI
 		int n;
 		int max = model.getMaxZ();
 		double d = model.getPixelsSizeZ();
-		UnitsObject o;
 		String units;
+		Length o;
 		StringBuffer buffer = new StringBuffer();
 		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
 			n = getProjectionStartZ();
@@ -1325,11 +1332,11 @@ class ImViewerUI
 			buffer.append("Z range:"+(n+1));
 			buffer.append("-"+(getProjectionEndZ()+1));
 			if (d > 0 && max > 0) {
-				o = EditorUtil.transformSize(n*d);
+				o = UIUtilities.transformSize(n*d);
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append("-");
-				o = EditorUtil.transformSize(m*d);
-				units = o.getUnits();
+				o = UIUtilities.transformSize(m*d);
+				units = ((LengthI)o).getSymbol();
 				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(units+")");
 			}
@@ -1339,8 +1346,8 @@ class ImViewerUI
 			n = model.getDefaultZ();
 			buffer.append("Z="+(n+1));
 			if (d > 0 && max > 0) {
-				o = EditorUtil.transformSize(n*d);
-				units = o.getUnits();
+				o = UIUtilities.transformSize(n*d);
+				units = ((LengthI)o).getSymbol();
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(units+")");
 			}
@@ -1360,7 +1367,10 @@ class ImViewerUI
 	            buffer.append(" (");
 	            buffer.append(UIUtilities.roundTwoDecimals(
 	                    info.getRealValue(bin)));
-	            buffer.append(info.getUnit()+")");
+	            if (CommonsLangUtils.isNotBlank(info.getUnit())) {
+	                buffer.append(info.getUnit());
+	            }
+	            buffer.append(")");
 		    }
 		}
 		setLeftStatus(buffer.toString());
@@ -1419,28 +1429,63 @@ class ImViewerUI
 	            notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 	            comp.setColor(colors.get(index));
 	            if (!notSet.contains(EditorUtil.DELTA_T)) {
-	                s += EditorUtil.formatTimeInSeconds(
-	                        (Double) details.get(EditorUtil.DELTA_T));
+	                if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
+	                    ImViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T), EditorUtil.DELTA_T);
+	                    s += "N/A";
+	                } else {
+    	                s += EditorUtil.formatTimeInSeconds(
+    	                        (Double) details.get(EditorUtil.DELTA_T));
+	                }
 	            }
 	            if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
 	                toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-	                toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
-	                toolTipText += EditorUtil.TIME_UNIT;
+	                if(details.get(EditorUtil.EXPOSURE_TIME) instanceof BigResult) {
+	                    ImViewerAgent.logBigResultExeption(this, details.get(EditorUtil.EXPOSURE_TIME), EditorUtil.EXPOSURE_TIME);
+	                    toolTipText += "N/A";
+	                } else {
+    	                toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
+    	                toolTipText += EditorUtil.TIME_UNIT;
+	                }
 	                tips.add(toolTipText);
 	            }
 	            toolTipText = "";
 	            toolTipText += "Stage coordinates: ";
-	            if (!notSet.contains(EditorUtil.POSITION_X))
-	                toolTipText += 
-	                "x="+details.get(EditorUtil.POSITION_X)+" ";
-	            if (!notSet.contains(EditorUtil.POSITION_Y)) 
-	                toolTipText += "y="+
-	                        details.get(EditorUtil.POSITION_Y)+" ";
-	            if (!notSet.contains(EditorUtil.POSITION_Z)) 
-	                toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
+                if (!notSet.contains(EditorUtil.POSITION_X)) {
+                    if (details.get(EditorUtil.POSITION_X) instanceof BigResult) {
+                        toolTipText += "x=N/A ";
+                        ImViewerAgent.logBigResultExeption(this,
+                                details.get(EditorUtil.POSITION_X),
+                                EditorUtil.POSITION_X);
+                    } else {
+                        toolTipText += "x="
+                                + details.get(EditorUtil.POSITION_X) + " ";
+                    }
+                }
+                if (!notSet.contains(EditorUtil.POSITION_Y)) {
+                    if (details.get(EditorUtil.POSITION_Y) instanceof BigResult) {
+                        toolTipText += "y=N/A ";
+                        ImViewerAgent.logBigResultExeption(this,
+                                details.get(EditorUtil.POSITION_Y),
+                                EditorUtil.POSITION_Y);
+                    } else {
+                        toolTipText += "y="
+                                + details.get(EditorUtil.POSITION_Y) + " ";
+                    }
+                }
+                if (!notSet.contains(EditorUtil.POSITION_Z)) {
+                    if (details.get(EditorUtil.POSITION_Z) instanceof BigResult) {
+                        toolTipText += "z=N/A ";
+                        ImViewerAgent.logBigResultExeption(this,
+                                details.get(EditorUtil.POSITION_Z),
+                                EditorUtil.POSITION_Z);
+                    } else {
+                        toolTipText += "z="
+                                + details.get(EditorUtil.POSITION_Z);
+                    }
+                }
 	            tips.add(toolTipText);
 	            comp.setToolTipText(UIUtilities.formatToolTipText(tips));
-	            if (StringUtils.isEmpty(s)) s = "0s";
+	            if (CommonsLangUtils.isEmpty(s)) s = "0s";
 	            comp.setText(s);
 	            panel.add(comp);
 	        }
@@ -1577,8 +1622,7 @@ class ImViewerUI
 		if (lens == null) {
 			if (b) {
 				firstTime = true;
-				lens = new LensComponent(this, 
-						ImViewerAgent.hasOpenGLSupport());
+				lens = new LensComponent(this);
 				lens.setImageName(model.getImageName());
 				lens.setXYPixelMicron(model.getPixelsSizeX(), 
 						model.getPixelsSizeY());
@@ -1651,44 +1695,21 @@ class ImViewerUI
 					}
 			}
 		}
-		if (ImViewerAgent.hasOpenGLSupport()) {
-			TextureData image;
-			
-			switch (index) {
-				case ImViewer.VIEW_INDEX:
-				default:
-					f = (float) model.getZoomFactor();
-					image = model.getImageAsTexture();
-					//img = model.getOriginalImage();
-					break;
-				case ImViewer.PROJECTION_INDEX:
-					f = (float) model.getZoomFactor();
-					image = model.getProjectedImageAsTexture();
-					//img = model.getProjectedImage();
-					break;
-				case ImViewer.GRID_INDEX:
-					//img = model.getGridImage();
-					image = null;
-			}
-			if (image != null)
-				lens.resetLensAsTexture(image, f, lensX, lensY);  
-		} else {
-			BufferedImage img;
-			switch (index) {
-				case ImViewer.VIEW_INDEX:
-				default:
-					f = (float) model.getZoomFactor();
-					img = model.getOriginalImage();
-					break;
-				case ImViewer.PROJECTION_INDEX:
-					f = (float) model.getZoomFactor();
-					img = model.getProjectedImage();
-					break;
-				case ImViewer.GRID_INDEX:
-					img = model.getGridImage();
-			}
-			if (img != null) lens.resetLens(img, f, lensX, lensY);  
-		}
+		BufferedImage img;
+        switch (index) {
+            case ImViewer.VIEW_INDEX:
+            default:
+                f = (float) model.getZoomFactor();
+                img = model.getOriginalImage();
+                break;
+            case ImViewer.PROJECTION_INDEX:
+                f = (float) model.getZoomFactor();
+                img = model.getProjectedImage();
+                break;
+            case ImViewer.GRID_INDEX:
+                img = model.getGridImage();
+        }
+        if (img != null) lens.resetLens(img, f, lensX, lensY);
 		model.getBrowser().addComponent(c, index, true);
 		scrollLens();
 		UIUtilities.setLocationRelativeTo(this, lens.getZoomWindow());

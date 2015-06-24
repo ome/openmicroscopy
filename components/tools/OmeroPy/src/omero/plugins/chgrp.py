@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2011-2015 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
@@ -18,28 +18,30 @@ import sys
 
 HELP = """Move data between groups
 
-Example Usage:
+Move entire graphs of data based on the ID of the top-node.
 
-  omero chgrp 101 /Image:1                     # Move all of Image 1 to \
-group 101
-  omero chgrp Group:101 /Image:1               # Move all of Image 1 to \
-group 101
-  omero chgrp ExperimenterGroup:101 /Image:1   # Move all of Image 1 to \
-group 101
-  omero chgrp "My Lab" /Image:1                # Move all of Image 1 to \
-group "myLab"
+Examples:
 
-  omero chgrp --edit 101 /Image:1              # Open an editor with all \
-the chgrp
-                                               # options filled out with \
-defaults.
+    # In each case move an image to group 101
+    omero chgrp 101 Image:1
+    omero chgrp Group:101 Image:2
+    omero chgrp ExperimenterGroup:101 Image:3
+    # Move three images to the group named "My Lab"
+    omero chgrp "My Lab" Image:51,52,53
 
-  omero chgrp --opt /Image:KEEP /Plate:1       # Calls chgrp on Plate, \
-leaving all
-                                               # images in the previous group.
+    # Move a plate but leave all images in the original group
+    omero chgrp 201 Plate:1 --exclude Image
 
-  What data is moved is the same as that which would be deleted by a similar
-  call to "omero delete /Image:1"
+    # Move all images contained under a project
+    omero chgrp 101 Project/Dataset/Image:53
+    # Move all images contained under two projects
+    omero chgrp 101 Project/Image:201,202
+
+    # Do a dry run of a move reporting the outcome if the move had been run
+    omero chgrp 101 Dataset:53 --dry-run
+    # Do a dry run of a move, reporting all the objects
+    # that would have been moved
+    omero chgrp 101 Dataset:53 --dry-run --report
 
 """
 
@@ -49,7 +51,7 @@ class ChgrpControl(GraphControl):
     def cmd_type(self):
         import omero
         import omero.all
-        return omero.cmd.Chgrp
+        return omero.cmd.Chgrp2
 
     def _pre_objects(self, parser):
         parser.add_argument(
@@ -69,7 +71,7 @@ class ChgrpControl(GraphControl):
         except omero.ApiUsageException:
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
-        # Check session owner is member of the trarget group
+        # Check session owner is member of the target group
         uid = client.sf.getAdminService().getEventContext().userId
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
         if uid not in ids:
@@ -77,23 +79,40 @@ class ChgrpControl(GraphControl):
                          group.id.val)
 
         # Set requests group
-        for request in req.requests:
-            request.grp = gid
+        if isinstance(req, omero.cmd.DoAll):
+            for request in req.requests:
+                if isinstance(request, omero.cmd.SkipHead):
+                    request.request.groupId = gid
+                else:
+                    request.groupId = gid
+        else:
+            if isinstance(req, omero.cmd.SkipHead):
+                req.request.groupId = gid
+            else:
+                req.groupId = gid
 
         super(ChgrpControl, self)._process_request(req, args, client)
 
-    def create_error_report(self, rsp):
-        import omero.cmd
-        if isinstance(rsp, omero.cmd.GraphConstraintERR):
-            if "Fileset" in rsp.constraints:
-                fileset = rsp.constraints.get("Fileset")
-                return "You cannot move part of fileset %s; only complete" \
-                    " filesets can be moved to another group.\n" % \
-                    ", ".join(str(x) for x in fileset)
-            else:
-                return super(ChgrpControl, self).create_error_report(rsp)
-        else:
-            return super(ChgrpControl, self).create_error_report(rsp)
+    def print_detailed_report(self, req, rsp, status):
+        import omero
+        if isinstance(rsp, omero.cmd.DoAllRsp):
+            for response in rsp.responses:
+                if isinstance(response, omero.cmd.Chgrp2Response):
+                    self.print_chgrp_response(response)
+        elif isinstance(rsp, omero.cmd.Chgrp2Response):
+            self.print_chgrp_response(rsp)
+
+    def print_chgrp_response(self, rsp):
+        if rsp.includedObjects:
+            self.ctx.out("Included objects")
+            objIds = self._get_object_ids(rsp.includedObjects)
+            for k in objIds:
+                self.ctx.out("  %s:%s" % (k, objIds[k]))
+        if rsp.deletedObjects:
+            self.ctx.out("Deleted objects")
+            objIds = self._get_object_ids(rsp.deletedObjects)
+            for k in objIds:
+                self.ctx.out("  %s:%s" % (k, objIds[k]))
 
 try:
     register("chgrp", ChgrpControl, HELP)

@@ -17,11 +17,13 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.MapAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TermAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
+import ome.model.internal.NamedValue;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
@@ -41,7 +43,7 @@ import org.hibernate.search.bridge.builtin.DateBridge;
  * Primary definition of what will be indexed via Hibernate Search. This class
  * is delegated to by the {@link DetailsFieldBridge}, and further delegates to
  * classes as defined under "SearchBridges".
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  * @DEV.TODO insert/update OR delete regular type OR annotated type OR
@@ -79,7 +81,7 @@ public class FullTextBridge extends BridgeHelper {
 
     /**
      * Main constructor.
-     * 
+     *
      * @param files
      *            {@link OriginalFileServce} for getting access to binary files.
      * @param parsers
@@ -132,7 +134,7 @@ public class FullTextBridge extends BridgeHelper {
      * file which is then passed to
      * {@link #add(Document, String, Reader, Float)} using the field name
      * "file".
-     * 
+     *
      * @param name
      * @param object
      * @param document
@@ -153,7 +155,7 @@ public class FullTextBridge extends BridgeHelper {
     /**
      * Walks the various {@link Annotation} instances attached to the object
      * argument and adds various levels to the index.
-     * 
+     *
      * @param name
      * @param object
      * @param document
@@ -176,6 +178,9 @@ public class FullTextBridge extends BridgeHelper {
             for (Annotation annotation : list) {
                 String at = annotationTypeString(annotation);
                 add(document, "annotation.type", at, opts);
+                if (annotation.getName() != null) {
+                    add(document, "annotation.name", annotation.getName(), opts);
+                }
                 if (annotation.getNs() != null) {
                     add(document, "annotation.ns", annotation.getNs(), opts);
                 }
@@ -205,8 +210,10 @@ public class FullTextBridge extends BridgeHelper {
                     }
                 } else if (annotation instanceof FileAnnotation) {
                     FileAnnotation fileAnnotation = (FileAnnotation) annotation;
-                    handleFileAnnotation(document, opts,
-                            fileAnnotation);
+                    handleFileAnnotation(document, opts, fileAnnotation);
+                } else if (annotation instanceof MapAnnotation) {
+                    MapAnnotation mapAnnotation = (MapAnnotation) annotation;
+                    handleMapAnnotation(document, opts, mapAnnotation);
                 }
             }
         }
@@ -216,14 +223,16 @@ public class FullTextBridge extends BridgeHelper {
         if (object instanceof FileAnnotation) {
             FileAnnotation fileAnnotation = (FileAnnotation) object;
             handleFileAnnotation(document, opts, fileAnnotation);
-
+        } else if (object instanceof MapAnnotation) {
+            MapAnnotation mapAnnotation = (MapAnnotation) object;
+            handleMapAnnotation(document, opts, mapAnnotation);
         }
     }
 
     /**
      * Parses all ownership and time-based details to the index for the given
      * object.
-     * 
+     *
      * @param name
      * @param object
      * @param document
@@ -291,7 +300,7 @@ public class FullTextBridge extends BridgeHelper {
      * Loops over each {@link #classes field bridge class} and calls its
      * {@link FieldBridge#set(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}
      * method. Any exceptions are logged but do not cancel execution.
-     * 
+     *
      * @param name
      * @param object
      * @param document
@@ -326,7 +335,7 @@ public class FullTextBridge extends BridgeHelper {
 
     /**
      * Creates {@link Field} instances for {@link FileAnnotation} objects.
-     * 
+     *
      * @param document
      * @param store
      * @param index
@@ -356,10 +365,35 @@ public class FullTextBridge extends BridgeHelper {
     }
 
     /**
+     * Creates {@link Field} instances for {@link MapAnnotation} named-value
+     * pair.
+     *
+     * @param document
+     * @param store
+     * @param index
+     * @param boost
+     * @param mapAnnotation
+     */
+    private void handleMapAnnotation(final Document document,
+            final LuceneOptions opts, MapAnnotation mapAnnotation) {
+        List<NamedValue> nvs = mapAnnotation.getMapValue();
+        if (nvs != null && nvs.size() > 0) {
+            for (NamedValue nv : nvs) {
+                if (nv != null) {
+                    add(document, nv.getName(), nv.getValue(), opts);
+                    add(document, "has_key", nv.getName(), opts);
+                    add(document, "annotation", nv.getValue(), opts);
+                    add(document, "annotation", nv.getName(), opts);
+                }
+            }
+        }
+    }
+
+    /**
      * Return the short type name of an {@link Annotation}. If the instance is
      * an {@link ome.model.annotations.TextAnnotation} the returned value will
      * be "TextAnnotation".
-     * 
+     *
      * @param annotation
      * @return
      */

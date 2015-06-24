@@ -31,6 +31,8 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
@@ -83,8 +85,7 @@ public class ImagesImporter
 			ImportableObject context, Integer loaderID)
 	{
 		super(viewer, null);
-		if (context == null || context.getFiles() == null ||
-				context.getFiles().size() == 0)
+		if (context == null || CollectionUtils.isEmpty(context.getFiles()))
 			throw new IllegalArgumentException("No Files to import.");
 		this.context = context;
 		this.loaderID = loaderID;

@@ -2,7 +2,7 @@
  * pojos.WellSampleData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,10 +29,13 @@ package pojos;
 // Third-party libraries
 
 // Application-internal dependencies
-import omero.RDouble;
+import ome.model.units.BigResult;
 import omero.RTime;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
+import omero.model.enums.UnitsLength;
 
 /**
  * The data that makes up an <i>OME</i> WellSample along with links to its
@@ -108,11 +111,30 @@ public class WellSampleData extends DataObject {
     /**
      * Returns the position X.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above.
+     * @throws BigResult If an arithmetic under-/overflow occurred 
      */
+    public Length getPositionX(UnitsLength unit) throws BigResult
+    {
+    	Length value = asWellSample().getPosX();
+    	if (value == null) 
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	return unit == null ? value : new LengthI(value, unit);
+    }	
+    
+    /**
+     * Returns the position X.
+     * 
+     * @return See above.
+     * @deprecated Replaced by {@link #getPositionX(UnitsLength)}
+     */
+    @Deprecated
     public double getPositionX()
     {
-    	RDouble value = asWellSample().getPosX();
+    	Length value = asWellSample().getPosX();
     	if (value == null) return 0;
     	return value.getValue();
     }
@@ -120,11 +142,30 @@ public class WellSampleData extends DataObject {
     /**
      * Returns the position Y.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above.
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    public Length getPositionY(UnitsLength unit) throws BigResult
+    {
+    	Length value = asWellSample().getPosY();
+    	if (value == null)
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	return unit == null ? value : new LengthI(value, unit);
+    }
+    
+    /**
+     * Returns the position Y.
+     * 
+     * @return See above.
+     * @deprecated Replaced by {@link #getPositionY(UnitsLength)}
+     */
+    @Deprecated
     public double getPositionY()
     {
-    	RDouble value = asWellSample().getPosY();
+    	Length value = asWellSample().getPosY();
     	if (value == null) return 0;
     	return value.getValue();
     }

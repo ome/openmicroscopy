@@ -25,10 +25,10 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css"|add:url_suffix %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen-1.2.0/chosen.css' %}" type="text/css" media="screen"/>
     
-    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css'|add:url_suffix %}" type="text/css" media="screen"/>
     
 {% endblock %}
 
@@ -43,91 +43,80 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
-    <script type="text/javascript" src="{% static '3rdparty/jquery.selectboxes.js' %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form-3.51.js" %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen-1.2.0/chosen.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.selectboxes-2.2.6.js' %}"></script>
     
     <script type="text/javascript">
     $(document).ready(function() 
     {
-        var highlightDefault = function() {
-            dv = $('#id_default_group').val();
-            if (dv.length > 0){
-                selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
-                    return item.value == dv;
-                });
-                $("#id_other_groups_chzn_c_"+selected[0].array_index).addClass('search-choice-default').find("a").first().attr('rel');
-                $('#id_default_group').val(selected[0].value);
-            } else {
-                $('#id_default_group').val("");
-            }
-        }
-
-        var selectDefaultGroup = function(evt) {
-            evt.stopPropagation();
-            var target = $(evt.target).hasClass("search-choice") ? $(evt.target) : $(evt.target).parents(".search-choice").first();
-            $(".chzn-choices li.search-choice").removeClass('search-choice-default');
-            choice_id = $(evt.currentTarget).addClass('search-choice-default').find("a").first().attr('rel');
-            selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
-                return item.array_index == choice_id;
-            })[0];
-            $("#id_default_group").selectOptions(selected.value, true);
-        };
 
         // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
         var admin_groups = {{ admin_groups|jsonify|safe }};
         var hideSystemGroupX = function() {
             for (i=0; i<admin_groups.length; i++) {
                 var optText = $("#id_other_groups").find("option[value=" + admin_groups[i] + "]").text(),
-                    $system_li = $("#id_other_groups_chzn").find("span:contains('"+optText+"')").parent();
+                    $system_li = $("#id_other_groups_chosen").find("span:contains('"+optText+"')").parent();
                 $system_li.find('a').hide();
             }
         }
-        
+
+        var syncDefaultGroupOptions = function(id) {
+            var $df = $('#id_default_group'), currentDefaultGroup = $df.val()
+            if (id === currentDefaultGroup) {
+                $("#id_default_group option[value='"+id+"']").removeAttr("selected");
+            } else if (currentDefaultGroup=='') {
+                $("#id_default_group option[value='']").removeAttr("selected");
+            }
+            if ($("#id_default_group option[value='"+id+"']").length > 0) {
+                $("#id_default_group option[value='"+id+"']").remove();
+            } else {
+                $df.append($("#id_other_groups option[value='"+id+"']").clone().removeAttr("selected"));
+            }
+            // if only one group
+            if( $( "#id_other_groups" ).val() && $( "#id_other_groups" ).val().length === 1) {
+                $df.selectOptions($( "#id_other_groups" ).val()[0], true);
+            }
+            $df.trigger("chosen:updated");
+            //$df.selectOptions(currentDefaultGroup, true);
+        }
+
+        $("#id_default_group").chosen({disable_search_threshold:5, placeholder_text:'Choose default group'});
+
+        // Setup chosen plugin on 'Groups' chooser
         $("#id_other_groups").chosen({placeholder_text:'Type group names to add...'}).change(function(evt, data) {
+
             if (data && data.deselected) {
                 if (data.deselected === "0") {
                     $("input[name='administrator']").prop('checked', false);
                 }
-                $df = $('#id_default_group')
-                if ($df.val() === data.deselected){
-                    $("#id_default_group").selectOptions("", true);
-                } 
+                syncDefaultGroupOptions(data.deselected);
             } else if (data && data.selected) {
                 if (data.selected === "0") {
                     $("input[name='administrator']").prop('checked', true);
                 }
-                $("li.search-choice").click(selectDefaultGroup);
-                // In case we've added the system group:
+                syncDefaultGroupOptions(data.selected);
             }
+            // In case we've added the system group:
             hideSystemGroupX();
         });
         
         $("input[name='administrator']").click( function(evt) {
             evt.stopPropagation();
             if($("input[name='administrator']").is(':checked')) {
-                $('#id_other_groups option[value=0]').prop('selected', true);
+                $("#id_other_groups option[value='0']").attr('selected','selected');
             } else {
-                $('#id_other_groups option[value=0]').prop('selected', false);
-                // also remove 'system' from the hidden 'default group' chooser
-                $df = $('#id_default_group');
-                if ($df.val() === "0"){
-                    $("#id_default_group").selectOptions("", true);
-                }
+                $("#id_other_groups option[value='0']").removeAttr("selected");
+                // also remove 'system' from the 'default group' chooser
             }
-            $("#id_other_groups").trigger("liszt:updated");
-            $("li.search-choice").click(selectDefaultGroup);
-            highlightDefault();
+            $("#id_other_groups").trigger("chosen:updated");
+            syncDefaultGroupOptions(0);
+            // In case we've added the system group:
             hideSystemGroupX();
         });
 
-        $("li.search-choice").click(function(evt) {
-            evt.stopPropagation();
-            selectDefaultGroup(evt);
-        });
-        highlightDefault();
+        // Initial setup:
         hideSystemGroupX();
-        
         
         // code for Change Password dialog - NB this is duplicated in myaccount.html. 
         $( "#password_change_dialog" ).dialog({
@@ -221,7 +210,7 @@
 
     {% if eid %}
     <!-- We are editing existing user -->
-    <form action="{% url 'wamanageexperimenterid' "save" eid %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "save" eid %}" method="POST" class="standard_form settings_form">{% csrf_token %}
 
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }}
@@ -237,7 +226,7 @@
         <br />
     {% else %}
     <!-- We are creating new user -->
-    <form action="{% url 'wamanageexperimenterid' "create" %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "create" %}" method="POST" class="standard_form settings_form">{% csrf_token %}
     {% endif %}
 
     <p>{% trans "Fields marked in red are mandatory." %}</p>
@@ -246,14 +235,14 @@
 
             {% ifequal field.label_tag form.default_group.label_tag %}
                 <!-- default group -->
+                <span class="required">{{ field.label_tag }}</span>
                 {{ field }}
-            
+                <br />
             {% else %}
                 {% ifequal field.label_tag form.other_groups.label_tag %}
                     <!-- other groups -->
                     <span class="required">{{ field.label_tag }}</span>
                     {{ field }}
-                    
                 {% else %}
                     <!-- all other fields -->
                     {% if field.field.required %}
@@ -278,7 +267,7 @@
     <!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
     <div id="password_change_dialog" title="Change Password">
 
-    <form id="change_password_form" action="{% url 'wamanagechangepasswordid' eid %}" method="POST">
+    <form id="change_password_form" action="{% url 'wamanagechangepasswordid' eid %}" method="POST">{% csrf_token %}
 
         <table>
             <tbody>

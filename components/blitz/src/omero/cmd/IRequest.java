@@ -19,11 +19,6 @@ package omero.cmd;
 
 import java.util.Map;
 
-import org.hibernate.Session;
-
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-
 import omero.cmd.HandleI.Cancel;
 
 /**
@@ -71,7 +66,7 @@ public interface IRequest {
     Object step(int step) throws Cancel;
 
     /**
-     * Method within the transaction boudnaries after all processing has
+     * Method within the transaction boundaries after all processing has
      * occurred. A thrown {@link Cancel} will still rollback the current
      * transaction.
      *
@@ -81,7 +76,7 @@ public interface IRequest {
 
     /**
      * Post-transaction chance to map from the return value of
-     * {@link #step(int)} to a {@link omero.cmd.Respnse} object.
+     * {@link #step(int)} to a {@link omero.cmd.Response} object.
      * 
      * @param i
      * @param object

@@ -1,13 +1,14 @@
 /*
  * pojos.DataObject
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package pojos;
 
-//Java imports
+import static omero.rtypes.rlong;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,10 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import static omero.rtypes.rlong;
 import ome.model.IAnnotated;
 import ome.model.IMutable;
 import omero.model.Annotation;
@@ -36,6 +33,8 @@ import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.LongAnnotation;
 import omero.model.Permissions;
 import omero.model.Pixels;
@@ -287,7 +286,8 @@ public abstract class DataObject {
      */
     public ExperimenterData getOwner() {
         if (owner == null) {
-            owner = new ExperimenterData(asIObject().getDetails().getOwner());
+			Experimenter experimenter = asIObject().getDetails().getOwner();
+			owner = experimenter != null ? new ExperimenterData(experimenter) : null;
         }
         return owner;
     }
@@ -346,9 +346,13 @@ public abstract class DataObject {
         return d == null ? 0.0d : d.getValue();
     }
 
+    protected double nullSafe(omero.model.Length l) {
+        return l == null ? 0.0d : l.getValue();
+    }
+
     protected Timestamp timeOfEvent(Event event) {
         if (event == null || !event.isLoaded() || event.getTime() == null) {
-            throw new IllegalStateException("Event does not contain timestamp.");
+            return null;
         }
         return new Timestamp(event.getTime().getValue());
     }

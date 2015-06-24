@@ -11,10 +11,10 @@
         <OnMismatch>NEUTRAL</OnMismatch>
         <OnMatch>DENY</OnMatch>
       </filter>
-      <!-- Exclude debug level logging from omero.* -->
+      <!-- Exclude debug level logging from omero.* (except allow omero.cmd.*) -->
       <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
         <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
-          <expression>return Level.DEBUG.equals(Level.toLevel(level)) &amp;&amp; logger.startsWith("omero.");</expression>
+          <expression>return Level.DEBUG.equals(Level.toLevel(level)) &amp;&amp; logger.startsWith("omero.") &amp;&amp; !logger.startsWith("omero.cmd.");</expression>
         </evaluator>
         <OnMismatch>NEUTRAL</OnMismatch>
         <OnMatch>DENY</OnMatch>
@@ -87,6 +87,7 @@
   <logger name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean" level="WARN"/>
   <!-- Often useful to change to DEBUG -->
   <logger name="omero.cmd" level="INFO"/>
+  <logger name="omero.cmd.graphs" level="INFO"/>
   <logger name="ome.services.graphs" level="INFO"/>
   <logger name="ome.services.chgrp" level="INFO"/>
   <logger name="ome.services.chmod" level="INFO"/>
@@ -142,6 +143,8 @@
   <logger name="org.hibernate.pretty" level="ERROR"/>
   <logger name="org.hibernate.type" level="ERROR"/>
   <logger name="org.hibernate.validator" level="ERROR"/>
+  <!-- Thrown from BinaryAccessPolicy -->
+  <logger name="org.hibernate.AssertionFailure" level="OFF" additivity="false"/>
 
     <!-- Import logs //////////////////////////////////////////////////////////// -->
   <logger name="ome.services.blitz.repo.ManagedImportRequestI">

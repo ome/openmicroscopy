@@ -95,6 +95,13 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    appbundler-*.jar
+  Project:      Packages a Java application as a Mac app bundle.
+  Web Site:     https://java.net/projects/appbundler
+  License:      General Public License (GPL), Version 2
+  License File: gpl.txt
+
+
   Artifacts:    axis-client-*.jar
   Project:      Apache Axis is an implementation of the SOAP
                 ("Simple Object Access Protocol") submission to W3C.
@@ -188,13 +195,6 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    emma-*.jar
-  Project:      EMMA, a free Java code coverage tool
-  Web Site:     http://emma.sourceforge.net
-  License:      Common Public License v1.0
-  License File: cpl-v10.html
-
-
   Artifacts:    findbugs-*.jar
   Project:      FindBugs, Find Bugs in Java Programs
   Web Site:     http://findbugs.sourceforge.net
@@ -222,12 +222,6 @@
   Web Site:     http://geronimo.apache.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
-
-
-  Artifacts:    gicentreUtils-*.jar
-  Project:      giCentreUtils
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl.txt
 
 
   Artifacts:    grib-*.jar
@@ -351,14 +345,6 @@
   License File: jmock.txt
 
 
-  Artifacts:    jogl-*.jar and gluegen-rt.jar
-                As well as the native libraries under lib/native:
-                linux-native, linux64-native, osx-native, win-native and win64-native.
-  Project:      OpenGL Project a 2D/3D graphics API for High Performance Graphics.
-  Web Site:     http://www.opengl.org/
-  License:      No license for API
-
-
   Artifacts:    jsr107cache-*.jar
   Project:      jsr107cache, Java API for caching
   Web Site:     http://sourceforge.net/projects/jsr107cache/
@@ -416,29 +402,6 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    nanoxml-*.jar
-  Project:      NanoXML is a small XML parser for Java. NanoXML comes in three different components
-  Web Site:     http://devkix.com/nanoxml.php
-  License:      zlib/libpng License
-  License File: zlib-libpng.txt
-
-
-  Artifacts:    nsisant-*.jar
-  Project:      NsisAnt - An Ant Task used to compile NSIS scripts
-  Web Site:     http://nsisant.sourceforge.net/
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
-
-
-  Artifacts:    ols-client-*.jar
-  Project:      The Ontology Lookup service. A spin-off the PRIDE project.
-                Provides a web service interface to query multiple ontologies from a single
-                location with a unified output format.
-  Web Site:     http://www.ebi.ac.uk/ontology-lookup/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    PDFBox-*.jar
   Project:      Apache PDFBox - Java PDF Library
   Web Site:     http://incubator.apache.org/pdfbox
@@ -471,20 +434,6 @@
   Web Site:     http://jdbc.postgresql.org
   License:      BSD
   License File: postgresql.txt
-
-
-  Artifacts:    processing-core-*.jar
-  Project:      Processing is an open source programming language and environment for people who want to create images, animations, and interactions.
-  Web Site:     http://processing.org/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
-
-  Artifacts:    processing-controlP5-*.jar
-  Project:      controlp5, a gui library for the programming environment processing
-  Web Site:     http://www.sojamo.de/libraries/controlP5/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
 
 
   Artifacts:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar
@@ -542,6 +491,13 @@
   Artifacts:    spring-*.jar
   Project:      Spring Framework. A layered Java application platform.
   Website:      http://springframework.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    subethasmtp-*.jar
+  Project:      SubEtha SMTP is an easy-to-use server-side SMTP library for Java
+  Website:      https://code.google.com/p/subethasmtp
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
@@ -667,13 +623,6 @@
   Web Site:     http://ami.scripps.edu/software/tiltpicker/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
-
-
-  Artifacts:    components/tools/OmeroPy/src/omero_ext/xmlrunner
-  Project:      unittest-xml-reporting - PyUnit-based TestRunner
-  Web Site:     http://github.com/danielfm/unittest-xml-reporting
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.8.17/*

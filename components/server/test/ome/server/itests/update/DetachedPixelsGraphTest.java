@@ -159,17 +159,9 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         // PREPARE -------------------------------------------------
         PlaneInfo pi1 = new PlaneInfo(), pi2 = new PlaneInfo();
 
-        Time exposureTime = new Time();
-        exposureTime.setValue(10);
-        exposureTime.setUnit(new UnitsTime("s"));
-
-        Time deltaT = new Time();
-        exposureTime.setValue(-1);
-        exposureTime.setUnit(new UnitsTime("s"));
-
-        Time deltaTB = new Time();
-        exposureTime.setValue(-193);
-        exposureTime.setUnit(new UnitsTime("s"));
+        Time exposureTime = new Time(10, UnitsTime.SECOND);
+        Time deltaT = new Time(-1, UnitsTime.SECOND);
+        Time deltaTB = new Time(-193, UnitsTime.SECOND);
 
         pi1.setTheC(new Integer(1));
         pi1.setTheT(new Integer(1));

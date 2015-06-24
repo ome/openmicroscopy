@@ -29,12 +29,15 @@ import traceback
 from glob import glob
 
 from django.conf import settings
+from django.http.request import split_domain_port
 from django.template import loader as template_loader
 from django.template import RequestContext as Context
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import never_cache
 
 from omeroweb.http import HttpJNLPResponse
+from omeroweb.settings import str_slash
+from omero_version import build_year
 from omero_version import omero_version
 
 from decorators import login_required, render_response
@@ -44,7 +47,7 @@ from decorators import login_required, render_response
 @login_required()
 @render_response()
 def custom_index(request, conn=None, **kwargs):
-    context = {"version": omero_version}
+    context = {"version": omero_version, 'build_year': build_year}
 
     if settings.INDEX_TEMPLATE is not None:
         try:
@@ -63,7 +66,7 @@ def custom_index(request, conn=None, **kwargs):
 @login_required()
 @render_response()
 def index(request, conn=None, **kwargs):
-    context = {"version": omero_version}
+    context = {"version": omero_version, 'build_year': build_year}
 
     if settings.WEBSTART_TEMPLATE is not None:
         try:
@@ -79,7 +82,8 @@ def index(request, conn=None, **kwargs):
 
 
 @never_cache
-def insight(request):
+@login_required()
+def insight(request, conn=None, **kwargs):
     t = template_loader.get_template('webstart/insight.xml')
 
     codebase = request.build_absolute_uri(settings.STATIC_URL+'webstart/jars/')
@@ -98,22 +102,39 @@ def insight(request):
         jarlist.pop(idx)
         jarlist.insert(0, settings.WEBSTART_JAR)
 
-    idy = jarlist.index(settings.NANOXML_JAR)
-    if idy > 0:
-        jarlist.pop(idy)
-        jarlist.insert(len(jarlist)-1, settings.NANOXML_JAR)
-
     context = {
         'codebase': codebase, 'href': href, 'jarlist': jarlist,
         'icon': settings.WEBSTART_ICON,
         'heap': settings.WEBSTART_HEAP,
-        'host': settings.WEBSTART_HOST,
-        'port': settings.WEBSTART_PORT,
         'class': settings.WEBSTART_CLASS,
         'title': settings.WEBSTART_TITLE,
         'vendor': settings.WEBSTART_VENDOR,
         'homepage': settings.WEBSTART_HOMEPAGE,
     }
 
+    if conn is None:
+        context['host'] = getOmeroHost(request, settings.WEBSTART_HOST)
+        context['port'] = settings.WEBSTART_PORT
+        context['web_host'] = buildWebhost(request, settings.WEBSTART_HOST)
+    else:
+        context['host'] = getOmeroHost(request, conn.host)
+        context['port'] = conn.port
+        context['sessionid'] = conn.c.getSessionId()
+        context['web_host'] = buildWebhost(request, conn.getWebclientHost())
+
     c = Context(request, context)
     return HttpJNLPResponse(t.render(c))
+
+
+def buildWebhost(request, web_host=None):
+    if not web_host or "localhost" in web_host:
+        prefix = settings.FORCE_SCRIPT_NAME or "/"
+        web_host = request.build_absolute_uri(prefix)
+    return str_slash(web_host)
+
+
+def getOmeroHost(request, host=None):
+    if not host or host in ("localhost", "127.0.0.1"):
+        hostport = request.get_host()
+        host, port = split_domain_port(hostport)
+    return host

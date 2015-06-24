@@ -79,9 +79,31 @@ public class IceMap {
         _ome2omero.put(ome.model.roi.Label.class, omero.model.SmartTextI.class);
 
         // Units
-        _ome2omero.put(ome.model.units. Time.class, omero.model.TimeI.class);
+        _ome2omero.put(ome.model.units.ElectricPotential.class, omero.model.ElectricPotentialI.class);
+        _omero2ome.put(omero.model.ElectricPotential.class, ome.model.units.ElectricPotential.class);
+        _omero2ome.put(omero.model.ElectricPotentialI.class, ome.model.units.ElectricPotential.class);
+        _ome2omero.put(ome.model.units.Frequency.class, omero.model.FrequencyI.class);
+        _omero2ome.put(omero.model.Frequency.class, ome.model.units.Frequency.class);
+        _omero2ome.put(omero.model.FrequencyI.class, ome.model.units.Frequency.class);
+        _ome2omero.put(ome.model.units.Length.class, omero.model.LengthI.class);
+        _omero2ome.put(omero.model.Length.class, ome.model.units.Length.class);
+        _omero2ome.put(omero.model.LengthI.class, ome.model.units.Length.class);
+        _ome2omero.put(ome.model.units.Power.class, omero.model.PowerI.class);
+        _omero2ome.put(omero.model.Power.class, ome.model.units.Power.class);
+        _omero2ome.put(omero.model.PowerI.class, ome.model.units.Power.class);
+        _ome2omero.put(ome.model.units.Pressure.class, omero.model.PressureI.class);
+        _omero2ome.put(omero.model.Pressure.class, ome.model.units.Pressure.class);
+        _omero2ome.put(omero.model.PressureI.class, ome.model.units.Pressure.class);
+        _ome2omero.put(ome.model.units.Temperature.class, omero.model.TemperatureI.class);
+        _omero2ome.put(omero.model.Temperature.class, ome.model.units.Temperature.class);
+        _omero2ome.put(omero.model.TemperatureI.class, ome.model.units.Temperature.class);
+        _ome2omero.put(ome.model.units.Time.class, omero.model.TimeI.class);
         _omero2ome.put(omero.model.Time.class, ome.model.units.Time.class);
         _omero2ome.put(omero.model.TimeI.class, ome.model.units.Time.class);
+
+        // Other
+        _ome2omero.put(ome.model.internal.NamedValue.class, omero.model.NamedValue.class);
+        _omero2ome.put(omero.model.NamedValue.class, ome.model.internal.NamedValue.class);
 
         // Sealing
         OMEtoOMERO = Collections.unmodifiableMap(_ome2omero);

@@ -20,8 +20,12 @@
 #ifndef OMERO_MODEL_TIMEI_H
 #define OMERO_MODEL_TIMEI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Time.h>
-#include <omero/model/UnitsTime.h>
+#include <omero/model/Units.h>
+#include <omero/IceNoWarnPop.h>
+
+#include <omero/conversions.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
@@ -50,21 +54,46 @@ namespace omero {
 
     protected:
         virtual ~TimeI(); // protected as outlined in Ice docs.
+        static std::map<enums::UnitsTime,
+            std::map<enums::UnitsTime,
+                omero::conversions::ConversionPtr> > CONVERSIONS;
+        static std::map<enums::UnitsTime, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(enums::UnitsTime unit) {
+            return SYMBOLS[unit];
+        }
+
         TimeI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        TimeI(const double& value, const enums::UnitsTime& unit);
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        // Conversion constructor
+        TimeI(const TimePtr& value, const enums::UnitsTime& target);
 
-        virtual UnitsTimePtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsTimePtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual TimePtr copy(const Ice::Current& = Ice::Current());
+        virtual enums::UnitsTime getUnit(
+                const Ice::Current& current = Ice::Current());
+
+        virtual void setUnit(
+                enums::UnitsTime unit,
+                const Ice::Current& current = Ice::Current());
+
+        virtual std::string getSymbol(
+                const Ice::Current& current = Ice::Current());
+
+        virtual TimePtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_TIMEI_H
+

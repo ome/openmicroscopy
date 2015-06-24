@@ -6,16 +6,17 @@ SCRIPT = """if True:
     import omero.scripts as s
     s.client("name")"""
 
-import omero, omero.scripts
+import omero
+import omero.scripts
 import time
-import omero_ext.uuid as uuid # see ticket:3774
+import uuid
 
 launched = time.time()
 client = omero.client()
 try:
     sf = client.createSession()
     scriptService = sf.getScriptService()
-    id = scriptService.uploadOfficialScript(\
+    id = scriptService.uploadOfficialScript(
         "/examples/%s.py" % uuid.uuid4(), SCRIPT)
     proc = scriptService.runScript(id, None, None)
     cb = omero.scripts.ProcessCallbackI(client, proc)
@@ -25,4 +26,4 @@ try:
             raise StopIteration("Too long!")
 finally:
     print "Finished in (s): %s" % (time.time() - launched)
-    client.closeSession();
+    client.closeSession()

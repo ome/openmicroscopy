@@ -32,7 +32,7 @@ import pojos.GroupData;
  * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-abstract class ImportLocationSettings {
+public abstract class ImportLocationSettings {
 
 	/** Defines the group data to be imported in to */
 	private GroupData importGroup;

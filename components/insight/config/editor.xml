@@ -36,10 +36,10 @@
      <entry name="/xml/cpe.dtd">http://genome.tugraz.at/iLAP/cpe/cpe.dtd</entry>
      
      <!-- The location of the style-sheet, for viewing files in a browser.-->
-     <entry name="/xml/editor.xsl">http://cvs.openmicroscopy.org.uk/snapshots/omero/editor/xsl/cpeEditor2html.xsl</entry>
+     <entry name="/xml/editor.xsl">http://downloads.openmicroscopy.org/editor/xsl/cpeEditor2html.xsl</entry>
      
      <!-- The 'home page' of online demo files -->
-     <entry name="/demo/index">http://cvs.openmicroscopy.org.uk/snapshots/omero/editor/demoFiles/beta4/index.html</entry>
+     <entry name="/demo/index">http://downloads.openmicroscopy.org/editor/demoFiles/beta4/index.html</entry>
 
 	<!-- A comma-delimited list of common units -->
 	<entry name="/model/units">ml, M, ng, pH, µg, µg/ml, µl, µM, ºC, days, hours, minutes, seconds</entry>

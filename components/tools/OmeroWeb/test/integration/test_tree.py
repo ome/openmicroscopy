@@ -22,7 +22,7 @@ Simple integration tests for the "tree" module.
 """
 
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
@@ -47,342 +47,7 @@ def cmp_name_insensitive(x, y):
     return cmp(x.name.val.lower(), y.name.val.lower())
 
 
-@pytest.fixture(scope='function')
-def itest(request):
-    """
-    Returns a new L{test.integration.library.ITest} instance.  With
-    attached finalizer so that pytest will clean it up.
-    """
-    o = lib.ITest()
-    o.setup_method(None)
-
-    def finalizer():
-        o.teardown_method(None)
-    request.addfinalizer(finalizer)
-    return o
-
-
-@pytest.fixture(scope='function')
-def client(request, itest):
-    """Returns a new user client in a read-only group."""
-    # Use group read-only permissions (not private) by default
-    return itest.new_client(perms='rwr---')
-
-
-@pytest.fixture(scope='function')
-def conn(request, client):
-    """Returns a new OMERO gateway."""
-    return BlitzGateway(client_obj=client)
-
-
-@pytest.fixture(scope='function')
-def update_service(request, client):
-    """Returns a new OMERO update service."""
-    return client.getSession().getUpdateService()
-
-
-@pytest.fixture(scope='module')
-def names(request):
-    return ('Apple', 'bat', 'atom', 'Butter')
-
-
-@pytest.fixture(scope='function')
-def projects(request, itest, update_service, names):
-    """
-    Returns four new OMERO Projects with required fields set and with names
-    that can be used to exercise sorting semantics.
-    """
-    to_save = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
-    for index, project in enumerate(to_save):
-        project.name = rstring(names[index])
-    return update_service.saveAndReturnArray(to_save)
-
-
-@pytest.fixture(scope='function')
-def projects_different_users(request, itest, conn):
-    """
-    Returns two new OMERO Projects created by different users with
-    required fields set.
-    """
-    client = conn.c
-    group = conn.getGroupFromContext()._obj
-    projects = list()
-    # User that has already been created by the "client" fixture
-    user, name = itest.user_and_name(client)
-    itest.add_experimenters(group, [user])
-    for name in (rstring(itest.uuid()), rstring(itest.uuid())):
-        client, user = itest.new_client_and_user(group=group)
-        try:
-            project = ProjectI()
-            project.name = name
-            update_service = client.getSession().getUpdateService()
-            projects.append(update_service.saveAndReturnObject(project))
-        finally:
-            client.closeSession()
-    return projects
-
-
-@pytest.fixture(scope='function')
-def project_dataset(request, itest, update_service):
-    """
-    Returns a new OMERO Project and linked Dataset with required fields set.
-    """
-    project = ProjectI()
-    project.name = rstring(itest.uuid())
-    dataset = DatasetI()
-    dataset.name = rstring(itest.uuid())
-    project.linkDataset(dataset)
-    return update_service.saveAndReturnObject(project)
-
-
-@pytest.fixture(scope='function')
-def project_dataset_image(request, itest, update_service):
-    """
-    Returns a new OMERO Project, linked Dataset and linked Image populated
-    by an L{test.integration.library.ITest} instance with required fields
-    set.
-    """
-    project = ProjectI()
-    project.name = rstring(itest.uuid())
-    dataset = DatasetI()
-    dataset.name = rstring(itest.uuid())
-    image = itest.new_image(name=itest.uuid())
-    dataset.linkImage(image)
-    project.linkDataset(dataset)
-    return update_service.saveAndReturnObject(project)
-
-
-@pytest.fixture(scope='function')
-def projects_datasets(request, itest, update_service, names):
-    """
-    Returns four new OMERO Projects and four linked Datasets with required
-    fields set and with names that can be used to exercise sorting semantics.
-    """
-    projects = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
-    for index, project in enumerate(projects):
-        project.name = rstring(names[index])
-        datasets = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
-        for index, dataset in enumerate(datasets):
-            dataset.name = rstring(names[index])
-            project.linkDataset(dataset)
-    return update_service.saveAndReturnArray(projects)
-
-
-@pytest.fixture(scope='function')
-def datasets(request, itest, update_service, names):
-    """
-    Returns four new OMERO Datasets with required fields set and with names
-    that can be used to exercise sorting semantics.
-    """
-    to_save = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
-    for index, dataset in enumerate(to_save):
-        dataset.name = rstring(names[index])
-    # Non-orphaned Dataset to catch issues with queries where non-orphaned
-    # datasets are included in the results.
-    project = ProjectI()
-    project.name = rstring(itest.uuid())
-    dataset = DatasetI()
-    dataset.name = rstring(itest.uuid())
-    project.linkDataset(dataset)
-    update_service.saveAndReturnObject(project)
-    return update_service.saveAndReturnArray(to_save)
-
-
-@pytest.fixture(scope='function')
-def datasets_different_users(request, itest, conn):
-    """
-    Returns two new OMERO Datasets created by different users with
-    required fields set.
-    """
-    client = conn.c
-    group = conn.getGroupFromContext()._obj
-    datasets = list()
-    # User that has already been created by the "client" fixture
-    user, name = itest.user_and_name(client)
-    itest.add_experimenters(group, [user])
-    for name in (rstring(itest.uuid()), rstring(itest.uuid())):
-        client, user = itest.new_client_and_user(group=group)
-        try:
-            dataset = DatasetI()
-            dataset.name = name
-            update_service = client.getSession().getUpdateService()
-            datasets.append(update_service.saveAndReturnObject(dataset))
-        finally:
-            client.closeSession()
-    return datasets
-
-
-@pytest.fixture(scope='function')
-def screens(request, itest, update_service, names):
-    """
-    Returns four new OMERO Screens with required fields set and with names
-    that can be used to exercise sorting semantics.
-    """
-    to_save = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
-    for index, screen in enumerate(to_save):
-        screen.name = rstring(names[index])
-    return update_service.saveAndReturnArray(to_save)
-
-
-@pytest.fixture(scope='function')
-def screens_different_users(request, itest, conn):
-    """
-    Returns two new OMERO Screens created by different users with
-    required fields set.
-    """
-    client = conn.c
-    group = conn.getGroupFromContext()._obj
-    screens = list()
-    # User that has already been created by the "client" fixture
-    user, name = itest.user_and_name(client)
-    itest.add_experimenters(group, [user])
-    for name in (rstring(itest.uuid()), rstring(itest.uuid())):
-        client, user = itest.new_client_and_user(group=group)
-        try:
-            screen = ScreenI()
-            screen.name = name
-            update_service = client.getSession().getUpdateService()
-            screens.append(update_service.saveAndReturnObject(screen))
-        finally:
-            client.closeSession()
-    return screens
-
-
-@pytest.fixture(scope='function')
-def screen_plate_run(request, itest, update_service):
-    """
-    Returns a new OMERO Screen, linked Plate, and linked PlateAcquisition
-    with all required fields set.
-    """
-    screen = ScreenI()
-    screen.name = rstring(itest.uuid())
-    plate = PlateI()
-    plate.name = rstring(itest.uuid())
-    plate_acquisition = PlateAcquisitionI()
-    plate.addPlateAcquisition(plate_acquisition)
-    screen.linkPlate(plate)
-    return update_service.saveAndReturnObject(screen)
-
-
-@pytest.fixture(scope='function')
-def screens_plates_runs(request, itest, update_service):
-    """
-    Returns a two new OMERO Screens, two linked Plates, and two linked
-    PlateAcquisitions with all required fields set.
-    """
-    screens = [ScreenI(), ScreenI()]
-    for screen in screens:
-        screen.name = rstring(itest.uuid())
-        plates = [PlateI(), PlateI()]
-        for plate in plates:
-            plate.name = rstring(itest.uuid())
-            plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
-            for plate_acquisition in plate_acquisitions:
-                plate.addPlateAcquisition(plate_acquisition)
-            screen.linkPlate(plate)
-    return update_service.saveAndReturnArray(screens)
-
-
-@pytest.fixture(scope='function')
-def screen_plate(request, itest, update_service):
-    """
-    Returns a new OMERO Screen and linked Plate with required fields set.
-    """
-    screen = ScreenI()
-    screen.name = rstring(itest.uuid())
-    plate = PlateI()
-    plate.name = rstring(itest.uuid())
-    screen.linkPlate(plate)
-    return update_service.saveAndReturnObject(screen)
-
-
-@pytest.fixture(scope='function')
-def screens_plates(request, itest, update_service, names):
-    """
-    Returns four new OMERO Screens and four linked Plates with required
-    fields set and with names that can be used to exercise sorting semantics.
-    """
-    screens = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
-    for index, screen in enumerate(screens):
-        screen.name = rstring(names[index])
-        plates = [PlateI(), PlateI(), PlateI(), PlateI()]
-        for index, plate in enumerate(plates):
-            plate.name = rstring(names[index])
-            screen.linkPlate(plate)
-    return update_service.saveAndReturnArray(screens)
-
-
-@pytest.fixture(scope='function')
-def plates_different_users(request, itest, conn):
-    """
-    Returns two new OMERO Plates created by different users with
-    required fields set.
-    """
-    client = conn.c
-    group = conn.getGroupFromContext()._obj
-    plates = list()
-    # User that has already been created by the "client" fixture
-    user, name = itest.user_and_name(client)
-    itest.add_experimenters(group, [user])
-    for name in (rstring(itest.uuid()), rstring(itest.uuid())):
-        client, user = itest.new_client_and_user(group=group)
-        try:
-            plate = PlateI()
-            plate.name = name
-            update_service = client.getSession().getUpdateService()
-            plates.append(update_service.saveAndReturnObject(plate))
-        finally:
-            client.closeSession()
-    return plates
-
-
-@pytest.fixture(scope='function')
-def plates_runs(request, itest, update_service, names):
-    """
-    Returns a four new Plates, and two linked PlateAcquisitions with required
-    fields set and with names that can be used to exercise sorting semantics.
-    """
-    plates = [PlateI(), PlateI(), PlateI(), PlateI()]
-    for index, plate in enumerate(plates):
-        plate.name = rstring(names[index])
-        plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
-        for plate_acquisition in plate_acquisitions:
-            plate.addPlateAcquisition(plate_acquisition)
-    # Non-orphaned Plate to catch issues with queries where non-orphaned
-    # plates are included in the results.
-    screen = ScreenI()
-    screen.name = rstring(itest.uuid())
-    plate = PlateI()
-    plate.name = rstring(itest.uuid())
-    screen.linkPlate(plate)
-    update_service.saveAndReturnObject(screen)
-    return update_service.saveAndReturnArray(plates)
-
-
-@pytest.fixture(scope='function')
-def plate_run(request, itest, update_service):
-    """
-    Returns a new OMERO Plate and linked PlateAcquisition with all required
-    fields set.
-    """
-    plate = PlateI()
-    plate.name = rstring(itest.uuid())
-    plate_acquisition = PlateAcquisitionI()
-    plate.addPlateAcquisition(plate_acquisition)
-    return update_service.saveAndReturnObject(plate)
-
-
-@pytest.fixture(scope='function')
-def plate(request, itest, update_service):
-    """
-    Returns a new OMERO Plate with all required fields set.
-    """
-    plate = PlateI()
-    plate.name = rstring(itest.uuid())
-    return update_service.saveAndReturnObject(plate)
-
-
-class TestTree(object):
+class TestTree(lib.ITest):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
     correctly.
@@ -396,10 +61,305 @@ class TestTree(object):
      * https://pytest.org/latest/fixture.html
     """
 
-    def test_marshal_project_dataset(self, conn, project_dataset):
+    @classmethod
+    def setup_class(cls):
+        """Returns a logged in Django test client."""
+        super(TestTree, cls).setup_class()
+        cls.names = ('Apple', 'bat', 'atom', 'Butter')
+
+    def setup_method(self, method):
+        self.client = self.new_client(perms='rwr---')
+        self.conn = BlitzGateway(client_obj=self.client)
+        self.update = self.client.getSession().getUpdateService()
+
+    @pytest.fixture
+    def projects(self):
+        """
+        Returns four new OMERO Projects with required fields set and with
+        names that can be used to exercise sorting semantics.
+        """
+        to_save = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
+        for index, project in enumerate(to_save):
+            project.name = rstring(self.names[index])
+        return self.update.saveAndReturnArray(to_save)
+
+    @pytest.fixture
+    def project_dataset(self):
+        """
+        Returns a new OMERO Project and linked Dataset with required fields
+        set.
+        """
+        project = ProjectI()
+        project.name = rstring(self.uuid())
+        dataset = DatasetI()
+        dataset.name = rstring(self.uuid())
+        project.linkDataset(dataset)
+        return self.update.saveAndReturnObject(project)
+
+    @pytest.fixture
+    def project_dataset_image(self):
+        """
+        Returns a new OMERO Project, linked Dataset and linked Image populated
+        by an L{test.integration.library.ITest} instance with required fields
+        set.
+        """
+        project = ProjectI()
+        project.name = rstring(self.uuid())
+        dataset = DatasetI()
+        dataset.name = rstring(self.uuid())
+        image = self.new_image(name=self.uuid())
+        dataset.linkImage(image)
+        project.linkDataset(dataset)
+        return self.update.saveAndReturnObject(project)
+
+    @pytest.fixture
+    def projects_datasets(self):
+        """
+        Returns four new OMERO Projects and four linked Datasets with required
+        fields set and with names that can be used to exercise sorting
+        semantics.
+        """
+        projects = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
+        for index, project in enumerate(projects):
+            project.name = rstring(self.names[index])
+            datasets = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
+            for index, dataset in enumerate(datasets):
+                dataset.name = rstring(self.names[index])
+                project.linkDataset(dataset)
+        return self.update.saveAndReturnArray(projects)
+
+    @pytest.fixture
+    def datasets(self):
+        """
+        Returns four new OMERO Datasets with required fields set and with
+        names that can be used to exercise sorting semantics.
+        """
+        to_save = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
+        for index, dataset in enumerate(to_save):
+            dataset.name = rstring(self.names[index])
+        # Non-orphaned Dataset to catch issues with queries where non-orphaned
+        # datasets are included in the results.
+        project = ProjectI()
+        project.name = rstring(self.uuid())
+        dataset = DatasetI()
+        dataset.name = rstring(self.uuid())
+        project.linkDataset(dataset)
+        self.update.saveAndReturnObject(project)
+        return self.update.saveAndReturnArray(to_save)
+
+    @pytest.fixture
+    def datasets_different_users(self):
+        """
+        Returns two new OMERO Datasets created by different users with
+        required fields set.
+        """
+        client = self.conn.c
+        group = self.conn.getGroupFromContext()._obj
+        datasets = list()
+        # User that has already been created by the "client" fixture
+        user, name = self.user_and_name(client)
+        self.add_experimenters(group, [user])
+        for name in (rstring(self.uuid()), rstring(self.uuid())):
+            client, user = self.new_client_and_user(group=group)
+            try:
+                dataset = DatasetI()
+                dataset.name = name
+                update_service = client.getSession().getUpdateService()
+                datasets.append(update_service.saveAndReturnObject(dataset))
+            finally:
+                client.closeSession()
+        return datasets
+
+    @pytest.fixture
+    def screens(self):
+        """
+        Returns four new OMERO Screens with required fields set and with names
+        that can be used to exercise sorting semantics.
+        """
+        to_save = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
+        for index, screen in enumerate(to_save):
+            screen.name = rstring(self.names[index])
+        return self.update.saveAndReturnArray(to_save)
+
+    @pytest.fixture
+    def screens_different_users(self):
+        """
+        Returns two new OMERO Screens created by different users with
+        required fields set.
+        """
+        client = self.conn.c
+        group = self.conn.getGroupFromContext()._obj
+        screens = list()
+        # User that has already been created by the "client" fixture
+        user, name = self.user_and_name(client)
+        self.add_experimenters(group, [user])
+        for name in (rstring(self.uuid()), rstring(self.uuid())):
+            client, user = self.new_client_and_user(group=group)
+            try:
+                screen = ScreenI()
+                screen.name = name
+                update_service = client.getSession().getUpdateService()
+                screens.append(update_service.saveAndReturnObject(screen))
+            finally:
+                client.closeSession()
+        return screens
+
+    @pytest.fixture
+    def screen_plate_run(self):
+        """
+        Returns a new OMERO Screen, linked Plate, and linked PlateAcquisition
+        with all required fields set.
+        """
+        screen = ScreenI()
+        screen.name = rstring(self.uuid())
+        plate = PlateI()
+        plate.name = rstring(self.uuid())
+        plate_acquisition = PlateAcquisitionI()
+        plate.addPlateAcquisition(plate_acquisition)
+        screen.linkPlate(plate)
+        return self.update.saveAndReturnObject(screen)
+
+    @pytest.fixture
+    def screens_plates_runs(self):
+        """
+        Returns a two new OMERO Screens, two linked Plates, and two linked
+        PlateAcquisitions with all required fields set.
+        """
+        screens = [ScreenI(), ScreenI()]
+        for screen in screens:
+            screen.name = rstring(self.uuid())
+            plates = [PlateI(), PlateI()]
+            for plate in plates:
+                plate.name = rstring(self.uuid())
+                plate_acquisitions = [
+                    PlateAcquisitionI(), PlateAcquisitionI()]
+                for plate_acquisition in plate_acquisitions:
+                    plate.addPlateAcquisition(plate_acquisition)
+                screen.linkPlate(plate)
+        return self.update.saveAndReturnArray(screens)
+
+    @pytest.fixture
+    def screen_plate(self):
+        """
+        Returns a new OMERO Screen and linked Plate with required fields set.
+        """
+        screen = ScreenI()
+        screen.name = rstring(self.uuid())
+        plate = PlateI()
+        plate.name = rstring(self.uuid())
+        screen.linkPlate(plate)
+        return self.update.saveAndReturnObject(screen)
+
+    @pytest.fixture
+    def screens_plates(self):
+        """
+        Returns four new OMERO Screens and four linked Plates with required
+        fields set and with names that can be used to exercise sorting
+        semantics.
+        """
+        screens = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
+        for index, screen in enumerate(screens):
+            screen.name = rstring(self.names[index])
+            plates = [PlateI(), PlateI(), PlateI(), PlateI()]
+            for index, plate in enumerate(plates):
+                plate.name = rstring(self.names[index])
+                screen.linkPlate(plate)
+        return self.update.saveAndReturnArray(screens)
+
+    @pytest.fixture
+    def plates_runs(self):
+        """
+        Returns a four new Plates, and two linked PlateAcquisitions with
+        required fields set and with names that can be used to exercise
+        sorting semantics.
+        """
+        plates = [PlateI(), PlateI(), PlateI(), PlateI()]
+        for index, plate in enumerate(plates):
+            plate.name = rstring(self.names[index])
+            plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
+            for plate_acquisition in plate_acquisitions:
+                plate.addPlateAcquisition(plate_acquisition)
+        # Non-orphaned Plate to catch issues with queries where non-orphaned
+        # plates are included in the results.
+        screen = ScreenI()
+        screen.name = rstring(self.uuid())
+        plate = PlateI()
+        plate.name = rstring(self.uuid())
+        screen.linkPlate(plate)
+        self.update.saveAndReturnObject(screen)
+        return self.update.saveAndReturnArray(plates)
+
+    @pytest.fixture
+    def plate_run(self):
+        """
+        Returns a new OMERO Plate and linked PlateAcquisition with all
+        required fields set.
+        """
+        plate = PlateI()
+        plate.name = rstring(self.uuid())
+        plate_acquisition = PlateAcquisitionI()
+        plate.addPlateAcquisition(plate_acquisition)
+        return self.update.saveAndReturnObject(plate)
+
+    @pytest.fixture
+    def plate(self):
+        """
+        Returns a new OMERO Plate with all required fields set.
+        """
+        plate = PlateI()
+        plate.name = rstring(self.uuid())
+        return self.update.saveAndReturnObject(plate)
+
+    @pytest.fixture
+    def plates_different_users(self):
+        """
+        Returns two new OMERO Plates created by different users with
+        required fields set.
+        """
+        client = self.conn.c
+        group = self.conn.getGroupFromContext()._obj
+        plates = list()
+        # User that has already been created by the "client" fixture
+        user, name = self.user_and_name(client)
+        self.add_experimenters(group, [user])
+        for name in (rstring(self.uuid()), rstring(self.uuid())):
+            client, user = self.new_client_and_user(group=group)
+            try:
+                plate = PlateI()
+                plate.name = name
+                update_service = client.getSession().getUpdateService()
+                plates.append(update_service.saveAndReturnObject(plate))
+            finally:
+                client.closeSession()
+        return plates
+
+    @pytest.fixture
+    def projects_different_users(self):
+        """
+        Returns two new OMERO Projects created by different users with
+        required fields set.
+        """
+        client = self.conn.c
+        group = self.conn.getGroupFromContext()._obj
+        projects = list()
+        # User that has already been created by the "client" fixture
+        user, name = self.user_and_name(client)
+        self.add_experimenters(group, [user])
+        for name in (rstring(self.uuid()), rstring(self.uuid())):
+            client, user = self.new_client_and_user(group=group)
+            try:
+                project = ProjectI()
+                project.name = name
+                update_service = client.getSession().getUpdateService()
+                projects.append(update_service.saveAndReturnObject(project))
+            finally:
+                client.closeSession()
+        return projects
+
+    def test_marshal_project_dataset(self, project_dataset):
         project_id = project_dataset.id.val
         dataset, = project_dataset.linkedDatasetList()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': project_id,
             'childCount': 1L,
@@ -415,13 +375,13 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_projects(conn, conn.getUserId())
+        marshaled = marshal_projects(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_projects_datasetsew(self, conn, projects_datasets):
+    def test_marshal_projects_datasets(self, projects_datasets):
         project_a, project_b, project_c, project_d = projects_datasets
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # The underlying query explicitly orders the Projects list by
         # case-insensitive name.
         for project in sorted(projects_datasets, cmp_name_insensitive):
@@ -447,11 +407,23 @@ class TestTree(object):
                 })
             expected[-1]['datasets'] = datasets
 
-        marshaled = marshal_projects(conn, conn.getUserId())
+        marshaled = marshal_projects(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
+    def test_marshal_projects_datasets_duplicates(self, projects_datasets):
+        """
+        Test that same-named Projects are not duplicated in marshaled data.
+        See https://trac.openmicroscopy.org/ome/ticket/12771
+        """
+        # Re-name projects with all the same name
+        for p in projects_datasets:
+            p.name = rstring("Test_Duplicates")
+        projects_datasets = self.update.saveAndReturnArray(projects_datasets)
+        marshaled = marshal_projects(self.conn, self.conn.getUserId())
+        assert len(marshaled) == len(projects_datasets)
+
     def test_marshal_projects_different_users_as_other_user(
-            self, conn, projects_different_users):
+            self, projects_different_users):
         project_a, project_b = projects_different_users
         expected = list()
         perms_css = ''
@@ -467,16 +439,16 @@ class TestTree(object):
                 'datasets': list()
             })
 
-        conn.SERVICE_OPTS.setOmeroGroup(project_a.details.group.id.val)
-        marshaled = marshal_projects(conn, None)
+        self.conn.SERVICE_OPTS.setOmeroGroup(project_a.details.group.id.val)
+        marshaled = marshal_projects(self.conn, None)
         assert marshaled == expected
 
-    def test_marshal_projects_no_results(self, conn):
-        assert marshal_projects(conn, -1) == []
+    def test_marshal_projects_no_results(self):
+        assert marshal_projects(self.conn, -1) == []
 
-    def test_marshal_datasets(self, conn, datasets):
+    def test_marshal_datasets(self, datasets):
         dataset_a, dataset_b, dataset_c, dataset_d = datasets
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': dataset_a.id.val,
@@ -504,11 +476,11 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_datasets(conn, conn.getUserId())
+        marshaled = marshal_datasets(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_datasets_different_users_as_other_user(
-            self, conn, datasets_different_users):
+            self, datasets_different_users):
         dataset_a, dataset_b = datasets_different_users
         expected = list()
         perms_css = ''
@@ -523,18 +495,18 @@ class TestTree(object):
                 'permsCss': perms_css,
             })
 
-        conn.SERVICE_OPTS.setOmeroGroup(dataset_a.details.group.id.val)
-        marshaled = marshal_datasets(conn, None)
+        self.conn.SERVICE_OPTS.setOmeroGroup(dataset_a.details.group.id.val)
+        marshaled = marshal_datasets(self.conn, None)
         assert marshaled == expected
 
-    def test_marshal_datasets_no_results(self, conn):
-        assert marshal_datasets(conn, -1L) == []
+    def test_marshal_datasets_no_results(self):
+        assert marshal_datasets(self.conn, -1L) == []
 
-    def test_marshal_screen_plate_run(self, conn, screen_plate_run):
+    def test_marshal_screen_plate_run(self, screen_plate_run):
         screen_id = screen_plate_run.id.val
         plate, = screen_plate_run.linkedPlateList()
         plate_acquisition, = plate.copyPlateAcquisitions()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': screen_id,
             'childCount': 1,
@@ -550,17 +522,17 @@ class TestTree(object):
                     'name': 'Run %d' % plate_acquisition.id.val,
                     'isOwned': True,
                     'permsCss': perms_css
-                }],
+                    }],
                 'plateAcquisitionCount': 1,
                 'permsCss': perms_css
             }],
         }]
 
-        marshaled = marshal_screens(conn, conn.getUserId())
+        marshaled = marshal_screens(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_screens_plates_runs(self, conn, screens_plates_runs):
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+    def test_marshal_screens_plates_runs(self, screens_plates_runs):
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = []
         # The underlying query explicitly orders the Screens by name.
         for screen in sorted(screens_plates_runs, cmp_name):
@@ -595,15 +567,15 @@ class TestTree(object):
                         'permsCss': perms_css
                     })
             expected.append(expected_screen)
-        marshaled = marshal_screens(conn, conn.getUserId())
+        marshaled = marshal_screens(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_screens_no_results(self, conn):
-        assert marshal_screens(conn, -1L) == []
+    def test_marshal_screens_no_results(self):
+        assert marshal_screens(self.conn, -1L) == []
 
-    def test_marshal_screen_plate(self, conn, screen_plate):
+    def test_marshal_screen_plate(self, screen_plate):
         plate, = screen_plate.linkedPlateList()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [
             {
                 'id': screen_plate.id.val,
@@ -622,13 +594,13 @@ class TestTree(object):
             }
         ]
 
-        marshaled = marshal_screens(conn, conn.getUserId())
+        marshaled = marshal_screens(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_plate_run(self, conn, plate_run):
+    def test_marshal_plate_run(self, plate_run):
         plate_id = plate_run.id.val
         plate_acquisition, = plate_run.copyPlateAcquisitions()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': plate_id,
             'isOwned': True,
@@ -643,12 +615,12 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_plates(conn, conn.getUserId())
+        marshaled = marshal_plates(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_plates_runs(self, conn, plates_runs):
+    def test_marshal_plates_runs(self, plates_runs):
         plate_a, plate_b, plate_c, plate_d = plates_runs
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = list()
         # The underlying query explicitly orders the Plates by name.
         for plate in sorted(plates_runs, cmp_name_insensitive):
@@ -673,11 +645,11 @@ class TestTree(object):
                     'permsCss': perms_css
                 })
 
-        marshaled = marshal_plates(conn, conn.getUserId())
+        marshaled = marshal_plates(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_plates_different_users_as_other_user(
-            self, conn, plates_different_users):
+            self, plates_different_users):
         plate_a, plate_b = plates_different_users
         expected = list()
         perms_css = ''
@@ -693,16 +665,16 @@ class TestTree(object):
                 'permsCss': perms_css,
             })
 
-        conn.SERVICE_OPTS.setOmeroGroup(plate_a.details.group.id.val)
-        marshaled = marshal_plates(conn, None)
+        self.conn.SERVICE_OPTS.setOmeroGroup(plate_a.details.group.id.val)
+        marshaled = marshal_plates(self.conn, None)
         assert marshaled == expected
 
-    def test_marshal_plates_no_results(self, conn):
-        assert marshal_plates(conn, -1L) == []
+    def test_marshal_plates_no_results(self):
+        assert marshal_plates(self.conn, -1L) == []
 
-    def test_marshal_plate(self, conn, plate):
+    def test_marshal_plate(self, plate):
         plate_id = plate.id.val
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': plate_id,
             'isOwned': True,
@@ -712,13 +684,13 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_plates(conn, conn.getUserId())
+        marshaled = marshal_plates(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_project_dataset_image(self, conn, project_dataset_image):
+    def test_marshal_project_dataset_image(self, project_dataset_image):
         project_id = project_dataset_image.id.val
         dataset, = project_dataset_image.linkedDatasetList()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': project_id,
             'isOwned': True,
@@ -734,12 +706,12 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_projects(conn, conn.getUserId())
+        marshaled = marshal_projects(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_projects(self, conn, projects):
+    def test_marshal_projects(self, projects):
         project_a, project_b, project_c, project_d = projects
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': project_a.id.val,
@@ -771,12 +743,13 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_projects(conn, conn.getUserId())
+        marshaled = marshal_projects(self.conn, self.conn.getUserId())
+        print marshaled
         assert marshaled == expected
 
-    def test_marshal_screens(self, conn, screens):
+    def test_marshal_screens(self, screens):
         screen_a, screen_b, screen_c, screen_d = screens
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': screen_a.id.val,
@@ -808,13 +781,13 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_screens(conn, conn.getUserId())
+        marshaled = marshal_screens(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_screens_plates(self, conn, screens_plates):
+    def test_marshal_screens_plates(self, screens_plates):
         screen_a, screen_b, screen_c, screen_d = screens_plates
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         # The underlying query explicitly orders the Screens list by
         # case-insensitive name.
         for screen in sorted(screens_plates, cmp_name_insensitive):
@@ -841,11 +814,11 @@ class TestTree(object):
                 })
             expected[-1]['plates'] = plates
 
-        marshaled = marshal_screens(conn, conn.getUserId())
+        marshaled = marshal_screens(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_screens_different_users_as_other_user(
-            self, conn, screens_different_users):
+            self, screens_different_users):
         screen_a, screen_b = screens_different_users
         expected = list()
         perms_css = ''
@@ -861,6 +834,6 @@ class TestTree(object):
                 'plates': list()
             })
 
-        conn.SERVICE_OPTS.setOmeroGroup(screen_a.details.group.id.val)
-        marshaled = marshal_screens(conn, None)
+        self.conn.SERVICE_OPTS.setOmeroGroup(screen_a.details.group.id.val)
+        marshaled = marshal_screens(self.conn, None)
         assert marshaled == expected

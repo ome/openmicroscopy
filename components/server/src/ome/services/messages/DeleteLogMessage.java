@@ -56,4 +56,8 @@ public class DeleteLogMessage extends InternalMessage {
         errors.put(log, t);
     }
 
+    public boolean isError(DeleteLog log) {
+        return errors.containsKey(log);
+    }
+
 }

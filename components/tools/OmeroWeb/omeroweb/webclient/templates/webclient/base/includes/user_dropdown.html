@@ -26,7 +26,7 @@
         <ul class="dropdown">
             <li id="user_settings"><a href="{% url 'wamyaccount' 'edit' %}" title="User settings"> User settings</a></li>
 			<!-- Help -->
-            <li id="help"><a href="#" onclick="return OME.openPopup('{% url 'csend' %}')">Help</a></li>
-			<li id="logout"><a href="{% url 'weblogout' %}">Logout</a></li>
+            <li id="send"><a href="#" onclick="return OME.openPopup('{% url 'csend' %}')">Send Feedback</a></li>
+			<li id="logout">{% include "webclient/base/includes/logout.html" %}</li>
         </ul>
     </div>

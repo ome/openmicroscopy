@@ -30,34 +30,63 @@
     <!-- required for the script_launch html below -->
     {% include "webclient/base/includes/script_launch_head.html" %}
 
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js"|add:url_suffix %}"></script>
 
     <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
-    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.tagging_form.js" %}"></script>
+    <script src="{% static 'webclient/javascript/jquery.infieldlabel-0.1.js' %}" type="text/javascript"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch-1.0.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace-0.1.2.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form-3.51.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.tagging_form.js"|add:url_suffix %}"></script>
 
     <!-- preview viewer... -->
-    <script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.blockUI-2.66.0.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.rangewidget.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.scalebardisplay.js"|add:url_suffix %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css"|add:url_suffix %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic-1.2/farbtastic.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.postit.css"|add:url_suffix %}" />
+    <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.colorbtn.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/omero_image.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/aop-1.3.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.postit.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/farbtastic-1.2/farbtastic.js" %}"></script>
+
+
     <!-- ...including big images -->
-    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/PanoJS.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/controls.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Bisque.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/control_thumbnail.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/control_roi.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.mousewheel.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/PanoJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/controls.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/pyramid_Bisque.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/pyramid_imgcnv.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/pyramid_Zoomify.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/control_thumbnail.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/control_info.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/control_svg.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/control_roi.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/control_scalebar.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.mousewheel-3.0.6.js" %}"></script>
+
+    <!-- hammer.js for tablet gestures -->
+    <script type="text/javascript" src="{% static "3rdparty/hammer-2.0.2/hammer.min.js" %}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs-2.0.0/panojs.css" %}" media="all" />
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.gs_slider.css"|add:url_suffix %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css"|add:url_suffix %}" type="text/css" media="screen"/>
 
     <script>
         $(document).ready(function(){
+
+            // setup in-line labels on top search field
+            $("#top_search_field label").inFieldLabels();
+
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');
             // show on click

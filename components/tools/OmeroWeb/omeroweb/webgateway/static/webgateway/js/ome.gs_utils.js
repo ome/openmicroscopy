@@ -12,7 +12,7 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
-var gs_static_location_prefix=''; //configure it to access static files, used with 3rdparty/jquery.blockUI.js
+var gs_static_location_prefix=''; //configure it to access static files, used with 3rdparty/jquery.blockUI-2.66.0.js
 
 /**
  * Given a string that may contain an RGB, RRGGBB or the previous with a # prefix,
@@ -23,7 +23,7 @@ function sanitizeHexColor (color, def) {
   if (color === def || color === null) {
     return color;
   }
-  return '#' + rgbToHex(color);
+  return '#' + OME.rgbToHex(color);
 }
 
 /**
@@ -53,28 +53,6 @@ function toRGB (color, def) {
     return def != undefined ? def : null;
   }
   return 'rgb('+r+','+g+','+b+')';
-}
-
-/**
- * converts a color in rgb(r,g,b) notation to hexadecimal.
- */
-function rgbToHex(rgb) {
-  if (rgb.substring(0,1) == '#') {
-    return rgb.substring(1);
-  }
-  var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(rgb);
-  if (!rgbvals) return rgb;
-  var rval = parseInt(rgbvals[1]).toString(16);
-  var gval = parseInt(rgbvals[2]).toString(16);
-  var bval = parseInt(rgbvals[3]).toString(16);
-  if (rval.length == 1) rval = '0' + rval;
-  if (gval.length == 1) gval = '0' + gval;
-  if (bval.length == 1) bval = '0' + bval;
-  return (
-    rval +
-    gval +
-    bval
-  ).toUpperCase(); 
 }
 
 /**
@@ -109,7 +87,7 @@ var gs_modalJson_cb;
 
 function gs_loadBlockUI (callback) {
   if (jQuery.blockUI === undefined) {
-    jQuery.getScript(gs_static_location_prefix + '3rdparty/jquery.blockUI.js', callback);
+    jQuery.getScript(gs_static_location_prefix + '3rdparty/jquery.blockUI-2.66.0.js', callback);
     return false;
   }
   return true;

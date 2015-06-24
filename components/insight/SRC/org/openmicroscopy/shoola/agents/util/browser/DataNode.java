@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
 import pojos.DataObject;
@@ -63,6 +64,9 @@ public class DataNode
 	/** The default text if no project. */
 	private static final String DEFAULT_PROJECT = "--No Project--";
 
+	/** The default text if no dataset. */
+    private static final String NO_DATASET = "--No Dataset--";
+
 	/** The data to host. */
 	private DataObject data;
 	
@@ -83,7 +87,19 @@ public class DataNode
 	
 	/** The collection of nodes to add.*/
 	private List<DataNode> newNodes;
-	
+
+	/**
+	 * Creates a dataset with default name.
+	 * 
+	 * @return See above.
+	 */
+	public static DatasetData createNoDataset()
+	{
+	    DatasetData d = new DatasetData();
+	    d.setName(NO_DATASET);
+	    return d;
+	}
+
 	/**
 	 * Creates a dataset with default name.
 	 * 
@@ -267,7 +283,7 @@ public class DataNode
 		if (data instanceof ProjectData) {
 			if (refNode != null) {
 				List<?> l = refNode.getChildrenDisplay();
-				if (l != null && l.size() > 0) {
+				if (CollectionUtils.isNotEmpty(l)) {
 					Iterator<?> i = l.iterator();
 					TreeImageDisplay node;
 					DataNode n;
@@ -334,9 +350,21 @@ public class DataNode
 	 */
 	public boolean isDefaultNode()
 	{
-		return (isDefaultProject() || isDefaultScreen() || isDefaultDataset());
+		return (isDefaultProject() || isDefaultScreen() || isDefaultDataset() ||
+		        isNoDataset());
 	}
 	
+	/**
+     * Returns <code>true</code> if the node is a default node for dataset,
+     * <code>false</code> otherwise.
+     *  
+     * @return See above.
+     */
+    public boolean isNoDataset()
+    { 
+        return NO_DATASET.equals(toString().trim());
+    }
+
 	/**
 	 * Returns <code>true</code> if the node is a default node for project,
 	 * <code>false</code> otherwise.

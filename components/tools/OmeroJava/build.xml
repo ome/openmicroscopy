@@ -80,8 +80,10 @@
         <unjar dest="${target.dir}/generated-classes">
             <fileset dir="${target.dir}/libs">
                 <include name="ice*.jar"/>
+                <include name="ome-xml.jar"/>
             </fileset>
         </unjar>
+
     </target>
 
     <target name="package" depends="compile">
@@ -95,6 +97,10 @@
                 includes="**/*.class,omero.properties"/>
             <fileset dir="${target.dir}/generated-classes"/>
         </jar>
+
+        <if><equals arg1="true" arg2="${package-extra}"/>
+            <then>
+
         <jar destfile="${target.dir}/${ivy.module}-sources.jar">
             <!-- FIXME: Start off with some of the source classes -->
             <fileset dir="${blitz.comp}/src">
@@ -105,6 +111,8 @@
         </jar>
         <copy file="${blitz.comp}/target/blitz-javadoc.jar"
             tofile="${target.dir}/${ivy.module}-javadoc.jar"/>
+
+        </then></if>
     </target>
 
     <target name="tools-build" depends="tools-init,install"

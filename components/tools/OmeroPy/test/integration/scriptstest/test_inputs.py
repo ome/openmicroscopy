@@ -24,8 +24,7 @@
     which all scripts might want to use.
 """
 
-import test.integration.library as lib
-import pytest
+import library as lib
 import omero
 import omero.processor
 import omero.scripts
@@ -80,10 +79,10 @@ for method, inputs in (
 
 class TestInputs(lib.ITest):
 
-    def output(self, results, which):
+    def output(self, root, results, which):
         out = results.get(which, None)
         if out:
-            rfs = self.root.sf.createRawFileStore()
+            rfs = root.sf.createRawFileStore()
             try:
                 rfs.setFileId(out.val.id.val)
                 text = rfs.read(0, rfs.size())
@@ -93,28 +92,28 @@ class TestInputs(lib.ITest):
             finally:
                 rfs.close()
 
-    @pytest.mark.xfail(reason="ticket #12314")
     def testInputs(self):
         import logging
         logging.basicConfig(level=10)
-        scripts = self.root.getSession().getScriptService()
+        root_client = self.new_client(system=True)
+        scripts = root_client.sf.getScriptService()
         sendfile = SENDFILE % self.omeropydir()
         id = scripts.uploadScript(
             "/tests/inputs_py/%s.py" % self.uuid(), sendfile)
         input = {"a": rint(100)}
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             process = scripts.runScript(id, input, None)
-            cb = omero.scripts.ProcessCallbackI(self.root, process)
+            cb = omero.scripts.ProcessCallbackI(root_client, process)
             try:
                 count = 100
-                while cb.block(500):
+                while cb.block(2000):
                     count -= 1
                     assert count != 0
                 rc = process.poll()
                 results = process.getResults(0)
-                self.output(results, "stdout")
-                self.output(results, "stderr")
+                self.output(root_client, results, "stdout")
+                self.output(root_client, results, "stderr")
                 assert rc is not None
                 assert rc.val == 0
             finally:

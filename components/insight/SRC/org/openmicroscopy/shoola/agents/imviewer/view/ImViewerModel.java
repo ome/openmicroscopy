@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,11 +43,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.PlaneInfo;
+import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.imviewer.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
@@ -85,21 +89,20 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.ObjectiveData;
 import pojos.PixelsData;
 import pojos.WellData;
 import pojos.WellSampleData;
-
-import com.sun.opengl.util.texture.TextureData;
 
 /** 
 * The Model component in the <code>ImViewer</code> MVC triad.
@@ -308,9 +311,6 @@ class ImViewerModel
 	/** The security context.*/
     private SecurityContext ctx;
     
-    /** The units corresponding to the pixels size.*/
-    private UnitsObject refUnits;
-    
     /** The channels.*/
     private List<ChannelData> channels;
     
@@ -326,6 +326,9 @@ class ImViewerModel
     /** The default plane size.*/
     private int planeSize;
 
+    /** The units corresponding to the pixels size.*/
+    private String refUnit;
+    
     /**
      * Returns the default resolution level.
      * 
@@ -333,19 +336,26 @@ class ImViewerModel
      */
     private int getDefaultResolutionLevel()
     {
-    	//Determine the level according to the window size.
-    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	int w = 9*(screenSize.width/10);
-    	int h = 8*(screenSize.height/10);
-    	ResolutionLevel level;
-    	Dimension d;
-    	for (int i = resolutions.size() - 1; i >= 0; i--) {
-    		level = resolutions.get(i);
-    		d = level.getImageSize();
-    		if (d.width < w || d.height < h)
-    			return level.getLevel();
-    	}
-    	return 0;
+        String zoomLevel = (String) ImViewerAgent.getRegistry().lookup(
+                LookupNames.BIGIMAGE_INITIAL_ZOOM);
+        if (isBigImage() && CommonsLangUtils.isNotBlank(zoomLevel)) {
+            //Use the default zoom level from the properties
+            return Integer.parseInt(zoomLevel);
+        }
+        
+        // Determine the level according to the window size.
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int w = 9 * (screenSize.width / 10);
+        int h = 8 * (screenSize.height / 10);
+        ResolutionLevel level;
+        Dimension d;
+        for (int i = resolutions.size() - 1; i >= 0; i--) {
+            level = resolutions.get(i);
+            d = level.getImageSize();
+            if (d.width < w || d.height < h)
+                return level.getLevel();
+        }
+        return 0;
     }
     
 	/**
@@ -982,8 +992,12 @@ class ImViewerModel
 		loader.load();
 	}
 
-	/** Fires an asynchronous retrieval of the rendered image. */
-	void fireImageRetrieval()
+	/**
+	 * Fires an asynchronous retrieval of the rendered image.
+	 * 
+	 * @param compression The compression level.
+	 */
+	void fireImageRetrieval(int compression)
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
@@ -993,13 +1007,11 @@ class ImViewerModel
 			browser.setUnitBar(true);
 			long pixelsID = getImage().getDefaultPixels().getId();
 			ImageLoader loader = new ImageLoader(component, ctx, 
-					pixelsID, pDef, false);
+					pixelsID, pDef, false, compression);
 			loader.load();
 			loaders.put(IMAGE, loader);
 		} else {
-			if (ImViewerAgent.hasOpenGLSupport()) 
-				component.setImage(rnd.renderPlaneAsTexture(pDef));
-			else component.setImage(rnd.renderPlane(pDef));
+			component.setImage(rnd.renderPlane(pDef, compression));
 		}
 	}
 
@@ -1026,23 +1038,6 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		return rnd.renderPlane(pDef);
-	}
-
-	/**
-	 * This method should only be invoked when we save the displayed image
-	 * and split its components.
-	 * 
-	 * @return See above.
-	 */
-	TextureData getSplitComponentImageAsTexture()
-	{
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return null;
-		PlaneDef pDef = new PlaneDef();
-		pDef.t = getDefaultT();
-		pDef.z = getDefaultZ();
-		pDef.slice = omero.romio.XY.value;
-		return rnd.renderPlaneAsTexture(pDef);
 	}
 
 	/** Notifies that the rendering control has been loaded. */
@@ -1387,23 +1382,6 @@ class ImViewerModel
 	 */
 	BufferedImage getGridImage() { return browser.getGridImage(); }
 
-	/**
-	 * Returns the main image as a texture data.
-	 * 
-	 * @return See above.
-	 */
-	TextureData getImageAsTexture() { return browser.getImageAsTexture(); }
-	
-	/**
-	 * Returns the projected image as a texture data.
-	 * 
-	 * @return See above.
-	 */
-	TextureData getProjectedImageAsTexture()
-	{
-		return browser.getProjectedImageAsTexture();
-	}
-	
 	/**
 	 * Returns the size in microns of a pixel along the X-axis.
 	 * 
@@ -2442,31 +2420,6 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	Collection getMeasurements() { return measurements; }
-	
-	/**
-	 * Sets the retrieved image, returns the a magnification or <code>-1</code>
-	 * if no magnification factor computed. 
-	 * 
-	 * @param image The image to set.
-	 * @return See above.
-	 */
-	double setImageAsTexture(TextureData image)
-	{
-		state = ImViewer.READY; 
-		if (image != null) browser.setRenderedImage(image);
-		loaders.remove(IMAGE);
-		firstTime = false;
-		//update image icon
-		//28/02 added to speed up process, turn back on for 4.1
-		/*
-		if (imageIcon == null) {
-			computeSizes();
-			imageIcon = Factory.magnifyImage(factor, image);
-		}
-		*/
-		if (image == null) return 1;
-		return initZoomFactor();
-	}
 
 	/**
 	 * Brings up the activity options.
@@ -2691,6 +2644,31 @@ class ImViewerModel
 		return getResolutionDescription(getSelectedResolutionLevel());
 	}
 	
+    /**
+     * Get the nominal magnification of the objective
+     * 
+     * @return See above
+     */
+    double getNominalMagnification() {
+        if (component.getImageAcquisitionData() != null) {
+            ObjectiveData objective = component.getImageAcquisitionData()
+                    .getObjective();
+            return objective != null ? objective.getNominalMagnification() : -1;
+        } else {
+            fireImagAcquisitionDataLoading();
+            return -1;
+        }
+    }
+
+    /** Loads the image acquisition data. */
+    void fireImagAcquisitionDataLoading() {
+        if (component.getImageAcquisitionData() == null) {
+            AcquisitionDataLoader loader = new AcquisitionDataLoader(component,
+                    ctx, image);
+            loader.load();
+        }
+    }
+    
 	/**
 	 * Returns the resolution level corresponding to the selected level.
 	 * 
@@ -2868,21 +2846,14 @@ class ImViewerModel
 		Tile tile;
 		Object image;
 		BufferedImage bi;
-		TextureData data;
 		while (i.hasNext()) {
 			tile = i.next();
 			image = tile.getImage();
-			if (image != null) {
-				if (image instanceof BufferedImage) {
-					bi = (BufferedImage) image;
-					bi.getGraphics().dispose();
-					bi.flush();
-					tile.setImage(null);
-				} else {
-					data = (TextureData) image;
-					data.flush();
-					tile.setImage(null);
-				}
+			if (image != null && image instanceof BufferedImage) {
+			    bi = (BufferedImage) image;
+                bi.getGraphics().dispose();
+                bi.flush();
+                tile.setImage(null);
 			}
 		}
 	}
@@ -2980,11 +2951,17 @@ class ImViewerModel
      */
 	String getUnits()
 	{
-		if (refUnits != null) return refUnits.getUnits();
+		if (refUnit != null) 
+			return refUnit;
+		
 		double size = getPixelsSizeX();
-		if (size < 0) return UnitsObject.MICRONS;
-		refUnits = EditorUtil.transformSize(size);
-		return refUnits.getUnits();
+		if (size < 0) 
+			return LengthI.lookupSymbol(UnitsLength.MICROMETER);
+		
+		Length tmp = new LengthI(size, UnitsLength.MICROMETER);
+		tmp = UIUtilities.transformSize(tmp);
+		refUnit = ((LengthI)tmp).getSymbol();
+		return refUnit;
 	}
 	
 	/**

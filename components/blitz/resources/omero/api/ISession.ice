@@ -19,7 +19,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ISession.html">ISession.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/ISession.html">ISession.html</a>
          **/
         ["ami", "amd"] interface ISession extends ServiceInterface
             {
@@ -46,24 +46,24 @@ module omero {
                 omero::model::Session createSessionWithTimeouts(omero::sys::Principal p, long timeToLiveMilliseconds, long timeToIdleMilliseconds)
                 throws ServerError, Glacier2::CannotCreateSessionException;
 
-                omero::model::Session getSession(string sessionUuid) throws ServerError;
-                int getReferenceCount(string sessionUuid) throws ServerError;
+                idempotent omero::model::Session getSession(string sessionUuid) throws ServerError;
+                idempotent int getReferenceCount(string sessionUuid) throws ServerError;
                 int closeSession(omero::model::Session sess) throws ServerError;
 
                 // Listing
-                SessionList getMyOpenSessions() throws ServerError;
-                SessionList getMyOpenAgentSessions(string agent) throws ServerError;
-                SessionList getMyOpenClientSessions() throws ServerError;
+                idempotent SessionList getMyOpenSessions() throws ServerError;
+                idempotent SessionList getMyOpenAgentSessions(string agent) throws ServerError;
+                idempotent SessionList getMyOpenClientSessions() throws ServerError;
 
                 // Environment
-                omero::RType getInput(string sess, string key) throws ServerError;
-                omero::RType getOutput(string sess, string key) throws ServerError;
-                void setInput(string sess, string key, omero::RType value) throws ServerError;
-                void setOutput(string sess, string key, omero::RType value) throws ServerError;
-                StringSet getInputKeys(string sess) throws ServerError;
-                StringSet getOutputKeys(string sess) throws ServerError;
-                omero::RTypeDict getInputs(string sess) throws ServerError;
-                omero::RTypeDict getOutputs(string sess) throws ServerError;
+                idempotent omero::RType getInput(string sess, string key) throws ServerError;
+                idempotent omero::RType getOutput(string sess, string key) throws ServerError;
+                idempotent void setInput(string sess, string key, omero::RType value) throws ServerError;
+                idempotent void setOutput(string sess, string key, omero::RType value) throws ServerError;
+                idempotent StringSet getInputKeys(string sess) throws ServerError;
+                idempotent StringSet getOutputKeys(string sess) throws ServerError;
+                idempotent omero::RTypeDict getInputs(string sess) throws ServerError;
+                idempotent omero::RTypeDict getOutputs(string sess) throws ServerError;
             };
 
     };

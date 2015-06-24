@@ -1,0 +1,603 @@
+<icegrid>
+
+<!--
+    OMERO.grid Application Descriptor
+    Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+    Use is subject to license terms supplied in LICENSE.txt
+-->
+
+    <!--
+    The properties elements are referenced in the server-template
+    elements below, e.g. <properties refid="Blitz"/> Properties
+    added later in each block override earlier properties. Every
+    server-template references the "Profile" properties block
+    defined in default.xml and windefault.xml which can be used
+    for customizations.
+    -->
+
+    <properties id="Blitz">
+      <property name="Ice.Default.CollocationOptimized" value="0"/>
+      <property name="omero.router.insecure" value="${INSECUREROUTER}"/>
+    </properties>
+
+    <properties id="Repository">
+      <property name="omero.repo.wait" value="300"/><!-- seconds -->
+    </properties>
+
+    <properties id="Basics">
+      <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+      <property name="Ice.CacheMessageBuffers" value="0"/>
+      <property name="Ice.Override.ConnectTimeout" value="5000"/>
+    </properties>
+
+    <properties id="SingleThreaded">
+      <property name="Ice.ThreadPool.Client.Size" value="1"/>
+      <property name="Ice.ThreadPool.Client.SizeMax" value="1"/>
+      <property name="Ice.ThreadPool.Server.Size" value="1"/>
+      <property name="Ice.ThreadPool.Server.SizeMax" value="1"/>
+    </properties>
+
+    <properties id="MultiThreaded">
+      <property name="Ice.ThreadPool.Client.Size" value="2"/>
+      <property name="Ice.ThreadPool.Client.SizeMax" value="50"/>
+      <property name="Ice.ThreadPool.Server.Size" value="10"/>
+      <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
+    </properties>
+
+    <properties id="JavaServer">
+      <target name="adh">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL.PluginFactory"/>
+        <property name="IceSSL.Ciphers" value="NONE (DH_anon)"/>
+        <property name="IceSSL.VerifyPeer" value="0"/>
+      </target>
+      <target name="ssl">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL.PluginFactory"/>
+        <property name="IceSSL.DefaultDir" value="etc/certs"/>
+        <property name="IceSSL.CertFile" value="pubkey.pem"/>
+        <property name="IceSSL.KeyFile" value="privkey.pem"/>
+        <property name="IceSSL.CertAuthFile" value="ca.pem"/>
+      </target>
+    </properties>
+
+    <properties id="PythonServer">
+      <property name="Ice.ImplicitContext" value="Shared"/>
+      <!-- Default logging settings for Python servers. -->
+      <property name="omero.logging.directory" value="${OMERO_LOGS}"/>
+      <property name="omero.logging.timedlog" value="False"/>
+      <property name="omero.logging.logsize" value="5000000"/>
+      <property name="omero.logging.lognum" value="9"/>
+      <property name="omero.logging.level" value="20"/>
+      <target name="debug">
+        <property name="omero.logging.level" value="10"/>
+      </target>
+      <!-- From the python documentation
+            CRITICAL  50
+            ERROR     40
+            WARNING   30
+            INFO      20
+            DEBUG     10
+            NOTSET    0
+      -->
+    </properties>
+
+    <properties id="CppServer">
+      <target name="adh">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
+        <property name="IceSSL.Ciphers" value="ADH"/>
+        <property name="IceSSL.VerifyPeer" value="0"/>
+      </target>
+      <target name="ssl">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
+        <property name="IceSSL.DefaultDir" value="etc/certs"/>
+        <property name="IceSSL.CertFile" value="pubkey.pem"/>
+        <property name="IceSSL.KeyFile" value="privkey.pem"/>
+        <property name="IceSSL.CertAuthFile" value="ca.pem"/>
+      </target>
+   </properties>
+
+   <properties id="DropBox">
+       <!-- config settings for OmeroFS (moved from fsConfig)
+            All times are in seconds.
+       -->
+       <!-- These duplicate info that could be got from elsewhere -->
+       <!-- They should ultimately be removed from here. -->
+       <property name="omero.fs.host"  value="localhost"/>
+       <!-- general -->
+       <property name="omero.fs.port"  value="${ROUTERPORT}"/>
+       <property name="omero.fs.maxRetries"  value="5"/>
+       <property name="omero.fs.retryInterval"  value="3"/>
+       <property name="omero.fs.defaultDropBoxDir"  value="DropBox"/>
+       <!--
+          The remaining items can take the form of a semicolon separated list,
+          one item for each user in the first property. Properties that
+          are lists themselves are then comma-separated.
+
+          default is a standard all-user dropbox.
+          e.g. <property name="omero.fs.importUsers"  value="default;root"/>
+
+          The empty first element below defers to the default system dropbox location:
+              <property name="omero.fs.watchDir"  value=";/OMERODEV/OtherBox"/>
+              <property name="omero.fs.eventTypes"  value="Creation,Modification;Creation"/>
+              <property name="omero.fs.importArgs"  value="-report;-report -send -email=test@example.com"/>
+              Hyphens in the preceeding value should be doubled. Not allowed in XML comments.
+              ...
+        -->
+        <property name="omero.fs.importUsers"  value="default"/>
+        <property name="omero.fs.watchDir"  value=""/>
+        <property name="omero.fs.eventTypes"  value="Creation,Modification"/>
+        <property name="omero.fs.pathMode"  value="Follow"/>
+        <property name="omero.fs.whitelist"  value=""/>
+        <property name="omero.fs.blacklist"  value=""/>
+        <property name="omero.fs.timeout"  value="0.0"/>
+        <property name="omero.fs.timeToLive"  value="0"/>
+        <property name="omero.fs.timeToIdle"  value="600"/>
+        <property name="omero.fs.blockSize"  value="0"/>
+        <property name="omero.fs.ignoreSysFiles"  value="True"/>
+        <property name="omero.fs.ignoreDirEvents"  value="True"/>
+        <property name="omero.fs.dirImportWait"  value="60"/>
+        <property name="omero.fs.fileBatch"  value="10"/>
+        <property name="omero.fs.throttleImport"  value="10"/>
+        <property name="omero.fs.readers"  value=""/>
+        <property name="omero.fs.importArgs"  value=""/>
+    </properties>
+
+    <!--
+      Java Servers
+    -->
+
+    <server-template id="BlitzTemplate">
+      <parameter name="index"/>
+      <parameter name="config" default="default"/>
+      <parameter name="jmxhost" default=""/>
+      <parameter name="jmxport" default="3001"/>
+      <server id="Blitz-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <target name="debug">
+            <option>-Xdebug</option>
+            <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
+        </target>
+        <target name="blitz-gc">
+            <option>-verbose:gc</option>
+            <option>-XX:+PrintGCTimeStamps</option>
+            <option>-XX:+PrintGCDetails</option>
+        </target>
+        <target name="jprofiler">
+            <!-- In order to successfully startup with the "jprofiler" target,
+            you will need to have set DYLD_LIBRARY_PATH, LD_LIBRARY_PATH, or PATH
+            (dependending on your operating system) to include the JProfiler
+            libraries and have JPROFILER_AGENT and JPROFILER_CONFIG set. E.g.:
+
+                export DYLD_LIBRARY_PATH=/Applications/jprofiler5/bin/macos/
+                export JPROFILER_AGENT=/Applications/jprofiler5
+                export JPROFILER_CONFIG=$HOME/.jprofiler5/config.xml
+
+            -->
+            <option>-Xint</option><!-- Interpreted-mode only -->
+            <option>-agentlib:jprofilerti=port=8849,id=108,config=${JPROFILER_CONFIG}</option>
+            <option>-Xbootclasspath/a:${JPROFILER_AGENT}</option>
+        </target>
+        <target name="Blitz-hprof">
+            <option>-agentlib:hprof=cpu=samples,cutoff=0,thread=y,interval=1,depth=50,force=y,file=${OMERO_LOGS}Blitz-${index}.hprof</option>
+        </target>
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
+        <option>-Xmx512M</option>
+        <!--
+             MaxPermSize needs to be set for most operating systems using Hibernate 3.3+
+             with any largish heap size. The value below should be sufficient for most
+             cases. The value will be added to the "-Xmx" value for the total memory used
+             by the JVM (here: 512+128 = 640MB).
+
+             See #4670
+        -->
+        <option>-XX:MaxPermSize=128m</option>
+        <target name="memcfg">
+            <option>${omero.blitz.maxmemory}</option>
+            <option>${omero.blitz.permgen}</option>
+        </target>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
+        <option>-Domero.logfile=${OMERO_LOGFILE}</option>
+        <!-- This is a hack, the value needs to come from omero.properties -->
+        <option>-Domero.logbase=/OMERO/ManagedRepository/</option>
+        <option>-Domero.name=Blitz-${index}</option>
+        <target name="jmx">
+            <!-- Be sure to understand the consequences of enabling JMX.
+                 It allows calling remote methods on your JVM -->
+            <option>-Dcom.sun.management.jmxremote</option>
+            <option>-Dcom.sun.management.jmxremote.port=${jmxport}</option>
+            <option>-Dcom.sun.management.jmxremote.authenticate=false</option>
+            <option>-Dcom.sun.management.jmxremote.ssl=false</option>
+            <option>-Djava.rmi.server.hostname=${jmxhost}</option>
+        </target>
+        <option>-jar</option>
+        <option>${OMERO_JARS}blitz.jar</option>
+        <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
+        <properties>
+          <properties refid="JavaServer"/>
+          <properties refid="Basics"/>
+          <properties refid="Blitz"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="Profile"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="IndexerTemplate">
+      <parameter name="index"/>
+      <parameter name="config" default="default"/>
+      <server id="Indexer-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
+        <option>-Xmx256M</option>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
+        <option>-Domero.logfile=${OMERO_LOGFILE}</option>
+        <option>-Domero.name=Indexer-${index}</option>
+        <option>-jar</option>
+        <option>${OMERO_JARS}blitz.jar</option>
+        <option>ome.fulltext</option>
+        <adapter name="IndexerAdapter" endpoints="tcp"/>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="JavaServer"/>
+          <properties refid="Blitz"/>
+          <properties refid="SingleThreaded"/>
+          <properties refid="Profile"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="PixelDataTemplate">
+      <parameter name="index"/>
+      <parameter name="dir"/>
+      <parameter name="config" default="default"/>
+      <server id="PixelData-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
+        <option>-Xmx256M</option>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
+        <option>-Domero.logfile=${OMERO_LOGFILE}</option>
+        <option>-Domero.name=PixelData-${index}</option>
+        <option>-jar</option>
+        <option>${OMERO_JARS}blitz.jar</option>
+        <option>ome.pixeldata</option>
+        <adapter name="PixelDataAdapter" endpoints="tcp"/>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="JavaServer"/>
+          <properties refid="Blitz"/>
+          <properties refid="SingleThreaded"/>
+          <properties refid="Profile"/>
+          <property name="omero.repo.dir" value="${dir}"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="RepositoryTemplate">
+      <parameter name="index"/>
+      <parameter name="dir"/>
+      <parameter name="config" default="default"/>
+      <server id="Repository-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
+        <option>-Xmx400M</option>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
+        <option>-Domero.logfile=${OMERO_LOGFILE}</option>
+        <option>-Domero.name=Repository-${index}</option>
+        <option>-Domero.repo.dir=${dir}</option>
+        <option>-jar</option>
+        <option>${OMERO_JARS}blitz.jar</option>
+        <option>OMERO.repository</option>
+        <adapter name="RepositoryAdapter" endpoints="tcp">
+          <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>
+        </adapter>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="JavaServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="Repository"/>
+          <properties refid="Profile"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <!--
+      Python Servers
+    -->
+
+    <!--<server-template id="WebTemplate">
+      <parameter name="act" default="always"/>
+      <server id="Web" exe="${PYTHON}" activation="${act}" pwd="${OMEROPY_HOME}omeroweb">
+        <option>manage.py</option>
+        <option>runserver</option>
+        <option>noreload</option>
+        <option>0.0.0.0:8000</option>
+        <env>${PYTHONPATH}</env>
+        <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
+        <properties>
+            <properties refid="SingleThreaded"/>
+            <properties refid="Profile"/>
+        </properties>
+      </server>
+    </server-template>-->
+
+    <server-template id="ProcessorTemplate">
+      <parameter name="index"/>
+      <parameter name="dir"/>
+      <parameter name="exe" default="${PYTHON}"/>
+      <server id="Processor-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}runProcessor.py</option>
+        <env>${PYTHONPATH}</env>
+        <adapter name="ProcessorAdapter" endpoints="tcp">
+          <object identity="Processor-${index}" type="::omero::grid::Processor"/>
+        </adapter>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="Repository"/>
+          <properties refid="Profile"/>
+          <property name="omero.repo.dir" value="${dir}"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="TablesTemplate">
+      <parameter name="index"/>
+      <parameter name="dir"/>
+      <parameter name="exe" default="${PYTHON}"/>
+      <server id="Tables-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}runTables.py</option>
+        <env>${PYTHONPATH}</env>
+        <adapter name="TablesAdapter" endpoints="tcp">
+          <object identity="Tables-${index}" type="::omero::grid::Tables"/>
+        </adapter>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="Repository"/>
+          <properties refid="Profile"/>
+          <property name="omero.repo.dir" value="${dir}"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="FileServerTemplate">
+      <parameter name="exe" default="${PYTHON}"/>
+      <server id="FileServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}fsServerFS.py</option>
+        <env>${PYTHONPATH}</env>
+        <adapter name="omerofs.FileServer" endpoints="tcp">
+          <object identity="FileServer" type="::monitors::FileServer"/>
+        </adapter>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="Profile"/>
+          <property name="omero.fs.fileServerIdString" value="FileServer"/>
+          <property name="omero.fs.fileServerAdapterName" value="omerofs.FileServer"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="MonitorServerTemplate">
+      <parameter name="exe" default="${PYTHON}"/>
+      <server id="MonitorServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}fsServerMS.py</option>
+        <env>${PYTHONPATH}</env>
+        <adapter name="omerofs.MonitorServer" endpoints="tcp">
+          <object identity="MonitorServer" type="::monitors::MonitorServer"/>
+        </adapter>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="Profile"/>
+          <property name="omero.fs.monitorServerIdString" value="MonitorServer"/>
+          <property name="omero.fs.monitorServerAdapterName" value="omerofs.MonitorServer"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="DropBoxTemplate">
+      <parameter name="exe" default="${PYTHON}"/>
+      <server id="DropBox" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}fsDropBox.py</option>
+        <env>${PYTHONPATH}</env>
+        <adapter name="omerofs.DropBox" endpoints="tcp"/>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="DropBox"/>
+          <properties refid="Profile"/>
+          <property name="omero.fs.serverIdString" value="MonitorServer"/>
+          <property name="omero.fs.clientIdString" value="DropBox"/>
+          <property name="omero.fs.clientAdapterName" value="omerofs.DropBox"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="TestDropBoxTemplate">
+      <parameter name="exe" default="${PYTHON}"/>
+      <server id="TestDropBox" exe="${exe}" activation="manual" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}fsDropBox.py</option>
+        <env>${PYTHONPATH}</env>
+        <adapter name="omerofs.TestDropBox" endpoints="tcp"/>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="DropBox"/>
+          <properties refid="Profile"/>
+          <property name="omero.fs.serverIdString" value="MonitorServer"/>
+          <property name="omero.fs.clientIdString" value="TestDropBox"/>
+          <property name="omero.fs.clientAdapterName" value="omerofs.TestDropBox"/>
+          <!-- By adding an omero.fstest.config property, the behavior of the
+          DropBox sever will change! -->
+          <property name="omero.fstest.config" value="${OMERO_ETC}testdropbox.config"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="ShellTemplate">
+      <parameter name="id"/>
+      <parameter name="exe" default="${PYTHON}"/>
+      <parameter name="act" default="always"/>
+      <server id="${id}" exe="${exe}" activation="${act}">
+        <option>lib/python/shellserver.py</option>
+        <option>${id}</option>
+        <adapter name="${id}Adapter" endpoints="tcp"/>
+        <properties>
+          <properties refid="Profile"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <!--
+        Ice infrastructure servers
+    -->
+
+    <server-template id="IcePatch2Template">
+       <parameter name="instance-name" default="${application}.IcePatch2"/>
+       <parameter name="endpoints" default="tcp"/>
+       <parameter name="directory"/>
+       <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="always">
+         <adapter name="IcePatch2" endpoints="${endpoints}">
+           <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
+         </adapter>
+         <properties>
+            <properties refid="Profile"/>
+            <property name="IcePatch2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+            <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
+            <property name="IcePatch2.InstanceName" value="${instance-name}"/>
+            <property name="IcePatch2.Directory" value="${directory}"/>
+         </properties>
+       </server>
+    </server-template>
+
+    <server-template id="Glacier2Template">
+      <parameter name="instance-name" default="${application}.Glacier2"/>
+      <parameter name="client-endpoints"/>
+      <parameter name="server-endpoints"/>
+      <parameter name="session-timeout" default="600"/><!-- 10 min -->
+      <server id="${instance-name}" exe="glacier2router" activation="always">
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="CppServer"/>
+          <properties refid="Profile"/>
+          <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
+          <property name="IceSSL.Ciphers" value="ADH"/>
+          <property name="IceSSL.VerifyPeer" value="0"/>
+          <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+          <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+          <property name="Glacier2.InstanceName" value="${instance-name}"/>
+          <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+          <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
+          <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
+          <property name="Glacier2.Client.ForwardContext" value="1"/>
+          <property name="Glacier2.Filter.Category.Accept" value="ProcessCallback ProcessorCallback"/>
+          <target name="trace">
+            <property name="Glacier2.Client.Trace.Override" value="1"/>
+            <property name="Glacier2.Client.Trace.Reject" value="1"/>
+            <property name="Glacier2.Client.Trace.Request" value="1"/>
+            <property name="Glacier2.Server.Trace.Override" value="1"/>
+            <property name="Glacier2.Server.Trace.Request" value="1"/>
+          </target>
+        </properties>
+      </server>
+    </server-template>
+
+    <service-template id="StormTemplate">
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="topic-manager-endpoints" default="tcp"/>
+      <parameter name="publish-endpoints" default="tcp"/>
+      <parameter name="flush-timeout" default="1000"/>
+      <service name="${instance-name}" entry="IceStormService,@ICE_LIB_VERSION@:createIceStorm">
+        <dbenv name="${service}"/>
+        <adapter name="${service}.TopicManager" id="${instance-name}.TopicManager" endpoints="${topic-manager-endpoints}">
+          <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
+        </adapter>
+        <adapter name="${service}.Publish" id="${instance-name}.Publish" endpoints="${publish-endpoints}"/>
+        <properties>
+          <properties refid="CppServer"/>
+          <properties refid="Profile"/>
+          <property name="${service}.InstanceName" value="${instance-name}"/>
+          <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+          <target name="debug">
+            <property name="Ice.Trace.Network" value="1"/>
+            <property name="${service}.Trace.Subscriber" value="1"/>
+            <property name="${service}.Trace.Topic" value="1"/>
+            <property name="${service}.Trace.TopicManager" value="1"/>
+          </target>
+        </properties>
+      </service>
+    </service-template>
+
+    <server-template id="StormTemplate">
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="topic-manager-endpoints" default="tcp"/>
+      <parameter name="publish-endpoints" default="tcp"/>
+      <parameter name="flush-timeout" default="1000"/>
+      <icebox id="${instance-name}" exe="icebox" activation="always">
+        <env>DYLD_LIBRARY_PATH=lib:$DYLD_LIBRARY_PATH</env>
+        <env>LD_LIBRARY_PATH=lib:$LD_LIBRARY_PATH</env>
+        <service-instance template="StormTemplate"
+            instance-name="${instance-name}"
+            topic-manager-endpoints="${topic-manager-endpoints}"
+            publish-endpoints="${publish-endpoints}"
+            flush-timeout="${flush-timeout}"/>
+        <properties>
+          <properties refid="CppServer"/>
+          <properties refid="Profile"/>
+          <property name="IceBox.InheritProperties" value="1"/>
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+        </properties>
+      </icebox>
+    </server-template>
+
+    <!--
+        Misc.
+    -->
+
+    <replica-group id="BlitzAdapters">
+      <load-balancing type="adaptive" load-sample="5" n-replicas="2"/>
+      <object identity="BlitzVerifier" type="::Glacier2::PermissionVerifier"/>
+      <object identity="BlitzManager" type="::Glacier2::SessionManager"/>
+    </replica-group>
+
+</icegrid>

@@ -91,9 +91,8 @@ public class OverlaysRenderer
      */
     public void load()
     {
-    	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
     	handle = ivView.renderOverLays(ctx, pixelsID, pd, tableID, overlays,
-    			asTexture, this);
+    	        this);
     }
 
     /**

@@ -8,6 +8,8 @@
 package ome.formats;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,6 +45,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.enums.Format;
 import ome.model.experiment.Experiment;
 import ome.model.experiment.MicrobeamManipulation;
 import ome.model.fs.Fileset;
@@ -59,6 +62,7 @@ import ome.model.stats.StatsInfo;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
+import ome.util.SqlAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +84,16 @@ import org.perf4j.StopWatch;
  */
 public class OMEROMetadataStore
 {
+    /** List of graphics domains we are checking.*/
+    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif", "tiff", "avi"};
+
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;
+
+    private SqlAction sql;
 
     /** A map of imageIndex vs. Image object ordered by first access. */
     private Map<Integer, Image> imageList = 
@@ -1841,12 +1850,13 @@ public class OMEROMetadataStore
      * @throws MetadataStoreException if the factory is null or there
      *             is another error instantiating required services.
      */
-    public OMEROMetadataStore(ServiceFactory factory)
+    public OMEROMetadataStore(ServiceFactory factory, SqlAction sql)
     	throws Exception
     {
-        if (factory == null)
-            throw new Exception("Factory argument cannot be null.");
+        if (factory == null || sql == null)
+            throw new Exception("arguments cannot be null.");
         sf = factory;
+        this.sql = sql;
     }
 
     /*
@@ -1914,10 +1924,11 @@ public class OMEROMetadataStore
      * <ul>
      *   <li>Image --> ObjectiveSettings</li>
      *   <li>Image --> Channel --> LogicalChannel --> LightSettings</li>
+     *   <li>Image --> Channel --> LogicalChannel --> LightPath</li>
      *   <li>Image --> Channel --> LogicalChannel --> DetectorSettings</li>
      * </ul>
      */
-    private void checkAndCollapseGraph()
+    public void checkAndCollapseGraph()
     {
     	// Ensure we're working with an SPW data set.
     	if (plateList.size() == 0)
@@ -1928,6 +1939,7 @@ public class OMEROMetadataStore
     	Set<ObjectiveSettings> objectiveSettings =
     		new HashSet<ObjectiveSettings>();
     	Set<LightSettings> lightSettings = new HashSet<LightSettings>();
+    	Set<LightPath> lightPaths = new HashSet<LightPath>();
     	Set<DetectorSettings> detectorSettings = 
     		new HashSet<DetectorSettings>();
     	Set<LogicalChannel> logicalChannels = new HashSet<LogicalChannel>();
@@ -1947,6 +1959,8 @@ public class OMEROMetadataStore
     					getUniqueLightSettings(lightSettings, lc));
     			lc.setDetectorSettings(
     					getUniqueDetectorSettings(detectorSettings, lc));
+    			lc.setLightPath(
+    					getUniqueLightPath(lightPaths, lc.getLightPath()));
     			channel.setLogicalChannel(
     					getUniqueLogicalChannel(logicalChannels, lc));
     		}
@@ -1954,6 +1968,7 @@ public class OMEROMetadataStore
     	log.info("Unique objective settings: " + objectiveSettings.size());
     	log.info("Unique light settings: " + lightSettings.size());
     	log.info("Unique detector settings: " + detectorSettings.size());
+    	log.info("Unique light paths: " + lightPaths.size());
     	log.info("Unique logical channels: " + logicalChannels.size());
     }
 
@@ -2105,6 +2120,47 @@ public class OMEROMetadataStore
     }
 
     /**
+     * Finds the matching unique light path.
+     * @param uniqueLightPaths Set of existing unique light paths.
+     * @param lp Light path to compare for uniqueness.
+     * @return Matched unique light path or <code>null</code> if
+     * <code>lp == null</code>.
+     */
+    private LightPath getUniqueLightPath(
+            Set<LightPath> uniqueLightPaths, LightPath lp)
+    {
+        if (lp == null)
+        {
+            return null;
+        }
+
+        for (LightPath lp2 : uniqueLightPaths)
+        {
+            if (lp.getDichroic() == lp2.getDichroic()) {
+                // Excitation filters are ordered - no sorting required.
+                List<Filter> exFilters = lp.linkedExcitationFilterList();
+                List<Filter> exFilters2 = lp2.linkedExcitationFilterList();
+                if (exFilters.equals(exFilters2)) {
+                    List<Filter> emFilters = lp.linkedEmissionFilterList();
+                    List<Filter> emFilters2 = lp2.linkedEmissionFilterList();
+                    // Emission filters are un-ordered - sorting required.  If
+                    // we do not sort out of order filters will cause
+                    // List.equals() to fail.
+                    Comparator<Filter> comparator = new ToStringComparator();
+                    Collections.sort(emFilters, comparator);
+                    Collections.sort(emFilters2, comparator);
+
+                    if (emFilters.equals(emFilters2)) {
+                        return lp2;
+                    }
+                }
+            }
+        }
+        uniqueLightPaths.add(lp);
+        return lp;
+    }
+
+    /**
      * Saves the current object graph to the database.
      * 
      * @return List of the Pixels objects with their attached object graphs
@@ -2139,7 +2195,25 @@ public class OMEROMetadataStore
     	//s2.stop();
    		return toReturn;
     }
-    
+
+    /**
+     * Checks if the format is a graphics format or not.
+     *
+     * @param value The value to check
+     * @return See above.
+     */
+    private boolean isRGB(String value)
+    {
+        if (value == null) return false;
+        value = value.toLowerCase();
+        for (int i = 0; i < DOMAINS.length; i++) {
+            if (DOMAINS[i].equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Synchronize the minimum and maximum intensity values with those
      * specified by the client and save them in the DB.
@@ -2147,7 +2221,6 @@ public class OMEROMetadataStore
      */
     public void populateMinMax(double[][][] imageChannelGlobalMinMax)
     {
-    	List<Channel> channelList = new ArrayList<Channel>();
     	double[][] channelGlobalMinMax;
     	double[] globalMinMax;
     	Channel channel;
@@ -2157,20 +2230,41 @@ public class OMEROMetadataStore
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
     		pixels = pixelsList.get(i);
+    		Format f = pixels.getImage().getFormat();
+    		String v = null;
+    		if (f != null) {
+    		    v = f.getValue();
+    		}
+    		boolean rgb = isRGB(v);
+    		String type = pixels.getPixelsType().getValue();
     		unloadedPixels = new Pixels(pixels.getId(), false);
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
     			channel = pixels.getChannel(c);
     			statsInfo = new StatsInfo();
-    			statsInfo.setGlobalMin(globalMinMax[0]);
-    			statsInfo.setGlobalMax(globalMinMax[1]);
-    			channel.setStatsInfo(statsInfo);
-    			channel.setPixels(unloadedPixels);
-    			channelList.add(channel);
+    			if (rgb && "uint8".equals(type)) {
+    			    statsInfo.setGlobalMin(0.0);
+                    statsInfo.setGlobalMax(255.0);
+    			} else {
+    			    statsInfo.setGlobalMin(globalMinMax[0]);
+                    statsInfo.setGlobalMax(globalMinMax[1]);
+    			}
+    			sql.setStatsInfo(channel, statsInfo);
     		}
     	}
-    	Channel[] toSave = channelList.toArray(new Channel[channelList.size()]);
-    	sf.getUpdateService().saveArray(toSave);
+    }
+
+    /**
+     * Simple comparator that compares two filters by their stringified value.
+     * @author Emil Rozbicki <emil@glencoesoftware.com>
+     *
+     */
+    class ToStringComparator implements Comparator<Filter>
+    {
+        @Override
+        public int compare(Filter a, Filter b) {
+            return a.toString().compareTo(b.toString());
+        }
     }
 }

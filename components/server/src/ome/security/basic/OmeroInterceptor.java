@@ -10,7 +10,9 @@ package ome.security.basic;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,10 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
+import org.hibernate.collection.PersistentList;
+import org.hibernate.engine.CollectionEntry;
+import org.hibernate.engine.PersistenceContext;
+import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
 
@@ -40,6 +46,7 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
+import ome.model.internal.NamedValue;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
@@ -162,7 +169,7 @@ public class OmeroInterceptor implements Interceptor {
     }
 
     /**
-     * callsback to
+     * calls back to
      * {@link BasicSecuritySystem#checkManagedDetails(IObject, Details)} for
      * properly setting {@link IObject#getDetails() Details}.
      */
@@ -207,6 +214,76 @@ public class OmeroInterceptor implements Interceptor {
     public void onCollectionUpdate(Object collection, Serializable key)
             throws CallbackException {
         debug("Intercepted collection update.");
+        if (collection instanceof PersistentList) {
+            PersistentList list = (PersistentList) collection;
+            PersistenceContext context = list.getSession().getPersistenceContext();
+            CollectionEntry entry = context.getCollectionEntry(list);
+
+            if (!(entry.getCurrentPersister().getElementType()
+                    instanceof ComponentType)) {
+                // We assume that any modification of any
+                // CollectionOfElements like NamedValue-lists
+                // should be subject to the security of the
+                // parent. If this *isn't* such a collection,
+                // then exit.
+                return;
+            }
+
+            List snapshot = (List) entry.getSnapshot();
+            Object owner = list.getOwner();
+
+            if (list.size() == 0 && snapshot.size() == 0) {
+                // Nothing here, so we don't care
+                return;
+            }
+
+            boolean equals = true;
+            if (list.size() == snapshot.size()) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i) == null) {
+                        if (snapshot.get(i) == null) {
+                            continue;
+                        }
+                    } else { // first element is not null
+                        Object lhs = list.get(i);
+                        if (lhs instanceof NamedValue) {
+                            if (((NamedValue) lhs).equals(snapshot.get(i))) {
+                                continue;
+                            }
+                        }
+                    }
+                    // If we reach this point, there's a non-match and the
+                    // bumping of the version number should proceed.
+                    equals = false;
+                    break;
+                }
+                // The two lists were found to be equal, do not bump the
+                // version number;
+                if (equals) {
+                    return;
+                }
+            }
+
+            // https://hibernate.atlassian.net/browse/HHH-4897 workaround:
+            // ----------------------------------------------------------
+            // Assuming we get here, we bump the version number for the
+            // object which will hopefully cause the regular security
+            // checks to fail.
+            try {
+                IObject iobj = (IObject) owner;
+                Method getter = iobj.getClass().getMethod("getVersion");
+                Integer oldVersion = (Integer) getter.invoke(iobj);
+                Integer newVersion = oldVersion == null ? 1 : oldVersion + 1;
+                Method setter = iobj.getClass().getMethod("setVersion", Integer.class);
+                setter.invoke(iobj, newVersion);
+                log.info("Updating version for collections from {} to {}",
+                        oldVersion, newVersion);
+            } catch (Exception e) {
+                InternalException ie = new InternalException("Failed to set version");
+                ie.initCause(e);
+                throw ie;
+            }
+        }
     }
 
     // ~ Flush (currently unclear semantics)

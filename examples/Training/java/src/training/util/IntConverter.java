@@ -1,6 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.IntConverter 
- *
+ * training.util.IntConverter
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
@@ -28,7 +27,6 @@ package training.util;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Packs a sequence of bytes representing a signed (2's complement)

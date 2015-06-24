@@ -37,6 +37,17 @@ module omero {
       omero::api::BoolArray restrictions;
 
       /**
+       * Further restrictions which are specified by services
+       * at runtime. Individual service methods will specify
+       * which strings MAY NOT be present in this field for
+       * execution to be successful. For example, if an
+       * [omero::model::Image] contains a "DOWNLOAD" restriction,
+       * then an attempt to call [omero::api::RawFileStore::read]
+       * will fail with an [omero::SecurityViolation].
+       **/
+      omero::api::StringSet extendedRestrictions;
+
+      /**
        * Internal representation. May change!
        * To make working with this object more straight-forward
        * accessors are provided for the perm1 instance though it
@@ -69,6 +80,13 @@ module omero {
        *
        **/
        bool isDisallow(int restriction);
+
+      /**
+       * Returns true if the given argument is present in the
+       * extendedRestrictions set. This implies that some
+       * service-specific behavior is disallowed.
+       **/
+       bool isRestricted(string restriction);
 
       /**
        * Whether the current user has permissions
@@ -174,4 +192,4 @@ module omero {
     };
   };
 };
-#endif 
+#endif

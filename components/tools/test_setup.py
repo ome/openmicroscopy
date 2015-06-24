@@ -16,22 +16,27 @@ import sys
 
 from setuptools.command.test import test as TestCommand
 
+LIB = os.path.join("..", "..", "tests", "python")
+sys.path.insert(0, LIB)
+
 
 class PyTest(TestCommand):
 
-    user_options = TestCommand.user_options + \
-                   [('test-pythonpath=', 'p', "prepend 'pythonpath' to PYTHONPATH"),
-                    ('test-ice-config=', 'i', "use specified 'ice config' file instead of default"),
-                    ('test-string=', 'k', "only run tests including 'string'"),
-                    ('test-marker=', 'm', "only run tests including 'marker'"),
-                    ('test-path=', 's', "base dir for test collection"),
-                    ('test-failfast', 'x', "Exit on first error"),
-                    ('test-verbose', 'v', "more verbose output"),
-                    ('test-quiet', 'q', "less verbose output"),
-                    ('junitxml=', None, "create junit-xml style report file at 'path'"),
-                    ('pdb',None,"fallback to pdb on error"),
-                    ('markers', None, "list available markers'"),
-                    ]
+    user_options = [
+        ('test-path=', 't', "base dir for test collection"),
+        ('test-pythonpath=', 'p', "prepend 'pythonpath' to PYTHONPATH"),
+        ('test-ice-config=', 'i',
+         "use specified 'ice config' file instead of default"),
+        ('test-string=', 'k', "only run tests including 'string'"),
+        ('test-marker=', 'm', "only run tests including 'marker'"),
+        ('test-no-capture', 's', "don't suppress test output"),
+        ('test-failfast', 'x', "Exit on first error"),
+        ('test-verbose', 'v', "more verbose output"),
+        ('test-quiet', 'q', "less verbose output"),
+        ('junitxml=', None, "create junit-xml style report file at 'path'"),
+        ('pdb', None, "fallback to pdb on error"),
+        ('markers', None, "list available markers'"),
+        ]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
@@ -40,6 +45,7 @@ class PyTest(TestCommand):
         self.test_string = None
         self.test_marker = None
         self.test_path = None
+        self.test_no_capture = False
         self.test_failfast = False
         self.test_quiet = False
         self.test_verbose = False
@@ -56,6 +62,8 @@ class PyTest(TestCommand):
             self.test_args.extend(['-k', self.test_string])
         if self.test_marker is not None:
             self.test_args.extend(['-m', self.test_marker])
+        if self.test_no_capture:
+            self.test_args.extend(['-s'])
         if self.test_failfast:
             self.test_args.extend(['-x'])
         if self.test_verbose:
@@ -72,13 +80,13 @@ class PyTest(TestCommand):
             self.test_args = "--markers"
         if self.test_ice_config is None:
             self.test_ice_config = os.path.abspath('ice.config')
-        if not os.environ.has_key('ICE_CONFIG'):
+        if 'ICE_CONFIG' not in os.environ:
             os.environ['ICE_CONFIG'] = self.test_ice_config
 
     def run_tests(self):
         if self.test_pythonpath is not None:
             sys.path.insert(0, self.test_pythonpath)
-        #import here, cause outside the eggs aren't loaded
+        # import here, cause outside the eggs aren't loaded
         import pytest
         errno = pytest.main(self.test_args)
         sys.exit(errno)

@@ -9,6 +9,7 @@ package ome.services.blitz.repo;
 import java.io.File;
 import java.nio.channels.OverlappingFileLockException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,15 +27,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 import Ice.ObjectAdapter;
-
 import ome.services.blitz.fire.Registry;
 import ome.services.messages.DeleteLogMessage;
+import ome.services.messages.DeleteLogsMessage;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
-
+import ome.util.messages.InternalMessage;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -60,7 +61,7 @@ import omero.util.IceMapper;
  * @since Beta4.2
  */
 public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
-    implements ApplicationListener<DeleteLogMessage> {
+    implements ApplicationListener<InternalMessage> {
 
     private final static Logger log = LoggerFactory.getLogger(AbstractRepositoryI.class);
 
@@ -113,49 +114,78 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         return UUID.randomUUID().toString();
     }
 
-    public void onApplicationEvent(DeleteLogMessage dlm) {
+    public void onApplicationEvent(InternalMessage im) {
+        if (im instanceof DeleteLogMessage) {
+            handleDLMs(Arrays.asList((DeleteLogMessage) im));
+        } else if (im instanceof DeleteLogsMessage) {
+            handleDLMs(((DeleteLogsMessage) im).getMessages());
+        }
+    }
+
+    private void handleDLMs(List<DeleteLogMessage> dlms) {
 
         final Ice.Current rootCurrent = new Ice.Current();
         rootCurrent.ctx = new HashMap<String, String>();
         rootCurrent.ctx.put(SESSIONUUID.value, p.toString());
         final RepositoryDao dao = servant.repositoryDao;
-        final DeleteLog template = new DeleteLog();
-        template.repo = repoUuid; // Ourselves!
-        template.fileId = dlm.getFileId();
-        final List<DeleteLog> logs = dao.findRepoDeleteLogs(template,
+        final List<DeleteLog> templates = new ArrayList<DeleteLog>();
+        for (DeleteLogMessage dlm : dlms) {
+            final DeleteLog template = new DeleteLog();
+            template.repo = repoUuid; // Ourselves!
+            template.fileId = dlm.getFileId();
+            templates.add(template);
+        }
+
+        // Length matches that of dlms
+        final List<List<DeleteLog>> logs = dao.findRepoDeleteLogs(templates,
                 rootCurrent);
 
-        if (logs == null || logs.size() == 0) {
-            // Since no logs are registered with the message
-            // the sender will assume that this isn't a repository
-            // file and will attempt to delete it locally.
-            return; // EARLY EXIT!
-        }
+        final Map<DeleteLog, Integer> successes =
+                new HashMap<DeleteLog, Integer>();
 
-        RawAccessRequestI req = new RawAccessRequestI(null);
-        req.repoUuid = repoUuid;
-        req.command = "rm";
-        for (DeleteLog dl : logs) {
-            req.args = Arrays.asList(dl.path + "/" + dl.name);
-            try {
-                // May be necessary to create a synthetic Ice.Current
-                req.local(this, servant, null /* i.e. as admin */);
+        for (int i = 0; i < dlms.size(); i++) {
+            final DeleteLogMessage dlm = dlms.get(i);
+            final List<DeleteLog> dls = logs.get(i);
 
-                // Only remove the logs if req.local was successful
-                int count = dao.deleteRepoDeleteLogs(template, rootCurrent);
-                if (count != logs.size()) {
-                    log.warn(String.format(
-                        "Failed to remove all delete log entries: %s instead of %s",
-                        count, logs.size()));
+            for (DeleteLog dl : dls) {
+                // Copied from RawAccessRequestI.local
+                String filename = dl.path + "/" + dl.name;
+                if (filename.startsWith("/")) {
+                    filename = "." + filename;
                 }
-                dlm.success(dl);
-            } catch (Throwable t) {
-                log.warn("Failed to delete log " + dl, t);
-                dlm.error(dl, t);
+                try {
+                    final CheckedPath checked = servant.checkPath(filename, null, null /* i.e. as admin*/);
+                    if (!checked.delete()) {
+                        Throwable t = new omero.grid.FileDeleteException(
+                                null, null, "Delete file failed: " + filename);
+                        dlm.error(dl, t);
+                    }
+                } catch (Throwable t) {
+                    log.warn("Failed to delete log " + dl, t);
+                    dlm.error(dl, t);
+                }
+                if (!dlm.isError(dl)) {
+                    successes.put(dl, i);
+                }
             }
-
         }
 
+        // Only remove the logs if req.local was successful
+        List<DeleteLog> copies = new ArrayList<DeleteLog>(successes.keySet());
+        List<Integer> counts = dao.deleteRepoDeleteLogs(copies, rootCurrent);
+        for (int i = 0; i < copies.size(); i++) {
+            DeleteLog copy = copies.get(i);
+            Integer index = successes.get(copy);
+            DeleteLogMessage dlm = dlms.get(index);
+            int expected = logs.get(index).size();
+            int actual = counts.get(i);
+            if (actual != expected) {
+                log.warn(String.format(
+                    "Failed to remove all delete log entries: %s instead of %s",
+                    actual, expected));
+            }
+            dlm.success(copy);
+        }
     }
 
     /**

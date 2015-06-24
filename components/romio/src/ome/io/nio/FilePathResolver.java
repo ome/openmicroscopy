@@ -7,8 +7,6 @@
 
 package ome.io.nio;
 
-import java.util.Map;
-
 import ome.model.core.Pixels;
 
 /**
@@ -29,11 +27,4 @@ public interface FilePathResolver
      */
     String getOriginalFilePath(AbstractFileSystemService service,
                                Pixels pixels);
-
-    /**
-     * Retrieves the pixels set's stored parameters.
-     * @param pixels Pixels set to retrieve parameters for.
-     * @return Map of key vs. value with the parameters for this pixels set.
-     */
-    Map<String, String> getPixelsParams(Pixels pixels);
 }

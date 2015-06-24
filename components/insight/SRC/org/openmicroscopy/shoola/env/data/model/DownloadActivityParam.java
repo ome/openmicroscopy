@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.DownloadActivityParam 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,8 @@ import omero.RString;
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.env.ui.FileLoader;
+
+import pojos.FileAnnotationData;
 
 /** 
  * Parameters required to download a file.
@@ -88,6 +90,12 @@ public class DownloadActivityParam
 
     /** Indicates to register in UI.*/
     private boolean uiRegister;
+    
+    /** FileAnnotation to delete after downloading */
+    private FileAnnotationData toDelete;
+    
+    /** Overwrite local file, if it already exists */
+    private boolean overwrite = false;
     
     /** 
      * Checks if the index is valid.
@@ -275,4 +283,44 @@ public class DownloadActivityParam
 	 */
 	public JComponent getSource() { return source; }
 
+	/**
+	 * Get the {@link FileAnnotationData} which should get
+	 * deleted after download finished
+	 * @return
+	 */
+	public FileAnnotationData getToDelete() {
+		return toDelete;
+	}
+
+	/**
+	 * Set the {@link FileAnnotationData} which should get
+	 * deleted after download finished
+	 * 
+	 * @param toDelete The {@link FileAnnotationData} to delete
+	 */
+	public void setToDelete(FileAnnotationData toDelete) {
+		this.toDelete = toDelete;
+	}
+
+	/**
+	 * Returns <code>true</code> if the local file should be overwritten, if it
+	 * already exists
+	 * 
+	 * @return See above.
+	 */
+	public boolean isOverwrite() {
+		return overwrite;
+	}
+
+	/**
+	 * Determines if the local file should be overwritten, if it already exists
+	 * 
+	 * @param overwrite
+	 *            Set to <code>true</code> if local file should be overwritten
+	 */
+	public void setOverwrite(boolean overwrite) {
+		this.overwrite = overwrite;
+	}
+	
+	
 }

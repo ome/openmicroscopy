@@ -2,7 +2,7 @@
   * org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,12 +30,8 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -49,10 +45,14 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
+
 
 /** 
  * Ellipse figure with measurement.
@@ -111,27 +111,6 @@ public class MeasureEllipseFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
-	/** The units of reference.*/
-	private String refUnits;
-
-	   /**
-     * Formats the area.
-     * 
-     * @param value The value to format.
-     * @return See above.
-     */
-    private String formatValue(double value)
-    {
-        NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-        if (units.isInMicrons()){ 
-            UnitsObject v = UIUtilities.transformSquareSize(value);
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(formatter.format(v.getValue()));
-            buffer.append(v.getUnits());
-            return buffer.toString();
-        }
-        return addUnits(formatter.format(value));
-    }
 
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
@@ -202,6 +181,7 @@ public class MeasureEllipseFigure
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+		setAttribute(MeasurementAttributes.SCALE_PROPORTIONALLY, Boolean.FALSE);
 	   	shape = null;
 		roi = null;
 		status = IDLE;
@@ -211,7 +191,6 @@ public class MeasureEllipseFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
-   		refUnits = UnitsObject.MICRONS;
 	}
 	
 	/** 
@@ -220,12 +199,9 @@ public class MeasureEllipseFigure
 	 * 
 	 * @return See above.
 	 */
-	public double getMeasurementX()
+	public Length getMeasurementX()
 	{
-		if (units.isInMicrons()) 
-			return UIUtilities.transformSize(
-					getX()*units.getMicronsPixelX(), refUnits);
-		return getX();
+		return transformX(getX());
 	}
 	
 	/** 
@@ -234,12 +210,9 @@ public class MeasureEllipseFigure
 	 * 
 	 * @return See above.
 	 */
-	public double getMeasurementY()
+	public Length getMeasurementY()
 	{
-		if (units.isInMicrons())
-			return UIUtilities.transformSize(
-					getY()*units.getMicronsPixelY(), refUnits);
-		return getY();
+		return transformX(getY());
 	}
 	
 	/** 
@@ -248,12 +221,9 @@ public class MeasureEllipseFigure
 	 * 
 	 * @return See above.
 	 */
-	public double getMeasurementWidth()
+	public Length getMeasurementWidth()
 	{
-		if (units.isInMicrons())
-			return UIUtilities.transformSize(
-					getWidth()*units.getMicronsPixelX(), refUnits);
-		return getWidth();
+		return transformX(getWidth());
 	}
 		
 	/** 
@@ -262,12 +232,9 @@ public class MeasureEllipseFigure
 	 * 
 	 * @return See above.
 	 */
-	public double getMeasurementHeight()
+	public Length getMeasurementHeight()
 	{
-		if (units.isInMicrons())
-			return UIUtilities.transformSize(
-					getHeight()*units.getMicronsPixelY(), refUnits);
-		return getHeight();
+		return transformX(getHeight());
 	}
 		
 	/** 
@@ -276,16 +243,10 @@ public class MeasureEllipseFigure
 	 * 
 	 * @return See above.
 	 */
-	public Point2D getMeasurementCentre()
+	public UnitPoint getMeasurementCentre()
 	{
-		if (units.isInMicrons()) {
-			double tx = UIUtilities.transformSize(
-					getCentre().getX()*units.getMicronsPixelX(), refUnits);
-			double ty = UIUtilities.transformSize(
-					getCentre().getY()*units.getMicronsPixelY(), refUnits);
-			return new Point2D.Double(tx, ty);
-		}
-		return getCentre();
+		Point2D p = getCentre();
+		return new UnitPoint(transformX(p.getX()), transformY(p.getY()));
 	}
 		
 	/** 
@@ -343,7 +304,8 @@ public class MeasureEllipseFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
-			String ellipseArea = formatValue(getArea());
+			Length a = getArea();
+			String ellipseArea = UIUtilities.formatValue(a, true);
 			Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
             Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
             if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
@@ -433,28 +395,16 @@ public class MeasureEllipseFigure
 	}
 	
 	/**
-	 * Adds units to the string.
-	 *  
-	 * @param str see above.
-	 * @return returns the string with the units added. 
-	 */
-	public String addUnits(String str)
-	{
-		if (shape == null) return str;
-		if (units.isInMicrons()) 
-			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
-		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
-	}
-	
-	/**
 	 * Calculates the area of the figure. 
 	 * 
 	 * @return see above.
 	 */
-	public double getArea()
+	public Length getArea()
 	{
-		
-		return (getMeasurementHeight()/2)*(getMeasurementWidth()/2)*Math.PI;
+		Length h = getMeasurementHeight();
+		Length w = getMeasurementWidth();
+		double value = (h.getValue()/2)*(w.getValue()/2)*Math.PI;
+		return new LengthI(value, getUnit());
 	}
 	
 	/**
@@ -462,15 +412,23 @@ public class MeasureEllipseFigure
 	 * 
 	 * @return see above.
 	 */
-	public double getPerimeter()
+	public Length getPerimeter()
 	{
-		if (getMeasurementWidth() == getMeasurementHeight()) 
-			return getMeasurementWidth()*2*Math.PI;
+		double value;
+		Length h = getMeasurementHeight();
+		Length w = getMeasurementWidth();
 		
-		double a = Math.max(getMeasurementWidth(), getMeasurementHeight());
-		double b = Math.min(getMeasurementWidth(), getMeasurementHeight());
-		// approximation of c for ellipse. 
-		return Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
+		if (w.getValue() == h.getValue()) 
+			value = w.getValue()*2*Math.PI;
+		
+		else {
+			double a = Math.max(w.getValue(), h.getValue());
+			double b = Math.min(w.getValue(), h.getValue());
+			// approximation of c for ellipse.
+			value = Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
+		}
+		 
+		return new LengthI(value, getUnit());
 	}
 
 	/** 
@@ -518,8 +476,8 @@ public class MeasureEllipseFigure
 		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
 		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());
 		AnnotationKeys.PERIMETER.set(shape, getPerimeter());
-		AnnotationKeys.CENTREX.set(shape, getMeasurementCentre().getX());
-		AnnotationKeys.CENTREY.set(shape, getMeasurementCentre().getY());
+		AnnotationKeys.CENTREX.set(shape, getMeasurementCentre().x);
+		AnnotationKeys.CENTREY.set(shape, getMeasurementCentre().y);
 	}
 	
 	/**
@@ -535,8 +493,6 @@ public class MeasureEllipseFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
-		refUnits = UIUtilities.transformSize(
-				units.getMicronsPixelX()).getUnits();
 	}
 
 	/**
@@ -767,5 +723,52 @@ public class MeasureEllipseFigure
 	 * @see ROIFigure#canInteract()
 	 */
 	public boolean canInteract() { return interactable; }
-
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(double x) {
+		return transformX((int)x);
+	}
+	
+	/**
+	 * Transforms the given y pixel value into a unit object
+	 * @param y A pixel value in y direction
+	 */
+	private Length transformY(double y) {
+		return transformY((int)y);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(int x) {
+		if(units.getPixelSizeX()!=null) 
+			return new LengthI(x*units.getPixelSizeX().getValue(), units.getPixelSizeX().getUnit());
+		else
+			return new LengthI(x, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformY(int y) {
+		if(units.getPixelSizeY()!=null) 
+			return new LengthI(y*units.getPixelSizeY().getValue(), units.getPixelSizeY().getUnit());
+		else
+			return new LengthI(y, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Get the unit which is used for the pixel sizes
+	 */
+	private UnitsLength getUnit() {
+		if(units.getPixelSizeX()!=null)
+			return units.getPixelSizeX().getUnit();
+		else
+			return UnitsLength.PIXEL;
+	}
 }

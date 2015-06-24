@@ -36,6 +36,23 @@ import ome.system.Principal;
 public interface SessionManager {
 
     /**
+     * Extensible data object which can be passed to create* methods to stop
+     * the explosion of different methods. A null field implies that nothing was
+     * passed.
+     */
+    public static class CreationRequest {
+        public Principal principal;
+        public String credentials;
+        public String agent;
+        public String ip;
+        public List<Long> groupsLed;
+        public Long timeToLive;
+        public Long timeToIdle;
+    }
+
+    Session createFromRequest(CreationRequest request);
+
+    /**
      * 
      * @param principal
      * @param credentials
@@ -139,6 +156,12 @@ public interface SessionManager {
      * will be returned.
      */
     List<Session> findByUserAndAgent(String user, String... agent);
+
+    /**
+     * Return all sessions that are active with associated possibly varing
+     * session data information.
+     */
+    Map<String, Map<String, Object>> getSessionData();
 
     /**
      * If reference count for the session is less than 1, close the session.

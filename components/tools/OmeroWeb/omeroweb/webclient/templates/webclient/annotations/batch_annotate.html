@@ -6,7 +6,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -77,6 +77,7 @@
                         var textArea = $('#add_comment_form textarea');
                         textArea.val('');
                         show_batch_msg("Comment added to Objects");
+                        OME.filterAnnotationsAddedBy();
                     },
                     error: function(html) {
                         show_batch_msg(html);
@@ -99,7 +100,7 @@
 
                 // Choose to add tags...
                 if ($("#add_tags_form").length === 0) {
-                    $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'>")
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'>{% csrf_token %}")
                         .hide().appendTo('body');
                 }
                 $("#launch_tags_form").click(function(event) {
@@ -146,6 +147,7 @@
                         });
                         show_batch_msg("Tags added to Objects");
                         $(".tooltip", $tag).tooltip_init();
+                        OME.filterAnnotationsAddedBy();
                     },
                     error: function(data) {
                         $("#tagann_spinner").hide();
@@ -155,7 +157,7 @@
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url 'annotate_file' %}' method='post'>")
+                    $("<form id='choose_attachments_form' title='Choose attachments' action='{% url 'annotate_file' %}' method='post'>{% csrf_token %}")
                         .hide().appendTo('body');
                 }
                 $('#choose_attachments_form').ajaxForm({
@@ -181,9 +183,11 @@
                             hide: false
                         });
                         show_batch_msg("File Annotation(s) added to Objects");
+                        OME.filterAnnotationsAddedBy();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
+                        alert("Upload failed [" + data.status + " " + data.statusText + "]");
                     }
                 });
                 // prepare dialog for choosing file to attach...
@@ -246,6 +250,67 @@
                     OME.deleteItem(event, "file_ann_wrapper", url);
                 });
 
+                // Filtering annotations added by 'me' or 'others' or 'all'
+                $("#annotationFilter").change(function(){
+                    OME.filterAnnotationsAddedBy();
+                });
+
+                // Rating
+                // NB: similar functionality on metadata_general.html
+                $("#add_rating").click(function(){
+                    $(".myRating").toggle();
+                });
+
+                $("#rating_annotations").on("click", ".myRating img", function(event){
+                    var $rating = $(this),
+                        clickX = event.pageX - $rating.offset().left;
+                    var r = (clickX/ $rating.width()) * 5;
+                    r = parseInt(Math.ceil(r));
+                    setRating(r, $rating);
+                });
+                // $(".addRating img").click(function(event){
+                //     var $rating = $(this),
+                //         $ratingli = $rating.parent().parent(),
+                //         clickX = event.pageX - $rating.offset().left;
+                //     var r = (clickX/ $rating.width()) * 5;
+                //     r = parseInt(Math.ceil(r));
+                //     var $newR = $ratingli.clone().prependTo("#rating_annotations");
+                //     $newR.removeClass('addRating').addClass('myRating');
+                //     $ratingli.hide();
+
+                //     setRating(r, $newR.find('img'));
+                // });
+                $("#rating_annotations").on("click", ".removeRating", function(event){
+                    event.preventDefault();
+                    var $liMyRating = $(this).parent(),
+                        $ratingimg = $liMyRating.find('img');
+                    $liMyRating.hide();
+                    setRating(0, $ratingimg);
+                });
+
+                var setRating = function(rating, $rating) {
+                    // update rating
+                    if ($rating) {
+                        var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", rating+".png");
+                        $rating.attr('src', rating_src);
+                    }
+                    $(".ratingCount").text("{{ obj_labels|length }}");
+                    // hide the [+] button if we have set a rating
+                    if (rating > 0) {
+                        $("#add_rating").hide()
+                    } else {
+                        $("#add_rating").show()
+                    }
+                    // update rating annotation
+                    var rating_url = "{% url 'annotate_rating' %}?{{ obj_string }}&index={{ index }}"
+                    rating_url += "&rating=" + rating;
+                    $.post(rating_url, function(data) {
+                        // update summary
+                        $("#ratingsAverage").text(data.average);
+                        $("#ratingsCount").text(data.count);
+                        $("#ratingsSummary").show();
+                    });
+                }
 
                 OME.initToolbarDropdowns();
             });
@@ -268,7 +333,7 @@
 
 
 	<h1 id="batch_ann_title" style="float:left">
-	    Annotate
+	    Selected
 	    <span class="tooltip_title">
 	        {{ obj_labels|length }} objects:
 	        <span style="width:20px; height:20px; display: inline-block" class="btn_info"> &nbsp </span>
@@ -294,9 +359,67 @@
 
     <div style="clear:both"></div>
 
+    <div>
+        <h2 style="float: left">
+            Annotations
+        </h2>
+
+        <select id="annotationFilter" title="Filter by user" data-userId="{{ ome.user.id }}"
+                style="float: right; width:80px">
+            <option value="all">Show all</option>
+            <option value="me">Show added by me</option>
+            <option value="others">Show added by others</option>
+        </select>
+    </div>
+    <div style="clear:both"></div>
+    <hr style="margin-top:0" />
+
     {% if annotationBlocked %}
         <h3 class="postit_msg">{{ annotationBlocked }}</h3>
     {% endif %}
+
+
+    <!-- RATING -->
+
+    <div class="annotations_section">
+
+        <h2>{% trans "Rating" %}</h2>
+
+        {% if not annotationBlocked %}
+        <a id="add_rating"
+            {% if userRatingAvg > 0 %}style="display:none"{% endif %} class="btn silver btn_add"><span></span></a>
+        {% endif %}
+
+
+        <ul id="rating_annotations" class="lnfiles">
+
+            <li class="rating {% if not annotationBlocked %}myRating{% endif %}" style="position: relative {% ifequal userRatingAvg 0 %}; display:none{% endifequal %}">
+                <a><img
+                {% ifequal userRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                />
+                <span class="ratingOwner">
+                    (avg of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
+                </span>
+                </a>
+                {% if not annotationBlocked %}
+                <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
+                {% endif %}
+            </li>
+        </ul>
+        <div id="ratingsSummary" {% if not ratings.average %}style="display:none"{% endif %}>
+            (avg:
+            <span id="ratingsAverage">{{ ratings.average }}</span>
+            / <span id="ratingsCount">{{ ratings.count }}</span>
+            votes)
+        </div>
+    </div>
+
+    <hr/>
 
     <!-- TAGS -->               
     <div class="annotations_section">
@@ -308,11 +431,7 @@
         {% endif %}
 				
         <div id="tags_container" class="lntags">
-            {% for t in batchAnns.Tag %}
-                {% with tag=t.ann links=t.links can_unlink_count=t.unlink can_remove=t.can_remove %}
-                    {% include "webclient/annotations/tag.html" %}
-                {% endwith %}
-            {% endfor %}
+            {% include "webclient/annotations/tags.html" %}
         </div>
  
     </div>
@@ -339,11 +458,7 @@
         <!-- display existing file annotations -->
 
             <ul id="fileanns_container" class="lnfiles">
-                {% for f in batchAnns.File %}
-                    {% with fileann=f.ann links=f.links can_unlink_count=f.unlink can_remove=f.can_remove %}
-                        {% include "webclient/annotations/fileann.html" %}
-                    {% endwith %}
-                {% endfor %}
+                {% include "webclient/annotations/fileanns.html" %}
             </ul>
 
 	</div>
@@ -367,7 +482,7 @@
 			
 			<h2>{% trans "Comment:" %}</h2>
 			
-                <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">
+                <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
                 <table>
                     <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
                     <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
@@ -387,7 +502,6 @@
                     </tr>
                 </table>
                 </form>
-                                       
                 
 				<div id="comments_container" class="lncomments">
                     {% for tann in manager.text_annotations %}

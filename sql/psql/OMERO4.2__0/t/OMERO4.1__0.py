@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import omero
 c = omero.client("localhost")
-s = c.createSession("root","ome")
+s = c.createSession("root", "ome")
 
 admin = s.getAdminService()
 
@@ -54,7 +54,7 @@ updates = s.getUpdateService()
 
 
 ##
-## SPW
+# SPW
 ##
 
 # Objects
@@ -98,6 +98,8 @@ di = omero.model.DichroicI()
 di.instrument = i
 
 filters = [omero.model.FilterI() for x in range(10)]
+
+
 def f():
     filter = filters.pop()
     filter.instrument = i
@@ -119,22 +121,22 @@ updates.saveObject(lc)
 # Plates for #2428
 plates = []
 plates.append(omero.model.PlateI())
-plates[-1].name=_("test data")
+plates[-1].name = _("test data")
 plates[-1].setColumnNamingConvention(_("a"))
 plates.append(omero.model.PlateI())
-plates[-1].name=_("test data")
+plates[-1].name = _("test data")
 plates[-1].setColumnNamingConvention(_("A"))
 plates.append(omero.model.PlateI())
-plates[-1].name=_("test data")
+plates[-1].name = _("test data")
 plates[-1].setColumnNamingConvention(_("1"))
 plates.append(omero.model.PlateI())
-plates[-1].name=_("test data")
+plates[-1].name = _("test data")
 plates[-1].setRowNamingConvention(_("a"))
 plates.append(omero.model.PlateI())
-plates[-1].name=_("test data")
+plates[-1].name = _("test data")
 plates[-1].setRowNamingConvention(_("A"))
 plates.append(omero.model.PlateI())
-plates[-1].name=_("test data")
+plates[-1].name = _("test data")
 plates[-1].setRowNamingConvention(_("1"))
 
 for plate in plates:
@@ -175,6 +177,7 @@ roi.addShape(shape2)
 roi = updates.saveAndReturnObject(roi)
 
 # Shares
-sid = shares.createShare("my description", None, [well], [owner, nonOwner], [], True)
+sid = shares.createShare(
+    "my description", None, [well], [owner, nonOwner], [], True)
 
 print "done"

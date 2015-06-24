@@ -30,21 +30,14 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
@@ -54,7 +47,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -116,12 +108,6 @@ class BrowserModel
     /** Reference to the {@link ImViewer}. */
     private ImViewer        	parent;
     
-    /** The original image. */
-    private TextureData	   		renderedImageAsTexture;
-
-    /** The projected image. */
-    private TextureData		projectedImageAsTexture;
-    
     /** 
      * Flag to indicate if the unit bar is painted or not on top of the
      * displayed image. This option will be always set to <code>false</code>
@@ -157,9 +143,6 @@ class BrowserModel
     /** Flag indicating to initialize {@link #ratio} and {@link #unitBar}. */
     private boolean				init;
     
-    /** Collection of retrieved images composing the grid. */
-    private Map<Integer, TextureData>	gridImagesAsTextures;
-    
     /** Flag if interpolation should be used for upscaling images */
     private boolean interpolation = true;
     
@@ -192,7 +175,6 @@ class BrowserModel
         msg.print(e);
         ImViewerAgent.getRegistry().getLogger().error(this, msg);
         gridImages.clear();
-		gridImagesAsTextures.clear();
     }
     
     /** 
@@ -313,37 +295,6 @@ class BrowserModel
     	}
     }
 
-    /** Creates the images composing the grid. */
-    private void createGridImagesAsTextures()
-    {
-    	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-    		if (!hasGridImagesAsTexture()) {
-    			clearTextureMap(gridImagesAsTextures);
-    			gridImagesAsTextures = parent.getGridImagesAsTexture();
-    		}
-    	} else {
-    		clearTextureMap(gridImagesAsTextures);
-        	gridImagesAsTextures = parent.getGridImagesAsTexture();
-    	}
-    }
-    
-    /**
-     * Clears the passed map.
-     * 
-     * @param map The map to handle.
-     */
-    private void clearTextureMap(Map<Integer, TextureData> map)
-    {
-    	if (map == null) return;
-    	TextureData data;
-    	Iterator<TextureData> i = map.values().iterator();
-    	while (i.hasNext()) {
-			data = i.next();
-			data = null;
-		}
-    	map.clear();
-    }
-    
     /**
      * Clears the list and frees space.
      * 
@@ -433,7 +384,7 @@ class BrowserModel
     private double getBarSize(double ratio)
     {
     	double v = unitInRefUnits;
-        double t = EditorUtil.transformSize(getPixelsSizeX()).getValue();
+        double t = UIUtilities.transformSize(getPixelsSizeX()).getValue();
         if (t > 0) v = unitInRefUnits/t;
         v *= ratio;
         return v;
@@ -460,7 +411,6 @@ class BrowserModel
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
-        gridImagesAsTextures = new HashMap<Integer, TextureData>();
         zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
         if (pref != null) {
         	if (pref.getBackgroundColor() != null)
@@ -486,13 +436,8 @@ class BrowserModel
      * 
      * @return See above.
      */
-    boolean hasImage()
-    {
-    	if (renderedImage != null || renderedImageAsTexture != null) 
-    		return true;
-    	return false;
-    }
-    
+    boolean hasImage() { return (renderedImage != null); }
+
     /**
      * Sets the rendered image.
      * 
@@ -526,10 +471,8 @@ class BrowserModel
     {
     	if (gridImages.size() != 0) return;
     	clearList(originalGridImages);
-    	if (gridImagesAsTextures.size() != 0) return;
     	try {
-    		if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
-        	else createGridImages();
+    		createGridImages();
 		} catch (Exception e) {
 			handleGridImageCreationException(e);
 		}
@@ -675,7 +618,7 @@ class BrowserModel
      */
     void setUnitBar(boolean unitBar)
     {
-    	double v = EditorUtil.transformSize(parent.getPixelsSizeX()).getValue();
+    	double v = UIUtilities.transformSize(parent.getPixelsSizeX()).getValue();
     	if (v == 0 || v == 1) unitBar = false;
     	this.unitBar = unitBar;
     }
@@ -917,20 +860,7 @@ class BrowserModel
      * @return See above.
      */
     boolean hasNoGridImages() { return gridImages.size() == 0; }
-    
-    /** 
-     * Returns <code>true</code> if there is no images retrieved for the
-     * grid view, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean hasGridImagesAsTexture()
-    { 
-    	if (gridImagesAsTextures == null || gridImagesAsTextures.size() == 0)
-    		return false;
-    	return true;
-    }
-    
+
     /**
      * Returns a collection of images composing the grid.
      * 
@@ -999,7 +929,6 @@ class BrowserModel
 		double max = ZoomGridAction.MAX_ZOOM_FACTOR;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
-		if (ImViewerAgent.hasOpenGLSupport()) return;
 		if (CollectionUtils.isEmpty(originalGridImages)) {
 			try {
 				createGridImages();
@@ -1105,67 +1034,9 @@ class BrowserModel
 	ImViewer getParentModel() { return parent; }
 
 	/** Clears the grid images when the color model changes. */
-	void clearGridImages()
-	{ 
-		clearList(gridImages);
-		if (gridImagesAsTextures != null) gridImagesAsTextures.clear();
-		//if (originalGridImages != null) originalGridImages.clear();
-	}
-	
-    /**
-     * Sets the rendered image.
-     * 
-     * @param image The image to set.
-     */
-    void setRenderedImageAsTexture(TextureData image)
-    {
-    	if (renderedImageAsTexture != null)
-    		renderedImageAsTexture.flush();
-    	renderedImageAsTexture = image;
-        if (renderedImageAsTexture != null) {
-        	if (init) {
-        		int imageWidth = image.getWidth();
-        		if (imageWidth < ImViewer.MINIMUM_SIZE) {
-        			ratio = 1;
-        			gridRatio = 1;
-        			setUnitBar(false);
-        		}
-        		if (imageWidth*ratio > ImViewer.MAXIMUM_SIZE)
-        			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
-        		init = false;
-        	}
-        }
-        //displayedImage = null;
-        //combinedImage = null;
-        clearTextureMap(gridImagesAsTextures);
-    }
-	
-	/**
-	 * Returns the projected image if any.
-	 * 
-	 * @param projectedImage The projected image.
-	 */
-	void setProjectedImageAsTexture(TextureData projectedImage)
-	{
-		if (this.projectedImageAsTexture != null)
-			this.projectedImageAsTexture.flush();
-		this.projectedImageAsTexture = projectedImage;
-	}
-	
-	/**
-	 * Returns the projected image if any.
-	 * 
-	 * @return See above.
-	 */
-	TextureData getProjectedImageAsTexture() { return projectedImageAsTexture; }
-	
-    /**
-     * Returns the rendered image.
-     * 
-     * @return See above.
-     */
-    TextureData getRenderedImageAsTexture() { return renderedImageAsTexture; }
-    
+	void clearGridImages() { clearList(gridImages); }
+
+
     /**
      * Returns <code>true</code> if the rendered image is an RGB image,
      * <code>false</code> otherwise.
@@ -1203,27 +1074,12 @@ class BrowserModel
     	//boolean[] rgb;
     	ChannelData data;
     	String label;
-    	boolean b = isRenderedImageRGB();
-    	if (!isModelRGB()) b = false;
     	while (i.hasNext()) {
     		data = i.next();
 			index = data.getIndex();
 			label = data.getChannelLabeling();
-			//rgb = new boolean[3];
 			if (parent.isChannelActive(index)) {
-				/*
-				if (b) {
-					rgb[0] = !parent.isChannelRed(index);
-					rgb[1] = !parent.isChannelGreen(index);
-					rgb[2] = !parent.isChannelBlue(index);
-					image = new GridImage(index, true, label, rgb);
-				} else {
-					image = new GridImage(index, true, label);
-					image.setTextureData(gridImagesAsTextures.get(index));
-				}
-				*/
 				image = new GridImage(index, true, label);
-				image.setTextureData(gridImagesAsTextures.get(index));
 			} else {
 				image = new GridImage(index, false, label);
 			}
@@ -1297,9 +1153,6 @@ class BrowserModel
 		renderedImage = null;
 		clearList(gridImages);
 		clearList(originalGridImages);
-		clearTextureMap(gridImagesAsTextures);
-		projectedImageAsTexture = null;
-		renderedImageAsTexture = null;
 		System.gc();//force garbage collection
 	}
 

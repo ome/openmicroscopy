@@ -119,6 +119,7 @@ public class BaseRenderingTest extends TestCase
 	{
 		PixelsType pixelsType = new PixelsType();
 		pixelsType.setValue("uint16");
+		pixelsType.setBitSize(16);
 		return pixelsType;
 	}
 	
@@ -149,7 +150,7 @@ public class BaseRenderingTest extends TestCase
 		return new double[] { min, max };
 	}
 	
-	private Pixels createDummyPixels(PixelsType pixelsType, PixelData plane)
+	Pixels createDummyPixels(PixelsType pixelsType, PixelData plane)
 	{
 		Pixels pixels = new Pixels(1L, true);
 		pixels.setSizeX(getSizeX());

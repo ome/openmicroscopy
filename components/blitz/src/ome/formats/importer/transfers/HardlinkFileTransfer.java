@@ -28,18 +28,18 @@ import java.util.List;
  * Local-only file transfer mechanism which makes use of hard-linking.
  *
  * This is only useful where the commands "ln source target" (Unix) or
- * "mklink /H source target" (Windows) will work.
+ * "mklink /H target source" (Windows) will work.
  *
  * @since 5.0
  */
 public class HardlinkFileTransfer extends AbstractExecFileTransfer {
 
     /**
-     * Executes "ln file location" (Unix) or "mklink /H file location" (Windows)
+     * Executes "ln file location" (Unix) or "mklink /H location file" (Windows)
      * and fails on non-0 return codes.
      *
-     * @param file
-     * @param location
+     * @param file File to be copied.
+     * @param location Location to copy to.
      * @throws IOException
      * @TODO Java7: replace ln once Java6 is dropped
      */

@@ -27,7 +27,7 @@
 
 import Ice
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 
 from omero.model import ExperimenterGroupI
@@ -159,7 +159,7 @@ class TestThumbnailPerms(lib.ITest):
 
         # Create private group with two member and one image
         group = self.new_group(perms="rw__--")
-        owner = self.new_client(group=group, admin=True)  # Owner of group
+        owner = self.new_client(group=group, owner=True)  # Owner of group
         member = self.new_client(group=group)  # Member of group
         privateImage = self.createTestImage(session=member.sf)
         pId = privateImage.getPrimaryPixels().getId().getValue()
@@ -246,7 +246,7 @@ class TestThumbnailPerms(lib.ITest):
         grp_ctx = {"omero.group": str(group.id.val)}
         self.assert10618(group, member, False, grp_ctx)
 
-    @pytest.mark.xfail(reason="requires thumbnail work")
+    @pytest.mark.broken(reason="requires thumbnail work")
     def testPrivate10618RootWithNoCtx(self):
         """
         This would require the server to try omero.group=-1
@@ -304,7 +304,7 @@ class TestThumbnailPerms(lib.ITest):
         these should be used unless requested otherwise.
         """
         group = self.new_group(perms="rwr---")
-        groupOwner = self.new_user(group=group, admin=True)
+        groupOwner = self.new_user(group=group, owner=True)
         owner = self.new_client(group=group)
         other = self.new_client(user=groupOwner, group=group)
 
@@ -358,7 +358,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwr---")
             owner = self.new_client(group=group)
             if roles == "owner":
-                user = self.new_user(group=group, admin=True)
+                user = self.new_user(group=group, owner=True)
                 other = self.new_client(user=user, group=group)
             elif roles == "admin":
                 user = self.new_user(group=group, system=True)
@@ -367,7 +367,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwra--")
             owner = self.new_client(group=group)
             if roles == "owner":
-                user = self.new_user(group=group, admin=True)
+                user = self.new_user(group=group, owner=True)
                 other = self.new_client(user=user, group=group)
             elif roles == "admin":
                 user = self.new_user(group=group, system=True)
@@ -429,7 +429,7 @@ class TestThumbnailPerms(lib.ITest):
             # If the other users try to save with
             # that prx though, they'll create a new rdef
             b_prx.load()
-            b_prx.resetDefaults()
+            b_prx.resetDefaultSettings(save=True)
             c_rdef = b_prx.getRenderingDefId()
             b_prx.close()
             assert c_rdef != b_rdef
@@ -438,7 +438,7 @@ class TestThumbnailPerms(lib.ITest):
             # If the other users try to save with
             # that prx though, they'll create a new rdef
             b_prx.load()
-            b_prx.resetDefaultsNoSave()
+            b_prx.resetDefaultSettings(save=False)
             c_rdef = b_prx.getRenderingDefId()
             b_prx.close()
             assert c_rdef == b_rdef
@@ -461,7 +461,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwr---")
             owner = self.new_client(group=group)
             if roles == "owner":
-                user = self.new_user(group=group, admin=True)
+                user = self.new_user(group=group, owner=True)
                 other = self.new_client(user=user, group=group)
             elif roles == "admin":
                 user = self.new_user(group=group, system=True)
@@ -470,7 +470,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwra--")
             owner = self.new_client(group=group)
             if roles == "owner":
-                user = self.new_user(group=group, admin=True)
+                user = self.new_user(group=group, owner=True)
                 other = self.new_client(user=user, group=group)
             elif roles == "admin":
                 user = self.new_user(group=group, system=True)
@@ -535,7 +535,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwr---")
             owner = self.new_client(group=group)
             if roles == "owner":
-                user = self.new_user(group=group, admin=True)
+                user = self.new_user(group=group, owner=True)
                 other = self.new_client(user=user, group=group)
             elif roles == "admin":
                 user = self.new_user(group=group, system=True)
@@ -544,7 +544,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwra--")
             owner = self.new_client(group=group)
             if roles == "owner":
-                user = self.new_user(group=group, admin=True)
+                user = self.new_user(group=group, owner=True)
                 other = self.new_client(user=user, group=group)
             elif roles == "admin":
                 user = self.new_user(group=group, system=True)

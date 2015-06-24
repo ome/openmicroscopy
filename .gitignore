@@ -41,7 +41,6 @@ scons.log
 *.so
 *~
 *generated*
-/components/validator/WebApp/uploads/
 test-output
 temp-testng-customsuite.xml
 .settings

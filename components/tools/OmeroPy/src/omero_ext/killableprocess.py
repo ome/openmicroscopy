@@ -102,12 +102,29 @@ class Popen(subprocess.Popen):
             subprocess.Popen.__init__(self, *args, **kwargs)
 
     if mswindows:
-        def _execute_child(self, args, executable, preexec_fn, close_fds,
-                           cwd, env, universal_newlines, startupinfo,
-                           creationflags, shell,
-                           p2cread, p2cwrite,
-                           c2pread, c2pwrite,
-                           errread, errwrite):
+        def _execute_child(self, *args_tuple):
+            # The arguments to this internal Python function changed on
+            # Windows in 2.7.6
+            # - https://trac.openmicroscopy.org.uk/ome/ticket/12320
+            # Upstream bug and fix:
+            # - https://bugzilla.mozilla.org/show_bug.cgi?id=958609
+            # - https://github.com/mozilla/addon-sdk/pull/1379
+            if sys.hexversion < 0x02070600: # prior to 2.7.6
+                (args, executable, preexec_fn, close_fds,
+                    cwd, env, universal_newlines, startupinfo,
+                    creationflags, shell,
+                    p2cread, p2cwrite,
+                    c2pread, c2pwrite,
+                    errread, errwrite) = args_tuple
+                to_close = set()
+            else: # 2.7.6 and later
+                (args, executable, preexec_fn, close_fds,
+                    cwd, env, universal_newlines, startupinfo,
+                    creationflags, shell, to_close,
+                    p2cread, p2cwrite,
+                    c2pread, c2pwrite,
+                    errread, errwrite) = args_tuple
+
             if not isinstance(args, types.StringTypes):
                 args = subprocess.list2cmdline(args)
 

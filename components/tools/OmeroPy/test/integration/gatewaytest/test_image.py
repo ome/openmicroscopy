@@ -159,6 +159,91 @@ class TestImage (object):
         assert badimage.getPixelSizeX() is None
         assert badimage.getChannels() is None
 
+    def assertUnits(self, result, expected):
+        """ helper to compare str(Unit enum) with expected units """
+        assert result.getValue() == expected[0]
+        assert result.getSymbol() == expected[1]
+        assert str(result.getUnit()) == expected[2]
+
+    def testPixelSizeUnits(self, author_testimg_generated):
+        """
+        Tests the pixel sizes and their units
+        """
+        # Test pre-units behaviour
+        sizeXMicrons = 0.10639449954032898
+        assert self.image.getPixelSizeX() == sizeXMicrons
+        self.assertUnits(self.image.getPixelSizeX(units=True),
+                         (sizeXMicrons, "µm", "MICROMETER"))
+        self.assertUnits(self.image.getPixelSizeX(units="NANOMETER"),
+                         (sizeXMicrons * 1000, "nm", "NANOMETER"))
+        self.assertUnits(self.image.getPixelSizeX(units="ANGSTROM"),
+                         (sizeXMicrons * 10000, "Å", "ANGSTROM"))
+        # Can't convert from Length to Seconds
+        with pytest.raises(AttributeError):
+            self.image.getPixelSizeX(units="S")
+        # return None if no data
+        assert author_testimg_generated.getPixelSizeX() is None
+        assert author_testimg_generated.getPixelSizeX(units=True) is None
+        assert author_testimg_generated.getPixelSizeX(
+            units="NANOMETER") is None
+
+    def testUnitsGetValue(self):
+        """
+        Tests that methods which return Units won't break the
+        pre-units 5.0 API for Blitz Gateway (in the same way that
+        this is NOT broken for omero.model objects).
+        For 5.0 and 5.1, getValue() can be used to get the result.
+        """
+        sizeXMicrons = 0.10639449954032898
+        pixels = self.image.getPrimaryPixels()
+        # omero.model.pixels getPhysicalSizeX returns UnitsLengthI
+        # getValue() works with 5.0 and 5.1
+        sizeX = pixels._obj.getPhysicalSizeX().getValue()
+        assert sizeX == sizeXMicrons
+        # PixelsWrapper getPhysicalSizeX should also return UnitsLengthI
+        sizeX = pixels.getPhysicalSizeX().getValue()
+        assert sizeX == sizeXMicrons
+        # Also, direct access of attribute should return UnitsLengthI
+        sizeX = pixels.physicalSizeX.getValue()
+        assert sizeX == sizeXMicrons
+
+    def testChannelWavelengthUnits(self, author_testimg_generated):
+        """
+        Tests Channel excitation / emmisssion wavelengths and units
+        """
+        wavelengths = [[360.0, 457.0], [490.0, 528.0]]
+        for ch, waves in zip(self.image.getChannels(), wavelengths):
+            assert ch.getExcitationWave() == waves[0]
+            assert ch.getEmissionWave() == waves[1]
+            self.assertUnits(ch.getExcitationWave(units=True),
+                             (waves[0], "nm", "NANOMETER"))
+            self.assertUnits(ch.getEmissionWave(units=True),
+                             (waves[1], "nm", "NANOMETER"))
+            self.assertUnits(ch.getExcitationWave(units="ANGSTROM"),
+                             (waves[0] * 10, "Å", "ANGSTROM"))
+            self.assertUnits(ch.getEmissionWave(units="ANGSTROM"),
+                             (waves[1] * 10, "Å", "ANGSTROM"))
+        # Check we get None for image with no data
+        for ch, waves in zip(
+                author_testimg_generated.getChannels(), wavelengths):
+            assert ch.getExcitationWave() is None
+            assert ch.getExcitationWave(units=True) is None
+            assert ch.getExcitationWave(units="ANGSTROM") is None
+
+    def testExposureTimeUnits(self):
+        """
+        Tests PlaneInfo ExposureTimes and units
+        """
+        eTime = 0.33500000834465027
+        for theC in range(self.image.getSizeC()):
+            pInfo = self.image.getPrimaryPixels().copyPlaneInfo(theC=0, theZ=0)
+            for pi in pInfo:
+                assert pi.getExposureTime() == eTime
+                self.assertUnits(pi.getExposureTime(units=True),
+                                 (eTime, 's', 'SECOND'))
+                self.assertUnits(pi.getExposureTime(units="MILLISECOND"),
+                                 (eTime * 1000, 'ms', 'MILLISECOND'))
+
     def testShortname(self):
         """ Test the shortname method """
         name = self.image.name

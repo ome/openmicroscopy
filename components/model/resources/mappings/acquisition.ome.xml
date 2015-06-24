@@ -15,6 +15,8 @@
 -->
 	<type id="ome.model.core.Image" named="true" described="true" annotated="true"><!-- TODO: review-->
 		<properties>
+                        <!-- make required when can default to 0 -->
+			<optional name="series" type="NonNegativeInteger"/>
 			<!-- Acquisition Context 1 -->
 			<optional name="acquisitionDate" type="timestamp"/>
 			<optional name="archived" type="boolean"/>
@@ -64,9 +66,9 @@
 			<required name="sizeT" type="PositiveInteger"/>
 			<required name="sha1" type="string"/>
 			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
-			<optional name="physicalSizeX" type="PositiveFloat"/>
-			<optional name="physicalSizeY" type="PositiveFloat"/>
-			<optional name="physicalSizeZ" type="PositiveFloat"/>
+			<optional name="physicalSizeX" type="ome.model.units.Length"/>
+			<optional name="physicalSizeY" type="ome.model.units.Length"/>
+			<optional name="physicalSizeZ" type="ome.model.units.Length"/>
 			<optional name="waveStart" type="int"/>
 			<optional name="waveIncrement" type="int"/>
 			<optional name="timeIncrement" type="ome.model.units.Time"/>
@@ -103,6 +105,7 @@
 			<optional name="hasher" type="ome.model.enums.ChecksumAlgorithm"/>
 			<optional name="hash" type="string"/>
 			<optional name="mimetype" type="string"/>
+			<zeromany name="filesetEntries" type="ome.model.fs.FilesetEntry" inverse="originalFile"/>
 			<!--
 			Has a default set at the DB level of application/octet-stream.
 			Internal values in use are:
@@ -122,11 +125,11 @@
 			<required name="theT" type="NonNegativeInteger"/>
 			<optional name="deltaT" type="ome.model.units.Time"/>
 			<!-- Note: deltaT is stored in PlaneTiming in model-->
-			<optional name="positionX" type="double"/>
+			<optional name="positionX" type="ome.model.units.Length"/>
 			<!-- Note: positionX is stored in StagePosition in model-->
-			<optional name="positionY" type="double"/>
+			<optional name="positionY" type="ome.model.units.Length"/>
 			<!-- Note: positionY is stored in StagePosition in model-->
-			<optional name="positionZ" type="double"/>
+			<optional name="positionZ" type="ome.model.units.Length"/>
 			<!-- Note: positionZ is stored in StagePosition in model-->
 			<optional name="exposureTime" type="ome.model.units.Time"/>
 			<!-- Note: exposureTime is stored in PlaneTiming in model-->
@@ -157,18 +160,18 @@
 	</type>
 	<type id="ome.model.acquisition.StageLabel" named="true">
 		<properties>
-			<optional name="positionX" type="double"/>
+			<optional name="positionX" type="ome.model.units.Length"/>
 			<!-- Note: positionX is called X in model-->
-			<optional name="positionY" type="double"/>
+			<optional name="positionY" type="ome.model.units.Length"/>
 			<!-- Note: positionY is called Y in model-->
-			<optional name="positionZ" type="double"/>
+			<optional name="positionZ" type="ome.model.units.Length"/>
 			<!-- Note: positionZ is called Z in model-->
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.ImagingEnvironment">
 		<properties>
-			<optional name="temperature" type="double"/>
-			<optional name="airPressure" type="double"/>
+			<optional name="temperature" type="ome.model.units.Temperature"/>
+			<optional name="airPressure" type="ome.model.units.Pressure"/>
 			<optional name="humidity" type="PercentFraction"/>
 			<optional name="co2percent" type="PercentFraction"/>
 			<map name="map" type="string"/>
@@ -187,6 +190,7 @@
 			<optional name="green" type="int"/>
 			<optional name="blue" type="int"/>
 			<optional name="alpha" type="int"/>
+			<optional name="lookupTable" type="string"/>
 			<manyone name="logicalChannel" type="ome.model.core.LogicalChannel" inverse="channels"/>
 			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>
@@ -194,13 +198,13 @@
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
 			<optional name="name" type="string"/>
-			<optional name="pinHoleSize" type="double"/>
+			<optional name="pinHoleSize" type="ome.model.units.Length"/>
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
-			<optional name="excitationWave" type="PositiveFloat"/>
+			<optional name="excitationWave" type="ome.model.units.Length"/>
 			<!-- Note: excitationWave is called exWave in model-->
-			<optional name="emissionWave" type="PositiveFloat"/>
+			<optional name="emissionWave" type="ome.model.units.Length"/>
 			<!-- Note: emissionWave is called emWave in model-->
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="double"/>
@@ -230,11 +234,11 @@
 	<type id="ome.model.acquisition.DetectorSettings">
 		<!-- Note: DetectorSettings are stored in DetectorRef in model-->
 		<properties>
-			<optional name="voltage" type="double"/>
+			<optional name="voltage" type="ome.model.units.ElectricPotential"/>
 			<optional name="gain" type="double"/>
 			<optional name="offsetValue" type="double"/>
 			<!-- Note: offsetValue is called Offset in model-->
-			<optional name="readOutRate" type="double"/>
+			<optional name="readOutRate" type="ome.model.units.Frequency"/>
 			<optional name="binning" type="ome.model.enums.Binning"/>
 			<optional name="integration" type="PositiveInteger"/>
 			<optional name="zoom" type="double"/>
@@ -261,7 +265,7 @@
 		<!-- Note: LightSettings are stored in LightSourceRef in model-->
 		<properties>
 			<optional name="attenuation" type="PercentFraction"/>
-			<optional name="wavelength" type="PositiveFloat"/>
+			<optional name="wavelength" type="ome.model.units.Length"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
 			<!-- Note: lightSource is ID in model-->
 			<manyzero name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
@@ -274,7 +278,7 @@
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
-			<optional name="power" type="double"/>
+			<optional name="power" type="ome.model.units.Power"/>
 			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
@@ -298,10 +302,10 @@
 			<optional name="frequencyMultiplication" type="PositiveInteger"/>
 			<optional name="tuneable" type="boolean"/>
 			<optional name="pulse" type="ome.model.enums.Pulse"/>
-			<optional name="wavelength" type="PositiveFloat"/>
+			<optional name="wavelength" type="ome.model.units.Length"/>
 			<optional name="pockelCell" type="boolean"/>
 			<optional name="pump" type="ome.model.acquisition.LightSource"/>
-			<optional name="repetitionRate" type="double"/>
+			<optional name="repetitionRate" type="ome.model.units.Frequency"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.LightEmittingDiode" superclass="ome.model.acquisition.LightSource">
@@ -324,7 +328,7 @@
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
-			<optional name="voltage" type="double"/>
+			<optional name="voltage" type="ome.model.units.ElectricPotential"/>
 			<optional name="gain" type="double"/>
 			<optional name="offsetValue" type="double"/>
 			<!-- Note: offsetValue is called Offset in model-->
@@ -354,7 +358,7 @@
 			<optional name="lensNA" type="double"/>
 			<required name="immersion" type="ome.model.enums.Immersion"/>
 			<required name="correction" type="ome.model.enums.Correction"/>
-			<optional name="workingDistance" type="double"/>
+			<optional name="workingDistance" type="ome.model.units.Length"/>
 			<optional name="iris" type="boolean"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
@@ -413,10 +417,10 @@
 	</type>
 	<type id="ome.model.acquisition.TransmittanceRange">
 		<properties>
-			<optional name="cutIn" type="PositiveInteger"/>
-			<optional name="cutOut" type="PositiveInteger"/>
-			<optional name="cutInTolerance" type="NonNegativeInteger"/>
-			<optional name="cutOutTolerance" type="NonNegativeInteger"/>
+			<optional name="cutIn" type="ome.model.units.Length"/>
+			<optional name="cutOut" type="ome.model.units.Length"/>
+			<optional name="cutInTolerance" type="ome.model.units.Length"/>
+			<optional name="cutOutTolerance" type="ome.model.units.Length"/>
 			<optional name="transmittance" type="PercentFraction"/>
 		</properties>
 	</type>
@@ -693,33 +697,6 @@
 		<entry name="complex"/>
 		<entry name="double-complex"/>
 		<optional name="bitSize" type="int"/>
-	</enum>
-	<enum id="ome.model.enums.UnitsTime">
-		<entry name="Ys"/>
-		<entry name="Zs"/>
-		<entry name="Es"/>
-		<entry name="Ps"/>
-		<entry name="Ts"/>
-		<entry name="Gs"/>
-		<entry name="Ms"/>
-		<entry name="ks"/>
-		<entry name="hs"/>
-		<entry name="das"/>
-		<entry name="s"/>
-		<entry name="ds"/>
-		<entry name="cs"/>
-		<entry name="ms"/>
-		<entry name="µs"/>
-		<entry name="ns"/>
-		<entry name="ps"/>
-		<entry name="fs"/>
-		<entry name="as"/>
-		<entry name="zs"/>
-		<entry name="ys"/>
-		<entry name="min"/>
-		<entry name="h"/>
-		<entry name="d"/>
-		<required name="measurementSystem" type="string"/>
 	</enum>
 <!--
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

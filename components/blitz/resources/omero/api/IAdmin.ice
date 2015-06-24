@@ -18,7 +18,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IAdmin.html">IAdmin.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/IAdmin.html">IAdmin.html</a>
          **/
         ["ami", "amd"] interface IAdmin extends ServiceInterface
             {
@@ -66,13 +66,13 @@ module omero {
                 idempotent void deleteExperimenter(omero::model::Experimenter user) throws ServerError;
                 idempotent void deleteGroup(omero::model::ExperimenterGroup group) throws ServerError;
 
-                ["deprecated:changeOwner() is deprecated. use omero::cmd::Chown() instead."]
+                ["deprecated:changeOwner() is deprecated. use omero::cmd::Chown2() instead."]
                 idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
 
-                ["deprecated:changeGroup() is deprecated. use omero::cmd::Chgrp() instead."]
+                ["deprecated:changeGroup() is deprecated. use omero::cmd::Chgrp2() instead."]
                 idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
 
-                ["deprecated:changePermissions() is deprecated. use omero::cmd::Chmod() instead."]
+                ["deprecated:changePermissions() is deprecated. use omero::cmd::Chmod2() instead."]
                 idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 

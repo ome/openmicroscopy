@@ -19,11 +19,11 @@ import ome.security.ACLVoter;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
-import ome.services.util.MailUtil;
+import ome.security.basic.CurrentDetails;
+import ome.services.mail.MailUtil;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
-import omero.api.IDeletePrx;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
 import omero.cmd.IRequest;
@@ -33,13 +33,11 @@ import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
 import omero.cmd._HandleTie;
+import omero.cmd.graphs.GraphRequestFactory;
 import omero.sys.ParametersI;
 
 
 /**
- * Tests call to {@link IDeletePrx}, especially important for testing the
- * {@link IDeletePrx#queueDelete(omero.api.delete.DeleteCommand[]) since it is
- * not available from {@link ome.api.IDelete}
  */
 public class AbstractGraphTest extends AbstractServantTest {
 
@@ -65,7 +63,8 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(MailUtil.class),
                 user.ctx.getBean(PasswordUtil.class),
                 user.ctx.getBean(SecuritySystem.class),
-                user.ctx.getBean(PasswordProvider.class)
+                user.ctx.getBean(PasswordProvider.class),
+                user.ctx.getBean("graphRequestFactory", GraphRequestFactory.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);

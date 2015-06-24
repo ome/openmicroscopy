@@ -19,13 +19,18 @@
 #include <iosfwd>
 #include <sstream>
 #include <stdexcept>
-#include <omero/client.h>
-#include <omero/RTypesI.h>
+
+#include <omero/IceNoWarnPush.h>
 #include <omero/Constants.h>
 #include <omero/api/IAdmin.h>
 #include <omero/api/IConfig.h>
 #include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
+#include <omero/IceNoWarnPop.h>
+
+#include <omero/client.h>
+#include <omero/RTypesI.h>
+
 #include <omero/model/SessionI.h>
 #include <omero/util/uuid.h>
 #include <omero/ObjectFactory.h>
@@ -55,6 +60,7 @@ namespace omero {
         id.properties->setProperty("Ice.Default.PreferSecure", "1");
         id.properties->setProperty("Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
         id.properties->setProperty("IceSSL.Ciphers" , "ADH");
+        id.properties->setProperty("IceSSL.Protocols" , "tls1");
         id.properties->setProperty("IceSSL.VerifyPeer" , "0");
 
         // Set the default encoding if this is Ice 3.5 or later
@@ -685,7 +691,7 @@ namespace omero {
     // ====================================================================
 
 
-    std::string client::sha1(const std::string& file) {
+    std::string client::sha1(const std::string&) {
         throw ClientError(__FILE__, __LINE__, "Not yet implemented");
     }
 
@@ -693,9 +699,9 @@ namespace omero {
     // --------------------------------------------------------------------
 
 
-    void client::upload(const std::string& file,
-                    const omero::model::OriginalFilePtr& ofile,
-                    int blockSize) {
+    void client::upload(const std::string&,
+                    const omero::model::OriginalFilePtr&,
+                    int /*blockSize*/) {
         throw ClientError(__FILE__, __LINE__, "Not yet implemented");
     }
 
@@ -771,15 +777,15 @@ namespace omero {
         onShutdown = NoOpCallable();
     }
 
-    void CallbackI::requestHeartbeat(const Ice::Current& current) {
+    void CallbackI::requestHeartbeat(const Ice::Current&) {
         execute(onHeartbeat, "heartbeat");
     }
 
-    void CallbackI::sessionClosed(const Ice::Current& current) {
+    void CallbackI::sessionClosed(const Ice::Current&) {
         execute(onSessionClosed, "sessionClosed");
     }
 
-    void CallbackI::shutdownIn(Ice::Long milliseconds, const Ice::Current& current) {
+    void CallbackI::shutdownIn(Ice::Long /*milliseconds*/, const Ice::Current&) {
         execute(onShutdown, "shutdown");
     }
 

@@ -36,7 +36,7 @@
  * #L%
  */
 
-#include <gtest/gtest.h>
+#include <safegtest.h>
 
 int
 main (int   argc,

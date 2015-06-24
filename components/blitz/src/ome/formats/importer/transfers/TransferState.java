@@ -21,6 +21,8 @@ package ome.formats.importer.transfers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
@@ -70,6 +72,13 @@ public class TransferState implements TimeEstimator {
     private String checksum;
 
     /**
+     * Cache of the latest return value from
+     * {@link #getUploader(String)} which can be used to cleanup
+     * server state.
+     */
+    private RawFileStorePrx prx;
+
+    /**
      * State of the current file transfer.
      *
      * @param file Source file which is to be transferred.
@@ -108,7 +117,11 @@ public class TransferState implements TimeEstimator {
      * @throws ServerError
      */
     public void save() throws ServerError {
-        RawFileStorePrx rawFileStore = getUploader();
+        // We don't need write access here, and considering that
+        // a symlink or similar to a non-executable file may have
+        // replaced the previous test file (see checkLocation), we
+        // try to be as conservative as possible.
+        RawFileStorePrx rawFileStore = getUploader("r");
         checksum = cp.checksumAsString();
         ofile = rawFileStore.save();
         if (log.isDebugEnabled()) {
@@ -186,7 +199,49 @@ public class TransferState implements TimeEstimator {
      * Return the {@link RawFileStorePrx} instance for this index.
      */
     public RawFileStorePrx getUploader() throws ServerError {
-        return this.proc.getUploader(this.index);
+        return getUploader(null);
+    }
+
+    /**
+     * Return the {@link RawFileStorePrx} instance for this index setting
+     * the mode if not null. Valid values include "r" and "rw". If a non-null
+     * {@link #prx} is available, it will be returned <em>instead</em>.
+     *
+     * <em>Every</em> instance which is returned from this method should
+     * eventually have {@link RawFileStorePrx#close()} called on it.
+     * {@link #close()} can be used to facilitate this.
+     */
+    public RawFileStorePrx getUploader(String mode) throws ServerError {
+        if (prx != null) {
+            return prx;
+        } else if (mode != null) {
+            Map<String, String> ctx = new HashMap<String, String>();
+            ctx.put("omero.fs.mode", mode);
+            prx = this.proc.getUploader(this.index, ctx);
+        } else {
+            prx = this.proc.getUploader(this.index);
+        }
+        return prx;
+    }
+
+    /**
+     * Call {@link RawFileStorePrx#close()} on the cached {@link #prx}
+     * instance if non-null and null the instance. If
+     * {@link Ice.ObjectNotExistException} is thrown, the service is
+     * assumed closed. All other exceptions will be printed at WARN.
+     */
+    public void closeUploader() {
+        if (prx != null) {
+            try {
+                prx.close();
+            } catch (Ice.ObjectNotExistException onee) {
+                // no-op
+            } catch (Exception e) {
+                log.warn("Exception closing " + prx, e);
+            } finally {
+                prx = null;
+            }
+        }
     }
 
     //

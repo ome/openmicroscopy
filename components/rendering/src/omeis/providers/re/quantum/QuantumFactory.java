@@ -14,6 +14,7 @@ import java.util.List;
 
 
 
+import ome.model.core.Pixels;
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
@@ -137,11 +138,11 @@ public class QuantumFactory {
      * 
      * @param qd
      *            The definition to verify.
-     * @param type The pixels type to handle.
+     * @param type The pixels to handle.
      * @throws IllegalArgumentException
      *             If the check fails.
      */
-    private void verifyDef(QuantumDef qd, PixelsType type) {
+    private void verifyDef(QuantumDef qd, Pixels pixels) {
         if (qd == null) {
             throw new NullPointerException("No quantum definition.");
         }
@@ -182,19 +183,19 @@ public class QuantumFactory {
      * 
      * @param qd
      *            Defines the quantization context.
-     * @param type The pixels type to handle.
+     * @param pixels The pixels to handle.
      * @return A {@link QuantumStrategy} object suitable for the given pixels
      *         type.
      */
-    private QuantumStrategy getQuantization(QuantumDef qd, PixelsType type) {
-        String typeAsString = type.getValue();
+    private QuantumStrategy getQuantization(QuantumDef qd, Pixels pixels) {
+        String typeAsString = pixels.getPixelsType().getValue();
         if (PlaneFactory.INT32.equals(typeAsString) ||
                 PlaneFactory.UINT32.equals(typeAsString))
-            return new Quantization_32_bit(qd, type);
+            return new Quantization_32_bit(qd, pixels);
         else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
                 PlaneFactory.DOUBLE_TYPE.equals(typeAsString))
-            return new Quantization_float(qd, type);
-        return new Quantization_8_16_bit(qd, type);
+            return new Quantization_float(qd, pixels);
+        return new Quantization_8_16_bit(qd, pixels);
     }
 
     /**
@@ -204,13 +205,13 @@ public class QuantumFactory {
      * @param qd
      *            Defines the quantization context. Mustn't be <code>null</code>
      *            and its values must have been properly specified.
-     * @param type The pixels type to handle.
+     * @param pixels The pixels to handle.
      * @return A {@link QuantumStrategy} suitable for the specified context.
      */
-    public QuantumStrategy getStrategy(QuantumDef qd, PixelsType type) {
-        verifyDef(qd, type);
+    public QuantumStrategy getStrategy(QuantumDef qd, Pixels pixels) {
+        verifyDef(qd, pixels);
         QuantumStrategy strg = null;
-        strg = getQuantization(qd, type);
+        strg = getQuantization(qd, pixels);
         if (strg == null) {
             throw new IllegalArgumentException("Unsupported strategy");
         }

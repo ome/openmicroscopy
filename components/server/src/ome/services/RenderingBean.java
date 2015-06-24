@@ -13,8 +13,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -22,7 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
-import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
 import ome.api.ServiceInterface;
@@ -44,6 +43,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.internal.Permissions;
+import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.services.util.Executor;
@@ -416,6 +416,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#setOverlays()
+     * @deprecated As of release 5.1.0, replaced by
+     * {@link omeis.providers.re.data.PlaneDef#setShapeIds(List)}.
      */
     @RolesAllowed("user")
     public void setOverlays(Map<byte[], Integer> overlays)
@@ -460,6 +462,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.readLock().lock();
 
         try {
+            final Map<byte[], Integer> overlays = getMasks(pd);
+            if (overlays.size() > 0) {
+                renderer.setOverlays(overlays);
+            }
             errorIfInvalidState();
             return renderer.render(pd);
         } catch (IOException e) {
@@ -483,6 +489,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.writeLock().lock();
 
         try {
+            final Map<byte[], Integer> overlays = getMasks(pd);
+            if (overlays.size() > 0) {
+                renderer.setOverlays(overlays);
+            }
             errorIfInvalidState();
             checkPlaneDef(pd);
             if (resolutionLevel != null)
@@ -501,34 +511,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
         }
     }
 
-	/**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#render(PlaneDef)
-     */
-    @RolesAllowed("user")
-    public int[] renderAsPackedIntAsRGBA(PlaneDef pd) {
-    	rwl.writeLock().lock();
-
-    	try {
-    		errorIfInvalidState();
-            checkPlaneDef(pd);
-            if (resolutionLevel != null)
-            {
-                renderer.setResolutionLevel(resolutionLevel);
-            }
-    		return renderer.renderAsPackedIntAsRGBA(pd, null);
-    	} catch (IOException e) {
-    	    log.error("IO error while rendering.", e);
-    	    throw new ResourceError(e.getMessage());
-    	} catch (QuantizationException e) {
-    	    log.error("Quantization exception while rendering.", e);
-    	    throw new InternalException(e.getMessage());
-    	} finally {
-    		rwl.writeLock().unlock();
-    	}
-    }
-
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -540,6 +522,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         ByteArrayOutputStream byteStream = null;
         try {
+            final Map<byte[], Integer> overlays = getMasks(pd);
+            if (overlays.size() > 0) {
+                renderer.setOverlays(overlays);
+            }
         	int stride = pd.getStride();
         	if (stride < 0) stride = 0;
         	stride++;
@@ -667,36 +653,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     // ~ Settings
     // =========================================================================
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#resetDefaults()
-     */
-    @RolesAllowed("user")
-    public void resetDefaults() {
-        internalReset(true);
-    }
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#resetDefaults()
-     */
-    @RolesAllowed("user")
-    public void resetDefaultsNoSave() {
-        internalReset(false);
-    }
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#resetDefaultsSettings(boolean)
-     */
-    @RolesAllowed("user")
-    public long resetDefaultsSettings(boolean save) {
-        return internalReset(save);
-    }
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
@@ -1067,6 +1023,32 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     // ~ RendDefObj Delegation
     // =========================================================================
+
+    @RolesAllowed("user")
+    public String getChannelLookupTable(int w) {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            return cb[w].getLookupTable();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
+    @RolesAllowed("user")
+    public void setChannelLookupTable(int w, String lookup) {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            cb[w].setLookupTable(lookup);
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
@@ -1958,5 +1940,126 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 tb.getThumbnailByLongestSide(96);
                 return null;
         }});
+    }
+
+    /**
+     * Get Masks attached to the image for rendering filtered by the user.
+     */
+    private List<IObject> getMasksById(PlaneDef pd) {
+        long pid = pixelsObj.getId();
+        final long width = pixelsObj.getSizeX();
+        final long height = pixelsObj.getSizeY();
+        final long z = pd.getZ();
+        final long t = pd.getT();
+
+        List<Long> channelIds = new ArrayList<Long>();
+        for (int c = 0; c < pixelsObj.getSizeC(); c++) {
+            if (rendDefObj.getChannelBinding(c).getActive()) {
+                channelIds.add((long) c);
+            }
+        }
+
+        final Parameters params = new Parameters();
+        params.addLong("pid", pid);
+        params.addLong("width", width);
+        params.addLong("height", height);
+        params.addLong("theZ", z);
+        params.addLong("theT", t);
+        params.addList("channelIds", channelIds);
+        params.addList("shapeIds", pd.getShapeIds());
+        final String query =
+                "select m from Mask as m " +
+                "join m.roi as r join r.image as i where " +
+                "i.pixels.id = :pixelsId " +
+                " and m.width = :width " +
+                " and m.height = :height " +
+                " and m.x = 0 " +
+                " and m.y = 0 " +
+                " and m.theZ = :theZ " +
+                " and m.theT = :theT" +
+                " and m.theC in (:channelIds)" +
+                " and m.id in (:shapeIds)";
+        return (List<IObject>) ex.execute(/*ex*/null/*principal*/,
+                new Executor.SimpleWork(this,"getMaskList")
+        {
+            @Transactional(readOnly = true)
+            public List<IObject> doWork(Session session, ServiceFactory sf) {
+                return sf.getQueryService().findAllByQuery(
+                        query, params
+                );
+            }
+        });
+    }
+
+    /**
+     * Get all the Masks attached to the image for rendering.
+     */
+    private List<IObject> getAllMasks(PlaneDef pd) {
+        long pid = pixelsObj.getId();
+        final long width = pixelsObj.getSizeX();
+        final long height = pixelsObj.getSizeY();
+        final long z = pd.getZ();
+        final long t = pd.getT();
+
+        List<Long> channelIds = new ArrayList<Long>();
+        for (int c = 0; c < pixelsObj.getSizeC(); c++) {
+            if (rendDefObj.getChannelBinding(c).getActive()) {
+                channelIds.add((long) c);
+            }
+        }
+
+        final Parameters params = new Parameters();
+        params.addLong("pid", pid);
+        params.addLong("width", width);
+        params.addLong("height", height);
+        params.addLong("theZ", z);
+        params.addLong("theT", t);
+        params.addList("channelIds", channelIds);
+        final String query =
+                "select m from Mask as m " +
+                "join m.roi as r join r.image as i where " +
+                "i.pixels.id = :pixelsId " +
+                " and m.width = :width " +
+                " and m.height = :height " +
+                " and m.x = 0 " +
+                " and m.y = 0 " +
+                " and m.theZ = :theZ " +
+                " and m.theT = :theT" +
+                " and m.theC in (:channelIds)";
+        return (List<IObject>) ex.execute(/*ex*/null/*principal*/,
+                new Executor.SimpleWork(this,"getMaskList")
+        {
+            @Transactional(readOnly = true)
+            public List<IObject> doWork(Session session, ServiceFactory sf) {
+                return sf.getQueryService().findAllByQuery(
+                        query, params
+                );
+            }
+        });
+    }
+
+    /**
+     * Get Mask attached to the image for rendering.
+     */
+    private Map<byte[], Integer> getMasks(PlaneDef pd) {
+        List<IObject> masks = new ArrayList<IObject>();
+        Map<byte[], Integer> maskMap = new LinkedHashMap<byte[], Integer>();
+
+        if (!pd.getRenderShapes()) {
+            return maskMap;
+        }
+        if (pd.getShapeIds().isEmpty()) {
+            masks = getAllMasks(pd);
+        } else {
+            masks = getMasksById(pd);
+        }
+
+        for (int i = 0; i < masks.size(); i++) {
+           maskMap.put(
+                   ((Mask) masks.get(i)).getBytes(),
+                   ((Mask) masks.get(i)).getFillColor()
+           );
+        }
+        return maskMap;
     }
 }

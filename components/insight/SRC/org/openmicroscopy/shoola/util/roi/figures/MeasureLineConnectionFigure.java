@@ -31,12 +31,8 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -49,10 +45,13 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Line connection with measurement.
@@ -94,15 +93,15 @@ public class MeasureLineConnectionFigure
 	private List<Rectangle2D>	boundsArray;
 	
 	/** The list of lengths of sections on the line. */
-	private List<Double>	lengthArray;
+	private List<Length>	lengthArray;
 	/** The list of angles of sections on the line. */
 	private List<Double> 	angleArray;
 
 	/** The list of X coords of the nodes on the line. */
-	private List<Double>	pointArrayX;
+	private List<Length>	pointArrayX;
 	
 	/** The list of Y coords of the nodes on the line. */
-	private List<Double>	pointArrayY;
+	private List<Length>	pointArrayY;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
@@ -122,29 +121,7 @@ public class MeasureLineConnectionFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
-	/** The units of reference.*/
-	private String refUnits;
 	
-	/**
-	 * Formats the area.
-	 * 
-	 * @param value The value to format.
-	 * @return See above.
-	 */
-    private String formatValue(double value, boolean degree)
-    {
-        NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-        if (units.isInMicrons()){ 
-            UnitsObject v = UIUtilities.transformSize(value);
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(formatter.format(v.getValue()));
-            buffer.append(v.getUnits());
-            return buffer.toString();
-        }
-        if (degree) return addDegrees(formatter.format(value));
-        else return addUnits(formatter.format(value));
-    }
-
 	/** Creates instance of line connection figure.*/
 	public MeasureLineConnectionFigure()
 	{
@@ -166,10 +143,10 @@ public class MeasureLineConnectionFigure
 		super(text);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
-		lengthArray = new ArrayList<Double>();
+		lengthArray = new ArrayList<Length>();
 		angleArray = new ArrayList<Double>();
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
+		pointArrayX = new ArrayList<Length>();
+		pointArrayY = new ArrayList<Length>();
 		boundsArray = new ArrayList<Rectangle2D>();
 		shape = null;
 		roi = null;
@@ -179,7 +156,6 @@ public class MeasureLineConnectionFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
-   		refUnits = UnitsObject.MICRONS;
 	}
 
 	 /**
@@ -208,7 +184,7 @@ public class MeasureLineConnectionFigure
 				if (angle > 90)
 					angle = Math.abs(angle-180);
 				angleArray.add(angle);
-				String lineAngle = formatValue(angle, true);
+				String lineAngle = UIUtilities.twoDecimalPlaces(angle)+""+UIUtilities.DEGREE_SYMBOL;
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
@@ -223,7 +199,7 @@ public class MeasureLineConnectionFigure
 			{
 				double angle = getAngle(x-1, x, x+1);
 				angleArray.add(angle);
-				String lineAngle = formatValue(angle, true);
+				String lineAngle = UIUtilities.twoDecimalPlaces(angle)+""+UIUtilities.DEGREE_SYMBOL;
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 
@@ -233,9 +209,9 @@ public class MeasureLineConnectionFigure
 			}
 			for (int x = 1 ; x < this.getPointCount(); x++)
 			{
-				double length = getLength(x-1, x);
+				Length length = getLength(x-1, x);
 				lengthArray.add(length);
-				String lineLength = formatValue(length, false);
+				String lineLength = UIUtilities.formatValue(length);
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(
 						lineLength, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, 
@@ -274,29 +250,12 @@ public class MeasureLineConnectionFigure
 			super.setBounds(anchor, lead);
 	}
 	
-	/**
-	 * Overridden to return the correct handles.
-	 * @see AbstractAttributedFigure#createHandles(int)
-	 */
-	/* cannot do that otherwise enter in an infinite loop
-	public Collection<Handle> createHandles(int detailLevel) 
-	{
-		if(!readOnly)
-			return super.createHandles(detailLevel);
-		else
-		{
-			LinkedList<Handle> handles = new LinkedList<Handle>();
-			handles.add(new FigureSelectionHandle(this));
-			return handles;
-		}
-	}
-	*/
 	
 	/**
 	 * Get the length array. These are the lengths of each segment of the line. 
 	 * @return see above.
 	 */
-	public List<Double> getLengthArray()
+	public List<Length> getLengthArray()
 	{
 		return lengthArray;
 	}
@@ -308,30 +267,6 @@ public class MeasureLineConnectionFigure
 	public List<Double> getAngleArray()
 	{
 		return angleArray;
-	}
-	
-	/**
-	 * Add degrees to the measurements. 
-	 * @param str the measurement.
-	 * @return see above.
-	 */
-	public String addDegrees(String str)
-	{
-		return str + UnitsObject.DEGREES;
-	}
-	
-	/**
-	 * Add length unit, (pixels, microns) to the measurements. 
-	 * @param str the measurement.
-	 * @return see above.
-	 */
-	public String addUnits(String str)
-	{
-		if (shape == null) 
-			return str;
-		
-		if (units.isInMicrons()) return str+refUnits;
-		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
 				
@@ -400,22 +335,14 @@ public class MeasureLineConnectionFigure
 	 * @param i node
 	 * @return see above.
 	 */
-	private Point2D.Double getPt(int i)
+	private UnitPoint getPt(int i)
 	{
 		if (shape != null) {
-			if (units.isInMicrons())
-			{
-				Point2D.Double pt = getPoint(i);
-				double tx = UIUtilities.transformSize(
-						pt.getX()*units.getMicronsPixelX(), refUnits);
-				double ty = UIUtilities.transformSize(
-						pt.getY()*units.getMicronsPixelY(), refUnits);
-				return new Point2D.Double(tx, ty);
-			}
-			return getPoint(i);
+			Point2D.Double pt = getPoint(i);
+			return new UnitPoint(transformX(pt.getX()), transformY(pt.getY()));
 		}
-			
-		return getPoint(i);
+		
+		return null;
 	}
 	
 	/**
@@ -424,11 +351,11 @@ public class MeasureLineConnectionFigure
 	 * @param j see above.
 	 * @return see above.
 	 */
-	public double getLength(int i , int j)
+	public Length getLength(int i , int j)
 	{
-		Point2D.Double pt1 = getPt(i);
-		Point2D.Double pt2 = getPt(j);
-		return pt1.distance(pt2);
+		UnitPoint pt1 = getPt(i);
+		UnitPoint pt2 = getPt(j);
+		return pt1.getDistance(pt2);
 	}
 	
 	/**
@@ -517,12 +444,12 @@ public class MeasureLineConnectionFigure
 		pointArrayY.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		Point2D.Double pt;
+		UnitPoint pt;
 		for (int i = 0 ; i < getPointCount(); i++)
 		{
 			pt = getPt(i);
-			pointArrayX.add(pt.getX());
-			pointArrayY.add(pt.getY());
+			pointArrayX.add(pt.x);
+			pointArrayY.add(pt.y);
 		}
 		
 		if (getPointCount() == 2)
@@ -544,10 +471,10 @@ public class MeasureLineConnectionFigure
 			AnnotationKeys.ANGLE.set(shape, angleArray);
 			AnnotationKeys.LENGTH.set(shape, lengthArray);
 		}
-		AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getX());
-		AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getY());
-		AnnotationKeys.ENDPOINTX.set(shape, getPt(getPointCount()-1).getX());
-		AnnotationKeys.ENDPOINTY.set(shape, getPt(getPointCount()-1).getY());
+		AnnotationKeys.STARTPOINTX.set(shape, getPt(0).x);
+		AnnotationKeys.STARTPOINTX.set(shape, getPt(0).y);
+		AnnotationKeys.ENDPOINTX.set(shape, getPt(getPointCount()-1).x);
+		AnnotationKeys.ENDPOINTY.set(shape, getPt(getPointCount()-1).y);
 		AnnotationKeys.POINTARRAYX.set(shape, pointArrayX);
 		AnnotationKeys.POINTARRAYY.set(shape, pointArrayY);
 	}
@@ -565,8 +492,6 @@ public class MeasureLineConnectionFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
-		refUnits = UIUtilities.transformSize(
-				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
@@ -739,4 +664,44 @@ public class MeasureLineConnectionFigure
 	 */
 	public boolean canInteract() { return interactable; }
 	
+
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(double x) {
+		return transformX((int)x);
+	}
+	
+	/**
+	 * Transforms the given y pixel value into a unit object
+	 * @param y A pixel value in y direction
+	 */
+	private Length transformY(double y) {
+		return transformY((int)y);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(int x) {
+		if(units.getPixelSizeX()!=null) 
+			return new LengthI(x*units.getPixelSizeX().getValue(), units.getPixelSizeX().getUnit());
+		else
+			return new LengthI(x, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformY(int y) {
+		if(units.getPixelSizeY()!=null) 
+			return new LengthI(y*units.getPixelSizeY().getValue(), units.getPixelSizeY().getUnit());
+		else
+			return new LengthI(y, UnitsLength.PIXEL);
+	}
+	
+
 }

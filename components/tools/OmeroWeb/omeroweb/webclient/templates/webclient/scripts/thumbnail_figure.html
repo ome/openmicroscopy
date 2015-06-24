@@ -35,9 +35,9 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.thumbnail_figure.js" %}"></script>
-    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
-    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.thumbnail_figure.js"|add:url_suffix %}"></script>
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen-1.2.0/chosen.css' %}" type="text/css" media="screen"/>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen-1.2.0/chosen.jquery.js' %}"></script>
 
     <style type="text/css">
         .thumbnail_set {
@@ -123,7 +123,7 @@
 
         <select id="tagChooser" multiple="multiple">
             {% for t in tags %}
-                <option value="{{ t.id }}">{{ t.getTextValue }}</option>
+                <option value="{{ t.id }}">{{ t.getTextValue|escape }}</option>
             {% endfor %}
         </select>
 
@@ -161,7 +161,7 @@
             <td></td>
             <td>
                 {% for img in set.imageTags %}
-                <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue }} {% endfor %}" 
+                <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue|escape  }} {% endfor %}" 
                     data-iId="{{ img.id }}"
                     data-tags="{% for t in img.tags %}{% if not forloop.first %},{% endif %}{{t.id}}{% endfor %}"
                     src="{% url 'render_thumbnail_resize' 96 img.id %}" />

@@ -27,9 +27,11 @@ function fas = getPlateFileAnnotations(session, ids, varargin)
 %        fas = getPlateFileAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPLATECOMMENTANNOTATIONS,
-% GETPLATETAGANNOTATIONS, GETPLATEXMLANNOTATIONS
+% GETPLATEDOUBLEANNOTATIONS, GETPLATELONGANNOTATIONS,
+% GETPLATETAGANNOTATIONS, GETPLATETIMESTAMPANNOTATIONS,
+% GETPLATEXMLANNOTATIONS
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

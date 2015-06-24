@@ -26,11 +26,11 @@
 
 <ul>
     <li id="experimenter-0" rel="experimenter{% ifnotequal manager.experimenter.id ome.eventContext.userId %}-locked{% endifnotequal %}">
-        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{% setting UI_MENU_DROPDOWN.ALL %}{% endif %}</a>
+        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ui.dropdown_menu.everyone }}{% endif %}</a>
         <ul>
             {% for c in projects %}
             <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.permsCss }}">
-				<a href="#">{{ c.name|default:"Project"|truncatebefor:"35" }} {% if c.childCount %}
+				<a href="#">{{ c.name|default:"Project"|escape|truncatebefor:"35" }} {% if c.childCount %}
 					<span class="children_count" id="counter-project-{{ c.id }}">{{ c.childCount }}</span>{% endif %}
 				</a>
                 {% if c.childCount %}
@@ -38,7 +38,7 @@
                     {% for d in c.datasets %}
                         <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
                                 class="{{ d.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
-							<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.childCount %}
+							<a href="#">{{ d.name|default:"Dataset"|escape|truncatebefor:"35" }} {% if d.childCount %}
 								<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.childCount }}
 									<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}
 							</a>
@@ -56,7 +56,7 @@
             {% for d in datasets %}
                 <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
                         class="{{ d.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
-					<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.childCount %}
+					<a href="#">{{ d.name|default:"Dataset"|escape|truncatebefor:"35" }} {% if d.childCount %}
 						<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.childCount}}
 							<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}
 					</a>
@@ -68,18 +68,18 @@
 			
             {% for c in screens %}
             <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}" class="{{ c.permsCss }}">
-				<a href="#">{{ c.name|default:"Screen"|truncatebefor:"35" }} {% if c.childCount %}
+				<a href="#">{{ c.name|default:"Screen"|escape|truncatebefor:"35" }} {% if c.childCount %}
 					<span class="children_count" id="counter-screen-{{ c.id }}">{{ c.childCount }}</span>{% endif %}</a>
                 {% if c.childCount %}
                 <ul>
                     {% for p in c.plates %}
                         <li id='plate-{{ p.id }}' rel="plate{% if not p.isOwned %}-locked{% endif %}" class="{{ p.permsCss }}">
-                            <a href="#">{{ p.name|default:"Plate"|truncatebefor:"35" }}</a>
+                            <a href="#">{{ p.name|default:"Plate"|escape|truncatebefor:"35" }}</a>
                             {% if p.plateAcquisitionCount %}
                             <ul>
                                 {% for a in p.plateAcquisitions %}
                                     <li id='acquisition-{{ a.id }}' rel="acquisition{% if not a.isOwned %}-locked{% endif %}" class="{{ a.permsCss }}">
-                                        <a href="#">{{ a.name|default:"Run"|truncatebefor:"35" }}</a>
+                                        <a href="#">{{ a.name|default:"Run"|escape|truncatebefor:"35" }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -96,12 +96,12 @@
 			
             {% for d in plates %}
             <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.permsCss }}">
-                <a href="#">{{ d.name|default:"Plate"|truncatebefor:"35" }}</a>
+                <a href="#">{{ d.name|default:"Plate"|escape|truncatebefor:"35" }}</a>
                 {% if d.plateAcquisitionCount %}
                 <ul>
                     {% for e in d.plateAcquisitions %}
                         <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.permsCss }}">
-                            <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
+                            <a href="#">{{ e.name|default:"Run"|escape|truncatebefor:"35" }}</a>
                         </li>
                     {% endfor %}
                 </ul>
@@ -110,7 +110,7 @@
             {% endfor %}
             
             {% if not share %}
-            <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{% setting UI_TREE_ORPHANED.NAME %}</a></li>
+            <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{{ ui.orphans_name }}</a></li>
             {% endif %}
 
 

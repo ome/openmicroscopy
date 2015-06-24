@@ -1,27 +1,46 @@
 package ome.formats.utests;
 
+import static ome.formats.model.UnitsFactory.convertFrequency;
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.makeFrequency;
+
 import java.util.LinkedHashMap;
 
+import junit.framework.TestCase;
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
-import ome.xml.model.enums.*;
-import ome.xml.model.primitives.*;
+import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
+import ome.units.quantity.Frequency;
+import ome.units.quantity.Length;
+import ome.xml.model.enums.LaserMedium;
+import ome.xml.model.enums.LaserType;
+import ome.xml.model.enums.Pulse;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Laser;
-import junit.framework.TestCase;
+import omero.model.LengthI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class LaserTest extends TestCase
 {
+
 	private OMEROMetadataStoreClient store;
 
 	private static final int LIGHTSOURCE_INDEX = 0;
 
 	private static final int INSTRUMENT_INDEX = 0;
+	
+	private static Length makeWave(double d) {
+	    return convertLength(new LengthI(d, UnitsFactory.Channel_EmissionWavelength));
+	}
+
+	private static Frequency hz(double d) {
+	    return convertFrequency(makeFrequency(d, UNITS.HZ));
+	}
 
 	@BeforeMethod
 	protected void setUp() throws Exception
@@ -39,12 +58,12 @@ public class LaserTest extends TestCase
 	{
 		int i = LIGHTSOURCE_INDEX + 10;
 		store.setLaserID("Laser:100", INSTRUMENT_INDEX, i);
-		store.setLaserWavelength(new PositiveFloat(100.1), INSTRUMENT_INDEX, i);
+		store.setLaserWavelength(makeWave(100.1), INSTRUMENT_INDEX, i);
 		store.setLaserType(LaserType.METALVAPOR, INSTRUMENT_INDEX, i);
 		store.setLaserLaserMedium(LaserMedium.EMINUS, INSTRUMENT_INDEX, i);
 		store.setLaserPockelCell(true, INSTRUMENT_INDEX, i);
 		store.setLaserPulse(Pulse.REPETITIVE, INSTRUMENT_INDEX, i);
-		store.setLaserRepetitionRate(2.0, INSTRUMENT_INDEX, i);
+		store.setLaserRepetitionRate(hz(2.0), INSTRUMENT_INDEX, i);
 		store.setLaserTuneable(true, INSTRUMENT_INDEX, i);
 	}
 

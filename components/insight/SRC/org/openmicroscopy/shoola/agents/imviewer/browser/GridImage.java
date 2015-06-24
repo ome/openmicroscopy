@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 
 //Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 
@@ -58,8 +57,6 @@ class GridImage
 	/** The label of the channel. */
 	private String	  label;
 	
-	private TextureData data;
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -88,20 +85,6 @@ class GridImage
 		this.rgb = rgb;
 		this.label = label;
 	}
-	
-	/**
-	 * Sets the texture data.
-	 * 
-	 * @param data See above.
-	 */
-	void setTextureData(TextureData data) { this.data = data; }
-	
-	/**
-	 * Returns the texture.
-	 * 
-	 * @return See above.
-	 */
-	TextureData getTextureData() { return data ; }
 	
 	/**
 	 * Returns the index of the channel.

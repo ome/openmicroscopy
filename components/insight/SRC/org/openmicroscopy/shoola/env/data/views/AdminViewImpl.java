@@ -31,7 +31,6 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -252,4 +251,15 @@ class AdminViewImpl
 	    BatchCallTree cmd = new AdminLoader(ctx, group, experimenter);
         return cmd.exec(observer);
 	}
+
+    /**
+     * Implemented as specified by the {@link AdminView} interface.
+     * @see AdminView#loadAdministrators(SecurityContext, AgentEventListener)
+     */
+    public CallHandle lookupLdapAuthExperimenter(SecurityContext ctx,
+            long userID, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AdminLoader(ctx, userID);
+        return cmd.exec(observer);
+    }
 }

@@ -24,8 +24,8 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen-1.2.0/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css'|add:url_suffix %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}
@@ -34,7 +34,7 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen-1.2.0/chosen.jquery.js' %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -43,11 +43,10 @@
                 var highlightCurrent = function() {
                     var userId = {{ userId }};
                     var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if (parseInt(item.value) === userId) {
-                            $("#id_owners_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                        }
+                        return item.value == userId;
                     });
+                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
+                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
                 }
                 
                 $("#id_owners").chosen({placeholder_text:'Type owners names to add...'});
@@ -56,7 +55,7 @@
                         $.grep($('#id_owners').data('chosen').results_data, function(item){
                             if(item.selected && item.value === data.deselected) {
                                 $('#id_owners option[value='+data.deselected+']').prop('selected', false);
-                                $("#id_owners").trigger("liszt:updated");
+                                $("#id_owners").trigger("chosen:updated");
                                 highlightCurrent();
                             }
                         });
@@ -70,6 +69,15 @@
                     OME.confirm_dialog("Changing group to Private may fail if links have been created under Read-Annotate permissions",
                         null, "WARNING", ['OK'], null, 180);
                 });
+
+                // Disable the "Read-Write" permissions option for group owners (if it's not checked)
+                var $readWriteCheckbox = $('#id_permissions_3');
+                if (!$readWriteCheckbox.is(':checked')) {
+                    $readWriteCheckbox.prop('disabled', 'disabled');
+                }
+                $('label[for="id_permissions_3"]')
+                    .css('opacity',0.5)
+                    .prop('title', 'Group owners cannot upgrade to Read-Write permissions. Please contact your sysadmin.');
 
         })
     </script>
@@ -94,7 +102,7 @@
 		
 	</dl>
 	
-    <form action="{% url 'wamanagegroupownerid' "save" gid %}" method="POST" id="" class="standard_form settings_form">
+    <form action="{% url 'wamanagegroupownerid' "save" gid %}" method="POST" id="" class="standard_form settings_form">{% csrf_token %}
         
         <p>{% trans "Fields marked in red are mandatory." %}</p>
         <br/>
@@ -121,7 +129,7 @@
 
     <p>
         Full details on various Permissions levels can be found on the 
-        <a href="http://www.openmicroscopy.org/site/support/omero5/sysadmins/server-permissions.html" target="new">
+        <a href="http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/server-permissions.html" target="new">
             OMERO Permissions
         </a>
         page.

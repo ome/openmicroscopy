@@ -36,7 +36,7 @@ except that they should be able to delete users and data from their group."
 
 """
 
-import test.integration.library as lib
+import library as lib
 
 
 class TestColumbus(lib.ITest):
@@ -53,15 +53,15 @@ class TestColumbus(lib.ITest):
     def userconfig(self, perms="rwr---"):
         self.group_a = self.new_group(perms=perms)
         self.client_A, self.user_A = \
-            self.new_client_and_user(group=self.group_a, admin=True)
+            self.new_client_and_user(group=self.group_a, owner=True)
         self.client_B, self.user_B = \
-            self.new_client_and_user(group=self.group_a, admin=False)
+            self.new_client_and_user(group=self.group_a, owner=False)
 
         self.group_b = self.new_group(perms=perms)
         self.client_C, self.user_C = \
-            self.new_client_and_user(group=self.group_b, admin=True)
+            self.new_client_and_user(group=self.group_b, owner=True)
         self.client_D, self.user_D = \
-            self.new_client_and_user(group=self.group_b, admin=False)
+            self.new_client_and_user(group=self.group_b, owner=False)
 
         self.group_c = self.new_group(perms=perms)
         self.client_E, self.user_E = \

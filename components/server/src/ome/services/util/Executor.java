@@ -8,6 +8,7 @@
 package ome.services.util;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -272,19 +273,8 @@ public interface Executor extends ApplicationContextAware {
             sb.append(name);
             sb.append(".");
             sb.append(method);
-            boolean first = true;
-            if (params.length > 0) {
-                sb.append("(");
-                for (Object object : params) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        sb.append(", ");
-                    }
-                    sb.append(object);
-                }
-                sb.append(")");
-            }
+            sb.append(ServiceHandler.getResultsString(params,
+                    new IdentityHashMap<Object, String>()));
             this.description = sb.toString();
         }
 

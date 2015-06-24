@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.OpenObjectLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -110,7 +110,7 @@ public class OpenObjectLoader
     		path += fa.getFileName();
     		f = new File(path);
     		f.deleteOnExit();
-    		handle = mhView.loadFile(ctx, f, fa.getFileID(), 
+    		handle = mhView.loadFile(ctx, f, fa.getId(), 
     				FileLoader.FILE_ANNOTATION, this);
     	}
     }
@@ -127,6 +127,12 @@ public class OpenObjectLoader
     	}
     }
     
+    @Override
+    protected void onException(String message, Throwable ex) {
+        super.onException(message, ex);
+        activity.notifyError("Error- Could not load object", ex.getMessage(), ex);
+    }
+
     /**
      * Cancels the ongoing data retrieval.
      * @see UserNotifierLoader#cancel()

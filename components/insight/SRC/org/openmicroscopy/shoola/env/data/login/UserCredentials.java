@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.login.UserCredentials
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -374,7 +374,9 @@ public class UserCredentials
         StringBuffer buf = new StringBuffer("User Name: ");
         buf.append(userName);
         buf.append(" -- Password: ");
-        for (int i = 0; i < password.length(); ++i) buf.append('*');
+		if (password != null)
+			for (int i = 0; i < password.length(); ++i)
+				buf.append('*');
         return buf.toString();
     }
     

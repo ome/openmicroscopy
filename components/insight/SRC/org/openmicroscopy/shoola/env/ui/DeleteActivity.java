@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.DeleteActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,11 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.Icon;
+
+
+import omero.cmd.GraphException;
 
 //Third-party libraries
 
@@ -169,6 +173,9 @@ public class DeleteActivity
 	{
 		if (result instanceof ProcessReport) {
 			type.setText(DESCRIPTION_ERROR);
+			GraphException ex = ((ProcessReport) result).getGraphException();
+			if (ex != null) 
+				messageLabel.setText(messageLabel.getText()+" - "+ex.message);
 			notifyActivityError();
 		} else {
 			type.setText(DESCRIPTION_END);

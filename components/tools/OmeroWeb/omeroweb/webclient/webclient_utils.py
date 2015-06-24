@@ -23,6 +23,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def formatPercentFraction(value):
+    """ Formats a fraction as a percentage for display """
+    value = value * 100
+    if value < 1:
+        value = "%.1f" % round(value, 1)
+    else:
+        value = "%s" % int(round(value))
+    return value
+
+
 def _formatReport(callback):
     """
     Added as workaround to the changes made in #3006.
@@ -35,18 +46,16 @@ def _formatReport(callback):
     if isinstance(rsp, omero.cmd.ERR):
         err = rsp.parameters.get("Error", "")
         warn = rsp.parameters.get("Warning", "")
-        logger.error('Format report: %r' % {'error':err, 'warning':warn})
+        logger.error('Format report: %r' % {'error': err, 'warning': warn})
         return "Operation could not be completed successfully"
-    else:
-        for rsp in rsp.responses:
-            if rsp.warning:
-                logger.warning("Delete warning: %s" % rsp.warning)
+    # Delete2Response, etc include no warnings
     # Might want to take advantage of other feedback here
 
+
 def _purgeCallback(request):
-    
+
     callbacks = request.session.get('callback').keys()
     if len(callbacks) > 200:
-        for (cbString, count) in zip(request.session.get('callback').keys(), range(0,len(callbacks)-200)):
+        for (cbString, count) in zip(request.session.get('callback').keys(),
+                                     range(0, len(callbacks)-200)):
             del request.session['callback'][cbString]
-        

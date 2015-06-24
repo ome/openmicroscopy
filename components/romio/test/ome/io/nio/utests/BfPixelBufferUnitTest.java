@@ -6,7 +6,6 @@
  */
 package ome.io.nio.utests;
 
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
@@ -73,7 +72,7 @@ public class BfPixelBufferUnitTest {
     @Test
     public void testRomioPixelBufferCreation() {
         service = new PixelsService(root);
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service._getPixelBuffer(pixels, true);
         assertTrue(pixelBuffer instanceof RomioPixelBuffer);
     }
 

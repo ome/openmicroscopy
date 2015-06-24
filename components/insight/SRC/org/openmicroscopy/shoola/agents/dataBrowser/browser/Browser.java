@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -457,5 +457,14 @@ public interface Browser
 	 * @param nodes The selected nodes. 
 	 */
 	public void setSelectedDisplays(List<ImageDisplay> nodes);
+	
+	/**
+         * Select the ImageDisplay which is located at the given coordinates
+         *
+         * @param coords The component coordinates
+         * @param multiSel Pass <code>true</code> for adding selection 
+         *             to a multiple selection
+         */
+	public void setSelectedDisplay(Point coords, boolean multiSel);
 
 }

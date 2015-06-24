@@ -27,11 +27,11 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css"|add:url_suffix %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter-2.0.3/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
 <!--[if lte IE 8]>
-	<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
+	<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css"|add:url_suffix %}" />
 <![endif]-->
 
 
@@ -40,8 +40,8 @@
 {% block script %}
     {{ block.super }}
     
-    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter-2.0.3/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch-1.0.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function()
@@ -123,6 +123,8 @@
     <p>{% trans "<strong>Read-Only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
 
     <p>{% trans "<strong>Read-Annotate (rwra--)</strong>: Users in a Read-Annotate group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
+
+    <p>{% trans "<strong>Read-Write (rwrw--)</strong>: Users in a Read-Write group have permission to edit and delete the data belonging to other users." %}</p>
 
 <div>
         

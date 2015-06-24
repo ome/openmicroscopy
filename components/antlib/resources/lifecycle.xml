@@ -62,7 +62,7 @@
         <ivy:retrieve settingsRef="ivy.${ant.project.name}"
             type="jar"
             pattern="${deps.lib.dir}/[artifact](-[classifier]).[ext]"
-            log="quiet" sync="false" symlink="true"/>
+            log="quiet" sync="false" symlink="true" haltonfailure="${package-extra}"/>
     </target>
 
     <target name="prepare" depends="retrieve">
@@ -184,7 +184,6 @@ omero.version=${omero.version}
         <ivy:resolve settingsRef="ivy.${ant.project.name}.test" file="${basedir}/test.xml" type="jar" log="quiet"/>
         <ivy:retrieve settingsRef="ivy.${ant.project.name}.test" pattern="${deps.lib.dir}/test/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
         <taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
-        <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
         <presetdef name="nomemorytestng">
             <testng outputDir="${testreports.dir}"
                 haltonfailure="${test.with.fail}"
@@ -197,14 +196,13 @@ omero.version=${omero.version}
                 listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
                 >
                 <classpath>
-                    <pathelement location="${emmaclasses.dir}"/>
                     <path refid="omero.test.classpath"/>
                     <pathelement location="${testclasses.dir}"/>
                     <pathelement location="${classes.dir}"/>
                     <pathelement location="${test.dir}"/>
                 </classpath>
                 <jvmarg value="-XX:MaxPermSize=256m"/>
-                <jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
+                <jvmarg value="-XX:+IgnoreUnrecognizedVMOptions"/>
                 <jvmarg value="-Dlogback.configuration=logback-build.xml"/>
                 <jvmarg value="-Domero.db.name=${omero.db.name}"/>
                 <jvmarg value="-Domero.db.host=${omero.db.host}"/>
@@ -253,7 +251,6 @@ omero.version=${omero.version}
     <target name="test-compile" depends="testng-init" unless="test.skip">
         <!-- may be overridden by fail-on-error -->
         <property name="test.with.fail" value="false"/>
-        <property name="emma.enabled"   value="true"/>
         <property name="unit.suite" value="unit.testng.xml"/>
         <copyTestResources/>
         <myjavac
@@ -267,16 +264,6 @@ omero.version=${omero.version}
         <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
         <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver" settingsRef="ivy.${ant.project.name}"
            pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
-        <path id="emma.classpath">
-            <pathelement location="${classes.dir}"/>
-        </path>
-        <emma enabled="${emma.enabled}" >
-            <instr instrpathref="emma.classpath"
-                destdir="${emmaclasses.dir}"
-                metadatafile="${target.dir}/metadata.emma"
-                merge="true"
-            />
-        </emma>
     </target>
 
     <target name="test-single" if="TEST">
@@ -330,13 +317,6 @@ omero.version=${omero.version}
                         <antcall target="test-suite" inheritRefs="true" inheritAll="true"/>
                     </else>
                 </if>
-        <emma enabled="${emma.enabled}" >
-            <report sourcepath="${src.dir}" >
-                <fileset dir="${target.dir}" includes="*.emma"/>
-                <html outfile="${target.dir}/coverage.html" />
-                <xml outfile="${target.dir}/coverage.xml" />
-            </report>
-        </emma>
     </target>
 
     <target name="integration" depends="test-compile" unless="test.skip">
@@ -353,13 +333,6 @@ omero.version=${omero.version}
                 </suite>
             </then>
         </if>
-        <emma enabled="${emma.enabled}" >
-            <report sourcepath="${src.dir}" >
-                <fileset dir="${target.dir}" includes="*.emma"/>
-                <html outfile="${target.dir}/coverage.html" />
-                <xml outfile="${target.dir}/coverage.xml" />
-            </report>
-        </emma>
     </target>
 
 
@@ -384,6 +357,10 @@ omero.version=${omero.version}
     </target>
 
     <target name="package-extra">
+
+        <if><equals arg1="true" arg2="${package-extra}"/>
+            <then>
+
         <jar destfile="${target.dir}/${ivy.module}-sources.jar">
             <fileset dir="${src.dir}" includes="**/*.java"/>
             <fileset dir="${src.dest}" includes="**/*.java"/>
@@ -409,6 +386,8 @@ omero.version=${omero.version}
         <jar destfile="${target.dir}/${ivy.module}-javadoc.jar">
                 <fileset dir="${target.dir}/javadocs"/>
         </jar>
+
+        </then></if>
     </target>
 
     <target name="load-findbugs" depends="prepare">
@@ -474,7 +453,7 @@ omero.version=${omero.version}
             <mapping conf="*" scope="compile"/>
             <dependency group="ome" artifact="bio-formats" version="${omero.version}" optional="true"/>
         </ivy:makepom>
-        <publishArtifact/>
+        <publishArtifact haltonmissing="${package-extra}"/>
     </target>
 
     <!-- Previously dependend on integration, but that may need special controls.

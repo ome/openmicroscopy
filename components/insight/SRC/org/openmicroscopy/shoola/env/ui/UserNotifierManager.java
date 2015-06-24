@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.ui.UserNotifierManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -31,12 +30,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-//Third-party libraries
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -51,6 +50,7 @@ import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -164,7 +164,7 @@ class UserNotifierManager
 		
 		boolean bug = true;
 		String error = details.getError();
-		if (error == null || error.length() == 0) bug = false;
+		if (CommonsLangUtils.isBlank(error)) bug = false;
 		String url = (String) reg.lookup(LookupNames.TOKEN_URL);
 		String appName; 
 		if (bug) 

@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.views.ImageDataView
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -33,12 +33,15 @@ import java.util.Map;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
+
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -108,15 +111,14 @@ public interface ImageDataView
      * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render.
-     * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImae Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
+	 * @param compression The compression level used.
      * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle render(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    		boolean asTexture, boolean largeImage, AgentEventListener observer);
+    		boolean largeImage, int compression, AgentEventListener observer);
     
     /**
      * Retrieves the pixels set.
@@ -179,15 +181,12 @@ public interface ImageDataView
      *                  Default value is <code>1</code>
      * @param algorithm The type of projection.
      * @param channels 	The collection of channels to project.
-     * @param openGLSupport Pass <code>true</code> if openGL is supported,
-     * 						<code>false</code> otherwise.
      * @param observer 	Call-back handler.
      * @return See above.
      */
     public CallHandle renderProjected(SecurityContext ctx, long pixelsID,
     	int startZ, int endZ, int stepping, int algorithm,
-    	List<Integer> channels, boolean openGLSupport,
-    	AgentEventListener observer);
+    	List<Integer> channels, AgentEventListener observer);
     
     /**
      * Projects a section of the stack and returns the projected image.
@@ -412,14 +411,12 @@ public interface ImageDataView
 	 * @param pd		The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle renderOverLays(SecurityContext ctx, long pixelsID,
 		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture, AgentEventListener observer);
+		AgentEventListener observer);
 	
 	/**
 	 * Runs the passed script.
@@ -485,13 +482,21 @@ public interface ImageDataView
 	 * @param pDef The plane to render.
 	 * @param proxy The rendering control to use
 	 * @param tiles The tiles.
-	 * @param asTexture Pass <code>true</code> to return a texture,
-	 * <code>false</code> to return a buffered image.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadTiles(SecurityContext ctx, long pixelsID,
 		PlaneDef pDef, RenderingControl proxy, Collection<Tile> tiles,
-		boolean asTexture, AgentEventListener observer);
-	
+		 AgentEventListener observer);
+
+	/**
+	 * Saves the ImageJ results back to OMERO.
+	 *
+	 * @param ctx The security context.
+	 * @param results The results to save.
+	 * @param observer Call-back handler.
+     * @return See above.
+	 */
+	public CallHandle saveResults(SecurityContext ctx,
+            ResultsObject results, AgentEventListener observer);
 }

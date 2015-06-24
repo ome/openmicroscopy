@@ -12,7 +12,5 @@
   <dependencies defaultconfmapping="test->*">
     <dependency name="common-test" rev="${omero.version}" changing="true"/>
     <dependency name="java-ui-libraries" rev="${omero.version}" changing="true"/>
-    <dependency org="emma" name="emma" rev="${versions.emma}"/>
-    <dependency org="emma" name="emma_ant" rev="${versions.emma}"/>
   </dependencies>
 </ivy-module>

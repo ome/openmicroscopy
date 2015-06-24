@@ -1,0 +1,209 @@
+*** Settings ***
+Documentation     Tests submission of forms.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Test Script Run
+    [Documentation]     Tests form based on base_custom_dialog.html and script_ui.html
+
+    # Clear any activities from earlier tests etc.
+    Click Element                               id=launch_activities
+    Click Element                               id=clear_activities
+    Select And Expand Project
+    Select And Expand Dataset
+    Select And Expand Image
+    Wait Until Page Contains Element            xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
+    ${imageId}=                                 Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+
+    # First Test 'custom' script forms
+    # Tricky to handle popup window. Just go to script dialog URL instead
+    Go To                                       ${WELCOME URL}figure_script/Thumbnail/?Image=${imageId}
+    Wait Until Page Contains Element            id=script_form
+    Submit Form                                 id=script_form
+    Sleep                                       5                   # make sure script added to Activities
+    Go To                                       ${WELCOME URL}
+    Click Element                               id=launch_activities
+    Wait Until Page Contains                    Thumbnail Figure
+
+    # Now Test 'Batch Image Export' (script UI on-the-fly)
+    Click Element                               id=scriptButton
+    Wait Until Page Contains Element            xpath=//a[contains(text(),'export_scripts')]
+    # If extra /omero/ script level, click() it. Will fail silently if not needed
+    Execute Javascript                          $("#scriptList>ul>li>a:contains('omero')").click()
+    Click Link                                  export_scripts
+    ${script_url}=                              Get Element Attribute       xpath=//a[contains(text(),'Batch Image Export...')]@href
+    Go To                                       ${script_url}?Image=${imageId}
+    Wait Until Page Contains Element            id=script_form
+    Submit Form                                 id=script_form
+    Sleep                                       5                   # make sure script added to Activities
+    Go To                                       ${WELCOME URL}
+    Click Element                               id=launch_activities
+    Wait Until Page Contains                    Batch Image Export
+
+
+Test Channel Rename
+    [Documentation]     Select User, Project, Dataset, Image and checks
+    ...                 whether the toolbar/right-click menu options for
+    ...                 creating various containers are enabled.
+
+    Set Selenium Speed                          0.5 seconds
+    Tree Should Be Visible
+    Select And Expand Project
+    Select And Expand Dataset
+    ${imageId}=                                 Select And Expand Image
+    Wait Until Page Contains Element            id=editChannelNames
+    Click Element                               id=editChannelNames
+    ${chName}=                                  Get Time    epoch
+    Input Text                                  channel0    ch${chName}
+    Submit Form                                 channel_names_edit
+    Wait Until Keyword Succeeds                 5 sec   1 sec   Element Should Not Be Visible     channel0
+    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]    10
+
+
+Test Basket Share
+    [Documentation]     Tests adding image to basket, creating a share and editing share
+
+    # Go To                                       ${WELCOME URL}
+    Select And Expand Project
+    Select And Expand Dataset
+    ${imageId}=                                 Select And Expand Image
+    Click Element                               basketButton
+    Go To                                       ${WELCOME URL}basket/
+    Wait Until Page Contains Element            xpath=//table[@id='dataTable']
+    Click Element                               xpath=//table[@id='dataTable']//tr/td
+    Click Element                               create_share
+    Wait Until Page Contains Element            id_message
+    Input Text                                  id_message      Created via Selenium Test
+    Select From List                            id_members      1
+    Submit Form                                 create_share_form
+    Wait Until Page Contains Element            id=Public
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
+    Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
+    # Test Editing of Share. NB: Adding a Comment to Share is currently broken.
+    Wait Until Page Contains Element            id=edit_share
+    Click Element                               id=edit_share
+    Wait Until Page Contains Element            id_message
+    Input Text                                  id_message      Edited Share Message
+    Submit Form                                 edit_share_form
+    Wait Until Page Contains                    Edited Share Message
+    # Add Comment
+    Input Text                                  id_comment      New Discussion Comment
+    Submit Form                                 add_share_comment_form
+    Wait Until Page Contains Element            xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]
+
+
+Test Discussion
+
+    Set Selenium Speed                          1 seconds
+    Go To                                       ${WELCOME URL}basket/
+    Click Element                               id=chatButton
+    Wait Until Page Contains Element            create_discussion_form
+    # Can't Use IDs for form fields because they are not unique. Page also contains #create_share_form with these fields.
+    Wait Until Page Contains Element            css=#create_discussion_form textarea    10
+    Input Text                                  css=#create_discussion_form textarea    Created via Selenium Test
+    Select From List                            css=#create_discussion_form select      1
+    Submit Form                                 create_discussion_form
+    # Click Element                               css=div.ui-dialog-buttonset:visible button:first
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a    60
+    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a
+    # Test Editing of Discussion. NB: Adding a Comment to Share is currently broken.
+    Wait Until Page Contains Element            id=edit_share
+    Click Element                               id=edit_share
+    Wait Until Page Contains Element            id_message
+    Input Text                                  id_message      Edited Discussion Message
+    Submit Form                                 edit_share_form
+    # Bug - right panel does not refresh on it's own. Need to click the discussion in tree again
+    Go To                                       ${WELCOME URL}public/
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a    60
+    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a
+    Wait Until Page Contains                    Edited Discussion Message       60
+    # Add Comment
+    Input Text                                  id_comment      New Discussion Comment
+    Submit Form                                 add_share_comment_form
+    Wait Until Page Contains Element            xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]
+
+
+Test Annotate
+    [Documentation]     Test Annotation of a Project that we create
+
+    Go To                                       ${WELCOME URL}
+    Wait Until Page Contains Element            id=experimenter-0
+    Select Experimenter
+    ${pid}=                                     Create Project      robot test annotate
+
+    # Comment Form
+    Input Text                                  comment     test add comment
+    Submit Form                                 add_comment_form
+    Wait Until Page Contains                    test add comment
+
+    # Tags
+    Click Element                               launch_tags_form
+    Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
+    Input Text                                  id_tag     testSeleniumTag${pid}
+    Click Element                               id_add_new_tag
+    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
+
+    # Files
+    Click Element                               choose_file_anns
+    Wait Until Page Contains Element            id_files
+    Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
+    Submit Form                                 choose_attachments_form
+    Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
+
+
+Test Batch Annotate
+    [Documentation]     Test Batch Annotation of 2 Projects that we create
+
+    Go To                                       ${WELCOME URL}
+    Select Experimenter
+    ${projectId}=                               Create Project      robot test batch annotate
+    ${pId}=                                     Create Project      robot test batch annotate
+    Go To                                       ${WELCOME URL}?show=project-${projectId}|project-${pId}
+    Wait Until Page Contains Element            id=batch_ann_title
+
+    # Comment Form
+    Input Text                                  comment     test add comment
+    Click Button                                Add Comment
+    Wait Until Page Contains                    test add comment
+
+    # Tags
+    Click Element                               launch_tags_form
+    Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
+    Input Text                                  id_tag     testSeleniumTag${pid}
+    Click Element                               id_add_new_tag
+    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
+
+    # Files
+    Click Element                               choose_file_anns
+    Wait Until Page Contains Element            id_files
+    Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
+    Submit Form                                 choose_attachments_form
+    Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
+
+
+Test Search
+    [Documentation]     Test basic search submission from header field or search page
+    [Documentation]     Searching E.g. for the Projects we just created above
+
+    Go To                                   ${WELCOME URL}
+    Input Text                              id_search_query     test
+    Submit Form                             id=search
+
+    # We don't care about results, just check we get *some* results in dataTable
+    Location Should Be                      ${WELCOME URL}search/
+    Wait Until Page Contains Element        dataTable                   60
+    # Repeat search
+    Submit Form                             searching_form
+    Wait Until Page Contains                Loading data...
+    Wait Until Page Contains Element        dataTable                   60

@@ -1,6 +1,26 @@
 {% extends "base_error.html" %}
 {% load i18n %}
 
+{% comment %}
+<!--
+  Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
 {% block title %}
     {% trans "OMERO.web - Help" %}
 {% endblock %}
@@ -15,16 +35,16 @@
         
         <ul style="list-style: disc inside none">
             <li>
+                <a href="http://help.openmicroscopy.org/">User Assistance</a>:
+                More information about the OMERO clients.
+            </li>
+            <li>
                 <a href="http://www.openmicroscopy.org/site">Open Microscopy Environment</a>:
                 Home page of the OME project.
             </li>
             <li>
                 <a href="http://www.openmicroscopy.org/site/products/omero">About OMERO</a>:
                 Background and introduction to OMERO.
-            </li>
-            <li>
-                <a href="http://help.openmicroscopy.org/">User Assistance</a>:
-                More information about the OMERO clients.
             </li>
         </ul>
         </p>
@@ -37,7 +57,7 @@
 
         {% if error %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endif %}
         
-        <form action="{% url 'csend' %}" method="post" class="standard_form">
+        <form action="{% url 'csend' %}" method="post" class="standard_form">{% csrf_token %}
             {% for field in form %}
                 {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
                 {{ field }}

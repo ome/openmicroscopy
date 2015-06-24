@@ -10,7 +10,7 @@
 """
 
 import omero
-import test.integration.library as lib
+import library as lib
 import pytest
 
 from omero.rtypes import rstring, rlong
@@ -39,7 +39,7 @@ class TestRFS(lib.ITest):
         assert ofile.size.val != -1
         assert ofile.hash.val != ""
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testTicket1961Basic(self):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
@@ -48,10 +48,10 @@ class TestRFS(lib.ITest):
         rfs.close()
         self.check_file(ofile)
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testTicket1961WithKillSession(self):
         ofile = self.file()
-        grp = self.client.sf.getAdminService().getEventContext().groupName
+        grp = self.ctx.groupName
         session = self.client.sf.getSessionService().createUserSession(
             1 * 1000, 10000, grp)
         properties = self.client.getPropertyMap()
@@ -66,7 +66,7 @@ class TestRFS(lib.ITest):
         c.killSession()
         self.check_file(ofile)
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testTicket2161Save(self):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
@@ -79,7 +79,7 @@ class TestRFS(lib.ITest):
         assert ofile.details.updateEvent.id.val \
             == ofile2.details.updateEvent.id.val
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testNoWrite(self):
 
         group = self.new_group(perms="rwr---")
@@ -109,12 +109,12 @@ class TestRFS(lib.ITest):
         rfs.close()
         assert "0123" == buf
 
-    def dummy_file(self, client):
+    def dummy_file(self):
         """
         Create an object of size 4
         """
-        ofile = self.file(client=client)
-        rfs = client.sf.createRawFileStore()
+        ofile = self.file(client=self.client)
+        rfs = self.sf.createRawFileStore()
         try:
             rfs.setFileId(ofile.id.val)
             rfs.write("0123", 0, 4)
@@ -126,19 +126,18 @@ class TestRFS(lib.ITest):
 
     def testNullSize11743(self):
 
-        client = self.new_client()
-        ofile = self.dummy_file(client)
+        ofile = self.dummy_file()
 
         # Synthetically null the size
         ofile.size = None
-        client.sf.getUpdateService().saveObject(ofile)
+        self.update.saveObject(ofile)
 
         # Assert the size is null
-        ofile = client.sf.getQueryService().get("OriginalFile", ofile.id.val)
+        ofile = self.query.get("OriginalFile", ofile.id.val)
         assert ofile.size is None
 
         # Show that the size can be loaded from the service
-        rfs = client.sf.createRawFileStore()
+        rfs = self.sf.createRawFileStore()
         try:
             rfs.setFileId(ofile.id.val)
             assert 4 == rfs.size()
@@ -149,9 +148,8 @@ class TestRFS(lib.ITest):
             rfs.close()
 
     def testGetFileId(self):
-        client = self.new_client()
-        ofile = self.dummy_file(client)
-        rfs = client.sf.createRawFileStore()
+        ofile = self.dummy_file()
+        rfs = self.sf.createRawFileStore()
         try:
             rfs.getFileId()
             rfs.setFileId(ofile.id.val)

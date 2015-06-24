@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.DataTransferActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -24,8 +24,10 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.util.Collection;
 import javax.swing.Icon;
+
+
+import omero.cmd.GraphException;
 
 //Third-party libraries
 
@@ -109,6 +111,9 @@ public class DataTransferActivity
 	{
 		if (result instanceof ProcessReport) {
 			type.setText(DESCRIPTION_ERROR);
+			GraphException ex = ((ProcessReport) result).getGraphException();
+			if (ex != null) 
+				messageLabel.setText(messageLabel.getText()+" - "+ex.message);
 			notifyActivityError();
 		} else {
 			type.setText(DESCRIPTION_END);

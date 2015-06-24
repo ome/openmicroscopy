@@ -191,9 +191,9 @@
 {% block script %}
     {{ block.super }}
     {% include "webgateway/base/includes/script_src_jquery.html" %}
-    <script type="text/javascript" src="{% static "webclient/javascript/slider/range.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/slider/slider.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/slider/timer.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/slider/range.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/slider/slider.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/slider/timer.js"|add:url_suffix %}"></script>
     <script type="text/javascript">
         // pass javascript commands to the open astex viewer applet. 
         var execute_oav_command = function(command) {

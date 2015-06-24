@@ -25,9 +25,9 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css"|add:url_suffix %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen-1.2.0/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css'|add:url_suffix %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}
@@ -40,7 +40,7 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen-1.2.0/chosen.jquery.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() 
             {
@@ -48,11 +48,10 @@
                 var highlightCurrent = function() {
                     var userId = {{ userId }};
                     var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if (parseInt(item.value) === userId) {
-                            $("#id_owners_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                        }
+                        return item.value == userId;
                     });
+                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
+                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
                 }
                 
                 // Since we want to disable removal of 'system' users from chosen, this hides the 'X'
@@ -71,7 +70,7 @@
                         var selected = $.grep($('#id_owners').data('chosen').results_data, function(item){
                             if(item.selected && item.value === data.deselected) {
                                 $('#id_owners option[value='+data.deselected+']').prop('selected', false);
-                                $("#id_owners").trigger("liszt:updated");
+                                $("#id_owners").trigger("chosen:updated");
                                 highlightCurrent();
                             }
                         });
@@ -84,6 +83,11 @@
                 
                 $('#id_permissions_0').click(function(){
                     OME.confirm_dialog("Changing group to Private may fail if links have been created under Read-Annotate permissions",
+                        null, "WARNING", ['OK'], null, 180);
+                });
+                $('#id_permissions_3').click(function(){
+                    OME.confirm_dialog("Read-Write groups allow members to delete other members' data. " +
+                        "Follow the 'OMERO permissions' link below for full details.",
                         null, "WARNING", ['OK'], null, 180);
                 });
 
@@ -107,9 +111,9 @@
 
 
 {% if gid %}
-    <form action="{% url 'wamanagegroupid' "save" gid %}"  class="standard_form settings_form" method="POST">
+    <form action="{% url 'wamanagegroupid' "save" gid %}"  class="standard_form settings_form" method="POST">{% csrf_token %}
 {% else %}
-    <form action="{% url 'wamanagegroupid' "create" %}" class="standard_form settings_form" method="POST">
+    <form action="{% url 'wamanagegroupid' "create" %}" class="standard_form settings_form" method="POST">{% csrf_token %}
 {% endif %}
 
         <p>{% trans "Fields marked in red are mandatory." %}</p>
@@ -136,7 +140,7 @@
 
     <p>
         Full details on various Permissions levels can be found on the 
-        <a href="http://www.openmicroscopy.org/site/support/omero5/sysadmins/server-permissions.html" target="new">
+        <a href="http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/server-permissions.html" target="new">
             OMERO Permissions
         </a>
         page.

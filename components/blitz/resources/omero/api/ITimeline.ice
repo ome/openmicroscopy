@@ -94,6 +94,7 @@ module omero {
              *
              * Merges by default based on parentType.
              **/
+            idempotent
             IObjectList
                 getMostRecentAnnotationLinks(StringSet parentTypes, StringSet childTypes,
                                              StringSet namespaces, omero::sys::Parameters p)
@@ -106,6 +107,7 @@ module omero {
              * Note: Currently the storage of these objects is not optimal
              * and so this method may change.
              **/
+            idempotent
             IObjectList
                 getMostRecentShareCommentLinks(omero::sys::Parameters p)
                 throws ServerError;
@@ -114,6 +116,7 @@ module omero {
              * Returns the last LIMIT objects of TYPES as ordered by
              * creation/modification times in the Event table.
              **/
+            idempotent
             IObjectListMap
                 getMostRecentObjects(StringSet types, omero::sys::Parameters p, bool merge)
                 throws ServerError;
@@ -123,6 +126,7 @@ module omero {
              * creation/modification times in the Event table, but
              * within the given time window.
              **/
+            idempotent
             IObjectListMap
                 getByPeriod(StringSet types, omero::RTime start, omero::RTime end, omero::sys::Parameters p,  bool merge)
                 throws ServerError;
@@ -131,6 +135,7 @@ module omero {
              * Queries the same information as getByPeriod, but only returns the counts
              * for the given objects.
              **/
+            idempotent
             StringLongMap
                 countByPeriod(StringSet types, omero::RTime start, omero::RTime end, omero::sys::Parameters p)
                 throws ServerError;
@@ -142,6 +147,7 @@ module omero {
              * WORKAROUND WARNING: this method returns non-managed EventLogs (i.e.
              * eventLog.getId() == null) for "Image acquisitions".
              **/
+            idempotent
             EventLogList
                 getEventLogsByPeriod(omero::RTime start, omero::RTime end, omero::sys::Parameters p)
                 throws ServerError;

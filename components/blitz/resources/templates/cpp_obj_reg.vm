@@ -18,6 +18,15 @@
 //
 
 \#include <omero/ObjectFactoryRegistrar.h>
+\#include <omero/model/ElectricPotentialI.h>
+\#include <omero/model/FrequencyI.h>
+\#include <omero/model/LengthI.h>
+\#include <omero/model/PressureI.h>
+\#include <omero/model/PowerI.h>
+\#include <omero/model/LengthI.h>
+\#include <omero/model/LengthI.h>
+\#include <omero/model/TemperatureI.h>
+\#include <omero/model/ObjectFactory.h>
 \#include <omero/model/TimeI.h>
 #foreach($type in $types)
 #if(!$type.abstract)
@@ -63,6 +72,96 @@ namespace omero {
 
     };
 
+    class ElectricPotentialObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        ElectricPotentialObjectFactory() : Ice::ObjectFactory() { }
+
+        ~ElectricPotentialObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::ElectricPotentialI();
+        }
+
+        void destroy() {}
+
+    };
+
+    class FrequencyObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        FrequencyObjectFactory() : Ice::ObjectFactory() { }
+
+        ~FrequencyObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::FrequencyI();
+        }
+
+        void destroy() {}
+
+    };
+
+    class LengthObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        LengthObjectFactory() : Ice::ObjectFactory() { }
+
+        ~LengthObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::LengthI();
+        }
+
+        void destroy() {}
+
+    };
+
+    class PowerObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        PowerObjectFactory() : Ice::ObjectFactory() { }
+
+        ~PowerObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::PowerI();
+        }
+
+        void destroy() {}
+
+    };
+
+    class PressureObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        PressureObjectFactory() : Ice::ObjectFactory() { }
+
+        ~PressureObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::PressureI();
+        }
+
+        void destroy() {}
+
+    };
+
+    class TemperatureObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        TemperatureObjectFactory() : Ice::ObjectFactory() { }
+
+        ~TemperatureObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::TemperatureI();
+        }
+
+        void destroy() {}
+
+    };
+
     class TimeObjectFactory : virtual public Ice::ObjectFactory {
 
         public:
@@ -70,7 +169,7 @@ namespace omero {
 
         ~TimeObjectFactory() {}
 
-        Ice::ObjectPtr create(const std::string& type) {
+        Ice::ObjectPtr create(const std::string& /*type*/) {
             return new omero::model::TimeI();
         }
 
@@ -86,8 +185,14 @@ namespace omero {
 
   }
 
-  void registerObjectFactory(const Ice::CommunicatorPtr ic) {
+  void registerObjectFactory(const Ice::CommunicatorPtr& ic) {
     conditionalAdd("::omero::model::Permissions", ic, new PermissionsObjectFactory());
+    conditionalAdd("::omero::model::ElectricPotential", ic, new ElectricPotentialObjectFactory());
+    conditionalAdd("::omero::model::Frequency", ic, new FrequencyObjectFactory());
+    conditionalAdd("::omero::model::Length", ic, new LengthObjectFactory());
+    conditionalAdd("::omero::model::Power", ic, new PowerObjectFactory());
+    conditionalAdd("::omero::model::Pressure", ic, new PressureObjectFactory());
+    conditionalAdd("::omero::model::Temperature", ic, new TemperatureObjectFactory());
     conditionalAdd("::omero::model::Time", ic, new TimeObjectFactory());
 #foreach($type in $types)
 #if(!$type.abstract)

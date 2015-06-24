@@ -53,6 +53,21 @@ div.weblitz-viewport-tiles img {
   height: 15px;
 }
 
+.weblitz-viewport-scalebar {
+  display: none;
+  font-size: 12px;
+  font-color:#000;
+  text-align: center;
+  border: 1px solid #000;
+  background: rgba(255, 255, 255, 0.7);
+  position: absolute;
+  bottom: 50px;
+  left: 50px;
+  width: 0px;
+  height: 15px;
+  z-index: 1000;
+}
+
 .weblitz-viewport-msg {
   display: none;
   color: #F30;
@@ -119,9 +134,13 @@ div.weblitz-viewport-tiles img {
   cursor: crosshair;
 }
 
+.viewer {
+  z-index: 19;
+}
+
 .wb_zoomIn, .wb_zoom11, .wb_zoomOut {
   position: absolute;
-  z-index: 30;
+  z-index: 10;
   left: 10px;
   width: 20px;
 }
@@ -138,25 +157,15 @@ div.weblitz-viewport-tiles img {
   color: white;
 }
 
-  /* Toolbar with named buttons */
-
-  .preview-toolbar {
-    border-right-width: 0;
-    margin-top: 5px;
-    margin-bottom: 8px;
-    padding-bottom: 2px;
-  }
-
-  .preview-toolbar button:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-
-  .toolbar-btn {
-    border: solid transparent 0;
-    background:transparent;
-    padding: 0 2px;
-    margin-top: 0px;
-    color: gray;
-  }
+/* from http://phrogz.net/tmp/canvas_image_zoom.html */
+.pixelated {
+  image-rendering:optimizeSpeed;             /* Legal fallback */
+  image-rendering:-moz-crisp-edges;          /* Firefox        */
+  image-rendering:-o-crisp-edges;            /* Opera          */
+  image-rendering:-webkit-optimize-contrast; /* Safari         */
+  image-rendering:optimize-contrast;         /* CSS3 Proposed  */
+  image-rendering:crisp-edges;               /* CSS4 Proposed  */
+  image-rendering:pixelated;                 /* CSS4 Proposed  */
+  -ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
+}
 

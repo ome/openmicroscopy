@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -100,6 +101,9 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
         displays.addAll(createDisplays(results.getDataObjects(-1,
                 PlateData.class)));
         
+        displays.addAll(createDisplays(results.getDataObjects(-1,
+                PlateAcquisitionData.class)));
+        
         List<DataObject> imgs = results.getDataObjects(-1, ImageData.class);
         List<ImageDisplay> imgNodes = createDisplays(imgs);
         displays.addAll(imgNodes);
@@ -133,7 +137,8 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
             } else if (dataObj instanceof ProjectData
                     || dataObj instanceof DatasetData
                     || dataObj instanceof ScreenData
-                    || dataObj instanceof PlateData) {
+                    || dataObj instanceof PlateData
+                    || dataObj instanceof PlateAcquisitionData) {
                 d = new ImageSet("", dataObj);
             }
 

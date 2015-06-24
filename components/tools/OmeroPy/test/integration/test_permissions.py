@@ -25,15 +25,12 @@
 """
 
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 from omero_model_PermissionsI import PermissionsI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import rbool, rstring, unwrap
 
@@ -115,6 +112,7 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         g = ExperimenterGroupI()
         g.name = rstring(uuid)
+        g.ldap = rbool(False)
         g.details.permissions = PermissionsI("rwrwrw")
         self.root.sf.getAdminService().createGroup(g)
 
@@ -137,31 +135,22 @@ class TestPermissions(lib.ITest):
 
         uuid = self.uuid()
         group = self.new_group(perms="rw----")
-        client, user = self.new_client_and_user(group=group, admin=True)
-        update = client.sf.getUpdateService()
+        client, user = self.new_client_and_user(group=group, owner=True)
 
-        project = ProjectI()
-        project.setName(rstring("project1_%s" % uuid))
-        project = update.saveAndReturnObject(project)
-        dataset = DatasetI()
-        dataset.setName(rstring("dataset1_%s" % uuid))
-        dataset = update.saveAndReturnObject(dataset)
-        links = []
-        l = ProjectDatasetLinkI()
-        l.setChild(dataset)
-        l.setParent(project)
-        links.append(l)
-        update.saveAndReturnArray(links)
+        project = self.make_project(name="project1_%s" % uuid)
+        dataset = self.make_dataset(name="dataset1_%s" % uuid)
+        self.link(project, dataset, client=self.client)
 
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -186,12 +175,13 @@ class TestPermissions(lib.ITest):
     def testCreatAndUpdatePublicGroupReadOnly(self):
         # this is the test of creating public group read-only and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -215,12 +205,13 @@ class TestPermissions(lib.ITest):
 
     def testCreatAndUpdatePublicGroupReadAnnotate(self):
         # this is the test of creating public group and updating it
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -245,12 +236,13 @@ class TestPermissions(lib.ITest):
     def testCreatAndUpdatePublicGroup(self):
         # this is the test of creating public group and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -274,12 +266,13 @@ class TestPermissions(lib.ITest):
     def testCreatGroupAndchangePermissions(self):
         # this is the test of updating group permissions
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -293,7 +286,6 @@ class TestPermissions(lib.ITest):
         g1_id = admin.createGroup(new_gr1)
 
         # increase permissions of group1 to rwr---
-        gr1 = admin.getGroup(g1_id)
         p1 = PermissionsI()
         p1.setUserRead(True)
         p1.setUserWrite(True)
@@ -303,7 +295,7 @@ class TestPermissions(lib.ITest):
         p1.setWorldRead(False)
         p1.setWorldAnnotate(False)
         p1.setWorldWrite(False)
-        admin.changePermissions(gr1, p1)
+        self.change_permissions(g1_id, str(p1), self.root)
         gr2 = admin.getGroup(g1_id)
         assert 'rwr---' == str(gr2.details.permissions)
 
@@ -318,7 +310,7 @@ class TestPermissions(lib.ITest):
         p2.setWorldRead(False)
         p2.setWorldAnnotate(False)
         p2.setWorldWrite(False)
-        admin.changePermissions(gr2, p2)
+        self.change_permissions(g1_id, str(p2), self.root)
         gr3 = admin.getGroup(g1_id)
         assert 'rwra--' == str(gr3.details.permissions)
 
@@ -332,19 +324,20 @@ class TestPermissions(lib.ITest):
         p3.setWorldRead(False)
         p3.setWorldAnnotate(False)
         p3.setWorldWrite(False)
-        admin.changePermissions(gr3, p3)
+        self.change_permissions(g1_id, str(p3), self.root)
         gr4 = admin.getGroup(g1_id)
         assert 'rwrw--' == str(gr4.details.permissions)
 
     def testGroupOwners(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -369,6 +362,7 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         uuidGroup = ExperimenterGroupI()
         uuidGroup.name = rstring(uuid)
+        uuidGroup.ldap = rbool(False)
         uuidGroupId = admin.createGroup(uuidGroup)
         uuidGroup = ExperimenterGroupI(uuidGroupId, False)
         listOfGroups = list()
@@ -463,7 +457,7 @@ class TestPermissions(lib.ITest):
         # If the user tries that, there will be an exception
         get_tag(query, {"omero.group": "-1"})
 
-    @pytest.mark.xfail(reason="ticket 11494")
+    @pytest.mark.broken(ticket="11494")
     def test3136(self):
         """
         Calls to updateGroup were taking too long
@@ -571,7 +565,7 @@ class TestPermissions(lib.ITest):
     # ==============================================
 
     # See ticket 11374
-    @pytest.mark.xfail(reason="ticket 11374")
+    @pytest.mark.broken(ticket="11374")
     def testSaveWithNegOneExplicit(self):
 
         # Get a user and services
@@ -610,7 +604,7 @@ class TestPermissions(lib.ITest):
             update.saveAndReturnObject(tag, all_context)
 
     # See ticket 11374
-    @pytest.mark.xfail(reason="ticket 11374")
+    @pytest.mark.broken(ticket="11374")
     def testSaveWithNegBadLink(self):  # ticket:8194
 
         # Get a user and services
@@ -640,7 +634,7 @@ class TestPermissions(lib.ITest):
 
     # The following test is spun off from the one above Without
     # the -1 a GSV should be raised. See ticket 11375
-    @pytest.mark.xfail(reason="ticket 11375")
+    @pytest.mark.broken(ticket="11375")
     def testSaveBadLink(self):
 
         # Get a user and services
@@ -830,100 +824,12 @@ class TestPermissions(lib.ITest):
         self.assertValidScript(lambda v: {'omero.group':
                                           str(v.details.group.id.val)})
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
         self.assertValidScript(lambda v: {
             'omero.group': str(v.details.group.id.val),
             'omero.user': str(v.details.owner.id.val)
         })
-
-
-# canX accessor methods
-# ===================================================
-
-
-class ProjectionFixture(object):
-
-    """
-    Used to test the return values from:
-        'select x.permissions from Object x'
-    """
-
-    def __init__(self, perms, writer, reader,
-                 canRead,
-                 canAnnotate=False, canDelete=False,
-                 canEdit=False, canLink=False):
-        self.perms = perms
-        self.writer = writer
-        self.reader = reader
-
-        self.canRead = canRead
-        self.canAnnotate = canAnnotate
-        self.canDelete = canDelete
-        self.canEdit = canEdit
-        self.canLink = canLink
-
-    def __repr__(self):
-        v = ("PF(perms=%s,writer=%s,reader=%s,"
-             "canRead=%s,canAnnotate=%s,canDelete=%s,"
-             "canEdit=%s,canLink=%s")
-        return v % (
-            self.perms, self.writer, self.reader,
-            self.canRead, self.canAnnotate, self.canDelete,
-            self.canEdit, self.canLink
-        )
-
-PF = ProjectionFixture
-PFS = (
-    # Private group as root
-    PF("rw----", "system-admin", "system-admin", 1, 0, 1, 1, 0),
-    PF("rw----", "system-admin", "group-owner", 1, 0, 1, 1, 0),
-    PF("rw----", "system-admin", "member2", 0),
-    # Private group as group-owner
-    PF("rw----", "group-owner", "system-admin", 1, 0, 1, 1, 0),
-    PF("rw----", "group-owner", "group-owner", 1, 0, 1, 1, 0),
-    PF("rw----", "group-owner", "member2", 0),
-    # Private group as member
-    PF("rw----", "member1", "system-admin", 1, 0, 1, 1, 0),
-    PF("rw----", "member1", "group-owner", 1, 0, 1, 1, 0),
-    PF("rw----", "member1", "member2", 0),
-    # Read-only group as root
-    PF("rwr---", "system-admin", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwr---", "system-admin", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwr---", "system-admin", "member2", 1, 0, 0, 0, 0),
-    # Read-only group as group-owner
-    PF("rwr---", "group-owner", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwr---", "group-owner", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwr---", "group-owner", "member2", 1, 0, 0, 0, 0),
-    # Read-only group as member
-    PF("rwr---", "member1", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwr---", "member1", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwr---", "member1", "member2", 1, 0, 0, 0, 0),
-    # Read-annotate group as root
-    PF("rwra--", "system-admin", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwra--", "system-admin", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwra--", "system-admin", "member2", 1, 1, 0, 0, 0),
-    # Read-annotate group as group-owner
-    PF("rwra--", "group-owner", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwra--", "group-owner", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwra--", "group-owner", "member2", 1, 1, 0, 0, 0),
-    # Read-annotate group as member
-    PF("rwra--", "member1", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwra--", "member1", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwra--", "member1", "member2", 1, 1, 0, 0, 0),
-    # Read-write group as root
-    PF("rwrw--", "system-admin", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwrw--", "system-admin", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwrw--", "system-admin", "member2", 1, 1, 1, 1, 1),
-    # Read-write group as group-owner
-    PF("rwrw--", "group-owner", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwrw--", "group-owner", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwrw--", "group-owner", "member2", 1, 1, 1, 1, 1),
-    # Read-write group as member
-    PF("rwrw--", "member1", "system-admin", 1, 1, 1, 1, 1),
-    PF("rwrw--", "member1", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwrw--", "member1", "member2", 1, 1, 1, 1, 1),
-)
 
 
 class TestPermissionProjections(lib.ITest):
@@ -933,8 +839,7 @@ class TestPermissionProjections(lib.ITest):
     _cache = dict()
 
     def writer(self, fixture):
-        client = self._new_client(fixture.reader, fixture.perms)
-        return client.sf.getUpdateService()
+        return self._new_client(fixture.reader, fixture.perms)
 
     def reader(self, fixture):
         client = self._new_client(fixture.reader, fixture.perms)
@@ -949,7 +854,7 @@ class TestPermissionProjections(lib.ITest):
             return self._system_admin
         elif who == "group-owner":
             self._group_owner = self.new_client(
-                group=self._group, admin=True)
+                group=self._group, owner=True)
             return self._group_owner
         else:
             self._other[who] = self.new_client(group=self._group)
@@ -966,13 +871,14 @@ class TestPermissionProjections(lib.ITest):
             expected_arr.append(expected)
         assert expected_arr == found_arr
 
-    @pytest.mark.xfail(reason="See ticket #12474")
-    @pytest.mark.parametrize("fixture", PFS)
+    @pytest.mark.xfail(ticket="12474")
+    @pytest.mark.parametrize("fixture", lib.PFS,
+                             ids=[x.get_name() for x in lib.PFS])
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
-        project = ProjectI()
-        project.name = rstring("testProjectPermissions")
+        project = self.make_project(name="testProjectPermissions",
+                                    client=writer)
         project = writer.saveAndReturnObject(project)
         try:
             perms = unwrap(reader.projection(
@@ -985,13 +891,13 @@ class TestPermissionProjections(lib.ITest):
         else:
             self.assertPerms(perms, fixture)
 
-    @pytest.mark.parametrize("fixture", PFS)
+    @pytest.mark.parametrize("fixture", lib.PFS,
+                             ids=[x.get_name() for x in lib.PFS])
     def testProjectionPermissionsWorkaround(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
-        project = ProjectI()
-        project.name = rstring("testProjectPermissions")
-        project = writer.saveAndReturnObject(project)
+        project = self.make_project(name="testProjectPermissions",
+                                    client=writer)
 
         group = project.details.group.id.val
         owner = project.details.owner.id.val
@@ -1023,3 +929,52 @@ class TestPermissionProjections(lib.ITest):
             assert not fixture.canRead
         else:
             self.assertPerms(self._cache[key], fixture)
+
+    # extended restrictions
+    # ==================================================
+
+    RESTR_OBJS = (
+        omero.model.PlateI(),
+        omero.model.WellI(),
+        omero.model.ImageI(),
+        omero.model.FileAnnotationI(),
+        # File tested by test_downloads.py
+    )
+    RESTR_NAMES = [x.__class__.__name__ for x in RESTR_OBJS]
+
+    @pytest.mark.parametrize("obj", RESTR_OBJS,
+                             ids=RESTR_NAMES)
+    def testExtendedRestrictions(self, obj):
+
+        # Check if this test should run
+        self.skip_if("omero.policy.binary_access",
+                     lambda x: x != "repository")
+
+        # Now set up a shared group
+        admin = self.sf.getAdminService()
+        uid = admin.getEventContext().userId
+        user = admin.getExperimenter(uid)
+        group = self.new_group(experimenters=[user],
+                               perms="rwr---")
+        self.add_experimenters(group, [user])
+        admin.getEventContext()  # Refresh
+        other = self.new_client(group=group)
+        self.set_context(self.client, group.id.val)
+
+        # Save the object and see that the restriction is off
+        if "name" in obj._field_info._fields:
+            obj.name = omero.rtypes.rstring("restr-test")
+        elif "Well" in obj.__class__.__name__:
+            obj.setPlate(omero.model.PlateI())
+            obj.getPlate().setName(
+                omero.rtypes.rstring("restr-test"))
+        obj = self.update.saveAndReturnObject(obj)
+        assert not obj.details.permissions.isRestricted(
+            omero.constants.permissions.DOWNLOAD)
+
+        # Now see if the restriction is on for the other user
+        obj = other.sf.getQueryService().get(
+            obj.__class__.__name__, obj.id.val)
+
+        assert obj.details.permissions.isRestricted(
+            omero.constants.permissions.DOWNLOAD)

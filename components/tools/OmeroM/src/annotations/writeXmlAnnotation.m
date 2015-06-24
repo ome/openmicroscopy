@@ -1,5 +1,5 @@
 function xa = writeXmlAnnotation(session, xml, varargin)
-% WRITEXMLANNOTATION Create and upload a XML annotation onto the OMERO server
+% WRITEXMLANNOTATION Create and upload a XML annotation onto OMERO
 %
 %    xa = writeXmlAnnotation(session, xml) creates and uploads a XML
 %    comment annotation owned by the session user.
@@ -16,9 +16,11 @@ function xa = writeXmlAnnotation(session, xml, varargin)
 %        xa = writeXmlAnnotation(session, xml, 'description', description)
 %        xa = writeXmlAnnotation(session, xml, 'namespace', namespace)
 %
-% See also: WRITETEXTANNOTATION
+% See also: WRITECOMMENTANNOTATION, WRITEDOUBLEANNOTATION,
+% WRITEFILEANNOTATION, WRITELONGANNOTATION, WRITETAGANNOTATION,
+% WRITETEXTANNOTATION, WRITETIMESTAMPANNOTATION
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

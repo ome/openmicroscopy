@@ -104,6 +104,8 @@ public final class AgentsInit
 			}
 			reg.bind(LookupNames.DATA_DISPLAY,
 					containerRegistry.lookup(LookupNames.DATA_DISPLAY));
+            reg.bind(LookupNames.DEBUGGER_ADDRESS,
+                    containerRegistry.lookup(LookupNames.DEBUGGER_ADDRESS));
 		} catch (Exception e) {
 			throw new StartupException("Couldn't create agent: "+
 										info.getName(), e);

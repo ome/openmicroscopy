@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2014, Glencoe Software, Inc.
+Copyright (c) 2007-2015, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
@@ -33,6 +33,7 @@ import glob
 import platform
 import time
 import shlex
+import errno
 from threading import Lock
 from path import path
 
@@ -40,7 +41,7 @@ from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentParser
 from omero_ext.argparse import FileType
 from omero_ext.argparse import Namespace
-
+from omero_ext.argparse import _SubParsersAction
 # Help text
 from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
@@ -188,9 +189,7 @@ class Parser(ArgumentParser):
 
     def add_login_arguments(self):
         group = self.add_argument_group(
-            'Login arguments', """Environment variables:
-    OMERO_SESSION_DIR - Set the sessions directory \
-(Default: $HOME/omero/sessions)
+            'Login arguments', ENV_HELP + """
 
 Optional session arguments:
 """)
@@ -212,6 +211,51 @@ Optional session arguments:
             "-q", "--quiet", action="store_true",
             help="Quiet mode. Causes most warning and diagnostic messages to "
             "be suppressed.")
+
+    def add_group_print_arguments(self):
+        printgroup = self.add_mutually_exclusive_group()
+        printgroup.add_argument(
+            "--long", action="store_true", default=True,
+            help="Print comma-separated list of all groups (default)")
+        printgroup.add_argument(
+            "--count", action="store_true", default=False,
+            help="Print count of all groups")
+
+    def add_user_print_arguments(self):
+        printgroup = self.add_mutually_exclusive_group()
+        printgroup.add_argument(
+            "--count", action="store_true", default=True,
+            help="Print count of all users and owners (default)")
+        printgroup.add_argument(
+            "--long", action="store_true", default=False,
+            help="Print comma-separated list of all users and owners")
+
+    def add_user_sorting_arguments(self):
+        sortgroup = self.add_mutually_exclusive_group()
+        sortgroup.add_argument(
+            "--sort-by-id", action="store_true", default=True,
+            help="Sort users by ID (default)")
+        sortgroup.add_argument(
+            "--sort-by-login", action="store_true", default=False,
+            help="Sort users by login")
+        sortgroup.add_argument(
+            "--sort-by-first-name", action="store_true", default=False,
+            help="Sort users by first name")
+        sortgroup.add_argument(
+            "--sort-by-last-name", action="store_true", default=False,
+            help="Sort users by last name")
+        sortgroup.add_argument(
+            "--sort-by-email", action="store_true", default=False,
+            help="Sort users by email")
+
+    def add_group_sorting_arguments(self):
+        sortgroup = self.add_mutually_exclusive_group()
+        sortgroup.add_argument(
+            "--sort-by-id", action="store_true", default=True,
+            help="Sort groups by ID (default)")
+        sortgroup.add_argument(
+            "--sort-by-name", action="store_true", default=False,
+            help="Sort groups by name")
 
     def set_args_unsorted(self):
         self._sort_args = False
@@ -312,6 +356,47 @@ class ExceptionHandler(object):
         else:
             return "Unknown Ice.RequestFailedException"
 
+DEBUG_HELP = """
+Set debug options for developers
+
+The value to the debug argument is a comma-separated list of commands.
+
+Available debugging choices:
+
+    '0'         Disable debugging
+    'debug'     Enable debugging at the first debug level
+    '1'-'9'     Enable debugging at the specified debug level
+    'trace'     Run the command with tracing enabled
+    'profile'   Run the command with profiling enabled
+
+Note "trace" and "profile" cannot be used simultaneously
+
+Examples:
+
+    # Enabled debugging at level 1 and prints tracing
+    bin/omero --debug=debug,trace admin start
+    # Enabled debugging at level 1
+    bin/omero -d1 admin start
+    # Enabled debugging at level 3
+    bin/omero -d3 admin start
+    # Enable profiling
+    bin/omero -dp admin start
+    # Fails - cannot print tracing and profiling together
+    bin/omero -dt,p admin start
+    # Disable debugging
+    bin/omero -d0 admin start
+"""
+
+ENV_HELP = """Environment variables:
+
+  OMERO_USERDIR     Set the base directory containing the user's files.
+                    Default: $HOME/omero
+  OMERO_SESSIONDIR  Set the base directory containing local sessions.
+                    Default: $OMERO_USERDIR/sessions
+  OMERO_TMPDIR      Set the base directory containing temporary files.
+                    Default: $OMERO_USERDIR/tmp
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -337,32 +422,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": """
-
-        debug options for developers:
-
-        The value to the debug argument is a comma-separated list of commands:
-
-         * 'debug' prints at the "debug" level. Similar to setting DEBUG=1 in
-           the environment.
-         * 'trace' runs the command with tracing enabled.
-         * 'profile' runs the command with profiling enabled.
-
-        Only one of "trace" and "profile" can be chosen.
-
-        Example:
-
-            # Debugs at level 1 and prints tracing
-            bin/omero --debug=debug,trace admin start
-            # Debugs at level 1
-            bin/omero -d1 admin start
-            # Prints profiling
-            bin/omero -dp admin start
-            # Fails!; can't print tracing and profiling together
-            bin/omero -dt,p admin start
-            # Disables debugging
-            bin/omero -d0 admin start
-        """}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
@@ -414,6 +474,9 @@ class Context:
                 stream.write("\n")
             else:
                 stream.flush()
+        except IOError, e:
+            if e.errno != errno.EPIPE:
+                raise
         except:
             print >>sys.stderr, "Error printing text"
             print >>sys.stdout, text
@@ -521,7 +584,8 @@ def admin_only(func):
         client = self.ctx.conn(plugin_args)
         ec = client.sf.getAdminService().getEventContext()
         if not ec.isAdmin:
-            self.ctx.die(111, "Admins only!")
+            self.error_admin_only(fatal=True)
+        return func(*args, **kwargs)
 
     from omero.util.decorators import wraps
     _check_admin = wraps(func)(_check_admin)
@@ -730,6 +794,19 @@ class BaseControl(object):
                 continue
             break
         return root_pass
+
+    def get_subcommands(self):
+        """Return a list of subcommands"""
+        parser = Parser()
+        self._configure(parser)
+        subparsers_actions = [action for action in parser._actions
+                              if isinstance(action, _SubParsersAction)]
+
+        subcommands = []
+        for subparsers_action in subparsers_actions:
+            for choice, subparser in subparsers_action.choices.items():
+                subcommands.append(format(choice))
+        return subcommands
 
     ###############################################
     #
@@ -1033,12 +1110,13 @@ class CLI(cmd.Cmd, Context):
                 tracer = trace.Trace()
                 tracer.runfunc(args.func, args)
             elif "p" in debug_opts or "profile" in debug_opts:
-                import hotshot
-                from hotshot import stats
-                prof = hotshot.Profile("hotshot_edi_stats")
+                from hotshot import stats, Profile
+                from omero.util import get_omero_userdir
+                profile_file = get_omero_userdir() / "hotshot_edi_stats"
+                prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
-                s = stats.load("hotshot_edi_stats")
+                s = stats.load(profile_file)
                 s.sort_stats("time").print_stats()
             else:
                 self.die(10, "Unknown debug action: %s" % debug_opts)
@@ -1397,18 +1475,24 @@ class GraphArg(object):
         self.cmd_type = cmd_type
 
     def __call__(self, arg):
+        cmd = self.cmd_type()
+        targetObjects = dict()
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
-            type = parts[0]
-            id = long(parts[1])
-
-            import omero
-            import omero.cmd
-            return omero.cmd.DoAll([
-                self.cmd_type(type=type,
-                              id=id,
-                              options={})])
+            assert '+' not in parts[0]
+            parts[0] = parts[0].lstrip("/")
+            graph = parts[0].split("/")
+            ids = [long(id) for id in parts[1].split(",")]
+            targetObjects[graph[0]] = ids
+            cmd.targetObjects = targetObjects
+            if len(graph) > 1:
+                skiphead = omero.cmd.SkipHead()
+                skiphead.request = cmd
+                skiphead.targetObjects = targetObjects
+                skiphead.startFrom = [graph[-1]]
+                cmd = skiphead
+            return cmd
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1458,6 +1542,9 @@ class CmdControl(BaseControl):
             return sb
 
     def create_error_report(self, rsp):
+        if isinstance(rsp, omero.cmd.GraphException):
+            return 'failed: %s' % rsp.message
+
         """
         Generate default error report aggregating the response parameters
         """
@@ -1545,12 +1632,15 @@ class GraphControl(CmdControl):
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=-1)
         parser.add_argument(
-            "--edit", action="store_true",
-            help="Configure options in a text editor")
+            "--include",
+            help="Modifies the given option by including a list of objects")
         parser.add_argument(
-            "--opt", action="append",
-            help="Modifies the given option (e.g. /Image:KEEP). Applied "
-            "*after* 'edit' ")
+            "--exclude",
+            help="Modifies the given option by excluding a list of objects")
+        parser.add_argument(
+            "--ordered", action="store_true",
+            help=("Pass multiple objects to commands strictly in the order "
+                  "given, otherwise group into as few commands as possible."))
         parser.add_argument(
             "--list", action="store_true",
             help="Print a list of all available graph specs")
@@ -1561,10 +1651,14 @@ class GraphControl(CmdControl):
         parser.add_argument(
             "--report", action="store_true",
             help="Print more detailed report of each action")
+        parser.add_argument(
+            "--dry-run", action="store_true",
+            help=("Do a dry run of the command, providing a "
+                  "report of what would have been done"))
         self._pre_objects(parser)
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
-            help="""Objects to be processedd in the form "<Class>:<Id>""")
+            help="Objects to be processed in the form <Class>:<Id>")
 
     def _pre_objects(self, parser):
         """
@@ -1577,93 +1671,199 @@ class GraphControl(CmdControl):
             req_or_doall = omero.cmd.DoAll([req_or_doall])
         return req_or_doall
 
+    def default_exclude(self):
+        """
+        Return a list of types to exclude by default.
+        """
+        return []
+
     def main_method(self, args):
 
-        import omero
         client = self.ctx.conn(args)
-        cb = None
-        req = omero.cmd.GraphSpecList()
-        try:
+        if args.list_details or args.list:
+            cb = None
+            req = omero.cmd.GraphSpecList()
             try:
-                speclist, status, cb = self.response(client, req)
-            except omero.LockTimeout, lt:
-                self.ctx.die(446, "LockTimeout: %s" % lt.message)
-        finally:
-            if cb is not None:
-                cb.close(True)  # Close handle
+                try:
+                    speclist, status, cb = self.response(client, req)
+                except omero.LockTimeout, lt:
+                    self.ctx.die(446, "LockTimeout: %s" % lt.message)
+            finally:
+                if cb is not None:
+                    cb.close(True)  # Close handle
 
-        # Could be put in positive_response helper
-        err = self.get_error(speclist)
-        if err:
-            self.ctx.die(367, err)
+            # Could be put in positive_response helper
+            err = self.get_error(speclist)
+            if err:
+                self.ctx.die(367, err)
 
-        specs = speclist.list
-        specmap = dict()
-        for s in specs:
-            specmap[s.type] = s
-        keys = sorted(specmap)
+            specs = speclist.list
+            specmap = dict()
+            for s in specs:
+                specmap[s.type] = s
+            keys = sorted(specmap)
 
-        if args.list_details:
-            for key in keys:
-                spec = specmap[key]
-                self.ctx.out("=== %s ===" % key)
-                for k, v in spec.options.items():
-                    self.ctx.out("%s" % (k,))
-            return  # Early exit.
-        elif args.list:
-            self.ctx.out("\n".join(keys))
-            return  # Early exit.
+            if args.list_details:
+                for key in keys:
+                    spec = specmap[key]
+                    self.ctx.out("=== %s ===" % key)
+                    for k, v in spec.options.items():
+                        self.ctx.out("%s" % (k,))
+                return  # Early exit.
+            elif args.list:
+                self.ctx.out("\n".join(keys))
+                return  # Early exit.
 
-        for req_or_doall in args.obj:
-            doall = self.as_doall(req_or_doall)
-            for req in doall.requests:
-                if args.edit:
-                    req.options = self.edit_options(req, specmap)
-                if args.opt:
-                    for opt in args.opt:
-                        self.line_to_opts(opt, req.options)
+        inc = []
+        if args.include:
+            inc = args.include.split(",")
+        exc = self.default_exclude()
+        if args.exclude:
+            exc = exc.extend(args.exclude.split(","))
 
-            self._process_request(doall, args, client)
+        if len(inc) > 0 or len(exc) > 0:
+            opt = omero.cmd.graphs.ChildOption()
+            if len(inc) > 0:
+                opt.includeType = inc
+            if len(exc) > 0:
+                opt.excludeType = exc
 
-    def edit_options(self, req, specmap):
+        commands = args.obj
+        for req in commands:
+            req.dryRun = args.dry_run
+            if len(inc) > 0 or len(exc) > 0:
+                req.childOptions = [opt]
+            if isinstance(req, omero.cmd.SkipHead):
+                req.request.childOptions = req.childOptions
+                req.request.dryRun = req.dryRun
 
-        from omero.util import edit_path
-        from omero.util.temp_files import create_path
+        if not args.ordered and len(commands) > 1:
+            commands = self.combine_commands(commands)
 
-        start_text = """# Edit options for your operation below.\n"""
-        start_text += ("# === %s ===\n" % req.type)
-        if req.type not in specmap:
-            self.ctx.die(162, "Unknown type: %s" % req.type)
-        start_text += self.append_options(req.type, dict(specmap))
+        for command_check in commands:
+            self._check_command(command_check)
 
-        temp_file = create_path()
-        try:
-            edit_path(temp_file, start_text)
-            txt = temp_file.text()
-            print txt
-            rv = dict()
-            for line in txt.split("\n"):
-                self.line_to_opts(line, rv)
-            return rv
-        except RuntimeError, re:
-            self.ctx.die(954, "%s: Failed to edit %s"
-                         % (getattr(re, "pid", "Unknown"), temp_file))
+        if len(commands) == 1:
+            cmd = args.obj[0]
+        else:
+            cmd = omero.cmd.DoAll(commands)
 
-    def append_options(self, key, specmap, indent=0):
-        spec = specmap.pop(key)
-        start_text = ""
-        for optkey in sorted(spec.options):
-            optval = spec.options[optkey]
-            start_text += ("%s%s=%s\n" % ("  " * indent, optkey, optval))
-            if optkey in specmap:
-                start_text += self.append_options(optkey, specmap, indent+1)
-        return start_text
+        self._process_request(cmd, args, client)
 
-    def print_request_description(self, req):
-        doall = self.as_doall(req)
+    def _check_command(self, command_check):
+        query = self.ctx.get_client().sf.getQueryService()
+        ec = self.ctx.get_event_context()
+        own_id = ec.userId
+        if not command_check or not command_check.targetObjects:
+            return
+        for k, v in command_check.targetObjects.items():
+            query_str = (
+                "select "
+                "x.details.owner.id, "
+                "x.details.group.details.permissions "
+                "from %s x "
+                "where x.id = :id") % k
+            if not v:
+                return
+            for w in v:
+                try:
+                    uid, perms = omero.rtypes.unwrap(
+                        query.projection(
+                            query_str,
+                            omero.sys.ParametersI().addId(w),
+                            {"omero.group": "-1"})[0])
+                    perms = perms["perm"]
+                    perms = omero.model.PermissionsI(perms)
+                    if perms.isGroupWrite() and uid != own_id:
+                        self.ctx.err(
+                            "WARNING: %s:%s belongs to user %s" % (
+                                k, w, uid))
+                except:
+                    self.ctx.dbg(traceback.format_exc())
+                    # Doing nothing since this is a best effort
+
+    def combine_commands(self, commands):
+        """
+        Combine several commands into as few as possible.
+        For simple commands a single combined command is possible,
+        for a skiphead it is more complicated. Here skipheads are
+        combined using their startFrom object type.
+        """
+        from omero.cmd import SkipHead
+        skipheads = [req for req in commands if isinstance(req, SkipHead)]
+        others = [req for req in commands if not isinstance(req, SkipHead)]
+
+        rv = []
+        # Combine all simple commands
+        if len(others) == 1:
+            rv.extend(others)
+        elif len(others) > 1:
+            for req in others[1:]:
+                type, ids = req.targetObjects.items()[0]
+                if type in others[0].targetObjects:
+                    others[0].targetObjects[type].extend(ids)
+                else:
+                    others[0].targetObjects[type] = ids
+            rv.append(others[0])
+
+        # Group skipheads by their startFrom attribute.
+        if len(skipheads) == 1:
+            rv.extend(skipheads)
+        elif len(skipheads) > 1:
+            shmap = {skipheads[0].startFrom[0]: skipheads[0]}
+            for req in skipheads[1:]:
+                if req.startFrom[0] in shmap:
+                    type, ids = req.targetObjects.items()[0]
+                    if type in shmap[req.startFrom[0]].targetObjects:
+                        shmap[req.startFrom[0]].targetObjects[type].extend(ids)
+                    else:
+                        shmap[req.startFrom[0]].targetObjects[type] = ids
+                else:
+                    shmap[req.startFrom[0]] = req
+            for req in shmap.values():
+                rv.append(req)
+
+        return rv
+
+    def print_request_description(self, request):
+        doall = self.as_doall(request)
+        cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
+        objects = []
         for req in doall.requests:
-            cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
-            return "%s %s %s... " % (cmd_type, req.type, req.id)
+            for type in req.targetObjects.keys():
+                ids = ",".join(map(str, req.targetObjects[type]))
+                if isinstance(req, omero.cmd.SkipHead):
+                    type += ("/" + req.startFrom[0])
+                objects.append('%s %s' % (type, ids))
+        return "%s %s... " % (cmd_type, ', '.join(objects))
+
+    def _get_object_ids(self, objDict):
+        import collections
+        objIds = {}
+        for k in objDict.keys():
+            if objDict[k]:
+                objIds[k] = self._order_and_range_ids(objDict[k])
+        newIds = collections.OrderedDict(sorted(objIds.items()))
+        objIds = collections.OrderedDict()
+        for k in newIds:
+            key = k[k.rfind('.')+1:]
+            objIds[key] = newIds[k]
+        return objIds
+
+    def _order_and_range_ids(self, ids):
+        from itertools import groupby
+        from operator import itemgetter
+        out = ""
+        ids = sorted(ids)
+        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
+            g = map(str, map(itemgetter(1), g))
+            out += g[0]
+            if len(g) > 2:
+                out += "-" + g[-1]
+            elif len(g) == 2:
+                out += "," + g[1]
+            out += ","
+        return out.rstrip(",")
 
 
 class UserGroupControl(BaseControl):
@@ -1890,3 +2090,293 @@ class UserGroupControl(BaseControl):
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()
                if x.owner.val]
         return ids
+
+    def output_users_list(self, admin, users, args):
+        roles = admin.getSecurityRoles()
+        user_group = roles.userGroupId
+        sys_group = roles.systemGroupId
+
+        from omero.util.text import TableBuilder
+        if args.count:
+            tb = TableBuilder("id", "login", "first name", "last name",
+                              "email", "active", "ldap", "admin",
+                              "# group memberships", "# group ownerships")
+        else:
+            tb = TableBuilder("id", "login", "first name", "last name",
+                              "email", "active", "ldap", "admin", "member of",
+                              "owner of")
+        if args.style:
+            tb.set_style(args.style)
+
+        # Sort users
+        if isinstance(users, list):
+            if args.sort_by_login:
+                users.sort(key=lambda x: x.omeName.val)
+            elif args.sort_by_first_name:
+                users.sort(key=lambda x: x.firstName.val)
+            elif args.sort_by_last_name:
+                users.sort(key=lambda x: x.lastName.val)
+            elif args.sort_by_email:
+                users.sort(key=lambda x: (x.email and x.email.val or ""))
+            elif args.sort_by_id:
+                users.sort(key=lambda x: x.id.val)
+        else:
+            users = [users]
+
+        for user in users:
+            row = [user.id.val, user.omeName.val, user.firstName.val,
+                   user.lastName.val]
+            row.append(user.email and user.email.val or "")
+            active = ""
+            admin = ""
+            ldap = user.ldap.val
+            member_of = []
+            leader_of = []
+            for x in user.copyGroupExperimenterMap():
+                if not x:
+                    continue
+                gid = x.parent.id.val
+                if user_group == gid:
+                    active = "Yes"
+                elif sys_group == gid:
+                    admin = "Yes"
+                elif x.owner.val:
+                    leader_of.append(str(gid))
+                else:
+                    member_of.append(str(gid))
+
+            row.append(active)
+            row.append(ldap)
+            row.append(admin)
+
+            if member_of:
+                if args.count:
+                    row.append(len(member_of))
+                else:
+                    row.append(",".join(member_of))
+            else:
+                row.append("")
+            if leader_of:
+                if args.count:
+                    row.append(len(leader_of))
+                else:
+                    row.append(",".join(leader_of))
+            else:
+                row.append("")
+
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
+
+    def output_groups_list(self, groups, args):
+        from omero.util.text import TableBuilder
+
+        # Sort groups
+        if args.sort_by_name:
+            groups.sort(key=lambda x: x.name.val)
+        elif args.sort_by_id:
+            groups.sort(key=lambda x: x.id.val)
+
+        if args.long:
+            tb = TableBuilder("id", "name", "perms", "ldap", "owner ids",
+                              "member ids")
+        else:
+            tb = TableBuilder("id", "name", "perms", "ldap", "# of owners",
+                              "# of members")
+        if args.style:
+            tb.set_style(args.style)
+
+        for group in groups:
+            row = [group.id.val, group.name.val,
+                   str(group.details.permissions), group.ldap.val]
+            ownerids = self.getownerids(group)
+            memberids = self.getmemberids(group)
+            if args.long:
+                row.append(",".join(sorted([str(x) for x in ownerids])))
+                row.append(",".join(sorted([str(x) for x in memberids])))
+            else:
+                row.append(len(ownerids))
+                row.append(len(memberids))
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
+
+    def add_id_name_arguments(self, parser, objtype=""):
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--id", help="ID of the %s" % objtype)
+        group.add_argument(
+            "--name", help="Name of the %s" % objtype)
+        return group
+
+    def add_user_and_group_arguments(self, parser, *args,
+                                     **kwargs):
+
+        group = parser
+        try:
+            if kwargs.pop("exclusive"):
+                group = parser.add_mutually_exclusive_group()
+        except:
+            pass
+
+        group.add_argument("--user-id",
+                           help="ID of the user.",
+                           *args, **kwargs)
+        group.add_argument("--user-name",
+                           help="Name of the user.",
+                           *args, **kwargs)
+        group.add_argument("--group-id",
+                           help="ID of the group.",
+                           *args, **kwargs)
+        group.add_argument("--group-name",
+                           help="Name of the group.",
+                           *args, **kwargs)
+
+    def add_user_arguments(self, parser, action=""):
+        group = parser.add_argument_group('User arguments')
+        group.add_argument("user_id_or_name",  metavar="user", nargs="*",
+                           help="ID or name of the user(s)%s" % action)
+        group.add_argument("--user-id", metavar="user", nargs="+",
+                           help="ID of the user(s)%s" % action)
+        group.add_argument("--user-name", metavar="user", nargs="+",
+                           help="Name of the user(s)%s" % action)
+        return group
+
+    def list_users(self, a, args, use_context=False):
+        """
+        Retrieve users from the arguments defined in
+        :meth:`add_user_arguments`
+        """
+
+        # Check input arguments
+        has_user_arguments = (args.user_id_or_name or args.user_id
+                              or args.user_name)
+        if (not use_context and not has_user_arguments):
+            self.error_no_input_user(fatal=True)
+
+        # Retrieve groups by id or name
+        uid_list = []
+        u_list = []
+        if args.user_id_or_name:
+            for user in args.user_id_or_name:
+                [uid, u] = self.find_user(a, user, fatal=False)
+                if uid is not None:
+                    uid_list.append(uid)
+                    u_list.append(u)
+
+        if args.user_id:
+            for user_id in args.user_id:
+                [uid, u] = self.find_user_by_id(a, user_id, fatal=False)
+                if uid is not None:
+                    uid_list.append(uid)
+                    u_list.append(u)
+
+        if args.user_name:
+            for user_name in args.user_name:
+                [uid, u] = self.find_user_by_name(a, user_name, fatal=False)
+                if uid is not None:
+                    uid_list.append(uid)
+                    u_list.append(u)
+
+        if not uid_list:
+            if not use_context or has_user_arguments:
+                self.error_no_user_found(fatal=True)
+            else:
+                ec = self.ctx.get_event_context()
+                [uid, u] = self.find_user_by_id(a, ec.userId, fatal=False)
+                uid_list.append(uid)
+                u_list.append(u)
+
+        return uid_list, u_list
+
+    def add_group_arguments(self, parser, action=""):
+        group = parser.add_argument_group('Group arguments')
+        group.add_argument(
+            "group_id_or_name",  metavar="group", nargs="*",
+            help="ID or name of the group(s)%s" % action)
+        group.add_argument(
+            "--group-id", metavar="group", nargs="+",
+            help="ID  of the group(s)%s" % action)
+        group.add_argument(
+            "--group-name", metavar="group", nargs="+",
+            help="Name of the group(s)%s" % action)
+        return group
+
+    def list_groups(self, a, args, use_context=False):
+        """
+        Retrieve users from the arguments defined in
+        :meth:`add_user_arguments`
+        """
+
+        # Check input arguments
+        has_group_arguments = (args.group_id_or_name or args.group_id
+                               or args.group_name)
+        if (not use_context and not has_group_arguments):
+            self.error_no_input_group(fatal=True)
+
+        # Retrieve groups by id or name
+        gid_list = []
+        g_list = []
+        if args.group_id_or_name:
+            for group in args.group_id_or_name:
+                [gid, g] = self.find_group(a, group, fatal=False)
+                if g:
+                    gid_list.append(gid)
+                    g_list.append(g)
+
+        if args.group_id:
+            for group_id in args.group_id:
+                [gid, g] = self.find_group_by_id(a, group_id, fatal=False)
+                if g:
+                    gid_list.append(gid)
+                    g_list.append(g)
+
+        if args.group_name:
+            for group_name in args.group_name:
+                [gid, g] = self.find_group_by_name(a, group_name, fatal=False)
+                if g:
+                    gid_list.append(gid)
+                    g_list.append(g)
+
+        if not gid_list:
+            if not use_context or has_group_arguments:
+                self.error_no_group_found(fatal=True)
+            else:
+                ec = self.ctx.get_event_context()
+                [gid, g] = self.find_group_by_id(a, ec.groupId, fatal=False)
+                gid_list.append(gid)
+                g_list.append(g)
+
+        return gid_list, g_list
+
+    def get_users_groups(self, args, iadmin):
+        users = []
+        groups = []
+
+        if args.user_name:
+            for user_name in args.user_name:
+                uid, u = self.find_user_by_name(
+                    iadmin, user_name, fatal=False)
+                if uid is not None:
+                    users.append(uid)
+
+        if args.user_id:
+            for user_id in args.user_id:
+                uid, u = self.find_user_by_id(
+                    iadmin, user_id, fatal=False)
+                if uid is not None:
+                    users.append(uid)
+
+        if args.group_name:
+            for group_name in args.group_name:
+                gid, g = self.find_group_by_name(
+                    iadmin, group_name, fatal=False)
+                if gid is not None:
+                    groups.append(gid)
+
+        if args.group_id:
+            for group_id in args.group_id:
+                gid, g = self.find_group_by_id(
+                    iadmin, group_id, fatal=False)
+                if gid is not None:
+                    groups.append(gid)
+
+        return users, groups

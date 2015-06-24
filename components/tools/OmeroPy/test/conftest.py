@@ -25,3 +25,56 @@ def pytest_generate_tests(metafunc):
         # @pytest.mark.parametrize('tmp_ct', range(count))
         # def test_foo(): pass
         metafunc.parametrize('tmp_ct', range(count))
+
+
+class Methods(object):
+
+    @classmethod
+    def assertAlmostEqual(self, first, second,
+                          places=None,
+                          delta=None):
+        # Copied largely from unittest
+        """Fail if the two objects are unequal as determined by their
+           difference rounded to the given number of decimal places
+           (default 7) and comparing to zero, or by comparing that the
+           between the two objects is more than the given delta.
+
+           Note that decimal places (from zero) are usually not the same
+           as significant digits (measured from the most signficant digit).
+
+           If the two objects compare equal then they will automatically
+           compare almost equal.
+        """
+        if first == second:
+            # shortcut
+            return
+        if delta is not None and places is not None:
+            raise TypeError("specify delta or places not both")
+
+        if delta is not None:
+            if abs(first - second) <= delta:
+                return
+
+            standardMsg = '%s != %s within %s delta' % (first,
+                                                        second,
+                                                        delta)
+        else:
+            if places is None:
+                places = 7
+
+            if round(abs(second-first), places) == 0:
+                return
+
+            standardMsg = '%s != %s within %r places' % (first,
+                                                         second,
+                                                         places)
+        raise Exception(standardMsg)
+
+
+def pytest_namespace():
+    """
+    Add helper methods to the 'pytest' module
+    """
+    return {
+        "assertAlmostEqual": Methods.assertAlmostEqual
+    }

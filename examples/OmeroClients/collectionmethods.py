@@ -9,7 +9,7 @@ EventI = omero.model.EventI
 PixelsI = omero.model.PixelsI
 
 image = ImageI(long(1), True)
-image.getDetails().setUpdateEvent( EventI(1L, False) )
+image.getDetails().setUpdateEvent(EventI(1L, False))
 
 # On creation, all collections are
 # initialized to empty, and can be added
@@ -29,7 +29,7 @@ links = image.copyDatasetLinks()
 image.unloadDatasetLinks()
 assert image.sizeOfDatasetLinks() < 0
 try:
-    image.linkDataset( DatasetI() )
+    image.linkDataset(DatasetI())
 except:
     # Can't access an unloaded collection
     pass
@@ -39,9 +39,9 @@ except:
 # has been properly initialized on the server.
 # sameImage will have it's collection unloaded.
 sameImage = ImageI(1L, True)
-sameImage.getDetails().setUpdateEvent( EventI(1L, False) )
-sameImage.linkDataset( DatasetI(long(1), False) )
-image.reloadDatasetLinks( sameImage )
+sameImage.getDetails().setUpdateEvent(EventI(1L, False))
+sameImage.linkDataset(DatasetI(long(1), False))
+image.reloadDatasetLinks(sameImage)
 assert image.sizeOfDatasetLinks() == 1
 assert sameImage.sizeOfDatasetLinks() < 0
 
@@ -58,8 +58,7 @@ image.unloadCollections()
 
 # Ordered collections have slightly different methods.
 image = ImageI(long(1), True)
-image.addPixels( PixelsI() )
+image.addPixels(PixelsI())
 image.getPixels(0)
-image.getPrimaryPixels() # Same thing
-image.removePixels( image.getPixels(0) )
-
+image.getPrimaryPixels()  # Same thing
+image.removePixels(image.getPixels(0))

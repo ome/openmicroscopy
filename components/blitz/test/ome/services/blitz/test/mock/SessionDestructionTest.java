@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.blitz.test.mock;
@@ -243,7 +243,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
 
         // Setup all the necessary expectations
         Experimenter exp = new Experimenter("joe", "joe", "blow", false);
-        ExperimenterGroup grp = new ExperimenterGroup("cool");
+        ExperimenterGroup grp = new ExperimenterGroup("cool", false);
         List<Long> grps = Arrays.asList(0L, 1L, 2L);
         List rv = new ArrayList();
         rv.add(exp);
@@ -256,7 +256,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
         s.setTimeToLive(1000L); // Actually have to set here because of mocking.
         Mock ex = fixture.mock("executorMock");
         ex.expects(atLeastOnce()).method("execute").will(
-                onConsecutiveCalls(returnValue(new ExperimenterGroup("group")),
+                onConsecutiveCalls(returnValue(new ExperimenterGroup("group", false)),
                         returnValue(s), returnValue(rv)));
 
         // Now create the session and wait for it to time out.

@@ -6,6 +6,7 @@
  */
 package integration;
 
+import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import static org.testng.AssertJUnit.assertEquals;
@@ -15,11 +16,15 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.BooleanAnnotation;
@@ -79,12 +84,17 @@ import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Roi;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
 import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
+import omero.model.Shape;
+import omero.model.ShapeAnnotationLink;
+import omero.model.ShapeAnnotationLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
@@ -94,6 +104,8 @@ import omero.model.XmlAnnotationI;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 import pojos.BooleanAnnotationData;
 import pojos.DatasetData;
@@ -156,7 +168,7 @@ public class UpdateServiceTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     @Test(groups = "ticket:118")
-    public void tesVersionNotIncreasingAfterUpdate() throws Exception {
+    public void testVersionNotIncreasingAfterUpdate() throws Exception {
         CommentAnnotation ann = new CommentAnnotationI();
         Image img = mmFactory.simpleImage();
         img.setName(rstring("version_test"));
@@ -537,6 +549,60 @@ public class UpdateServiceTest extends AbstractServerTest {
         ppl = (PlateAnnotationLink) o1;
         assertEquals(ppl.getChild().getId().getValue(), data.getId().getValue());
         assertEquals(ppl.getParent().getId().getValue(), pp.getId().getValue());
+
+        // Plate acquisition
+        pp = (Plate) iUpdate.saveAndReturnObject(
+                mmFactory.createPlate(1, 1, 1, 1, false));
+        long self = factory.getAdminService().getEventContext().userId;
+        ParametersI param = new ParametersI();
+        param.exp(rlong(self));
+        //method tested in PojosServiceTest
+        List results = factory.getContainerService().loadContainerHierarchy(
+                Plate.class.getName(),
+                Arrays.asList(pp.getId().getValue()), param);
+        pp = (Plate) results.get(0);
+        List<PlateAcquisition> list = pp.copyPlateAcquisitions();
+        assertEquals(1, list.size());
+        PlateAcquisition pa = list.get(0);
+        PlateAcquisitionAnnotationLink pal = new PlateAcquisitionAnnotationLinkI();
+        pal.setParent((PlateAcquisition) pa.proxy());
+        pal.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(pal);
+        assertNotNull(o1);
+        pal = (PlateAcquisitionAnnotationLink) o1;
+        assertEquals(pal.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
+
+        //Create a roi
+        ROIData roiData = new ROIData();
+        roiData.setImage((Image) i.proxy());
+        //Add shape
+        RectangleData r = new RectangleData(0, 0, 1, 1);
+        roiData.addShapeData(r);
+        Roi roi = (Roi) iUpdate.saveAndReturnObject(roiData.asIObject());
+        //annotate both roi and the shape.
+        RoiAnnotationLink ral = new RoiAnnotationLinkI();
+        ral.setParent((Roi) roi.proxy());
+        ral.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(ral);
+        assertNotNull(o1);
+        ral = (RoiAnnotationLink) o1;
+        assertEquals(ral.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(ral.getParent().getId().getValue(), roi.getId().getValue());
+        List<Shape> shapes = roi.copyShapes();
+        assertEquals(1, shapes.size());
+        Iterator<Shape> k = shapes.iterator();
+        while (k.hasNext()) {
+            Shape shape = k.next();
+            ShapeAnnotationLink sal = new ShapeAnnotationLinkI();
+            sal.setParent((Shape) shape.proxy());
+            sal.setChild((Annotation) data.proxy());
+            o1 = iUpdate.saveAndReturnObject(sal);
+            assertNotNull(o1);
+            sal = (ShapeAnnotationLink) o1;
+            assertEquals(sal.getChild().getId().getValue(), data.getId().getValue());
+            assertEquals(sal.getParent().getId().getValue(), shape.getId().getValue());
+        }
     }
 
     /**
@@ -655,7 +721,6 @@ public class UpdateServiceTest extends AbstractServerTest {
 
     /**
      * Tests to unlink of an annotation. Creates only one type of annotation.
-     * This method uses the <code>deleteObject</code> method.
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -676,7 +741,11 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(l);
         long id = l.getId().getValue();
         // annotation and image are linked. Remove the link.
-        iUpdate.deleteObject(l);
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                ImageAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
         // now check that the image is no longer linked to the annotation
         String sql = "select link from ImageAnnotationLink as link";
         sql += " where link.id = :id";
@@ -1468,89 +1537,6 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(test);
     }
 
-    /**
-     * Tests to delete various types of annotations i.e. Boolean, comment, long,
-     * tag, file annotation. This method the <code>deleteObject</code> method.
-     * Annotation should be deleted using the deleteQueue method cf. delete
-     * tests.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:2705" })
-    public void testDeleteAnnotation() throws Exception {
-        // creation and linkage have already been tested
-        // boolean
-        BooleanAnnotation b = new BooleanAnnotationI();
-        b.setBoolValue(omero.rtypes.rbool(true));
-        Annotation data = (Annotation) iUpdate.saveAndReturnObject(b);
-        // delete and check
-        long id = data.getId().getValue();
-        iUpdate.deleteObject(data);
-        ParametersI param = new ParametersI();
-        param.addId(id);
-        String sql = "select a from Annotation as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-        // long
-        LongAnnotation l = new LongAnnotationI();
-        l.setLongValue(omero.rtypes.rlong(1L));
-        data = (Annotation) iUpdate.saveAndReturnObject(l);
-        id = data.getId().getValue();
-        iUpdate.deleteObject(data);
-        param = new ParametersI();
-        param.addId(id);
-        sql = "select a from Annotation as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-        // comment
-        CommentAnnotation c = new CommentAnnotationI();
-        c.setTextValue(omero.rtypes.rstring("comment"));
-        data = (Annotation) iUpdate.saveAndReturnObject(c);
-        id = data.getId().getValue();
-        iUpdate.deleteObject(data);
-        param = new ParametersI();
-        param.addId(id);
-        sql = "select a from Annotation as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-        // tag
-        TagAnnotation t = new TagAnnotationI();
-        t.setTextValue(omero.rtypes.rstring("tag"));
-        data = (Annotation) iUpdate.saveAndReturnObject(t);
-        id = data.getId().getValue();
-        iUpdate.deleteObject(data);
-        param = new ParametersI();
-        param.addId(id);
-        sql = "select a from Annotation as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-        // File
-        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
-                .createOriginalFile());
-        FileAnnotation fa = new FileAnnotationI();
-        fa.setFile(of);
-        long ofId = of.getId().getValue();
-        data = (Annotation) iUpdate.saveAndReturnObject(fa);
-        id = data.getId().getValue();
-        iUpdate.deleteObject(data);
-        param = new ParametersI();
-        param.addId(id);
-        sql = "select a from Annotation as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-        param = new ParametersI();
-        param.addId(ofId);
-        // See ticket #2705
-        sql = "select a from OriginalFile as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-
-        // Term
-        TermAnnotation term = new TermAnnotationI();
-        term.setTermValue(omero.rtypes.rstring("term"));
-        data = (Annotation) iUpdate.saveAndReturnObject(term);
-        id = data.getId().getValue();
-        iUpdate.deleteObject(data);
-        param = new ParametersI();
-        param.addId(id);
-        sql = "select a from Annotation as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-    }
 
     /**
      * Tests the creation of a plate and reagent
@@ -1690,144 +1676,6 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
         assertEquals(l.getParent().getId().getValue(), i2.getId().getValue());
-    }
-
-    /**
-     * Tests to delete comment annotation linked to a plate acquisition.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test
-    public void testDeleteCommentAnnotationLinkedToObject() throws Exception {
-        // comment linked to project
-        Project project = new ProjectI();
-        project.setName(omero.rtypes.rstring("p"));
-        project = (Project) iUpdate.saveAndReturnObject(project);
-        CommentAnnotation cp = new CommentAnnotationI();
-        cp.setTextValue(omero.rtypes.rstring("comment"));
-        cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
-
-        ProjectAnnotationLink lpc = new ProjectAnnotationLinkI();
-        lpc.setChild((Annotation) cp.proxy());
-        lpc.setParent((Project) project.proxy());
-        IObject o = iUpdate.saveAndReturnObject(lpc);
-        iUpdate.deleteObject(o);
-        iUpdate.deleteObject(cp);
-        String sql = "select a from Annotation as a ";
-        sql += "where a.id = :id";
-        ParametersI param = new ParametersI();
-        param.addId(cp.getId().getValue());
-        List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
-
-        // comment linked to dataset
-        Dataset dataset = new DatasetI();
-        dataset.setName(omero.rtypes.rstring("p"));
-        dataset = (Dataset) iUpdate.saveAndReturnObject(dataset);
-        cp = new CommentAnnotationI();
-        cp.setTextValue(omero.rtypes.rstring("comment"));
-        cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
-
-        DatasetAnnotationLink ldc = new DatasetAnnotationLinkI();
-        ldc.setChild((Annotation) cp.proxy());
-        ldc.setParent(dataset);
-        o = iUpdate.saveAndReturnObject(ldc);
-        iUpdate.deleteObject(o);
-        iUpdate.deleteObject(cp);
-        param = new ParametersI();
-        param.addId(cp.getId().getValue());
-        results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
-
-        // comment linked to screen
-        Screen screen = new ScreenI();
-        screen.setName(omero.rtypes.rstring("p"));
-
-        screen = (Screen) iUpdate.saveAndReturnObject(screen);
-        cp = new CommentAnnotationI();
-        cp.setTextValue(omero.rtypes.rstring("comment"));
-        cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
-
-        // Comment linked to a screen
-        ScreenAnnotationLink lsc = new ScreenAnnotationLinkI();
-        lsc.setChild((Annotation) cp.proxy());
-        lsc.setParent(screen);
-        o = iUpdate.saveAndReturnObject(lsc);
-        iUpdate.deleteObject(o);
-        iUpdate.deleteObject(cp);
-        param = new ParametersI();
-        param.addId(cp.getId().getValue());
-        results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
-
-        // comment linked to plate
-        Plate plate = new PlateI();
-        plate.setName(omero.rtypes.rstring("p"));
-        plate = (Plate) iUpdate.saveAndReturnObject(plate);
-        cp = new CommentAnnotationI();
-        cp.setTextValue(omero.rtypes.rstring("comment"));
-        cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
-
-        PlateAnnotationLink lppc = new PlateAnnotationLinkI();
-        lppc.setChild((Annotation) cp.proxy());
-        lppc.setParent(plate);
-        o = iUpdate.saveAndReturnObject(o);
-        iUpdate.deleteObject(o);
-        iUpdate.deleteObject(cp);
-        param = new ParametersI();
-        param.addId(cp.getId().getValue());
-        results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
-
-        // comment linked to image
-        Image image = new ImageI();
-        image.setName(omero.rtypes.rstring("p"));
-        image = (Image) iUpdate.saveAndReturnObject(image);
-        cp = new CommentAnnotationI();
-        cp.setTextValue(omero.rtypes.rstring("comment"));
-        cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
-
-        ImageAnnotationLink lic = new ImageAnnotationLinkI();
-        lic.setChild((Annotation) cp.proxy());
-        lic.setParent(image);
-        o = iUpdate.saveAndReturnObject(lic);
-        iUpdate.deleteObject(o);
-        iUpdate.deleteObject(cp);
-        param = new ParametersI();
-        param.addId(cp.getId().getValue());
-        results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
-
-        Plate p;
-        p = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1, 1, 1,
-                1, false));
-        sql = "select pa from PlateAcquisition as pa ";
-        sql += "where pa.plate.id = :id";
-        param = new ParametersI();
-        param.addId(p.getId().getValue());
-        List<IObject> pas = iQuery.findAllByQuery(sql, param);
-        // Delete the first one.
-        PlateAcquisition pa = (PlateAcquisition) pas.get(0);
-
-        CommentAnnotation c = new CommentAnnotationI();
-        c.setTextValue(omero.rtypes.rstring("comment"));
-        c = (CommentAnnotation) iUpdate.saveAndReturnObject(c);
-        long id = c.getId().getValue();
-
-        PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(c);
-        link.setParent(pa);
-
-        o = iUpdate.saveAndReturnObject(link);
-        iUpdate.deleteObject(o);
-        iUpdate.deleteObject(c);
-        sql = "select a from Annotation as a ";
-        sql += "where a.id = :id";
-        param = new ParametersI();
-        param.addId(id);
-        results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
     }
 
     /**

@@ -24,14 +24,18 @@
         <div class="data_heading" id="{{ manager.obj_type }}description-{{ manager.obj_id }}">
             <p>
                 <span id="{{ manager.obj_type }}description-{{ manager.obj_id }}-description">
-                    {{ obj.description|default:"Add Description"|linebreaksbr}}
+                    {{ obj.description|default:"Add Description"|escape|linebreaksbr}}
                 </span>
                 <button class="btn silver btn_edit" alt="e" title="edit">
                     <span></span>
                 </button>
             </p>
         </div>
-    {% else %}
-        <span id='image_desc'>{{ obj.description|default:""|linebreaksbr }} </span>
+    {% elif obj.description %}
+      <div class="data_heading">
+        <p>
+          <span id='image_desc'>{{ obj.description|default:""|escape|linebreaksbr }} </span>
+        </p>
+      </div>
     {% endif %}
 </div>

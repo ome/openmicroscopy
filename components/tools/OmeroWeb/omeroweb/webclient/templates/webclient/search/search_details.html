@@ -78,7 +78,8 @@
 
         {% if manager.c_size or foundById %}
         
-        <table id="dataTable" class="tablesorter">
+        <table id="dataTable" class="tablesorter"
+                data-result-count="{{ resultCount }}" {% if manager.moreResults %}data-more-results="true"{% endif %}>
             <thead> 
                 <tr> 
                     <th class="table_images">{% trans "Type" %}</th>
@@ -176,6 +177,20 @@
                     <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
+                </tr>
+            {% endfor %}
+            {% for c in manager.containers.plateacquisitions %}
+                <tr id="acquisition-{{ c.id }}" class="{{ c.getPermsCss }}">
+                    <td class="image">
+                        <img id="{{ c.id }}" src="{% static "webclient/image/image16.png" %}" alt="plate" title="{{ c.name }}"/>
+                    </td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
+                    <td class="date"></td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
+                    <td><a href="{% url 'webindex' %}?show=run-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>

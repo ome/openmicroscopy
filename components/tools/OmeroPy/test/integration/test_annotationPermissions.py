@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved. Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,10 +25,9 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
-from omero_model_ProjectI import ProjectI
 from omero_model_ProjectAnnotationLinkI import ProjectAnnotationLinkI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero.rtypes import rstring
@@ -36,8 +35,9 @@ from omero.rtypes import rstring
 
 class AnnotationPermissions(lib.ITest):
 
-    def setup_method(self, method, perms):
-        lib.ITest.setup_method(self, method)
+    @classmethod
+    def setup_class(self):
+        super(AnnotationPermissions, self).setup_class()
 
         # Tag names and namespaces
         uuid = self.uuid()
@@ -47,9 +47,8 @@ class AnnotationPermissions(lib.ITest):
 
         self.users = set(["member1", "member2", "owner", "admin"])
         # create group and users
-        self.group = self.new_group(perms=perms)
         self.exps = {}
-        self.exps["owner"] = self.new_user(group=self.group, admin=True)
+        self.exps["owner"] = self.new_user(group=self.group, owner=True)
         self.exps["member1"] = self.new_user(group=self.group)
         self.exps["member2"] = self.new_user(group=self.group)
         self.exps["admin"] = self.new_user(group=self.group, system=True)
@@ -59,6 +58,8 @@ class AnnotationPermissions(lib.ITest):
         self.updateServices = {}
         self.queryServices = {}
         self.project = {}
+
+    def setup_method(self, method):
         for user in self.users:
             self.clients[user] = self.new_client(
                 user=self.exps[user], group=self.group)
@@ -68,23 +69,25 @@ class AnnotationPermissions(lib.ITest):
             self.project[user] = self.createProjectAs(user)
 
     def teardown_method(self, method):
-        lib.ITest.teardown_method(self, method)
         for user in self.users:
             self.clients[user].closeSession()
 
-    def chmodGroupAs(self, user, perms):
+    def chmodGroupAs(self, user, perms, succeed=True):
         client = self.clients[user]
-        # Using the deprecated method since
-        # it was using a specific group context.
-        client.sf.getAdminService().changePermissions(
-            self.group, omero.model.PermissionsI(perms))
+        chmod = omero.cmd.Chmod2(
+            targetObjects={'ExperimenterGroup': [self.group.id.val]},
+            permissions=perms)
+        self.doSubmit(chmod, client, test_should_pass=succeed)
 
     def createProjectAs(self, user):
         """ Adds a Project. """
-        project = ProjectI()
-        project.name = rstring(user + "_" + self.proj_name)
-        project = self.updateServices[user].saveAndReturnObject(project)
+        project = self.make_project(name=user + "_" + self.proj_name,
+                                    client=self.clients[user])
         return project
+
+    def getProjectAs(self, user, id):
+        """ Gets a Project via its id. """
+        return self.queryServices[user].find("Project", id)
 
     def makeTag(self):
         tag = TagAnnotationI()
@@ -147,9 +150,10 @@ class AnnotationPermissions(lib.ITest):
 
 class TestPrivateGroup(AnnotationPermissions):
 
-    def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rw----')
+    DEFAULT_PERMS = 'rw----'
 
+    def setup_method(self, method):
+        AnnotationPermissions.setup_method(self, method)
         self.canAdd = {"member1": set(["member1"]),
                        "member2": set(["member2"]),
                        "owner":  set(["owner"]),
@@ -220,8 +224,10 @@ class TestPrivateGroup(AnnotationPermissions):
 
 class TestReadOnlyGroup(AnnotationPermissions):
 
+    DEFAULT_PERMS = 'rwr---'
+
     def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rwr---')
+        AnnotationPermissions.setup_method(self, method)
 
         self.canAdd = {"member1": set(["member1", "owner", "admin"]),
                        "member2": set(["member2", "owner", "admin"]),
@@ -293,8 +299,10 @@ class TestReadOnlyGroup(AnnotationPermissions):
 
 class TestReadAnnotateGroup(AnnotationPermissions):
 
+    DEFAULT_PERMS = 'rwra--'
+
     def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rwra--')
+        AnnotationPermissions.setup_method(self, method)
 
         self.canAdd = {"member1": self.users,
                        "member2": self.users,
@@ -366,19 +374,31 @@ class TestReadAnnotateGroup(AnnotationPermissions):
 class TestMovePrivatePermissions(AnnotationPermissions):
 
     def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rwra--')
+        super(TestMovePrivatePermissions, self).setup_method(method)
 
-    @pytest.mark.parametrize("admin_type", ("root", "admin"))
+        # Make the group read-annotate for every test run
+        self.chmodGroupAs("root", "rwra--")
+
+    @pytest.mark.parametrize("admin_type", ("root", "admin", "owner"))
     def testAddTagMakePrivate(self, admin_type):
         """ see ticket:11479 """
+
+        # Have member1 tag their project with member2's tag
         project = self.createProjectAs("member1")
         tag = self.createTagAs("member2")
         self.linkTagAs("member1", project, tag)
-        with pytest.raises(omero.SecurityViolation):
-            self.chmodGroupAs(admin_type, "rw----")
 
-        for x in ("member1", "member2"):
-            # Check reading
-            self.getTagLinkAs(x, project)
-            self.getTagViaLinkAs(x, project)
-            self.getTagAs(x, tag.id.val)
+        # Make the group private
+        self.chmodGroupAs(admin_type, "rw----")
+
+        # Link should be gone
+        tagLink = self.getTagLinkAs("member1", project)
+        assert tagLink is None
+
+        # Check that the project remains
+        project = self.getProjectAs("member1", project.id.val)
+        assert project is not None
+
+        # Check that the tag remains
+        tag = self.getTagAs("member2", tag.id.val)
+        assert tag is not None

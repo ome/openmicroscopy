@@ -43,6 +43,36 @@ SELECT omero_assert_db_version('OMERO5.1DEV', 10);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
+--
+-- check PostgreSQL server version and database encoding
+--
+
+CREATE FUNCTION assert_db_server_prerequisites(version_prereq INTEGER) RETURNS void AS $$
+
+DECLARE
+    version_num INTEGER;
+    char_encoding TEXT;
+
+BEGIN
+    SELECT CAST(setting AS INTEGER) INTO STRICT version_num FROM pg_settings WHERE name = 'server_version_num';
+    SELECT pg_encoding_to_char(encoding) INTO STRICT char_encoding FROM pg_database WHERE datname = current_database();
+
+    IF version_num < version_prereq THEN
+        RAISE EXCEPTION 'database server version % is less than OMERO prerequisite %', version_num, version_prereq;
+    END IF;
+
+    IF char_encoding != 'UTF8' THEN
+       RAISE EXCEPTION 'OMERO database character encoding must be UTF8, not %', char_encoding;
+    END IF;
+
+END;$$ LANGUAGE plpgsql;
+
+SELECT assert_db_server_prerequisites(84000);
+DROP FUNCTION assert_db_server_prerequisites(INTEGER);
+
+SET client_encoding = 'UTF8';
+
+
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              VALUES ('OMERO5.1DEV',    11,              'OMERO5.1DEV',    10);
 
@@ -153,8 +183,11 @@ insert into unitstime (id,permissions,value,measurementsystem)
     select ome_nextval('seq_unitstime'),-52,'d','SI.SECOND';
 
 update pixels set timeincrementunit = (select id from unitstime where value = 's') where timeincrement is not null;
-update planeinfo set deltatunit = (select id from unitstime where value = 's') where deltat is not null;
-update planeinfo set exposuretimeunit = (select id from unitstime where value = 's') where exposuretime is not null;
+
+update planeinfo
+  set deltatunit = case when deltat is null then null else (select id from unitstime where value = 's') end,
+      exposuretimeunit = case when exposuretime is null then null else (select id from unitstime where value = 's') end
+  where deltat is not null or exposuretime is not null;
 
 --
 -- FINISHED

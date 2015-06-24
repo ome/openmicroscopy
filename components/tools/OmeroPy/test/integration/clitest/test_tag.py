@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,9 +19,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import re
 import pytest
 import omero
 from omero.plugins.tag import TagControl
+from omero.cli import NonZeroReturnCode
+from library import PFS
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
@@ -29,23 +32,28 @@ import __builtin__
 NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
 
-class TestTag(CLITest):
+class AbstractTagTest(CLITest):
 
     def setup_method(self, method):
-        super(TestTag, self).setup_method(method)
+        super(AbstractTagTest, self).setup_method(method)
         self.cli.register("tag", TagControl, "TEST")
         self.args += ["tag"]
         self.setup_mock()
 
     def teardown_method(self, method):
         self.teardown_mock()
-        super(TestTag, self).teardown_method(method)
 
+    @classmethod
+    def new_tag(self, name=""):
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = omero.rtypes.rstring("%s" % name)
+        return tag
+
+    @classmethod
     def create_tags(self, ntags, name):
         tag_ids = []
         for i in list(xrange(ntags)):
-            tag = omero.model.TagAnnotationI()
-            tag.textValue = omero.rtypes.rstring("%s - %s" % (name, i))
+            tag = self.new_tag("%s - %s" % (name, i))
             tag = self.update.saveAndReturnObject(tag)
             if ntags > 1:
                 tag_ids.append(tag.id.val)
@@ -53,6 +61,7 @@ class TestTag(CLITest):
                 tag_ids = tag.id.val
         return tag_ids
 
+    @classmethod
     def create_tagset(self, tag_ids, name):
         tagset = omero.model.TagAnnotationI()
         tagset.textValue = omero.rtypes.rstring(name)
@@ -69,18 +78,35 @@ class TestTag(CLITest):
 
         return tagset.id.val
 
-    def get_tag_by_name(self, tag_name, ns=None):
-        # Query
+    def get_link(self, classname, object_id, client=None):
+        # Check link
         params = omero.sys.Parameters()
         params.map = {}
-        query = "select t from TagAnnotation as t"
-        params.map["val"] = rstring(tag_name)
-        query += " where t.textValue=:val"
-        if ns:
-            params.map["ns"] = rstring(ns)
-            query += " and t.ns=:ns"
-        tags = self.query.findByQuery(query, params)
-        return tags
+        params.map["id"] = rlong(object_id)
+        query = "select l from %sAnnotationLink as l" % classname
+        query += " join fetch l.child as a where l.parent.id=:id"
+        if not client:
+            link = self.query.findByQuery(query, params)
+        else:
+            link = client.sf.getQueryService().findByQuery(query, params)
+        return link
+
+    def get_object(self, out, query=None):
+        """Retrieve the created object by parsing the stderr output"""
+        if not query:
+            query = self.query
+
+        pattern = re.compile('^(?P<obj_type>.*):(?P<id>\d+)$')
+        for line in reversed(out.split('\n')):
+            print line
+            match = re.match(pattern, line)
+            if match:
+                break
+        return query.get(match.group('obj_type'), int(match.group('id')),
+                         {"omero.group": "-1"})
+
+
+class TestTag(AbstractTagTest):
 
     def get_tags_in_tagset(self, tagset_id):
         params = omero.sys.Parameters()
@@ -97,7 +123,7 @@ class TestTag(CLITest):
     # ========================================================================
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
-    def testCreateTag(self, name_arg, desc_arg):
+    def testCreateTag(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         self.args += ["create"]
@@ -116,14 +142,16 @@ class TestTag(CLITest):
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tag is created
-        tag = self.get_tag_by_name(tag_name)
+        tag = self.get_object(o)
+        assert tag.textValue.val == tag_name
         assert tag.description.val == tag_desc
 
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
-    def testCreateTagset(self, name_arg, desc_arg):
+    def testCreateTagset(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         tag_ids = self.create_tags(2, tag_name)
@@ -144,16 +172,19 @@ class TestTag(CLITest):
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(tag_name, NSINSIGHTTAGSET)
+        tagset = self.get_object(o)
+        assert tagset.textValue.val == tag_name
+        assert tagset.ns.val == NSINSIGHTTAGSET
         assert tagset.description.val == tag_desc
 
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
         assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
 
-    def testLoadTag(self):
+    def testLoadTag(self, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         p = create_path(suffix=".json")
@@ -163,12 +194,14 @@ class TestTag(CLITest):
     "desc" : "%s"}]""" % (tag_name, tag_desc))
         self.args += ["load", str(p)]
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tag is created
-        tag = self.get_tag_by_name(tag_name)
+        tag = self.get_object(o)
+        assert tag.textValue.val == tag_name
         assert tag.description.val == tag_desc
 
-    def testLoadTagset(self):
+    def testLoadTagset(self, capfd):
         ts_name = self.uuid()
         ts_desc = self.uuid()
         tag_names = ["tagset %s - %s" % (ts_name, x) for x in [1, 2]]
@@ -186,48 +219,20 @@ class TestTag(CLITest):
 }]""" % (ts_name, ts_desc, tag_names[0], tag_names[1]))
         self.args += ["load", str(p)]
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
+        tagset = self.get_object(o)
+        assert tagset.textValue.val == ts_name
+        assert tagset.ns.val == NSINSIGHTTAGSET
         assert tagset.description.val == ts_desc
 
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
         assert sorted([x.textValue.val for x in tags]) == sorted(tag_names)
 
-    # Tag list commands
-    # ========================================================================
-    @pytest.mark.parametrize('list_command', ['list', 'listsets'])
-    @pytest.mark.parametrize('page_arg', ['', '--nopage'])
-    def testList(self, capsys, list_command, page_arg):
-        tag_ids = self.create_tags(2, 'list_tag')
-        tagset_id = self.create_tagset(tag_ids, 'list_tagset')
-
-        self.args += [list_command]
-        if page_arg:
-            self.args += [page_arg]
-        self.cli.invoke(self.args, strict=True)
-
-        out, err = capsys.readouterr()
-        assert str(tagset_id) in out
-        for tag_id in tag_ids:
-            if list_command == 'list':
-                assert str(tag_id) in out
-            else:
-                assert str(tag_id) not in out
-
     # Tag linking commands
     # ========================================================================
-    def get_link(self, classname, object_id):
-        # Check link
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["id"] = rlong(object_id)
-        query = "select l from %sAnnotationLink as l" % classname
-        query += " join fetch l.child as a where l.parent.id=:id"
-        link = self.query.findByQuery(query, params)
-        return link
-
     @pytest.mark.parametrize(
         'object_type', ['Image', 'Dataset', 'Project', 'Screen', 'Plate'])
     def testLink(self, object_type):
@@ -248,3 +253,108 @@ class TestTag(CLITest):
         # Check link
         link = self.get_link(object_type, oid)
         assert link.child.id.val == tid
+
+    def testLinkInvalidObject(self):
+        # Create a tag and an image
+        tid = self.create_tags(1, "%s" % self.uuid())
+
+        # Call tag link subcommand
+        self.args += ["link", "Project:0", "%s" % tid]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testLinkInvalidTag(self):
+        # Create a tag and an image
+        img = self.new_image()
+        img.name = rstring("%s" % self.uuid())
+        img = self.update.saveAndReturnObject(img)
+
+        # Call tag link subcommand
+        self.args += ["link", "Image:%s" % img.id.val, "-1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+
+class TestPermissions(AbstractTagTest):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestPermissions, cls).setup_class()
+        cls.groups = {}
+        for perms in set([x.perms for x in PFS]):
+            cls.groups[perms] = cls.new_group(perms=perms)
+
+    def setup_method(self, method):
+        super(TestPermissions, self).setup_method(method)
+        self.args = ["tag"]
+
+    @pytest.mark.parametrize('fixture', PFS, ids=[x.get_name() for x in PFS])
+    def testLink(self, fixture):
+        # Create a tag and an image
+        tag = self.new_tag()
+        img = self.new_image()
+        writer = self.new_client(
+            group=self.groups[fixture.perms],
+            system=(fixture.writer == "system-admin"),
+            owner=(fixture.writer == "group-owner"),
+            )
+        tag = writer.sf.getUpdateService().saveAndReturnObject(tag)
+        img = writer.sf.getUpdateService().saveAndReturnObject(img)
+
+        # Call tag link subcommand
+        reader = self.new_client(
+            group=self.groups[fixture.perms],
+            system=(fixture.reader == "system-admin"),
+            owner=(fixture.reader == "group-owner"),
+            )
+        self.args += ["link"]
+        self.args += self.login_args(reader)
+        self.args += ["Image:%s" % img.id.val, "%s" % tag.id.val]
+        if fixture.canAnnotate:
+            self.cli.invoke(self.args, strict=True)
+
+            # Check link
+            link = self.get_link('Image', img.id.val, client=reader)
+            assert link.child.id.val == tag.id.val
+        else:
+            with pytest.raises(NonZeroReturnCode):
+                self.cli.invoke(self.args, strict=True)
+
+
+class TestTagList(AbstractTagTest):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestTagList, cls).setup_class()
+        cls.tag_ids = cls.create_tags(2, 'list_tag')
+        cls.tagset_id = cls.create_tagset(cls.tag_ids, '')
+
+    # Tag list commands
+    # ========================================================================
+    @pytest.mark.parametrize('page_arg', ['', '--nopage'])
+    def testList(self, capsys, page_arg):
+
+        self.args += ["list"]
+        if page_arg:
+            self.args += [page_arg]
+        self.cli.invoke(self.args, strict=True)
+
+        out, err = capsys.readouterr()
+        assert str(self.tagset_id) in out
+        for tag_id in self.tag_ids:
+            assert str(tag_id) in out
+
+    # Tag listsets commands
+    # ========================================================================
+    @pytest.mark.parametrize('page_arg', ['', '--nopage'])
+    def testListSets(self, capsys, page_arg):
+
+        self.args += ["listsets"]
+        if page_arg:
+            self.args += [page_arg]
+        self.cli.invoke(self.args, strict=True)
+
+        out, err = capsys.readouterr()
+        assert str(self.tagset_id) in out
+        for tag_id in self.tag_ids:
+            assert str(tag_id) not in out

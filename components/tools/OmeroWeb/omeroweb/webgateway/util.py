@@ -26,6 +26,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# helper method
+def getIntOrDefault(request, name, default):
+    try:
+        index = request.REQUEST.get(name, default)
+        if index is not None:
+            index = int(index)
+    except ValueError:
+        index = 0
+    return index
+
+
 def zip_archived_files(images, temp, zipName):
     """
     Util function to download original files from a list of images
@@ -40,7 +51,8 @@ def zip_archived_files(images, temp, zipName):
     @param zipName:     Name of zip
     """
 
-    zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
+    # ',' in name causes duplicate headers
+    zipName = zipName.replace(" ", "_").replace(",", ".")
     if not zipName.endswith('.zip'):
         zipName = "%s.zip" % zipName
 
@@ -51,7 +63,7 @@ def zip_archived_files(images, temp, zipName):
         return os.path.join(relPath, fsFile.getName())
 
     def split_path(p):
-        a,b = os.path.split(p)
+        a, b = os.path.split(p)
         return (split_path(a) if len(a) and len(b) else []) + [b]
 
     fsIds = set()
@@ -60,9 +72,10 @@ def zip_archived_files(images, temp, zipName):
     temp_zip_dir = tempfile.mkdtemp()
     logger.debug("download dir: %s" % temp_zip_dir)
     try:
+        new_dir_idx = 1     # if needed to avoid file name clashes
         for image in images:
+            new_dir = ""
             templatePrefix = ""
-            new_dir = ""            # if needed to avoid file name clashes
             fs = image.getFileset()
             if fs is not None:
                 # Make sure we've not processed this fileset before.
@@ -75,9 +88,11 @@ def zip_archived_files(images, temp, zipName):
             # check if ANY of the files will overwrite exising file
             for f in files:
                 target_path = getTargetPath(f, templatePrefix)
-                base_file = os.path.join(temp_zip_dir, split_path(target_path)[0])
+                base_file = os.path.join(
+                    temp_zip_dir, split_path(target_path)[0])
                 if os.path.exists(base_file):
-                    new_dir = str(image.getId())
+                    new_dir = str(new_dir_idx)
+                    new_dir_idx += 1
                     break
 
             for a in files:
@@ -91,12 +106,13 @@ def zip_archived_files(images, temp, zipName):
                 if not os.path.exists(temp_d):
                     os.makedirs(temp_d)
 
-                # Need to be sure that the zip name does not match any file within it
-                # since OS X will unzip as a single file instead of a directory
+                # Need to be sure that the zip name does not match any file
+                # within it since OS X will unzip as a single file instead of
+                # a directory
                 if zipName == "%s.zip" % a.name:
                     zipName = "%s_folder.zip" % a.name
 
-                f = open(str(temp_f),"wb")
+                f = open(str(temp_f), "wb")
                 try:
                     for chunk in a.getFileInChunks():
                         f.write(chunk)

@@ -44,6 +44,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -63,6 +65,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
@@ -90,6 +93,7 @@ import pojos.ExperimenterData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MapAnnotationData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -162,6 +166,10 @@ class MetadataViewerComponent
 	private void deleteAnnotations(List<AnnotationData> toDelete)
 	{
 		if (toDelete == null || toDelete.size() == 0) return;
+
+		// don't popup the activity dialog when a MapAnnotation is deleted
+		boolean silent = containsMapAnnotationsOnly(toDelete);
+
 		//Should only be annotation so content is false;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<AnnotationData> j = toDelete.iterator();
@@ -171,9 +179,32 @@ class MetadataViewerComponent
 		DeleteActivityParam p = new DeleteActivityParam(
 				icons.getIcon(IconManager.APPLY_22), l);
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		p.setUIRegister(!silent);
 		UserNotifier un = 
 			TreeViewerAgent.getRegistry().getUserNotifier();
 		un.notifyActivity(model.getSecurityContext(), p);
+	}
+	
+	/**
+	 * Checks if a list contains only MapAnnotations 
+	 * 
+	 * @param list
+	 *            The list to check
+	 * @return <code>true</code> if there are only MapAnnotations in the list;
+	 *         <code>false</code> otherwise or if list is <code>null</code>
+	 */
+	private boolean containsMapAnnotationsOnly(List<AnnotationData> list) {
+		if (list == null)
+			return false;
+
+		boolean mapAnnosOnly = true;
+		for (AnnotationData d : list) {
+			if (!(d instanceof MapAnnotationData)) {
+				mapAnnosOnly = false;
+				break;
+			}
+		}
+		return mapAnnosOnly;
 	}
 	
 	/**
@@ -530,7 +561,7 @@ class MetadataViewerComponent
 			}
 		}  else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
-			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
+			if (CollectionUtils.isEmpty(toAdd) && CollectionUtils.isEmpty(toRemove)) {
 				model.fireSaving(object, metadata, toSave, asynch);
 				b = false;
 			}	
@@ -787,12 +818,21 @@ class MetadataViewerComponent
 		
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
+				Object src = evt.getSource();
 				if (MovieExportDialog.CREATE_MOVIE_PROPERTY.equals(name)) {
-					Object src = evt.getSource();
 					if (src instanceof MovieExportDialog) {
 						MovieExportDialog d = (MovieExportDialog) src;
 						createMovie(d.getParameters());
 					}
+				} else if (
+				ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY.equals(name)) {
+                    if (src instanceof MovieExportDialog) {
+                        String script = (String) evt.getNewValue();
+                        ScriptObject object =
+                                model.getEditor().getScriptFromName(script);
+                        if (object == null) return;
+                        manageScript(object, MetadataViewer.VIEW);
+                    }
 				}
 			}
 		});

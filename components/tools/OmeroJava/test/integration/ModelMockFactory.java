@@ -1,11 +1,11 @@
 /*
- * $Id$
- *
- *  Copyright 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright 2006-2015 University of Dundee. All rights reserved.
  *  Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
+import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 
 import java.awt.image.BufferedImage;
@@ -20,106 +20,17 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
 import omero.api.IPixelsPrx;
-import omero.model.AcquisitionMode;
-import omero.model.Annotation;
-import omero.model.Arc;
-import omero.model.ArcI;
-import omero.model.ArcType;
-import omero.model.Binning;
-import omero.model.Channel;
-import omero.model.ChannelI;
-import omero.model.ContrastMethod;
-import omero.model.Correction;
-import omero.model.Detector;
-import omero.model.DetectorI;
-import omero.model.DetectorSettings;
-import omero.model.DetectorSettingsI;
-import omero.model.DetectorType;
-import omero.model.Dichroic;
-import omero.model.DichroicI;
-import omero.model.DimensionOrder;
-import omero.model.Experiment;
-import omero.model.ExperimentI;
-import omero.model.ExperimentType;
-import omero.model.Filament;
-import omero.model.FilamentI;
-import omero.model.FilamentType;
-import omero.model.Filter;
-import omero.model.FilterI;
-import omero.model.FilterSet;
-import omero.model.FilterSetI;
-import omero.model.FilterType;
-import omero.model.IObject;
-import omero.model.Illumination;
-import omero.model.Image;
-import omero.model.ImageI;
-import omero.model.ImagingEnvironment;
-import omero.model.ImagingEnvironmentI;
-import omero.model.Immersion;
-import omero.model.Instrument;
-import omero.model.InstrumentI;
-import omero.model.Laser;
-import omero.model.LaserI;
-import omero.model.LaserMedium;
-import omero.model.LaserType;
-import omero.model.LightEmittingDiode;
-import omero.model.LightEmittingDiodeI;
-import omero.model.LightPath;
-import omero.model.LightPathI;
-import omero.model.LightSettings;
-import omero.model.LightSettingsI;
-import omero.model.LightSource;
-import omero.model.LogicalChannel;
-import omero.model.LogicalChannelI;
-import omero.model.Medium;
-import omero.model.MicrobeamManipulation;
-import omero.model.MicrobeamManipulationI;
-import omero.model.MicrobeamManipulationType;
-import omero.model.MicroscopeI;
-import omero.model.MicroscopeType;
-import omero.model.OTF;
-import omero.model.OTFI;
-import omero.model.Objective;
-import omero.model.ObjectiveI;
-import omero.model.ObjectiveSettings;
-import omero.model.ObjectiveSettingsI;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
-import omero.model.Pixels;
-import omero.model.PixelsI;
-import omero.model.PixelsType;
-import omero.model.PlaneInfo;
-import omero.model.PlaneInfoI;
-import omero.model.Plate;
-import omero.model.PlateAcquisition;
-import omero.model.PlateAcquisitionI;
-import omero.model.PlateI;
-import omero.model.Pulse;
-import omero.model.Reagent;
-import omero.model.ReagentI;
-import omero.model.RectI;
-import omero.model.Roi;
-import omero.model.RoiI;
-import omero.model.StageLabel;
-import omero.model.StageLabelI;
-import omero.model.StatsInfo;
-import omero.model.StatsInfoI;
-import omero.model.Thumbnail;
-import omero.model.ThumbnailI;
-import omero.model.Time;
-import omero.model.TimeI;
-import omero.model.TransmittanceRangeI;
-import omero.model.UnitsTime;
-import omero.model.UnitsTimeI;
-import omero.model.Well;
-import omero.model.WellI;
-import omero.model.WellSample;
-import omero.model.WellSampleI;
+import omero.model.*;
+import omero.model.enums.UnitsLength;
+import omero.model.enums.UnitsTime;
 import pojos.DatasetData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.ScreenData;
 
 /**
@@ -187,6 +98,18 @@ public class ModelMockFactory {
     /** Helper reference to the <code>IPixels</code> service. */
     private IPixelsPrx pixelsService;
 
+    private static Frequency hz(double d) {
+        return new FrequencyI(d, UNITS.HZ);
+    }
+
+    private static ElectricPotential volt(double d) {
+        return new ElectricPotentialI(d, UNITS.VOLT);
+    }
+
+    private static Power watt(double d) {
+        return new PowerI(d, UNITS.WATT);
+    }
+
     /**
      * Creates a new instance.
      *
@@ -238,7 +161,7 @@ public class ModelMockFactory {
     }
 
     /**
-     * Creates a default project and returns it.
+     * Creates a default plate and returns it.
      *
      * @return See above.
      */
@@ -252,7 +175,7 @@ public class ModelMockFactory {
     }
 
     /**
-     * Creates a default project and returns it.
+     * Creates a default plate acquisition and returns it.
      *
      * @return See above.
      */
@@ -276,7 +199,17 @@ public class ModelMockFactory {
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
         img.setName(rstring(uniqueName));
         img.setDescription(rstring(uniqueDesc));
+        img.setSeries(rint(0));
         return img;
+    }
+
+    /**
+     * @return a default fileset
+     */
+    public Fileset simpleFileset() {
+        Fileset fs = new FilesetI();
+        fs.setTemplatePrefix(omero.rtypes.rstring("fileset-" + System.nanoTime() + "/"));
+        return fs;
     }
 
     /**
@@ -384,10 +317,10 @@ public class ModelMockFactory {
         filter.setType((FilterType) types.get(0));
 
         TransmittanceRangeI transmittance = new TransmittanceRangeI();
-        transmittance.setCutIn(omero.rtypes.rint(cutIn));
-        transmittance.setCutOut(omero.rtypes.rint(cutOut));
-        transmittance.setCutInTolerance(omero.rtypes.rint(1));
-        transmittance.setCutOutTolerance(omero.rtypes.rint(1));
+        transmittance.setCutIn(new LengthI(cutIn, UnitsFactory.TransmittanceRange_CutIn));
+        transmittance.setCutOut(new LengthI(cutOut, UnitsFactory.TransmittanceRange_CutOut));
+        transmittance.setCutInTolerance(new LengthI(1, UnitsFactory.TransmittanceRange_CutInTolerance));
+        transmittance.setCutOutTolerance(new LengthI(1, UnitsFactory.TransmittanceRange_CutOutTolerance));
         filter.setTransmittanceRange(transmittance);
         return filter;
     }
@@ -450,7 +383,7 @@ public class ModelMockFactory {
         objective.setIris(omero.rtypes.rbool(true));
         objective.setLensNA(omero.rtypes.rdouble(0.5));
         objective.setNominalMagnification(omero.rtypes.rdouble(1));
-        objective.setWorkingDistance(omero.rtypes.rdouble(1));
+        objective.setWorkingDistance(new LengthI(1, UnitsFactory.Objective_WorkingDistance));
         return objective;
     }
 
@@ -484,9 +417,9 @@ public class ModelMockFactory {
     public StageLabel createStageLabel() {
         StageLabel label = new StageLabelI();
         label.setName(omero.rtypes.rstring("label"));
-        label.setPositionX(omero.rtypes.rdouble(1));
-        label.setPositionY(omero.rtypes.rdouble(1));
-        label.setPositionZ(omero.rtypes.rdouble(1));
+        label.setPositionX(new LengthI(1, UnitsFactory.StageLabel_X));
+        label.setPositionY(new LengthI(1, UnitsFactory.StageLabel_Y));
+        label.setPositionZ(new LengthI(1, UnitsFactory.StageLabel_Z));
         return label;
     }
 
@@ -497,10 +430,10 @@ public class ModelMockFactory {
      */
     public ImagingEnvironment createImageEnvironment() {
         ImagingEnvironment env = new ImagingEnvironmentI();
-        env.setAirPressure(omero.rtypes.rdouble(1));
+        env.setAirPressure(new PressureI(1, UnitsFactory.ImagingEnvironment_AirPressure));
         env.setCo2percent(omero.rtypes.rdouble(0.5));
         env.setHumidity(omero.rtypes.rdouble(0.5));
-        env.setTemperature(omero.rtypes.rdouble(1));
+        env.setTemperature(new TemperatureI(1, UnitsFactory.ImagingEnvironment_Temperature));
         return env;
     }
 
@@ -522,8 +455,8 @@ public class ModelMockFactory {
         settings.setDetector(detector);
         settings.setGain(omero.rtypes.rdouble(1));
         settings.setOffsetValue(omero.rtypes.rdouble(1));
-        settings.setReadOutRate(omero.rtypes.rdouble(1));
-        settings.setVoltage(omero.rtypes.rdouble(1));
+        settings.setReadOutRate(hz(1));
+        settings.setVoltage(volt(1));
         return settings;
     }
 
@@ -552,7 +485,7 @@ public class ModelMockFactory {
         exp.setType((ExperimentType) types.get(0));
         mm.setExperiment(exp);
         // settings.setMicrobeamManipulation(mm);
-        settings.setWavelength(omero.rtypes.rdouble(500.1));
+        settings.setWavelength(new LengthI(500.1, UnitsFactory.LightSourceSettings_Wavelength));
         return settings;
     }
 
@@ -566,8 +499,6 @@ public class ModelMockFactory {
      * @param excitationFilter
      *            The excitation filter or <code>null</code>.
      * @return See above.
-     * @throws Exception
-     *             Thrown if an error occurred.
      */
     public LightPath createLightPath(Filter emissionFilter, Dichroic dichroic,
             Filter excitationFilter) {
@@ -591,7 +522,7 @@ public class ModelMockFactory {
         Filament filament = new FilamentI();
         filament.setManufacturer(omero.rtypes.rstring("manufacturer"));
         filament.setModel(omero.rtypes.rstring("model"));
-        filament.setPower(omero.rtypes.rdouble(1));
+        filament.setPower(watt(1));
         filament.setSerialNumber(omero.rtypes.rstring("serial number"));
         filament.setLotNumber(omero.rtypes.rstring("lot number"));
         filament.setType((FilamentType) types.get(0));
@@ -612,7 +543,7 @@ public class ModelMockFactory {
         Arc arc = new ArcI();
         arc.setManufacturer(omero.rtypes.rstring("manufacturer"));
         arc.setModel(omero.rtypes.rstring("model"));
-        arc.setPower(omero.rtypes.rdouble(1));
+        arc.setPower(watt(1));
         arc.setSerialNumber(omero.rtypes.rstring("serial number"));
         arc.setLotNumber(omero.rtypes.rstring("lot number"));
         arc.setType((ArcType) types.get(0));
@@ -631,7 +562,7 @@ public class ModelMockFactory {
         LightEmittingDiode light = new LightEmittingDiodeI();
         light.setManufacturer(omero.rtypes.rstring("manufacturer"));
         light.setModel(omero.rtypes.rstring("model"));
-        light.setPower(omero.rtypes.rdouble(1));
+        light.setPower(watt(1));
         light.setSerialNumber(omero.rtypes.rstring("serial number"));
         light.setLotNumber(omero.rtypes.rstring("lot number"));
         return light;
@@ -666,9 +597,9 @@ public class ModelMockFactory {
         laser.setFrequencyMultiplication(omero.rtypes.rint(1));
         laser.setPockelCell(omero.rtypes.rbool(false));
         laser.setTuneable(omero.rtypes.rbool(true));
-        laser.setWavelength(omero.rtypes.rdouble(500.1));
-        laser.setPower(omero.rtypes.rdouble(1));
-        laser.setRepetitionRate(omero.rtypes.rdouble(1));
+        laser.setWavelength(new LengthI(500.1, UnitsFactory.Laser_Wavelength));
+        laser.setPower(watt(1));
+        laser.setRepetitionRate(hz(1));
         return laser;
     }
 
@@ -713,7 +644,7 @@ public class ModelMockFactory {
      *
      * @param light
      *            The type of light source.
-     * @param withPump
+     * @param pump
      *            Pass the type of light source of the pump or <code>null</code>
      *            .
      * @return See above.
@@ -787,9 +718,7 @@ public class ModelMockFactory {
         planeInfo.setTheC(omero.rtypes.rint(c));
         planeInfo.setTheT(omero.rtypes.rint(t));
 
-        UnitsTime seconds = new UnitsTimeI();
-        seconds.setValue(rstring("s"));
-
+        UnitsTime seconds = UnitsTime.SECOND;
         Time deltaT = new TimeI();
         deltaT.setValue(0.5);
         deltaT.setUnit(seconds);
@@ -844,10 +773,16 @@ public class ModelMockFactory {
         }
         if (order == null)
             order = (DimensionOrder) types.get(0);
+
+        UnitsLength mm = UnitsLength.MILLIMETER;
+        Length mm1 = new LengthI();
+        mm1.setValue(1.0);
+        mm1.setUnit(mm);
+
         Pixels pixels = new PixelsI();
-        pixels.setPhysicalSizeX(omero.rtypes.rdouble(1.0));
-        pixels.setPhysicalSizeY(omero.rtypes.rdouble(1.0));
-        pixels.setPhysicalSizeZ(omero.rtypes.rdouble(1.0));
+        pixels.setPhysicalSizeX(mm1);
+        pixels.setPhysicalSizeY(mm1);
+        pixels.setPhysicalSizeZ(mm1);
         pixels.setSizeX(omero.rtypes.rint(sizeX));
         pixels.setSizeY(omero.rtypes.rint(sizeY));
         pixels.setSizeZ(omero.rtypes.rint(sizeZ));
@@ -865,7 +800,6 @@ public class ModelMockFactory {
         for (int z = 0; z < sizeZ; z++) {
             for (int t = 0; t < sizeT; t++) {
                 for (int c = 0; c < sizeC; c++) {
-                    PlaneInfo info = new PlaneInfoI();
                     pixels.addPlaneInfo(createPlaneInfo(z, t, c));
                 }
             }
@@ -884,7 +818,7 @@ public class ModelMockFactory {
     public Channel createChannel(int w) throws Exception {
         Channel channel = new ChannelI();
         LogicalChannel lc = new LogicalChannelI();
-        lc.setEmissionWave(omero.rtypes.rdouble(200.1));
+        lc.setEmissionWave(new LengthI(200.1, UnitsFactory.Channel_EmissionWavelength));
         List<IObject> types = pixelsService
                 .getAllEnumerations(ContrastMethod.class.getName());
         ContrastMethod cm = (ContrastMethod) types.get(0);
@@ -1084,8 +1018,6 @@ public class ModelMockFactory {
 
     /**
      * Returns an Image with a Roi and one Rect attached.
-     *
-     * @return
      */
     public Image createImageWithRoi() throws Exception {
         Roi roi = new RoiI();
@@ -1107,8 +1039,8 @@ public class ModelMockFactory {
      *             Thrown if an error occurred while encoding the image.
      */
     public void createImageFile(File file, String format) throws Exception {
-        Iterator writers = ImageIO.getImageWritersByFormatName(format);
-        ImageWriter writer = (ImageWriter) writers.next();
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
+        ImageWriter writer = writers.next();
         ImageOutputStream ios = ImageIO.createImageOutputStream(file);
         writer.setOutput(ios);
         writer.write(new BufferedImage(WIDTH, HEIGHT,

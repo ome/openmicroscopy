@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.TaskBarManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -41,10 +41,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Icon;
+
+
 
 //Third-party libraries
 import ij.IJ;
+import ij.ImagePlus;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
@@ -69,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -151,6 +157,9 @@ public class TaskBarManager
     
     /** Dialog to reconnect to server.*/
     private ScreenLoginDialog reconnectDialog;
+    
+    /** The actions for the help menu */
+    private Map<Integer, ActionListener> helpMenuActions;
     
     /**
      * Returns the icon for the splash screen if none set.
@@ -341,6 +350,10 @@ public class TaskBarManager
 			buffer.append(id);
 			buffer.append("]");
 			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
+			ImagePlus img = IJ.getImage();
+			img.setTitle(img.getTitle() + "--" + "OMERO ID:" + id);
+			img.setProperty(FileObject.OMERO_ID, id);
+			img.setProperty(FileObject.OMERO_GROUP, ctx.getGroupID());
 		} catch (Exception e) {
 			LogMessage message = new LogMessage();
 			message.println("Opening in image J");
@@ -360,6 +373,7 @@ public class TaskBarManager
 		if (evt == null) return;
 		switch (evt.getPlugin()) {
 			case LookupNames.IMAGE_J:
+			case LookupNames.IMAGE_J_IMPORT:
 				runAsImageJ(evt.getObjectID(), evt.getSecurityContext());
 				break;
 		}
@@ -730,49 +744,104 @@ public class TaskBarManager
         }
     }
 
+    /** Instantiates the ActionListeners for the help menu */
+    private void createHelpMenuActionListeners() {
+    	
+    	helpMenuActions = new HashMap<Integer, ActionListener>();
+    	
+    	ActionListener noOp = new ActionListener() {
+			public void actionPerformed(ActionEvent ae) { 
+				notAvailable(); 
+				}
+		};
+		
+    	helpMenuActions.put(TaskBarView.WELCOME_MI, noOp);
+    	
+    	helpMenuActions.put(TaskBarView.HELP_MI, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 help();
+			}
+		});
+    	
+    	helpMenuActions.put(TaskBarView.HOWTO_MI, noOp);
+    	
+    	helpMenuActions.put(TaskBarView.UPDATES_MI, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				softwareAbout();
+			}
+		});
+    	
+    	helpMenuActions.put(TaskBarView.ABOUT_MI, noOp);
+    	
+    	helpMenuActions.put(TaskBarView.HELP_BTN, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				 help();
+			}
+		});
+    	
+    	helpMenuActions.put(TaskBarView.COMMENT_MI, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendComment();
+			}
+		});
+    	
+    	helpMenuActions.put(TaskBarView.FORUM_MI, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				forum();
+			}
+		});
+    	
+    	helpMenuActions.put(TaskBarView.ACTIVITY_MI, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				((UserNotifierImpl)
+	            		container.getRegistry().getUserNotifier()).showActivity();
+			}
+		});
+    	
+    	helpMenuActions.put(TaskBarView.LOG_FILE_MI, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				logFile();
+			}
+		});
+    }
+    
+    /**
+     * Get the ActionListener for a specific help menu item
+     * @param id The Id of the action
+     * @return See above
+     */
+    public ActionListener getHelpMenuAction(int id) {
+    	return helpMenuActions.get(id);
+    }
+    
 	/**
 	 * Attaches the {@link #notAvailable() not-available} action to all buttons
 	 * whose functionality hasn't been implemented yet.
 	 */
 	private void attachMIListeners()
 	{
-		ActionListener noOp = new ActionListener() {
-			public void actionPerformed(ActionEvent ae) { notAvailable(); }
-		};
-		view.getButton(TaskBarView.WELCOME_MI).addActionListener(noOp);
+		view.getButton(TaskBarView.WELCOME_MI).addActionListener(
+				getHelpMenuAction(TaskBarView.WELCOME_MI));
 		view.getButton(TaskBarView.HELP_MI).addActionListener(
-				new ActionListener() {
-            public void actionPerformed(ActionEvent ae) { help(); }
-        });
-		view.getButton(TaskBarView.HOWTO_MI).addActionListener(noOp);
+				getHelpMenuAction(TaskBarView.HELP_MI));
+		view.getButton(TaskBarView.HOWTO_MI).addActionListener(
+				getHelpMenuAction(TaskBarView.HOWTO_MI));
 		view.getButton(TaskBarView.UPDATES_MI).addActionListener(
-                new ActionListener() {
-            public void actionPerformed(ActionEvent ae) { softwareAbout(); }
-        });
-		view.getButton(TaskBarView.ABOUT_MI).addActionListener(noOp);
+				getHelpMenuAction(TaskBarView.UPDATES_MI));
+		view.getButton(TaskBarView.ABOUT_MI).addActionListener(
+				getHelpMenuAction(TaskBarView.ABOUT_MI));
 		view.getButton(TaskBarView.HELP_BTN).addActionListener(
-				new ActionListener() {
-            public void actionPerformed(ActionEvent ae) { help(); }
-        });
+				getHelpMenuAction(TaskBarView.HELP_BTN));
 		view.getButton(TaskBarView.COMMENT_MI).addActionListener(
-                new ActionListener() {
-            public void actionPerformed(ActionEvent ae) { sendComment(); }
-        });
+				getHelpMenuAction(TaskBarView.COMMENT_MI));
 		view.getButton(TaskBarView.FORUM_MI).addActionListener(
-				new ActionListener() {
-            public void actionPerformed(ActionEvent ae) { forum(); }
-        });
+				getHelpMenuAction(TaskBarView.FORUM_MI));
 		view.getButton(TaskBarView.ACTIVITY_MI).addActionListener(
-				new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-            	((UserNotifierImpl)
-            		container.getRegistry().getUserNotifier()).showActivity();
-            }
-        });
+				getHelpMenuAction(TaskBarView.ACTIVITY_MI));
 		view.getButton(TaskBarView.LOG_FILE_MI).addActionListener(
-				new ActionListener() {
-            public void actionPerformed(ActionEvent ae) { logFile(); }
-        });
+				getHelpMenuAction(TaskBarView.LOG_FILE_MI));
 	}
 	
 	/**
@@ -894,6 +963,9 @@ public class TaskBarManager
 	TaskBarManager(Container c)
 	{
 		container = c;
+		// ActionListeneres for the help menu have to be created
+		// prior to the TaskBarView:
+		createHelpMenuActionListeners();
 		view = new TaskBarView(this, IconManager.getInstance(c.getRegistry()));
 		attachListeners();
 	}

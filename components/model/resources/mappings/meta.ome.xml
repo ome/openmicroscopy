@@ -13,6 +13,7 @@
 		<!-- Note: relates to Group in model-->
 		<properties>
 			<required name="name" type="string" unique="true"/><!-- unique required so not 'named' -->
+			<required name="ldap" type="boolean"/>
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
 			<map name="config" type="string"/>
 		</properties>
@@ -71,7 +72,7 @@
 		<properties>
 			<onemany name="sessions" type="ome.model.meta.Session" inverse="node"/>
 			<required name="uuid"  type="string" unique="true"/>
-			<required name="conn"  type="string"/>
+			<required name="conn"  type="text"/>
 			<required name="up"    type="timestamp"/>
 			<optional name="down"  type="timestamp"/>
 			<optional name="scale" type="int"/>
@@ -148,7 +149,7 @@
 			<to_child type="ome.model.meta.Experimenter"/>
 		</properties>
 	</link>
-	<type id="ome.model.meta.Namespace" annotated="true" named="true" described="true">
+	<type id="ome.model.meta.Namespace" global="true" annotated="true" named="true" described="true">
 		<!-- Note: Namespace is not in model-->
 		<properties>
 
@@ -167,6 +168,10 @@
                         values or false will lead to many clients
                         hiding the objects -->
 			<optional name="display" type="boolean"/>
+
+                        <!-- The human-readable text denoting this
+                        namespace -->
+			<optional name="displayName" type="string"/>
 
 		</properties>
 	</type>

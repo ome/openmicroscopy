@@ -38,12 +38,13 @@
 		    <src path="${src.dir}"/>
 		    <src path="${src.dest}"/>
 		    <src path="${basedir}/generated"/>
-                    <include name="pojos/**"/>
-                    <include name="omero/**"/>
-                    <include name="omero/model/**"/>
+		    <include name="pojos/**"/>
+		    <include name="omero/**"/>
+		    <include name="omero/model/**"/>
 		    <include name="ome/services/blitz/impl/CloseableServant.java"/>
 		    <include name="ome/services/blitz/util/ConvertToBlitzExceptionMessage.java"/>
 		    <include name="ome/services/blitz/util/ObjectFactoryRegistry.java"/>
+		    <include name="ome/formats/model/UnitsFactory.java"/>
 		</myjavac>
 		<myjavac>
 		    <src path="${src.dir}"/>

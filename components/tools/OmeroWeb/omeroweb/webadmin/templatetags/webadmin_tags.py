@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# 
-# 
-# Copyright (c) 2008 University of Dundee. 
-# 
+#
+#
+#
+# Copyright (c) 2008 University of Dundee.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
+#
 # Version: 1.0
 #
 
@@ -28,11 +28,11 @@ import logging
 
 from django import template
 from django.templatetags.static import PrefixNode
-from django.conf import settings
 
 register = template.Library()
 
 logger = logging.getLogger(__name__)
+
 
 @register.tag()
 def get_static_webadmin_prefix(parser, token):
@@ -51,37 +51,3 @@ def get_static_webadmin_prefix(parser, token):
 
     """
     return PrefixNode.handle_token(parser, token, "STATIC_WEBADMIN_URL")
-
-@register.assignment_tag
-def webadmin_options():
-    """
-    Functionality enabled in webadmin or not
-
-    Usage::
-
-        {% webadmin_options as [varname] %}
-
-    Example::
-
-        {% webadmin_options as admin_opts %}
-        {% if admin_opts.email %}
-            Email enabled
-        {% endif %}
-    """
-
-    options = {'email': False}
-
-    # TODO Remove DEVELOPMENT SETTING when feature finalised
-    if not settings.WEBADMIN_ENABLE_EMAIL:
-        return options
-
-    # Check that the appropriate web settings are available
-    if (settings.SERVER_EMAIL or settings.EMAIL_HOST or
-        settings.EMAIL_PORT):
-        if settings.EMAIL_USE_TLS:
-            if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
-                options['email'] = True
-        else:
-            options['email'] = True
-
-    return options

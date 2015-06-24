@@ -31,10 +31,11 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import omero.api.Save;
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.model.Dataset;
@@ -53,6 +54,9 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 public class HierarchyMoveDatasetTest extends AbstractServerTest {
@@ -151,8 +155,12 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Create commands to move and create the link in target
         List<Request> list = new ArrayList<Request>();
-        list.add(new Chgrp(DeleteServiceTest.REF_DATASET, d.getId().getValue(),
-                null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(d.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        list.add(dc);
 
         ProjectDatasetLink link = null;
         switch (linkLevel) {
@@ -241,7 +249,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
     public void testMoveDatasetWithSharedImage() throws Exception {
         String perms = "rw----";
         EventContext ctx = newUserAndGroup(perms);
@@ -269,8 +276,12 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        doChange(new Chgrp(DeleteServiceTest.REF_DATASET,
-                s1.getId().getValue(), null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(s1.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();
         ids.add(i1.getId().getValue());

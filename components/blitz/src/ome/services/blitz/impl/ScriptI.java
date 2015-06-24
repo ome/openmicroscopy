@@ -139,6 +139,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 ScriptProcessI process = new ScriptProcessI(factory, __current, ipPrx, ip, proc);
                 process.setApplicationContext(factory.context);
+                process.setHolder(factory.holder);
                 return process.getProxy();
             }
 
@@ -162,6 +163,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 ProcessorCallbackI callback = new ProcessorCallbackI(factory);
                 callback.setApplicationContext(factory.context);
+                callback.setHolder(factory.holder);
                 ProcessorPrx server = callback.activateAndWait(__current);
 
                 return server != null;

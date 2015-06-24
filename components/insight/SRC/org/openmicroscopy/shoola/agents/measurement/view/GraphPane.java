@@ -190,7 +190,7 @@ public class GraphPane
 		Map channels = model.getActiveChannels();
 		Entry entry;
 		Iterator i = channels.entrySet().iterator();
-		double value = 0;
+		double value = Double.MAX_VALUE;
 		int channel;
 		while (i.hasNext())
 		{
@@ -211,7 +211,7 @@ public class GraphPane
 		Map channels = model.getActiveChannels();
 		Entry entry;
 		Iterator i = channels.entrySet().iterator();
-		double value = 0;
+		double value = Double.MIN_VALUE;
 		int channel;
 		while (i.hasNext())
 		{
@@ -469,8 +469,8 @@ public class GraphPane
 	    Point p;
 	    StringBuilder b;
 	    MeasurementUnits units = model.getMeasurementUnits();
-	    double sx = units.getMicronsPixelX();
-	    double sy = units.getMicronsPixelX();
+	    double sx = units.getPixelSizeX().getValue();
+	    double sy = units.getPixelSizeX().getValue();
 	    while (i.hasNext()) {
             p = i.next();
             b = new StringBuilder();

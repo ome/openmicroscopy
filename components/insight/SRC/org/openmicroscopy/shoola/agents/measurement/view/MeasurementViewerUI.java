@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -72,8 +72,8 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import pojos.ChannelData;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -227,6 +227,9 @@ class MeasurementViewerUI
     /** The map holding the work-flow objects. */
     private Map<String, String> workflowsUIMap;
 
+    /** Flag if the graph and intensity panels are shown */
+    private boolean showGraph = true;
+    
     /**
      * Scrolls to the passed figure.
      * 
@@ -373,6 +376,8 @@ class MeasurementViewerUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+	    showGraph = !model.isBigImage() && hasStatsInfo();
+	    
 		workflowsUIMap = new HashMap<String, String>();
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
@@ -380,9 +385,11 @@ class MeasurementViewerUI
 		roiManager = new ObjectManager(this, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
-		graphPane = new GraphPane(this, controller, model);
-		intensityView = new IntensityView(this, model);
-		intensityResultsView = new IntensityResultsView(this, model);
+        if (showGraph) {
+            graphPane = new GraphPane(this, controller, model);
+            intensityView = new IntensityView(this, model);
+            intensityResultsView = new IntensityResultsView(this, model);
+        }
 		calcWizard = new CalculationWizard(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		DrawingCanvasView canvasView = model.getDrawingView();
@@ -457,10 +464,7 @@ class MeasurementViewerUI
         		IconManager.MEASUREMENT_TOOL);
         if (icon != null) setIconImage(icon.getImage());
         initComponents();
-        UnitsAction a = (UnitsAction)
-        	controller.getAction(MeasurementViewerControl.IN_MICRONS);
-    	a.setRefUnits(EditorUtil.transformSize(
-    			model.getPixelSizeX()).getUnits());
+        controller.getAction(MeasurementViewerControl.IN_MICRONS);
         setName("measurement viewer window");
     }
     
@@ -475,7 +479,7 @@ class MeasurementViewerUI
 			roiInspector.getComponentIcon(), roiInspector);
 		tabs.addTab(roiResults.getComponentName(),
                 roiResults.getComponentIcon(), roiResults);
-		if (!model.isBigImage()) {
+		if (showGraph) {
 			tabs.addTab(graphPane.getComponentName(),
 				graphPane.getComponentIcon(), graphPane);
 			tabs.addTab(intensityView.getComponentName(),
@@ -490,6 +494,19 @@ class MeasurementViewerUI
 		container.add(statusBar, BorderLayout.SOUTH);
 	}
 
+	/** 
+	 * Checks if all channels have stats
+	 * @return
+	 */
+	private boolean hasStatsInfo() {
+	    List<ChannelData> channels = model.getMetadata();
+	    for(ChannelData channel : channels) {
+	        if(!channel.hasStats())
+	            return false;
+	    }
+	    return true;
+	}
+	
     /** 
      * Displays the menu at the specified location if not already visible.
      * 
@@ -719,6 +736,8 @@ class MeasurementViewerUI
 	 */
 	boolean inGraphView()
 	{
+        if (!showGraph)
+            return false;
 		int index = tabs.getSelectedIndex();
 		if (index < 0) return false;
 		int n = tabs.getTabCount();
@@ -734,6 +753,8 @@ class MeasurementViewerUI
 	 */
 	boolean inIntensityView()
 	{
+        if (!showGraph)
+            return false;
 		int index = tabs.getSelectedIndex();
 		if (index < 0) return false;
 		int n = tabs.getTabCount();
@@ -750,6 +771,8 @@ class MeasurementViewerUI
 	 */
 	boolean inIntensityResultsView()
 	{
+        if (!showGraph)
+            return false;
 		return (tabs.getTitleAt(tabs.getSelectedIndex()).
 				equals(intensityResultsView.getComponentName()));
 	}
@@ -896,8 +919,10 @@ class MeasurementViewerUI
 		} else {
 			roiInspector.setSelectedFigures(roiShapeList);
 			roiManager.setSelectedFigures(roiShapeList, false);
-			intensityResultsView.onFigureSelected();
-			intensityView.onFigureSelected();
+            if (showGraph) {
+    			intensityResultsView.onFigureSelected();
+    			intensityView.onFigureSelected();
+			}
 			toolBar.onFigureSelected();
 			displayAnalysisResults();
 		}
@@ -940,8 +965,10 @@ class MeasurementViewerUI
 		} else {
 			roiInspector.setSelectedFigures(shapeList);
 			roiManager.setSelectedFigures(shapeList, true);
-			intensityResultsView.onFigureSelected();
-			intensityView.onFigureSelected();
+            if (showGraph) {
+    			intensityResultsView.onFigureSelected();
+    			intensityView.onFigureSelected();
+			}
 			toolBar.onFigureSelected();
 		}
 	}
@@ -1004,9 +1031,11 @@ class MeasurementViewerUI
 			roiManager.removeFigures(figures);
 			roiResults.refreshResults();
 			roiInspector.removeROIFigures(figures);
-			intensityView.onFigureRemoved();
-			intensityResultsView.removeAllResults();
-			graphPane.clearData();
+            if (showGraph) {
+    			intensityView.onFigureRemoved();
+    			intensityResultsView.removeAllResults();
+    			graphPane.clearData();
+			}
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
@@ -1566,6 +1595,8 @@ class MeasurementViewerUI
  	 */
 	void onAnalysed(boolean analyse)
 	{
+        if (!showGraph)
+            return;
 		graphPane.onAnalysed(analyse);
 		intensityView.onAnalysed(analyse);
 		toolBar.onAnalysed(analyse);
@@ -1602,6 +1633,8 @@ class MeasurementViewerUI
          * Opens a file chooser dialog and exports the graph as JPEG or PNG.
          */
         public void exportGraph() {
+            if (!showGraph)
+                return;
             List<FileFilter> filterList = new ArrayList<FileFilter>();
             filterList.add(new JPEGFilter());
             filterList.add(new PNGFilter());

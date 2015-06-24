@@ -25,7 +25,8 @@ Decorators for use with OMERO.web applications.
 
 import logging
 
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden, StreamingHttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseForbidden, StreamingHttpResponse
 
 from django.conf import settings
 from django.utils.http import urlencode
@@ -41,11 +42,13 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
+
 def parse_url(lookup_view):
     url = None
     try:
         if "args" in lookup_view.keys():
-            url = reverse(viewname=lookup_view["viewname"], args=lookup_view["args"])
+            url = reverse(viewname=lookup_view["viewname"],
+                          args=lookup_view["args"])
         else:
             url = reverse(viewname=lookup_view["viewname"])
         if "query_string" in lookup_view.keys():
@@ -61,6 +64,7 @@ def parse_url(lookup_view):
         logger.error("Reverse for '%s' not found." % lookup_view)
         raise NoReverseMatch("Reverse for '%s' not found." % lookup_view)
     return url
+
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -95,8 +99,8 @@ class login_required(object):
     """
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False, doConnectionCleanup=True, omero_group='-1',
-                 allowPublic=None):
+                 isGroupOwner=False, doConnectionCleanup=True,
+                 omero_group='-1', allowPublic=None):
         """
         Initialises the decorator.
         """
@@ -121,7 +125,7 @@ class login_required(object):
         return reverse(settings.LOGIN_VIEW)
     login_url = property(get_login_url)
 
-    def get_share_connection (self, request, conn, share_id):
+    def get_share_connection(self, request, conn, share_id):
         try:
             conn.SERVICE_OPTS.setOmeroShare(share_id)
             conn.getShare(share_id)
@@ -129,10 +133,11 @@ class login_required(object):
         except:
             logger.error('Error activating share.', exc_info=True)
             return None
-    
+
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
-        # we always need to clear any dirty 'omero.share' values from previous calls
+        # we always need to clear any dirty 'omero.share' values from previous
+        # calls
         conn.SERVICE_OPTS.setOmeroShare()
         if share_id is None:
             return None
@@ -149,7 +154,7 @@ class login_required(object):
         if request.is_ajax():
             logger.debug('Request is Ajax, returning HTTP 403.')
             return HttpResponseForbidden()
-        
+
         try:
             for lookup_view in settings.LOGIN_REDIRECT["redirect"]:
                 try:
@@ -165,12 +170,16 @@ class login_required(object):
         except KeyError:
             pass
         except Exception:
-            logger.error('Error while redirection on not logged in.', exc_info=True)
-        
+            logger.error(
+                'Error while redirection on not logged in.', exc_info=True)
+
         args = {'url': url}
-        
-        logger.debug('Request is not Ajax, redirecting to %s?%s' % (self.login_url, urlencode(args)))
-        return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
+
+        logger.debug(
+            'Request is not Ajax, redirecting to %s?%s'
+            % (self.login_url, urlencode(args)))
+        return HttpResponseRedirect(
+            '%s?%s' % (self.login_url, urlencode(args)))
 
     def on_logged_in(self, request, conn):
         """
@@ -179,7 +188,7 @@ class login_required(object):
         """
         if self.omero_group is not None:
             conn.SERVICE_OPTS.setOmeroGroup(self.omero_group)
-    
+
     def on_share_connection_prepared(self, request, conn_share):
         """Called whenever a share connection is successfully prepared."""
         pass
@@ -214,21 +223,40 @@ class login_required(object):
         """
         if settings.PUBLIC_ENABLED:
             if not hasattr(settings, 'PUBLIC_USER'):
-                logger.warn('OMERO.webpublic enabled but public user ' \
-                            '(omero.web.public.user) not set, disabling ' \
+                logger.warn('OMERO.webpublic enabled but public user '
+                            '(omero.web.public.user) not set, disabling '
                             'OMERO.webpublic.')
                 settings.PUBLIC_ENABLED = False
                 return False
             if not hasattr(settings, 'PUBLIC_PASSWORD'):
-                logger.warn('OMERO.webpublic enabled but public user ' \
-                            'password (omero.web.public.password) not set, ' \
+                logger.warn('OMERO.webpublic enabled but public user '
+                            'password (omero.web.public.password) not set, '
                             'disabling OMERO.webpublic.')
                 settings.PUBLIC_ENABLED = False
                 return False
             if self.allowPublic is None:
-                return settings.PUBLIC_URL_FILTER.search(request.path) is not None
+                return settings.PUBLIC_URL_FILTER.search(request.path) \
+                    is not None
             return self.allowPublic
         return False
+
+    def load_server_settings(self, conn, request):
+        """Loads Client preferences from the server."""
+        request.session.modified = True
+
+        if request.session.get('server_settings') is None:
+            request.session['server_settings'] = {'ui': {}}
+            orphans_name, orphans_desc = conn.getOrphanedContainerSettings()
+            request.session['server_settings']['ui'] = {
+                'orphans_name': orphans_name,
+                'orphans_desc': orphans_desc
+            }
+            request.session['server_settings']['ui']['dropdown_menu'] = \
+                conn.getDropdownMenuSettings()
+            request.session['server_settings']['email'] = \
+                conn.getEmailSettings()
+            request.session['server_settings']['initial_zoom_level'] = \
+                conn.getInitialZoomLevel()
 
     def get_public_user_connector(self):
         """
@@ -260,7 +288,7 @@ class login_required(object):
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration and use those credentials to
             # create a connection.
-            logger.debug('OMERO.webpublic enabled, attempting to login ' \
+            logger.debug('OMERO.webpublic enabled, attempting to login '
                          'with configuration supplied credentials.')
             if server_id is None:
                 server_id = settings.PUBLIC_SERVER_ID
@@ -271,23 +299,24 @@ class login_required(object):
             # Try and use a cached OMERO.webpublic user session key.
             public_user_connector = self.get_public_user_connector()
             if public_user_connector is not None:
-                logger.debug('Attempting to use cached OMERO.webpublic ' \
+                logger.debug('Attempting to use cached OMERO.webpublic '
                              'connector: %r' % public_user_connector)
                 connection = public_user_connector.join_connection(
-                        self.useragent)
+                    self.useragent)
                 if connection is not None:
                     request.session['connector'] = public_user_connector
-                    logger.debug('Attempt to use cached OMERO.web public ' \
+                    logger.debug('Attempt to use cached OMERO.web public '
                                  'session key successful!')
                     return connection
-                logger.debug('Attempt to use cached OMERO.web public ' \
+                logger.debug('Attempt to use cached OMERO.web public '
                              'session key failed.')
             # We don't have a cached OMERO.webpublic user session key,
             # create a new connection based on the credentials we've been
             # given.
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
-                    self.useragent, username, password, is_public=True, userip=get_client_ip(request))
+                self.useragent, username, password, is_public=True,
+                userip=get_client_ip(request))
             request.session['connector'] = connector
             self.set_public_user_connector(connector)
         elif connection is not None:
@@ -311,9 +340,7 @@ class login_required(object):
         logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
         logger.debug('Connector: %s' % connector)
-        
-        
-        
+
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
             # instead we'll depend on the request.session and request.REQUEST
@@ -338,8 +365,8 @@ class login_required(object):
         else:
             # We have an OMERO session key in the current request use it
             # to try join an existing connection / OMERO session.
-            logger.debug('Have OMERO session key %s, attempting to join...' % \
-                    omero_session_key)
+            logger.debug('Have OMERO session key %s, attempting to join...'
+                         % omero_session_key)
             connector.user_id = None
             connector.omero_session_key = omero_session_key
             connection = connector.join_connection(self.useragent, userip)
@@ -369,7 +396,7 @@ class login_required(object):
             logger.debug('Creating connection with username and password...')
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
-                    self.useragent, username, password, userip=userip)
+                self.useragent, username, password, userip=userip)
             session['connector'] = connector
             return connection
 
@@ -415,32 +442,36 @@ class login_required(object):
                 try:
                     conn = ctx.get_connection(server_id, request)
                 except Exception, x:
-                    logger.error('Error retrieving connection.', exc_info=True)
+                    logger.error(
+                        'Error retrieving connection.', exc_info=True)
                     error = str(x)
                 else:
-                    # various configuration & checks only performed on new 'conn'
+                    # various configuration & checks only performed on new
+                    # 'conn'
                     if conn is None:
                         return ctx.on_not_logged_in(request, url, error)
                     else:
                         ctx.on_logged_in(request, conn)
                     ctx.verify_is_admin(conn)
                     ctx.verify_is_group_owner(conn, kwargs.get('gid'))
+                    ctx.load_server_settings(conn, request)
 
                     share_id = kwargs.get('share_id')
-                    conn_share = ctx.prepare_share_connection(request, conn, share_id)
+                    conn_share = ctx.prepare_share_connection(
+                        request, conn, share_id)
                     if conn_share is not None:
                         ctx.on_share_connection_prepared(request, conn_share)
                         kwargs['conn'] = conn_share
                     else:
                         kwargs['conn'] = conn
 
-                    #kwargs['error'] = request.REQUEST.get('error')
+                    # kwargs['error'] = request.REQUEST.get('error')
                     kwargs['url'] = url
 
             retval = f(request, *args, **kwargs)
             try:
-                logger.debug('Doing connection cleanup? %s' % \
-                        doConnectionCleanup)
+                logger.debug(
+                    'Doing connection cleanup? %s' % doConnectionCleanup)
                 if doConnectionCleanup:
                     if conn is not None and conn.c is not None:
                         for v in conn._proxies.values():
@@ -451,16 +482,18 @@ class login_required(object):
             return retval
         return update_wrapper(wrapped, f)
 
-        
+
 class render_response(object):
     """
-    This decorator handles the rendering of view methods to HttpResponse. It expects
-    that wrapped view methods return a dict. This allows:
-    - The template to be specified in the method arguments OR within the view method itself
+    This decorator handles the rendering of view methods to HttpResponse. It
+    expects that wrapped view methods return a dict. This allows:
+    - The template to be specified in the method arguments OR within the view
+      method itself
     - The dict to be returned as json if required
-    - The request is passed to the template context, as required by some tags etc
-    - A hook is provided for adding additional data to the context, from the L{omero.gateway.BlitzGateway}
-        or from the request.
+    - The request is passed to the template context, as required by some tags
+      etc
+    - A hook is provided for adding additional data to the context, from the
+      L{omero.gateway.BlitzGateway} or from the request.
     """
 
     # To make django's method_decorator work, this is required until
@@ -476,12 +509,13 @@ class render_response(object):
         """ Hook for adding additional data to the context dict """
         pass
 
-
     def __call__(ctx, f):
         """ Here we wrap the view method f and return the wrapped method """
 
         def wrapper(request, *args, **kwargs):
-            """ Wrapper calls the view function, processes the result and returns HttpResponse """
+            """
+            Wrapper calls the view function, processes the result and returns
+            HttpResponse """
 
             # call the view function itself...
             context = f(request, *args, **kwargs)
@@ -495,7 +529,8 @@ class render_response(object):
             template = kwargs.get('template', template)
             logger.debug("Rendering template: %s" % template)
 
-            # allows us to return the dict as json  (NB: BlitzGateway objects don't serialize)
+            # allows us to return the dict as json  (NB: BlitzGateway objects
+            # don't serialize)
             if template is None or template == 'json':
                 return HttpJsonResponse(context)
             else:
@@ -505,4 +540,3 @@ class render_response(object):
                 c = RequestContext(request, context)
                 return HttpResponse(t.render(c))
         return update_wrapper(wrapper, f)
-

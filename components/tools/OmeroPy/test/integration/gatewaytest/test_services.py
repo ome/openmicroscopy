@@ -4,7 +4,7 @@
 """
    gateway tests - Wrapped service methods
 
-   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -72,9 +72,11 @@ class TestServices (object):
         try:
             # Make the group writable so Author can delete the annotation
             g = img.details.group
-            admin = gatewaywrapper.gateway.getAdminService()
+            chmod = omero.cmd.Chmod2(
+                targetObjects={'ExperimenterGroup': [g.id.val]})
             perms = str(img.details.permissions)
-            admin.changePermissions(g, omero.model.PermissionsI('rwrw--'))
+            chmod.permissions = 'rwrw--'
+            gatewaywrapper.gateway.c.submit(chmod)
             img = gatewaywrapper.gateway.getObject('image', imgid)
             g = img.details.group
             assert g.details.permissions.isGroupWrite()
@@ -95,9 +97,9 @@ class TestServices (object):
             # annotation that author can't delete, so kill is as admin
             img = gatewaywrapper.gateway.getObject('image', imgid)
             img.removeAnnotations(self.TESTANN_NS)
-            # Revert group permissions and remove user from group
-            admin = gatewaywrapper.gateway.getAdminService()
-            admin.changePermissions(g, omero.model.PermissionsI(perms))
+            # Revert group permissions
+            chmod.permissions = perms
+            gatewaywrapper.gateway.c.submit(chmod)
 
 
 class TestTables (object):

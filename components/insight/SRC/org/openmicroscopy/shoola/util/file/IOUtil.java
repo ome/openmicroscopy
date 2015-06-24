@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.file.IOUtil 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.file;
 
-
-//Java imports
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -43,11 +41,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-//Third-party libraries
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
 import org.openmicroscopy.shoola.util.filter.file.WordFilter;
@@ -289,28 +285,34 @@ public class IOUtil
 	    File[] entries = directory.listFiles();
 	    byte[] buffer = new byte[4096]; // Create a buffer for copying
 	    int bytesRead;
-	    FileInputStream in;
+	    FileInputStream in = null;
 	    File f;
 	    for (int i = 0; i < entries.length; i++) {
-	        f = entries[i];
-	        if (f.isHidden())
-	            continue;
-	        if (f.isDirectory()) {
-	            zipDir(f, out, f.getName());
-	            continue;
-	        }
-	        in = new FileInputStream(f); // Stream to read file
-	        String zipName = f.getName();
-	        if (!StringUtils.isEmpty(parentDirectoryName)) {
-	            zipName = FilenameUtils.concat(parentDirectoryName, zipName);
-	        }
-	        out.putNextEntry(new ZipEntry(zipName)); // Store entry
-	        while ((bytesRead = in.read(buffer)) != -1)
-	            out.write(buffer, 0, bytesRead);
-	        out.closeEntry();
-	        in.close();
+	        try {
+	            f = entries[i];
+	            if (f.isHidden())
+	                continue;
+	            if (f.isDirectory()) {
+	                zipDir(f, out, f.getName());
+	                continue;
+	            }
+	            in = new FileInputStream(f); // Stream to read file
+	            String zipName = f.getName();
+	            if (!CommonsLangUtils.isEmpty(parentDirectoryName)) {
+	                zipName = FilenameUtils.concat(parentDirectoryName, zipName);
+	            }
+	            out.putNextEntry(new ZipEntry(zipName)); // Store entry
+	            while ((bytesRead = in.read(buffer)) != -1)
+	                out.write(buffer, 0, bytesRead);
+	           
+            } catch (Exception e) {
+                throw new Exception("Failure while creating zip.", e);
+            } finally {
+                if (out != null) out.closeEntry();
+                if (in != null) in.close();
+            }
 	    }
-	        }
+	}
 
 	/**
 	 * Makes the zip.
@@ -329,7 +331,7 @@ public class IOUtil
         //Check if the name already has the extension
         String extension = FilenameUtils.getExtension(zip.getName());
         String name = zip.getName();
-        if (StringUtils.isEmpty(extension) ||
+        if (CommonsLangUtils.isEmpty(extension) ||
                 !ZIP_EXTENSION.equals("."+extension)) {
             name += ZIP_EXTENSION;
         }
@@ -411,6 +413,7 @@ public class IOUtil
 				values.put(entry.getName(), zfile.getInputStream(entry));
 			}
 		}
+		zfile.close();
 	}
 
 }

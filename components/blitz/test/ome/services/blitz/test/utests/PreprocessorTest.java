@@ -54,6 +54,7 @@ import omero.cmd.graphs.Preprocessor;
  * @since 5.0
  */
 @Test(groups = {"fs"})
+@SuppressWarnings("deprecation")
 public class PreprocessorTest extends Preprocessor {
 
     private final Ice.Communicator ic = Ice.Util.initialize();

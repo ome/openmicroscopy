@@ -37,7 +37,7 @@
     {% include "webgateway/base/includes/script_src_popup.html" %}
     {% include "webgateway/base/includes/jquery-ui.html" %}
 
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form-3.51.js" %}"></script>
 
     <script>
         $(function(){
@@ -98,7 +98,7 @@
         top: 12px;
         left: 100px;
     }
-    #zRangeSlider, #img_size_slider {
+    .ui-slider {
         border: 1px solid #aaa;
         height: 6px;
         width: 150px;
@@ -107,6 +107,8 @@
         border: 1px solid #aaa;
         background: #727C86;
         border-radius: 3px;
+        top: -.4em !important;
+        transition: left 0s;
     }
     #middle_header {
         height: 35px;
@@ -148,7 +150,7 @@
 
 <div id="script_content">
 
-<form id="script_form" method="post" action="{% url 'script_run' scriptId %}">
+<form id="script_form" method="post" action="{% url 'script_run' scriptId %}">{% csrf_token %}
 
     <div style="margin-left:auto; margin-right:auto; width:500px">
     {% block script_form %}
@@ -194,7 +196,7 @@
     <div class="footer">
         <div style="float:right">
             <a href="#" onClick="self.close()">Cancel</a>
-            <input id="submit" type="submit" value="Create Figure" />
+            <input id="submit" type="submit" value="{% block submit_text %}Create Figure{% endblock %}" />
         </div>
         <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' scriptId %}');">View Script</a>
 
@@ -206,6 +208,7 @@
 
 <!---------------------------- FIGURE PREVIEW ---------------------->
 
+{% block figure_preview_container %}
 <table id="figure_table">
     <tr><td>
         <div style="padding:10px">
@@ -216,6 +219,8 @@
         </div>
     </td></tr>
 </table>
+{% endblock %}
+
 
 </div>
 {% endblock %}

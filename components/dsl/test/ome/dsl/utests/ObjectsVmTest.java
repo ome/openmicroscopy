@@ -47,24 +47,6 @@ public class ObjectsVmTest extends TestCase {
     }
 
     @Test
-    public void testSimple() {
-        sr.parse();
-        List<SemanticType> list = sr.process();
-        log.info("Results of parse:" + list);
-        for (Iterator<SemanticType> it = list.iterator(); it.hasNext();) {
-            SemanticType st = (SemanticType) it.next();
-            VelocityHelper vh = new VelocityHelper();
-            vh.put("type", st);
-            Map<String, String> h = new HashMap<String, String>();
-            h.put("test", "this was a dynamic key test");
-            vh.put("test", h);
-            String s = vh.invoke(DSLTask.getStream("ome/dsl/object.vm"));
-            log.info("Results of invoke:" + s);
-        }
-
-    }
-
-    @Test
     public void testListItem() {
         sr.parse();
         List<SemanticType> list = sr.process();
@@ -79,7 +61,7 @@ public class ObjectsVmTest extends TestCase {
         List<SemanticType> list = sr.process();
         Map<String, SemanticType> map = toMap(list);
         int counts = 0;
-        
+
         SemanticType ann = map.get("ome.model.annotations.Annotation");
         for (Property property: ann.getPropertyClosure()) {
             if (isDetailsField(property)) {
@@ -91,7 +73,7 @@ public class ObjectsVmTest extends TestCase {
                 counts++;
             }
         }
-        
+
         SemanticType boo= map.get("ome.model.annotations.BooAnnotation");
         for (Property property: boo.getPropertyClosure()) {
             if (isDetailsField(property)) {
@@ -107,17 +89,17 @@ public class ObjectsVmTest extends TestCase {
                 counts++;
             }
         }
-        
+
         assertEquals(3, counts);
     }
-    
+
     @Test
     public void testJobs() {
         sr.parse();
         List<SemanticType> list = sr.process();
         Map<String, SemanticType> map = toMap(list);
         int counts = 0;
-        
+
         SemanticType job = map.get("ome.model.jobs.Job");
         for (Property property: job.getPropertyClosure()) {
             if (isDetailsField(property)) {
@@ -129,7 +111,7 @@ public class ObjectsVmTest extends TestCase {
                 counts++;
             }
         }
-        
+
         SemanticType script= map.get("ome.model.jobs.ScriptJob");
         for (Property property: script.getPropertyClosure()) {
             if (isDetailsField(property)) {
@@ -145,7 +127,7 @@ public class ObjectsVmTest extends TestCase {
                 counts++;
             }
         }
-        
+
         assertEquals(3, counts);
     }
 
@@ -156,7 +138,7 @@ public class ObjectsVmTest extends TestCase {
         Map<String, SemanticType> map = toMap(list);
         SemanticType image = map.get("ome.model.core.Image");
         SemanticType pixels = map.get("ome.model.core.Pixels");
-        
+
         // Image
         boolean found = false;
         for (Property p : image.getClassProperties()) {
@@ -169,7 +151,7 @@ public class ObjectsVmTest extends TestCase {
             }
         }
         assertTrue(found);
-        
+
         // Now for pixels
         found = false;
         for (Property p : pixels.getClassProperties()) {

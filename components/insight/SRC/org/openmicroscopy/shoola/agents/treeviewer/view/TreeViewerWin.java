@@ -51,6 +51,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -63,6 +64,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -408,7 +410,8 @@ class TreeViewerWin
         menu.add(item);
         JMenu viewMenu;
         switch (TreeViewerAgent.runAsPlugin()) {
-			case TreeViewer.IMAGE_J:
+			case LookupNames.IMAGE_J:
+			case LookupNames.IMAGE_J_IMPORT:
 				a = controller.getAction(TreeViewerControl.VIEW);
 		        item = new JMenuItem(a);
 		        item.setText(a.getActionName());
@@ -423,7 +426,7 @@ class TreeViewerWin
 				menuItems.add(item);
 				menu.add(viewMenu);
 				break;
-			case TreeViewer.KNIME:
+			case LookupNames.KNIME:
 				a = controller.getAction(TreeViewerControl.VIEW);
 		        item = new JMenuItem(a);
 		        item.setText(a.getActionName());

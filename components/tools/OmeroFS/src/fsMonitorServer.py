@@ -9,7 +9,7 @@
 """
 import logging
 
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from fsMonitor import MonitorFactory
 
@@ -52,7 +52,7 @@ class MonitorServerI(monitors.MonitorServer):
 
     def createMonitor(self, mType, eTypes, pMode, pathString, whitelist,
                       blacklist, timeout, blockSize, ignoreSysFiles,
-                      ignoreDirEvents, proxy, current=None):
+                      ignoreDirEvents, platformCheck, proxy, current=None):
         """
             Create a the Monitor for a given path.
 
@@ -79,7 +79,7 @@ class MonitorServerI(monitors.MonitorServer):
                 timeout : float
                     A timeout used by some types of monitor.
 
-                blockSize : intt
+                blockSize : int
                     Number of events to pack into one notification.
 
                 ignoreSysFiles : boolean
@@ -87,6 +87,9 @@ class MonitorServerI(monitors.MonitorServer):
 
                 ignoreDirEvents : boolean
                     Flag. If true directory events are ignored
+
+                platformCheck : boolean
+                    Flag. If true platform check is strict
 
                 proxy :
                     A proxy to be informed of events
@@ -107,8 +110,8 @@ class MonitorServerI(monitors.MonitorServer):
             # changed.
             self.monitors[monitorId] = MonitorFactory.createMonitor(
                 mType, eTypes, pMode, pathString, whitelist, blacklist,
-                timeout, blockSize, ignoreSysFiles, ignoreDirEvents, self,
-                monitorId)
+                timeout, blockSize, ignoreSysFiles, ignoreDirEvents,
+                platformCheck, self, monitorId)
 
         except Exception, e:
             self.log.exception('Failed to create monitor: ')

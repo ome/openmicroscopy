@@ -20,21 +20,24 @@ import stat
 import platform
 import datetime
 
+from glob import glob
 from path import path
 
 import omero
 import omero.config
 
 from omero.cli import CLI
-from omero.cli import BaseControl
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
+from omero.cli import UserGroupControl
 
-from omero.plugins.prefs import with_config
+from omero.plugins.prefs import \
+    WriteableConfigControl, with_config, with_rw_config
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
+from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
 
 try:
@@ -59,11 +62,13 @@ Configuration properties:
  omero.windows.user
  omero.windows.pass
  omero.windows.servicename
+ omero.web.application_server.port
+ omero.web.server_list
 
 """ + "\n" + "="*50 + "\n"
 
 
-class AdminControl(BaseControl):
+class AdminControl(WriteableConfigControl, UserGroupControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -76,7 +81,8 @@ class AdminControl(BaseControl):
             if i >= 0:
                 f = line[i+l:]
                 return self._complete_file(f)
-        return BaseControl._complete(self, text, line, begidx, endidx)
+        return WriteableConfigControl._complete(
+            self, text, line, begidx, endidx)
 
     def _configure(self, parser):
         sub = parser.sub()
@@ -156,6 +162,54 @@ already be running. This may automatically restart some server components.""")
             "--no-logs", action="store_true",
             help="Skip log parsing")
 
+        email = Action(
+            "email",
+            """Send administrative emails to users.
+
+Administrators can contact OMERO users and groups of
+users based on configured email settings. A subject
+and some text are required. If no text is passed on
+the command-line or if "-" is passed, then text will
+be read from the standard input.
+
+Examples:
+
+  # Send the contents of a file to everyone
+  # except inactive users.
+  bin/omero admin email --everyone Subject < some_file.text
+
+  # Include inactive users in the email
+  bin/omero admin email --everyone --inactive ...
+
+  # Contact a single group
+  bin/omero admin email --group-name system \\
+                        Subject short message
+
+  # Contact a list of users
+  bin/omero admin email --user-id 10 \\
+                        --user-name ralph \\
+                        Subject ...
+
+            """).parser
+        email.add_argument(
+            "subject",
+            help="Required subject for the mail")
+        email.add_argument(
+            "text", nargs="*",
+            help=("All further arguments are combined "
+                  "to form the body. stdin if none or '-' "
+                  "is given."))
+        email.add_argument(
+            "--everyone", action="store_true",
+            help=("Contact everyone in the system regardless "
+                  "of other arguments."))
+        email.add_argument(
+            "--inactive", action="store_true",
+            help="Do not filter inactive users.")
+        self.add_user_and_group_arguments(email,
+                                          action="append",
+                                          exclusive=False)
+
         Action(
             "jvmcfg",
             "Reset JVM settings based on the current system")
@@ -220,15 +274,15 @@ dt_socket,address=8787,suspend=y" \\
             "--batch", default="500",
             help="Number of items to index before reporting status")
         reindex.add_argument(
-            "--merge_factor", default="100",
+            "--merge-factor", "--merge_factor", default="100",
             help=("Higher means merge less frequently. "
                   "Faster but needs more RAM"))
         reindex.add_argument(
-            "--ram_buffer_size", default="1000",
+            "--ram-buffer-size", "--ram_buffer_size", default="1000",
             help=("Number of MBs to use for the indexing. "
                   "Higher is faster."))
         reindex.add_argument(
-            "--lock_factory", default="native",
+            "--lock-factory", "--lock_factory", default="native",
             help=("Choose Lucene lock factory by class or "
                   "'native', 'simple', 'none'"))
 
@@ -266,20 +320,18 @@ dt_socket,address=8787,suspend=y" \\
             "ports",
             """Allows modifying the ports from a standard OMERO install
 
-To have two OMERO's running on the same machine, several ports must be
-modified from their default values.
-Internally, this command uses the omero.install.change_ports module.
-Changing  the ports on a running server is usually not what you want and
-will be prevented. Use --skipcheck to change the ports anyway.
+To have multiple OMERO servers running on the same machine several ports
+must be modified from their defaults. Changing the ports on a running server
+will be prevented, use --skipcheck to override this.
 
 Examples:
 
-    %(prog)s --prefix=1                             # sets ports to: 14061, \
-14063, 14064
-    %(prog)s --prefix=1 --revert                    # sets ports back to: \
-4061, 4063, 4064
-    %(prog)s --registry=4444 --tcp=5555 --ssl=6666  # sets ports to: 4444 \
-5555  6666
+  # Set ports to registry:14061, tcp:14063, ssl:14064, web:14080
+  %(prog)s --prefix=1
+  # Set ports back to defaults: 4061, 4063, 4064, 4080
+  %(prog)s --prefix=1 --revert
+  # Set ports to: 4444, 5555, 6666, 7777
+  %(prog)s --registry=4444 --tcp=5555 --ssl=6666 --webserver=7777
 
 """).parser
         ports.add_argument(
@@ -295,6 +347,9 @@ Examples:
             "--ssl", default="4064",
             help="The ssl port to be used by Glacier2 (default: %(default)s)")
         ports.add_argument(
+            "--webserver", default="4080",
+            help="The web application server port (default: %(default)s)")
+        ports.add_argument(
             "--revert", action="store_true",
             help="Used to rollback from the given settings to the defaults")
         ports.add_argument(
@@ -307,9 +362,9 @@ Examples:
 
         cleanse = Action("cleanse", """Remove binary data files from OMERO
 
-Deleting an object from OMERO currently does not remove the binary data. Use
-this command either manually or in a cron job periodically to remove Pixels
-and other data.
+Deleting an object from OMERO currently may not remove all the binary data.
+Use this command either manually or in a cron job periodically to remove
+Pixels, empty directories, and other data.
 
 This is done by checking that for all the files in the given directory, a
 matching entry exists on the server. THE /OMERO DIRECTORY MUST MATCH THE
@@ -556,6 +611,10 @@ present, the user will enter a console""")
         else:
             return "master"
 
+    def _get_grid_dir(self):
+        """Return path to grid directory containing configuration files"""
+        return self.ctx.dir / "etc" / "grid"
+
     def _cmd(self, *command_arguments):
         """
         Used to generate an icegridadmin command line argument list
@@ -579,7 +638,7 @@ present, the user will enter a console""")
             __d__ = "default.xml"
             if self._isWindows():
                 __d__ = "windefault.xml"
-            descript = self.ctx.dir / "etc" / "grid" / __d__
+            descript = self._get_grid_dir() / __d__
             self.ctx.err("No descriptor given. Using %s"
                          % os.path.sep.join(["etc", "grid", __d__]))
         return descript
@@ -641,6 +700,8 @@ present, the user will enter a console""")
 
         if 0 == self.status(args, node_only=True):
             self.ctx.die(876, "Server already running")
+
+        self.check_lock(config)
 
         self._initDir()
         # Do a check to see if we've started before.
@@ -870,13 +931,18 @@ present, the user will enter a console""")
     def jvmcfg(self, args, config, verbose=True):
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
-        templates = self.ctx.dir / "etc" / "grid" / "templates.xml"
-        generated = self.ctx.dir / "etc" / "grid" / "generated.xml"
+        templates = self._get_grid_dir() / "templates.xml"
+        generated = self._get_grid_dir() / "generated.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
         template_xml = XML(templates.text())
-        rv = adjust_settings(config, template_xml)
+        try:
+            rv = adjust_settings(config, template_xml)
+        except Exception, e:
+            self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
+                         % (templates, e))
+
         if verbose:
             self.ctx.out("JVM Settings:")
             self.ctx.out("============")
@@ -899,16 +965,13 @@ present, the user will enter a console""")
         config2.XML = None  # Prevent re-saving
         config2.close()
         config.save()
+        return rv
 
     @with_config
     def diagnostics(self, args, config):
-        self.check_access()
-        config = config.as_map()
-        omero_data_dir = '/OMERO'
-        try:
-            omero_data_dir = config['omero.data.dir']
-        except KeyError:
-            pass
+        self.check_access(os.R_OK)
+        memory = self.jvmcfg(args, config, verbose=False)
+        omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
         # gettempdir returns ~/omero/tmp/omero_%NAME/%PROCESS
@@ -1088,42 +1151,6 @@ OMERO Diagnostics %s
                     win32service.CloseServiceHandle(hsc)
                 win32service.CloseServiceHandle(hscm)
 
-            # List SSL & TCP ports of deployed applications
-            self.ctx.out("")
-            p = self.ctx.popen(self._cmd("-e", "application list"))  # popen
-            rv = p.wait()
-            io = p.communicate()
-            if rv != 0:
-                self.ctx.out("Cannot list deployed applications.")
-                self.ctx.dbg("""
-                Stdout:\n%s
-                Stderr:\n%s
-                """ % io)
-            else:
-                applications = io[0].split()
-                applications.sort()
-                for s in applications:
-                    p2 = self.ctx.popen(
-                        self._cmd("-e", "application describe %s" % s))
-                    io2 = p2.communicate()
-                    if io2[1]:
-                        self.ctx.err(io2[1].strip())
-                    elif io2[0]:
-                        ssl_port, tcp_port = get_ports(io2[0])
-                        item("%s" % s, "SSL port")
-                        if not ssl_port:
-                            self.ctx.err("Not found")
-                        else:
-                            self.ctx.out("%s" % ssl_port)
-
-                        item("%s" % s, "TCP port")
-                        if not tcp_port:
-                            self.ctx.err("Not found")
-                        else:
-                            self.ctx.out("%s" % tcp_port)
-                    else:
-                        self.ctx.err("UNKNOWN!")
-
         if not args.no_logs:
 
             def log_dir(log, cat, cat2, knownfiles):
@@ -1202,14 +1229,45 @@ OMERO Diagnostics %s
         env_val("OMERO_HOME")
         env_val("OMERO_NODE")
         env_val("OMERO_MASTER")
-        env_val("OMERO_TEMPDIR")
+        env_val("OMERO_USERDIR")
+        env_val("OMERO_TMPDIR")
         env_val("PATH")
         env_val("PYTHONPATH")
         env_val("ICE_HOME")
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
 
+        # List SSL & TCP ports of deployed applications
         self.ctx.out("")
+        p = self.ctx.popen(self._cmd("-e", "application list"))  # popen
+        rv = p.wait()
+        io = p.communicate()
+        if rv != 0:
+            self.ctx.out("Cannot list deployed applications.")
+            self.ctx.dbg("""
+            Stdout:\n%s
+            Stderr:\n%s
+            """ % io)
+        else:
+            applications = io[0].split()
+            applications.sort()
+            for s in applications:
+                def port_val(port_type, value):
+                    item("%s %s port" % (s, port_type),
+                         "%s" % value or "Not found")
+                    self.ctx.out("")
+                p2 = self.ctx.popen(
+                    self._cmd("-e", "application describe %s" % s))
+                io2 = p2.communicate()
+                if io2[1]:
+                    self.ctx.err(io2[1].strip())
+                elif io2[0]:
+                    ssl_port, tcp_port = get_ports(io2[0])
+                    port_val("SSL", ssl_port)
+                    port_val("TCP", tcp_port)
+                else:
+                    self.ctx.err("UNKNOWN!")
+
         for dir_name, dir_path, dir_size in (
                 ("data", omero_data_dir, ""),
                 ("temp", omero_temp_dir, True)):
@@ -1218,15 +1276,85 @@ OMERO Diagnostics %s
             if dir_size and dir_path_exists:
                 dir_size = self.getdirsize(omero_temp_dir)
                 dir_size = "   (Size: %s)" % dir_size
-            self.ctx.out("OMERO %s dir: '%s'\tExists? %s\tIs writable? %s%s" %
-                         (dir_name, dir_path, dir_path_exists, is_writable,
+            item("OMERO %s dir" % dir_name, "'%s'" % dir_path)
+            self.ctx.out("Exists? %s\tIs writable? %s%s" %
+                         (dir_path_exists, is_writable,
                           dir_size))
 
+        # JVM settings
+        self.ctx.out("")
+        for k, v in sorted(memory.items()):
+            settings = v.pop(0)
+            sb = " ".join([str(x) for x in v])
+            if str(settings) != "Settings()":
+                sb += " # %s" % settings
+            item("JVM settings", " %s" % (k[0].upper() + k[1:]))
+            self.ctx.out("%s" % sb)
+
+        # OMERO.web diagnostics
+        self.ctx.out("")
         from omero.plugins.web import WebControl
         try:
             WebControl().status(args)
         except:
             self.ctx.out("OMERO.web not installed!")
+
+    def email(self, args):
+        client = self.ctx.conn(args)
+        iadmin = client.sf.getAdminService()
+        users, groups = self.get_users_groups(args, iadmin)
+
+        if not args.text:
+            args.text = ("-")
+
+        text = " ".join(args.text)
+        if text == "-":
+            stdin = FileType("r")("-")
+            text = stdin.read()
+
+        if args.everyone:
+            if users or groups:
+                self.ctx.err("Warning: users and groups ignored")
+
+        req = omero.cmd.SendEmailRequest(
+            subject=args.subject,
+            body=text,
+            userIds=users,
+            groupIds=groups,
+            everyone=args.everyone,
+            inactive=args.inactive)
+
+        try:
+            cb = client.submit(
+                req, loops=10, ms=500,
+                failonerror=True, failontimeout=True)
+        except omero.CmdError, ce:
+            err = ce.err
+            if err.name == "no-body" and err.parameters:
+                sb = err.parameters.items()
+                sb = ["%s:%s" % (k, v) for k, v in sb]
+                sb = "\n".join(sb)
+                self.ctx.die(12, sb)
+            self.ctx.die(13, "Failed to send emails:\n%s" % err)
+
+        try:
+            rsp = cb.getResponse()
+            self.ctx.out(
+                "Successfully sent %s of %s emails" % (
+                    rsp.success, rsp.total
+                ))
+            if rsp.invalidusers:
+                self.ctx.out(
+                    "%s users had no email address" % len(
+                        rsp.invalidusers)
+                )
+            if rsp.invalidemails:
+                self.ctx.out(
+                    "%s email addresses were invalid" % len(
+                        rsp.invalidemails)
+                )
+        finally:
+            cb.close(True)
 
     def getdirsize(self, directory):
         total = 0
@@ -1279,22 +1407,45 @@ OMERO Diagnostics %s
         var = self.ctx.dir / 'var'
         if not os.path.exists(var):
             self.ctx.out("Creating directory %s" % var)
-            os.makedirs(var, 0700)
+            os.makedirs(var)
         else:
             self.can_access(var, mask)
 
         if config is not None:
-            omero_data_dir = '/OMERO'
-            config = config.as_map()
-            try:
-                omero_data_dir = config['omero.data.dir']
-            except KeyError:
-                pass
+            omero_data_dir = self._get_data_dir(config)
             self.can_access(omero_data_dir)
+
         for p in os.listdir(var):
             subpath = os.path.join(var, p)
             if os.path.isdir(subpath):
                 self.can_access(subpath, mask)
+
+    def check_lock(self, config):
+        """
+        Issue a warning if any of the top ".omero" directories
+        contain a lock file. This isn't a conclusive test this
+        we don't have access to the DB to get the UUID
+        for this instance. Usually there should only be one
+        though.
+        """
+        omero_data_dir = self._get_data_dir(config)
+        lock_files = os.path.join(
+            omero_data_dir, ".omero", "repository",
+            "*", ".lock")
+        lock_files = glob(lock_files)
+        if lock_files:
+            self.ctx.err("WARNING: lock files in %s" %
+                         omero_data_dir)
+            self.ctx.err("-"*40)
+            for lock_file in lock_files:
+                self.ctx.err(lock_file)
+            self.ctx.err("-"*40)
+            self.ctx.err((
+                "\n"
+                "You may want to stop all server processes and remove\n"
+                "these files manually. Lock files can remain after an\n"
+                "abrupt server outage and are especially frequent on\n"
+                "remotely mounted filesystems like NFS.\n"))
 
     def check_node(self, args):
         """
@@ -1338,9 +1489,9 @@ OMERO Diagnostics %s
         Callers are responsible for closing the
         returned ConfigXml object.
         """
-        cfg_xml = self.ctx.dir / "etc" / "grid" / "config.xml"
-        cfg_tmp = self.ctx.dir / "etc" / "grid" / "config.xml.tmp"
-        grid_dir = self.ctx.dir / "etc" / "grid"
+        cfg_xml = self._get_grid_dir() / "config.xml"
+        cfg_tmp = self._get_grid_dir() / "config.xml.tmp"
+        grid_dir = self._get_grid_dir()
         if not cfg_xml.exists() and self.can_access(grid_dir):
             if cfg_tmp.exists() and self.can_access(cfg_tmp):
                 self.ctx.dbg("Removing old config.xml.tmp")
@@ -1386,6 +1537,7 @@ OMERO Diagnostics %s
             xargs.append("-Domero.throttling.method_time.%s=%s" % v)
 
         cfg = config.as_map()
+        omero_data_dir = self._get_data_dir(config)
         config.close()  # Early close. See #9800
         for x in ("name", "user", "host", "port"):
             # NOT passing password on command-line
@@ -1393,8 +1545,8 @@ OMERO Diagnostics %s
             if k in cfg:
                 v = cfg[k]
                 xargs.append("-D%s=%s" % (k, v))
-        if "omero.data.dir" in cfg:
-            xargs.append("-Domero.data.dir=%s" % cfg["omero.data.dir"])
+
+        xargs.append("-Domero.data.dir=%s" % omero_data_dir)
         for k, v in cfg.items():
             if k.startswith("omero.search"):
                 xargs.append("-D%s=%s" % (k, cfg[k]))
@@ -1420,10 +1572,8 @@ OMERO Diagnostics %s
         early_exit = False
         if args.wipe:
             early_exit = True
-            omero_data_dir = cfg.get("omero.data.dir", "/OMERO")
             self.can_access(omero_data_dir)
             from os.path import sep
-            from glob import glob
             pattern = sep.join([omero_data_dir, "FullText", "*"])
             files = glob(pattern)
             total = 0
@@ -1478,6 +1628,15 @@ OMERO Diagnostics %s
         if getattr(args, "jdwp"):
             debug = True
 
+        # Pass omero.db.pass using JAVA_OPTS environment variable
+        if "omero.db.pass" in cfg:
+            dbpassargs = "-Domero.db.pass=%s" % cfg["omero.db.pass"]
+            if "JAVA_OPTS" not in os.environ:
+                os.environ['JAVA_OPTS'] = dbpassargs
+            else:
+                os.environ['JAVA_OPTS'] = "%s %s" % (
+                    os.environ.get('JAVA_OPTS'), dbpassargs)
+
         self.ctx.dbg(
             "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
         p = omero.java.run(cmd,
@@ -1485,9 +1644,16 @@ OMERO Diagnostics %s
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
-    def ports(self, args):
+    @with_rw_config
+    def ports(self, args, config):
         self.check_access()
         from omero.install.change_ports import change_ports
+        webserverkey = 'omero.web.application_server.port'
+        webserver_default_port = 4080
+        weblistkey = 'omero.web.server_list'
+        weblist_default_port = 4064
+        weblist_template = '[["localhost", %s, "omero"]]'
+
         if not args.skipcheck:
             if 0 == self.status(args, node_only=True):
                 self.ctx.die(
@@ -1497,18 +1663,54 @@ OMERO Diagnostics %s
             self.ctx.rv = 0
 
         if args.prefix:
-            for x in ("registry", "tcp", "ssl"):
+            for x in ("registry", "tcp", "ssl", "webserver"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
         change_ports(
             args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
 
+        # Use the same conditions as change_ports when modifying ports
+        if args.revert:
+            webserver_from = args.webserver
+            webserver_to = str(webserver_default_port)
+            weblist_from = weblist_template % args.ssl
+            weblist_to = weblist_template % str(weblist_default_port)
+        else:
+            webserver_from = str(webserver_default_port)
+            webserver_to = args.webserver
+            weblist_from = weblist_template % str(weblist_default_port)
+            weblist_to = weblist_template % args.ssl
+        try:
+            waport = config[webserverkey]
+        except KeyError:
+            waport = ''
+            webserver_from = ''
+        try:
+            weblist = config[weblistkey]
+        except KeyError:
+            weblist = ''
+            weblist_from = ''
+
+        if waport != webserver_from:
+            self.ctx.out('No match found for %s=%s in %s' % (
+                webserverkey, webserver_from, config.filename))
+        else:
+            config[webserverkey] = webserver_to
+            self.ctx.out('Converted: %s => %s %s in %s' % (
+                webserver_from, webserver_to, webserverkey, config.filename))
+
+        if weblist != weblist_from:
+            self.ctx.out('No match found for %s=%s in %s' % (
+                weblistkey, weblist_from, config.filename))
+        else:
+            config[weblistkey] = weblist_to
+            self.ctx.out('Converted: %s => %s %s in %s' % (
+                weblist_from, weblist_to, weblistkey, config.filename))
+
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse
-        client = self.ctx.conn(args)
-        cleanse(data_dir=args.data_dir, dry_run=args.dry_run,
-                query_service=client.sf.getQueryService(),
-                config_service=client.sf.getConfigService())
+        cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
+                dry_run=args.dry_run)
 
     def sessionlist(self, args):
         client = self.ctx.conn(args)
@@ -1575,6 +1777,9 @@ OMERO Diagnostics %s
             else:
                 self.ctx.err("%s stopped" % name)
 
+    def _get_data_dir(self, config):
+        config = config.as_map()
+        return config.get("omero.data.dir", "/OMERO")
 
 try:
     register("admin", AdminControl, HELP)

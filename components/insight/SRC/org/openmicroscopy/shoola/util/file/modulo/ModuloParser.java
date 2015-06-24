@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2013-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.util.file.modulo;
 
-//Java imports
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -32,7 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -146,7 +145,7 @@ public class ModuloParser
      */
     public ModuloParser(String file)
     {
-        if (StringUtils.isEmpty(file))
+        if (CommonsLangUtils.isEmpty(file))
             throw new IllegalArgumentException("No file to parse.");
         this.file = file;
         modulos = new ArrayList<ModuloInfo>();

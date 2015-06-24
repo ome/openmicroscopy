@@ -90,9 +90,7 @@ module omero {
     const string ANALYSISSERVICE  = "omero.api.IAnalysis";
     const string CONFIGSERVICE    = "omero.api.IConfig";
     const string CONTAINERSERVICE = "omero.api.IContainer";
-    const string GATEWAYSERVICE   = "omero.api.Gateway";
     const string EXPORTERSERVICE  = "omero.api.Exporter";
-    const string DELETESERVICE    = "omero.api.IDelete";
     const string LDAPSERVICE      = "omero.api.ILdap";
     const string PIXELSSERVICE    = "omero.api.IPixels";
     const string PROJECTIONSERVICE= "omero.api.IProjection";
@@ -160,10 +158,11 @@ module omero {
         const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
         const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
         const string NSMOVIE = "openmicroscopy.org/omero/movie";
+        const string NSCLIENTMAPANNOTATION = "openmicroscopy.org/omero/client/mapAnnotation";
     };
 
     /**
-     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
+     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
      **/
     module namespaces {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
@@ -203,7 +202,7 @@ module omero {
          const string KEYWORDFLIMBACKGROUND = "Background";
        };
     };
-    
+
     module jobs {
 
       /**
@@ -251,6 +250,12 @@ module omero {
        **/
       const int ANNOTATERESTRICTION = 3;
 
+      /**
+       * Extended restriction name which may be applied to images and other
+       * downloadable materials. This string can also be found in the
+       * ome.security.policy.BinaryAccessPolicy class.
+       **/
+      const string BINARYACCESS = "RESTRICT-BINARY-ACCESS";
     };
 
     module projection {

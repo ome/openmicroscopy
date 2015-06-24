@@ -74,6 +74,7 @@ public class MockFixture {
                 "classpath:ome/config.xml",
                 "classpath:ome/services/datalayer.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml",
+                "classpath:ome/services/blitz-graph-rules.xml",
                 "classpath:ome/services/throttling/throttling.xml",
                 "classpath:ome/services/messaging.xml",
                 // Following 2 required by GeomTool deps.

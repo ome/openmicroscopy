@@ -26,7 +26,6 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-from django.conf import settings
 from omero.rtypes import unwrap
 
 # OMERO.insight point list regular expression
@@ -35,7 +34,8 @@ INSIGHT_POINT_LIST_RE = re.compile(r'points\[([^\]]+)\]')
 # OME model point list regular expression
 OME_MODEL_POINT_LIST_RE = re.compile(r'([\d.]+),([\d.]+)')
 
-def channelMarshal (channel):
+
+def channelMarshal(channel):
     """
     return a dict with all there is to know about a channel
 
@@ -49,10 +49,11 @@ def channelMarshal (channel):
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
                        'start': channel.getWindowStart(),
-                       'end': channel.getWindowEnd(),},
+                       'end': channel.getWindowEnd()},
             'active': channel.isActive()}
 
-def imageMarshal (image, key=None):
+
+def imageMarshal(image, key=None, request=None):
     """
     return a dict with pretty much everything we know and care about an image,
     all wrapped in a pretty structure.
@@ -82,36 +83,40 @@ def imageMarshal (image, key=None):
     except omero.SecurityViolation, e:
         # We're in a share so the Image's parent Dataset cannot be loaded
         # or some other permissions related issue has tripped us up.
-        logger.warn('Security violation while retrieving Dataset when ' \
+        logger.warn('Security violation while retrieving Dataset when '
                     'marshaling image metadata: %s' % e.message)
 
     rv = {
-            'id': image.id,
-            'meta': {'imageName': image.name or '',
-                     'imageDescription': image.description or '',
-                     'imageAuthor': image.getAuthor(),
-                     'projectName': pr and pr.name or 'Multiple',
-                     'projectId': pr and pr.id or None,
-                     'projectDescription':pr and pr.description or '',
-                     'datasetName': ds and ds.name or 'Multiple',
-                     'datasetId': ds and ds.id or '',
-                     'datasetDescription': ds and ds.description or '',
-                     'wellSampleId': wellsample and wellsample.id or '',
-                     'wellId': well and well.id.val or '',
-                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
-                     'imageId': image.id,
-                     'pixelsType': image.getPixelsType(),
+        'id': image.id,
+        'meta': {
+            'imageName': image.name or '',
+            'imageDescription': image.description or '',
+            'imageAuthor': image.getAuthor(),
+            'projectName': pr and pr.name or 'Multiple',
+            'projectId': pr and pr.id or None,
+            'projectDescription': pr and pr.description or '',
+            'datasetName': ds and ds.name or 'Multiple',
+            'datasetId': ds and ds.id or None,
+            'datasetDescription': ds and ds.description or '',
+            'wellSampleId': wellsample and wellsample.id or '',
+            'wellId': well and well.id.val or '',
+            'imageTimestamp': time.mktime(
+                image.getDate().timetuple()),
+            'imageId': image.id,
+            'pixelsType': image.getPixelsType(),
             },
-            'perms': {'canAnnotate': image.canAnnotate(),
-                'canEdit': image.canEdit(),
-                'canDelete': image.canDelete(),
-                'canLink': image.canLink()
+        'perms': {
+            'canAnnotate': image.canAnnotate(),
+            'canEdit': image.canEdit(),
+            'canDelete': image.canDelete(),
+            'canLink': image.canLink()
             }
         }
     try:
         reOK = image._prepareRenderingEngine()
         if not reOK:
-            logger.debug("Failed to prepare Rendering Engine for imageMarshal")
+            logger.debug(
+                "Failed to prepare Rendering Engine for imageMarshal")
             return rv
     except omero.ConcurrencyException, ce:
         backOff = ce.backOff
@@ -126,47 +131,53 @@ def imageMarshal (image, key=None):
         logger.error(traceback.format_exc())
         return rv       # Return what we have already, in case it's useful
 
-    #big images
+    # big images
     tiles = image._re.requiresPixelsPyramid()
-    width, height = image._re.getTileSize()
-    levels = image._re.getResolutionLevels()
-    zoomLevelScaling = image.getZoomLevelScaling()
+    rv['tiles'] = tiles
+    if (tiles):
+        width, height = image._re.getTileSize()
+        levels = image._re.getResolutionLevels()
+        zoomLevelScaling = image.getZoomLevelScaling()
+
+        rv.update({'tile_size': {'width': width,
+                                 'height': height},
+                   'levels': levels})
+        if zoomLevelScaling is not None:
+            rv['zoomLevelScaling'] = zoomLevelScaling
+
     nominalMagnification = image.getObjectiveSettings() is not None \
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
 
-    init_zoom = None
-    if hasattr(settings, 'VIEWER_INITIAL_ZOOM_LEVEL'):
-        init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
+    try:
+        init_zoom = request.session['server_settings']['initial_zoom_level']
         if init_zoom < 0:
             init_zoom = levels + init_zoom
+    except:
+        init_zoom = 0
 
     try:
         rv.update({
-            'tiles': tiles,
-            'tile_size': {'width': width,
-                          'height': height},
-            'levels': levels,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
                      'z': image.getSizeZ(),
                      't': image.getSizeT(),
-                     'c': image.getSizeC(),},
+                     'c': image.getSizeC()},
             'pixel_size': {'x': image.getPixelSizeX(),
                            'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ(),},
+                           'z': image.getPixelSizeZ()},
             })
         if init_zoom is not None:
             rv['init_zoom'] = init_zoom
-        if zoomLevelScaling is not None:
-            rv.update({'zoomLevelScaling': zoomLevelScaling})
         if nominalMagnification is not None:
             rv.update({'nominalMagnification': nominalMagnification})
         try:
             rv['pixel_range'] = image.getPixelRange()
-            rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
+            rv['channels'] = map(lambda x: channelMarshal(x),
+                                 image.getChannels())
             rv['split_channel'] = image.splitChannelDims()
-            rv['rdefs'] = {'model': image.isGreyscaleRenderingModel() and 'greyscale' or 'color',
+            rv['rdefs'] = {'model': (image.isGreyscaleRenderingModel() and
+                                     'greyscale' or 'color'),
                            'projection': image.getProjection(),
                            'defaultZ': image._re.getDefaultZ(),
                            'defaultT': image._re.getDefaultT(),
@@ -191,6 +202,7 @@ def imageMarshal (image, key=None):
         if rv == {}:
             rv = None
     return rv
+
 
 def shapeMarshal(shape):
     """
@@ -249,7 +261,8 @@ def shapeMarshal(shape):
         rv['cy'] = shape.getCy().getValue()
     elif shape_type == omero.model.PolygonI:
         rv['type'] = 'Polygon'
-        rv['points'] = stringToSvg(shape.getPoints().getValue()) + " z" # z = closed line
+        # z = closed line
+        rv['points'] = stringToSvg(shape.getPoints().getValue()) + " z"
     elif shape_type == omero.model.LabelI:
         rv['type'] = 'Label'
         rv['x'] = shape.getX().getValue()
@@ -261,7 +274,9 @@ def shapeMarshal(shape):
     if text_value is not None:
         # only populate json with font styles if we have some text
         rv['textValue'] = text_value
-        set_if('fontSize', shape.getFontSize())
+        # FIXME: units ignored for font size
+        if shape.getFontSize() is not None:
+            set_if('fontSize', shape.getFontSize().getValue())
         set_if('fontStyle', shape.getFontStyle())
         set_if('fontFamily', shape.getFontFamily())
 
@@ -273,14 +288,18 @@ def shapeMarshal(shape):
     stroke_color = unwrap(shape.getStrokeColor())
     if stroke_color is not None:
         rv['strokeColor'], rv['strokeAlpha'] = rgb_int2css(stroke_color)
-    set_if('strokeWidth', shape.getStrokeWidth())
+    if shape.getStrokeWidth() is not None:
+        # FIXME: units ignored for stroke width
+        set_if('strokeWidth', shape.getStrokeWidth().getValue())
     return rv
+
 
 def stringToSvg(string):
     """
-    Method for converting the string returned from omero.model.ShapeI.getPoints()
-    into an SVG for display on web.
-    E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
+    Method for converting the string returned from
+    omero.model.ShapeI.getPoints() into an SVG for display on web.
+    E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491]
+          points2[309,427, 366,503, 190,491]"
     To: M 309 427 L 366 503 L 190 491 z
     """
     point_list = string.strip()
@@ -294,12 +313,12 @@ def stringToSvg(string):
     point_list = ' L '.join([' '.join(point) for point in point_list])
     return "M %s" % point_list
 
+
 def rgb_int2css(rgbint):
     """
     converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
     """
     alpha = rgbint // 256 // 256 // 256 % 256
     alpha = float(alpha) / 256
-    r,g,b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
-    return "#%02x%02x%02x" % (r,g,b) , alpha
-
+    r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+    return "#%02x%02x%02x" % (r, g, b), alpha

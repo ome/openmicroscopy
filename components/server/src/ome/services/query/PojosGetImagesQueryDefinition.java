@@ -43,7 +43,6 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         qb.join("img.details.updateEvent", "ue", true, true);
         qb.join("img.pixels", "pix", true, true);
         qb.join("pix.timeIncrement", "increment", true, true);
-        qb.join("increment.unit", "incrementU", true, true);
         qb.join("pix.pixelsType", "pt", true, true);
         qb.join("img.annotationLinksCountPerOwner", "i_c_ann", true, true);
         qb.join("img.datasetLinksCountPerOwner", "i_c_ds", true, true);

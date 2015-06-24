@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ChannelAcquisitionComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -48,7 +49,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -56,7 +56,12 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
+import omero.model.LengthI;
 import omero.model.PlaneInfo;
+import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
+
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -496,28 +501,48 @@ class ChannelAcquisitionComponent
 		while (j.hasNext()) {
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
-			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
-			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
-			    values[0][i] = details.get(EditorUtil.DELTA_T)+
-			            EditorUtil.TIME_UNIT;
-				values[1][i] = details.get(EditorUtil.EXPOSURE_TIME)+
-				EditorUtil.TIME_UNIT;
-			} else {
-			    values[0][i] = "--";
-			    values[1][i] = "--";
+			notSet = (List<String>) details.get(EditorUtil.NOT_SET);	
+			if (!notSet.contains(EditorUtil.DELTA_T)) {
+			    if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
+			        MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T) , EditorUtil.DELTA_T);
+			        values[0][i] = "N/A";
+			    } else {
+				values[0][i] = details.get(EditorUtil.DELTA_T)
+						+ EditorUtil.TIME_UNIT;
+			    }
 			}
+			else
+				values[0][i] = "--";
+
+			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
+			    if(details.get(EditorUtil.EXPOSURE_TIME) instanceof BigResult) {
+                    MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.EXPOSURE_TIME) , EditorUtil.EXPOSURE_TIME);
+                    values[1][i] = "N/A";
+                } else {
+				values[1][i] = details.get(EditorUtil.EXPOSURE_TIME)
+						+ EditorUtil.TIME_UNIT;
+                }
+			}
+			else
+				values[1][i] = "--";
 			names[i] = "t="+(i-1);
 			i++;
 		}
-		JTable table = new JTable(values, names);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.setShowGrid(true);
-		table.setGridColor(Color.LIGHT_GRAY);
-		JScrollPane pane = new JScrollPane(table);
-		Dimension d = table.getPreferredSize();
-		Dimension de = exposureTask.getPreferredSize();
-		pane.setPreferredSize(new Dimension(de.width-10, 4*d.height));
-		exposureTask.add(pane);
+		if (i > 1) {
+			JTable table = new JTable(values, names);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			table.setShowGrid(true);
+			table.setGridColor(Color.LIGHT_GRAY);
+			JScrollPane pane = new JScrollPane(table);
+			Dimension d = table.getPreferredSize();
+			Dimension de = exposureTask.getPreferredSize();
+			pane.setPreferredSize(new Dimension(de.width-10, 4*d.height));
+			exposureTask.add(pane);
+			exposureTask.setVisible(true);
+		}
+		else {
+			exposureTask.setVisible(false);
+		}
 	}
 	
 	/**
@@ -575,7 +600,7 @@ class ChannelAcquisitionComponent
 						number = UIUtilities.extractNumber((String) value, 
 								Float.class);
 						if (number != null)
-							channel.setPinholeSize((Float) number);
+							channel.setPinholeSize(new LengthI((Float) number, UnitsFactory.Channel_PinholeSize));
 					} else if (EditorUtil.ND_FILTER.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
 								Float.class);
@@ -590,12 +615,12 @@ class ChannelAcquisitionComponent
 						number = UIUtilities.extractNumber((String) value, 
 						        Double.class);
 						if (number != null)
-							channel.setEmissionWavelength((Double) number);
+							channel.setEmissionWavelength(new LengthI((Double) number, UnitsFactory.Channel_EmissionWavelength));
 					} else if (EditorUtil.EXCITATION.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
 								Double.class);
 						if (number != null)
-							channel.setExcitationWavelength((Double) number);
+							channel.setExcitationWavelength(new LengthI((Double) number, UnitsFactory.Channel_ExcitationWavelength));
 					} else if (EditorUtil.ILLUMINATION.equals(key)) {
 						enumObject = (EnumerationObject) value;
 						if (enumObject.getObject() instanceof Illumination)

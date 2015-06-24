@@ -278,7 +278,7 @@
 				background-color: #803333;
 				border: 1px solid #4D0F0F;
 				text-shadow: 0 1px 0 #4D0F0F;
-				behavior: url(../../3rdparty/pie/PIE.htc);
+				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
 			}
 	
 		
@@ -308,7 +308,7 @@
 			-webkit-border-radius:2px; /* Saf3+, Chrome */
 			   -moz-border-radius:2px; /* FF1+ */
 			        border-radius:2px; /* Opera 10.5, IE 9 */ 
-				behavior: url(../../3rdparty/pie/PIE.htc);
+				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
 		}
 	
 

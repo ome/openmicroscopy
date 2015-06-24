@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.DeletableObject 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.MapAnnotationData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -198,6 +199,8 @@ public class DeletableObject
 			return "PlateAcquisition";
 		} else if (objectToDelete instanceof FileAnnotationData) {
 			return "File";
+		} else if (objectToDelete instanceof MapAnnotationData) {
+			return "Map Annotation";
 		}
 		return "";
 	}
@@ -230,6 +233,8 @@ public class DeletableObject
 			return ((PlateAcquisitionData) objectToDelete).getLabel();
 		} else if (objectToDelete instanceof FileAnnotationData) {
 			return ((FileAnnotationData) objectToDelete).getFileName();
+		} else if (objectToDelete instanceof MapAnnotationData) {
+			return "Map Annotation";
 		}
 		return "";
 	}

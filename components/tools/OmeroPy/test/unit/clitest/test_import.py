@@ -11,6 +11,8 @@
 
 import pytest
 from path import path
+import omero.clients
+import uuid
 from omero.cli import CLI, NonZeroReturnCode
 # Workaround for a poorly named module
 plugin = __import__('omero.plugins.import', globals(), locals(),
@@ -18,6 +20,15 @@ plugin = __import__('omero.plugins.import', globals(), locals(),
 ImportControl = plugin.ImportControl
 
 help_arguments = ("-h", "--javahelp", "--java-help", "--advanced-help")
+
+
+class MockClient(omero.clients.BaseClient):
+
+    def setSessionId(self, uuid):
+        self._uuid = uuid
+
+    def getSessionId(self):
+        return self._uuid
 
 
 class TestImport(object):
@@ -203,3 +214,26 @@ class TestImport(object):
         assert outputlines[-len(tiffiles)-2] == str(patternfile)
         for i in range(len(tiffiles)):
             assert outputlines[-1-len(tiffiles)+i] == str(tiffiles[i])
+
+    @pytest.mark.parametrize('hostname', ['localhost', 'servername'])
+    @pytest.mark.parametrize('port', [None, 4064, 14064])
+    def testLoginArguments(self, monkeypatch, hostname, port):
+        self.args += ['test.fake']
+        control = self.cli.controls['import']
+        control.command_args = []
+        sessionid = str(uuid.uuid4())
+
+        def new_client(x):
+            if port:
+                c = MockClient(hostname, port)
+            else:
+                c = MockClient(hostname)
+            c.setSessionId(sessionid)
+            return c
+        monkeypatch.setattr(self.cli, 'conn', new_client)
+        control.set_login_arguments(self.cli.parser.parse_args(self.args))
+
+        expected_args = ['-s', '%s' % hostname]
+        expected_args += ['-p', '%s' % (port or 4064)]
+        expected_args += ['-k', '%s' % sessionid]
+        assert control.command_args == expected_args

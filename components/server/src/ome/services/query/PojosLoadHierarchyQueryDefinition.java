@@ -39,6 +39,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
         StringBuilder sb = new StringBuilder();
         if (Project.class.isAssignableFrom(klass)) {
             sb.append("select this from Project this ");
+            sb.append("left outer join fetch this.details.creationEvent ");
             sb.append("left outer join fetch this.datasetLinks pdl ");
             sb.append("left outer join fetch pdl.child ds ");
             if (params.isLeaves()) {
@@ -49,6 +50,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + "this.annotationLinksCountPerOwner this_a_c ");
         } else if (Dataset.class.isAssignableFrom(klass)) {
             sb.append("select this from Dataset this ");
+            sb.append("left outer join fetch this.details.creationEvent ");
             if (params.isLeaves()) {
                 sb.append("left outer join fetch this.imageLinks dil ");
                 sb.append("left outer join fetch dil.child img ");
@@ -59,6 +61,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + "this.imageLinksCountPerOwner this_i_c ");
         } else if (Screen.class.isAssignableFrom(klass)) {
         	sb.append("select this from Screen this ");
+        	sb.append("left outer join fetch this.details.creationEvent ");
             sb.append("left outer join fetch this.plateLinks pdl ");
             sb.append("left outer join fetch pdl.child ds ");
             sb.append("left outer join fetch ds.details.creationEvent ");
@@ -69,6 +72,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
             sb.append("left outer join fetch sa.annotationLinksCountPerOwner sa_a_c ");
         } else if (Plate.class.isAssignableFrom(klass)) {
         	sb.append("select this from Plate this ");
+        	sb.append("left outer join fetch this.details.creationEvent ");
         	sb.append("left outer join fetch this.plateAcquisitions sa ");
             sb.append("left outer join fetch "
                     + "this.annotationLinksCountPerOwner this_a_c ");

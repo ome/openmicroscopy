@@ -25,16 +25,13 @@ import static omero.rtypes.rstring;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
-
-import omero.RString;
 import omero.constants.namespaces.NSAUTOCLOSE;
 import omero.constants.namespaces.NSFILETRANSFER;
 import omero.grid.ImportSettings;
@@ -47,6 +44,7 @@ import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.FilesetEntryI;
 import omero.model.IObject;
+import omero.model.NamedValue;
 import omero.model.UploadJob;
 import omero.model.UploadJobI;
 
@@ -61,6 +59,7 @@ public class ImportContainer
     private String userSpecifiedName;
     private String userSpecifiedDescription;
     private boolean doThumbnails = true;
+    private boolean noStatsInfo = false;
     private List<Annotation> customAnnotationList;
     private IObject target;
     private String checksumAlgorithm;
@@ -88,7 +87,7 @@ public class ImportContainer
     /**
      * Retrieves whether or not we are performing thumbnail creation upon
      * import completion.
-     * return <code>true</code> if we are to perform thumbnail creation and
+     * @return <code>true</code> if we are to perform thumbnail creation and
      * <code>false</code> otherwise.
      * @since OMERO Beta 4.3.0.
      */
@@ -107,6 +106,28 @@ public class ImportContainer
     public void setDoThumbnails(boolean v)
     {
         doThumbnails = v;
+    }
+
+    /**
+     * Retrieves whether or not we disabling <code>StatsInfo</code> population.
+     * @return <code>true</code> if we are to disable <code>StatsInfo</code>
+     * population. <code>false</code> otherwise.
+     * @since OMERO 5.1.
+     */
+    public boolean getNoStatsInfo()
+    {
+        return noStatsInfo;
+    }
+
+    /**
+     * Sets whether or not we disabling <code>StatsInfo</code> population.
+     * @param v <code>true</code> if we are to disable <code>StatsInfo</code>
+     * population. <code>false</code> otherwise.
+     * @since OMERO 5.1.
+     */
+    public void setNoStatsInfo(boolean v)
+    {
+        noStatsInfo = v;
     }
 
     /**
@@ -300,6 +321,7 @@ public class ImportContainer
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than misusing ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());
+        settings.noStatsInfo = rbool(getNoStatsInfo());
         settings.userSpecifiedTarget = getTarget();
         settings.userSpecifiedName = getUserSpecifiedName() == null ? null
                 : rstring(getUserSpecifiedName());
@@ -347,8 +369,8 @@ public class ImportContainer
         }
 
         // Fill BF info
-        final Map<String, RString> clientVersionInfo = new HashMap<String, RString>();
-        clientVersionInfo.put(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, rstring(reader));
+        final List<NamedValue> clientVersionInfo = new ArrayList<NamedValue>();
+        clientVersionInfo.add(new NamedValue(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, reader));
         config.fillVersionInfo(clientVersionInfo);
         UploadJob upload = new UploadJobI();
         upload.setVersionInfo(clientVersionInfo);

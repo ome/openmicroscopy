@@ -169,3 +169,21 @@ class ServiceOptsDict(dict):
              isinstance(item, float)):
             return True
         return False
+
+
+def toBoolean(val):
+    """
+    Get the boolean value of the provided input.
+
+        If the value is a boolean return the value.
+        Otherwise check to see if the value is in
+        ["true", "yes", "y", "t", "1"]
+        and returns True if value is in the list
+    """
+
+    if val is True or val is False:
+        return val
+
+    trueItems = ["true", "yes", "y", "t", "1", "on"]
+
+    return str(val).strip().lower() in trueItems

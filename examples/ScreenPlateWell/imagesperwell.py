@@ -2,17 +2,18 @@
 # -*- coding: utf-8 -*-
 import sys
 import omero
-from omero.rtypes import *
-from omero_sys_ParametersI import ParametersI # Temporary
+from omero.rtypes import rint
+from omero_sys_ParametersI import ParametersI  # Temporary
 
-c = omero.client();
-s = c.createSession();
-q = s.getQueryService();
+c = omero.client()
+s = c.createSession()
+q = s.getQueryService()
 
-LOAD_WELLS = """select w from Well w join fetch w.wellSamples ws
-                join fetch ws.image i join fetch i.pixels p where w.plate.id = :id"""
+LOAD_WELLS = (
+    "select w from Well w join fetch w.wellSamples ws"
+    " join fetch ws.image i join fetch i.pixels p where w.plate.id = :id")
 
-filter = omero.sys.Filter();
+filter = omero.sys.Filter()
 filter.limit = rint(10)
 filter.offset = rint(0)
 
@@ -24,7 +25,8 @@ if len(plates) == 0:
 else:
     import random
     example_plate = random.choice(plates)
-    print "Loading wells for Plate %s (%s)" % (example_plate.getId().getValue(), example_plate.getName().getValue())
+    print "Loading wells for Plate %s (%s)" % (
+        example_plate.getId().getValue(), example_plate.getName().getValue())
 
 # An example of true paging
 filter.limit = rint(12)
@@ -40,7 +42,7 @@ while True:
         break
     else:
         offset += len(wells)
-        params.theFilter.offset = rint( offset )
+        params.theFilter.offset = rint(offset)
 
     for well in wells:
         id = well.getId().getValue()
@@ -54,6 +56,7 @@ while True:
             sizeC = pix.sizeC.val
             sizeT = pix.sizeT.val
             sizeZ = pix.sizeZ.val
-            images.append( img.getId().getValue() )
+            images.append(img.getId().getValue())
             planes += sizeZ*sizeT*sizeC
-        print "Well %s (%2sx%2s) contains the images: %s with %s planes" % (id, row, col, images, planes)
+        print ("Well %s (%2sx%2s) contains the images: %s with %s planes"
+               % (id, row, col, images, planes))

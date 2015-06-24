@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.ROIComponent 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -59,6 +59,9 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttribut
 import pojos.ImageData;
 import pojos.ROIData;
 import pojos.ShapeSettingsData;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * The ROI Component is the main interface to the object which control the 
@@ -160,7 +163,7 @@ public class ROIComponent
 	public ROIComponent()
 	{
 		roiCollection = new ROICollection();
-		units = new MeasurementUnits(0, 0, 0 , false);
+		units = new MeasurementUnits(new LengthI(1, UnitsLength.PIXEL), new LengthI(1, UnitsLength.PIXEL), new LengthI(1, UnitsLength.PIXEL));
 		roiResult = new LinkedHashMap<Long, List<ROI>>();
 	}
 
@@ -205,26 +208,15 @@ public class ROIComponent
 	}
 	
 	/**
-	 * Sets the number of microns per pixel in the x-axis. 
+	 * Set the pixel sizes
 	 * 
-	 * @param x see above.
+	 * @param x Size of a pixel in x direction
+	 * @param y Size of a pixel in y direction
+	 * @param z Size of a pixel in z direction
 	 */
-	public void setMicronsPixelX(double x) { units.setMicronsPixelX(x); }
-
-	/**
-	 * Sets the number of microns per pixel in the y-axis. 
-	 * 
-	 * @param y The value to set.
-	 */
-	public void setMicronsPixelY(double y) { units.setMicronsPixelY(y); }
-	
-	/**
-	 * Sets the number of microns per pixel in the z-axis. 
-	 * 
-	 * @param z The value to set.
-	 * 
-	 */
-	public void setMicronsPixelZ(double z) { units.setMicronsPixelZ(z); }
+	public void setPixelSizes(Length x, Length y, Length z) {
+		units.setPixelSizes(x, y, z);
+	}
 	
     /**
      * Adds the specified figure to the display.
@@ -707,17 +699,6 @@ public class ROIComponent
 	 public ROIShapeRelationshipList getROIShapeRelationshipList(long roiID)
 	 {
 		 return roiCollection.getROIShapeRelationshipList(roiID);
-	 }
-
-	 /** 
-	  * Shows the measurements in the ROIFigures in microns, if the passed value
-	  * is <code>true</code>, in pixels otherwise.
-	  * 
-	  * @param inMicrons The value to set.
-	  */
-	 public void showMeasurementsInMicrons(boolean inMicrons)
-	 {
-		units.setInMicrons(inMicrons);
 	 }
 
 	 /**

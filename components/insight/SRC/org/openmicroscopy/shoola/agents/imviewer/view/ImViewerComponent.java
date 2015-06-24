@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,9 +32,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,10 +49,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
@@ -67,7 +60,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
@@ -80,7 +72,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -101,6 +92,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
 
@@ -174,6 +166,9 @@ class ImViewerComponent
     
     /** Flag indicating that it was not possible to save the settings.*/
     private boolean failureToSave;
+    
+    /** The ImageAcquisitionData */
+    private ImageAcquisitionData acquisitionData;
     
 	/**
 	 * Creates and returns an image including the ROI
@@ -828,6 +823,10 @@ class ImViewerComponent
                 firePropertyChange(ImViewer.T_SELECTED_PROPERTY,
                         Integer.valueOf(defaultT), Integer.valueOf(t));
             }
+	        if (defaultZ != z) {
+                firePropertyChange(ImViewer.Z_SELECTED_PROPERTY,
+                        Integer.valueOf(defaultZ), Integer.valueOf(z));
+            }
 	    } else {
 	        if (defaultZ == z && defaultT == t) return;
 	        if (defaultZ != z) {
@@ -912,28 +911,19 @@ class ImViewerComponent
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
 		if (image == null) { //no need to notify.
-			if (ImViewerAgent.hasOpenGLSupport())
-				model.setImageAsTexture(null);
-			else model.setImage(null);
+			model.setImage(null);
 			return;
 		}
-		if (!(image instanceof BufferedImage || 
-				image instanceof TextureData)) {
+		if (!(image instanceof BufferedImage)) {
 			model.setImage(null);
-			model.setImageAsTexture(null);
 			return;
 		}
 		view.removeComponentListener(controller);
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
 		Object originalImage;
-		if (ImViewerAgent.hasOpenGLSupport()) {
-			originalImage = model.getImageAsTexture();
-			model.setImageAsTexture((TextureData) image);
-		} else {
-			originalImage = model.getOriginalImage();
-			model.setImage((BufferedImage) image);
-		}
+		originalImage = model.getOriginalImage();
+        model.setImage((BufferedImage) image);
 		view.handleUnitBar();
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
@@ -1124,6 +1114,7 @@ class ImViewerComponent
 			loadTiles(null);
 			return;
 		}
+		int compression = view.getUICompressionLevel();
 		boolean stop = false;
 		int index = model.getTabbedIndex();
 		RndProxyDef def;
@@ -1146,13 +1137,13 @@ class ImViewerComponent
 			if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
 				model.getBrowser().onColorModelChange();
 			} else {
-				model.fireImageRetrieval();
+				model.fireImageRetrieval(compression);
 				newPlane = false;
 				fireStateChange();
 			}
 		} else {
 			//if (stop) return;
-			model.fireImageRetrieval();
+			model.fireImageRetrieval(compression);
 			newPlane = false;
 			fireStateChange();
 		}
@@ -1472,70 +1463,6 @@ class ImViewerComponent
 		return images;
 	}
 
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getGridImagesAsTexture()
-	 */
-	public Map<Integer, TextureData> getGridImagesAsTexture()
-	{
-		switch (model.getState()) {
-			case NEW:
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED or NEW"+
-				" state.");
-		}
-		
-		view.createGridImage(true);
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		//if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
-		List active = model.getActiveChannels();
-		int maxC = model.getMaxC();
-		Map<Integer, TextureData> 
-			images = new HashMap<Integer, TextureData>(maxC);
-		List<ChannelData> list = getSortedChannelData();
-		Iterator<ChannelData> i = list.iterator();
-		int k;
-		Iterator w;
-		if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
-			active = view.getActiveChannelsInGrid();
-			//Iterator i = active.iterator();
-			while (i.hasNext()) {
-				k = i.next().getIndex();
-				if (active.contains(k)) {
-					for (int j = 0; j < maxC; j++) 
-						model.setChannelActive(j, j == k);
-					images.put(k, model.getSplitComponentImageAsTexture());
-				} else {
-					images.put(k, null);
-				}
-			}
-			w = active.iterator();
-			while (w.hasNext()) { //reset values.
-				model.setChannelActive((Integer) w.next(), true);
-			}
-		} else {
-			while (i.hasNext()) {
-				k = i.next().getIndex();
-				if (model.isChannelActive(k)) {
-					for (int l = 0; l < maxC; l++)
-						model.setChannelActive(l, k == l);
-
-					images.put(k, model.getSplitComponentImageAsTexture());
-					w = active.iterator();
-					while (w.hasNext()) { //reset values.
-						model.setChannelActive((Integer) w.next(), true);
-					}
-				} else {
-					images.put(k, null);
-				}
-			}
-		}
-		view.createGridImage(false);
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		return images;
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getCombinedGridImage()
@@ -2896,7 +2823,7 @@ class ImViewerComponent
 	private void buildView()
 	{
 		int index = UnitBarSizeAction.getDefaultIndex(
-				EditorUtil.transformSize(5*getPixelsSizeX()).getValue());
+				UIUtilities.transformSize(5*getPixelsSizeX()).getValue());
 		setUnitBarSize(UnitBarSizeAction.getValue(index));
 		view.setDefaultScaleBarMenu(index);
 		colorModel = model.getColorModel();
@@ -3034,28 +2961,6 @@ class ImViewerComponent
 	{
 		if (bounds == null) return;
 		model.getBrowser().scrollTo(bounds, false);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#createImageFromTexture(int, boolean includeROI)
-	 */
-	public BufferedImage createImageFromTexture(int type, boolean includeROI)
-	{
-		switch (model.getState()) {
-			case LOADING_IMAGE:
-			case DISCARDED:
-				return null;
-		}
-		if (!ImViewerAgent.hasOpenGLSupport()) return null;
-
-		BufferedImage img = model.getBrowser().createImageFromTexture(type);
-		if (img == null) return null;
-        
-		if (includeROI) {
-			createImageWithROI(img);
-		}
-		return img;
 	}
 
 	/** 
@@ -3229,53 +3134,13 @@ class ImViewerComponent
 	public boolean includeROI()
 	{
 		if (layers == null) return false;
-		if (ImViewerAgent.hasOpenGLSupport()) return false;
 		Iterator<JComponent> i = layers.iterator();
 		while (i.hasNext()) {
 			if (i.next() instanceof DrawingCanvasView) return true;
 		}
 		return false;
 	}
-	
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#displayFLIMResults(Map)
-	 */
-	public void displayFLIMResults(Map<FileAnnotationData, File> results)
-	{
-		if (results == null) return;
-		switch (model.getState()) {
-			case NEW:
-			case DISCARDED:
-				return;
-		}
-		IconManager icons = IconManager.getInstance();
-		FLIMResultsDialog d = new FLIMResultsDialog(view, 
-				EditorUtil.getPartialName(model.getImageName()),
-				icons.getIcon(IconManager.FLIM_48), results);
-		d.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (FLIMResultsDialog.SAVED_FLIM_RESULTS_PROPERTY.equals(
-						name)){
-					boolean b = (
-							(Boolean) evt.getNewValue()).booleanValue();
-					UserNotifier un = 
-						ImViewerAgent.getRegistry().getUserNotifier();
-					if (b) {
-						un.notifyInfo("Saving Results", "The file has " +
-								"successfully been saved.");
-					} else {
-						un.notifyInfo("Saving Results", "An error " +
-						"occurred while saving the results.");
-					}
-				}
-			}
-		});
-		UIUtilities.centerAndShow(d);
-	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setBirdEyeView(Object)
@@ -3543,5 +3408,24 @@ class ImViewerComponent
     public void setInterpolation(boolean interpolation) {
         model.setInterpolation(interpolation);
         refresh();
+    }
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#setImageAcquisitionData(ImageAcquisitionData)
+     */
+    public void setImageAcquisitionData(ImageAcquisitionData data) {
+        this.acquisitionData = data;
+        view.setMagnificationStatus();
+    }
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#getImageAcquisitionData()
+     */
+    public ImageAcquisitionData getImageAcquisitionData() {
+        return this.acquisitionData;
     }
 }

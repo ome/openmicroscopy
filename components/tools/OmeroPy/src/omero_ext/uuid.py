@@ -18,6 +18,11 @@ See LICENSE for details.
 
 """
 
+import warnings
+warnings.warn(
+    "The omero_ext.uuid module is deprecated. Please use Python built-in"
+    "uuid module instead", DeprecationWarning)
+
 try:
     __uuid__ = __import__("uuid") # ok:3774
 except ImportError:

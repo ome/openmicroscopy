@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.ArchivedLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,12 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -59,17 +56,14 @@ public class ArchivedLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
 
-    /** The archived image to load. */
-    private ImageData image;
+    /** The archived images to load. */
+    private List<ImageData> images;
 
     /** The file where to download the content of the image. */
     private File file;
 
     /** Flag indicating that the export has been marked to be cancel.*/
     private boolean cancelled;
-
-    /** The name of the saved image.*/
-    private String name;
 
     /** Flag indicating to override or not the files when saving.*/
     private boolean override;
@@ -91,7 +85,7 @@ public class ArchivedLoader
      *               Mustn't be <code>null</code>.
      * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
-     * @param image The image to export.
+     * @param images The images to export.
      * @param name The name of the saved image.
      * @param file The location where to download the image.
      * @param override Flag indicating to override the existing file if it
@@ -99,15 +93,14 @@ public class ArchivedLoader
      * @param activity The activity associated to this loader.
      */
 	public ArchivedLoader(UserNotifier viewer, Registry registry,
-			SecurityContext ctx, ImageData image, String name, File file,
+			SecurityContext ctx, List<ImageData> images, File file,
 			boolean override, ActivityComponent activity)
 	{
 		super(viewer, registry, ctx, activity);
-		if (image == null)
+		if (images == null)
 			throw new IllegalArgumentException("Image not valid.");
-		this.image = image;
+		this.images = images;
 		this.file = file;
-		this.name = name;
 		this.override = override;
 	}
 
@@ -117,8 +110,11 @@ public class ArchivedLoader
 	 */
 	public void load()
 	{
-	    if (StringUtils.isEmpty(name)) name = image.getName();
-	    handle = mhView.loadArchivedImage(ctx, image.getId(), file, name,
+	    List<Long> imageIds = new ArrayList<Long>(images.size());
+	    for(ImageData d : images)
+	        imageIds.add(d.getId());
+	    
+	    handle = mhView.loadArchivedImage(ctx, imageIds, file,
 	            override, this);
 	}
 

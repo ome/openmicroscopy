@@ -25,7 +25,7 @@
 """
 
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from omero.util.temp_files import create_path
 
@@ -52,7 +52,7 @@ class TestFiles(lib.ITest):
         assert sha1_upload == sha1_download, "%s!=%s" % (
             sha1_upload, sha1_download)
 
-    @pytest.mark.xfail(reason="ticket 11610")
+    @pytest.mark.broken(ticket="11610")
     def testUploadDifferentSizeTicket2337(self):
         uploaded = tmpfile()
         ofile = self.client.upload(str(uploaded), type="text/plain")

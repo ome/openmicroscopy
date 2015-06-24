@@ -32,6 +32,8 @@ import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportEvent.FILESET_EXCLUSION;
+import ome.formats.importer.exclusions.FileExclusion;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.TransferState;
 import ome.formats.importer.transfers.UploadFileTransfer;
@@ -126,6 +128,11 @@ public class ImportLibrary implements IObservable
     private final FileTransfer transfer;
 
     /**
+     * Voters which can choose to skip a given import.
+     */
+    private final List<FileExclusion> exclusions = new ArrayList<FileExclusion>();
+
+    /**
      * Minutes to wait for an import to take place. If 0 is set, then no waiting
      * will take place and an empty list of objects will be returned. If negative,
      * then the process will loop indefinitely (default). Otherwise, the given
@@ -190,6 +197,12 @@ public class ImportLibrary implements IObservable
     public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader,
             FileTransfer transfer, int minutesToWait)
     {
+        this(client, reader, transfer, null, -1);
+    }
+
+    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader,
+            FileTransfer transfer, List<FileExclusion> exclusions, int minutesToWait)
+    {
         if (client == null || reader == null)
         {
             throw new NullPointerException(
@@ -198,6 +211,9 @@ public class ImportLibrary implements IObservable
 
         this.store = client;
         this.transfer = transfer;
+        if (exclusions != null) {
+            this.exclusions.addAll(exclusions);
+        }
         this.minutesToWait = minutesToWait;
         repo = lookupManagedRepository();
         // Adapter which should be used for callbacks. This is more
@@ -462,6 +478,16 @@ public class ImportLibrary implements IObservable
             throws FormatException, IOException, Throwable
     {
         HandlePrx handle;
+        for (FileExclusion exclusion : exclusions) {
+            Boolean veto = exclusion.suggestExclusion(store.getServiceFactory(),
+                    container);
+            if (Boolean.TRUE.equals(veto)) {
+                notifyObservers(new ImportEvent.FILESET_EXCLUSION(
+                container.getFile().getAbsolutePath(), 0,
+                container.getUsedFiles().length));
+                return Collections.emptyList();
+            }
+        }
         final ImportProcessPrx proc = createImport(container);
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
@@ -560,6 +586,9 @@ public class ImportLibrary implements IObservable
                 this.container = container;
                 this.logFileId = loadLogFile();
                 initializationDone();
+                notifyObservers(new ImportEvent.IMPORT_STARTED(
+                        0, this.container,
+                        null, null, 0, null, 0, 0, logFileId));
         }
 
         protected Long loadLogFile() throws ServerError {
@@ -590,23 +619,23 @@ public class ImportLibrary implements IObservable
         public void step(int step, int total, Ice.Current current) {
             if (step == 1) {
                 notifyObservers(new ImportEvent.METADATA_IMPORTED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 2) {
                 notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 3) {
                 notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 4) {
                 notifyObservers(new ImportEvent.METADATA_PROCESSED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 5) {
                 notifyObservers(new ImportEvent.OBJECTS_RETURNED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             }
         }
@@ -640,7 +669,7 @@ public class ImportLibrary implements IObservable
                 {
                     // Only respond once.
                     notifyObservers(new ImportEvent.IMPORT_DONE(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, rv.pixels, fs, rv.objects));
                 }
                 this.importResponse = rv;
@@ -704,7 +733,11 @@ public class ImportLibrary implements IObservable
     private void checkManagedRepo() {
         if (repo == null) {
             throw new RuntimeException(
-                    "Cannot exclusively use the managed repository.");
+                    "Cannot exclusively use the managed repository.\n\n" +
+                    "Likely no ManagedRepositoryPrx is being returned from the server.\n" +
+                    "This could point to a recent server crash. Ask your server administrator\n" +
+                    "to check for stale .lock files under the OMERO data directory. This\n" +
+                    "is particularly likely on a server using NFS.\n");
         }
     }
 

@@ -43,11 +43,14 @@ import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.basic.CurrentDetails;
+import ome.services.mail.MailUtil;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.util.Executor;
+import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.tools.hibernate.QueryBuilder;
@@ -56,8 +59,10 @@ import ome.util.Filterable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.springframework.mail.MailException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,16 +91,19 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
     final protected Executor executor;
 
+    final protected MailUtil mailUtil;
+
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IShare.class;
     }
 
     public ShareBean(LocalAdmin admin, SessionManager mgr, ShareStore store,
-            Executor executor) {
+            Executor executor, MailUtil mailUtil) {
         this.admin = admin;
         this.sessionManager = mgr;
         this.store = store;
         this.executor = executor;
+        this.mailUtil = mailUtil;
     }
 
     // ~ Service Methods
@@ -161,11 +169,11 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
     @RolesAllowed("user")
     public Map<Long, Long> getMemberCount(final Set<Long> shareIds) {
-        
+
         if (shareIds == null || shareIds.size() == 0) {
             throw new ApiUsageException("Nothing to do");
         }
-        
+
         final QueryBuilder qb = new QueryBuilder();
         qb.select("share2.id", "count(distinct links2.id)");
         qb.from("ShareMember", "links2");
@@ -187,7 +195,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         }
         // -- end subselect
         qb.append("group by share2.id");
-        
+
         final Map<Long, Long> rv = new HashMap<Long, Long>(shareIds.size());
         sec.runAsAdmin(new AdminAction(){
             public void runAsAdmin() {
@@ -752,6 +760,33 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         throw new UnsupportedOperationException();
     }
 
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void notifyMembersOfShare(long shareId, String subject, String message,
+            boolean html) {
+
+        EventContext ec = getSecuritySystem().getEventContext();
+
+        Set<Experimenter> exps = getAllMembers(shareId);
+        exps.add(getShare(shareId).getOwner());
+
+        Map<Experimenter, String> errors = new HashMap<Experimenter, String>();
+        for (final Experimenter e : exps) {
+            if (e.getId() != ec.getCurrentUserId() && e.getEmail() != null
+                    && mailUtil.validateEmail(e.getEmail())) {
+                try {
+                    mailUtil.sendEmail(e.getEmail(), subject, message, html,
+                            null, null);
+                } catch (MailException me) {
+                    errors.put(e, me.getMessage());
+                }
+            }
+        }
+        if (!errors.isEmpty()) {
+            log.error(ServiceHandler.getResultsString(errors, null));
+        }
+    }
+
     // Helpers
     // =========================================================================
 
@@ -772,7 +807,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     /**
      * Convert a {@link Timestamp expiration} into a long which can be set on
      * {@link Session#setTimeToLive(Long)}.
-     * 
+     *
      * @return the time in milliseconds that this session can exist.
      */
     public static long expirationAsLong(long started, Timestamp expiration) {
@@ -908,9 +943,9 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     /**
      * If the current user is not an admin, then this methods adds a subclause
      * to the HQL:
-     * 
+     *
      *   AND ( share.owner.id = :userId or user.id = :userId )
-     * 
+     *
      * {@link QueryBuilder#where()} should already have been called.
      */
     protected void applyIfShareAccessible(QueryBuilder qb) {
@@ -924,7 +959,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             qb.append(" ) ");
         }
     }
-    
+
     /**
      * Loads share and checks it's owner and member data against the current
      * context (owner/member/admin). This method must be kept in sync with

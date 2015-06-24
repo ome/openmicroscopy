@@ -44,7 +44,7 @@ try
     re.lookupPixels(pixelsId);
     % Check if default required.
     if (~re.lookupRenderingDef(pixelsId))
-        re.resetDefaults();
+        re.resetDefaultSettings(true);
         re.lookupRenderingDef(pixelsId);
     end
     % start the rendering engine

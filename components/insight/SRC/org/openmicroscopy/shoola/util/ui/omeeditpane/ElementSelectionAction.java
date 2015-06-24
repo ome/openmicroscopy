@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.omeeditpane.ElementSelectionAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -108,8 +108,10 @@ class ElementSelectionAction
 		if (value != null)
 		{
 			value = value.trim();
-			if (value.length() > 0)
+			if (value.length() > 0) {
+				value = value.replaceAll("\\W", "");
 				id = Long.parseLong(value);
+			}
 			name = OMEWikiConstants.REF_ID;
 		}
 		else

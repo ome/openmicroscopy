@@ -23,7 +23,7 @@ namespace omero {
      * itself. (Normal Ice logic is to throw an exception
      * if a type has already been registered.)
      */
-  void registerObjectFactory(const Ice::CommunicatorPtr ic,
+  void registerObjectFactory(const Ice::CommunicatorPtr& ic,
                              const omero::client* client);
 
 }

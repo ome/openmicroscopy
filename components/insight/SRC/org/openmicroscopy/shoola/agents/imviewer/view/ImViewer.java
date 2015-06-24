@@ -1,7 +1,7 @@
 /* * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,10 +36,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -51,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
 /** 
@@ -1084,23 +1079,6 @@ public interface ImViewer
 	 */
 	public void scrollToViewport(Rectangle bounds);
 
-	/**
-	 * Returns the images composing the grid. This should be invoked
-	 * only if the main image is not an RGB image.
-	 * 
-	 * @return See above.
-	 */
-	public Map<Integer, TextureData> getGridImagesAsTexture();
-
-	/**
-	 * Creates an image from the texture
-	 * 
-	 * @param type 		 The selected view.
-	 * @param includeROI Passed <code>true</code> to add ROI, 
-	 * 					 <code>false</code> otherwise.
-	 */
-	public BufferedImage createImageFromTexture(int type, boolean includeROI);
-
     /**
      * Returns <code>true</code> if the passed channels compose an RGB image, 
      * <code>false</code> otherwise.
@@ -1183,13 +1161,6 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	boolean includeROI();
-	
-	/** 
-	 * Displays the results of a FLIM analysis. 
-	 * 
-	 * @param results The results to display.
-	 */
-	void displayFLIMResults(Map<FileAnnotationData, File> results);
 
 	/**
 	 * Sets the image displayed in the bird eye view.
@@ -1351,4 +1322,16 @@ public interface ImViewer
      * @param interpolation
      */
     public void setInterpolation(boolean interpolation);
+    
+    /**
+     * Set the {@link ImageAcquisitionData}
+     * @param data The {@link ImageAcquisitionData}
+     */
+    public void setImageAcquisitionData(ImageAcquisitionData data);
+    
+    /**
+     * Get the {@link ImageAcquisitionData}
+     * @return See above
+     */
+    public ImageAcquisitionData getImageAcquisitionData();
 }

@@ -24,6 +24,7 @@ using namespace std;
 using namespace omero;
 using namespace omero::api;
 using namespace omero::cmd;
+using namespace omero::cmd::graphs;
 using namespace omero::callbacks;
 using namespace omero::model;
 using namespace omero::rtypes;
@@ -31,7 +32,11 @@ using namespace omero::sys;
 
 // http://stackoverflow.com/questions/2333728/stdmap-default-value
 template <typename K, typename V>
-V GetWithDef(const std::map <K,V> & m, const K & key, const V & defval, const Ice::LoggerPtr& logger = Ice::LoggerPtr() ) {
+V GetWithDef(const std::map <K,V> & m, const K & key, const V & defval, const Ice::LoggerPtr&
+#ifdef DEBUG
+        logger = Ice::LoggerPtr()
+#endif
+) {
     typename std::map<K,V>::const_iterator it = m.find( key );
     if ( it == m.end() ) {
 #ifdef DEBUG
@@ -140,7 +145,7 @@ public:
     long id;
     long grp;
     long wait;
-    ChgrpPtr req;
+    Chgrp2Ptr req;
     ResponsePtr rsp;
     HandlePrx handle;
     CmdCallbackIPtr cb;
@@ -158,15 +163,18 @@ public:
         grp = strToNum<long>(grpstr);
         wait = strToNum<long>(waitstr);
 
-        map<string, string> options;
-        req = new Chgrp();
-        req->type = typestr;
-        req->id = id;
-        req->grp = grp;
-        req->options = options;
+        omero::api::LongList objectIds;
+        omero::api::StringLongListMap objects;
+        ChildOptions options;
+        req = new Chgrp2();
+        objectIds.push_back(id);
+        objects[typestr] = objectIds;
+        req->targetObjects = objects;
+        req->groupId = grp;
+        req->childOptions = options;
     }
 
-    void ctrlc(int sig) {
+    void ctrlc(int /*sig*/) {
         cout << "Attempting cancel..." << endl;
         wait = 0;
         if (handle->cancel()) {

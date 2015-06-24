@@ -39,7 +39,7 @@ public class TestStandardDoubleRenderer extends BaseRenderingTest
     {
         TestQuantumFactory qf = new TestQuantumFactory();
         qf.setStrategy(new Quantization_float(settings.getQuantization(),
-                pixels.getPixelsType()));
+                pixels));
         return qf;
     }
     
@@ -67,7 +67,7 @@ public class TestStandardDoubleRenderer extends BaseRenderingTest
         int n = 16;
         Double[] output = new Double[16];
         for (int i = 0; i < n/2; i++) {
-            output[i+n/2] = Double.MAX_VALUE;
+            output[i+n/2] = new Double(Integer.MAX_VALUE);
         }
         for (int i = 0; i < n/2; i++) {
             output[i] = 0.0;
@@ -85,6 +85,7 @@ public class TestStandardDoubleRenderer extends BaseRenderingTest
     {
         PixelsType pixelsType = new PixelsType();
         pixelsType.setValue("double");
+        pixelsType.setBitSize(64);
         return pixelsType;
     }
 
@@ -92,7 +93,7 @@ public class TestStandardDoubleRenderer extends BaseRenderingTest
     public void testPixelValues() throws Exception
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
+                settings.getQuantization(), pixels);
         int n = data.size();
         for (int i = 0; i < n/2; i++) {
             assertEquals(0.0, data.getPixelValue(i));
@@ -113,9 +114,11 @@ public class TestStandardDoubleRenderer extends BaseRenderingTest
     public void testPixelValuesRange() throws Exception
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
-        assertEquals(-Double.MAX_VALUE, qs.getPixelsTypeMin());
-        assertEquals(Double.MAX_VALUE, qs.getPixelsTypeMax());
+                settings.getQuantization(), pixels);
+        assertEquals(new Double(Integer.MIN_VALUE),
+                new Double(qs.getPixelsTypeMin()));
+        assertEquals(new Double(Integer.MAX_VALUE),
+                new Double(qs.getPixelsTypeMax()));
     }
 
     @Test(timeOut=30000)

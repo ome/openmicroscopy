@@ -5,7 +5,7 @@
 #include <omero/model/PixelsI.h>
 
 using namespace omero::model;
-int main(int argc, char* argv[]) {
+int main(int, char**) {
 
     ImagePtr image = new ImageI(1, true);
     image->getDetails()->setUpdateEvent( new EventI(1L, false) );

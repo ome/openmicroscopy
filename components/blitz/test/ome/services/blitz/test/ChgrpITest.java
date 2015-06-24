@@ -25,10 +25,6 @@ import ome.tools.hibernate.ExtendedMetadata;
 import omero.RLong;
 import omero.RType;
 import omero.ServerError;
-import omero.api.AMD_IDelete_queueDelete;
-import omero.api.IDeletePrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
@@ -80,11 +76,9 @@ import org.testng.annotations.Test;
 
 
 /**
- * Tests call to {@link IDeletePrx}, especially important for testing the
- * {@link IDeletePrx#queueDelete(omero.api.delete.DeleteCommand[]) since it is
- * not available from {@link ome.api.IDelete}
  */
 @Test(groups = { "integration", "chgrp" })
+@SuppressWarnings("deprecation")
 public class ChgrpITest extends AbstractGraphTest {
 
     long oldGroupId = -1L;

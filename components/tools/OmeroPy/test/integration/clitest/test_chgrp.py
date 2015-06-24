@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,9 +29,19 @@ import pytest
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 group_prefixes = ["", "Group:", "ExperimenterGroup:"]
+ordered = [True, False]
+all_grps = {'omero.group': '-1'}
 
 
 class TestChgrp(CLITest):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestChgrp, cls).setup_class()
+        exp = cls.sf.getAdminService().getExperimenter(cls.user.id.val)
+        cls.target_groups = {}
+        for p in permissions:
+            cls.target_groups[p] = cls.new_group([exp], p)
 
     def setup_method(self, method):
         super(TestChgrp, self).setup_method(method)
@@ -59,12 +69,6 @@ class TestChgrp(CLITest):
 
         return new_object.id.val
 
-    def add_new_group(self, perms=None):
-        admin = self.sf.getAdminService()
-        exp = admin.lookupExperimenter(admin.getEventContext().userName)
-        group = self.new_group([exp], perms)
-        return group
-
     @pytest.mark.parametrize("object_type", object_types)
     @pytest.mark.parametrize("target_group_perms", permissions)
     @pytest.mark.parametrize("group_prefix", group_prefixes)
@@ -72,14 +76,14 @@ class TestChgrp(CLITest):
         oid = self.create_object(object_type)
 
         # create a new group and move the object to the new group
-        group = self.add_new_group(perms=target_group_perms)
-        self.args += ['%s%s' % (group_prefix, group.id.val),
+        target_group = self.target_groups[target_group_perms]
+        self.args += ['%s%s' % (group_prefix, target_group.id.val),
                       '/%s:%s' % (object_type, oid)]
         self.cli.invoke(self.args, strict=True)
 
-        # change the session context and check the object has been moved
-        self.set_context(self.client, group.id.val)
-        new_object = self.query.get(object_type, oid)
+        # check the object has been moved
+        new_object = self.query.get(object_type, oid,
+                                    {'omero.group': str(target_group.id.val)})
         assert new_object.id.val == oid
 
     def testNonMember(self):
@@ -96,16 +100,13 @@ class TestChgrp(CLITest):
     def testGroupName(self):
         iid = self.create_object("Image")
 
-        # create a new group which the current user is not member of
-        group = self.add_new_group()
-
         # try to move the image to the new group
-        self.args += ['%s' % group.name.val, '/Image:%s' % iid]
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val, '/Image:%s' % iid]
         self.cli.invoke(self.args, strict=True)
 
-        # change the session context and check the image has been moved
-        self.set_context(self.client, group.id.val)
-        img = self.query.get("Image", iid)
+        # check the image has been moved
+        img = self.query.get("Image", iid, {'omero.group': '-1'})
         assert img.id.val == iid
 
     def testFileset(self):
@@ -116,28 +117,29 @@ class TestChgrp(CLITest):
         fileset = self.query.get('Fileset', filesetId)
         assert fileset is not None
 
-        # create a new group and move the fileset to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Fileset:%s' % filesetId]
+        # move the fileset to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val, '/Fileset:%s' % filesetId]
         self.cli.invoke(self.args, strict=True)
 
-        # change the session context and check the image has been moved
+        # check the image has been moved
         ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
-            assert img.details.group.id.val == group.id.val
+            assert img.details.group.id.val == target_group.id.val
 
     def testFilesetPartialFailing(self):
         images = self.importMIF(2)  # 2 images sharing a fileset
 
-        # create a new group and try to move only one image to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val]
+        # try to move only one image to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val,
+                      '/Image:%s' % images[0].id.val]
         self.cli.invoke(self.args, strict=True)
 
         # check the images are still in the current group
-        ctx = {'omero.group': '-1'}  # query across groups
         gid = self.sf.getAdminService().getEventContext().groupId
+        ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
             assert img.details.group.id.val == gid
@@ -145,32 +147,60 @@ class TestChgrp(CLITest):
     def testFilesetOneImage(self):
         images = self.importMIF(1)  # One image in a fileset
 
-        # create a new group and try to move only one image to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val]
+        # try to move only one image to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val,
+                      '/Image:%s' % images[0].id.val]
         self.cli.invoke(self.args, strict=True)
 
         # check the image has been moved
         ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
-            assert img.details.group.id.val == group.id.val
+            assert img.details.group.id.val == target_group.id.val
 
-    @pytest.mark.xfail(reason="CLI  does not wrap all chgrps in 1 DoAll")
-    def testFilesetAllImages(self):
+    def testFilesetAllImagesMoveImages(self):
         images = self.importMIF(2)  # 2 images sharing a fileset
 
-        # create a new group and try to move only one image to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val,
-                      '/Image:%s' % images[1].id.val]
+        # try to move both the images to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val,
+                      'Image:%s,%s' % (images[0].id.val, images[1].id.val)]
         self.cli.invoke(self.args, strict=True)
 
         # check the images have been moved
         ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
-            assert img.details.group.id.val == group.id.val
+            assert img.details.group.id.val == target_group.id.val
+
+    def testFilesetAllImagesMoveDataset(self):
+        images = self.importMIF(2)  # 2 images sharing a fileset
+        dataset_id = self.create_object('Dataset')  # ... in a dataset
+
+        # put the images into the dataset
+        for image in images:
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(dataset_id, False)
+            link.child = omero.model.ImageI(image.id.val, False)
+            self.update.saveObject(link)
+
+        # try to move the dataset to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val, 'Dataset:%s' % dataset_id]
+        self.cli.invoke(self.args, strict=True)
+
+        # query across groups
+        ctx = {'omero.group': '-1'}
+
+        # check the dataset been moved
+        ds = self.query.get('Dataset', dataset_id, ctx)
+        assert ds.details.group.id.val == target_group.id.val
+
+        # check the images have been moved
+        for i in images:
+            img = self.query.get('Image', i.id.val, ctx)
+            assert img.details.group.id.val == target_group.id.val
 
     @pytest.mark.parametrize("group_prefix", group_prefixes)
     def testNonExistingGroupId(self, group_prefix):
@@ -182,6 +212,221 @@ class TestChgrp(CLITest):
         self.args += [self.uuid(), '/Image:1']
         with pytest.raises(NonZeroReturnCode):
                 self.cli.invoke(self.args, strict=True)
+
+    # These tests try to exercise the various grouping possibilities
+    # when passing multiple objects on the command line. In all of these
+    # cases using the --ordered flag should make no difference
+
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSimpleObjectsSameClass(self, number, ordered):
+        dsets = [self.make_dataset() for i in range(number)]
+
+        # try to move the objects to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val]
+        for d in dsets:
+            self.args += ['Dataset:%s' % d.id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the objects have been moved.
+        for d in dsets:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == target_group.id.val
+
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSimpleObjectsTwoClassesSeparated(self, number, ordered):
+        projs = [self.make_project() for i in range(number)]
+        dsets = [self.make_dataset() for i in range(number)]
+
+        # try to move the objects to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val]
+        for p in projs:
+            self.args += ['Project:%s' % p.id.val]
+        for d in dsets:
+            self.args += ['Dataset:%s' % d.id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the objects have been moved.
+        for p in projs:
+            proj = self.query.get('Project', p.id.val, all_grps)
+            assert proj.details.group.id.val == target_group.id.val
+        for d in dsets:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == target_group.id.val
+
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSimpleObjectsTwoClassesInterlaced(self, number, ordered):
+        projs = [self.make_project() for i in range(number)]
+        dsets = [self.make_dataset() for i in range(number)]
+
+        # try to move the objects to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val]
+        for i in range(number):
+            self.args += ['Project:%s' % projs[i].id.val]
+            self.args += ['Dataset:%s' % dsets[i].id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the objects have been moved.
+        for p in projs:
+            proj = self.query.get('Project', p.id.val, all_grps)
+            assert proj.details.group.id.val == target_group.id.val
+        for d in dsets:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == target_group.id.val
+
+    @pytest.mark.parametrize('form', ['/Dataset', ''])
+    @pytest.mark.parametrize('number', [1, 2])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testBasicSkipheadBothForms(self, form, number, ordered):
+        proj = self.make_project()
+        dset = self.make_dataset()
+        imgs = [self.update.saveAndReturnObject(self.new_image())
+                for i in range(number)]
+
+        self.link(proj, dset)
+        for i in imgs:
+            self.link(dset, i)
+
+        # try to move the objects to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val]
+        self.args += ['Project' + form + '/Image:%s' % proj.id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the images have been moved.
+        gid = self.sf.getAdminService().getEventContext().groupId
+        p = self.query.get('Project', proj.id.val, all_grps)
+        assert p.details.group.id.val == gid
+        d = self.query.get('Dataset', dset.id.val, all_grps)
+        assert d.details.group.id.val == gid
+        for i in imgs:
+            img = self.query.get('Image', i.id.val, all_grps)
+            assert img.details.group.id.val == target_group.id.val
+
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSkipheadsSameClass(self, number, ordered):
+        projs = [self.make_project() for i in range(number)]
+        dsets = [self.make_dataset() for i in range(number)]
+        imgs = [self.update.saveAndReturnObject(self.new_image())
+                for i in range(number)]
+
+        for i in range(number):
+            self.link(projs[i], dsets[i])
+            self.link(dsets[i], imgs[i])
+
+        # try to move the objects to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val]
+        for p in projs:
+            self.args += ['Project/Dataset/Image:%s' % p.id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the images have been moved.
+        gid = self.sf.getAdminService().getEventContext().groupId
+        for p in projs:
+            proj = self.query.get('Project', p.id.val, all_grps)
+            assert proj.details.group.id.val == gid
+        for d in dsets:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == gid
+        for i in imgs:
+            img = self.query.get('Image', i.id.val, all_grps)
+            assert img.details.group.id.val == target_group.id.val
+
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSkipheadsPlusObjectsSeparated(self, number, ordered):
+        projs = [self.make_project() for i in range(number)]
+        dsets = [self.make_dataset() for i in range(number)]
+        imgs = [self.update.saveAndReturnObject(self.new_image())
+                for i in range(number)]
+
+        for i in range(number):
+            self.link(projs[i], dsets[i])
+            self.link(dsets[i], imgs[i])
+
+        ds = [self.make_dataset() for i in range(number)]
+
+        # try to move the objects to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val]
+        for d in ds:
+            self.args += ['Dataset:%s' % d.id.val]
+        for p in projs:
+            self.args += ['Project/Dataset/Image:%s' % p.id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the images and separate datasets have been moved.
+        gid = self.sf.getAdminService().getEventContext().groupId
+        for p in projs:
+            proj = self.query.get('Project', p.id.val, all_grps)
+            assert proj.details.group.id.val == gid
+        for d in dsets:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == gid
+        for i in imgs:
+            img = self.query.get('Image', i.id.val, all_grps)
+            assert img.details.group.id.val == target_group.id.val
+        for d in ds:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == target_group.id.val
+
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSkipheadsPlusObjectsInterlaced(self, number, ordered):
+        projs = [self.make_project() for i in range(number)]
+        dsets = [self.make_dataset() for i in range(number)]
+        imgs = [self.update.saveAndReturnObject(self.new_image())
+                for i in range(number)]
+
+        for i in range(number):
+            self.link(projs[i], dsets[i])
+            self.link(dsets[i], imgs[i])
+
+        ds = [self.make_dataset() for i in range(number)]
+
+        # try to move the objects to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val]
+        for i in range(number):
+            self.args += ['Project/Dataset/Image:%s' % projs[i].id.val]
+            self.args += ['Dataset:%s' % ds[i].id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the images and separate datasets have been moved.
+        gid = self.sf.getAdminService().getEventContext().groupId
+        for p in projs:
+            proj = self.query.get('Project', p.id.val, all_grps)
+            assert proj.details.group.id.val == gid
+        for d in dsets:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == gid
+        for i in imgs:
+            img = self.query.get('Image', i.id.val, all_grps)
+            assert img.details.group.id.val == target_group.id.val
+        for d in ds:
+            dset = self.query.get('Dataset', d.id.val, all_grps)
+            assert dset.details.group.id.val == target_group.id.val
 
 
 class TestChgrpRoot(RootCLITest):

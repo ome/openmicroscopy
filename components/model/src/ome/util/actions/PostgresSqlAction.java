@@ -5,11 +5,11 @@
 
 package ome.util.actions;
 
-import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +28,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+
+import com.google.common.collect.Iterables;
 
 public class PostgresSqlAction extends SqlAction.Impl {
 
@@ -245,9 +247,15 @@ public class PostgresSqlAction extends SqlAction.Impl {
                 new IdRowMapper(), roiId);
     }
 
-    public void setFileRepo(long id, String repoId) {
-        _jdbc().update(_lookup("set_file_repo"), //$NON-NLS-1$
-                repoId, id);
+    @Override
+    public void setFileRepo(Collection<Long> ids, String repoId) {
+       for (final List<Long> idsBatch : Iterables.partition(ids, 256)) {
+           final Map<String, Object> parameters = new HashMap<String, Object>();
+           parameters.put("ids", idsBatch);
+           parameters.put("repo", repoId);
+           _jdbc().update(_lookup("set_file_repo"), //$NON-NLS-1$
+                   parameters);
+       }
     }
 
     public void setPixelsNamePathRepo(long pixId, String name, String path,
@@ -322,196 +330,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
                             }
                         });
         return new HashSet<String>(names);
-    }
-
-    //
-    // Formerly PgArrayHelper
-    //
-
-    public int setFileParam(final long id, final String key, final String value) {
-        Map<String, String> params = getFileParams(id);
-        if (params == null) {
-            params = new HashMap<String, String>();
-        }
-        params.put(key, value);
-        // Alternative would be to do an either-or with a concat
-        // "set params = params || array[array[?,?]] where id = ?"
-        return setFileParams(id, params);
-    }
-
-    public int setFileParams(final long id, Map<String, String> params) {
-        if (params == null || params.size() == 0) {
-            return _jdbc().update(
-                    _lookup("set_file_params_null"), //$NON-NLS-1$
-                    id);
-        } else {
-            boolean first = true;
-            StringBuilder sb = new StringBuilder();
-            List<Object> list = new ArrayList<Object>();
-            sb.append(_lookup("set_file_params_1")); //$NON-NLS-1$
-            for (String key : params.keySet()) {
-                if (first) {
-                    first = false;
-                } else {
-                    sb.append(_lookup("set_file_params_2")); //$NON-NLS-1$
-                }
-                sb.append(_lookup("set_file_params_3")); //$NON-NLS-1$
-                list.add(key);
-                list.add(params.get(key));
-            }
-            sb.append(_lookup("set_file_params4")); //$NON-NLS-1$
-            list.add(id);
-            return _jdbc().update(sb.toString(),
-                    (Object[]) list.toArray(new Object[list.size()]));
-        }
-    }
-
-    public Map<String, String> getFileParams(final long id)
-            throws InternalException {
-        try {
-            return _jdbc().queryForObject(
-                    _lookup("get_file_params"), //$NON-NLS-1$
-                    new RowMapper<Map<String, String>>() {
-                        public Map<String, String> mapRow(ResultSet arg0,
-                                int arg1) throws SQLException {
-                            Map<String, String> params = new HashMap<String, String>();
-                            Array arr1 = (Array) arg0.getArray(1);
-                            if (arr1 == null) {
-                                return params;
-                            }
-                            String[][] arr2 = (String[][]) arr1.getArray();
-                            for (int i = 0; i < arr2.length; i++) {
-                                params.put(arr2[i][0], arr2[i][1]);
-                            }
-                            return params;
-                        }
-                    }, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        } catch (UncategorizedSQLException e) {
-            handlePotentialPgArrayJarError(e);
-            return null;
-        }
-    }
-
-    public List<String> getFileParamKeys(long id) throws InternalException {
-        try {
-            return _jdbc().queryForObject(
-                    _lookup("get_file_param_keys"), //$NON-NLS-1$
-                    new RowMapper<List<String>>() {
-                        public List<String> mapRow(ResultSet arg0, int arg1)
-                                throws SQLException {
-                            final List<String> keys = new ArrayList<String>();
-                            Array arr1 = (Array) arg0.getArray(1);
-                            if (arr1 == null) {
-                                return keys;
-                            }
-                            String[][] arr2 = (String[][]) arr1.getArray();
-                            for (int i = 0; i < arr2.length; i++) {
-                                keys.add(arr2[i][0]);
-                            }
-                            return keys;
-                        }
-                    }, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        } catch (UncategorizedSQLException e) {
-            handlePotentialPgArrayJarError(e);
-            return null;
-        }
-    }
-
-    public int setPixelsParam(final long id, final String key,
-            final String value) {
-        Map<String, String> params = getPixelsParams(id);
-        if (params == null) {
-            params = new HashMap<String, String>();
-        }
-        params.put(key, value);
-        // Alternative would be to do an either-or with a concat
-        // "set params = params || array[array[?,?]] where id = ?"
-        return setPixelsParams(id, params);
-    }
-
-    public int setPixelsParams(final long id, Map<String, String> params) {
-        if (params == null || params.size() == 0) {
-            return _jdbc().update(
-                    _lookup("set_pixel_params_null"), id); //$NON-NLS-1$
-        } else {
-            boolean first = true;
-            StringBuilder sb = new StringBuilder();
-            List<Object> list = new ArrayList<Object>();
-            sb.append(_lookup("set_pixels_params_1")); //$NON-NLS-1$
-            for (String key : params.keySet()) {
-                if (first) {
-                    first = false;
-                } else {
-                    sb.append(_lookup("set_pixels_params_2")); //$NON-NLS-1$
-                }
-                sb.append(_lookup("set_pixels_params_3")); //$NON-NLS-1$
-                list.add(key);
-                list.add(params.get(key));
-            }
-            sb.append(_lookup("set_pixels_params_4")); //$NON-NLS-1$
-            list.add(id);
-            return _jdbc().update(sb.toString(),
-                    (Object[]) list.toArray(new Object[list.size()]));
-        }
-    }
-
-    public Map<String, String> getPixelsParams(final long id)
-            throws InternalException {
-        try {
-            return _jdbc().queryForObject(
-                    _lookup("get_pixels_params"), //$NON-NLS-1$
-                    new RowMapper<Map<String, String>>() {
-                        public Map<String, String> mapRow(ResultSet arg0,
-                                int arg1) throws SQLException {
-                            Map<String, String> params = new HashMap<String, String>();
-                            Array arr1 = (Array) arg0.getArray(1);
-                            if (arr1 == null) {
-                                return params;
-                            }
-                            String[][] arr2 = (String[][]) arr1.getArray();
-                            for (int i = 0; i < arr2.length; i++) {
-                                params.put(arr2[i][0], arr2[i][1]);
-                            }
-                            return params;
-                        }
-                    }, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        } catch (UncategorizedSQLException e) {
-            handlePotentialPgArrayJarError(e);
-            return null;
-        }
-    }
-
-    public List<String> getPixelsParamKeys(long id) throws InternalException {
-        try {
-            return _jdbc().queryForObject(
-                    _lookup("get_pixels_params_keys"), //$NON-NLS-1$
-                    new RowMapper<List<String>>() {
-                        public List<String> mapRow(ResultSet arg0, int arg1)
-                                throws SQLException {
-                            final List<String> keys = new ArrayList<String>();
-                            Array arr1 = arg0.getArray(1);
-                            if (arr1 == null) {
-                                return keys;
-                            }
-                            String[][] arr2 = (String[][]) arr1.getArray();
-                            for (int i = 0; i < arr2.length; i++) {
-                                keys.add(arr2[i][0]);
-                            }
-                            return keys;
-                        }
-                    }, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        } catch (UncategorizedSQLException e) {
-            handlePotentialPgArrayJarError(e);
-            return null;
-        }
     }
 
     /* (non-Javadoc)

@@ -31,12 +31,15 @@ import Ice
 import IceImport
 import time
 import traceback
+import warnings
 import omero.java
 
 IceImport.load("Glacier2_Router_ice")
 
 from Glacier2 import PermissionDeniedException
 
+from omero.rtypes import rlong
+from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
@@ -59,8 +62,8 @@ Options for logging in:
 
     # Provide all values interactively
     $ bin/omero sessions login
-    Server:
-    Username:
+    Server: [localhost:4064]
+    Username: [root]
     Password:
 
     # Pass values as the target
@@ -71,16 +74,16 @@ Options for logging in:
 
     # Pass some values via arguments
     $ bin/omero -s localhost sessions login
-    Username:
+    Username: [user]
     Password:
     $ bin/omero -p 24064 sessions login
-    Server:
-    Username:
+    Server: [localhost:24064]
+    Username: [user]
     Password:
 
     # Pass all non-password values via arguments
     $ bin/omero -s localhost -u john sessions login
-    Password
+    Password:
 
     # Use a session ID to login without a password
     $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
@@ -97,12 +100,58 @@ Options for logging in:
     $ bin/omero sessions login --sudo=root example@localhost
     Password for root:
 
-Other commands:
+Other sessions commands:
 
-    $ bin/omero sessions list
-    $ OMERO_SESSION_DIR=/tmp bin/omero sessions list
+    # Logging out of the currently active sessions
     $ bin/omero sessions logout
-    $ bin/omero sessions clear
+
+    # List all locally available sessions (purging the expired ones)
+    $ bin/omero sessions list
+
+    # List all local sessions
+    $ bin/omero sessions list --no-purge
+
+    # List all active server sessions
+    $ bin/omero sessions who
+
+    # List or change the group for the session
+    $ bin/omero sessions group
+    $ bin/omero sessions group mygroup
+    $ bin/omero sessions group 123
+
+    # List or change the timeToLive for the session
+    $ bin/omero sessions timeout
+    $ bin/omero sessions timeout 300.0 # Seconds
+    $ bin/omero sessions timeout 300.0 --session=$UUID
+
+Custom sessions directory:
+
+    # Specify a custom session directory using OMERO_SESSIONDIR
+    $ export OMERO_SESSIONDIR=/tmp/my_sessions
+    # Create a new session stored under OMERO_SESSIONDIR
+    $ bin/omero sessions login
+    $ bin/omero sessions file
+    $ bin/omero sessions list
+"""
+
+LISTHELP = """
+By default, inactive sessions are purged from the local sessions store and
+removed from the listing. To list all sessions stored locally independently of
+their status, use the --no-purge argument.
+"""
+
+GROUPHELP = """
+If any current services are open, the command will fail.
+"""
+
+WHOHELP = """
+Administrators will receive a list of all active sessions
+along with critical information on last activity. This is
+useful for determining whether or not the server can be
+restarted.
+
+Other users will only see a list of names, i.e. users who
+can be considered "online".
 """
 
 
@@ -112,11 +161,30 @@ class SessionsControl(BaseControl):
 
     def store(self, args):
         try:
-            dirpath = getattr(args, "session_dir",
-                              os.environ.get('OMERO_SESSION_DIR', None))
-            return self.FACTORY(dirpath)
+            # Read base directory from deprecated --session-dir argument
+            base_dir = getattr(args, "session_dir", None)
+            if base_dir:
+                warnings.warn(
+                    "--session-dir is deprecated. Use OMERO_SESSIONDIR"
+                    " instead.", DeprecationWarning)
+
+            # Read base directory from deprecated OMERO_SESSION_DIR envvar
+            base_dir = os.environ.get('OMERO_SESSION_DIR', base_dir)
+            if 'OMERO_SESSION_DIR' in os.environ:
+                warnings.warn(
+                    "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSIONDIR"
+                    " instead.", DeprecationWarning)
+
+            # Read sessions directory from OMERO_SESSIONDIR envvar
+            session_dir = None
+            if base_dir:
+                from path import path
+                session_dir = path(base_dir) / "omero" / "sessions"
+            sessions_dir = os.environ.get('OMERO_SESSIONDIR', session_dir)
+
+            return self.FACTORY(sessions_dir)
         except OSError, ose:
-            filename = getattr(ose, "filename", dirpath)
+            filename = getattr(ose, "filename", sessions_dir)
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
@@ -131,19 +199,32 @@ class SessionsControl(BaseControl):
 
         group = parser.add(
             sub, self.group,
-            "Set the group of the current session by id or name")
+            "Set the group of the given session by id or name" + GROUPHELP)
         group.add_argument(
             "target",
+            nargs="?",
             help="Id or name of the group to switch this session to")
 
-        list = parser.add(sub, self.list, "List all locally stored sessions")
-        purge = list.add_mutually_exclusive_group()
-        purge.add_argument(
-            "--purge", action="store_true", default=True,
-            help="Remove inactive sessions")
-        purge.add_argument(
+        timeout = parser.add(
+            sub, self.timeout,
+            "Query or set the timeToIdle for the given session")
+        timeout.add_argument(
+            "seconds",
+            nargs="?",
+            type=long,
+            help="Number of seconds to set the timeToIdle value to")
+        timeout.add_argument(
+            "--session",
+            help="Session other than the current to update")
+
+        list = parser.add(sub, self.list, (
+            "List all available sessions stored locally\n\n" + LISTHELP))
+        list.add_argument(
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
+
+        parser.add(sub, self.who, (
+            "List all active server sessions\n\n" + WHOHELP))
 
         keepalive = parser.add(
             sub, self.keepalive, "Keeps the current session alive")
@@ -166,7 +247,7 @@ class SessionsControl(BaseControl):
     def _configure_login(self, login):
         login.add_login_arguments()
         login.add_argument(
-            "-t", "--timeout",
+            "-t", "--timeout", type=long,
             help="Timeout for session. After this many inactive seconds, the"
             " session will be closed")
         login.add_argument(
@@ -175,11 +256,10 @@ class SessionsControl(BaseControl):
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("--session-dir", help=SUPPRESS,
-                            default=os.environ.get('OMERO_SESSION_DIR', None))
+        parser.add_argument("--session-dir", help=SUPPRESS)
 
     def help(self, args):
-        self.ctx.err(LONGHELP % {"prog": args.prog})
+        self.ctx.out(LONGHELP % {"prog": args.prog})
 
     def login(self, args):
         ("Login to a given server, and store session key locally.\n\n"
@@ -212,12 +292,6 @@ class SessionsControl(BaseControl):
         create = getattr(args, "create", None)
         store = self.store(args)
         previous = store.get_current()
-        try:
-            previous_props = store.get(*previous)
-            previous_port = previous_props.get(
-                "omero.port", str(omero.constants.GLACIER2PORT))
-        except:
-            previous_port = str(omero.constants.GLACIER2PORT)
 
         # Basic props, don't get fiddled with
         props = {}
@@ -266,10 +340,12 @@ class SessionsControl(BaseControl):
         pasw = args.password
         if args.key:
             if name and not self.ctx.isquiet:
-                self.ctx.err("Overriding name since session set")
+                self.ctx.err("Overriding name since session key set")
             name = args.key
+            if args.group and not self.ctx.isquiet:
+                self.ctx.err("Ignoring group since session key set")
             if args.password and not self.ctx.isquiet:
-                self.ctx.err("Ignoring password since key set")
+                self.ctx.err("Ignoring password since session key set")
             pasw = args.key
         #
         # If no key provided, then we check the last used connection
@@ -281,7 +357,7 @@ class SessionsControl(BaseControl):
 
                 server_differs = (server is not None and server != previous[0])
                 name_differs = (name is not None and name != previous[1])
-                port_differs = (port is not None and port != previous_port)
+                port_differs = (port is not None and port != previous[3])
 
                 if not create and not server_differs and not name_differs \
                         and not port_differs:
@@ -295,19 +371,19 @@ class SessionsControl(BaseControl):
                                 self.ctx.dbg("Not attaching because of"
                                              " conflicts: %s" % conflicts)
                             else:
-                                rv = store.attach(*previous)
+                                rv = store.attach(*previous[:-1])
                                 return self.handle(rv, "Using")
                         self.ctx.out("Previously logged in to %s:%s as %s"
-                                     % (previous[0], previous_port,
+                                     % (previous[0], previous[3],
                                         previous[1]))
                     except Exception, e:
                         self.ctx.out("Previous session expired for %s on"
                                      " %s:%s" % (previous[1], previous[0],
-                                                 previous_port))
+                                                 previous[3]))
                         self.ctx.dbg("Exception on attach: %s"
                                      % traceback.format_exc(e))
                         try:
-                            store.remove(*previous)
+                            store.remove(*previous[:-1])
                         except OSError, ose:
                             self.ctx.dbg("Session file missing: %s" % ose)
                         except:
@@ -323,7 +399,7 @@ class SessionsControl(BaseControl):
         # If they've omitted some required value, we must ask for it.
         #
         if not server:
-            server, name, port = self._get_server(store, name)
+            server, name, port = self._get_server(store, name, port)
         if not name:
             name = self._get_username(previous[1])
 
@@ -331,6 +407,8 @@ class SessionsControl(BaseControl):
         props["omero.user"] = name
         if port:
             props["omero.port"] = port
+        if "timeout" in args and args.timeout:
+            props["omero.timeout"] = args.timeout
 
         rv = None
         #
@@ -345,19 +423,24 @@ class SessionsControl(BaseControl):
                 # ticket:5975 : If this is the case, then this session key
                 # did not come from a CLI login, and so we're not going to
                 # modify the value returned by store.get_current()
-                self.ctx.dbg("No name found for %s." % args.key)
+                self.ctx.dbg("No local session file found for %s." % args.key)
                 rv = self.attach(store, server, args.key, args.key, props,
                                  False, set_current=False)
             else:
                 rv = self.check_and_attach(store, server, stored_name,
-                                           args.key, props)
+                                           args.key, props, check_group=False)
             action = "Joined"
             if not rv:
-                self.ctx.die(523, "Bad session key")
+                if port:
+                    msg = "Cannot join %s on %s:%s." % (args.key, server, port)
+                else:
+                    msg = "Cannot join %s on %s." % (args.key, server)
+                self.ctx.die(523, "Bad session key. %s" % msg)
         elif not create:
             available = store.available(server, name)
             for uuid in available:
-                rv = self.check_and_attach(store, server, name, uuid, props)
+                rv = self.check_and_attach(store, server, name, uuid, props,
+                                           check_group=True)
                 action = "Reconnected to"
 
         if not rv:
@@ -392,6 +475,8 @@ class SessionsControl(BaseControl):
                 except Ice.DNSException:
                     self.ctx.die(555, "Ice.DNSException: bad host name: '%s'"
                                  % server)
+                except omero.SecurityViolation, sv:
+                    self.ctx.die(557, "SecurityViolation: %s" % sv.message)
                 except Exception, e:
                     exc = traceback.format_exc()
                     self.ctx.dbg(exc)
@@ -401,7 +486,8 @@ class SessionsControl(BaseControl):
 
         return self.handle(rv, action)
 
-    def check_and_attach(self, store, server, name, uuid, props):
+    def check_and_attach(self, store, server, name, uuid, props,
+                         check_group=False):
         """
         Checks for conflicts in the settings for this session,
         and if there are none, then attempts an "attach()". If
@@ -411,10 +497,15 @@ class SessionsControl(BaseControl):
         exists = store.exists(server, name, uuid)
 
         if exists:
-            conflicts = store.conflicts(server, name, uuid, props)
+            conflicts = store.conflicts(server, name, uuid, props,
+                                        check_group=check_group)
             if conflicts:
-                self.ctx.dbg("Skipping %s due to conflicts: %s"
-                             % (uuid, conflicts))
+                if "omero.port" in conflicts:
+                    self.ctx.dbg("Skipping session %s due to mismatching"
+                                 " ports: %s " % (uuid, conflicts))
+                elif not self.ctx.isquiet:
+                    self.ctx.err("Skipped session %s due to property"
+                                 " conflicts: %s" % (uuid, conflicts))
                 return None
 
         return self.attach(store, server, name, uuid, props, exists)
@@ -450,26 +541,36 @@ class SessionsControl(BaseControl):
 
         msg = "%s session %s (%s@%s:%s)." \
             % (action, uuid, ec.userName, host, port)
-        if idle:
-            msg = msg + " Idle timeout: %s min." % (float(idle)/60/1000)
-        if live:
-            msg = msg + " Expires in %s min." % (float(live)/60/1000)
+        msg += self._parse_timeout(idle, " Idle timeout: ")
+        msg += self._parse_timeout(live, " Expires in : ")
 
         msg += (" Current group: %s" % ec.groupName)
 
         if not self.ctx.isquiet:
             self.ctx.err(msg)
 
+    def _parse_timeout(self, timeout, msg=""):
+        timeout = unwrap(timeout)
+        if not timeout:
+            return ""
+
+        unit = "min."
+        val = float(timeout) / 60 / 1000
+        if val < 5:
+            unit = "s."
+            val = val * 60
+        return "%s%.f %s" % (msg, val, unit)
+
     def logout(self, args):
         store = self.store(args)
         previous = store.get_current()
 
         try:
-            rv = store.attach(*previous)
+            rv = store.attach(*previous[:-1])
             rv[0].killSession()
         except Exception, e:
             self.ctx.dbg("Exception on logout: %s" % e)
-        store.remove(*previous)
+        store.remove(*previous[:-1])
         # Last is still useful. Not resetting.
         # store.set_current("", "", "")
 
@@ -477,6 +578,11 @@ class SessionsControl(BaseControl):
         client = self.ctx.conn(args)
         sf = client.sf
         admin = sf.getAdminService()
+
+        if args.target is None:
+            ec = self.ctx.get_event_context()
+            self.ctx.out("ExperimenterGroup:%s" % ec.groupId)
+            return ec.groupName
 
         try:
             group_id = long(args.target)
@@ -492,11 +598,47 @@ class SessionsControl(BaseControl):
             self.ctx.err("Group '%s' (id=%s) is already active"
                          % (group_name, group_id))
         else:
-            sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id,
-                                                                 False))
-            self.ctx.set_event_context(sf.getAdminService().getEventContext())
-            self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
-                         % (old_name, old_id, group_name, group_id))
+            try:
+                sf.setSecurityContext(omero.model.ExperimenterGroupI(
+                    group_id, False))
+                self.ctx.set_event_context(
+                    sf.getAdminService().getEventContext())
+                self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (
+                    old_name, old_id, group_name, group_id))
+            except omero.SecurityViolation, sv:
+                    self.ctx.die(564, "SecurityViolation: %s" % sv.message)
+
+    def timeout(self, args):
+        client = self.ctx.conn(args)
+        svc = client.sf.getSessionService()
+
+        uuid = args.session
+        if uuid is None:
+            uuid = self.ctx.get_event_context().sessionUuid
+        try:
+            obj = svc.getSession(uuid)
+        except:
+            self.ctx.dbg(traceback.format_exc())
+            self.ctx.die(557, "cannot get session: %s" % uuid)
+
+        if args.seconds is None:
+            # Query only
+            secs = unwrap(obj.timeToIdle)/1000.0
+            self.ctx.out(secs)
+            return secs
+
+        req = omero.cmd.UpdateSessionTimeoutRequest()
+        req.session = uuid
+        req.timeToIdle = rlong(args.seconds * 1000)
+        try:
+            cb = client.submit(req)  # Response is "OK"
+            cb.close(True)
+        except omero.CmdError, ce:
+            self.ctx.dbg(str(ce.err))
+            self.ctx.die(558, "CmdError: %s" % ce.err.name)
+        except:
+            self.ctx.dbg(traceback.format_exc())
+            self.ctx.die(559, "cannot update timeout for %s" % uuid)
 
     def list(self, args):
         store = self.store(args)
@@ -541,6 +683,7 @@ class SessionsControl(BaseControl):
                             self.ctx.dbg("Purging %s / %s / %s"
                                          % (server, name, uuid))
                             store.remove(server, name, uuid)
+                            continue
                         except IOError, ioe:
                             self.ctx.dbg("Aborting session purging. %s" % ioe)
                             break
@@ -563,6 +706,87 @@ class SessionsControl(BaseControl):
         from omero.util.text import Table, Column
         columns = tuple([Column(x, results[x]) for x in headers])
         self.ctx.out(str(Table(*columns)))
+
+    def who(self, args):
+        client = self.ctx.conn(args)
+        uuid = self.ctx.get_event_context().sessionUuid
+        req = omero.cmd.CurrentSessionsRequest()
+        try:
+            cb = client.submit(req)
+            try:
+                rsp = cb.getResponse()
+            finally:
+                cb.close(True)
+
+            headers = ["name", "group", "logged in", "agent", "timeout"]
+            extra = set()
+            results = {"name": [], "group": [],
+                       "logged in": [], "agent": [],
+                       "timeout": []}
+
+            # Preparse data to find extra columns
+            for idx, s in enumerate(rsp.sessions):
+                for k in rsp.data[idx].keys():
+                    extra.add(k)
+            for add in sorted(extra):
+                headers.append(add)
+                results[add] = []
+
+            for idx, s in enumerate(rsp.sessions):
+                ec = rsp.contexts[idx]
+                data = unwrap(rsp.data[idx])
+                # Handle missing keys
+                for k in extra:
+                    if k not in data.keys():
+                        results[k].append("---")
+                for k, v in sorted(data.items()):
+                    try:
+                        if k.endswith("Time"):
+                            t = v / 1000.0
+                            t = time.localtime(t)
+                            v = time.strftime('%Y-%m-%d %H:%M:%S', t)
+                    except:
+                        pass
+                    results[k].append(v)
+                results["name"].append(ec.userName)
+                results["group"].append(ec.groupName)
+                if s is not None:
+                    t = s.started.val / 1000.0
+                    t = time.localtime(t)
+                    t = time.strftime("%Y-%m-%d %H:%M:%S", t)
+                    if uuid == ec.sessionUuid:
+                        t = t + " (*)"
+                    results["logged in"].append(t)
+                    results["agent"].append(unwrap(s.userAgent))
+                    results["timeout"].append(
+                        self._parse_timeout(s.timeToIdle))
+                else:
+                    # Insufficient privileges. The EventContext
+                    # will be missing fields as well.
+                    msg = "---"
+                    results["logged in"].append(msg)
+                    results["agent"].append(msg)
+                    results["timeout"].append(msg)
+
+            from omero.util.text import Table, Column
+            columns = tuple([Column(x, results[x]) for x in headers])
+            self.ctx.out(str(Table(*columns)))
+        except omero.CmdError, ce:
+            self.ctx.dbg(str(ce.err))
+            self.ctx.die(560, "CmdError: %s" % ce.err.name)
+        except omero.ClientError, ce:
+            if ce.message == "Null handle":
+                v = client.sf.getConfigService().getVersion()
+                self.ctx.die(561,
+                             "Operation unsupported. Server version: %s" % v)
+            else:
+                exc = traceback.format_exc()
+                self.ctx.dbg(exc)
+                self.ctx.die(562, "ClientError: %s" % ce.err.name)
+        except omero.LockTimeout:
+            exc = traceback.format_exc()
+            self.ctx.dbg(exc)
+            self.ctx.die(563, "LockTimeout: operation took too long")
 
     def clear(self, args):
         store = self.store(args)
@@ -597,7 +821,7 @@ class SessionsControl(BaseControl):
 
     def file(self, args):
         store = self.store(args)
-        srv, usr, uuid = store.get_current()
+        srv, usr, uuid, port = store.get_current()
         if srv and usr and uuid:
             self.ctx.out(str(store.dir / srv / usr / uuid))
 
@@ -642,11 +866,13 @@ class SessionsControl(BaseControl):
             name = default_name
         return server, name, port
 
-    def _get_server(self, store, name):
+    def _get_server(self, store, name, port):
         defserver = store.last_host()
-        rv = self.ctx.input("Server: [%s]" % defserver)
+        if not port:
+            port = str(omero.constants.GLACIER2PORT)
+        rv = self.ctx.input("Server: [%s:%s]" % (defserver, port))
         if not rv:
-            return defserver, name, None
+            return defserver, name, port
         else:
             return self._parse_conn(rv, name)
 

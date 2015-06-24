@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.PojoMapper
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,12 +37,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-
 //Third-party libraries
 
 
 //Application-internal dependencies
 import omero.RString;
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
@@ -59,9 +59,13 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
 import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
@@ -78,6 +82,7 @@ import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.XmlAnnotation;
+import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -88,7 +93,9 @@ import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.PixelsData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ROIData;
@@ -189,17 +196,20 @@ public class PojoMapper
         	return new ScreenData((Screen) object);
         else if (object instanceof Plate)
         	return new PlateData((Plate) object);
+        else if (object instanceof PlateAcquisition)
+            return new PlateAcquisitionData((PlateAcquisition) object);
         else if (object instanceof Well)
         	return new WellData((Well) object);
         else if (object instanceof WellSample)
         	return new WellSampleData((WellSample) object);
         else if (object instanceof Roi)
         	return new ROIData((Roi) object);
-        else if (object instanceof Namespace) {
+        else if (object instanceof Namespace) 
         	return new WorkflowData((Namespace) object);
-        } else if (object instanceof Fileset) {
+        else if (object instanceof Fileset) 
         	return new FilesetData((Fileset) object);
-        }
+        else if (object instanceof MapAnnotation)
+        	return new MapAnnotationData((MapAnnotation)object);
         return null;
     }
     
@@ -395,6 +405,58 @@ public class PojoMapper
     }
     
     /**
+     * Returns the name of the data type which has to used for Graph actions,
+     * see {@link Requests}
+     * 
+     * @param dataType
+     * @return See above
+     */
+    public static String getGraphType(Class<? extends DataObject> dataType) {
+
+        // containers
+        if (dataType.equals(DatasetData.class))
+            return Dataset.class.getSimpleName();
+        if (dataType.equals(ProjectData.class))
+            return Project.class.getSimpleName();
+        if (dataType.equals(ScreenData.class))
+            return Screen.class.getSimpleName();
+        if (dataType.equals(WellData.class))
+            return Well.class.getSimpleName();
+        if (dataType.equals(PlateData.class))
+            return Plate.class.getSimpleName();
+        if (dataType.equals(PlateAcquisitionData.class))
+            return PlateAcquisition.class.getSimpleName();
+
+        // annotations
+        if (dataType.equals(AnnotationData.class))
+            return Annotation.class.getSimpleName();
+        if (dataType.equals(TagAnnotationData.class))
+            return TagAnnotation.class.getSimpleName();
+        if (dataType.equals(BooleanAnnotationData.class))
+            return BooleanAnnotation.class.getSimpleName();
+        if (dataType.equals(TermAnnotationData.class))
+            return TermAnnotation.class.getSimpleName();
+        if (dataType.equals(FileAnnotationData.class))
+            return FileAnnotation.class.getSimpleName();
+        if (dataType.equals(TextualAnnotationData.class))
+            return CommentAnnotation.class.getSimpleName();
+        if (dataType.equals(MapAnnotationData.class))
+            return MapAnnotation.class.getSimpleName();
+        if (dataType.equals(TimeAnnotationData.class))
+            return TimestampAnnotation.class.getSimpleName();
+        if (dataType.equals(XMLAnnotationData.class))
+            return XmlAnnotation.class.getSimpleName();
+
+        // other
+        if (dataType.equals(ImageData.class))
+            return Image.class.getSimpleName();
+        if (dataType.equals(ROIData.class))
+            return Roi.class.getSimpleName();
+
+        throw new IllegalArgumentException("type not supported");
+    }
+    
+    /**
      * Converts the specified type to its corresponding type for search.
      *
      * @param nodeType The type to convert.
@@ -419,6 +481,9 @@ public class PojoMapper
             else if (nodeType.equals(CommentAnnotation.class) ||
                             nodeType.equals(TextualAnnotationData.class))
                     return CommentAnnotationI.class.getName();
+            else if (nodeType.equals(MapAnnotation.class) ||
+                    nodeType.equals(MapAnnotationData.class))
+            return MapAnnotationI.class.getName();
             else if (nodeType.equals(TimestampAnnotation.class) ||
                             nodeType.equals(TimeAnnotationData.class))
                     return TimestampAnnotationI.class.getName();
@@ -437,6 +502,9 @@ public class PojoMapper
             else if (nodeType.equals(Plate.class) ||
                     nodeType.equals(PlateData.class))
                 return PlateI.class.getName();
+            else if (nodeType.equals(PlateAcquisition.class) ||
+                    nodeType.equals(PlateAcquisitionData.class))
+                return PlateAcquisitionI.class.getName();
             throw new IllegalArgumentException("type not supported");
     }
 }

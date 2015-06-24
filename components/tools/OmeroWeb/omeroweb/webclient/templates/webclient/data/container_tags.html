@@ -23,12 +23,33 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys-0.8.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-1.0-rc3/jquery.jstree.js" %}"></script>
 
     <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
         $(function() {
+
+            // This is duplicated in containers.html
+            // Deletion itself is handled by OME.handleDelete()
+            $("#delete-dialog-form").dialog({
+                dialogClass: 'delete_confirm_dialog',
+                autoOpen: false,
+                resizable: true,
+                height: 210,
+                width:420,
+                modal: true,
+                buttons: {
+                    "Yes": function() {
+                        $("#delete-dialog-form").data("clicked_button", "Yes");
+                        $( this ).dialog( "close" );
+                    },
+                    "No": function() {
+                        $("#delete-dialog-form").data("clicked_button", "No");
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
 
             // We truncate images when the left panel resizes...
             $("#left_panel").on('resize', OME.truncateNames);
@@ -41,21 +62,17 @@
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     
-                    if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {                            
-                            toolbar_config = {'delete':{% if isLeader %}true{% else %}false{% endif %}};
-                        } else {
-                            if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {'delete':false};
-                            } else if(selected.attr("id").indexOf("tagset")>=0) {
-                                toolbar_config = {'delete':true};
-                            } else if(selected.attr("id").indexOf("tag")>=0) {
-                                toolbar_config = {'delete':true};
-                            } else {
+                    toolbar_config = {'delete':true};
+                    // Can't delete if missing 'canDelete' flag or not a Tag
+                    selected.each(function(){
+                        if(this.id.indexOf("tag")>=0) {
+                            if(!$(this).hasClass('canDelete')) {
                                 toolbar_config = {'delete':false};
                             }
+                        } else {
+                            toolbar_config = {'delete':false};
                         }
-                    }
+                    });
                     
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
@@ -317,10 +334,14 @@
                     }
                 })
                 .delegate("a", "dblclick", function(e, data) {
-                    if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                    var $this = $(this),
+                        obj_rel = $this.parent().attr('rel'),
+                        ob_id = $this.parent().attr('id'),
+                        iid;
+                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                        iid = ob_id.split("-")[1];
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/" + iid + "/"));
                     }
-                    $("#dataTree").jstree("open_node", this);
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
@@ -361,13 +382,7 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-                    var confirm_delete = OME.confirm_dialog('Delete selected Tags?',
-                        function() {
-                            if(confirm_delete.data("clicked_button") == "OK") {
-                                $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
-                            }
-                        }
-                    );
+                    OME.handleDelete();
                     break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
@@ -457,55 +472,23 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-
-
-
-
-
-
-{% block center %}
-
-<div id="center_panel_header">
-	<div id="center_panel_chooser">
-	    <select>
-	        <option value="#content_details">Thumbnails</option>
-	        {% for cp in ome.center_plugins %}
-	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
-	        {% endfor %}
-	    </select>
-	</div>
-</div>
-
-<div id="content_details" class="center_panel_content"> </div>
-
-{% for cp in ome.center_plugins %}
-    <div id="{{ cp.plugin_id }}" class="center_panel_content"></div>
-{% endfor %}
+        <!-- hidden form for delete dialogs -->
+        <div id="delete-dialog-form" title="Delete" style="display:none"
+                data-url="{% url 'manage_action_containers' 'deletemany' %}"
+                data-fileset-check-url="{% url 'fileset_check' 'delete' %}">
+            <p id="deleteOthersWarning" class='error' style="font-size: 120%; font-weight: bold">
+                Warning: Some objects you selected are owned by other users.
+            </p>
+            <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
+            <p>If yes:</p>
+            <form>
+            <fieldset style="border: 0px solid white">
+                <input type="checkbox" name="delete_anns" id="delete_anns" />
+                Also delete any Annotations that become 'orphans'?<br/>
+            </fieldset>
+            </form>
+        </div>
 
 {% endblock %}
-
-
-
-{% block right %}
-<div>
-    <div id="annotation_tabs" class="absolute_fill">
-        <ul id="annotation_tabs_list">
-            <li><a href="#metadata_general">{% trans "General" %}</a></li>
-            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
-            {% for rt in ome.right_plugins %}
-                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
-            {% endfor %}
-        </ul>
-        <div id="metadata_general" class="right_tab_content" ></div>
-        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
-        {% for rt in ome.right_plugins %}
-            <div id="{{ rt.plugin_id }}" class="right_tab_content" ></div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}
-
 
 

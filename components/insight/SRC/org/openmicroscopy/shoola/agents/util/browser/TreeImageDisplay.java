@@ -486,9 +486,7 @@ public abstract class TreeImageDisplay
     {
         String name = getNodeName();
         Object uo = getUserObject();
-        if (uo instanceof ImageData) {
-        	if (partialName) return UIUtilities.formatPartialName(name);
-        	return name;
+        if (uo instanceof ImageData) { return name;
         } else if (uo instanceof ExperimenterData) return name;
         else if (uo instanceof FileAnnotationData) return name;
         else if (uo instanceof File) return name; 

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests.sessions;
@@ -9,8 +9,6 @@ package ome.server.utests.sessions;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheManager;
 import ome.api.local.LocalAdmin;
@@ -35,9 +33,7 @@ import ome.server.utests.DummyExecutor;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManagerImpl;
-import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
-import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
@@ -51,6 +47,7 @@ import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
+import org.jmock.core.constraint.StringContains;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -145,6 +142,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         session.setId(1L);
 
         user.setOmeName(principal.getName());
+        user.setLdap(false);
     }
 
     @AfterMethod
@@ -332,6 +330,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test
     public void testReplacesNullGroupAndType() throws Exception {
         prepareForCreateSession();
+        sf.mockAdmin.expects(atLeastOnce()).method("getDefaultGroup")
+            .will(returnValue(group));
         Session session = mgr.createWithAgent(new Principal("fake", null, null),
                 credentials, "Test", "127.0.0.1");
         assertNotNull(session.getDefaultEventType());
@@ -352,6 +352,9 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
         // execute lookup user
+        sf.mockQuery.expects(atLeastOnce()).method("findByQuery")
+            .with(new StringContains("Session"), ANYTHING)
+            .will(returnValue(session));
         sf.mockQuery.expects(once()).method("projection").will(
                 returnValue(Arrays.asList((Object)new Object[]{123L})));
 
@@ -362,6 +365,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
                 returnValue(test));
 
         sf.mockQuery.expects(atLeastOnce()).method("findByQuery")
+            .with(new StringContains("Node"), ANYTHING)
             .will(returnValue(new Node()));
 
         sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")

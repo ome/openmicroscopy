@@ -25,7 +25,7 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import os
 
@@ -33,7 +33,7 @@ import omero
 import omero.clients
 import omero.model
 import omero.api
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from omero.util.temp_files import create_path, remove_path
 from omero.rtypes import rlong, rstring, rmap
@@ -44,7 +44,7 @@ PINGFILE = """
 
 import os
 import omero, omero.scripts as s
-import omero_ext.uuid as uuid # see ticket:3774
+import uuid
 
 #
 # Unique name so that IScript does not reject us
@@ -195,7 +195,7 @@ class TestPing(lib.ITest):
         process = p.execute(rmap({}))
         self.assertSuccess(p, process)
 
-    @pytest.mark.xfail(reason="ticket 11494")
+    @pytest.mark.broken(ticket="11494")
     def testProcessCallback(self):
 
         callback = CallbackI()

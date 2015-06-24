@@ -25,7 +25,7 @@ from omero.plugins.fs import FsControl
 
 import pytest
 
-transfers = ['ln_s', 'ln', 'ln_rm']
+transfers = ['ln_s', 'ln', 'ln_rm', 'cp', 'cp_rm']
 repos = ['Managed', 'Public', 'Script']
 
 
@@ -93,9 +93,20 @@ class TestFS(CLITest):
             assert set(self.parse_ids(o)) == \
                 set([x.id.val for (k, x) in f.iteritems() if k == transfer])
 
-    def testSetsCheckAdminOnly(self):
+    def testSetsAdminOnly(self, capsys):
         """Test fs sets --check is admin-only"""
 
         self.args += ["sets", "--check"]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert err.endswith("SecurityViolation: Admins only!\n")
+
+    def testRenameAdminOnly(self, capsys):
+        """Test fs rename is admin-only"""
+
+        self.args += ["rename", "Fileset:1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert err.endswith("SecurityViolation: Admins only!\n")

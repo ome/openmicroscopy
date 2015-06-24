@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.ToolBar
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -66,6 +68,9 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+
+
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -89,6 +94,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
+import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
@@ -291,28 +297,6 @@ class ToolBar
         }
     }
 
-    /** Handles the selection of groups.*/
-    private void handleGroupSelection()
-    {
-        int n = popupMenu.getComponentCount();
-        DataMenuItem item;
-        Component c;
-        List<GroupData> toAdd = new ArrayList<GroupData>();
-        List<GroupData> toRemove = new ArrayList<GroupData>();
-        for (int i = 0; i < n; i++) {
-            c = popupMenu.getComponent(i);
-            if (c instanceof DataMenuItem) {
-                item = (DataMenuItem) c;
-                if (item.isSelected()) {
-                    toAdd.add((GroupData) item.getDataObject());
-                } else {
-                    toRemove.add((GroupData) item.getDataObject());
-                }
-            }
-        }
-        controller.setSelectedGroups(toAdd, toRemove);
-    }
-
     /** 
      * Fires a search event
      */
@@ -392,7 +376,6 @@ class ToolBar
         ExperimenterData exp;
 
         DataMenuItem item, allUser;
-        JPanel list;
         
         boolean view = true;
         if (group != null) {
@@ -401,34 +384,33 @@ class ToolBar
                 view = model.isAdministrator() || model.isGroupOwner(group);
             }
         }
+        
+        List<DataMenuItem> list = new ArrayList<DataMenuItem>();
 
-        list = new JPanel();
-        list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
         items.add(allUser);
-        if (view) list.add(allUser);
-        p.add(UIUtilities.buildComponentPanel(list));
+        if (view) p.add(allUser);
         int count = 0;
         int total = 0;
         if (CollectionUtils.isNotEmpty(l)) {
             total += l.size();
             i = l.iterator();
-            list = new JPanel();
-            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
                     item = new DataMenuItem(exp, true);
-                    item.setSelected(users.contains(exp.getId()));
-                    if (item.isSelected()) count++;
+                    item.setChecked(users.contains(exp.getId()));
+                    if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
                     items.add(item);
                     list.add(item);
                 }
             }
-            if (list.getComponentCount() > 0) {
+            if (list.size() > 0) {
                 p.add(formatHeader("Group owners"));
-                p.add(UIUtilities.buildComponentPanel(list));
+                for(DataMenuItem dmi : list)
+                    p.add(dmi);
+                list.clear();
             }
         }
 
@@ -436,25 +418,24 @@ class ToolBar
         if (CollectionUtils.isNotEmpty(l)) {
             total += l.size();
             i = l.iterator();
-            list = new JPanel();
-            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
                     item = new DataMenuItem(exp, true);
-                    item.setSelected(users.contains(exp.getId()));
-                    if (item.isSelected()) count++;
+                    item.setChecked(users.contains(exp.getId()));
+                    if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
                     items.add(item);
                     list.add(item);
                 }
             }
-            if (list.getComponentCount() > 0) {
+            if (list.size() > 0) {
                 p.add(formatHeader("Members"));
-                p.add(UIUtilities.buildComponentPanel(list));
+                for(DataMenuItem dmi : list)
+                    p.add(dmi);
             }
         }
-        allUser.setSelected(total != 0 && total == count);
+        allUser.setChecked(total != 0 && total == count);
         allUser.addPropertyChangeListener(groupItem);
         JScrollPane pane = new JScrollPane(p);
         Dimension d = p.getPreferredSize();
@@ -522,27 +503,19 @@ class ToolBar
         long userID = model.getExperimenter().getId();
 
         //First add item to toggle between users and group display
-        DataMenuItem data = new DataMenuItem(DataMenuItem.USERS_TEXT, null);
-        data.setSelected(
-                model.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY);
+        final SelectableMenuItem data = new SelectableMenuItem(
+                model.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY,
+                DataMenuItem.USERS_TEXT, true);
         data.addPropertyChangeListener(new PropertyChangeListener() {
-
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if (DataMenuItem.ITEM_SELECTED_PROPERTY.equals(name)) {
-                    DataMenuItem data = (DataMenuItem) evt.getNewValue();
-                    handleSelectionDisplay(data.isSelected());
+                if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
+                    handleSelectionDisplay(data.isChecked());
                 }
             }
         });
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        panel.setBorder(null);
-        IconManager icons= IconManager.getInstance();
-        panel.add(new JLabel(icons.getIcon(IconManager.TRANSPARENT)));
-        panel.add(data);
-        popupMenu.add(panel);
+        popupMenu.add(data);
         popupMenu.add(new JSeparator());
         GroupItem item;
         GroupItem allGroup = null;
@@ -610,8 +583,11 @@ class ToolBar
         JButton b = new JButton(controller.getAction(TreeViewerControl.BROWSE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        boolean ij = false;
         switch (TreeViewerAgent.runAsPlugin()) {
-        case TreeViewer.IMAGE_J:
+        case LookupNames.IMAGE_J:
+        case LookupNames.IMAGE_J_IMPORT:
+            ij = true;
             b = UIUtilities.formatButtonFromAction(
                     controller.getAction(TreeViewerControl.VIEW));
             UIUtilities.unifiedButtonLookAndFeel(b);
@@ -634,8 +610,7 @@ class ToolBar
             UIUtilities.unifiedButtonLookAndFeel(b);
             bar.add(b);
         }
-
-
+        bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));
         //Now register the agent if any
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
@@ -699,6 +674,12 @@ class ToolBar
         menuButton.addMouseListener(adapter);
         bar.add(menuButton);
         setPermissions();
+        if (ij) {
+            b = new JButton(a = controller.getAction(
+                    TreeViewerControl.SAVE_TO_OMERO));
+            bar.add(Box.createHorizontalStrut(5));
+            bar.add(b);
+        }
         return bar;
     }
 
@@ -802,6 +783,11 @@ class ToolBar
         final JTextField searchField = new JTextField(SEARCHFIELD_WIDTH);
         searchField.setText(SEARCHFIELD_TEXT);
         
+        final Font defaultFont = searchField.getFont();
+        final Font italicFont = searchField.getFont().deriveFont(Font.ITALIC);
+        searchField.setFont(italicFont);
+        searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+        
         searchField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
@@ -817,6 +803,8 @@ class ToolBar
             public void focusLost(FocusEvent e) {
                 if (searchField.getText().trim().equals("")) {
                     searchField.setText(SEARCHFIELD_TEXT);
+                    searchField.setFont(italicFont);
+                    searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
                 }
             }
             
@@ -828,6 +816,8 @@ class ToolBar
                 else {
                     searchField.selectAll();
                 }
+                searchField.setFont(defaultFont);
+                searchField.setForeground(Color.BLACK);
             }
         });
         
@@ -962,9 +952,12 @@ class ToolBar
      */
     void showAvailableScriptsMenu(Component c, Point p)
     {
-        if (p == null) return;
+        if (p == null) {
+            p = new Point(0, 0);
+        };
         if (c == null) {
             c = scriptButton;
+            repaint();
         }
         IconManager icons = IconManager.getInstance();
         Collection<ScriptObject> scripts = model.getAvailableScripts();
@@ -985,7 +978,12 @@ class ToolBar
                 {
                     model.setAvailableScripts(null);
                     scriptsMenu = null;
-                    controller.reloadAvailableScripts(e.getPoint());
+                    Point p = e.getPoint();
+                    if (e.getSource() != scriptButton) {
+                        p = null;
+                    }
+                    controller.reloadAvailableScripts(p,
+                            (Component) e.getSource());
                 }
             });
             scriptsMenu.add(refresh);

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.Renderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,18 +25,12 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -584,11 +578,21 @@ public interface Renderer
      * @return See above
      */
     boolean isIntegerPixelData();
-    
+
     /**
      * Renders the specified plane.
      * 
      * @param pDef The plane to render.
+     * @param compression The compression level.
+     * @return See above.
+     */
+    BufferedImage renderPlane(PlaneDef pDef, int compression);
+
+    /**
+     * Renders the specified plane.
+     * 
+     * @param pDef The plane to render.
+     * @param compression The compression level.
      * @return See above.
      */
     BufferedImage renderPlane(PlaneDef pDef);
@@ -600,14 +604,6 @@ public interface Renderer
      *                  <code>false</code> to the minimum and maximum.
      */
     void setRangeAllChannels(boolean absolute);
-
-    /**
-     * Renders the specified plane.
-     * 
-     * @param pDef The plane to render.
-     * @return See above.
-     */
-    TextureData renderPlaneAsTexture(PlaneDef pDef);
 
     /**
      * Returns <code>true</code> if the passed channels compose an RGB image, 

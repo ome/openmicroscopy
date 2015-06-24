@@ -24,8 +24,8 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys-0.8.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-1.0-rc3/jquery.jstree.js" %}"></script>
 
     <!-- set-up left-panel tabs, jsTree, toolbar etc -->
     <script type="text/javascript">
@@ -33,13 +33,17 @@
         $(document).ready(function() 
         {
 
-            // Disable the groups/users dropdown menu.
+            // Disable the groups/users dropdown menu and scripts menu.
             $("#groupsUsersButton")
                 .css('background-image', 'url()')
                 .attr('title', 'Use "Scope" in form below to search within specific Groups / Users');
+            $("#scriptButton")
+                .css('opacity', 0.5)
+                .attr('title', 'Scripts are disabled for data in shares');
             setTimeout(function(){
                 // make sure we remove click handler AFTER it's been added
                 $("#groupsUsersButton").off('click');
+                $("#scriptButton").off('click');
             },500);
         });
 
@@ -49,6 +53,15 @@
 
         $(function() 
             {
+
+                // We truncate images when the left panel resizes...
+                $("#left_panel").on('resize', OME.truncateNames);
+                // and also when we load new data in the tree
+                $("#dataTree").on('load_node.jstree', function() {
+                    // wait for images to render, then truncate:
+                    setTimeout(OME.truncateNames, 30);
+                });
+
                 var buttonsShowHide = function(selected) {
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
@@ -237,8 +250,21 @@
                     }
                 })
                 .delegate("a", "dblclick", function(e) {
-                    if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                    var $this = $(this),
+                        obj_rel = $this.parent().attr('rel'),
+                        ob_id = $this.parent().attr('id'),
+                        share_id = $this.parent().attr('data-share'),
+                        popup_url = "{% url 'webindex' %}",
+                        iid;
+                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                        iid = ob_id.split("-")[1];
+                        // Share-id will only be there if share is not owned.
+                        if (share_id) {
+                            popup_url += share_id + "/img_detail/" + iid;
+                        } else {
+                            popup_url += "img_detail/" + iid;
+                        }
+                        OME.openPopup(popup_url);
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
@@ -299,11 +325,19 @@
     });
     </script>
 
-    <!-- include code to handle middle panel selection -->
+    <!-- set up the middle panel to only show the div chosen by <select> -->
+    {% include "webclient/data/includes/center_plugin_init.js.html" %}
+
+    <!-- include code to handle primary 'thumbs' middle plugin -->
     {% include "webclient/data/includes/center_plugin.thumbs.js.html" %}
 
 
+    {% for cp in ome.center_plugins %}
+        {% include cp.include %}
+    {% endfor %}
+
 {% endblock %}
+
 
 
 {% block left %}
@@ -320,7 +354,7 @@
             <ul id="buttons">
 				
                 <li>
-					<input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Remove content" title="Remove content" /> 
+					<input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Remove content" title="Remove content" /> 
 				</li>
 				
 				<li class=seperator></li>
@@ -339,31 +373,5 @@
 </div>
 {% endblock %}
 
-{% block center %}
-
-<!--<div id="content_action"></div>
-<div class="clear"> </div>-->
-
-<div id="content_details"> </div>
-
-{% endblock %}
 
 
-{% block right %}
-<div>
-    <div id="annotation_tabs" class="absolute_fill">
-        <ul id="annotation_tabs_list">
-            <li><a href="#metadata_general">{% trans "General" %}</a></li>
-            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
-            {% for rt in ome.right_plugins %}
-                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
-            {% endfor %}
-        </ul>
-        <div id="metadata_general" class="right_tab_content" ></div>
-        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
-        {% for rt in ome.right_plugins %}
-            <div id="{{ rt.plugin_id }}" class="right_tab_content"></div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}

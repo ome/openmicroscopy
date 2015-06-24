@@ -23,6 +23,13 @@
 Library for managing user sessions.
 """
 
+import omero.constants
+from omero.util import get_omero_userdir, make_logname
+from omero.rtypes import rlong
+from path import path
+
+import logging
+
 """
  * Track last used
  * provide single library (with lock) which does all of this
@@ -40,11 +47,6 @@ from path import path
 
 """
 
-from omero.util import get_user_dir, make_logname
-from path import path
-
-import logging
-
 
 class SessionsStore(object):
 
@@ -61,8 +63,9 @@ class SessionsStore(object):
         """
         self.logger = logging.getLogger(make_logname(self))
         if dir is None:
-            dir = get_user_dir()
-        self.dir = path(dir) / "omero" / "sessions"
+            self.dir = get_omero_userdir() / "sessions"
+        else:
+            self.dir = path(dir)
         if not self.dir.exists():
             self.dir.makedirs()
         try:
@@ -107,7 +110,8 @@ class SessionsStore(object):
 
         (dhn / id).write_lines(lines)
 
-    def conflicts(self, host, name, id, new_props, ignore_nulls=False):
+    def conflicts(self, host, name, id, new_props, ignore_nulls=False,
+                  check_group=True):
         """
         Compares if the passed properties are compatible with
         with those for the host, name, id tuple
@@ -117,13 +121,23 @@ class SessionsStore(object):
         """
         conflicts = ""
         old_props = self.get(host, name, id)
-        for key in ("omero.group", "omero.port"):
+        default_port = str(omero.constants.GLACIER2PORT)
+        keys = ["omero.port"]
+        if check_group:
+            keys.append("omero.group")
+
+        for key in keys:
             old = old_props.get(key, None)
             new = new_props.get(key, None)
             if ignore_nulls and new is None:
                 continue
+            elif (key == "omero.port" and
+                  set((old, new)) == set((None, default_port))):
+                continue
             elif old != new:
-                conflicts += (key + (":%s!=%s;" % (old, new)))
+                if conflicts != "":
+                    conflicts += "; "
+                conflicts += "%s: %s!=%s" % (key, old, new)
         return conflicts
 
     def remove(self, host, name, uuid):
@@ -136,8 +150,8 @@ class SessionsStore(object):
             self.logger.debug("No uuid provided")
             return
         d = self.dir / host / name
-        f = self.dir / host / name / uuid
         if d.exists():
+            f = d / uuid
             if f.exists():
                 f.remove()
                 self.logger.debug("Removed %s" % f)
@@ -173,17 +187,20 @@ class SessionsStore(object):
             return []
         return [x.basename() for x in self.non_dot(d)]
 
-    def set_current(self, host, name=None, uuid=None):
+    def set_current(self, host, name=None, uuid=None, props=None):
         """
         Sets the current session, user, and host files
         These are used as defaults by other methods.
         """
         if host is not None:
             self.host_file().write_text(host)
+        if props is not None:
+            port = props.get('omero.port', str(omero.constants.GLACIER2PORT))
+            self.port_file().write_text(port)
         if name is not None:
             self.user_file(host).write_text(name)
-        if uuid is not None:
-            self.sess_file(host, name).write_text(uuid)
+            if uuid is not None:
+                self.sess_file(host, name).write_text(uuid)
 
     def get_current(self):
         host = None
@@ -201,7 +218,7 @@ class SessionsStore(object):
                 uuid = self.sess_file(host, name).text().strip()
             except IOError:
                 pass
-        return (host, name, uuid)
+        return (host, name, uuid, self.last_port())
 
     def last_host(self):
         """
@@ -215,6 +232,19 @@ class SessionsStore(object):
         if not text:
             return "localhost"
         return text
+
+    def last_port(self):
+        """
+        Prints either the last saved port (see get_current())
+        or "4064"
+        """
+        f = self.port_file()
+        if not f.exists():
+            return str(omero.constants.GLACIER2PORT)
+        port = f.text().strip()
+        if not port:
+            return str(omero.constants.GLACIER2PORT)
+        return port
 
     def find_name_by_key(self, server, uuid):
         """
@@ -318,8 +348,14 @@ class SessionsStore(object):
             principal.name = name
             principal.group = props.get("omero.group", None)
             principal.eventType = "User"
+
+            # Retrieve the default time to idle value
+            uuid = sf.ice_getIdentity().name
+            sess = sf.getSessionService().getSession(uuid)
+            timeToIdle = sess.getTimeToIdle().getValue()
+
             sess = sf.getSessionService().createSessionWithTimeouts(
-                principal, 0, 0)
+                principal, 0, timeToIdle)
             client.closeSession()
             sf = client.joinSession(sess.getUuid().getValue())
         else:
@@ -331,10 +367,35 @@ class SessionsStore(object):
         sess = sf.getSessionService().getSession(uuid)
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
+
+        # Retrieve timeout from properties
+        timeout = None
+        if props.get("omero.timeout", False):
+            timeout = long(props.get("omero.timeout")) * 1000
+
+        # Update timeout
+        if timeout and timeout != timeToIdle:
+            req = omero.cmd.UpdateSessionTimeoutRequest()
+            req.session = sf.getAdminService().getEventContext().sessionUuid
+            req.timeToIdle = rlong(timeout)
+
+            try:
+                cb = client.submit(req)  # Response is "OK"
+                cb.close(True)
+            except omero.CmdError, ce:
+                self.ctx.dbg(str(ce.err))
+            except:
+                import traceback
+                self.ctx.dbg(traceback.format_exc())
+
+            # Reload session
+            sess = sf.getSessionService().getSession(uuid)
+            timeToIdle = sess.getTimeToIdle().getValue()
+
         if new:
             self.add(host, ec.userName, uuid, props, sudo=sudo)
         if set_current:
-            self.set_current(host, ec.userName, uuid)
+            self.set_current(host, ec.userName, uuid, props)
 
         return client, uuid, timeToIdle, timeToLive
 
@@ -367,6 +428,10 @@ class SessionsStore(object):
     def host_file(self):
         """ Returns the path-object which stores the last active host """
         return self.dir / "._LASTHOST_"
+
+    def port_file(self):
+        """ Returns the path-object which stores the last active port """
+        return self.dir / "._LASTPORT_"
 
     def user_file(self, host):
         """ Returns the path-object which stores the last active user """

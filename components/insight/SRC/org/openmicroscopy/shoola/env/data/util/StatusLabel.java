@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.StatusLabel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ import javax.swing.JProgressBar;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportEvent.FILESET_UPLOAD_END;
 import ome.formats.importer.util.ErrorHandler;
@@ -50,8 +51,9 @@ import omero.cmd.CmdCallback;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -169,14 +171,11 @@ public class StatusLabel
         STEP_FAILURES.put(5, "Failed to Generate Objects");
     }
 
+    /** The container.*/
+    private ImportContainer ic;
+
     /** The number of images in a series. */
     private int seriesCount;
-
-    /** The type of reader used. */
-    private String readerType;
-
-    /** The files associated to the file that failed to import. */
-    private String[] usedFiles;
 
     /** Flag indicating that the import has been cancelled. */
     private boolean markedAsCancel;
@@ -226,9 +225,6 @@ public class StatusLabel
     /** The file associated to that import.*/
     private FilesetData fileset;
 
-    /** Flag indicating if the image is a HCS file or not.*/
-    private boolean hcs;
-
     /** The callback. This should only be set when importing a directory.*/
     private Object callback;
 
@@ -245,7 +241,7 @@ public class StatusLabel
     private boolean uploadStarted;
 
     /** The file or folder this component is for.*/
-    private File sourceFile;
+    private FileObject sourceFile;
 
     /** 
      * Formats the size of the uploaded data.
@@ -295,7 +291,6 @@ public class StatusLabel
         sizeUpload = 0;
         fileSize = "";
         seriesCount = 0;
-        readerType = "";
         markedAsCancel = false;
         cancellable = true;
         totalUploadedSize = 0;
@@ -337,7 +332,7 @@ public class StatusLabel
      * 
      * @param sourceFile The file associated to that label.
      */
-    public StatusLabel(File sourceFile)
+    public StatusLabel(FileObject sourceFile)
     {
         this.sourceFile = sourceFile;
         initialize();
@@ -356,21 +351,18 @@ public class StatusLabel
     }
 
     /**
-     * Sets to <code>true</code> if it is a HCS file, <code>false</code>
-     * otherwise.
-     * 
-     * @param hcs Pass <code>true</code> if it is a HCS file, <code>false</code>
-     * otherwise.
-     */
-    public void setHCS(boolean hcs) { this.hcs = hcs; }
-
-    /**
      * Returns <code>true</code> if it is a HCS file, <code>false</code>
      * otherwise.
-     * 
+     *
      * @return See above.
      */
-    public boolean isHCS() { return hcs; }
+    public boolean isHCS()
+    {
+        if (ic == null) return false;
+        Boolean b = ic.getIsSPW();
+        if (b == null) return false;
+        return b.booleanValue();
+    }
 
     /**
      * Returns the file set associated to the import.
@@ -386,7 +378,6 @@ public class StatusLabel
      */
     public void setUsedFiles(String[] usedFiles)
     {
-        this.usedFiles = usedFiles;
         if (usedFiles == null) return;
         for (int i = 0; i < usedFiles.length; i++) {
             sizeUpload += (new File(usedFiles[i])).length();
@@ -417,11 +408,28 @@ public class StatusLabel
      */
     public void setText(String text)
     {
-        if (StringUtils.isEmpty(text)) {
+        if (CommonsLangUtils.isEmpty(text)) {
             String value = generalLabel.getText();
             if (DEFAULT_TEXT.equals(value) || SCANNING_TEXT.equals(value))
                 generalLabel.setText(text);
         } else generalLabel.setText(text);
+    }
+
+    /**
+     * Displays message when saving rois.
+     *
+     * @param text The text displayed
+     * @param completed Update progress bar.
+     */
+    public void updatePostProcessing(String text, boolean completed)
+    {
+        if (!completed) {
+            processingBar.setMaximum(processingBar.getMaximum()+1);
+            processingBar.setValue(processingBar.getValue()+1);
+        } else {
+            processingBar.setValue(processingBar.getMaximum());
+        }
+        processingBar.setString(text);
     }
 
     /** Marks the import has cancelled. */
@@ -460,20 +468,6 @@ public class StatusLabel
      * @return See above.
      */
     public String getErrorText() { return ""; }
-
-    /**
-     * Returns the type of reader used.
-     * 
-     * @return See above.
-     */
-    public String getReaderType() { return readerType; }
-
-    /**
-     * Returns the files associated to the file failing to import.
-     * 
-     * @return See above.
-     */
-    public String[] getUsedFiles() { return usedFiles; }
 
     /**
      * Returns the source files that have checksum values or <code>null</code>
@@ -631,6 +625,20 @@ public class StatusLabel
     public boolean didUploadStart() { return uploadStarted; }
 
     /**
+     * Returns the container.
+     *
+     * @return See above.
+     */
+    public ImportContainer getImportContainer() { return ic; }
+
+    /**
+     * Sets the import container.
+     *
+     * @param ic The value to set.
+     */
+    public void setImportContainer(ImportContainer ic) { this.ic = ic; }
+
+    /**
      * Displays the status of an on-going import.
      * @see IObserver#update(IObservable, ImportEvent)
      */
@@ -662,8 +670,6 @@ public class StatusLabel
                 handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, true);
         } else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
             ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
-            readerType = e.reader;
-            usedFiles = e.usedFiles;
             exception = new ImportException(e.exception);
             String text = ImportException.FILE_NOT_VALID_TEXT;
             if (sourceFile != null && sourceFile.isDirectory()) text = "";
@@ -671,8 +677,6 @@ public class StatusLabel
         } else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
             ErrorHandler.INTERNAL_EXCEPTION e =
                     (ErrorHandler.INTERNAL_EXCEPTION) event;
-            readerType = e.reader;
-            usedFiles = e.usedFiles;
             exception = new ImportException(e.exception);
             handleProcessingError("", true);
         }  else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
@@ -690,7 +694,7 @@ public class StatusLabel
                 String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft,
                         true);
                 buffer.append(s);
-                if (!StringUtils.isBlank(s)) buffer.append(" Left");
+                if (CommonsLangUtils.isNotBlank(s)) buffer.append(" Left");
                 else buffer.append("complete");
             }
             uploadBar.setString(buffer.toString());
@@ -706,9 +710,6 @@ public class StatusLabel
                 processingBar.setString(STEPS.get(step));
             }
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-            ImportEvent.METADATA_IMPORTED e =
-                    (ImportEvent.METADATA_IMPORTED) event;
-            logFileID = e.logFileId;
             step = 2;
             processingBar.setValue(step);
             processingBar.setString(STEPS.get(step));
@@ -736,6 +737,17 @@ public class StatusLabel
             firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
         } else if (event instanceof ImportEvent.FILESET_UPLOAD_PREPARATION) {
             generalLabel.setText("Preparing upload...");
+        } else if (event instanceof ImportEvent.IMPORT_STARTED) {
+            ImportEvent.IMPORT_STARTED e =
+                    (ImportEvent.IMPORT_STARTED) event;
+            if (e.logFileId != null) {
+                logFileID = e.logFileId;
+            }
+        } else if (event instanceof ImportEvent.POST_UPLOAD_EVENT) {
+            ImportEvent.POST_UPLOAD_EVENT e =
+                    (ImportEvent.POST_UPLOAD_EVENT) event;
+            ic = e.container;
+            
         }
     }
 

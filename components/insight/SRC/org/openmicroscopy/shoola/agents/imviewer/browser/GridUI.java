@@ -28,17 +28,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
-
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 
 /** 
  * Hosts the UI components displaying the grid image.
@@ -74,11 +67,7 @@ class GridUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        if (ImViewerAgent.hasOpenGLSupport()) {
-        	 canvas = new GridCanvas(model, view);
-        } else {
-        	 canvas = new GridBICanvas(model, view);
-        }
+        canvas = new GridBICanvas(model, view);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, Integer.valueOf(0));
@@ -110,19 +99,7 @@ class GridUI
 		initComponents();
 		buildGUI();
 	}
-	
-	/** Creates the image to save. */
-	BufferedImage activeFileSave()
-	{
-		if (canvas instanceof GridCanvas) {
-			GridCanvas gc = (GridCanvas) canvas;
-			gc.activeSave();
-			canvas.repaint();
-			return gc.getImageToSave();
-		}
-		return null;
-	}
-	
+
 	/** Sets the dimension of the UI components. */
 	void setGridSize()
 	{

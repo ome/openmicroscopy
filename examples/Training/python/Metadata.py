@@ -12,18 +12,14 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-imageId = 27544
 
 
 # Load Instrument
@@ -36,7 +32,9 @@ if instrument is not None:
     if instrument.getMicroscope() is not None:
         print "Instrument:"
         microscope = instrument.getMicroscope()
-        print "  Model:", microscope.getModel(), "Type:", microscope.getType() and microscope.getType().getValue()
+        print "  Model: %s Type: %s " % (
+            microscope.getModel(), microscope.getType() and
+            microscope.getType().getValue())
 
 
 # Load ObjectiveSettings
@@ -44,13 +42,19 @@ if instrument is not None:
 if image.getObjectiveSettings():
     objSet = image.getObjectiveSettings()
     print "Objective Settings:"
-    print "  Correction Collar:", objSet.getCorrectionCollar(), "Medium:", objSet.getMedium(), "Refractive Index:", objSet.getRefractiveIndex()
+    print "  Correction Collar: %s Medium: %s Refractive Index: %s" % (
+        objSet.getCorrectionCollar(), objSet.getMedium(),
+        objSet.getRefractiveIndex())
     if objSet.getObjective():
         obj = objSet.getObjective()
         print "Objective:"
-        print "  Model:", obj.getModel(), "Nominal Mag:", obj.getNominalMagnification(), "Calibrated Mag:", obj.getCalibratedMagnification()
+        print "  Model: %s Nominal Mag: %s Calibrated Mag: %s" % (
+            obj.getModel(), obj.getNominalMagnification(),
+            obj.getCalibratedMagnification())
         print "  LensNA:", obj.getLensNA(), "Immersion",
-        print obj.getImmersion() and obj.getImmersion().getValue(), "Correction:", obj.getCorrection() and obj.getCorrection().getValue()
+        print (obj.getImmersion() and obj.getImmersion().getValue(),
+               "Correction:", obj.getCorrection() and
+               obj.getCorrection().getValue())
         print "  Working Distance:", obj.getWorkingDistance()
 
 
@@ -64,7 +68,7 @@ for ch in image.getChannels():
     if lightPath is not None:
         lightPathDichroic = lightPath.getDichroic()
         if (lightPathDichroic is not None and
-            lightPathDichroic._obj is not None):
+                lightPathDichroic._obj is not None):
             print "  Dichroic:"
             print "    Model:", lightPathDichroic.getModel()
         print "  Emission Filters:"
@@ -72,31 +76,39 @@ for ch in image.getChannels():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
-            print "    Transmittance range:", tr.getCutIn(), "-", tr.getCutOut()
+            print "    Transmittance range:: %s-%s " % (
+                tr.getCutIn(), tr.getCutOut())
         print "  Excitation Filters:"
         for f in lightPath.getExcitationFilters():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
-            print "    Transmittance range:", tr.getCutIn(), "-", tr.getCutOut()
+            print "    Transmittance range: %s-%s " % (
+                tr.getCutIn(), tr.getCutOut())
 
     if logicalChannel.getDetectorSettings()._obj is not None:
         print "  Detector Settings:"
         dset = logicalChannel.getDetectorSettings()
-        print "    Voltage:", dset.getVoltage(), "Gain:", dset.getGain(), "Offset:", dset.getOffsetValue(),
+        print "    Voltage: %s Gain: %s Offset: %s" % (
+            dset.getVoltage(), dset.getGain(), dset.getOffsetValue())
         print "Readout rate:", dset.getReadOutRate(),
-        print "Binning:", dset.getBinning()._obj is not None and dset.getBinning().getValue()
+        print "Binning:", (dset.getBinning()._obj is not None
+                           and dset.getBinning().getValue())
         if logicalChannel.getDetectorSettings().getDetector():
             print "  Detector:"
             det = logicalChannel.getDetectorSettings().getDetector()
-            print "    Model:", det.getModel(), "Gain:", det.getGain(), "Voltage:", det.getVoltage(), "Offset:", det.getOffsetValue()
+            print "    Model: %s Gain: %s Voltage: %s Offset: %s" % (
+                det.getModel(), det.getGain(), det.getVoltage(),
+                det.getOffsetValue())
 
     lightSourceSettings = logicalChannel.getLightSourceSettings()
-    if lightSourceSettings is not None and lightSourceSettings._obj is not None:
+    if (lightSourceSettings is not None
+            and lightSourceSettings._obj is not None):
         print "  Light Source:"
         if lightSourceSettings.getLightSource() is not None:
             ls = lightSourceSettings.getLightSource()
-            print "    Model:", ls.getModel(), "Manufacturer:", ls.getManufacturer(), "Power:", ls.getPower()
+            print "    Model: %s Manufacturer: %s Power: %s" % (
+                ls.getModel(), ls.getManufacturer(), ls.getPower())
             # TODO: Check whether this is Arc etc.
             try:
                 wl = ls.getWavelength()

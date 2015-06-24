@@ -13,7 +13,7 @@ from types import StringTypes
 from path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
-TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
+TESTIMG_URL = 'http://downloads.openmicroscopy.org/images/gateway_tests/'
 DEFAULT_GROUP_PERMS = 'rwr---'
 
 if not omero.gateway.BlitzGateway.ICE_CONFIG:
@@ -156,7 +156,7 @@ class UserEntry (object):
             client._waitOnCmd(client.chmodGroup(g.id.val, groupperms))
 
     @staticmethod
-    def _getOrCreateGroup(client, groupname, groupperms=None):
+    def _getOrCreateGroup(client, groupname, ldap=False, groupperms=None):
 
         # Default on class is None
         if groupperms is None:
@@ -168,6 +168,7 @@ class UserEntry (object):
         except:
             g = omero.model.ExperimenterGroupI()
             g.setName(omero.gateway.omero_type(groupname))
+            g.setLdap(omero.gateway.omero_type(ldap))
             p = omero.model.PermissionsI(groupperms)
             g.details.setPermissions(p)
             a.createGroup(g)
@@ -187,7 +188,7 @@ class UserEntry (object):
         if self.groupname is None:
             self.groupname = self.name + '_group'
         g = UserEntry._getOrCreateGroup(
-            client, self.groupname, self.groupperms)
+            client, self.groupname, groupperms=self.groupperms)
         u = omero.model.ExperimenterI()
         u.setOmeName(omero.gateway.omero_type(self.name))
         u.setFirstName(omero.gateway.omero_type(self.firstname))
@@ -223,7 +224,8 @@ class UserEntry (object):
                     client.getUserId())]:
                 admin_gateway = loginAsRoot()
                 a = admin_gateway.getAdminService()
-            g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
+            g = UserEntry._getOrCreateGroup(
+                client, groupname, groupperms=groupperms)
             a.addGroups(a.getExperimenter(client.getUserId()), (g,))
         finally:
             # Always clean up the results of login
@@ -290,7 +292,8 @@ class ProjectEntry (ObjectEntry):
                 groupname = 'project_test'
 
             s = loginAsRoot()
-            UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
+            UserEntry._getOrCreateGroup(
+                s, groupname, groupperms=self.group_perms)
             try:
                 UserEntry.addGroupToUser(s, groupname, self.group_perms)
             finally:

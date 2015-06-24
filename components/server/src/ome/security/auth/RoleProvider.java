@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -31,10 +31,16 @@ public interface RoleProvider {
 
     long createGroup(String name, Permissions perms, boolean strict);
 
+    long createGroup(String name, Permissions perms, boolean strict,
+            boolean isLdap);
+
     long createExperimenter(Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);
 
     void setDefaultGroup(final Experimenter user, final ExperimenterGroup group);
+
+    void setGroupOwner(final Experimenter user, final ExperimenterGroup group,
+            final boolean value);
 
     void addGroups(final Experimenter user, final ExperimenterGroup... groups);
 

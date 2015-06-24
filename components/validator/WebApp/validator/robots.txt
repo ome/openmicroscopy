@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /filelist
-Disallow: /upload
-Disallow: /result

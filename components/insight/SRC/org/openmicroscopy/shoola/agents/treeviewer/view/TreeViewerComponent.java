@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
-import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -261,16 +260,21 @@ class TreeViewerComponent
 		String ns = null;
 		GroupData group;
 		long userID = model.getExperimenter().getId();
+		boolean notOwner = false;
 		while (i.hasNext()) {
 			node = (TreeImageDisplay) i.next();
 			if (node.isAnnotated() && ann == null) ann = true;
 			Object uo = node.getUserObject();
 			type = uo.getClass();
-			if (uo instanceof DataObject && leader == null) {
-				group = model.getGroup(((DataObject) uo).getGroupId());
-				if (EditorUtil.isUserGroupOwner(group, userID)) {
-					leader = true;
-				}
+			if (uo instanceof DataObject) {
+			    if( leader == null) {
+    				group = model.getGroup(((DataObject) uo).getGroupId());
+    				if (EditorUtil.isUserGroupOwner(group, userID)) {
+    					leader = true;
+    				}
+			    }
+			    if(((DataObject)uo).getOwner().getId()!=userID)
+			        notOwner = true;
 			}
 			if (uo instanceof TagAnnotationData) 
 				ns = ((TagAnnotationData) uo).getNameSpace();
@@ -279,7 +283,7 @@ class TreeViewerComponent
 		if (ann != null) b = ann.booleanValue();
 		boolean le = false;
 		if (leader != null) le = leader.booleanValue();
-		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le);
+		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le, notOwner);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 			boolean content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
@@ -542,8 +546,7 @@ class TreeViewerComponent
 		IconManager icons = IconManager.getInstance();
 		DownloadActivityParam activity = new DownloadActivityParam(f,
 				folder, icons.getIcon(IconManager.DOWNLOAD_22));
-		if (override)
-			activity.setFileName(fa.getFileName());
+		activity.setFileName(fa.getFileName());
 
 		un.notifyActivity(model.getSecurityContext(), activity);
 	}
@@ -960,6 +963,7 @@ class TreeViewerComponent
 		if (mv != null) mv.onRndSettingsCopied(imageIds);
 	}
 	
+	/** Shuts down the component.*/
 	void shutDown()
 	{
 		view.setVisible(false);
@@ -1517,7 +1521,12 @@ class TreeViewerComponent
                     if (siblings.size() > 1 && !sameSelection)
                         mv.setRelatedNodes(siblings);
                 }
-    
+            } else {
+                if (selected instanceof WellSampleData) {
+                    siblings.add(selected);
+                    if (siblings.size() > 1 && !sameSelection)
+                        mv.setRelatedNodes(siblings);
+                }
             }
         }
         if (model.getDataViewer() != null)
@@ -2197,7 +2206,7 @@ class TreeViewerComponent
 				break;
 			case AVAILABLE_SCRIPTS_MENU:
 				if (model.getAvailableScripts() == null) {
-					model.loadScripts(p);
+					model.loadScripts(p, c);
 					firePropertyChange(SCRIPTS_LOADING_PROPERTY,
 							Boolean.valueOf(false), Boolean.valueOf(true));
 					return;
@@ -3439,8 +3448,9 @@ class TreeViewerComponent
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				model.browseTag(node);
 		} else if (uo instanceof ImageData) {
-			if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
-				actionCmd = new ViewInPluginCmd(this, TreeViewer.IMAGE_J);
+			if (TreeViewerAgent.runAsPlugin() == LookupNames.IMAGE_J ||
+			        TreeViewerAgent.runAsPlugin() == LookupNames.IMAGE_J_IMPORT) {
+				actionCmd = new ViewInPluginCmd(this, LookupNames.IMAGE_J);
 			} else {
 				actionCmd = new ViewCmd(this, true);
 			}
@@ -3649,18 +3659,16 @@ class TreeViewerComponent
 	        }
 	    }
 	    if (archived.size() > 0) {
-	        Iterator<ImageData> j = archived.iterator();
-	        DownloadArchivedActivityParam p;
-	        UserNotifier un =
-	                MetadataViewerAgent.getRegistry().getUserNotifier();
-	        IconManager icons = IconManager.getInstance();
-	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
-	        SecurityContext ctx = getSecurityContext();
-	        while (j.hasNext()) {
-	            p = new DownloadArchivedActivityParam(folder, j.next(), icon);
-	            p.setOverride(override);
-	            un.notifyActivity(ctx, p);
-	        }
+            UserNotifier un = MetadataViewerAgent.getRegistry()
+                    .getUserNotifier();
+            IconManager icons = IconManager.getInstance();
+            Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+            SecurityContext ctx = getSecurityContext();
+
+            DownloadArchivedActivityParam p = new DownloadArchivedActivityParam(
+                    folder, archived, icon);
+            p.setOverride(override);
+            un.notifyActivity(ctx, p);
 	    }
 	}
 
@@ -4482,6 +4490,9 @@ class TreeViewerComponent
 	                        if (exp.getId() == userID) {
 	                            target = null;
 	                            list.add(n);
+	                            data = (DataObject) os;
+	                            if (!groupIds.contains(data.getGroupId()))
+                                    groupIds.add(data.getGroupId());
 	                        }
 	                    } else {
 	                        if (canEdit(os)) {
@@ -4514,9 +4525,16 @@ class TreeViewerComponent
 	    if (ot instanceof ExperimenterData) {
 	        Object po = p.getUserObject();
 	        if (po instanceof GroupData) group = (GroupData) po;
-	    } else {
-	        group = new GroupData();
-	        group.setId(otData.getGroupId());
+	    } else if (ot instanceof GroupData) {
+	        group = (GroupData)ot;
+	    }
+	    else { 
+            for (Object gd : TreeViewerAgent.getAvailableUserGroups()) {
+                if (((GroupData) gd).getId() == otData.getGroupId()) {
+                    group = (GroupData) gd;
+                    break;
+                }
+            }
 	    }
 	    //to review
 	    if (browser.getBrowserType() == Browser.ADMIN_EXPLORER)

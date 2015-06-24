@@ -54,7 +54,7 @@ public class ImportableFile
 	private GroupData group;
 	
 	/** The file or folder to import. */
-	private File file;
+	private FileObject file;
 	
 	/** Indicates to use the folder as a container if <code>true</code>.*/
 	private boolean folderAsContainer;
@@ -74,6 +74,9 @@ public class ImportableFile
 	/** The user importing data for */
 	private ExperimenterData user;
 
+	/** The file object before possible changes.*/
+	private FileObject originalFile;
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -82,10 +85,11 @@ public class ImportableFile
 	 * 							container e.g. a dataset, <code>false</code>
 	 * 							otherwise.
 	 */
-	public ImportableFile(File file, boolean folderAsContainer)
+	public ImportableFile(FileObject file, boolean folderAsContainer)
 	{
 		this.file = file;
 		this.folderAsContainer = folderAsContainer;
+		originalFile = file;
 	}
 	
 	/**
@@ -131,8 +135,15 @@ public class ImportableFile
 	 * 
 	 * @return See above.
 	 */
-	public File getFile() { return file; }
-	
+	public FileObject getFile() { return file; }
+
+	/**
+	 * Returns the object to import.
+	 * 
+	 * @return See above.
+	 */
+    public FileObject getOriginalFile() { return originalFile; }
+    
 	/**
 	 * Returns <code>true</code> to make the folder a container e.g. a dataset, 
 	 * <code>false</code> otherwise.
@@ -174,7 +185,7 @@ public class ImportableFile
 	 * 
 	 * @param file The value to set.
 	 */
-	public void setFile(File file) { this.file = file; }
+	public void setFile(File file) { this.file = new FileObject(file); }
 	
 	/**
 	 * Sets the group.
@@ -218,6 +229,7 @@ public class ImportableFile
 		newObject.file = this.file;
 		newObject.refNode = this.refNode;
 		newObject.group = this.group;
+		newObject.user = this.user;
 		newObject.status = new StatusLabel(this.file);
 		return newObject;
 	}
@@ -229,7 +241,7 @@ public class ImportableFile
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer();
-		buf.append(getFile().getAbsolutePath());
+		buf.append(originalFile.getAbsolutePath());
 		if (group != null)
 			buf.append("_"+group.getId());
 		if (user != null)

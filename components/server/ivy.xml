@@ -46,6 +46,7 @@
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
     <dependency org="javax.mail" name="mail" rev="${versions.mail}"/>
+    <dependency org="org.subethamail" name="subethasmtp" rev="${versions.subethasmtp}"/>
     <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
     <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/><!--now org.apache.pdfbox -->
     <dependency org="org.fontbox" name="fontbox" rev="${versions.fontbox}"/>

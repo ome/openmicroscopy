@@ -4,7 +4,7 @@
 """
    gateway tests - Delete methods
 
-   Copyright 2012-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2012-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -13,6 +13,7 @@
 """
 
 import omero
+from omero.rtypes import wrap, unwrap
 import time
 
 
@@ -46,12 +47,9 @@ class TestDelete (object):
         # This is the same as BlitzGateway.deleteObjects(), just unrolled here
         # for verbosity and to make sure the more generalistic code there
         # isn't to blame for any issue
-        dcs = list()
-        op = dict()
-        for oid in ids:
-            dcs.append(omero.cmd.Delete('/Annotation', long(oid), op))
+        command = omero.cmd.Delete2(targetObjects={'Annotation': ids})
         doall = omero.cmd.DoAll()
-        doall.requests = dcs
+        doall.requests = [command]
         handle = gatewaywrapper.gateway.c.sf.submit(
             doall, gatewaywrapper.gateway.SERVICE_OPTS)
         gatewaywrapper.gateway._waitOnCmd(handle)
@@ -73,3 +71,50 @@ class TestDelete (object):
         ids = [x.id.val for x in q.findAllByQuery(
                "from CommentAnnotation where ns='%s'" % ns, None)]
         assert len(ids) == 0
+
+    def testDeleteAnnotatedFileAnnotation(self, gatewaywrapper):
+        """ See trac:11939 """
+        ns = 'testDeleteObjects-' + str(time.time())
+        gatewaywrapper.loginAsAuthor()
+        us = gatewaywrapper.gateway.getUpdateService()
+        qs = gatewaywrapper.gateway.getQueryService()
+
+        tag = omero.model.TagAnnotationI()
+        tag.setNs(wrap(ns))
+        tag.setTextValue(wrap('tag'))
+        tag = us.saveAndReturnObject(tag)
+
+        project = omero.model.ProjectI()
+        project.setName(wrap('project'))
+        project = us.saveAndReturnObject(project)
+        pid = unwrap(project.getId())
+
+        ofile = omero.model.OriginalFileI()
+        ofile.setName(wrap('filename'))
+        ofile.setPath(wrap('filepath'))
+        ofile = us.saveAndReturnObject(ofile)
+        oid = unwrap(ofile.getId())
+
+        tagAnnLink = omero.model.OriginalFileAnnotationLinkI()
+        tagAnnLink.link(omero.model.OriginalFileI(oid, False), tag)
+        tagAnnLink = us.saveAndReturnObject(tagAnnLink)
+
+        fileAnn = omero.model.FileAnnotationI()
+        fileAnn.setFile(omero.model.OriginalFileI(oid, False))
+        fileAnn.setNs(wrap(ns))
+        fileAnn.setDescription(wrap('file attachment'))
+
+        fileAnnLink = omero.model.ProjectAnnotationLinkI()
+        fileAnnLink.link(omero.model.ProjectI(pid, False), fileAnn)
+        fileAnnLink = us.saveAndReturnObject(fileAnnLink)
+
+        faid = unwrap(fileAnnLink.getChild().getId())
+
+        # Delete the file
+        handle = gatewaywrapper.gateway.deleteObjects(
+            'OriginalFile', [oid], True, True)
+        gatewaywrapper.gateway._waitOnCmd(handle)
+        handle.close()
+
+        assert qs.find('OriginalFile', oid) is None
+        assert qs.find('FileAnnotation', faid) is None

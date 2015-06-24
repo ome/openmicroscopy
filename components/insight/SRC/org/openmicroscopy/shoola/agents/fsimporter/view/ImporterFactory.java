@@ -31,6 +31,7 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
@@ -122,7 +123,15 @@ public class ImporterFactory
 		}
 		singleton.clear();
 	}
-	
+
+	   /** Close all the instances.*/
+    public static void terminate()
+    {
+        if (singleton.importer != null) {
+            ((ImporterComponent) singleton.importer).shutDown();
+        }
+    }
+    
 	/** Invokes when a new user has reconnected.*/
 	public static void onReconnected()
 	{

@@ -24,10 +24,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -74,22 +70,17 @@ public class ProjectionSaver
      *                 	Default is <code>1</code>
      * @param algorithm	The type of projection.
      * @param channels  The collection of channels to project.
-     * @param openGLSupport Pass <code>true</code> if openGL is supported,
-     * 						<code>false</code> otherwise.
      * @return See above.
      */
     private BatchCall makeRenderProjectedCall(final int startZ, final int endZ, 
-    		  final int stepping, final int algorithm, 
-    		  final List<Integer> channels, final boolean openGLSupport)
+    		  final int stepping, final int algorithm,
+    		  final List<Integer> channels)
     {
     	return new BatchCall("Preview the projected image.") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                if (openGLSupport)
-                	result = rds.renderProjectedAsTexture(ctx, pixelsID, startZ, 
-                			endZ, stepping, algorithm, channels);
-                else result = rds.renderProjected(ctx, pixelsID, startZ, 
+                result = rds.renderProjected(ctx, pixelsID, startZ, 
             			endZ, stepping, algorithm, channels);
             }
         };
@@ -135,19 +126,16 @@ public class ProjectionSaver
      *                 Default is <code>1</code>
      * @param type     The type of projection.
      * @param channels The collection of channels to project.
-     * @param openGLSupport Pass <code>true</code> if openGL is supported,
-     * 						<code>false</code> otherwise.
      */
     public ProjectionSaver(SecurityContext ctx, long pixelsID, int startZ,
-    	int endZ, int stepping, int type, List<Integer> channels, boolean
-    	openGLSupport)
+    	int endZ, int stepping, int type, List<Integer> channels)
     {
     	if (pixelsID < 0)
     		throw new IllegalArgumentException("Pixels Id not valid.");
     	this.ctx = ctx;
     	this.pixelsID = pixelsID;
-    	loadCall = makeRenderProjectedCall(startZ, endZ, stepping, type, 
-    			channels, openGLSupport);
+    	loadCall = makeRenderProjectedCall(startZ, endZ, stepping, type,
+    			channels);
     }
     
     /**

@@ -26,11 +26,14 @@
 import unittest
 import os
 
-from omero.util.populate_roi import *
+from omero.util.populate_roi import AbstractPlateAnalysisCtx
+from omero.util.populate_roi import MIASPlateAnalysisCtx
+from omero.util.populate_roi import FlexPlateAnalysisCtx
+from omero.util.populate_roi import InCellPlateAnalysisCtx
 
-import omero.clients
-from omero.rtypes import rdouble, rstring, rint
-from omero.model import OriginalFileI, PlateI, WellI, WellSampleI, PlateAnnotationLinkI, ImageI, FileAnnotationI, RoiI, EllipseI
+from omero.rtypes import rstring, rint
+from omero.model import OriginalFileI, ImageI, WellI, WellSampleI
+
 
 class TestingServiceFactory(object):
     """
@@ -38,8 +41,10 @@ class TestingServiceFactory(object):
     """
     def getUpdateService(self):
         return None
+
     def getQueryService(self):
         return None
+
 
 class FromFileOriginalFileProvider(object):
     """
@@ -53,14 +58,16 @@ class FromFileOriginalFileProvider(object):
         """Returns a file handle to the path of the original file."""
         return open(original_file.path.val)
 
+
 class MIASParseRoiTest(unittest.TestCase):
-    
+
     LOG_FILE = "NEOlog2008-09-18-14h37m07s.txt"
-    
+
     RESULT_FILE = "Well0001_mode1_z000_t000_detail_2008-09-18-10h48m54s.txt"
-    
-    ROOT = "/Users/callan/testimages/siRNA_PRIM1_03102008/001-365700055641/results/"
-    
+
+    ROOT = "/Users/callan/testimages/siRNA_PRIM1_03102008/"\
+        "001-365700055641/results/"
+
     def setUp(self):
         AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = \
             FromFileOriginalFileProvider
@@ -86,14 +93,14 @@ class MIASParseRoiTest(unittest.TestCase):
         o.name = rstring(self.LOG_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.LOG_FILE))
         o.mimetype = format
-        original_files.append(o) #[1L] = o
+        original_files.append(o)  # [1L] = o
         original_file_image_map[1L] = images[0]
         # Create original file representing the result file
         o = OriginalFileI(2L, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
         o.mimetype = format
-        original_files.append(o) # [2L] = o
+        original_files.append(o)  # [2L] = o
         original_file_image_map[2L] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = MIASPlateAnalysisCtx(
@@ -121,6 +128,7 @@ class MIASParseRoiTest(unittest.TestCase):
             if column.name == "ROI":
                 continue
             self.assertEqual(173, len(column.values))
+
 
 class FlexParseRoiTest(unittest.TestCase):
 
@@ -153,7 +161,7 @@ class FlexParseRoiTest(unittest.TestCase):
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
         o.mimetype = format
-        original_files.append(o) # [1L] = o
+        original_files.append(o)  # [1L] = o
         original_file_image_map[1L] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = FlexPlateAnalysisCtx(
@@ -170,6 +178,7 @@ class FlexParseRoiTest(unittest.TestCase):
         self.assertEqual(50, len(columns))
         for column in columns:
             self.assertEqual(384, len(column.values))
+
 
 class InCellParseRoiTest(unittest.TestCase):
 
@@ -202,7 +211,7 @@ class InCellParseRoiTest(unittest.TestCase):
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
         o.mimetype = format
-        original_files.append(o) #[1L] = o
+        original_files.append(o)  # [1L] = o
         original_file_image_map[1L] = image
         sf = TestingServiceFactory()
         self.analysis_ctx = InCellPlateAnalysisCtx(

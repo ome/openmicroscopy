@@ -21,8 +21,6 @@ import omero.ServerError;
 import omero.rtypes;
 import omero.api.AMD_IContainer_createDataObject;
 import omero.api.AMD_IContainer_createDataObjects;
-import omero.api.AMD_IContainer_deleteDataObject;
-import omero.api.AMD_IContainer_deleteDataObjects;
 //import omero.api.AMD_IContainer_findAnnotations;
 import omero.api.AMD_IContainer_findContainerHierarchies;
 import omero.api.AMD_IContainer_getCollectionCount;
@@ -70,20 +68,6 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
             List<IObject> dataObjects, Parameters options,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, dataObjects, options);
-
-    }
-
-    public void deleteDataObject_async(AMD_IContainer_deleteDataObject __cb,
-            IObject obj, Parameters options, Current __current)
-            throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, obj, options);
-
-    }
-
-    public void deleteDataObjects_async(AMD_IContainer_deleteDataObjects __cb,
-            List<IObject> objs, Parameters options, Current __current)
-            throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, objs, options);
 
     }
 

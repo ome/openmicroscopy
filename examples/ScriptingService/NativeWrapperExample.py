@@ -53,11 +53,11 @@ import time
 import omero
 import omero.processor
 import omero.util
-import omero_ext.uuid as uuid # see ticket:3774
+import uuid
 
-## To see the actions of the usermode
-## processor, enable logging here.
-## ----------------------------------
+# To see the actions of the usermode
+# processor, enable logging here.
+# ----------------------------------
 # omero.util.configure_logging()
 
 client = omero.client()
@@ -68,7 +68,7 @@ try:
     # Store the script on the server. A uuid
     # is appended to the name since only one
     # script of each name is allowed.
-    id = scriptService.uploadScript(\
+    id = scriptService.uploadScript(
         "/examples/NativeWrapper-%s.py" % uuid.uuid4(), NATIVE_WRAPPER)
 
     # Now we create a processor for handling the
@@ -102,4 +102,4 @@ try:
     print "Success"
 
 finally:
-    client.closeSession();
+    client.closeSession()

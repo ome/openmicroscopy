@@ -88,12 +88,15 @@ DECLARATION BLOCK:
 #set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
 [$ice] \#include <omero/model/${parent}.ice>
 #end
+[$hdr] \#include <omero/IceNoWarnPush.h>
 [$hdr] \#include <omero/RTypes.h>
 [$hdr] \#include <omero/model/RTypes.h>
-[$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/IObject.h>
-[$hdr] \#include <omero/model/DetailsI.h>
 [$hdr] \#include <omero/model/${Pojo}.h>
+[$hdr] \#include <omero/IceNoWarnPop.h>
+[$hdr] \#include <omero/ClientErrors.h>
+[$hdr] \#include <omero/model/DetailsI.h>
+[$hdr] \#include <omero/model/NamedValue.h>
 [$hdr] \#include <omero/templates.h>
 [$hdr] \#include <IceUtil/Config.h>
 [$hdr] \#if ICE_INT_VERSION / 100 >= 304
@@ -160,11 +163,15 @@ DECLARATION BLOCK:
 [$cpp] \#include <omero/model/${property.shortType}I.h> // Impl. since instantiated
 #if($property.shortTarget)
 [$ice]     class ${property.shortTarget};
+[$cpp] \#include <omero/IceNoWarnPush.h>
 [$cpp] \#include <omero/model/${property.shortTarget}.h>
+[$cpp] \#include <omero/IceNoWarnPop.h>
 #end
 #else
 [$ice]     class ${property.shortType};
+[$cpp] \#include <omero/IceNoWarnPush.h>
 [$cpp] \#include <omero/model/${property.shortType}.h>
+[$cpp] \#include <omero/IceNoWarnPop.h>
 #end##link
 #end##ome
 #end##foreach
@@ -320,9 +327,15 @@ TOGGLE AND CREATE COLLECTIONS:
 =====================================================================================================
 
 [$jav]       protected void toggleCollectionsLoaded(boolean load) {
-[$hdr]       virtual void toggleCollectionsLoaded(bool load);
-[$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
-[$pyc]       def _toggleCollectionsLoaded(self,load):
+#set($propertyClosureVar = "/*unused*/")
+#foreach( $property in $type.propertyClosure )
+#if(  $property.one2Many )
+#set($propertyClosureVar = "load")
+#end
+#end
+[$hdr]       virtual void toggleCollectionsLoaded(bool ${propertyClosureVar});
+[$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool ${propertyClosureVar}) {
+[$pyc]       def _toggleCollectionsLoaded(self, load):
 #foreach( $property in $type.propertyClosure )
 #set(     $PropertyName = $property.nameCapped )
 #set(     $javaType = $property.type)
@@ -363,7 +376,7 @@ since all collections are lists in ice.
 [$cpp]               ${property.name}Seq = ${seqName}();
 [$cpp]               ${property.name}Loaded = true;
 [$cpp]           } else {
-[$cpp]               ${property.name}Seq = (${seqName})0;
+[$cpp]               ${property.name}Seq.clear();
 [$cpp]               ${property.name}Loaded = false;
 [$cpp]           }
 [$pyc]           if load:
@@ -855,7 +868,7 @@ Properties used throughout the accessor generation
 #set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
 #set( $cppType = "$seqName" )
 #set( $iceType = "$seqName" )
-#set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
+#set( $unloadedCpp = "if (_${property.name} != static_cast<$cppType>(0)) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
 #set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
 #set( $fieldName = "${property.name}Seq")
 #set( $getter = "this.${fieldName}" )
@@ -998,11 +1011,12 @@ Properties used throughout the accessor generation
 [$Ice]       omero::RTime ${property.name};
 
 #elseif( $property.class.name == "ome.dsl.MapField" )
-#set( $javaType = "java.util.Map<String, omero.RString>");
-#set( $iceType = "omero::api::StringRStringMap" )
+#set( $javaType = "java.util.List<omero.model.NamedValue>");
+#set( $iceType = "omero::api::NamedValueList" )
 #set( $cppType = "${iceType}" )
-#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertStringStringMap(source.get${PropertyName}());" );
-[$Ice]       omero::api::StringRStringMap ${property.name};
+#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertNamedValueList(source.get${PropertyName}());" );
+[$Ice]       omero::api::NamedValueList ${property.name};
+[$Ice]       omero::api::StringStringMap get${PropertyName}AsMap();
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
@@ -1076,7 +1090,7 @@ Unload
 #if( $property.class.name == "ome.dsl.MapField" )
 [$cpp]           ${fieldName} = $cppType();
 #else
-[$cpp]           ${fieldName} = ($cppType) 0;
+[$cpp]           ${fieldName} = static_cast<$cppType>(0);
 #end
 [$cpp]       }
 [$pyc]       def unload${PropertyName}(self, $PYC_CURRENT_COLL):
@@ -1091,6 +1105,19 @@ the special set methods are added.
 [$jav]           return $getter;
 [$jav]       }
 [$jav]
+#if( $property.class.name == "ome.dsl.MapField" )
+[$jav]       public java.util.Map<String, String> get${property.nameCapped}AsMap($JAV_CURRENT) throws omero.UnloadedEntityException {
+[$jav]           errorIfUnloaded();
+[$jav]           java.util.Map<String, String> rv = new java.util.HashMap<String, String>();
+[$jav]           for (omero.model.NamedValue nv : $getter) {
+[$jav]               if (nv != null) {
+[$jav]                   rv.put(nv.name, nv.value);
+[$jav]               }
+[$jav]           }
+[$jav]           return rv;
+[$jav]       }
+[$jav]
+#end
 [$jav]       $access void set${PropertyName}($javaType $property.name, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           this.$fieldName = $setter;
@@ -1140,6 +1167,8 @@ ticket:684 This is necessary to map back and forth from sets.
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() == null ? null : java.util.Arrays.asList(this.get${PropertyName}() ));
 #elseif( $javaType.startsWith("java.util.Map"))
 [$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseStringStringMap(this.get${PropertyName}() ));
+#elseif( $property.class.name == "ome.dsl.MapField" )
+[$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseNamedList(this.get${PropertyName}() ));
 #else
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end
@@ -1152,6 +1181,9 @@ ticket:684 This is necessary to map back and forth from sets.
 #end
 [$hdr]       virtual $cppType get${property.nameCapped}($HDR_CURRENT);
 [$hdr]       virtual void set${PropertyName}(const $cppType& _$property.name, $HDR_CURRENT);
+#if( $property.class.name == "ome.dsl.MapField" )
+[$hdr]       virtual omero::api::StringStringMap get${property.nameCapped}AsMap($HDR_CURRENT);
+#end
 #if($access == "protected" )
 [$hdr]     public:
 #end
@@ -1166,6 +1198,18 @@ ticket:684 This is necessary to map back and forth from sets.
 [$cpp]           $fieldName = $!{prefix}_${property.name}$!{suffix};
 [$cpp]           $unloadedCpp
 [$cpp]       }
+#if( $property.class.name == "ome.dsl.MapField" )
+[$cpp]       omero::api::StringStringMap ${PojoI}::get${property.nameCapped}AsMap($CPP_CURRENT_UNUSED) {
+[$cpp]           omero::api::StringStringMap rv;
+[$cpp]           for (omero::api::NamedValueList::const_iterator it = ${fieldName}.begin(); it != ${fieldName}.end(); ++it) {
+[$cpp]               omero::model::NamedValuePtr target = *it;
+[$cpp]               if (target) {
+[$cpp]                   rv[target->name] = target->value;
+[$cpp]               }
+[$cpp]           }
+[$cpp]           return rv;
+[$cpp]       }
+#end
 
 #set($pyaccess = "")
 #if($property.one2Many)
@@ -1187,6 +1231,16 @@ It's unclear if these methods are useful at all, but for the moment lowering the
 [$pyc]           self._${fieldName} = _${property.name}
 [$pyc]           $unloadedPython
 [$pyc]
+#if( $property.class.name == "ome.dsl.MapField" )
+[$pyc]       def ${pyaccess}get${property.nameCapped}AsMap(self, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           rv = dict()
+[$pyc]           for nv in self._${property.name}:
+[$pyc]               if nv is not None:
+[$pyc]                   rv[nv.name] = nv.value
+[$pyc]           return rv
+[$pyc]
+#end
 
 
 One-to-many extras:
@@ -1241,7 +1295,7 @@ sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$cpp]       Ice::Int ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) return -1;
-[$cpp]           return ${fieldName}.size();
+[$cpp]           return static_cast<Ice::Int>(${fieldName}.size());
 [$cpp]       }
 [$pyc]       def sizeOf${PropertyName}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
@@ -1400,7 +1454,7 @@ remove single
 [$cpp]               ${fieldName}.end(),
 [$cpp]               omero::ContainsPointer<${property.shortType}Ptr>(target));
 [$cpp]           ${fieldName}.erase(it,${fieldName}.end());
-[$cpp]           target->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]           target->set$Inverse(static_cast<${PojoI}Ptr>(0));
 [$cpp]       }
 
 removeAll multiple
@@ -1435,7 +1489,7 @@ removeAll multiple
 [$cpp]               omero::VectorContainsPointer<${property.shortType}Ptr>(targets));
 [$cpp]           ${cppType}::iterator beg(removed);
 [$cpp]           for(; beg != end; beg++) {
-[$cpp]               (*beg)->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]               (*beg)->set$Inverse(static_cast<${PojoI}Ptr>(0));
 [$cpp]           }
 [$cpp]           ${fieldName}.erase(removed,end);
 [$cpp]       }
@@ -1465,7 +1519,7 @@ clear
 [$cpp]           $cppType::iterator beg = ${fieldName}.begin();
 [$cpp]           $cppType::iterator end = ${fieldName}.end();
 [$cpp]           for(; beg != end; beg++) {
-[$cpp]               (*beg)->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]               (*beg)->set$Inverse(static_cast<${PojoI}Ptr>(0));
 [$cpp]           }
 [$cpp]           ${fieldName}.clear();
 [$cpp]       }
@@ -1773,8 +1827,13 @@ TODO: Should we check for nulls in other?
 [$pyc]               link.${other}.$ADD2METHOD( link, False )
 #end
 [$pyc]
+#if($bidir)
 [$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $HDR_CURRENT);
 [$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT_UNUSED) {
+#else
+[$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool /*unused*/, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool /*unused*/, $CPP_CURRENT_UNUSED) {
+#end
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.push_back( link );

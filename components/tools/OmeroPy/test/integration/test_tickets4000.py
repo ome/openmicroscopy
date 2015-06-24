@@ -9,7 +9,7 @@
 
 """
 import omero
-import test.integration.library as lib
+import library as lib
 import pytest
 
 from omero.rtypes import rstring
@@ -17,7 +17,7 @@ from omero.rtypes import rstring
 
 class TestTickets4000(lib.ITest):
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test3138(self):
         """
         Try multiple logins to see if they slow down
@@ -35,7 +35,8 @@ class TestTickets4000(lib.ITest):
         self.loginAttempt(name, 3.0)
 
     def testChangeActiveGroup(self):
-        admin = self.client.sf.getAdminService()
+        client = self.new_client()
+        admin = client.sf.getAdminService()
 
         assert 2 == len(admin.getEventContext().memberOfGroups)
 
@@ -49,9 +50,9 @@ class TestTickets4000(lib.ITest):
 
         proxies = dict()
         # creating stateful services
-        proxies['search'] = self.client.sf.createSearchService()
-        proxies['thumbnail'] = self.client.sf.createThumbnailStore()
-        proxies['admin'] = self.client.sf.getAdminService()
+        proxies['search'] = client.sf.createSearchService()
+        proxies['thumbnail'] = client.sf.createThumbnailStore()
+        proxies['admin'] = client.sf.getAdminService()
 
         # changing group
         for k in proxies.keys():
@@ -60,18 +61,19 @@ class TestTickets4000(lib.ITest):
             except AttributeError:
                 pass
 
-        self.client.sf.setSecurityContext(
+        client.sf.setSecurityContext(
             omero.model.ExperimenterGroupI(grp.id.val, False))
         admin.setDefaultGroup(admin.getExperimenter(
             admin.getEventContext().userId),
             omero.model.ExperimenterGroupI(grp.id.val, False))
         assert grp.id.val == \
-            self.client.sf.getAdminService().getEventContext().groupId
+            client.sf.getAdminService().getEventContext().groupId
 
-    def testChageActiveGroupWhenConnectionLost(self):
+    def testChangeActiveGroupWhenConnectionLost(self):
         import os
-        admin = self.client.sf.getAdminService()
-        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        client = self.new_client()
+        admin = client.sf.getAdminService()
+        uuid = client.sf.getAdminService().getEventContext().sessionUuid
         assert 2 == len(admin.getEventContext().memberOfGroups)
 
         # AS ROOT: adding user to extra group
@@ -84,9 +86,9 @@ class TestTickets4000(lib.ITest):
 
         proxies = dict()
         # creating stateful services
-        proxies['search'] = self.client.sf.createSearchService()  # 1A
-        proxies['thumbnail'] = self.client.sf.createThumbnailStore()  # 1B
-        proxies['admin'] = self.client.sf.getAdminService()
+        proxies['search'] = client.sf.createSearchService()  # 1A
+        proxies['thumbnail'] = client.sf.createThumbnailStore()  # 1B
+        proxies['admin'] = client.sf.getAdminService()
         copy = dict(proxies)
 
         # loosing the connection

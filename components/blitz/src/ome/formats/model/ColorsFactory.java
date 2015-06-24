@@ -7,20 +7,19 @@
 
 package ome.formats.model;
 
-// Java imports
+import static ome.formats.model.UnitsFactory.makeLength;
+
 import java.util.Iterator;
 import java.util.List;
-// Third-party libraries
 
-// Application-internal dependencies
 import omero.RInt;
-import omero.RDouble;
 import omero.model.Channel;
 import omero.model.Filter;
 import omero.model.Laser;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.TransmittanceRange;
+import omero.model.Length;
 
 
 /**
@@ -121,17 +120,6 @@ public class ColorsFactory {
     }
 
     /**
-     * Returns the concrete value of an OMERO rtype.
-     * @param value OMERO rtype to get the value of.
-     * @return Concrete value of <code>value</code> or <code>null</code> if
-     * <code>value == null</code>.
-     */
-    private static Double getValue(RDouble value)
-    {
-	return value == null? null : value.getValue();
-    }
-
-    /**
      * Returns <code>true</code> if the channel has emission metadata,
      * <code>false</code> otherwise.
      *
@@ -211,22 +199,24 @@ public class ColorsFactory {
      * 				   an emission filter, <code>false</code> otherwise.
      * @return See above.
      */
-    static Integer getValueFromFilter(Filter filter, boolean emission)
+    static Length getValueFromFilter(Filter filter, boolean emission)
     {
 	if (filter == null) return null;
 	TransmittanceRange transmittance = filter.getTransmittanceRange();
 	if (transmittance == null) return null;
-	Integer cutIn = getValue(transmittance.getCutIn());
+	Length cutIn = transmittance.getCutIn();
 
 	if (emission) {
 		if (cutIn == null) return null;
-		return cutIn+RANGE;
+		return makeLength(cutIn.getValue()+RANGE, cutIn.getUnit());
 	}
-	Integer cutOut = getValue(transmittance.getCutOut());
+	Length cutOut = transmittance.getCutOut();
 	if (cutOut == null) return null;
-	if (cutIn == null || cutIn == 0) cutIn = cutOut-2*RANGE;
-	Integer v = (cutIn+cutOut)/2;
-	if (v < 0) return 0;
+	if (cutIn == null || cutIn.getValue() == 0)
+	    cutIn = makeLength(cutOut.getValue()-2*RANGE, cutOut.getUnit());
+	// FIXME: are these in the same unit?
+	Length v = makeLength((cutIn.getValue()+cutOut.getValue())/2, cutIn.getUnit());
+	if (v.getValue() < 0) return makeLength(0.0, ome.formats.model.UnitsFactory.TransmittanceRange_CutIn);
 	return v;
     }
 
@@ -255,23 +245,24 @@ public class ColorsFactory {
             }
             // XXX: Is commenting this out right?
             //return null;
-	}
-	Double valueWavelength = getValue(lc.getEmissionWave());
-        //First we check the emission wavelength.
+      }
+
+      Length valueWavelength = lc.getEmissionWave();
+      //First we check the emission wavelength.
         if (valueWavelength != null) return determineColor(valueWavelength);
 
-      Integer valueFilter = null;
-        //First check the emission filter.
-	//First check if filter
-        //light path first
-        List<Filter> filters = channelData.getLightPathEmissionFilters();
-	Iterator<Filter> i;
-        if (filters != null) {
+      Length valueFilter = null;
+      //First check the emission filter.
+      //First check if filter
+      //light path first
+      List<Filter> filters = channelData.getLightPathEmissionFilters();
+      Iterator<Filter> i;
+      if (filters != null) {
 		i = filters.iterator();
 		while (valueFilter == null && i.hasNext()) {
 				valueFilter = getValueFromFilter(i.next(), true);
 			}
-        }
+      }
 
 	if (valueFilter == null)
 		valueFilter = getValueFromFilter(
@@ -281,13 +272,13 @@ public class ColorsFactory {
 	if (valueWavelength == null && valueFilter == null && channelData.getLightSource() != null) {
 		LightSource ls = channelData.getLightSource();
 		if (ls instanceof Laser) {
-			valueWavelength = getValue(((Laser) ls).getWavelength());
+			valueWavelength = ((Laser) ls).getWavelength();
 		}
 	}
 	if (valueWavelength != null) return determineColor(valueWavelength);
 
 	//Excitation
-	valueWavelength = getValue(lc.getExcitationWave());
+	valueWavelength = lc.getExcitationWave();
 	if (valueWavelength != null) return determineColor(valueWavelength);
 
 	if (valueFilter == null) {
@@ -303,7 +294,7 @@ public class ColorsFactory {
 		valueFilter = getValueFromFilter(
 				channelData.getFilterSetExcitationFilter(), false);
 
-	int[] toReturn = determineColor(new Double(valueFilter));
+	int[] toReturn = determineColor(valueFilter);
 	if (toReturn != null)
 	{
 		return toReturn;
@@ -324,14 +315,13 @@ public class ColorsFactory {
      * Determines the color corresponding to the passed value.
      *
      * @param value The value to handle.
-     * @return
      */
-    public static int[] determineColor(Double value)
+    public static int[] determineColor(Length value)
     {
 	if (value == null) return null;
-	if (rangeBlue(value)) return newBlueColor();
-	if (rangeGreen(value)) return newGreenColor();
-	if (rangeRed(value)) return newRedColor();
+	if (rangeBlue(value.getValue())) return newBlueColor();
+	if (rangeGreen(value.getValue())) return newGreenColor();
+	if (rangeRed(value.getValue())) return newRedColor();
 	return null;
     }
 

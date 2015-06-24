@@ -135,9 +135,10 @@ button::-moz-focus-inner {
     .btn_edit {background: url('../../webgateway/img/icon_edit.png')center center no-repeat;}
     .btn_figscripts {background: url('../../webgateway/img/icon_figure_scripts.png') center center no-repeat;}
     .btn_fspath {background: url('../../webgateway/img/icon_fs_path.png')center center no-repeat;}
+    .btn_hierarchy {background: url('../../webgateway/img/iconmonstr-sitemap-6-icon-16.png') center center no-repeat;}
     .btn_link {background: url('../../webgateway/img/icon_link.png')center center no-repeat;}
 
-	.btn_fspath, .btn_link {
+	.btn_fspath, .btn_link, .btn_hierarchy {
 	    float:right;
 	    position: relative;
 	    margin-left: 5px;
@@ -150,7 +151,7 @@ button::-moz-focus-inner {
 		height:18px;
 		display:block;
 	}
-	.btn_fspath span {
+	.btn_fspath span, .btn_hierarchy span {
 	    width:25px;
 	    height:18px;
 	    display:block;

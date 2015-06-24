@@ -38,7 +38,6 @@ class TestObj(CLITest):
 
     def teardown_method(self, method):
         self.teardown_mock()
-        super(TestObj, self).teardown_method(method)
 
     def go(self):
         self.cli.invoke(self.args, strict=True)
@@ -135,3 +134,36 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "update", project, "description=bar"]
         self.go()
+
+    def test_map_mods(self):
+        self.args = self.login_args() + [
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
+
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "foo", "bar"]
+        state = self.go()
+        ann2 = state.get_row(0)
+        assert ann == ann2
+
+        self.args = self.login_args() + [
+            "obj", "map-get", ann, "mapValue", "foo"]
+        state = self.go()
+        val = state.get_row(0)
+        assert val == "bar"
+
+    def test_nulling(self):
+        self.args = self.login_args() + [
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
+
+        self.args = self.login_args() + [
+            "obj", "null", ann, "ns"]
+        state = self.go()
+        ann2 = state.get_row(0)
+        assert ann == ann2
+        type, id = ann.split(":")
+        ann3 = self.client.sf.getQueryService().get(type, int(id))
+        assert ann3.ns is None

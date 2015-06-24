@@ -11,13 +11,14 @@ try:
     sessionSvc = sf.getSessionService()
 
     p = omero.sys.Principal()
-    p.name = "root" # Can change to any user
+    p.name = "root"  # Can change to any user
     p.group = "user"
     p.eventType = "User"
 
-    sudoSession = sessionSvc.createSessionWithTimeout( p, 3*60*1000L ) # 3 minutes to live
+    # 3 minutes to live
+    sudoSession = sessionSvc.createSessionWithTimeout(p, 3*60*1000L)
 
-    sudoSf = sudoClient.joinSession( sudoSession.getUuid().getValue() )
+    sudoSf = sudoClient.joinSession(sudoSession.getUuid().getValue())
     sudoAdminSvc = sudoSf.getAdminService()
     print sudoAdminSvc.getEventContext().userName
 

@@ -26,12 +26,12 @@
 
 import omero
 import omero.gateway
-import test.integration.library as lib
+import library as lib
 
 
 class TestPixelsService(lib.ITest):
 
-    def testCreateImage(self):
+    def createImage(self):
         """
         Create a new image
         """
@@ -47,16 +47,17 @@ class TestPixelsService(lib.ITest):
         sizeZ = 1
         sizeT = 1
         channelList = range(1, 4)
-        pixelsService.createImage(
+        id = pixelsService.createImage(
             sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
-            "testCreateImage", description=None)
+            self.uuid(), description=None)
+        return id
 
     def test9655(self):
         # Create an image without statsinfo objects and attempt
         # to retrieve it from the Rendering service.
 
         # Get the pixels
-        image_id = self.testCreateImage()
+        image_id = self.createImage()
         gateway = omero.gateway.BlitzGateway(client_obj=self.client)
         image = gateway.getObject("Image", image_id)
         pixels_id = image.getPrimaryPixels().id
@@ -71,7 +72,7 @@ class TestPixelsService(lib.ITest):
         # Now use the RE to load
         re = self.client.sf.createRenderingEngine()
         re.lookupPixels(pixels_id)
-        re.resetDefaults()
+        re.resetDefaultSettings(save=True)
         re.lookupPixels(pixels_id)
         re.lookupRenderingDef(pixels_id)
         re.getPixels()

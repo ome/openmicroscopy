@@ -72,9 +72,6 @@ public class Plane2D {
     /** Number of pixels along the <i>Y</i>-axis. */
     protected int sizeY;
 
-    /** The Java type that we're using for pixel value retrieval */
-    protected int javaType;
-
     /** The sign of the type */
     protected boolean signed;
     
@@ -112,7 +109,7 @@ public class Plane2D {
         PixelsType type = pixels.getPixelsType();
 
         this.bytesPerPixel = PlaneFactory.bytesPerPixel(type);
-        this.javaType = PlaneFactory.javaType(type);
+        //this.javaType = PlaneFactory.javaType(type);
         this.signed = PlaneFactory.isTypeSigned(type);
         this.slice = pDef.getSlice();
 

@@ -42,6 +42,9 @@ module omero {
             StateList flags;
             StringMap parameters;
 
+            /** the latest step to be commenced, from 0 to steps-1 */
+            int currentStep;
+            /** the total number of steps */
             int steps;
             long startTime;
             Ice::LongSeq stepStartTimes;
@@ -150,10 +153,10 @@ module omero {
         ["java:type:java.util.ArrayList<omero.cmd.HandlePrx>:java.util.List<omero.cmd.HandlePrx>"]
         sequence<Handle*> HandleList;
 
-	/**
-	 * Starting point for all command-based OMERO.blitz interaction.
-	 **/
-	interface Session extends Glacier2::Session {
+        /**
+         * Starting point for all command-based OMERO.blitz interaction.
+         **/
+        interface Session extends Glacier2::Session {
             ["amd", "ami"] Handle* submit(Request req);
         };
 

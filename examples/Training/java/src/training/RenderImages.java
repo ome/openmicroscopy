@@ -111,7 +111,7 @@ public class RenderImages
 			proxy = connector.getRenderingEngine();
 			proxy.lookupPixels(pixelsId);
 			if (!(proxy.lookupRenderingDef(pixelsId))) {
-				proxy.resetDefaults();
+				proxy.resetDefaultSettings(true);
 				proxy.lookupRenderingDef(pixelsId);
 			}
 			proxy.load();

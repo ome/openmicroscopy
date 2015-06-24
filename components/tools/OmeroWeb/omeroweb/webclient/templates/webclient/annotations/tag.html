@@ -4,7 +4,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -29,11 +29,12 @@
 -->
 {% endcomment %}
 
-<span class="tag_annotation_wrapper" id="tag_ann-{{ tag.id }}">
+<span class="tag_annotation_wrapper" id="tag_ann-{{ tag.id }}"
+    data-added-by="{{ added_by }}">
 	
 		<div class="tag">
 	        <a class='tooltip tag_inner' href="{% url 'load_template' 'usertags' %}?show=tag-{{ tag.id }}" target="_top">
-	            {{ tag.textValue }}
+                {{ tag.textValue|escape }}
 	        </a>
 		
 			{% if can_remove %}
@@ -50,7 +51,7 @@
                     {% if forloop.counter < 20 %}
                         <div>
                             <b>{{ l.getParent.OMERO_CLASS }} {{ l.getParent.id }}:</b> 
-                            {{ l.getParent.name|truncatebefor:"28" }}
+                            {{ l.getParent.name|escape|truncatebefor:"28" }}
                             {% ifnotequal ome.user.id l.details.owner.id.val %}<b> ({{ l.getDetails.getOwner.getNameWithInitial }})</b>{% endifnotequal %}
                         </div>
                     {% else %}
@@ -64,10 +65,11 @@
             </span>
             {% else %}
                 <span class="tooltip_html" style='display:none'>
+                    <b>ID:</b> {{ tag.id }}<br />
                     <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
                     <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
                     <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                    <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
+                    <b>Description:</b> {{ tag.description|escape|default:""|truncatewords:10 }}
                 </span>
 			{% endif %}
 			

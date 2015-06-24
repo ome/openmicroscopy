@@ -1,66 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="examples/Delete"/>
-	<classpathentry kind="src" path="components/tools/OmeroJava/test"/>
-	<classpathentry kind="src" path="components/dsl/test"/>
-	<classpathentry kind="src" path="components/dsl/resources"/>
-	<classpathentry kind="src" path="components/dsl/src"/>
-	<classpathentry kind="src" path="components/model/target/generated/src"/>
-	<classpathentry kind="src" path="components/model/target/generated/resources"/>
-	<classpathentry kind="src" path="components/model/src"/>
-	<classpathentry kind="src" path="components/model/test"/>
-	<classpathentry kind="src" path="components/model/resources"/>
-	<classpathentry kind="src" path="components/rendering/target/generated/src"/>
-	<classpathentry kind="src" path="components/rendering/src"/>
-	<classpathentry kind="src" path="components/rendering/resources"/>
-	<classpathentry kind="src" path="components/rendering/target/generated/resources"/>
-	<classpathentry kind="src" path="components/romio/resources"/>
-	<classpathentry kind="src" path="components/romio/src"/>
-	<classpathentry kind="src" path="components/romio/test"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/generated"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/resources"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/src"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/resources"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/src"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/test"/>
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/autogen/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/bio-formats-tools/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/jai/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/turbojpeg/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/poi/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/mdbtools/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-bsd/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/specification/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-xml/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/stubs/lwf-stubs/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/poi/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/turbojpeg/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-api/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/test-suite/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/metakit/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-gpl/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-common/src" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/autogen/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-bsd/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-bsd/test" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-xml/test" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/metakit/test" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-gpl/test" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-common/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-common/test" />
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/test-suite/utils"/>
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-gpl/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-gpl/test" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-gpl/utils"/>
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/metakit/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/metakit/test" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-xml/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-xml/target/generated-sources"/>
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-xml/test" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/specification/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/stubs/lwf-stubs/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/test-suite/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/test-suite/utils"/>
 <!-- BROKEN
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-bsd/utils"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/bio-formats-plugins/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/bio-formats-plugins/test" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/bio-formats-plugins/utils"/>
 -->
-	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/SRC"/>
-	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/TEST"/>
-	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
-	<classpathentry kind="src" output="target/eclipse-server" path="components/server/test"/>
-	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
-	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/resources"/>
-	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/test"/>
-	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/resources"/>
-	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/src"/>
-	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/src"/>
-	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/generated"/>
-	<classpathentry kind="src" output="target/eclipse-common" path="components/common/src"/>
-	<classpathentry kind="src" output="target/eclipse-common" path="components/common/test"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/resources"/>
+	<classpathentry kind="src" output="target/eclipse-common" path="components/common/src"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/resources"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/src"/>
+	<classpathentry kind="src" output="target/eclipse-common" path="components/common/test"/>
+	<classpathentry kind="src" path="components/dsl/resources"/>
+	<classpathentry kind="src" path="components/dsl/src"/>
+	<classpathentry kind="src" path="components/dsl/test"/>
+	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/SRC"/>
+	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/TEST"/>
+	<classpathentry kind="src" path="components/model/resources"/>
+	<classpathentry kind="src" path="components/model/src"/>
+	<classpathentry kind="src" path="components/model/target/generated/resources"/>
+	<classpathentry kind="src" path="components/model/target/generated/src"/>
+	<classpathentry kind="src" path="components/model/test"/>
+	<classpathentry kind="src" path="components/rendering/resources"/>
+	<classpathentry kind="src" path="components/rendering/src"/>
+	<classpathentry kind="src" path="components/rendering/target/generated/resources"/>
+	<classpathentry kind="src" path="components/rendering/target/generated/src"/>
+	<classpathentry kind="src" path="components/romio/resources"/>
+	<classpathentry kind="src" path="components/romio/src"/>
+	<classpathentry kind="src" path="components/romio/test"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/test"/>
+	<classpathentry kind="src" path="components/tools/OmeroJava/test"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

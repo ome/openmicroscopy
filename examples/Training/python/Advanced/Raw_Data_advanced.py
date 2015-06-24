@@ -33,7 +33,7 @@ imageId = 401
 
 # Save a plane (raw data) as tiff for analysis
 # =================================================================
-image = conn.getObject("Image", imageId)                  # first plane of the image
+image = conn.getObject("Image", imageId)  # first plane of the image
 pixels = image.getPrimaryPixels()
 # make a note of min max pixel values for each channel
 # so that we can scale all the planes from each channel to the same range
@@ -45,7 +45,8 @@ for c in image.getChannels():
 print channelMinMax
 
 
-# Go through each channel (looping through Z and T not shown - go for mid-Z only)
+# Go through each channel (looping through Z and T not shown - go for mid-Z
+# only)
 # =================================================================
 theZ = image.getSizeZ() / 2
 theT = 0
@@ -60,7 +61,8 @@ for minMax in channelMinMax:
         scaled = (plane - minVal) * (float(255) / valRange)
         convArray = zeros(plane.shape, dtype=uint8)
         convArray += scaled
-        print "using converted int8 plane: dtype: %s min: %s max: %s" % (convArray.dtype.name, convArray.min(), convArray.max())
+        print ("using converted int8 plane: dtype: %s min: %s max: %s"
+               % (convArray.dtype.name, convArray.min(), convArray.max()))
         i = Image.fromarray(convArray)
     else:
         i = Image.fromarray(plane)

@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
  * (among others).
  */
 @Test
+@SuppressWarnings("deprecation")
 public class ExportIndexUnitTest extends MockGraphTest {
 
     class Step extends GraphStep {

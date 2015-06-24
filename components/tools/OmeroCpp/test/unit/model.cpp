@@ -14,6 +14,7 @@
 #include <omero/model/ImageI.h>
 #include <omero/model/PixelsI.h>
 #include <omero/model/ChannelI.h>
+#include <omero/model/LengthI.h>
 #include <omero/model/TagAnnotationI.h>
 #include <omero/model/GroupExperimenterMapI.h>
 
@@ -301,4 +302,16 @@ TEST(ModelTest, OrderedCollectionsTicket2547 ) {
     ChannelPtr old = pixels->setChannel(0, channel1);
     ASSERT_TRUE(old == channel0);
     ASSERT_EQ(1, pixels->sizeOfChannels());
+}
+
+TEST(ModelTest, LengthGetSymbol) {
+    LengthPtr l = new LengthI();
+    l->setValue(1.0);
+    l->setUnit(omero::model::enums::MICROMETER);
+    ASSERT_EQ("µm", l->getSymbol());
+}
+
+TEST(ModelTest, LengthLookupSymbol) {
+    ASSERT_EQ("µm", LengthI::lookupSymbol(
+            omero::model::enums::MICROMETER));
 }

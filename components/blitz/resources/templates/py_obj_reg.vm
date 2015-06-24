@@ -53,6 +53,84 @@ class DetailsObjectFactory(Ice.ObjectFactory):
     def destroy(self):
         pass
 
+class ElectricPotentialObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_ElectricPotentialI import ElectricPotentialI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.ElectricPotentialI()
+
+    def destroy(self):
+        pass
+
+class FrequencyObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_FrequencyI import FrequencyI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.FrequencyI()
+
+    def destroy(self):
+        pass
+
+class LengthObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_LengthI import LengthI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.LengthI()
+
+    def destroy(self):
+        pass
+
+class PowerObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_PowerI import PowerI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.PowerI()
+
+    def destroy(self):
+        pass
+
+class PressureObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_PressureI import PressureI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.PressureI()
+
+    def destroy(self):
+        pass
+
+class TemperatureObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_TemperatureI import TemperatureI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.TemperatureI()
+
+    def destroy(self):
+        pass
+
 class TimeObjectFactory(Ice.ObjectFactory):
 
     from omero_model_TimeI import TimeI
@@ -61,7 +139,7 @@ class TimeObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.TimeI(self.client)
+        return self.TimeI()
 
     def destroy(self):
         pass
@@ -73,6 +151,12 @@ def conditionalAdd(name, ic, of):
 def registerObjectFactory(ic, client = None):
     conditionalAdd("::omero::model::Permissions", ic, PermissionsObjectFactory())
     conditionalAdd("::omero::model::Details", ic, DetailsObjectFactory(client))
+    conditionalAdd("::omero::model::ElectricPotential", ic, ElectricPotentialObjectFactory(client))
+    conditionalAdd("::omero::model::Frequency", ic, FrequencyObjectFactory(client))
+    conditionalAdd("::omero::model::Length", ic, LengthObjectFactory(client))
+    conditionalAdd("::omero::model::Power", ic, PowerObjectFactory(client))
+    conditionalAdd("::omero::model::Pressure", ic, PressureObjectFactory(client))
+    conditionalAdd("::omero::model::Temperature", ic, TemperatureObjectFactory(client))
     conditionalAdd("::omero::model::Time", ic, TimeObjectFactory(client))
 #foreach($type in $types)
 #if(!$type.abstract)

@@ -18,10 +18,33 @@
 -->
 {% endcomment %}
 
+    <script type="text/javascript">
+        
+        $(document).ready(function()
+            {
+
+                $(".dropdown_menu .menu_launch").click(function(e){
+                    $(this).parent().find('ul').css('visibility', 'visible');
+                    $(this).parent().find('.dropdown_menu_options').show();
+                    return false;
+                });
+                // on hover-out of the menu itself, hide drop-down menus
+                $(".dropdown_menu_options").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                }).hide();
+
+
+                // We do this here and in batch_annotate panel
+                OME.initToolbarDropdowns();
+
+            });
+            
+    </script>
+
 
 <div style="position:relative">
 
-
+    {% if not share %}
     <!-- open-image link -->
     <button id="show_link_btn" class="btn silver btn_link" title="Link to this {{ manager.obj_type }}">
         <span></span>
@@ -41,6 +64,7 @@
           </td></tr>
         </table>
     </div>
+    {% endif %}
 
     <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
     <!-- ... and for single images -->
@@ -52,8 +76,9 @@
             <span></span>
         </button>
         <ul class="dropdown">
+            {% if canDownload %}
             <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
-            {% if image.getImportedFilesInfo.count %}
+            {% if not share and image.getImportedFilesInfo.count %}
               {% with filesetInfo=image.getImportedFilesInfo %}
             <li>
                 <!-- if we have a single orig file, download directly. Otherwise popup a 
@@ -65,11 +90,17 @@
                     href="#"
                     onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ image.id }}&fileCount={{ fileCount }}&name={{ image.name }}');"
                   {% endifequal %}
-                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
                 Download...</a>
             </li>
               {% endwith %}
+            <li>
+              <a href="{% url 'download_orig_metadata' image.id %}"
+                  title="Download Original Metadata as a text file">
+                Download Original Metadata
+              </a>
+            </li>
             <!-- Here we handle multiple images (batch annotate panel) -->
             {% elif filesetInfo %}
             <li {% if not filesetInfo.count %}class='disabled'{% endif %}>
@@ -84,12 +115,24 @@
                     onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}&index={{ index }}');"
                   {% endifequal %}
                 {% endifequal %}
-                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
                 Download...</a>
             </li>
+            <li class="disabled">
+              <a href="#"
+                  title="Download Original Metadata (for single images only)">
+                Download Original Metadata
+              </a>
+            </li>
+            {% else %}
+            <li class="disabled">
+              <a title="No original imported files to download">Download...</a>
+            </li>
             {% endif %}
-            {% if image %}
+
+            {% if not share %}
+            {% if image and not omeTiffDisabled %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
@@ -101,21 +144,38 @@
             </li>
             <li>{{ manager.}}
             {% endif %}
-
+            {% endif %}
+            {% endif %}
+            
             {% if image %}
               <li>
-                <a href="{% url 'web_render_image_download' image.id %}" title="Download as JPEG">
-                  Save As JPEG
+                  {% if share and not share.share.isOwned %}
+                      <a href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}"
+                        title="Download as JPEG">
+                  {% else %}
+                      <a href="{% url 'web_render_image_download' image.id %}" title="Download as JPEG">
+                  {% endif %}
+                  Export as JPEG
                 </a>
               </li>
               <li>
-                <a href="{% url 'web_render_image_download' image.id %}?format=png" title="Download as PNG">
-                  Save As PNG
+                  {% if share and not share.share.isOwned %}
+                      <a href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}?format=png"
+                        title="Download as PNG">
+                  {% else %}
+                      <a href="{% url 'web_render_image_download' image.id %}?format=png" title="Download as PNG">
+                  {% endif %}
+                  Export as PNG
                 </a>
               </li>
               <li>
-                <a href="{% url 'web_render_image_download' image.id %}?format=tif" title="Download as TIFF">
-                  Save As TIFF
+                  {% if share and not share.share.isOwned %}
+                      <a href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}?format=tif"
+                        title="Download as TIFF">
+                  {% else %}
+                      <a href="{% url 'web_render_image_download' image.id %}?format=tif" title="Download as TIFF">
+                  {% endif %}
+                  Export as TIFF
                 </a>
               </li>
             {% else %}
@@ -123,23 +183,24 @@
               <li>
                 <a href="#"
                   onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg&index={{ index }}');"
-                  title="Download as JPEGs (zip)">Save As JPEG</a>
+                  title="Download as JPEGs (zip)">Export as JPEG</a>
               </li>
               <li>
                 <a href="#"
                   onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png&index={{ index }}');"
-                  title="Download as PNGs (zip)">Save As PNG</a>
+                  title="Download as PNGs (zip)">Export as PNG</a>
               </li>
               <li>
                 <a href="#"
                   onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif&index={{ index }}');"
-                  title="Download as TIFFs (zip)">Save As TIFF</a>
+                  title="Download as TIFFs (zip)">Export as TIFF</a>
               </li>
               {% endif %}
             {% endif %}
         </ul>
     </div>
 
+    {% if not share %}
     {% if image.showOriginalFilePaths %}
       <!-- show original file paths -->
       <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
@@ -147,12 +208,35 @@
       </button>
     {% endif %}
 
+      <button id="show_image_hierarchy" class="btn silver btn_hierarchy" title="Show parent Projects & Datasets">
+        <span></span>
+      </button>
+    {% endif %}
     {% endif %}
 
 
     <!-- Publishing Options (Figure Scripts) -->
+    {% if not share %}
     {% if not differentGroups %}
     {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
+    {% endif %}
+    {% endif %}
+    
+
+
+
+    {% if image %}
+    <button class="btn silver btn_text" href="#" style="position: absolute; left: 0; height: 20px"
+            {% if share and not share.share.isOwned %}
+                onclick="return OME.openPopup('{% url 'web_image_viewer' share.share.id image.id %}')"
+            {% else %}
+                onclick="return OME.openPopup('{% url 'web_image_viewer' image.id %}')"
+            {% endif %}
+            title="Open full image viewer in new window">
+        <span>
+            Full viewer
+        </span>
+    </button>
     {% endif %}
 
 </div>

@@ -108,8 +108,8 @@
             if (typeof OME === "undefined") {OME = {}}
 
             // init viewport
-            {% if share_id %}
-            OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
+            {% if share and not share.share.isOwned %}
+            OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share.share.id }}", {'mediaroot': '{{ STATIC_URL }}' } );
             {% else %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
             {% endif %}
@@ -125,7 +125,7 @@
             });
 
             // Load image
-            {% if share_id %}
+            {% if share and not share.share.isOwned %}
             OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             OME.preview_viewport.load({{ manager.image.id }});
@@ -135,7 +135,7 @@
             // but we also save to session in case of page reload etc
             $("button.copy_rdef").click(function() {
                 copyRdefs(OME.preview_viewport);
-                $("button.paste_rdef").removeAttr('disabled');
+                $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
             });
             $("button.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);
@@ -153,15 +153,22 @@
                             .attr('title', 'Copied settings are not compatible with this image');
                           return;
                         }
-                        $("button.paste_rdef").removeAttr('disabled');
+                        $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
                     }
                 }
               );
 
               // disable 'Full Range' button if pixelsType is 'float' or 'double'
               if ($.inArray(OME.preview_viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
-                $("#rdef-fullrange-btn").attr("disabled", "disabled");
+                $("#rdef-fullrange-btn").attr("disabled", "disabled").addClass("button-disabled");
               }
+
+              // viewport.load() is called after pasting rdef or loading. Cache busting rdef thumbnails...
+              $("img.rdef").each(function(){
+                  var $this = $(this),
+                      base_src = $this.attr('src').split('&_=')[0];
+                  $this.attr('src', base_src + "&_=random"+Math.random());
+              });
             });
 
             // handle 'Color' checkbox
@@ -274,20 +281,24 @@
                   })
               }
             };
-            // when we load page, force refresh of rdef thumbs (in case they are cached)
-            $("img.rdef").each(function(){
-              var $thumb = $(this),
-                src = $thumb.attr('src');
-                $thumb.attr('src', src + '&_=' + Math.random());
-            });
 
 
             {% if manager.image.canAnnotate %}
-            var pid = OME.getParentId();    // E.g. dataset-123 OR plate-456
+
+            {% if manager.well %}
+            // If we're looking at a well we know parent is plate
+              var pid = "plate-{{ manager.well.plate.id.val }}";
+            {% else %}
+              // For images in Datasets, we get parent from jsTree, using selected image
+              // E.g. dataset-123
+              var pid = OME.getParentId();
+            {% endif %}
+
+
             if (pid) {
               $("#rdef-save-all")
                 .attr('title', "Apply and Save settings to all images in " + pid)
-                .prop("disabled", false)
+                .removeAttr('disabled').removeClass("button-disabled")
                 .click(function(){
                   var $span = $('span', this),
                     spanTxt = $span.text();
@@ -295,21 +306,33 @@
                   var typeId = pid.split("-");
                   var rdefQry = OME.preview_viewport.getQuery();
                   // need to paste current settings to all images...
-                  var url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-                  url += "?toids=" + typeId[1] + "&to_type=" + typeId[0];
-                  url += "&" + rdefQry + "&imageId=" + OME.preview_viewport.loadedImg.id;   // Need imageId for 'apply to all'
-                  $.getJSON(url, function() {
-                    $span.text(spanTxt);
-                    OME.refreshThumbnails({'ignorePreview': true});
-                    updateMyRdef(OME.preview_viewport.getQuery());
+                  var url = "{% url 'webgateway.views.copy_image_rdef_json' %}"+ "?" + rdefQry;
+                  data = {
+                      "toids": typeId[1],
+                      "to_type": typeId[0],
+                      "imageId": OME.preview_viewport.loadedImg.id // Need imageId for 'apply to all'
+                  }
+                  $.ajax({
+                      type: "POST",
+                      dataType: 'text',
+                      traditional: true,
+                      url: url,
+                      data: data,
+                      success: function(data){
+                          $span.text(spanTxt);
+                          // update thumbnails
+                          OME.refreshThumbnails({'ignorePreview': true});
+                          updateMyRdef(OME.preview_viewport.getQuery());
+                      }
                   });
                 });
             }
             {% endif %}
 
+
             $("#preview_open_viewer").click(function(){
 
-              var url = "{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
+              var url = "{% if share and not share.share.isOwned %}{% url 'web_image_viewer' share.share.id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
 
               var vpQuery = OME.preview_viewport.getQuery();
               // remove &zm=50
@@ -323,6 +346,7 @@
     </script>
 
 
+
 <!-- VIEWER "Preview"-->
 <div class="right_tab_inner">
 	
@@ -330,7 +354,7 @@
 
 			<button id="preview_open_viewer" class="btn silver btn_text" href="#" alt="View" title="Open full viewer">
 				<span>
-                {% trans "Launch full viewer" %} 
+                {% trans "Full viewer" %} 
 				</span>
 			</button>
 
@@ -346,21 +370,20 @@
       T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
     </div>
 
-
-    <ul class="toolbar preview-toolbar">
+    <ul class="toolbar borderless labels">
       <li>
-        <button id="rdef-setdef-btn" class="toolbar-btn" disabled='true'
+        <button id="rdef-setdef-btn" class="button button-disabled"
             {% if manager.image.canAnnotate %}
               title="Saves the current settings."
             {% else %}
             title="You don't have permission to save settings."
             {% endif %}
-            >
+            disabled="disabled">
           <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save
         </button>
 
-        <button id="rdef-save-all" class="toolbar-btn" disabled="true"
+        <button id="rdef-save-all" class="button{%if share and not share.share.isOwned %} button-disabled{% endif %}"
             title="Cannot apply settings to other images">
           <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save to All
@@ -368,25 +391,25 @@
       </li>
 
 
-      <li><button id="rdef-undo-btn" class="toolbar-btn" disabled="true"
-          title="Undo the last changes to settings">
+      <li><button id="rdef-undo-btn" class="button button-disabled"
+          title="Undo the last changes to settings" disabled="disabled">
         <img src="{% static "webclient/image/icon_undo16.png" %}" /><br>
         Undo
       </button> </li>
-      <li><button id="rdef-redo-btn" class="toolbar-btn" disabled="true"
-          title="Redo the last changes to settings">
+      <li><button id="rdef-redo-btn" class="button button-disabled"
+          title="Redo the last changes to settings" disabled="disabled">
         <img src="{% static "webclient/image/icon_redo16.png" %}" /><br>
         Redo
       </button></li>
       
       <li class="seperator"></li>
 
-      <li><button class="copy_rdef button toolbar-btn" title="Copy Rendering Settings">
+      <li><button class="copy_rdef button" title="Copy Rendering Settings">
         <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
         Copy
       </button></li>
-      <li><button class="paste_rdef button toolbar-btn"
-        disabled='disabled' title="Paste Rendering Settings">
+      <li><button class="paste_rdef button button-disabled"
+          title="Paste Rendering Settings" disabled="disabled">
         <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
         Paste
       </button></li>
@@ -424,7 +447,9 @@
         {% for rdef in rdefs %}
           <button class='rdef {% if rdef.current %}clicked{% endif %}'
             data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
-            <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/><br>
+            <img class='rdef' src="
+{% if share.share.id and not share.share.isOwned %}{% url 'render_thumbnail'  manager.image.id share.share.id%}
+{% else %}{% url 'render_thumbnail' manager.image.id %}{% endif %}?rdefId={{ rdef.id }}"/><br>
             <span {% ifequal manager.image.getDetails.owner.id.val rdef.owner.id %}class="owner"{% endifequal %}>
               {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
             </span>
@@ -432,5 +457,6 @@
         {% endfor %}
       </li>
     </ul>
+
 
 </div>

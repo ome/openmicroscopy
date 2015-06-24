@@ -16,6 +16,7 @@ import sys
 import string
 import threading
 import shutil
+import uuid
 
 # Third party path package. It provides much of the
 # functionality of os.path but without the complexity.
@@ -26,7 +27,6 @@ import omero.all
 import omero.grid.monitors as monitors
 
 import omero.rtypes
-import omero_ext.uuid as uuid  # see ticket:3774
 import Ice
 
 from omero.util import configure_server_logging
@@ -65,7 +65,10 @@ class DropBox(Ice.Application):
         # if not there's no point starting the FSDropBox client
         import fsUtil
         try:
-            fsUtil.monitorPackage()
+            checkString = props.getPropertyWithDefault(
+                "omero.fs.platformCheck", "True")
+            platformCheck = not (checkString == "False")
+            fsUtil.monitorPackage(platformCheck)
         except:
             log.exception("System requirements not met: \n")
             log.error("Quitting")
@@ -196,6 +199,7 @@ class DropBox(Ice.Application):
                         monitorParameters[user]['blockSize'],
                         monitorParameters[user]['ignoreSysFiles'],
                         monitorParameters[user]['ignoreDirEvents'],
+                        platformCheck,
                         mClientProxy)
 
                     log.info(

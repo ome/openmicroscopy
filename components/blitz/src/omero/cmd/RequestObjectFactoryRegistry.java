@@ -24,7 +24,7 @@ import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.services.delete.Deletion;
-import ome.services.util.MailUtil;
+import ome.services.mail.MailUtil;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -34,12 +34,24 @@ import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
 import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
+import omero.cmd.fs.UsedFilesRequestI;
 import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.Chgrp2I;
+import omero.cmd.graphs.ChgrpFacadeI;
+import omero.cmd.graphs.ChildOptionI;
 import omero.cmd.graphs.ChmodI;
+import omero.cmd.graphs.Chmod2I;
+import omero.cmd.graphs.ChmodFacadeI;
 import omero.cmd.graphs.ChownI;
+import omero.cmd.graphs.Chown2I;
+import omero.cmd.graphs.ChownFacadeI;
 import omero.cmd.graphs.DeleteI;
+import omero.cmd.graphs.Delete2I;
+import omero.cmd.graphs.DeleteFacadeI;
 import omero.cmd.graphs.DiskUsageI;
+import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.GraphSpecListI;
+import omero.cmd.graphs.SkipHeadI;
 import omero.cmd.mail.SendEmailRequestI;
 
 /**
@@ -70,6 +82,8 @@ public class RequestObjectFactoryRegistry extends
     
     private final PasswordProvider passwordProvider;
     
+    private final GraphRequestFactory graphRequestFactory;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
@@ -80,7 +94,8 @@ public class RequestObjectFactoryRegistry extends
             MailUtil mailUtil,
             PasswordUtil passwordUtil,
             SecuritySystem sec,
-            PasswordProvider passwordProvider) {
+            PasswordProvider passwordProvider,
+            GraphRequestFactory graphRequestFactory) {
 
         this.em = em;
         this.voter = voter;
@@ -91,6 +106,7 @@ public class RequestObjectFactoryRegistry extends
         this.passwordUtil = passwordUtil;
         this.sec = sec;
         this.passwordProvider = passwordProvider;
+        this.graphRequestFactory = graphRequestFactory;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -136,11 +152,23 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChgrpI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
-                                new String[] { "classpath:ome/services/spec.xml" },
-                                ctx);
-                        ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
-                        return new ChgrpI(ic, factory, specs);
+                        if (graphRequestFactory.isGraphsWrap()) {
+                            return new ChgrpFacadeI(graphRequestFactory);
+                        } else {
+                            final ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                                    new String[] { "classpath:ome/services/spec.xml" },
+                                    ctx);
+                            final ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
+                            return new ChgrpI(ic, factory, specs);
+                        }
+                    }
+
+                });
+        factories.put(Chgrp2I.ice_staticId(),
+                new ObjectFactory(Chgrp2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Chgrp2I.class);
                     }
 
                 });
@@ -148,8 +176,21 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChmodI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return new ChmodI(ic,
-                                ctx.getBean("chmodStrategy", ChmodStrategy.class));
+                        // TODO: Chmod2 too slow to be automatically substituted for Chmod
+                        /* if (graphRequestFactory.isGraphsWrap()) {
+                            return new ChmodFacadeI(graphRequestFactory);
+                        } else */ {
+                            return new ChmodI(ic,
+                                    ctx.getBean("chmodStrategy", ChmodStrategy.class));
+                        }
+                    }
+
+                });
+        factories.put(Chmod2I.ice_staticId(),
+                new ObjectFactory(Chmod2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Chmod2I.class);
                     }
 
                 });
@@ -157,11 +198,23 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChownI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
-                                new String[] { "classpath:ome/services/spec.xml" },
-                                ctx);
-                        ChownStepFactory factory = new ChownStepFactory(ctx, em, roles);
-                        return new ChownI(ic, factory, specs);
+                        if (graphRequestFactory.isGraphsWrap()) {
+                            return new ChownFacadeI(graphRequestFactory);
+                        } else {
+                            final ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                                    new String[] { "classpath:ome/services/spec.xml" },
+                                    ctx);
+                            final ChownStepFactory factory = new ChownStepFactory(ctx, em, roles);
+                            return new ChownI(ic, factory, specs);
+                        }
+                    }
+
+                });
+        factories.put(Chown2I.ice_staticId(),
+                new ObjectFactory(Chown2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Chown2I.class);
                     }
 
                 });
@@ -169,15 +222,43 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(DeleteI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
-                        return new DeleteI(ic, d);
+                        if (graphRequestFactory.isGraphsWrap()) {
+                            return new DeleteFacadeI(graphRequestFactory);
+                        } else {
+                            final Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
+                            return new DeleteI(ic, d);
+                        }
                     }
+
+                });
+        factories.put(Delete2I.ice_staticId(),
+                new ObjectFactory(Delete2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Delete2I.class);
+                    }
+
+                });
+        factories.put(SkipHeadI.ice_staticId(),
+                new ObjectFactory(SkipHeadI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(SkipHeadI.class);
+                    }
+
                 });
         factories.put(OriginalMetadataRequestI.ice_staticId(),
                 new ObjectFactory(OriginalMetadataRequestI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
                         return new OriginalMetadataRequestI(pixelsService);
+                    }
+                });
+        factories.put(UsedFilesRequestI.ice_staticId(),
+                new ObjectFactory(UsedFilesRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new UsedFilesRequestI(pixelsService);
                     }
                 });
         factories.put(ManageImageBinariesI.ice_staticId(),
@@ -191,7 +272,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(DiskUsageI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return new DiskUsageI(pixelsService, thumbnailService);
+                        return new DiskUsageI(pixelsService, thumbnailService, graphRequestFactory.getGraphPathBean());
                     }
                 });
         factories.put(SendEmailRequestI.ice_staticId(),
@@ -206,6 +287,14 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                     	return new ResetPasswordRequestI(mailUtil, passwordUtil, sec, passwordProvider);
+                    }
+                });
+        /* request parameters */
+        factories.put(ChildOptionI.ice_staticId(),
+                new ObjectFactory(ChildOptionI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.createChildOption();
                     }
                 });
         return factories;

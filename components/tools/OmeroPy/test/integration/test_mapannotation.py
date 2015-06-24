@@ -24,16 +24,27 @@ Tests for the MapAnnotation and related base types
 introduced in 5.1.
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero.rtypes import rstring
+from omero_model_MapAnnotationI import MapAnnotationI
+from omero.rtypes import rbool, rstring
 from omero.rtypes import unwrap
+from omero.model import NamedValue as NV
 
 
 class TestMapAnnotation(lib.ITest):
+
+    def assertNV(self, nv, name, value):
+        assert name == nv.name
+        assert value == nv.value
+
+    def assertNVs(self, nvl1, nvl2):
+        for i in range(max(len(nvl1), len(nvl2))):
+            assert nvl1[i].name == nvl2[i].name
+            assert nvl1[i].value == nvl2[i].value
 
     def testMapStringField(self):
         uuid = self.uuid()
@@ -41,20 +52,19 @@ class TestMapAnnotation(lib.ITest):
         updateService = self.root.getSession().getUpdateService()
         group = ExperimenterGroupI()
         group.setName(rstring(uuid))
-        group.setConfig(dict())
-        group.getConfig()["language"] = rstring("python")
+        group.setLdap(rbool(False))
+        group.setConfig([NV("language", "python")])
         group = updateService.saveAndReturnObject(group)
         group = queryService.findByQuery(
             ("select g from ExperimenterGroup g join fetch g.config "
              "where g.id = %s" % group.getId().getValue()), None)
-        assert "python" == group.getConfig().get("language").val
+        self.assertNV(group.getConfig()[0], "language", "python")
 
     @pytest.mark.parametrize("data", (
-        ({"a": rstring("")}, {"a": ""}),
-        ({"a": None}, {}),
-        ({"a": rstring("b")}, {"a": "b"}),
+        ([NV("a", "")], [NV("a", "")]),
+        ([NV("a", "b")], [NV("a", "b")]),
     ))
-    def testGroupConfig(self, data):
+    def testGroupConfigA(self, data):
 
         save_value, expect_value = data
 
@@ -77,10 +87,86 @@ class TestMapAnnotation(lib.ITest):
         group = load_group(gid)
         config = unwrap(group.config)
 
-        assert expect_value == config
+        self.assertNVs(expect_value, config)
 
-        print queryService.projection(
+        name, value = unwrap(queryService.projection(
             """
-            select m from ExperimenterGroup g
-            left outer join g.config m where index(m) = 'a'
-            """, None)
+            select m.name, m.value from ExperimenterGroup g
+            left outer join g.config m where m.name = 'a'
+            and g.id = :id
+            """, omero.sys.ParametersI().addId(gid))[0])
+
+        self.assertNV(expect_value[0], name, value)
+
+    def testGroupConfigEdit(self):
+
+        before = [
+            NV("a", "b"),
+            NV("c", "d"),
+            NV("e", "f")
+        ]
+
+        remove_one = [
+            NV("a", "b"),
+            NV("e", "f")
+        ]
+
+        swapped = [
+            NV("e", "f"),
+            NV("a", "b")
+        ]
+
+        edited = [
+            NV("e", "f"),
+            NV("a", "x")
+        ]
+
+        root_update = self.root.sf.getUpdateService()
+
+        group = self.new_group()
+        group.setConfig(before)
+        group = root_update.saveAndReturnObject(group)
+        self.assertNVs(before, group.getConfig())
+
+        del group.getConfig()[1]
+        group = root_update.saveAndReturnObject(group)
+        self.assertNVs(remove_one, group.getConfig())
+
+        old = list(group.getConfig())
+        self.assertNVs(old, remove_one)
+        group.setConfig([old[1], old[0]])
+        group = root_update.saveAndReturnObject(group)
+        self.assertNVs(swapped, group.getConfig())
+
+        group.getConfig()[1].value = "x"
+        group = root_update.saveAndReturnObject(group)
+        self.assertNVs(edited, group.getConfig())
+
+    def testEmptyItem(self):
+        a = MapAnnotationI()
+        a.setMapValue([NV('Name1', 'Value1'), NV('Name2', 'Value2')])
+        a = self.update.saveAndReturnObject(a)
+        m = self.query.findAllByQuery((
+            "from MapAnnotation m "
+            "join fetch m.mapValue a "
+            "where a.name='Name2'"), None)[0]
+        l1 = m.getMapValue()
+        assert l1[0] is None
+        self.assertNV(l1[1], "Name2", "Value2")
+        assert {"Name2": "Value2"} == m.getMapValueAsMap()
+
+    def testBigKeys(self):
+        uuid = self.uuid()
+        big = uuid + "X" * 500
+        a = MapAnnotationI()
+        a.setMapValue([NV(big, big)])
+        a = self.update.saveAndReturnObject(a)
+        m = self.query.findAllByQuery((
+            "from MapAnnotation m "
+            "join fetch m.mapValue a "
+            "where a.name like :name"),
+            omero.sys.ParametersI().addString("name",
+                                              uuid + "%")
+        )[0]
+        l1 = m.getMapValue()
+        self.assertNV(l1[0], big, big)

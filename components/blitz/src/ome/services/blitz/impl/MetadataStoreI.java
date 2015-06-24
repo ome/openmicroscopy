@@ -50,7 +50,7 @@ import omero.ServerError;
 import omero.api.AMD_MetadataStore_createRoot;
 import omero.api.AMD_MetadataStore_populateMinMax;
 import omero.api.AMD_MetadataStore_saveToDB;
-import omero.api.AMD_MetadataStore_setPixelsParams;
+import omero.api.AMD_MetadataStore_setPixelsFile;
 import omero.api.AMD_MetadataStore_updateObjects;
 import omero.api.AMD_MetadataStore_updateReferences;
 import omero.api.AMD_StatefulServiceInterface_activate;
@@ -115,7 +115,7 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
     @Override
     public void onSetOmeroContext(final OmeroContext ctx) throws Exception {
         ServiceFactory sf = new InternalServiceFactory(ctx);
-        this.store = new OMEROMetadataStore(sf);
+        this.store = new OMEROMetadataStore(sf, sql);
     }
 
     @SuppressWarnings("unchecked")
@@ -331,12 +331,12 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
     }
 
     /* (non-Javadoc)
-     * @see omero.api._MetadataStoreOperations#setPixelsParams_async(omero.api.AMD_MetadataStore_setPixelsParams, long, boolean, Map<String, String>, Ice.Current)
+     * @see omero.api._MetadataStoreOperations#setPixelsFile_async(omero.api.AMD_MetadataStore_setPixelsFile, long, String, String, Ice.Current)
      */
-    public void setPixelsParams_async(
-            AMD_MetadataStore_setPixelsParams __cb,
-            final long pixelsId, final boolean useOriginalFile,
-            final Map<String, String> params, Current __current)
+    public void setPixelsFile_async(
+            AMD_MetadataStore_setPixelsFile __cb,
+            final long pixelsId, final String file, final String repo,
+            Current __current)
         throws ServerError
     {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
@@ -348,18 +348,10 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf)
             {
-                final String repo = params.remove("repo");
-                sql.setPixelsParams(pixelsId, params);
-                if (!useOriginalFile)
-                {
-                    return null;
-                }
-
-                File targetFile;
-                if (params.containsKey("target")) {
-                    targetFile = new File(params.get("target"));
-                } else
-                {
+                final File targetFile;
+                if (file != null) {
+                    targetFile = new File(file);
+                } else {
                     Pixels pixels = sf.getQueryService().get(
                             Pixels.class, pixelsId);
                     Format format = pixels.getImage().getFormat();

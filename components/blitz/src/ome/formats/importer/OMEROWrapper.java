@@ -1,9 +1,6 @@
 /*
- * ome.formats.importer.gui.GuiCommonElements
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,9 +47,6 @@ import loci.formats.meta.MetadataStore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 import ome.formats.OMEXMLModelComparator;
 import ome.util.PixelData;
@@ -219,11 +213,7 @@ public class OMEROWrapper extends MinMaxCalculator {
      * @return true if reader being used is LeicaReader
      */
     public boolean isLeicaReader() {
-        if (iReader.getReader() instanceof LeicaReader) {
-            return true;
-        } else {
-            return false;
-        }
+        return iReader.getReader() instanceof LeicaReader;
     }
 
     /**
@@ -242,11 +232,7 @@ public class OMEROWrapper extends MinMaxCalculator {
             }
             Pixels p = pixels.get(series);
             Channel c = p.getChannel(p.getSizeC().getValue() - 1);
-            if (c.getStatsInfo() == null) {
-                minMaxSet = false;
-            } else {
-                minMaxSet = true;
-            }
+            minMaxSet =  c.getStatsInfo() != null;
         }
         return minMaxSet;
     }
@@ -257,7 +243,7 @@ public class OMEROWrapper extends MinMaxCalculator {
     @Override
     protected void updateMinMax(int no, byte[] buf, int len)
         throws FormatException, IOException {
-        if (isMinMaxSet() == false)
+        if (!isMinMaxSet())
             super.updateMinMax(no, buf, len);
     }
 

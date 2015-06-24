@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,13 +36,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
@@ -55,9 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.util.FileAttachmentWarningDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
@@ -121,9 +122,6 @@ class EditorComponent
 	
 	/** The dialog used to display script.*/
 	private ScriptingDialog dialog;
-	
-	/** A pointer to keep track which was the action which triggered the fileset loading */
-	private int filesetLoadTrigger = -1;
 	
 	/**
 	 * Returns the collection of annotation that cannot be removed 
@@ -288,11 +286,6 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject(oldObject);
-		
-		// have to load the filesets immediately to determine if the
-		// show file path button in the toolbar should be activated or not
-		if (refObject != null && DataObject.class.isAssignableFrom(refObject.getClass()))
-		    loadFileset(-1);
 	}
 
 	/** 
@@ -917,12 +910,14 @@ class EditorComponent
 						return;
 					}
 						
-					Collection tags = model.getExistingTags();
+					Collection tags = model.isMultiSelection() ? model.getAllTags() : model.getTags();
 					dialog = controller.createFigureDialog(name, 
 							pixels, FigureDialog.THUMBNAILS);
 					dialog.setParentRef(model.getParentRootObject());
-					if (tags != null) dialog.setTags(tags);
-					else model.loadExistingTags();
+					if (tags != null) 
+					    dialog.setTags(tags);
+					else 
+					    model.loadExistingTags();
 					dialog.centerDialog();
 					break;
 				case FigureDialog.MOVIE:
@@ -1119,55 +1114,16 @@ class EditorComponent
 		analysis.notifyLoading(false);
 		model.removeAnalysisResultsLoading(analysis);
 		//now display results.
-		String name = analysis.getNameSpace();
-		if (FileAnnotationData.FLIM_NS.equals(name)) {
-			DataObject data = analysis.getData();
-			if (data instanceof ImageData) {
-				/*
-				FLIMResultsEvent event = new FLIMResultsEvent((ImageData) data, 
-						analysis.getResults());
-				EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-				bus.post(event);
-				*/
-				ImageData image = (ImageData) data;
-				IconManager icons = IconManager.getInstance();
-				FLIMResultsDialog d = new FLIMResultsDialog(null, 
-						EditorUtil.getPartialName(image.getName()),
-						icons.getIcon(IconManager.FLIM_48), 
-						analysis.getResults());
-				d.addPropertyChangeListener(new PropertyChangeListener() {
-					
-					public void propertyChange(PropertyChangeEvent evt) {
-						String name = evt.getPropertyName();
-						if (FLIMResultsDialog.SAVED_FLIM_RESULTS_PROPERTY.equals(
-								name)){
-							boolean b = (
-									(Boolean) evt.getNewValue()).booleanValue();
-							UserNotifier un = 
-							MetadataViewerAgent.getRegistry().getUserNotifier();
-							if (b) {
-								un.notifyInfo("Saving Results", "The file has " +
-										"successfully been saved.");
-							} else {
-								un.notifyInfo("Saving Results", "An error " +
-								"occurred while saving the results.");
-							}
-						}
-					}
-				});
-				UIUtilities.centerAndShow(d);	
-			}
-		}
 	}
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#saveAs(File, int)
 	 */
-	public void saveAs(File folder, int format)
+	public void saveAs(File folder, int format, String fileName)
 	{
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
-		model.saveAs(folder, format);
+		model.saveAs(folder, format, fileName);
 	}
 	
 	/** 
@@ -1224,18 +1180,17 @@ class EditorComponent
 	public void setFileset(Set<FilesetData> set)
 	{
 		model.setFileset(set);
-		view.displayFileset(filesetLoadTrigger);
+		view.displayFileset();
 	}
 
-    	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#loadFileset(int)
-	 */
-	public void loadFileset(int trigger)
-	{
-	        this.filesetLoadTrigger = trigger;
-		model.fireFilesetLoading();
-	}
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * 
+     * @see Editor#loadFileset(int)
+     */
+    public void loadFileset() {
+        model.fireFilesetLoading();
+    }
 
     /** 
      * Implemented as specified by the {@link Editor} interface.
@@ -1252,4 +1207,27 @@ class EditorComponent
 	            loadRenderingControl(RenderingControlLoader.LOAD);
 	    }
 	}
+
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#setLDAPDetails(long, String)
+     */
+    public void setLDAPDetails(long userID, String result) {
+        Object o = model.getRefObject();
+        if (o instanceof ExperimenterData) {
+            ExperimenterData exp = (ExperimenterData) o;
+            if (exp.getId() == userID) {
+                view.setLDAPDetails(result);
+            }
+        }
+    }
+
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#getScriptFromName(String)
+     */
+    public ScriptObject getScriptFromName(String name)
+    {
+        return model.getScriptFromName(name);
+    }
 }

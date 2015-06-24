@@ -27,7 +27,9 @@ public interface RawFileStore extends StatefulServiceInterface {
     public Long getFileId();
 
     /**
-     * This method manages the state of the service.
+     * This method manages the state of the service. If the given file
+     * is not considered DOWNLOADABLE, this method will throw a
+     * {@link SecurityViolation}.
      * 
      * @param fileId
      *            an {@link ome.model.core.OriginalFile} id.

@@ -1024,7 +1024,7 @@ def getRenderingEngine(session, pixelsId):
     renderingEngine = session.createRenderingEngine()
     renderingEngine.lookupPixels(pixelsId)
     if(renderingEngine.lookupRenderingDef(pixelsId) == 0):
-        renderingEngine.resetDefaults()
+        renderingEngine.resetDefaultSettings(True)
     renderingEngine.lookupRenderingDef(pixelsId)
     renderingEngine.load()
     return renderingEngine
@@ -1124,7 +1124,7 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex,
 
     renderingEngine.lookupPixels(pixelsId)
     if not renderingEngine.lookupRenderingDef(pixelsId):
-        renderingEngine.resetDefaults()
+        renderingEngine.resetDefaultSettings(True)
         if rgba is None:
             # probably don't want E.g. single channel image to be blue!
             rgba = COLOURS["White"]

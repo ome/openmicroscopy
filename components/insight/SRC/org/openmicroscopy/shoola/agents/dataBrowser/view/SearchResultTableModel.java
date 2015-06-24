@@ -38,6 +38,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -202,6 +203,10 @@ public class SearchResultTableModel extends DefaultTableModel {
         else if (obj instanceof PlateData) {
             return IconManager.getInstance().getIcon(IconManager.PLATE);
         }
+        
+        else if (obj instanceof PlateAcquisitionData) {
+            return IconManager.getInstance().getIcon(IconManager.PLATE_ACQUISITION);
+        }
 
         return IconManager.getInstance().getIcon(IconManager.TRANSPARENT);
     }
@@ -244,6 +249,8 @@ public class SearchResultTableModel extends DefaultTableModel {
             name = ((ScreenData) obj).getName();
         } else if (obj instanceof PlateData) {
             name = ((PlateData) obj).getName();
+        } else if (obj instanceof PlateAcquisitionData) {
+            name = ((PlateAcquisitionData) obj).getLabel();
         }
 
         FontMetrics fm = parent.getGraphics().getFontMetrics();

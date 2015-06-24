@@ -4,7 +4,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -29,13 +29,13 @@
 -->
 {% endcomment %}
 
-<div class="ann_comment_wrapper">
+<div class="ann_comment_wrapper" data-added-by="{{ added_by }}">
 
     <div class="avatar">
 		<img src="{% url 'avatar' tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" />
 	</div>
 
-    <div class="ann_comment_text">
+    <div class="ann_comment_text tooltip">
         <div class="ann_comment_header">
             <strong>{{ tann.getOwner.getFullName }}</strong> 
             {% trans "at" %} 
@@ -48,8 +48,16 @@
         {% endif %}
     
         <div class='commentText'>
-        {{ tann.getTextValue|linebreaksbr }}
+        {{ tann.getTextValue|escape|linebreaksbr }}
         </div>
     </div>
+
+    {% if tann.ns or tann.description %}
+    <span class="tooltip_html" style='display:none'>
+        <b>ID:</b> {{ tann.id }}<br />
+        {% if tann.ns %}<b>Namespace:</b> {{ tann.ns }}<br />{% endif %}
+        {% if tann.description %}<b>Description:</b> {{ tann.description|escape }}<br />{% endif %}
+    </span>
+    {% endif %}
 
 </div>

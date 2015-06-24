@@ -83,6 +83,7 @@ public class CreatePojosFixture2 {
             G_NAME = UUID.randomUUID().toString();
             fixture.g = new ExperimenterGroupI();
             fixture.g.setName(rstring(G_NAME));
+            fixture.g.setLdap(rbool(false));
             fixture.g = new ExperimenterGroupI(
                     rootAdmin.createGroup(fixture.g), false);
         } else {
@@ -161,14 +162,6 @@ public class CreatePojosFixture2 {
         images();
         dilinks();
         annotations();
-    }
-
-    public void deleteAllPojos() throws Exception {
-        for (int i = toAdd.size() - 1; i >= 0; i--) {
-            iUpdate.deleteObject(toAdd.get(i));
-        }
-        iAdmin.deleteExperimenter(e);
-        // TODO iAdmin.deleteGroup(g);
     }
 
     public void init() {

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <omero/client.h>
 #include <omero/callbacks.h>
-#include <omero/api/IDelete.h>
+// Needs rewriting to use omero::cmd::Delete
 
 using namespace std;
 

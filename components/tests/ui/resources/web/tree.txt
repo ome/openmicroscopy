@@ -1,5 +1,21 @@
 *** Keywords ***
 
+Click Dialog Button
+    [Arguments]     ${buttonText}
+    # Confirm dialog (make sure we pick the currently visible dialog)
+    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), '${buttonText}')]
+
+Xpath Should Have Class
+    [Arguments]         ${identifier}   ${className}
+    Page Should Contain Element    ${identifier}
+    Page Should Contain Element    ${identifier}[contains(@class, '${className}')]
+
+Xpath Should Not Have Class
+    [Arguments]         ${identifier}   ${className}
+    Page Should Contain Element        ${identifier}
+    Page Should Not Contain Element    ${identifier}[contains(@class, '${className}')]
+
+
 # All these keywords should be identical in Web and Insight
 Tree Should Be Visible
     Element Should Be Visible    dataTree
@@ -56,10 +72,14 @@ Select And Expand Image
     [Return]                                   ${firstNodeId}
 
 Create Project
-    Create Container    project
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${pid}=     Create Container    project    ${newName}
+    [Return]    ${pid}
 
 Create Dataset
-    Create Container    dataset
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${did}=     Create Container    dataset    ${newName}
+    [Return]    ${did}
 
 Create Button Should Be Enabled
     [Arguments]                 ${oType}
@@ -72,16 +92,18 @@ Create Button Should Be Disabled
 # Keywords Below are not available for Insight
 
 Create Container
-    [Arguments]                 ${dType}
+    [Arguments]                 ${dType}    ${newName}=testCreateContainerRobot
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
-    Input Text                  name    testCreateContainerRobot
-    Click Button                OK
+    Input Text                  name    ${newName}
+    # Make sure we pick 'OK' button from visible dialog
+    Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
     Set Selenium Speed          1
-    Wait Until Page Contains Element    css=h2.data_heading_id
+    Wait Until Page Contains Element    css=tr.data_heading_id
     Set Selenium Speed                  ${DELAY}
-    ${newId}    Get Text                css=h2.data_heading_id>strong
+    ${newId}    Get Text                css=tr.data_heading_id strong
     Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked
+    [Return]                            ${newId}
 
 Key Down
     [Arguments]    ${keyCode}    ${cssSelector}=body
@@ -90,14 +112,14 @@ Key Down
     Execute Javascript    var e = jQuery.Event("keydown");e.which = 40;$("${cssSelector}").trigger(e);
 
 Popup Menu Item Should Be Enabled
-    [Arguments]                 ${menuItem}    ${enabled}
+    [Arguments]                         ${menuItem}    ${enabled}
     # Right Click on the currently selected tree node ('tree-clicked')
-    Open Context Menu           xpath=//a[contains(@class, 'tree-clicked')]
-    Element Should Be Visible   vakata-contextmenu
-    Run Keyword If              ${enabled}     Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
-    ...                         ELSE           Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
+    Open Context Menu                   xpath=//a[contains(@class, 'tree-clicked')]
+    Wait Until Page Contains Element    vakata-contextmenu
+    Run Keyword If                      ${enabled}     Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
+    ...                                 ELSE           Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
     # Click elsewhere to hide the context menu
-    Click Element               content
+    Click Element                       content
 
 Select Experimenter
     Select Node By Id    experimenter-0
@@ -117,4 +139,5 @@ Select Node By Id
     [Arguments]         ${nodeId}
     # Make sure node is visible (by clicking parent node)
     Execute Javascript  if(!$("#${nodeId}").is(":visible")){$("#${nodeId}").parent().parent().children("a").click()}
+    Sleep               1
     Click Element       css=#${nodeId}>a

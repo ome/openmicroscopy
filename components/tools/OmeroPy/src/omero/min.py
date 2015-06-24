@@ -18,6 +18,9 @@ import IceImport
 if omero.__import_style__ is None:
     omero.__import_style__ = "min"
 
+# Internal types
+IceImport.load("omero_model_NamedValue_ice")
+
 # New Command API
 IceImport.load("omero_cmd_Admin_ice")
 IceImport.load("omero_cmd_API_ice")

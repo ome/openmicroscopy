@@ -44,7 +44,11 @@ import org.springframework.beans.FatalBeanException;
  * @since 4.4.4
  * @see IGraph
  * @see ticket:9435
+ * @deprecated will be removed in OMERO 5.2, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public abstract class AbstractHierarchyGraphSpec extends BaseGraphSpec {
 
     private final static Logger log = LoggerFactory

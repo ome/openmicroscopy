@@ -1,0 +1,104 @@
+*** Settings ***
+Documentation     Tests ajax 'POST' updates.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Test Edit Project
+    [Documentation]     Create a Project and edit its name and description
+
+    Select Experimenter
+    ${pid}=                                 Create project      robot test edit
+    Wait Until Page Contains Element        projectname-${pid}
+    # Edit Name
+    Click Element                           css=#projectname-${pid} button.btn_edit
+    Wait Until Page Contains Element        form-projectname-${pid}
+    # id 'id_name' is not unique!
+    Input Text                              xpath=//form[@id='form-projectname-${pid}']//input[@id='id_name']  editedName
+    Submit Form                             form-projectname-${pid}
+    Wait Until Page Contains Element        xpath=//span[@id='projectname-${pid}-name'][contains(text(), 'editedName')]
+
+    # Edit Description
+    Click Element                           css=#projectdescription-${pid} button.btn_edit
+    Wait Until Page Contains Element        form-projectdescription-${pid}
+    Input Text                              xpath=//form[@id='form-projectdescription-${pid}']//textarea[@id='id_description']  newDesc
+    Submit Form                             form-projectdescription-${pid}
+    Wait Until Page Contains Element        xpath=//span[@id='projectdescription-${pid}-description'][contains(text(), 'newDesc')]
+
+
+Test Copy Paste Dataset
+    [Documentation]     Create 2 Projects and a Dataset. Copy and Paste the Dataset.
+
+    Select Experimenter
+    ${p1id}=                                Create project      robot test paste1
+    ${p2id}=                                Create project      robot test paste2
+    ${did}=                                 Create Dataset
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=dataset-${did}
+    Click Element                           id=copyButton
+    Click Element                           xpath=//li[@id='project-${p1id}']/a
+    Click Element                           id=pasteButton
+    Click Element                           refreshButton
+    # Check for expected Project / Dataset hierarchy
+    Wait Until Page Contains Element        xpath=//li[@id='project-${p1id}']//li[@id='dataset-${did}']
+
+
+Test Cut Paste Dataset
+    [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
+
+    Select Experimenter
+    ${p1id}=                                Create project      robot test paste1
+    ${p2id}=                                Create project      robot test paste2
+    ${did}=                                 Create Dataset
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=dataset-${did}
+    Click Element                           id=cutButton
+    # POST a /move/ action - wait for Orphaned Dataset
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/ul/li[@id='dataset-${did}']
+    # Another /move/ to different Project
+    Click Element                           xpath=//li[@id='project-${p1id}']/a
+    Click Element                           id=pasteButton
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        xpath=//li[@id='project-${p1id}']//li[@id='dataset-${did}']
+
+
+Test Cut Paste Image
+    [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
+
+    Select Experimenter
+    ${iid}=                                 Select And Expand Image
+    Click Element                           id=cutButton
+    # Dataset should be selected, paste back
+    Wait Until Page Contains Element        xpath=//li[@rel='dataset']/a[@class='jstree-clicked']
+    ${did}=                                 Get Element Attribute   xpath=//li[a/@class='jstree-clicked']@id
+    Click Element                           id=pasteButton
+    Wait Until Page Contains Element        xpath=//li[@id='${did}']//li[@id='${iid}']
+
+
+Test Chgrp
+    [Documentation]     Tests chgrp of a Project to any other group
+
+    # Clear any activities from earlier tests etc.
+    Click Element                           id=launch_activities
+    Click Element                           id=clear_activities
+    Select Experimenter
+    ${pid}=                                 Create project      robot test chgrp
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=project-${pid}
+    Open Context Menu                       xpath=//li[@id='project-${pid}']/a
+    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='chgrp']
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[4]/a[contains(text(), 'Move to Group')]
+    Wait Until Page Contains Element        id=group_chooser
+    Wait Until Page Contains Element        xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
+    # Simply click first target group option
+    Click Element                           xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
+    Submit Form                             id=chgrp-form
+    Click Element                           id=launch_activities
+    Wait Until Page Contains                Project moved to Group              60
+

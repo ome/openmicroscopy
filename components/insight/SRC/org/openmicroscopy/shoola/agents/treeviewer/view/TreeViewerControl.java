@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -96,6 +96,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNod
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveGroupNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
@@ -379,7 +380,10 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Display Group</code> in the menu. */
 	static final Integer    DISPLAY_GROUP = Integer.valueOf(76);
-	
+
+	/** Identifies the <code>Save OMERO</code> in the menu. */
+	static final Integer SAVE_TO_OMERO = Integer.valueOf(77);
+
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -565,9 +569,9 @@ class TreeViewerControl
 		actionsMap.put(CREATE_DATASET_FROM_SELECTION,  
 				new CreateObjectWithChildren(model, 
 						CreateObjectWithChildren.DATASET));
-		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
+		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, LookupNames.IMAGE_J));
 		actionsMap.put(VIEW_IN_KNIME, new ViewInPlugin(model,
-				TreeViewer.KNIME));
+		        LookupNames.KNIME));
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
 		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
 		actionsMap.put(SWITCH_GROUP, new SwitchGroup(model));
@@ -575,6 +579,8 @@ class TreeViewerControl
 				LookupNames.GROUP_DISPLAY));
 		actionsMap.put(DISPLAY_EXPERIMENTER, new DisplayModeAction(model,
 				LookupNames.EXPERIMENTER_DISPLAY));
+        actionsMap.put(SAVE_TO_OMERO, new SaveResultsAction(model,
+                LookupNames.IMAGE_J));
 	}
 
 	/** 
@@ -990,9 +996,9 @@ class TreeViewerControl
 	 * 
 	 * @param location The location of the mouse click.
 	 */
-	void reloadAvailableScripts(Point location)
+	void reloadAvailableScripts(Point location, Component source)
 	{
-		model.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, null, location);
+		model.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, source, location);
 	}
 	
 	/**
@@ -1486,7 +1492,12 @@ class TreeViewerControl
 				}
 			}
 		} else if (DataBrowser.SET__OWNER_RND_SETTINGS_PROPERTY.equals(name)) {
-			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model,
+			Object data = pce.getNewValue();
+			PasteRndSettingsCmd cmd;
+			if (data instanceof Collection) 
+				cmd = new PasteRndSettingsCmd(model,
+						PasteRndSettingsCmd.SET_OWNER, (Collection) data);
+			else cmd = new PasteRndSettingsCmd(model,
 					PasteRndSettingsCmd.SET_OWNER);
 			cmd.execute();
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {

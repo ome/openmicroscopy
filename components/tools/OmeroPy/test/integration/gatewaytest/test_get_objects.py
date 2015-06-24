@@ -15,9 +15,10 @@
 """
 
 import omero
-import omero_ext.uuid as uuid
+import uuid
 import pytest
 
+from omero.gateway.scripts import dbhelpers
 from omero.rtypes import wrap
 
 
@@ -630,3 +631,127 @@ class TestGetObject (object):
             gatewaywrapper.gateway._waitOnCmd(handle)
         finally:
             handle.close()
+
+
+class TestLeaderAndMemberOfGroup(object):
+
+    @pytest.fixture(autouse=True)
+    def setUp(self):
+        """ Create a group with owner & member"""
+        dbhelpers.USERS['group_owner'] = dbhelpers.UserEntry(
+            'group_owner', 'ome',
+            firstname='Group',
+            lastname='Owner',
+            groupname="ownership_test",
+            groupperms='rwr---',
+            groupowner=True)
+        dbhelpers.USERS['group_member'] = dbhelpers.UserEntry(
+            'group_member', 'ome',
+            firstname='Group',
+            lastname='Member',
+            groupname="ownership_test",
+            groupperms='rwr---',
+            groupowner=False)
+        dbhelpers.bootstrap(onlyUsers=True)
+
+    def testGetGroupsLeaderOfAsLeader(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
+        assert gatewaywrapper.gateway.isLeader()
+        grs = [g.id for g in gatewaywrapper.gateway.getGroupsLeaderOf()]
+        assert len(grs) > 0
+        exp = gatewaywrapper.gateway.getObject(
+            "Experimenter", attributes={'omeName': 'group_owner'})
+        assert exp.sizeOfGroupExperimenterMap() > 0
+        filter_system_groups = [gatewaywrapper.gateway.getAdminService()
+                                .getSecurityRoles().userGroupId]
+        leaderOf = list()
+        for groupExpMap in exp.copyGroupExperimenterMap():
+            gId = groupExpMap.parent.id.val
+            if groupExpMap.owner.val and gId not in filter_system_groups:
+                leaderOf.append(gId)
+        assert(leaderOf == grs)
+
+    def testGetGroupsLeaderOfAsMember(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
+        assert not gatewaywrapper.gateway.isLeader()
+        with pytest.raises(StopIteration):
+            gatewaywrapper.gateway.getGroupsLeaderOf().next()
+
+    def testGetGroupsMemberOf(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
+        assert not gatewaywrapper.gateway.isLeader()
+        grs = [g.id for g in gatewaywrapper.gateway.getGroupsMemberOf()]
+        assert len(grs) > 0
+        exp = gatewaywrapper.gateway.getObject(
+            "Experimenter", attributes={'omeName': "group_member"})
+        assert exp.sizeOfGroupExperimenterMap() > 0
+        filter_system_groups = [gatewaywrapper.gateway.getAdminService()
+                                .getSecurityRoles().userGroupId]
+        memberOf = list()
+        for groupExpMap in exp.copyGroupExperimenterMap():
+            gId = groupExpMap.parent.id.val
+            if not groupExpMap.owner.val and gId not in filter_system_groups:
+                memberOf.append(gId)
+        assert memberOf == grs
+
+    def testGroupSummaryAsOwner(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
+
+        expGr = gatewaywrapper.gateway.getObject(
+            "ExperimenterGroup", attributes={'name': 'ownership_test'})
+
+        leaders, colleagues = expGr.groupSummary()
+        assert len(leaders) == 1
+        assert len(colleagues) == 1
+        assert leaders[0].omeName == "group_owner"
+        assert colleagues[0].omeName == "group_member"
+
+        leaders, colleagues = expGr.groupSummary(exclude_self=True)
+        assert len(leaders) == 0
+        assert len(colleagues) == 1
+        assert colleagues[0].omeName == "group_member"
+
+    def testGroupSummaryAsMember(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
+
+        expGr = gatewaywrapper.gateway.getObject(
+            "ExperimenterGroup", attributes={'name': 'ownership_test'})
+
+        leaders, colleagues = expGr.groupSummary()
+        assert len(leaders) == 1
+        assert len(colleagues) == 1
+        assert leaders[0].omeName == "group_owner"
+        assert colleagues[0].omeName == "group_member"
+
+        leaders, colleagues = expGr.groupSummary(exclude_self=True)
+        assert len(leaders) == 1
+        assert leaders[0].omeName == "group_owner"
+        assert len(colleagues) == 0
+
+    def testGroupSummaryAsOwnerDeprecated(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
+
+        summary = gatewaywrapper.gateway.groupSummary()
+        assert len(summary["leaders"]) == 1
+        assert len(summary["colleagues"]) == 1
+        assert summary["leaders"][0].omeName == "group_owner"
+        assert summary["colleagues"][0].omeName == "group_member"
+
+        summary = gatewaywrapper.gateway.groupSummary(exclude_self=True)
+        assert len(summary["leaders"]) == 0
+        assert len(summary["colleagues"]) == 1
+        assert summary["colleagues"][0].omeName == "group_member"
+
+    def testGroupSummaryAsMemberDeprecated(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
+
+        summary = gatewaywrapper.gateway.groupSummary()
+        assert len(summary["leaders"]) == 1
+        assert len(summary["colleagues"]) == 1
+        assert summary["leaders"][0].omeName == "group_owner"
+        assert summary["colleagues"][0].omeName == "group_member"
+
+        summary = gatewaywrapper.gateway.groupSummary(exclude_self=True)
+        assert len(summary["leaders"]) == 1
+        assert summary["leaders"][0].omeName == "group_owner"
+        assert len(summary["colleagues"]) == 0

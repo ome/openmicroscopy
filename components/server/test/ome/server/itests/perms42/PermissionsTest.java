@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.perms42;
@@ -41,6 +41,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
             loginRoot();
             groupName = uuid();
             _group.setName(groupName);
+            _group.setLdap(false);
             iAdmin.createGroup(_group);
             _group = iAdmin.lookupGroup(groupName);
             iAdmin.addGroups(user, _group);
@@ -112,6 +113,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
             loginRoot();
             ExperimenterGroup g = new ExperimenterGroup();
             g.setName(uuid());
+            g.setLdap(false);
             long gid = iAdmin.createGroup(g);
             g = iAdmin.getGroup(gid);
             iAdmin.addGroups(user, new ExperimenterGroup(gid, false));

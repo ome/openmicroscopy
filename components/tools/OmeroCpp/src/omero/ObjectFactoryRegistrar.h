@@ -10,7 +10,9 @@
 #define OMERO_OBJECTFACTORYREGISTRAR_H
 
 #include <string>
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Ice.h>
+#include <omero/IceNoWarnPop.h>
 #include <IceUtil/IceUtil.h>
 
 namespace omero {

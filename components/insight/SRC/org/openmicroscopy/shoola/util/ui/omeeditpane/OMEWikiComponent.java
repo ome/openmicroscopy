@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,6 +32,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,9 +47,9 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.WordUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -188,7 +189,7 @@ public class OMEWikiComponent
      */
     public static String prepare(String value, boolean removeSpace)
     {
-    	String v = value.replaceAll(SystemUtils.LINE_SEPARATOR, " ");
+    	String v = value.replaceAll(CommonsLangUtils.LINE_SEPARATOR, " ");
     	if (removeSpace) return v.replaceAll(" ", "");
     	return v;
     }
@@ -504,14 +505,15 @@ public class OMEWikiComponent
 	 */
 	public void wrapText(int width, String newLineStr)
 	{
-		if (!wrapWord || pane == null) return;
+		if (pane == null) 
+		    return;
 		String value = getText();
 		if (value == null) return;
 		value = prepare(value, false);
 		FontMetrics fm = getFontMetrics(getFont());
 		int charWidth = fm.charWidth('m');
 		columns = (int) (1.5 * width) / charWidth;
-		setText(WordUtils.wrap(value, columns, newLineStr, false));
+		setText(CommonsLangUtils.wrap(value, columns, newLineStr, wrapWord));
 	}
 	
 	/**
@@ -615,4 +617,13 @@ public class OMEWikiComponent
 		}
 	}
 	
+	@Override
+	public void addFocusListener(FocusListener l) {
+	    pane.addFocusListener(l);
+	}
+	
+	/** Get reference to the underlying {@link Document} */
+	public Document getDocument() {
+	    return pane.getDocument();
+	}
 }

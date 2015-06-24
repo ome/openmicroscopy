@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.Plane2D 
+ * training.util.Plane2D 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -28,7 +28,6 @@ package training.util;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Holds structure used to mapped the raw pixels data.

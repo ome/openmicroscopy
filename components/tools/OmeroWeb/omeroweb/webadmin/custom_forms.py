@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# 
-# 
-# Copyright (c) 2008 University of Dundee. 
-# 
+#
+#
+#
+# Copyright (c) 2008 University of Dundee.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
+#
 # Version: 1.0
 #
 
@@ -37,6 +37,7 @@ from django.core.validators import validate_email
 ##################################################################
 # Fields
 
+
 class OmeNameField(forms.CharField):
     def to_python(self, value):
         omeName = value
@@ -47,10 +48,12 @@ class OmeNameField(forms.CharField):
         return omeName
 
     def is_valid_omeName(self, omeName):
-        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]") #TODO: PATTERN !!!!!!!
+        # TODO: PATTERN !!!!!!!
+        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]")
         return omeName_pattern.match(omeName) is not None
 
 # Group queryset iterator for group form
+
 
 class ServerQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
@@ -62,10 +65,11 @@ class ServerQuerySetIterator(object):
             yield (u"", self.empty_label)
         for obj in self.queryset:
             if obj.server is None:
-                name = "%s:%s" % (obj.host,obj.port)
+                name = "%s:%s" % (obj.host, obj.port)
             else:
-                name = "%s:%s" % (obj.server,obj.port)
+                name = "%s:%s" % (obj.server, obj.port)
             yield (smart_unicode(obj.id), smart_unicode(name))
+
 
 class ServerModelChoiceField(ModelChoiceField):
 
@@ -100,7 +104,8 @@ class ServerModelChoiceField(ModelChoiceField):
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
-           
+
+
 # Group queryset iterator for group form
 class GroupQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
@@ -124,6 +129,7 @@ class GroupQuerySetIterator(object):
             else:
                 oid = obj.id
             yield (smart_unicode(oid), smart_unicode(name))
+
 
 class GroupModelChoiceField(ModelChoiceField):
 
@@ -170,21 +176,22 @@ class GroupModelChoiceField(ModelChoiceField):
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
 
+
 class GroupModelMultipleChoiceField(GroupModelChoiceField):
     """A MultipleChoiceField whose choices are a model QuerySet."""
     hidden_widget = MultipleHiddenInput
     default_error_messages = {
         'list': _(u'Enter a list of values.'),
-        'invalid_choice': _(u'Select a valid choice. That choice is not one of the'
-                            u' available choices.'),
+        'invalid_choice': _(u'Select a valid choice. That choice is not one'
+                            ' of the available choices.'),
     }
 
     def __init__(self, queryset, cache_choices=False, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
-        super(GroupModelMultipleChoiceField, self).__init__(queryset, None,
-            cache_choices, required, widget, label, initial, help_text,
-            *args, **kwargs)
+        super(GroupModelMultipleChoiceField, self).__init__(
+            queryset, None, cache_choices, required, widget, label, initial,
+            help_text, *args, **kwargs)
 
     def to_python(self, value):
         if self.required and not value:
@@ -209,40 +216,45 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
                         if long(val) == q.id:
                             res = True
                 if not res:
-                    raise ValidationError(self.error_messages['invalid_choice'])
+                    raise ValidationError(
+                        self.error_messages['invalid_choice'])
                 else:
                     final_values.append(val)
         return final_values
+
 
 # Experimenter queryset iterator for experimenter form
 class ExperimenterQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
         self.queryset = queryset
-        
+
         self.empty_label = empty_label
-        
+
         self.rendered_set = []
         if self.empty_label is not None:
-            self.rendered_set.append( (u"", self.empty_label) )
+            self.rendered_set.append((u"", self.empty_label))
 
-        # queryset may be a list of Experimenters 'exp_list' OR may be (  ("Leaders", exp_list), ("Members", exp_list)  )
+        # queryset may be a list of Experimenters 'exp_list' OR may be
+        # (("Leaders", exp_list), ("Members", exp_list))
         for obj in queryset:
             if hasattr(obj, 'id'):
                 self.rendered_set.append(self.render(obj))
             else:
                 subset = [self.render(m) for m in obj[1]]
-                self.rendered_set.append( (obj[0], subset) )
+                self.rendered_set.append((obj[0], subset))
 
     def __iter__(self):
         for obj in self.rendered_set:
             yield obj
 
-
     def render(self, obj):
         try:
-            # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
-            # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
-            # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
+            # lastName = obj.details.owner.lastName.val if
+            # hasattr(obj.details.owner.lastName, 'val') else ""
+            # firstName = obj.details.owner.firstName.val if
+            # hasattr(obj.details.owner.firstName, 'val') else ""
+            # middleName = obj.details.owner.middleName.val if
+            # hasattr(obj.details.owner.middleName, 'val') else ""
             if hasattr(obj, 'getFullName'):
                 name = "%s (%s)" % (obj.getFullName(), obj.omeName)
             else:
@@ -266,10 +278,11 @@ class ExperimenterQuerySetIterator(object):
                 myself = ''
 
                 if middleName != '' and middleName is not None:
-                    name = "%s%s %s. %s (%s)" % (myself, firstName, middleName[:1], lastName, omeName)
+                    name = "%s%s %s. %s (%s)" % (
+                        myself, firstName, middleName[:1], lastName, omeName)
                 else:
-                    name = "%s%s %s (%s)" % (myself, firstName, lastName, omeName)
-
+                    name = "%s%s %s (%s)" % (
+                        myself, firstName, lastName, omeName)
 
             l = len(name)
             if l > 50:
@@ -283,8 +296,9 @@ class ExperimenterQuerySetIterator(object):
             oid = obj.id
         return (smart_unicode(oid), smart_unicode(name))
 
+
 class ExperimenterModelChoiceField(ModelChoiceField):
-    
+
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
@@ -308,8 +322,9 @@ class ExperimenterModelChoiceField(ModelChoiceField):
 
     def to_python(self, value):
         """
-        Go through all values in queryset, looking to find 'value'. If not found raise ValidationError.
-        
+        Go through all values in queryset, looking to find 'value'. If not
+        found raise ValidationError.
+
         @return value:      The input value
         """
 
@@ -343,22 +358,22 @@ class ExperimenterModelChoiceField(ModelChoiceField):
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
 
+
 class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
     """A MultipleChoiceField whose choices are a model QuerySet."""
     hidden_widget = MultipleHiddenInput
     default_error_messages = {
         'list': _(u'Enter a list of values.'),
-        'invalid_choice': _(u'Select a valid choice. That choice is not one of the'
-                            u' available choices.'),
+        'invalid_choice': _(u'Select a valid choice. That choice is not one'
+                            ' of the available choices.'),
     }
 
     def __init__(self, queryset, cache_choices=False, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
-        super(ExperimenterModelMultipleChoiceField, self).__init__(queryset, None,
-            cache_choices, required, widget, label, initial, help_text,
-            *args, **kwargs)
-        
+        super(ExperimenterModelMultipleChoiceField, self).__init__(
+            queryset, None, cache_choices, required, widget, label, initial,
+            help_text, *args, **kwargs)
 
     def to_python(self, value):
         if self.required and not value:
@@ -383,22 +398,26 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
                         if long(val) == q.id:
                             res = True
                 if not res:
-                    raise ValidationError(self.error_messages['invalid_choice'])
+                    raise ValidationError(
+                        self.error_messages['invalid_choice'])
                 else:
                     final_values.append(val)
         return final_values
 
+
 class DefaultGroupField(ChoiceField):
-    
+
     def to_python(self, value):
         """
         Check that the field was selected.
         """
         if not value:
-            raise forms.ValidationError("Choose one of the 'Selected groups' to specify 'Default Group'.")
+            raise forms.ValidationError("Choose one of the 'Selected groups'"
+                                        " to specify 'Default Group'.")
 
         # Always return the cleaned data.
         return value
+
 
 class MultiEmailField(forms.Field):
     """

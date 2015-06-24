@@ -1,6 +1,246 @@
 OMERO version history
 =====================
 
+5.1.2 (May 2015)
+----------------
+
+A bug-fix release which also introduces some new functionality. Improvements
+include:
+
+-  support for Read-Write groups
+-  the LDAP plugin can now set users as group owners whether on creation or
+   via the improved sync_on_login option
+-  users logged into the webclient can now automatically log in via webstart
+-  results tables from ImageJ/Fiji can be attached to images in OMERO and
+   the ImageJ/Fiji workflow has been improved
+-  better delete functionality and warnings in the UI
+-  improved graph operations like 'delete' and 'chgrp', as well as the new
+   'chmod' operation (for changing group permissions), are now used across the
+   clients including the CLI
+-  an API for setting and querying session timeouts is now available via the
+   CLI
+-  magnification now reflects microscopy values (e.g. 40x) rather than a
+   percentage in both clients
+-  more readable truncation of file names in the OMERO.insight data tree
+-  OMERO.web fixes and improvements including:
+
+   * interpolation
+   * optimization of plate grid and right-hand panel
+   * option to download single original files
+   * significant speed-up in loading large datasets
+   
+-  deployment fixes include:
+
+   * new default permissions on the var/ directory
+   * better checks of the DropBox directory permissions
+   * new and some deprecated environment variables
+   * a startup check for lock files on NFS
+   * use /var/run for omero.fcgi
+
+Critical bugs which were fixed include:
+
+-  the in-place import file handle leak (which was a regression in 5.1.1)
+-  various unicode and unit failures were corrected
+
+
+5.1.1 (April 2015)
+------------------
+
+A bug-fix release focusing on user-facing issues and cleaning resources
+for developers. Improvements include:
+
+For OMERO.web:
+
+-  significant review of the web share functionality
+-  correction of thumbnail refreshing
+-  fixes to the user administration panel
+-  fix for embedding of the Javascript image viewer
+
+For OMERO.insight:
+
+-  improved open actions
+-  tidying of the menu structure
+-  correction of the mouse zoom behavior
+-  fix for the Drag-n-Drop functionality
+
+Other updates include:
+
+-  overhaul of the CLI session log-in logic
+-  cleaning and testing of all code examples
+-  further removal of the use of deprecated methods
+
+5.1.0 (April 2015)
+------------------
+
+A full, production-ready release of OMERO 5.1.0; updating the Data Model to
+the January 2015 schema, including support for units and new more
+flexible user-added metadata; and introducing new user features, new supported
+formats and many fixes and performance improvements:
+
+-  support for units throughout the Data Model allowing for example, pixel
+   sizes for electron microscopy to be stored in nanometers rather than being
+   set as micrometers
+-  new, searchable key-value pairs annotations for adding experimental
+   metadata (replacing OMERO.editor, which has been removed)
+-  improved workflow for rendering settings in the UI and parity between the
+   clients
+-  import images to OMERO from ImageJ and save ROIs and overlays from ImageJ
+   to OMERO
+-  importing as another user, previously only available for administrators, is
+   now usable by group owners as well, allowing you to import data that will
+   then be owned by the user you import it for
+-  improved performance for moving and deleting data
+-  removed the auto-levels calculation for initial rendering settings to
+   substantially speed up performance, by using the min/max pixel intensities,
+   or defaulting to full pixel range where min/max is unavailable
+-  import times are much improved for large datasets such as HCS and SPIM data
+-  improved performance for many file formats and new supported formats via
+   Bio-Formats (now over 140)
+-  new OMERO.mail feature lets admins configure the server to email users
+-  support for configuring the server download policy to control access to
+   original file download for public-facing OMERO.web deployments
+-  many developer updates such as removal of deprecated methods, and updates
+   to OMERO.web and the C++ implementation (see the 5.1.0-m1 to 5.1.0-m5
+   developer preview release details below and the 'What's New' for developers
+   page)
+
+5.1.0-m5 (March 2015)
+---------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.1.0. Use at your own risk**.
+
+Changes include:
+
+-  implementation of OMERO.mail for emailing users via the server
+-  performance improvements for importing large datasets
+-  support for limiting the download of original files
+-  various fixes for searching and filtering map annotations and converting
+   between units
+-  deprecation of IUpdate.deleteObject API method
+-  versioning of all JavaScript files to fix browser refresh problems
+-  clarifying usage of OMERO.web views and templates including RequestContext
+
+5.1.0-m4 (February 2015)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.1.0. Use at your own risk**.
+
+Changes include:
+
+-  final Database changes - image.series is now exposed in Hibernate
+-  improved deletion performance
+-  client bundle clean-up
+-  other clean-up work including pep8 and removal of deprecated methods and
+   components
+-  new Map annotations are now included in the UI and search functionality
+-  ImageJ plugin updates which allow
+
+   * importing of images and saving ROIs to OMERO from within the plugin
+   * viewing images stored in OMERO and their ROIs generated within OMERO from
+     within the plugin
+   * updating ROIs on OMERO-stored images within the plugin and saving these
+     back to OMERO without needing to re-import the image
+
+-  OMERO.matlab updates re: annotations
+-  OMERO.tables internal HDF5 format has changed
+
+With thanks to Paul Van Schayck and Luca Lianas for their contributions.
+
+5.0.8 (February 2015)
+---------------------
+
+This is a bug-fix release for one specific issue causing OMERO.insight to
+crash when trying to open the Projection tab for an image with multiple
+z-stacks.
+
+5.0.7 (February 2015)
+---------------------
+
+This is a bug-fix release covering a number of issues:
+
+-  rendering improvements including 32-bit and float support
+-  vast improvements in Mac launching (separate clients for your Java version)
+-  faster import of complex plates
+-  OMERO.dropbox improvements
+-  ROI and measurement tool fixes
+-  OMERO.matlab updates
+
+5.1.0-m3 (December 2014)
+------------------------
+
+Developer preview release - 3 of 4 development milestones being released in
+the lead up to 5.1.0. **Only intended as a developer preview for updating code
+before the full public release of 5.1.0. Use at your own risk**.
+
+Changes affecting developers include:
+
+-  implementation of units in the OMERO clients
+-  conversions between units
+-  OMERO.web updates
+-  server-side Graph work to improve speed for moving and deleting
+-  OMERO.insight bug-fixes especially for ROIs
+
+5.1.0-m2 (November 2014)
+------------------------
+
+Developer preview release - 2 of 3 development milestones being released in
+the lead up to 5.1.0. **Only intended as a developer preview for updating code
+before the full public release of 5.1.0. Use at your own risk**.
+
+Model changes include:
+
+-  units support, meaning units now have real enums
+-  minor fixes for model changes introduced in m1
+
+The units changes mean that the following fields have changed:
+
+-  Plane.PositionX, Y, Z; Plane.DeltaT; Plane.ExposureTime
+-  Shape.StrokeWidth; Shape.FontSize
+-  DetectorSettings.Voltage; DetectorSettings.ReadOutRate
+-  ImagingEnvironment.Temperature; ImagingEnvironment.AirPressure
+-  LightSourceSettings.Wavelength
+-  Plate.WellOriginX, Y
+-  Objective.WorkingDistance
+-  Pixels.PhysicalSizeX, Y, Z; Pixels.TimeIncrement
+-  StageLabel.X, Y, Z
+-  LightSource.Power
+-  Detector.Voltage
+-  WellSample.PositionX, Y
+-  Channel.EmissionWavelength; Channel.PinholeSize;
+   Channel.ExcitationWavelength
+-  TransmittanceRange.CutOutTolerance; TransmittanceRange.CutInTolerance;
+   TransmittanceRange.CutOut; TransmittanceRange.CutIn
+-  Laser.RepetitionRate; Laser.Wavelength
+
+Other changes that may affect developers include:
+
+-  ongoing C++ implementation improvements
+-  ongoing work to add unit support in OMERO.insight
+-  further flake8 work
+-  removal of webtest app from OMERO.web to a separate repository
+-  removal of deprecated methods in IContainer and RenderingEngine
+-  removal of deprecated services IDelete and Gateway
+-  Blitz gateway fixes
+-  CLI fixes
+-  ROI and tables work
+
+5.0.6 (November 2014)
+---------------------
+
+This is a critical security fix for two vulnerabilities:
+
+-  :secvuln:`2014-SV3-csrf`
+-  :secvuln:`2014-SV4-poodle`
+
+It is strongly suggested that you upgrade your server and
+follow the steps outlined on the security vulnerability
+pages.
+
+Additionally, a couple of bug fixes for system administrators are included in
+this release.
+
 5.1.0-m1 (October 2014)
 -----------------------
 

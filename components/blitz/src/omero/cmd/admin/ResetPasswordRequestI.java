@@ -19,7 +19,7 @@ import ome.security.SecuritySystem;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
-import ome.services.util.MailUtil;
+import ome.services.mail.MailUtil;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;

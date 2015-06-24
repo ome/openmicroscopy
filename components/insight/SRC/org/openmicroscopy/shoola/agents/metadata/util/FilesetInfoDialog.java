@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,16 +19,21 @@
 
 package org.openmicroscopy.shoola.agents.metadata.util;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
+import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.metadata.editor.ImportType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -37,8 +42,8 @@ import pojos.FilesetData;
 /**
  * A {@link TinyDialog} displaying file paths
  *
- * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class FilesetInfoDialog extends TinyDialog {
 
@@ -46,7 +51,7 @@ public class FilesetInfoDialog extends TinyDialog {
     public final static int DEFAULT_WIDTH = 400;
 
     /** This dialog's default height */
-    public final static int DEFAULT_HEIGHT = 100;
+    public final static int DEFAULT_HEIGHT = 300;
 
     /**
      * Creates a new instance
@@ -57,40 +62,118 @@ public class FilesetInfoDialog extends TinyDialog {
 
     /**
      * Sets the data to display
-     * @param set The fileset which paths should be shown
-     * @param inPlaceImport Flag if this is an inplace import
+     * 
+     * @param set
+     *            The fileset which paths should be shown
+     * @param importType
+     *            The import type
      */
-    public void setData(Set<FilesetData> set, boolean inPlaceImport) {
-        if (set == null) return;
-        Iterator<FilesetData> i = set.iterator();
-        FilesetData data;
-        MultilineLabel label = new MultilineLabel();
-        StringBuffer buffer = new StringBuffer();
-        List<String> paths;
-        Iterator<String> j;
-        int n = 0;
-        while (i.hasNext()) {
-            data = i.next();
-            if (inPlaceImport) {
-                paths = data.getUsedFilePaths();
-            }
-            else {
-                paths = data.getAbsolutePaths();
-            }
-            j = paths.iterator();
-            n += paths.size();
-            while (j.hasNext()) {
-                buffer.append(j.next());
-                buffer.append(System.getProperty("line.separator"));
-            }
+    public void setData(Set<FilesetData> set, ImportType importType) {
+        if (set == null)
+            return;
+
+        JPanel content = new JPanel();
+        content.setLayout(new GridBagLayout());
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.NORTHEAST;
+
+        if (CollectionUtils.isEmpty(set)) {
+            JLabel l = new JLabel("No information available.");
+            l.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(l, c);
+        } else {
+            JLabel l = new JLabel(set.size() + " Image file");
+            l.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(l, c);
+            c.gridy++;
+
+            JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+            sep.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(sep, c);
+            c.gridy++;
+
+            String header = (importType == ImportType.HARDLINK || importType == ImportType.SOFTLINK) ? "Imported with <b>--transfer="
+                    + importType.getSymbol() + "</b> from:"
+                    : "Imported from:";
+            
+            ExpandableTextPane t1 = new ExpandableTextPane();
+            t1.setBackground(UIUtilities.BACKGROUND_COLOR);
+            t1.setText(header + "<br/>" + getOriginPaths(set));
+            content.add(t1, c);
+            c.gridy++;
+
+            JSeparator sep2 = new JSeparator(JSeparator.HORIZONTAL);
+            sep2.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(sep2, c);
+            c.gridy++;
+
+            ExpandableTextPane t2 = new ExpandableTextPane();
+            t2.setBackground(UIUtilities.BACKGROUND_COLOR);
+            t2.setText("Path on server:<br/>" + getServerPaths(set));
+            content.add(t2, c);
+            
         }
-        label.setText(buffer.toString());
 
-        setCanvas(new JScrollPane(label));
-
-        setTitle(n+" File path(s)");
+        setCanvas(new JScrollPane(content));
     }
 
+    /**
+     * Get the original file paths; html formatted
+     * @param set The fileset to extract the information from
+     * @return See above
+     */
+    private String getOriginPaths(Set<FilesetData> set) {
+        StringBuilder sb = new StringBuilder();
+        
+        Iterator<FilesetData> i = set.iterator();
+        FilesetData data;
+        List<String> paths;
+        Iterator<String> j;
+        while (i.hasNext()) {
+            data = i.next();
+            paths = data.getUsedFilePaths();
+            j = paths.iterator();
+            while (j.hasNext()) {
+                sb.append(j.next());
+                sb.append("<br/>");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Get the server paths; html formatted
+     * @param set The fileset to extract the information from
+     * @return See above.
+     */
+    private String getServerPaths(Set<FilesetData> set) {
+        StringBuilder sb = new StringBuilder();
+
+        Iterator<FilesetData> i = set.iterator();
+        FilesetData data;
+        List<String> paths;
+        Iterator<String> j;
+        while (i.hasNext()) {
+            data = i.next();
+            paths = data.getAbsolutePaths();
+            j = paths.iterator();
+            while (j.hasNext()) {
+                sb.append(j.next());
+                sb.append("<br/>");
+            }
+        }
+
+        return sb.toString();
+    }
+    
     /**
      * Shows the dialog in the center of the screen
      */
@@ -100,38 +183,27 @@ public class FilesetInfoDialog extends TinyDialog {
 
     /**
      * Shows the dialog in a certain location
-     * @param location See above
+     * 
+     * @param location
+     *            See above
      */
     public void open(Point location) {
-        addWindowFocusListener(new WindowFocusListener() {
-
-            /**
-             * Closes the dialog when the window loses focus.
-             * 
-             * @see WindowFocusListener#windowLostFocus(WindowEvent)
-             */
-            public void windowLostFocus(WindowEvent evt) {
-                TinyDialog d = (TinyDialog) evt.getSource();
-                d.setClosed(true);
-                d.closeWindow();
-            }
-
-            /**
-             * Required by the I/F but no-operation in our case.
-             * 
-             * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-             */
-            public void windowGainedFocus(WindowEvent evt) {
-            }
-        });
         setResizable(true);
         getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        pack();
+        Dimension size = getPreferredSize();
+        if (size.width > DEFAULT_WIDTH)
+            size.width = DEFAULT_WIDTH;
+        if (size.height > DEFAULT_HEIGHT)
+            size.height = DEFAULT_HEIGHT;
+        // add some more pixels for the horiz. JScrollbar which
+        // might be shown at the bottom
+        size.height += 20;
+        setSize(size);
         if (location != null) {
             setLocation(location);
             setVisible(true);
-        }
-        else {
+        } else {
             UIUtilities.centerAndShow(this);
         }
     }

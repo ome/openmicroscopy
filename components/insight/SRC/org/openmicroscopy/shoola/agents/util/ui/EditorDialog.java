@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.util.ui.EditorDialog
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,14 +23,13 @@
 
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
@@ -38,6 +37,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -49,18 +49,20 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
-
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
+import pojos.LongAnnotationData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.AnnotationData;
@@ -129,6 +131,9 @@ public class EditorDialog
     /** Area where to enter the description of the <code>DataObject</code>. */
     private JTextArea descriptionArea;
 
+    /** Component for editing boolean values */
+    private JComboBox checkBox;
+    
     /** Button to close the dialog. */
     private JButton cancelButton;
 
@@ -214,6 +219,18 @@ public class EditorDialog
         }
         nameArea.getDocument().addDocumentListener(this);
         
+        if (data instanceof BooleanAnnotationData) {
+	        checkBox = new JComboBox();
+	        checkBox.addItem(Boolean.TRUE.toString());
+	        checkBox.addItem(Boolean.FALSE.toString());
+	        checkBox.setSelectedItem(((BooleanAnnotationData)data).getValue().toString());
+	        checkBox.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent e) {
+					enableSave();
+				}
+			});
+        }
+        
         cancelButton = new JButton("Cancel");
         cancelButton.setName("cancel button");
         cancelButton.setToolTipText("Close the dialog.");
@@ -259,10 +276,15 @@ public class EditorDialog
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         String value = ", LEFT, TOP";
 
-        if (data instanceof XMLAnnotationData) {
+        if (data instanceof XMLAnnotationData || data instanceof DoubleAnnotationData ||
+        		data instanceof LongAnnotationData) {
             content.add(UIUtilities.setTextFont("Content"), "0, 2" + value);
             content.add(new JScrollPane(nameArea), "1, 2");
-        } else if (data instanceof String) {
+        }
+        else if (data instanceof BooleanAnnotationData) {
+        	content.add(checkBox, "1, 2");
+        }
+        else if (data instanceof String) {
             content.add(new JScrollPane(nameArea), "1, 2");
         } else {
             content.add(UIUtilities.setTextFont("Name"), "0, 0" + value);
@@ -332,7 +354,10 @@ public class EditorDialog
                     "Create a new "+typeName+".", icon);
             break;
         case EDIT_TYPE:
-            tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".",
+        	if (CommonsLangUtils.isEmpty(typeName)) 
+        		tp = new TitlePanel("Edit value", "", icon);
+        	else
+        		tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".",
                     icon);
             break;
         case VIEW_TYPE:
@@ -371,7 +396,7 @@ public class EditorDialog
         String name = nameArea.getText();
         if (name == null) return;
         name = name.trim();
-        if (name.length() == 0) return;
+        if (name.length() == 0 && !(data instanceof BooleanAnnotationData)) return;
         if (data instanceof ProjectData) {
             ProjectData p  = (ProjectData) data;
             p.setName(name);
@@ -406,8 +431,37 @@ public class EditorDialog
             if (text.length() > 0) d.setTermDescription(text);
             data = d;
         }
-        if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
-        else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
+        else if(data instanceof DoubleAnnotationData) {
+        	DoubleAnnotationData d = (DoubleAnnotationData) data;
+        	try {
+				d.setDataValue(Double.parseDouble(name));
+			} catch (NumberFormatException e) {
+				MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Invalid input", 
+						"'"+name+"' is not a floating point number.");
+				return;
+			}
+        	data = d;
+        }
+        else if(data instanceof LongAnnotationData) {
+        	LongAnnotationData d = (LongAnnotationData) data;
+        	try {
+				d.setDataValue(Long.parseLong(name));
+			} catch (NumberFormatException e) {
+				MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Invalid input", 
+						"'"+name+"' is not an integer value.");
+				return;
+			}
+        	data = d;
+        }
+        else if(data instanceof BooleanAnnotationData) {
+        	BooleanAnnotationData d = (BooleanAnnotationData) data;
+			d.setValue(Boolean.parseBoolean(checkBox.getSelectedItem().toString()));
+        	data = d;
+        }
+        if (withParent) 
+        	firePropertyChange(CREATE_PROPERTY, null, data);
+        else 
+        	firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
         close();
     }
 
@@ -426,7 +480,10 @@ public class EditorDialog
                 object instanceof TagAnnotationData ||
                 object instanceof TermAnnotationData ||
                 object instanceof XMLAnnotationData ||
-                object instanceof String) return;
+                object instanceof String ||
+                object instanceof DoubleAnnotationData ||
+                object instanceof LongAnnotationData ||
+                object instanceof BooleanAnnotationData) return;
         throw new IllegalArgumentException("Object not supported.");
     }
 
@@ -447,7 +504,12 @@ public class EditorDialog
                 data instanceof TermAnnotationData ||
                 data instanceof XMLAnnotationData)
             return ((AnnotationData) data).getContentAsString();
-        if (data instanceof String) return data.toString();
+        if (data instanceof DoubleAnnotationData)
+        	return ""+((DoubleAnnotationData)data).getDataValue();
+        if (data instanceof LongAnnotationData)
+        	return ""+((LongAnnotationData)data).getDataValue();
+        if (data instanceof String) 
+        	return data.toString();
         return "";
     }
 
@@ -470,7 +532,8 @@ public class EditorDialog
             return ((TermAnnotationData) data).getTermDescription();
         if (data instanceof XMLAnnotationData)
             return ((XMLAnnotationData) data).getDescription();
-        if (data instanceof String) data.toString();
+        if (data instanceof String) 
+        	return data.toString();
         return "";
     }
 
@@ -487,7 +550,10 @@ public class EditorDialog
                 saveButton.setEnabled(l > 0);
             }
         } else if (type == EDIT_TYPE) {
-            if (!originalText.equals(name)) {
+        	if(data instanceof BooleanAnnotationData) {
+        		saveButton.setEnabled(!checkBox.getSelectedItem().toString().equals(((BooleanAnnotationData)data).getValue().toString()));
+        	}
+        	else if (!originalText.equals(name)) {
                 name = name.trim();
                 int l = name.length();
                 saveButton.setEnabled(l > 0);

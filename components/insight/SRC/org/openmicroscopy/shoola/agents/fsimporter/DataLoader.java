@@ -64,11 +64,6 @@ public class DataLoader
     private boolean changeGroup;
 
     /**
-     * The id of the user to load the data for or <code>-1</code> for all users.
-     */
-    private long userID;
-
-    /**
      * Creates a new instance.
      * 
      * @param viewer The Importer this data loader is for.
@@ -78,11 +73,9 @@ public class DataLoader
      * @param refreshImport Flag indicating to refresh the on-going import.
      * @param changeGroup Flag indicating that the group has been modified
      * if <code>true</code>, <code>false</code> otherwise.
-     * @param userID The id of the user to load the data for or <code>-1</code>
-     * for all users.
      */
     public DataLoader(Importer viewer, SecurityContext ctx, Class<?> rootType,
-            boolean refreshImport, boolean changeGroup, long userID)
+            boolean refreshImport, boolean changeGroup)
     {
         super(viewer, ctx);
         if (!(ProjectData.class.equals(rootType) ||
@@ -91,7 +84,10 @@ public class DataLoader
         this.rootType = rootType;
         this.refreshImport = refreshImport;
         this.changeGroup = changeGroup;
-        this.userID = userID;
+        userID = getCurrentUserID();
+        if (ctx.getExperimenterData() != null) {
+            userID = ctx.getExperimenterData().getId();
+        }
     }
 
     /** 

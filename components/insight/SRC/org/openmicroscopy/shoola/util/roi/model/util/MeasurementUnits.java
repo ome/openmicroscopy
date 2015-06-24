@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.util.roi.model.util;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Length;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Helper class hosting units parameters.
@@ -44,91 +46,85 @@ package org.openmicroscopy.shoola.util.roi.model.util;
 public class MeasurementUnits
 {	
 	
-	/** The number of microns per pixel along the x-axis. */
-	private double micronsPixelX;
+	/** The size of a pixel along the x-axis. */
+	private Length pixelSizeX;
 
-	/** The number of microns per pixel along the y-axis. */
-	private double micronsPixelY;
+	/** The size of a pixel along the y-axis. */
+	private Length pixelSizeY;
 	
-	/** The number of microns per pixel along the z-axis. */
-	private double micronsPixelZ;
+	/** The size of a pixel along the z-axis. */
+	private Length pixelSizeZ;
 	
-	/** Display measurements in Microns. */
-	private boolean inMicrons;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param x		The number of microns per pixel along the x-axis.
-	 * @param y		The number of microns per pixel along the y-axis.
-	 * @param z		The number of microns per pixel along the z-axis.
-	 * @param inM	Passed <code>true</code> if the unit is in microns,
-	 * 				<code>false</code> otherwise.
+	 * @param x		The size of a pixel along the x-axis.
+	 * @param y		The size of a pixel along the y-axis.
+	 * @param z		The size of a pixel along the z-axis.
 	 */
-	public MeasurementUnits(double x, double y, double z, boolean inM)
+	public MeasurementUnits(Length x, Length y, Length z)
 	{
-		micronsPixelX = x;
-		micronsPixelY = y;
-		micronsPixelZ = z;
-		inMicrons = inM;
+		setPixelSizes(x, y, z);
 	}
 	
 	/**
-	 * Returns the number of the microns in a pixel in the x-axis.
+	 * Returns size of a pixel in the x-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getMicronsPixelX() { return micronsPixelX; }
+	public Length getPixelSizeX() { return pixelSizeX; }
 	
 	/**
-	 * Returns the number of the microns in a pixel in the y-axis.
+	 * Returns size of a pixel in the y-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getMicronsPixelY() { return micronsPixelY; }
+	public Length getPixelSizeY() { return pixelSizeY; }
 	
 	/**
-	 * Returns the number of the microns in a pixel in the z-axis.
+	 * Returns size of a pixel in the z-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getMicronsPixelZ() { return micronsPixelZ; }
+	public Length getPixelSizeZ() { return pixelSizeZ; }
 	
-	/**
-	 * Shows the measurements in microns.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isInMicrons() { return inMicrons; }
+	public void setPixelSizes(Length x, Length y, Length z) {
+		if (checkUnits(x, y, z)) {
+			this.pixelSizeX = x;
+			this.pixelSizeY = y;
+			this.pixelSizeZ = z;
+		} else
+			throw new IllegalArgumentException(
+					"Can't use different units for the pixel sizes.");
+	}
 
-	/** 
-	 * Sets the microns in a pixel in the x-axis.
-	 * 
-	 * @param x The value to set.
-	 */
-	public void setMicronsPixelX(double x) { micronsPixelX = x; }
-	
-	/** 
-	 * Sets the microns in a pixel in the y-axis.
-	 * 
-	 * @param y The value to set.
-	 */
-	public void setMicronsPixelY(double y) { micronsPixelY = y; }
-	
-	/** 
-	 * Sets the microns in a pixel in the z-axis.
-	 * 
-	 * @param z The value to set.
-	 */
-	public void setMicronsPixelZ(double z) { micronsPixelZ = z; }
-	
+	public UnitsLength getUnit() {
+		return pixelSizeX.getUnit();
+	}
+
 	/**
-	 * Sets the measurements in microns if the passed value is 
-	 * <code>true</code>, in pixels otherwise.
-	 * 
-	 * @param show The value to set.
+	 * Checks if each Length has the same unit
+	 * @param values The values to check
+	 * @return <code>true</code> if all units are the same,
+	 *         <code>false</code> otherwise
 	 */
-	public void setInMicrons(boolean show) { inMicrons = show; }
+	private boolean checkUnits(Length... values) {
+		// TODO: Might be better to check if all units are of type pixel or
+		// all units are !pixel (and convert these to a common base unit)
+		UnitsLength unit = null;
+		for (Length value : values) {
+			if (value == null)
+				continue;
+			if (unit == null) {
+				unit = value.getUnit();
+				continue;
+			} else if (!value.getUnit().equals(unit)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
 }
 

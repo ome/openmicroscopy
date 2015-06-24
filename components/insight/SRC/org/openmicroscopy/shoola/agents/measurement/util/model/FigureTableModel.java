@@ -257,7 +257,7 @@ public class FigureTableModel
 	 */
 	public void setValueAt(Object value, int row, int col)
 	{
-		if (col == 0) return;
+		if (col == 0 || keys.size() <= row) return;
 		AttributeKey key = keys.get(row);
 		if (figure.getAttribute(key) instanceof Double) 
 		{

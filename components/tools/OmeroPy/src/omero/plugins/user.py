@@ -3,14 +3,14 @@
 """
    User administration plugin
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import sys
 
-from omero.cli import UserGroupControl, CLI, ExceptionHandler
+from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
 from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
@@ -40,7 +40,7 @@ class UserControl(UserGroupControl):
         add.add_argument("username", help="User's login name")
         add.add_argument("firstname", help="User's given name")
         add.add_argument("lastname", help="User's surname name")
-        self.add_group_arguments(add, "join", "the group as an owner")
+        self.add_group_arguments(add, " to join")
 
         password_group = add.add_mutually_exclusive_group()
         password_group.add_argument(
@@ -49,33 +49,26 @@ class UserControl(UserGroupControl):
             "--no-password", action="store_true", default=False,
             help="Create user with empty password")
 
-        list = parser.add(sub, self.list, help="List current users")
-        list.add_style_argument()
+        list = parser.add(
+            sub, self.list, help="List information about all users")
 
-        printgroup = list.add_mutually_exclusive_group()
-        printgroup.add_argument(
-            "--long", action="store_true", default=True,
-            help="Print comma-separated list of all groups (default)")
-        printgroup.add_argument(
-            "--count", action="store_true", default=False,
-            help="Print count of all groups")
+        info = parser.add(
+            sub, self.info,
+            "List information about the user(s). Default to the context user")
+        self.add_user_arguments(info)
 
-        sortgroup = list.add_mutually_exclusive_group()
-        sortgroup.add_argument(
-            "--sort-by-id", action="store_true", default=True,
-            help="Sort users by ID (default)")
-        sortgroup.add_argument(
-            "--sort-by-login", action="store_true", default=False,
-            help="Sort users by login")
-        sortgroup.add_argument(
-            "--sort-by-first-name", action="store_true", default=False,
-            help="Sort users by first name")
-        sortgroup.add_argument(
-            "--sort-by-last-name", action="store_true", default=False,
-            help="Sort users by last name")
-        sortgroup.add_argument(
-            "--sort-by-email", action="store_true", default=False,
-            help="Sort users by email")
+        for x in (list, info):
+            x.add_style_argument()
+            x.add_group_print_arguments()
+            x.add_user_sorting_arguments()
+
+        listgroups = parser.add(
+            sub, self.listgroups,
+            "List the groups of the user. Default to the context user")
+        self.add_user_arguments(listgroups)
+        listgroups.add_style_argument()
+        listgroups.add_user_print_arguments()
+        listgroups.add_group_sorting_arguments()
 
         password = parser.add(
             sub, self.password, help="Set user's password")
@@ -98,42 +91,24 @@ class UserControl(UserGroupControl):
             help="Include all users, including deactivated accounts")
 
         joingroup = parser.add(sub, self.joingroup, "Join one or more groups")
-        self.add_user_arguments(joingroup)
-        group = self.add_group_arguments(joingroup, "join")
+        self.add_id_name_arguments(
+            joingroup, "user. Default to the current user")
+        group = self.add_group_arguments(joingroup, " to join")
         group.add_argument(
             "--as-owner", action="store_true", default=False,
             help="Join the group(s) as an owner")
 
         leavegroup = parser.add(
             sub, self.leavegroup, "Leave one or more groups")
-        self.add_user_arguments(leavegroup)
-        group = self.add_group_arguments(leavegroup, "leave")
+        self.add_id_name_arguments(
+            leavegroup, "user. Default to the current user")
+        group = self.add_group_arguments(leavegroup, " to leave")
         group.add_argument(
             "--as-owner", action="store_true", default=False,
             help="Leave the owner list of the group(s)")
 
         for x in (email, password, list, add, joingroup, leavegroup):
             x.add_login_arguments()
-
-    def add_user_arguments(self, parser):
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument(
-            "--id", help="ID of the user. Default to the current user")
-        group.add_argument(
-            "--name", help="Name of the user. Default to the current user")
-
-    def add_group_arguments(self, parser, action="join", owner_desc=""):
-        group = parser.add_argument_group('Group arguments')
-        group.add_argument(
-            "group_id_or_name",  metavar="group", nargs="*",
-            help="ID or name of the group(s) to %s" % action)
-        group.add_argument(
-            "--group-id", metavar="group", nargs="+",
-            help="ID  of the group(s) to %s" % action)
-        group.add_argument(
-            "--group-name", metavar="group", nargs="+",
-            help="Name of the group(s) to %s" % action)
-        return group
 
     def format_name(self, exp):
         record = ""
@@ -222,76 +197,24 @@ class UserControl(UserGroupControl):
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         users = a.lookupExperimenters()
-        roles = a.getSecurityRoles()
-        user_group = roles.userGroupId
-        sys_group = roles.systemGroupId
+        self.output_users_list(a, users, args)
 
-        from omero.util.text import TableBuilder
-        if args.count:
-            tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "admin",
-                              "# group memberships", "# group ownerships")
-        else:
-            tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "admin", "member of",
-                              "owner of")
-        if args.style:
-            tb.set_style(args.style)
+    def info(self, args):
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        [uids, users] = self.list_users(a, args, use_context=True)
+        self.output_users_list(a, users, args)
 
-        # Sort users
-        if args.sort_by_login:
-            users.sort(key=lambda x: x.omeName.val)
-        elif args.sort_by_first_name:
-            users.sort(key=lambda x: x.firstName.val)
-        elif args.sort_by_last_name:
-            users.sort(key=lambda x: x.lastName.val)
-        elif args.sort_by_email:
-            users.sort(key=lambda x: (x.email and x.email.val or ""))
-        elif args.sort_by_id:
-            users.sort(key=lambda x: x.id.val)
+    def listgroups(self, args):
+        c = self.ctx.conn(args)
+        admin = c.sf.getAdminService()
+        [uids, groups] = self.list_users(admin, args, use_context=True)
+        if len(uids) != 1:
+            self.ctx.die(516, 'Too many user arguments')
+        groups = admin.containedGroups(uids[0])
+        self.output_groups_list(groups, args)
 
-        for user in users:
-            row = [user.id.val, user.omeName.val, user.firstName.val,
-                   user.lastName.val]
-            row.append(user.email and user.email.val or "")
-            active = ""
-            admin = ""
-            member_of = []
-            leader_of = []
-            for x in user.copyGroupExperimenterMap():
-                if not x:
-                    continue
-                gid = x.parent.id.val
-                if user_group == gid:
-                    active = "Yes"
-                elif sys_group == gid:
-                    admin = "Yes"
-                elif x.owner.val:
-                    leader_of.append(str(gid))
-                else:
-                    member_of.append(str(gid))
-
-            row.append(active)
-            row.append(admin)
-
-            if member_of:
-                if args.count:
-                    row.append(len(member_of))
-                else:
-                    row.append(",".join(member_of))
-            else:
-                row.append("")
-            if leader_of:
-                if args.count:
-                    row.append(len(leader_of))
-                else:
-                    row.append(",".join(leader_of))
-            else:
-                row.append("")
-
-            tb.row(*tuple(row))
-        self.ctx.out(str(tb.build()))
-
+    @admin_only
     def add(self, args):
         email = args.email
         login = args.username
@@ -314,11 +237,6 @@ class UserControl(UserGroupControl):
         e.email = rstring(email)
         e.institution = rstring(inst)
         e.ldap = rbool(False)
-
-        # Fail-fast if a non-admin runs this command
-        isAdmin = self.ctx.get_event_context().isAdmin
-        if not isAdmin:
-            self.error_admin_only(fatal=True)
 
         # Fail-fast if no-password is passed and the server does not accept
         # empty passwords
@@ -344,7 +262,7 @@ class UserControl(UserGroupControl):
         except omero.ApiUsageException:
             pass  # Apparently no such user exists
 
-        groups = self.list_groups(admin, args)
+        [gid, groups] = self.list_groups(admin, args, use_context=False)
 
         roles = admin.getSecurityRoles()
         groups.append(Grp(roles.userGroupId, False))
@@ -387,38 +305,6 @@ class UserControl(UserGroupControl):
             user = self.ctx.get_event_context().userName
             return self.find_user_by_name(a, user, fatal=True)
 
-    def list_groups(self, a, args):
-
-        # Check input arguments
-        if not args.group_id_or_name and not args.group_id \
-                and not args.group_name:
-            self.error_no_input_group(fatal=True)
-
-        # Retrieve groups by id or name
-        group_list = []
-        if args.group_id_or_name:
-            for group in args.group_id_or_name:
-                [gid, g] = self.find_group(a, group, fatal=False)
-                if g:
-                    group_list.append(g)
-
-        if args.group_id:
-            for group_id in args.group_id:
-                [gid, g] = self.find_group_by_id(a, group_id, fatal=False)
-                if g:
-                    group_list.append(g)
-
-        if args.group_name:
-            for group_name in args.group_name:
-                [gid, g] = self.find_group_by_name(a, group_name, fatal=False)
-                if g:
-                    group_list.append(g)
-
-        if not group_list:
-            self.error_no_group_found(fatal=True)
-
-        return group_list
-
     def filter_groups(self, groups, uid, owner=False, join=True):
 
         for group in list(groups):
@@ -446,7 +332,7 @@ class UserControl(UserGroupControl):
         a = c.sf.getAdminService()
 
         uid, username = self.parse_userid(a, args)
-        groups = self.list_groups(a, args)
+        [gid, groups] = self.list_groups(a, args, use_context=False)
         groups = self.filter_groups(groups, uid, args.as_owner, True)
 
         for group in groups:
@@ -460,7 +346,7 @@ class UserControl(UserGroupControl):
         a = c.sf.getAdminService()
 
         uid, username = self.parse_userid(a, args)
-        groups = self.list_groups(a, args)
+        [gid, groups] = self.list_groups(a, args, use_context=False)
         groups = self.filter_groups(groups, uid, args.as_owner, False)
 
         for group in list(groups):

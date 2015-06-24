@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2012-2015 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,7 @@
 """
 
 import time
-import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 
 
@@ -37,8 +36,8 @@ class BaseChmodTest(lib.ITest):
 
     def init(self, from_perms, to_perms):
         self.group = self.new_group(perms=from_perms)
-        self.owner = self.new_client(group=self.group, admin=True)
-        self.member = self.new_client(group=self.group, admin=False)
+        self.owner = self.new_client(group=self.group, owner=True)
+        self.member = self.new_client(group=self.group, owner=False)
         self.from_perms = from_perms
         self.to_perms = to_perms
 
@@ -63,10 +62,9 @@ class BaseChmodTest(lib.ITest):
         self.start = time.time()
         try:
             admin = client.sf.getAdminService()
-            perms = omero.model.PermissionsI(self.to_perms)
             old_ctx = admin.getEventContext()
             old_grp = admin.getGroup(self.group.id.val)
-            admin.changePermissions(self.group, perms)
+            self.change_permissions(self.group.id.val, self.to_perms, client)
             new_ctx = admin.getEventContext()  # Refresh
             new_grp = admin.getGroup(self.group.id.val)
         finally:
@@ -116,7 +114,6 @@ class TestChmodEasy(BaseChmodTest):
         assert self.elapsed < 0.5
         BaseChmodTest.assertChmod(self)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test_chmod_rw_rwr(self):
         self.init("rw----", "rwr---")
         self.addData()

@@ -26,10 +26,12 @@ function cas = getScreenCommentAnnotations(session, ids, varargin)
 %        cas = getScreenCommentAnnotations(session, ids, 'exclude', exclude)
 %        cas = getScreenCommentAnnotations(session, ids, 'owner', -1)
 %
-% See also: GETOBJECTANNOTATIONS, GETSCREENFILEANNOTATIONS,
-% GETSCREENTAGANNOTATIONS, GETSCREENXMLANNOTATIONS
+% See also: GETOBJECTANNOTATIONS, GETSCREENDOUBLEANNOTATIONS,
+% GETSCREENFILEANNOTATIONS, GETSCREENLONGANNOTATIONS,
+% GETSCREENTAGANNOTATIONS, GETSCREENTIMESTAMPANNOTATIONS,
+% GETSCREENXMLANNOTATIONS
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

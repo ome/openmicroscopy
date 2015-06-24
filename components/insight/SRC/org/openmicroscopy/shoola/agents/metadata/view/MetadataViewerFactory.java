@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,11 +29,11 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import omero.model.NamedValue;
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.WellSampleData;
@@ -60,10 +60,13 @@ public class MetadataViewerFactory
 						singleton = new MetadataViewerFactory();
 	
 	/** Reference to an image from which the rnd settings can be copied */
-        private static ImageData copyRenderingSettingsFrom;
+	private static ImageData copyRenderingSettingsFrom;
 
-        /** 'Pending' rendering settings not yet stored with an image */
-        private static RndProxyDef copiedRndSettings;
+	/** 'Pending' rendering settings not yet stored with an image */
+	private static RndProxyDef copiedRndSettings;
+        
+	/** Copy/Paste storage for MapAnnotations */
+	private static List<NamedValue> copiedMapAnnotationsEntries = new ArrayList<NamedValue>();
         
 	/**
 	 * Returns the {@link MetadataViewer}.
@@ -273,6 +276,12 @@ public class MetadataViewerFactory
 	                viewer.applyCopiedRndSettings();
 	            }
 	        }
+	        if (obj instanceof WellSampleData) {
+	            ImageData img = ((WellSampleData) obj).getImage();
+	            if(img.getId()==imageId) {
+	                viewer.applyCopiedRndSettings();
+	            }
+	        }
                
             }
 	}
@@ -292,6 +301,12 @@ public class MetadataViewerFactory
                 if(obj instanceof ImageData) {
                     ImageData img = (ImageData) obj;
                     if(img.getId()==imageId) {
+                        return viewer.hasRndSettingsCopied();
+                    }
+                }
+                else if (obj instanceof WellSampleData) {
+                	ImageData img = ((WellSampleData)obj).getImage();
+                	if(img.getId()==imageId) {
                         return viewer.hasRndSettingsCopied();
                     }
                 }
@@ -327,5 +342,15 @@ public class MetadataViewerFactory
         public static RndProxyDef getCopiedRndSettings() {
             return MetadataViewerFactory.copiedRndSettings;
         }
+
+	/**
+	 * Access the copy/paste storage for MapAnnotations
+	 * 
+	 * @return A list of MapAnnotation entries or an empty list if there aren't
+	 *         any
+	 */
+	public static List<NamedValue> getCopiedMapAnnotationsEntries() {
+		return copiedMapAnnotationsEntries;
+	}
 	
 }

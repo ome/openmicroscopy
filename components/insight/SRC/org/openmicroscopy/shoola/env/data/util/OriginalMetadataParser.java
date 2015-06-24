@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.OriginalMetadataParser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -36,10 +36,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import omero.RType;
 import omero.cmd.OriginalMetadataResponse;
 
@@ -67,7 +65,7 @@ public class OriginalMetadataParser
 	private String writeMap(Map<String, RType> map, String separator)
 	{
 		if (map == null || map.size() == 0) return null;
-		if (StringUtils.isBlank(separator)) separator = " ";
+		if (CommonsLangUtils.isBlank(separator)) separator = " ";
 		TreeSet<String> sortedSet = new TreeSet<String>(map.keySet());
 		Iterator<String> j = sortedSet.iterator();
 		String key;

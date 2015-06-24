@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 from omero.gateway import BlitzGateway
 import omero
-from omero.rtypes import *
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-# create a connection
-conn = BlitzGateway(USERNAME, PASSWORD, host="gretzky.openmicroscopy.org.uk", port=PORT)
+from omero.rtypes import rstring, rdouble
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+
+# Create a connection
+# =================================================================
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
+
 from random import random
 from numpy import array
 import math
@@ -15,7 +18,8 @@ datasetId = 2651
 dataset = conn.getObject("Dataset", datasetId)
 
 # first create our table...
-# columns we want are: imageId, roiId, shapeId, theZ, theT, lineLength, shapetext.
+# columns we want are: imageId, roiId, shapeId, theZ, theT, lineLength,
+# shapetext.
 columns = [
     omero.grid.LongColumn('imageId', '', []),
     omero.grid.RoiColumn('roidId', '', []),
@@ -26,7 +30,8 @@ columns = [
     omero.grid.StringColumn('shapeText', '', 64, [])
     ]
 # create and initialize the table
-table = conn.c.sf.sharedResources().newTable(1, "LineLengths%s" % str(random()))
+table = conn.c.sf.sharedResources().newTable(
+    1, "LineLengths%s" % str(random()))
 table.initialize(columns)
 
 # make a local array of our data (add it to table in one go)
@@ -66,8 +71,9 @@ for image in dataset.listChildren():
         print "No lines found on Image:", image.getName()
         continue
     imgAverage = sum(lengthsForImage) / len(lengthsForImage)
-    print "Average length of line for Image: %s is %s" % (image.getName(), imgAverage)
-    
+    print "Average length of line for Image: %s is %s" % (
+        image.getName(), imgAverage)
+
     # Add the average as an annotation on each image.
     lengthAnn = omero.model.DoubleAnnotationI()
     lengthAnn.setDoubleValue(rdouble(imgAverage))
@@ -79,7 +85,7 @@ for image in dataset.listChildren():
     lengthsForImage = []    # reset for next image.
 
 
-# Prepare data for adding to OMERO table. 
+# Prepare data for adding to OMERO table.
 data = [
     omero.grid.LongColumn('imageId', '', imageIds),
     omero.grid.RoiColumn('roidId', '', roiIds),
@@ -98,7 +104,7 @@ fileAnn.setFile(orig_file)
 link = omero.model.DatasetAnnotationLinkI()
 link.setParent(omero.model.DatasetI(datasetId, False))
 link.setChild(fileAnn)
-#conn.getUpdateService().saveAndReturnObject(link)
+# conn.getUpdateService().saveAndReturnObject(link)
 
 a = array(lineLengths)
 print "std", a.std()
@@ -107,11 +113,13 @@ print "max", a.max()
 print "min", a.min()
 
 
-# lets retrieve all the lines that are longer than 3 standard deviations above mean
+# lets retrieve all the lines that are longer than 3 standard deviations above
+# mean
 limit = a.mean() + (2 * a.std())
 print "Retrieving all lines longer than: ", limit
 rowCount = table.getNumberOfRows()
-queryRows = table.getWhereList("lineLength > %s" % limit, variables={}, start=0, stop=rowCount, step=0)
+queryRows = table.getWhereList(
+    "lineLength > %s" % limit, variables={}, start=0, stop=rowCount, step=0)
 if len(queryRows) == 0:
     print "No lines found"
 else:

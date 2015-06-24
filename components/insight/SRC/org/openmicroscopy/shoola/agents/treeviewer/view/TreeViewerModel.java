@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
@@ -37,9 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
+import javax.activation.FileDataSource;
 
+
+//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -77,20 +81,17 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -1096,18 +1097,11 @@ class TreeViewerModel
 			return TreeViewerFactory.IMAGE_NOT_ARCHIVED;
 		} else if (object instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) object;
-			File f = new File(fa.getFileName());
-			/*
-			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-			type = map.getContentType(f);
-			f.delete();
-			return type;
-			*/
+			FileDataSource fds = new FileDataSource(fa.getFileName());
+            String type = fds.getContentType();
+            return type;
 		}
-		//MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-		//String type = map.getContentType(f);
-		//f.delete();
-		return null;//type;
+		return null;
 	}
 	
 	/**
@@ -1289,11 +1283,12 @@ class TreeViewerModel
 	 * Loads the scripts.
 	 * 
 	 * @param location The location of the mouse.
+	 * @param invoker The invoker.
 	 */
-	void loadScripts(Point location)
+	void loadScripts(Point location, Component invoker)
 	{
 		ScriptsLoader loader = new ScriptsLoader(component,
-				getSecurityContext(null), false, location);
+				getSecurityContext(null), false, location, invoker);
 		loader.load();
 	}
 	

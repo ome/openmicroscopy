@@ -29,7 +29,11 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
  * @see IGraph
+ * @deprecated will be removed in OMERO 5.2, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class GraphEntry {
 
     private final static Logger log = LoggerFactory.getLogger(GraphEntry.class);

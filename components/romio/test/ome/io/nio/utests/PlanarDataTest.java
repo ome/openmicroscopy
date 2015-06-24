@@ -15,7 +15,6 @@ import org.testng.annotations.*;
 import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;

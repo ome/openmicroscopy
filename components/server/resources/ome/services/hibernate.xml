@@ -2,10 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-# $Id$
-#
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2015 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,6 +32,13 @@
     metadata, but they themselves must be injected into the SessionFactory
     for proper functioning. To prevent this circular dependency, we do a
     form of lazy loading.
+    </description>
+  </bean>
+
+  <bean id="graphPathBean" class="ome.services.graphs.GraphPathBean" lazy-init="false">
+    <description>
+    The graph path bean reflects upon the Hibernate model object mapping
+    and provides information that assists in traversing it.
     </description>
   </bean>
 
@@ -85,7 +89,8 @@
     Scope: private
     </description>
     <constructor-arg ref="sessionHandler"/>
-    <constructor-arg ref="basicACLVoter"/>
+    <constructor-arg ref="aclVoter"/>
+    <constructor-arg ref="currentDetails"/>
   </bean>
 
   <bean id="sessionHandler" class="ome.tools.hibernate.SessionHandler">

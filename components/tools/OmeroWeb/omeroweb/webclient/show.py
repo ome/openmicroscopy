@@ -307,8 +307,8 @@ class Show(object):
             # E.g. show=image-1|image-2
             if 'id' in attributes.keys() and len(self._initially_select) > 1:
                 # 'image.id-1' -> 'image-1'
-                self._initially_select = [i.replace(".id", "") \
-                    for i in self._initially_select]
+                self._initially_select = [
+                    i.replace(".id", "") for i in self._initially_select]
             else:
                 # Only select a single object
                 self._initially_select = self._initially_open[:]

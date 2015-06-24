@@ -22,35 +22,7 @@
 
 import pytest
 from omero.cli import CLI
-from omero.plugins.hql import HqlControl
-
-
-class FilterFixture(object):
-    """
-    Fixture to test naming arguments of bin/omero import
-    """
-
-    def __init__(self, name, values, output):
-        self.name = name
-        self.values = values
-        self.output = output
-
-FF = FilterFixture
-FFS = (
-    FF("_id", {"_id": 1}, {}),
-    FF("_loaded_True", {"_loaded": True}, {}),
-    FF("_loaded_false", {"_loaded": False}, {}),
-    FF("_details1", {"_details": "owner=None;group=None"}, {}),
-    FF("_details2", {"_details": "owner=1"}, {"details": "owner=1"}),
-    FF("empty_list", {"test": []}, {}),
-    FF("list", {"test": [0, 1, 2]}, {}),
-    FF("empty_dict", {"test": {}}, {}),
-    FF("None", {"test": None}, {}),
-    FF("True", {"test": True}, {"test": True}),
-    FF("False", {"test": False}, {}),
-    FF("zero", {"test": 0}, {"test": 0}),
-    FF("_strip", {"test": 1, "_test2": 2}, {"test": 1, "test2": 2}),
-    )
+from omero.plugins.hql import HqlControl, BLACKLISTED_KEYS, WHITELISTED_VALUES
 
 
 class TestHql(object):
@@ -64,7 +36,39 @@ class TestHql(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize("fixture", FFS, ids=[x.name for x in FFS])
-    def testFilter(self, fixture):
-        output = self.cli.controls["hql"].filter(fixture.values)
-        assert output == fixture.output
+    @pytest.mark.parametrize("key", BLACKLISTED_KEYS)
+    def testFilterBlacklist(self, key):
+        output = self.cli.controls["hql"].filter({key: 1})
+        assert output == {}
+
+    @pytest.mark.parametrize("key", ["rois", "groupExperimenterMap"])
+    def testFilterLoaded(self, key):
+        output = self.cli.controls["hql"].filter({"_" + key + "Loaded": 1})
+        assert output == {}
+
+    @pytest.mark.parametrize(
+        ("value", "outcome"),
+        [("owner=None;group=None", {}),
+         ("owner=1", {"details": "owner=1"})])
+    def testFilterDetails(self, value, outcome):
+        output = self.cli.controls["hql"].filter({"_details": value})
+        assert output == outcome
+
+    @pytest.mark.parametrize("multi_value", [[0, 1]])
+    def testFilterMultiValue(self, multi_value):
+        output = self.cli.controls["hql"].filter({'key': multi_value})
+        assert output == {}
+
+    @pytest.mark.parametrize("empty_value", [None, [], {}])
+    def testFilterEmptyValue(self, empty_value):
+        output = self.cli.controls["hql"].filter({'key': empty_value})
+        assert output == {}
+
+    @pytest.mark.parametrize("value", WHITELISTED_VALUES)
+    def testFilterWhitelist(self, value):
+        output = self.cli.controls["hql"].filter({'key': value})
+        assert output == {'key': value}
+
+    def testFilterStrip(self):
+        output = self.cli.controls["hql"].filter({'_key': 1})
+        assert output == {'key': 1}

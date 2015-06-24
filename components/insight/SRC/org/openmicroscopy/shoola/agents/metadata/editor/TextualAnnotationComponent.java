@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.TextualAnnotationComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -48,8 +50,13 @@ import javax.swing.JPopupMenu;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import pojos.TextualAnnotationData;
 
 /** 
@@ -67,7 +74,7 @@ import pojos.TextualAnnotationData;
  */
 class TextualAnnotationComponent 
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Action id to edit the comment.*/
@@ -114,7 +121,9 @@ class TextualAnnotationComponent
         area.setOpaque(true);
 		area.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         area.setText(data.getText());
-        //area.wrapText(getSize().width);
+        area.setAllowOneClick(true);
+        area.addPropertyChangeListener(this);
+        area.setWrapWord(true);
         addComponentListener(new ComponentAdapter() {
 
 			public void componentResized(ComponentEvent e) {
@@ -252,6 +261,24 @@ class TextualAnnotationComponent
 				break;
 			case EDIT:
 				editComment();
+		}
+	}
+	
+	public void propertyChange(PropertyChangeEvent evt) {
+		String name = evt.getPropertyName();
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
+			WikiDataObject object = (WikiDataObject) evt.getNewValue();
+			long id = object.getId();
+			switch (object.getIndex()) {
+			case WikiDataObject.IMAGE:
+				if (id > 0) {
+					ViewImage event = new ViewImage(model.getSecurityContext(),
+							new ViewImageObject(id), null);
+					event.setPlugin(MetadataViewerAgent.runAsPlugin());
+					bus.post(event);
+				}
+			}
 		}
 	}
 	

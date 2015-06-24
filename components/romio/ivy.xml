@@ -17,22 +17,6 @@
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server;client->client"/>
-    <!-- Bioformats -->
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,server,client->build">
-        <artifact name="formats-api"/>
-        <artifact name="formats-bsd"/>
-        <artifact name="formats-common"/>
-        <artifact name="formats-gpl"/>
-        <artifact name="ome-xml"/>
-        <artifact name="specification"/>
-        <!-- forks & stubs -->
-        <artifact name="jai_imageio"/>
-        <artifact name="lwf-stubs"/>
-        <artifact name="mdbtools-java"/>
-        <artifact name="metakit"/>
-        <artifact name="ome-poi"/>
-        <artifact name="turbojpeg"/>
-    </dependency>
     <!-- Other -->
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}" conf="build,server,client->default"/>
   </dependencies>

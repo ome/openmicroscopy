@@ -68,7 +68,7 @@ Check User Form
     Page Should Contain Button              Save
 
 
-Create Group
+Create Edit Group
     [Documentation]     Tests group creation
     
     Go To                   ${USERS URL}
@@ -83,7 +83,21 @@ Create Group
     Select Radio Button     permissions     1
     
     Click Button            Save
+
+    Location Should Be      ${GROUPS URL}
+    Page Should Contain     ${group_name}
+    # find row which contains group name, and click 'btn_edit' of that row
+    Click Element           xpath=//table[@id="groupTable"]/tbody/tr[descendant::td[contains(text(), '${group_name}')]]//a[contains(@class, "btn_edit")]
+    Wait Until Page Contains Element    id=id_name
+    ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_name']@value
+    Should Be Equal                     "${group_name}"    "${createdName}"
+    Input Text              name    ${group_name}-Edited
+    Click Button            Save
+    Location Should Be      ${GROUPS URL}
+    Page Should Contain     ${group_name}-Edited
     
+
+Create Edit User
     Click Link              link=Users
     
     Click Link              link=Add new User
@@ -97,9 +111,46 @@ Create Group
     Input Text              last_name       ${user_name}
     Input Text              institution     ${user_name}
     
-    Click Element           xpath=//ul[@class='chosen-choices']
-    Page Should Contain Element             xpath=//ul[@class='chosen-results']
-    Click Element           xpath=//ul[@class='chosen-results']/li[contains(text(),'${group_name}')]
     
-    Click Button    Save
+    Click Element           xpath=//div[@id='id_other_groups_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element             xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element           xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[contains(text(),'test_group')]
+    
+    Click Button            Save
+    Location Should Be      ${USERS URL}
+    Page Should Contain     ${user_name}
+    # find row which contains user name, and click 'btn_edit' of that row
+    Click Element           xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${user_name}')]]//a[contains(@class, "btn_edit")]
 
+    Wait Until Page Contains Element    id=id_first_name
+    ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_first_name']@value
+    Should Be Equal                     "${user_name}"    "${createdName}"
+
+    # Edit Password
+    Click Element           id=change_password
+    Input Text              id_old_password     ${ROOT PASSWORD}
+    Input Text              id_password         ${user_name}new
+    Input Text              id_confirmation     ${user_name}new
+    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Wait Until Page Contains  Password reset OK
+
+    Input Text              first_name    ${user_name}-Edited
+    Click Button            Save
+    Location Should Be      ${USERS URL}
+    Page Should Contain     ${user_name}-Edited
+
+Check Admin Edit Self
+
+    Click Link                        link=Users 
+    Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${ROOT FULL NAME}')]]//a[contains(@class, "btn_edit")] 
+
+    Wait Until Page Contains Element  id=id_administrator
+    Checkbox Should Be selected       id=id_administrator
+    Element Should Be Disabled        id=id_administrator
+    
+    Click Element                     xpath=//div[@id='id_other_groups_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element       xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element                     xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[contains(text(),'test_group')]
+
+    Element Should Not Be Visible     xpath=//div[@id="id_other_groups_chosen"]//li[descendant::span[contains(text(), "system")]]/a
+    Element Should Be Visible         xpath=//div[@id="id_other_groups_chosen"]//li[descendant::span[contains(text(), "test_group")]]/a

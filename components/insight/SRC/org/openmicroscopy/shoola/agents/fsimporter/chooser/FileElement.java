@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
@@ -52,7 +53,7 @@ class FileElement
 {
 	
 	/** The file to host. */
-	private File file;
+	private FileObject file;
 	
 	/** The name of the imported file. */
 	private String name;
@@ -83,7 +84,7 @@ class FileElement
 	 * @param group The group where to import the data.
 	 * @param user The user to import data as.
 	 */
-	FileElement(File file, int type, GroupData group, ExperimenterData user)
+	FileElement(FileObject file, int type, GroupData group, ExperimenterData user)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file set");
@@ -136,9 +137,7 @@ class FileElement
 	long getFileLength()
 	{
 		if (length > 0) return length;
-		if (file.isFile()) length = file.length();
-		else length = FileUtils.sizeOfDirectory(file);
-		return length;
+		return file.getLength();
 	}
 	
 	/**
@@ -160,11 +159,15 @@ class FileElement
 	 * @return See above.
 	 */
 	boolean isDirectory()
-	{ 
-		if (file.isFile()) return false;
-		File[] list = file.listFiles();
-		if (list == null || list.length == 0) return false;
-		return true;
+	{
+	    if (file.getFile() instanceof File) {
+	        File f = (File) file.getFile();
+	        if (f.isFile()) return false;
+	        File[] list = f.listFiles();
+	        if (list == null || list.length == 0) return false;
+	        return true;
+	    }
+		return false;
 	}
 	
 	/**
@@ -175,7 +178,8 @@ class FileElement
 	List<File> getFiles()
 	{
 		if (!isDirectory()) return null;
-		File[] list = file.listFiles();
+		 File f = (File) file.getFile();
+		File[] list = f.listFiles();
 		List<File> files = new ArrayList<File>();
 		if (list == null || list.length == 0) return files;
 		for (int i = 0; i < list.length; i++) {
@@ -192,7 +196,7 @@ class FileElement
 	 */
 	String getName()
 	{
-		if (name == null) return file.getAbsolutePath();
+		if (name == null) return file.getName();
 		return name;
 	}
 	
@@ -208,7 +212,7 @@ class FileElement
 	 * 
 	 * @return See above.
 	 */
-	public File getFile() { return file; }
+	public FileObject getFile() { return file; }
 	
 	/**
 	 * Returns the group.

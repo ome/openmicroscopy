@@ -26,7 +26,7 @@
 
 import omero
 import logging
-import test.integration.library as lib
+import library as lib
 
 try:
     from PIL import Image  # see ticket:2597
@@ -77,7 +77,7 @@ class TestFigureExportScripts(lib.ITest):
         renderingEngine = session.createRenderingEngine()
         renderingEngine.lookupPixels(pixelsId)
         if not renderingEngine.lookupRenderingDef(pixelsId):
-            renderingEngine.resetDefaults()
+            renderingEngine.resetDefaultSettings(save=True)
         renderingEngine.lookupRenderingDef(pixelsId)
         renderingEngine.load()
 

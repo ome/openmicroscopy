@@ -56,6 +56,13 @@
      <constructor-arg ref="preferenceContext"/>
   </bean>
 
+  <bean id="dbUnicodeUnitsCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBUnicodeUnitsCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="preferenceContext"/>
+  </bean>
+
   <bean id="serverDirectoryCheck"
      class="ome.services.util.ServerDirectoryCheck"
      init-method="run" lazy-init="false">

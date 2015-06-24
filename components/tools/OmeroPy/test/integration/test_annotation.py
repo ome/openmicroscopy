@@ -23,7 +23,7 @@
    Integration test for adding annotations to Project.
 """
 
-import test.integration.library as lib
+import library as lib
 import omero
 import omero.scripts
 from omero.rtypes import rstring, rbool, rtime, rlong, rdouble
@@ -41,9 +41,7 @@ class TestFigureExportScripts(lib.ITest):
         queryService = session.getQueryService()
 
         # create project
-        parent = omero.model.ProjectI()
-        parent.name = rstring("Annotations Test")
-        parent = updateService.saveAndReturnObject(parent)
+        parent = self.make_project(name="Annotations Test", client=self.root)
 
         xml = "<testXml><testElement><annotation>\
             Text</annotation></testElement></testXml>"

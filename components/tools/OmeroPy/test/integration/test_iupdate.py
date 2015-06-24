@@ -10,7 +10,7 @@
 Integration test focused on the omero.api.IUpdate interface.
 """
 
-import test.integration.library as lib
+import library as lib
 import omero
 
 

@@ -20,9 +20,9 @@
 ''' Helper functions for views that handle object trees '''
 
 import omero
-from omero.sys import ParametersI
 
 from datetime import datetime
+
 
 # TODO Remove this when fixed. Workaround for bug:
 # https://trac.openmicroscopy.org.uk/ome/ticket/12474
@@ -31,12 +31,12 @@ def get_perms(conn, object_type, object_id, object_owner_id, object_group_id,
 
     # Attempt to get permissions which have previously been recorded for this
     # group depending on if the object is owned or not
-    perms = cache.get( (object_group_id.val, object_owner_id.val) )
+    perms = cache.get((object_group_id.val, object_owner_id.val))
 
     # If no cache, query an object to get the permissions for this group and
     # object ownership
     if perms is None:
-        params = ParametersI()
+        params = omero.sys.ParametersI()
         params.addId(object_id)
         q = '''
             select obj from %s obj where obj.id = :id
@@ -55,11 +55,14 @@ def get_perms(conn, object_type, object_id, object_owner_id, object_group_id,
         for r in restrictions:
             if getattr(perms_obj, r)():
                 perms[r] = True
+        if (obj.details.owner.id.val == conn.getUserId()):
+            perms['isOwned'] = True
 
         # Cache the result
-        cache[ (object_group_id.val, object_owner_id.val) ] = perms
+        cache[(object_group_id.val, object_owner_id.val)] = perms
 
     return perms
+
 
 def parse_permissions_css(permissions, ownerid, conn):
     ''' Parse numeric permissions into a string of space separated
@@ -72,9 +75,13 @@ def parse_permissions_css(permissions, ownerid, conn):
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
     '''
-    restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
+    restrictions = ('canEdit',
+                    'canAnnotate',
+                    'canLink',
+                    'canDelete',
+                    'isOwned')
     permissionsCss = [r for r in restrictions if permissions.get(r)]
-    if ownerid == conn.getUserId():
+    if ownerid == conn.getUserId() or conn.isAdmin():
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
 
@@ -195,7 +202,7 @@ def marshal_projects(conn, experimenter_id):
                left join project.datasetLinks as pdlink
                left join pdlink.child dataset
         %s
-        order by lower(project.name), lower(dataset.name)
+        order by lower(project.name), project.id, lower(dataset.name)
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:
@@ -230,7 +237,7 @@ def marshal_projects(conn, experimenter_id):
             # TODO Remove this when fixed. Workaround for bug:
             # https://trac.openmicroscopy.org.uk/ome/ticket/12474
             dataset_permissions = get_perms(conn, 'Dataset', dataset_id,
-                                            dataset_owner_id, 
+                                            dataset_owner_id,
                                             dataset_group_id, cache)
 
             project['datasets'].append(
@@ -238,7 +245,7 @@ def marshal_projects(conn, experimenter_id):
                                        dataset_name,
                                        dataset_owner_id,
                                        dataset_permissions,
-                                       child_count) ))
+                                       child_count)))
 
         project['childCount'] = len(project['datasets'])
     return projects
@@ -293,7 +300,7 @@ def marshal_datasets(conn, experimenter_id):
                                                name,
                                                owner_id,
                                                permissions,
-                                               child_count) ))
+                                               child_count)))
     return datasets
 
 
@@ -338,7 +345,7 @@ def marshal_screens(conn, experimenter_id=None):
                left join splink.child plate
                left join plate.plateAcquisitions pa
         %s
-        order by lower(screen.name), lower(plate.name), pa.id
+        order by lower(screen.name), screen.id, lower(plate.name), pa.id
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:
@@ -384,7 +391,7 @@ def marshal_screens(conn, experimenter_id=None):
             screen['plates'].append(marshal_plate(conn, (plate_id,
                                                          plate_name,
                                                          plate_owner_id,
-                                                         plate_permissions) ))
+                                                         plate_permissions)))
 
             screen['plates'][-1]['plateAcquisitionCount'] = 0
         if acquisition_id is not None:
@@ -404,7 +411,7 @@ def marshal_screens(conn, experimenter_id=None):
                                                  acquisition_owner_id,
                                                  acquisition_permissions,
                                                  acquisition_start_time,
-                                                 acquisition_end_time) ))
+                                                 acquisition_end_time)))
 
             plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
         screen['childCount'] = len(screen['plates'])
@@ -448,7 +455,7 @@ def marshal_plates(conn, experimenter_id):
             select splink from ScreenPlateLink as splink
             where splink.child = plate.id
         ) %s
-        order by lower(plate.name), pa.id
+        order by lower(plate.name), plate.id, pa.id
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:
@@ -472,8 +479,7 @@ def marshal_plates(conn, experimenter_id):
                 marshal_plate(conn, (plate_id,
                                      plate_name,
                                      plate_owner_id,
-                                     plate_permissions) ))
-
+                                     plate_permissions)))
 
             plates[-1]['plateAcquisitionCount'] = 0
         plate = plates[-1]
@@ -492,7 +498,7 @@ def marshal_plates(conn, experimenter_id):
                                                  acquisition_owner_id,
                                                  acquisition_permissions,
                                                  acquisition_start_time,
-                                                 acquisition_end_time) ))
+                                                 acquisition_end_time)))
 
             plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
     return plates

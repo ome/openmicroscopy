@@ -60,11 +60,12 @@ Examples:
   $ bin/omero import -- --debug=ERROR foo.tiff
 
 For additional information, see:
-http://www.openmicroscopy.org/site/support/omero5/users/\
-command-line-import.html
+http://www.openmicroscopy.org/site/support/omero5.1/users/cli/import.html
 Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
+DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
+SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 
 
 class ImportControl(BaseControl):
@@ -102,14 +103,61 @@ class ImportControl(BaseControl):
             "-x", "--description", dest="java_description",
             help="Image or plate description to use (**)",
             metavar="DESCRIPTION")
-
-        # DEPRECATED OPTIONS
-        deprecated_name_group = parser.add_argument_group()
-        deprecated_name_group.add_argument(
+        # Deprecated naming arguments
+        name_group.add_argument(
             "--plate_name", dest="java_plate_name",
             help=SUPPRESS)
-        deprecated_name_group.add_argument(
+        name_group.add_argument(
             "--plate_description", dest="java_plate_description",
+            help=SUPPRESS)
+
+        # Feedback options
+        feedback_group = parser.add_argument_group(
+            'Feedback arguments',
+            'Optional arguments passed strictly to Java allowing to report'
+            ' errors to the OME team.')
+        feedback_group.add_argument(
+            "--report", action="store_true", dest="java_report",
+            help="Report errors to the OME team (**)")
+        feedback_group.add_argument(
+            "--upload", action="store_true", dest="java_upload",
+            help=("Upload broken files and log file (if any) with report."
+                  " Required --report (**)"))
+        feedback_group.add_argument(
+            "--logs", action="store_true", dest="java_logs",
+            help=("Upload log file (if any) with report."
+                  " Required --report (**)"))
+        feedback_group.add_argument(
+            "--email", dest="java_email",
+            help="Email for reported errors. Required --report (**)",
+            metavar="EMAIL")
+        feedback_group.add_argument(
+            "--qa-baseurl", dest="java_qa_baseurl",
+            help=SUPPRESS)
+
+        # Annotation options
+        annotation_group = parser.add_argument_group(
+            'Annotation arguments',
+            'Optional arguments passed strictly to Java allowing to annotate'
+            ' imports.')
+        annotation_group.add_argument(
+            "--annotation-ns", dest="java_ns", metavar="ANNOTATION_NS",
+            help="Namespace to use for subsequent annotation (**)")
+        annotation_group.add_argument(
+            "--annotation-text", dest="java_text", metavar="ANNOTATION_TEXT",
+            help="Content for a text annotation (requires namespace) (**)")
+        annotation_group.add_argument(
+            "--annotation-link", dest="java_link",
+            metavar="ANNOTATION_LINK",
+            help="Comment annotation ID to link all images to (**)")
+        annotation_group.add_argument(
+            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
+            help=SUPPRESS)
+        annotation_group.add_argument(
+            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
+            help=SUPPRESS)
+        annotation_group.add_argument(
+            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
             help=SUPPRESS)
 
         java_group = parser.add_argument_group(
@@ -133,41 +181,87 @@ class ImportControl(BaseControl):
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
         java_group.add_argument(
-            "--report", action="store_true", dest="java_report",
-            help="Report errors to the OME team (**)")
-        java_group.add_argument(
-            "--upload", action="store_true", dest="java_upload",
-            help="Upload broken files with report (**)")
-        java_group.add_argument(
-            "--logs", action="store_true", dest="java_logs",
-            help="Upload log file with report (**)")
-        java_group.add_argument(
-            "--email", dest="java_email",
-            help="Email for reported errors (**)", metavar="EMAIL")
-        java_group.add_argument(
-            "--debug", dest="java_debug",
+            "--debug", choices=DEBUG_CHOICES, dest="java_debug",
             help="Turn debug logging on (**)",
-            choices=["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE",
-                     "WARN"],
             metavar="LEVEL")
-        java_group.add_argument(
-            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
-            help="Namespace to use for subsequent annotation (**)")
-        java_group.add_argument(
-            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
-            help="Content for a text annotation (requires namespace) (**)")
-        java_group.add_argument(
-            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
-            help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(
             "--depth", default=4, type=int,
             help="Number of directories to scan down for files")
         parser.add_argument(
+            "--skip", type=str, choices=SKIP_CHOICES, action='append',
+            help="Optional step to skip during import")
+        parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
 
         parser.set_defaults(func=self.importer)
+
+    def set_login_arguments(self, args):
+        """Set the connection arguments"""
+
+        # Connection is required unless help arguments or -f is passed
+        connection_required = ("-h" not in self.command_args and
+                               not args.java_f and
+                               not args.java_advanced_help)
+        if connection_required:
+            client = self.ctx.conn(args)
+            self.command_args.extend(["-s", client.getProperty("omero.host")])
+            self.command_args.extend(["-p", client.getProperty("omero.port")])
+            self.command_args.extend(["-k", client.getSessionId()])
+
+    def set_skip_arguments(self, args):
+        """Set the arguments to skip steps during import"""
+        if not args.skip:
+            return
+
+        if ('all' in args.skip or 'checksum' in args.skip):
+            self.command_args.append("--checksum-algorithm=File-Size-64")
+        if ('all' in args.skip or 'thumbnails' in args.skip):
+            self.command_args.append("--no-thumbnails")
+        if ('all' in args.skip or 'minmax' in args.skip):
+            self.command_args.append("--no-stats-info")
+        if ('all' in args.skip or 'upgrade' in args.skip):
+            self.command_args.append("--no-upgrade-check")
+
+    def set_java_arguments(self, args):
+        """Set the arguments passed to Java"""
+        # Due to the use of "--" some of these like debug
+        # will never be filled out. But for completeness
+        # sake, we include them here.
+        java_args = {
+            "java_f": "-f",
+            "java_c": "-c",
+            "java_l": "-l",
+            "java_d": "-d",
+            "java_r": "-r",
+            "java_name": ("--name",),
+            "java_description": ("--description",),
+            "java_plate_name": ("--plate_name",),
+            "java_plate_description": ("--plate_description",),
+            "java_report": ("--report"),
+            "java_upload": ("--upload"),
+            "java_logs": ("--logs"),
+            "java_email": ("--email"),
+            "java_debug": ("--debug",),
+            "java_qa_baseurl": ("--qa-baseurl",),
+            "java_ns": "--annotation-ns",
+            "java_text": "--annotation-text",
+            "java_link": "--annotation-link",
+            "java_advanced_help": "--advanced-help",
+            }
+
+        for attr_name, arg_name in java_args.items():
+            arg_value = getattr(args, attr_name)
+            if arg_value:
+                if isinstance(arg_name, tuple):
+                    arg_name = arg_name[0]
+                    self.command_args.append(
+                        "%s=%s" % (arg_name, arg_value))
+                else:
+                    self.command_args.append(arg_name)
+                    if isinstance(arg_value, (str, unicode)):
+                        self.command_args.append(arg_value)
 
     def importer(self, args):
 
@@ -189,71 +283,37 @@ class ImportControl(BaseControl):
 
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
 
-        # Here we permit passing ---file=some_output_file in order to
-        # facilitate the omero.util.import_candidates.as_dictionary
-        # call. This may not always be necessary.
-        out = args.file
-        err = args.errs
-
-        if out:
-            out = open(out, "w")
-        if err:
-            err = open(err, "w")
-
-        login_args = []
+        # Create import command to be passed to Java
+        self.command_args = []
         if args.javahelp:
-                login_args.append("-h")
-
-        if "-h" not in login_args and "-f" not in login_args \
-                and not args.java_f and not args.java_advanced_help:
-            client = self.ctx.conn(args)
-            srv = client.getProperty("omero.host")
-            prt = client.getProperty("omero.port")
-            login_args.extend(["-s", srv])
-            login_args.extend(["-p", prt])
-            login_args.extend(["-k", client.getSessionId()])
-
-        # Due to the use of "--" some of these like debug
-        # will never be filled out. But for completeness
-        # sake, we include them here.
-        java_args = {
-            "java_f": "-f",
-            "java_c": "-c",
-            "java_l": "-l",
-            "java_d": "-d",
-            "java_r": "-r",
-            "java_name": ("--name",),
-            "java_description": ("--description",),
-            "java_plate_name": ("--plate_name",),
-            "java_plate_description": ("--plate_description",),
-            "java_report": "--report",
-            "java_upload": "--upload",
-            "java_logs": "--logs",
-            "java_email": "--email",
-            "java_debug": ("--debug",),
-            "java_ns": "--annotation_ns",
-            "java_text": "--annotation_text",
-            "java_link": "--annotation_link",
-            "java_advanced_help": "--advanced-help",
-            }
-
-        for attr_name, arg_name in java_args.items():
-            arg_value = getattr(args, attr_name)
-            if arg_value:
-                if isinstance(arg_name, tuple):
-                    arg_name = arg_name[0]
-                    login_args.append("%s=%s" %
-                                      (arg_name, arg_value))
-                else:
-                    login_args.append(arg_name)
-                    if isinstance(arg_value, (str, unicode)):
-                        login_args.append(arg_value)
-
+            self.command_args.append("-h")
+        self.set_login_arguments(args)
+        self.set_skip_arguments(args)
+        self.set_java_arguments(args)
         xargs.append("-Domero.import.depth=%s" % args.depth)
-        a = self.COMMAND + login_args + args.path
-        p = omero.java.popen(
-            a, debug=False, xargs=xargs, stdout=out, stderr=err)
-        self.ctx.rv = p.wait()
+        import_command = self.COMMAND + self.command_args + args.path
+
+        try:
+            # Open file handles for stdout/stderr if applicable
+            out = args.file
+            err = args.errs
+
+            if out:
+                out = open(out, "w")
+            if err:
+                err = open(err, "w")
+
+            p = omero.java.popen(
+                import_command, debug=False, xargs=xargs, stdout=out,
+                stderr=err)
+            self.ctx.rv = p.wait()
+
+        finally:
+            # Make sure file handles are closed
+            if out:
+                out.close()
+            if err:
+                err.close()
 
 
 class TestEngine(ImportControl):

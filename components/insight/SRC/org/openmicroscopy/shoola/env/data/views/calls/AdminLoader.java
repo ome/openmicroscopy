@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.views.calls.AdminLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -31,9 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -253,6 +251,26 @@ public class AdminLoader
             }
         };
     }
+
+    /**
+     * Creates a {@link BatchCall} to load the experimenters contained 
+     * within the specified group.
+     * 
+     * @param ctx The security context.
+     * @param id The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall lookupExperimenter(final SecurityContext ctx,
+            final long id)
+    {
+        return new BatchCall("lookupLdapAuthExperimenter") {
+            public void doCall() throws Exception
+            {
+                AdminService os = context.getAdminService();
+                result = os.lookupLdapAuthExperimenter(ctx, id);
+            }
+        };
+    }
     
     /**
      * Creates a {@link BatchCall} to update the specified experimenters.
@@ -379,21 +397,20 @@ public class AdminLoader
     
     /**
      * Creates a new instance.
-     * 
+     *
      * @param ctx The security context.
-     * @param oldPassword 	The password used to log in.  
-     * @param newPassword	The new password value.
+     * @param oldPassword The password used to log in.
+     * @param newPassword The new password value.
      */
     public AdminLoader(SecurityContext ctx, String oldPassword,
-    		String newPassword)
+            String newPassword)
     {
-    	if (newPassword == null || newPassword.trim().length() == 0)
-    		throw new IllegalArgumentException("Password not valid.");
-    	if (oldPassword == null || oldPassword.trim().length() == 0)
-    		throw new IllegalArgumentException("Password not valid.");
-    	loadCall = changePassword(ctx, oldPassword, newPassword);
+        if (CommonsLangUtils.isBlank(newPassword) ||
+                CommonsLangUtils.isBlank(oldPassword))
+            throw new IllegalArgumentException("Password not valid.");
+        loadCall = changePassword(ctx, oldPassword, newPassword);
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -473,6 +490,17 @@ public class AdminLoader
         if (group == null)
             throw new IllegalArgumentException("No group indicated.");
         loadCall = changeGroup(ctx, group, experimenter);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+     * @param userID The experimenter to handle.
+     */
+    public AdminLoader(SecurityContext ctx, long userID)
+    {
+        loadCall = lookupExperimenter(ctx, userID);
     }
 
 }

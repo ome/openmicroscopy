@@ -27,10 +27,11 @@ function cas = getPlateCommentAnnotations(session, ids, varargin)
 %        cas = getPlateCommentAnnotations(session, ids, 'exclude', exclude)
 %        cas = getPlateCommentAnnotations(session, ids, 'owner', -1)
 %
-% See also: GETOBJECTANNOTATIONS, GETPLATEFILEANNOTATIONS,
-% GETPLATETAGANNOTATIONS, GETPLATEXMLANNOTATIONS
+% See also: GETOBJECTANNOTATIONS, GETPLATEDOUBLEANNOTATIONS,
+% GETPLATEFILEANNOTATIONS, GETPLATELONGANNOTATIONS, GETPLATETAGANNOTATIONS,
+% GETPLATETIMESTAMPANNOTATIONS, GETPLATEXMLANNOTATIONS
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

@@ -19,7 +19,7 @@
  * implementation, for use by the server and via the
  * InteractiveProcessor wrapper by clients.
  *
- * See http://www.openmicroscopy.org/site/support/omero5/developers/scripts/
+ * See http://www.openmicroscopy.org/site/support/omero5.1/developers/scripts/
  */
 
 module omero {
@@ -461,17 +461,20 @@ module omero {
              * Returns the return code of the process, or null
              * if unfinished.
              **/
+            idempotent
             omero::RInt poll() throws omero::ServerError;
 
             /**
              * Blocks until poll() would return a non-null return code.
              **/
+            idempotent
             int wait() throws omero::ServerError;
 
             /**
              * Signal to the Process that it should terminate. This may
              * be done "softly" for a given time period.
              **/
+            idempotent
             bool cancel() throws omero::ServerError;
 
             /**
@@ -511,6 +514,7 @@ module omero {
              * scheduling fields (submitted, scheduledFor, started, finished)
              * may be of interest.
              **/
+            idempotent
             omero::model::ScriptJob getJob() throws ServerError;
 
             /**
@@ -519,6 +523,7 @@ module omero {
              * [omero.ApiUsageException]. If poll has returned a non-null
              * value, then this method will always return a non-null value.
              **/
+            idempotent
             omero::RTypeDict getResults(int waitSecs) throws ServerError;
 
             /**
@@ -526,6 +531,7 @@ module omero {
              * This value MAY be overwritten by the server if the script
              * fails.
              **/
+            idempotent
             string setMessage(string message) throws ServerError;
 
             /**
@@ -557,9 +563,9 @@ module omero {
          * to query whether or not a processor will accept a certain operation.
          **/
         interface ProcessorCallback {
-            void isAccepted(bool accepted, string sessionUuid, string procConn);
-            void isProxyAccepted(bool accepted, string sessionUuid, Processor* procProxy);
-            void responseRunning(omero::api::LongList jobIds);
+            idempotent void isAccepted(bool accepted, string sessionUuid, string procConn);
+            idempotent void isProxyAccepted(bool accepted, string sessionUuid, Processor* procProxy);
+            idempotent void responseRunning(omero::api::LongList jobIds);
         };
 
 
@@ -581,6 +587,7 @@ module omero {
              * must respond with their session uuid in order to authorize
              * the action.
              **/
+            idempotent
             void willAccept(omero::model::Experimenter userContext,
                          omero::model::ExperimenterGroup groupContext,
                          omero::model::Job scriptContext,
@@ -590,6 +597,7 @@ module omero {
              * Used by servers to find out what jobs are still active.
              * Response will be sent to [ProcessorCallback::responseRunning]
              **/
+            idempotent
             void requestRunning(ProcessorCallback* cb);
 
             /**
@@ -597,6 +605,7 @@ module omero {
              * for properly submitting the job. This object will be
              * cached by the server, and passed back into [processJob]
              **/
+            idempotent
             JobParams parseJob(string session, omero::model::Job jobObject) throws ServerError;
 
             /**
@@ -622,6 +631,7 @@ module omero {
              * Returns the system clock time in milliseconds since the epoch
              * at which this processor will be reaped.
              **/
+            idempotent
             long expires();
 
             /**
@@ -629,6 +639,7 @@ module omero {
              * only the last job associated with the processor if execute
              * is called multiple times.
              **/
+            idempotent
             omero::model::Job getJob();
 
             /**
@@ -637,6 +648,7 @@ module omero {
              *
              * This method is guaranteed to return a non-null value or throw an exception.
              **/
+            idempotent
             JobParams params() throws ServerError;
 
             /**
@@ -656,6 +668,7 @@ module omero {
              * instances uploaded after completion under the key values of the
              * same name.
              **/
+            idempotent
             omero::RMap getResults(Process* proc) throws ServerError;
 
             /**
@@ -667,6 +680,7 @@ module omero {
              * false by default
              *
              **/
+            idempotent
             bool setDetach(bool detach) throws ServerError;
 
             /**
@@ -676,6 +690,7 @@ module omero {
              * cancel() will be called on the current [Process]
              * if detach is set to false.
              **/
+            idempotent
             void stop() throws ServerError;
 
         };

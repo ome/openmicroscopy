@@ -473,7 +473,8 @@ JSON File Format:
         client = self.ctx.conn(args)
         session = client.getSession()
         update_service = session.getUpdateService()
-        update_service.saveArray([tag])
+        tag = update_service.saveAndReturnObject(tag)
+        self.ctx.out("TagAnnotation:%s" % tag.id.val)
 
     def createset(self, args):
         """
@@ -502,7 +503,8 @@ JSON File Format:
         session = client.getSession()
         update_service = session.getUpdateService()
         try:
-            update_service.saveArray(links)
+            links = update_service.saveAndReturnArray(links)
+            self.ctx.out("TagAnnotation:%s" % links[0].parent.id.val)
         except omero.ValidationException as e:
             self.ctx.err(e.message)
             self.ctx.err("Check that tag '%s' exists." % t)
@@ -544,7 +546,17 @@ JSON File Format:
         client = self.ctx.conn(args)
         session = client.getSession()
         update_service = session.getUpdateService()
-        update_service.saveArray(to_add)
+        to_add = update_service.saveAndReturnArray(to_add)
+        ids = []
+        for element in to_add:
+            if isinstance(element, TagAnnotationI):
+                self.ctx.out("TagAnnotation:%s" % element.id.val)
+                ids.append(element.id.val)
+            else:
+                tag_id = element.parent.id.val
+                if tag_id not in ids:
+                    self.ctx.out("TagAnnotation:%s" % tag_id)
+                    ids.append(tag_id)
 
     def link(self, args):
         """
@@ -575,12 +587,18 @@ JSON File Format:
         if args.admin:
             ice_map["omero.group"] = "-1"
 
-        # FIXME: Do we want to wrap this in a try/except? What to check for?
+        # Retrieve annotation
         client = self.ctx.conn(args)
         session = client.getSession()
         query_service = session.getQueryService()
         update_service = session.getUpdateService()
-        annotation = query_service.find("TagAnnotation", tag_id)
+        try:
+            annotation = query_service.find("TagAnnotation", tag_id)
+        except omero.SecurityViolation, sv:
+            self.ctx.die(510, "SecurityViolation: %s" % sv.message)
+
+        if not annotation:
+            self.ctx.die(400, "Could not find annotation")
 
         obj = query_service.findByQuery(
             "select o from %s as o "
@@ -590,8 +608,14 @@ JSON File Format:
             self.ctx.err(
                 "Object query returned nothing. Check your object type.")
             sys.exit(1)
+
         obj.linkAnnotation(annotation)
-        update_service.saveAndReturnObject(obj)
+        try:
+            obj = update_service.saveAndReturnObject(obj)
+        except omero.SecurityViolation, sv:
+            self.ctx.die(510, "SecurityViolation: %s" % sv.message)
+
+        self.ctx.out("%sAnnotationLink:%s" % (obj_type, obj.id.val))
 
     def list(self, args):
         """

@@ -24,11 +24,11 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css"|add:url_suffix %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter-2.0.3/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href={% static "/webgateway/css/ome.table_ie.css" %} />
+		<link rel="stylesheet" type="text/css" href={% static "/webgateway/css/ome.table_ie.css"|add:url_suffix %} />
 	<![endif]-->
 	
 	
@@ -36,10 +36,10 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter-2.0.3/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch-1.0.js" %}"></script>
 
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js"|add:url_suffix %}"></script>
     
     <script type="text/javascript">
     if (typeof OME === "undefined") { OME={}; }
@@ -234,7 +234,10 @@
 					</li>
 				
 					<li>
-						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="OME.makeShare('{% url 'basket_action' 'toshare' %}');">
+						<input id="create_share"
+                        disabled="true" class="toggleEnabled button" type="image"
+                        title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}"
+                        onclick="OME.makeShare('{% url 'basket_action' 'toshare' %}');">
 					</li>
 					
 					
@@ -269,12 +272,12 @@
 	                {% for c in basket.imageInBasket %}
 	                    <tr id="image-{{ c.id }}">
 	                        <td class="image">
-	                            <img src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_none }}"
+	                            <img src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_minus_one }}"
                                     id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
 	                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
 	                        </td>
 	                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
-	                        <td class="date">{{ c.getDate }}</td>                    
+	                        <td class="date">{{ c.getDate }}</td>
 	                    </tr>
 	                {% endfor %}
 	            </tbody>
@@ -296,11 +299,11 @@
 </div>
 
 <!-- hidden form for creating share - shown in dialog & loaded by AJAX -->
-<form id="create_share_form" action="{% url 'basket_action' 'createshare' %}" method="post" title="Create Share" class="standard_form">
+<form id="create_share_form" action="{% url 'basket_action' 'createshare' %}" method="post" title="Create Share" class="standard_form">{% csrf_token %}
 </form>
 
 <!-- hidden form for creating discussion - shown in dialog & loaded by AJAX -->
-<form id="create_discussion_form" action="{% url 'basket_action' "createdisc" %}" method="post" title="Create Discussion" class="standard_form">
+<form id="create_discussion_form" action="{% url 'basket_action' "createdisc" %}" method="post" title="Create Discussion" class="standard_form">{% csrf_token %}
 </form>
     
 {% endblock %}

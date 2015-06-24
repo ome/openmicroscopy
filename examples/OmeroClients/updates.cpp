@@ -1,5 +1,8 @@
+#include <omero/IceNoWarnPush.h>
 #include <IceUtil/Time.h>
 #include <omero/api/IUpdate.h>
+#include <omero/IceNoWarnPop.h>
+
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/model/ImageI.h>

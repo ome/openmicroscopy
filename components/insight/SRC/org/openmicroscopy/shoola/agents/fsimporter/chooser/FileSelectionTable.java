@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
+import ij.IJ;
+import ij.ImagePlus;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.event.ActionEvent;
@@ -48,8 +50,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
@@ -384,20 +390,30 @@ class FileSelectionTable
 	 * @param userID The id of the user.
 	 * @return See above.
 	 */
-	private boolean allowAddToQueue(List<FileElement> queue, File f, long gID,
+	private boolean allowAddToQueue(List<FileElement> queue, FileObject f, long gID,
 	        long userID)
 	{
 	    if (f == null) return false;
 	    if (queue == null) return true;
+	    Object o = f.getFile();
+	    if (f.isNewImage()) {
+	        return true;
+	    }
+	    File file = f.getTrueFile();
 	    Iterator<FileElement> i = queue.iterator();
 	    FileElement fe;
-	    String name = f.getAbsolutePath();
+	    String name = file.getAbsolutePath();
 	    while (i.hasNext()) {
 	        fe = i.next();
 	        if (fe.getFile().getAbsolutePath().equals(name) &&
 	                fe.getGroup().getId() == gID &&
-	                fe.getUser().getId() == userID)
+	                fe.getUser().getId() == userID) {
+	            o = fe.getFile().getFile();
+	            if (o instanceof ImagePlus && f.getFile() instanceof ImagePlus) {
+	                fe.getFile().addAssociatedFile(new FileObject(f.getFile()));
+	            }
 	            return false;
+	        }
 	    }
 	    return true;
 	}
@@ -436,8 +452,10 @@ class FileSelectionTable
 	{
 	    JPanel p = new JPanel();
 	    p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-	    p.add(addButton);
-	    p.add(Box.createVerticalStrut(5));
+	    if (ImporterAgent.runAsPlugin() != LookupNames.IMAGE_J_IMPORT) {
+	        p.add(addButton);
+	        p.add(Box.createVerticalStrut(5));
+	    }
 	    p.add(removeButton);
 	    p.add(Box.createVerticalStrut(5));
 	    p.add(removeAllButton);
@@ -463,7 +481,7 @@ class FileSelectionTable
 	    int n = table.getRowCount();
 	    DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 	    FileElement element;
-	    File file;
+	    FileObject file;
 	    ImportableFile importable;
 	    boolean isFolderDataset;
 	    DataNodeElement dne;
@@ -532,14 +550,14 @@ class FileSelectionTable
 	 * @param files The files to add.
 	 * @param settings The import settings.
 	 */
-	void addFiles(List<File> files, ImportLocationSettings settings)
+	void addFiles(List<FileObject> files, ImportLocationSettings settings)
 	{
-	    if (files == null || files.size() == 0) return;
+	    if (CollectionUtils.isEmpty(files)) return;
 	    boolean fad = settings.isParentFolderAsDataset();
 	    GroupData group = settings.getImportGroup();
 	    ExperimenterData user = settings.getImportUser();
 	    enabledControl(true);
-	    File f;
+	    
 	    DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 	    //Check if the file has already 
 	    List<FileElement> inQueue = new ArrayList<FileElement>();
@@ -548,29 +566,30 @@ class FileSelectionTable
 	        element = (FileElement) dtm.getValueAt(i, this.fileIndex);
 	        inQueue.add(element);
 	    }
-	    Iterator<File> i = files.iterator();
+	    Iterator<FileObject> i = files.iterator();
 	    DataNode node = settings.getImportLocation();
 	    if (model.getType() != Importer.SCREEN_TYPE)
 	        node.setParent(settings.getParentImportLocation());
 	    String value = null;
 	    boolean v;
 	    long gID = group.getId();
+	    FileObject f;
 	    while (i.hasNext()) {
 	        f = i.next();
 	        if (allowAddToQueue(inQueue, f, gID, user.getId())) {
 	            element = new FileElement(f, model.getType(), group, user);
 	            element.setName(f.getName());
+	            inQueue.add(element);
 	            value = null;
 	            v = false;
+	            value = f.getFolderAsContainerName();
 	            if (f.isDirectory()) {
-	                value = f.getName();
 	                v = fad;
 	                if (model.getType() == Importer.SCREEN_TYPE) {
 	                    value = null;
 	                }
 	            } else {
 	                if (fad) {
-	                    value = f.getParentFile().getName();
 	                    v = true;
 	                    element.setToggleContainer(v);
 	                }

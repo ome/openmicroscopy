@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
@@ -24,8 +23,10 @@ plugin = __import__('omero.plugins.import', globals(), locals(),
 ImportControl = plugin.ImportControl
 from test.integration.clitest.cli import CLITest
 import pytest
+import stat
 import re
 import omero
+from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
 
 
@@ -73,6 +74,45 @@ NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
 debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
 
 
+class AnnotationFixture(object):
+    """
+    Fixture to test annotation arguments of bin/omero import
+    """
+
+    def __init__(self, arg_type, n, is_deprecated):
+        self.arg_type = arg_type
+        self.n = n
+        self.is_deprecated = is_deprecated
+        if self.is_deprecated:
+            self.annotation_ns_arg = "--annotation_ns"
+            self.annotation_text_arg = "--annotation_text"
+            self.annotation_link_arg = "--annotation_link"
+        else:
+            self.annotation_ns_arg = "--annotation-ns"
+            self.annotation_text_arg = "--annotation-text"
+            self.annotation_link_arg = "--annotation-link"
+
+    def get_name(self):
+        if self.is_deprecated:
+            return '%s-%s-Deprecated' % (self.arg_type, self.n)
+        else:
+            return '%s-%s-Official' % (self.arg_type, self.n)
+
+AF = AnnotationFixture
+AFS = (
+    AF("Python", 1, False),
+    AF("Python", 1, True),
+    AF("Java", 1, False),
+    AF("Java", 1, True),
+    # Multiple annotation input are supported at the Java level only for now
+    AF("Java", 2, False),
+    AF("Java", 2, True))
+AFS_names = [x.get_name() for x in AFS]
+
+skip_fixtures = (
+    [], ['all'], ['checksum'], ['minmax'], ['thumbnails'], ['upgrade'])
+
+
 class TestImport(CLITest):
 
     def setup_method(self, method):
@@ -104,7 +144,7 @@ class TestImport(CLITest):
         return query.get(obj_type, int(match.group('id')),
                          {"omero.group": "-1"})
 
-    def get_linked_annotation(self, oid):
+    def get_linked_annotations(self, oid):
         """Retrieve the comment annotation linked to the image"""
 
         params = omero.sys.ParametersI()
@@ -113,7 +153,7 @@ class TestImport(CLITest):
         query += " where exists ("
         query += " select aal from ImageAnnotationLink as aal"
         query += " where aal.child=t.id and aal.parent.id=:id) "
-        return self.query.findByQuery(query, params)
+        return self.query.findAllByQuery(query, params, None)
 
     def get_dataset(self, iid):
         """Retrieve the parent dataset linked to the image"""
@@ -141,16 +181,17 @@ class TestImport(CLITest):
         """Parse the debug levels from the stdout"""
 
         levels = []
+        loggers = []
         # First two lines are logging of ome.formats.importer.ImportConfig
         # INFO level and are always output
         for line in out.split('\n')[2:]:
             splitline = line.split()
             # For some reason the ome.system.UpgradeCheck logging is always
             # output independently of the debug level
-            if len(splitline) > 3 and splitline[2] in debug_levels and \
-                    not splitline[3] == 'ome.system.UpgradeCheck':
+            if len(splitline) > 3 and splitline[2] in debug_levels:
                 levels.append(splitline[2])
-        return levels
+                loggers.append(splitline[3])
+        return levels, loggers
 
     def parse_summary(self, err):
         """Parse the summary output from stderr"""
@@ -158,72 +199,105 @@ class TestImport(CLITest):
         return re.findall('\d:[\d]{2}:[\d]{2}\.[\d]{3}|\d',
                           err.split('\n')[-2])
 
-    @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
-    def testNamingArguments(self, fixture, tmpdir, capfd):
-        """Test naming arguments for the imported image/plate"""
+    def get_thumbnail(self, iid):
+        query = ("select t from Thumbnail t "
+                 "join fetch t.pixels p "
+                 "join fetch p.image as i where i.id = %s" % iid)
+        t = self.query.findByQuery(query, None)
+        return t
 
-        if fixture.obj_type == 'Image':
-            fakefile = tmpdir.join("test.fake")
-        else:
-            fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
-                                   "fields=1&plateAcqs=1.fake")
+    def testAutoClose(self, tmpdir, capfd,):
+        """Test auto-close argument"""
+
+        fakefile = tmpdir.join("test.fake")
         fakefile.write('')
+
         self.args += [str(fakefile)]
-        if fixture.name_arg:
-            self.args += [fixture.name_arg, 'name']
-        if fixture.description_arg:
-            self.args += [fixture.description_arg, 'description']
+        self.args += ['--', '--auto_close']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that there are no servants leftover
+        stateful = []
+        for x in range(10):
+            stateful = self.client.getStatefulServices()
+            if stateful:
+                import time
+                time.sleep(0.5)  # Give the backend some time to close
+            else:
+                break
+
+        assert len(stateful) == 0
+
+    @pytest.mark.parametrize("arg", [
+        '--checksum-algorithm', '--checksum_algorithm'])
+    @pytest.mark.parametrize("algorithm", [
+        'Adler-32', 'CRC-32', 'File-Size-64', 'MD5-128', 'Murmur3-32',
+        'Murmur3-128', 'SHA1-160'])
+    def testChecksumAlgorithm(self, tmpdir, capfd, arg, algorithm):
+        """Test checksum algorithm argument"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        self.args += ['--', arg, algorithm]
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, fixture.obj_type)
 
-        if fixture.name_arg:
-            assert obj.getName().val == 'name'
-        if fixture.description_arg:
-            assert obj.getDescription().val == 'description'
-
-    def testAnnotationText(self, tmpdir, capfd):
+    @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
+    def testAnnotationText(self, tmpdir, capfd, fixture):
         """Test argument creating a comment annotation linked to the import"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
         self.args += [str(fakefile)]
-        self.args += ['--annotation_ns', 'annotation_ns']
-        self.args += ['--annotation_text', 'annotation_text']
+        if fixture.arg_type == 'Java':
+            self.args += ['--']
+        ns = ['ns%s' % i for i in range(fixture.n)]
+        text = ['text%s' % i for i in range(fixture.n)]
+        for i in range(fixture.n):
+            self.args += [fixture.annotation_ns_arg, ns[i]]
+            self.args += [fixture.annotation_text_arg, text[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         obj = self.get_object(e, 'Image')
-        annotation = self.get_linked_annotation(obj.id.val)
+        annotations = self.get_linked_annotations(obj.id.val)
 
-        assert annotation
-        assert annotation.textValue.val == 'annotation_text'
-        assert annotation.ns.val == 'annotation_ns'
+        assert len(annotations) == fixture.n
+        assert set([x.ns.val for x in annotations]) == set(ns)
+        assert set([x.textValue.val for x in annotations]) == set(text)
 
-    def testAnnotationLink(self, tmpdir, capfd):
+    @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
+    def testAnnotationLink(self, tmpdir, capfd, fixture):
         """Test argument linking imported image to a comment annotation"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
-        comment = omero.model.CommentAnnotationI()
-        comment.textValue = rstring('test')
-        comment = self.update.saveAndReturnObject(comment)
+        comment_ids = []
+        for i in range(fixture.n):
+            comment = omero.model.CommentAnnotationI()
+            comment.textValue = rstring('comment%s' % i)
+            comment = self.update.saveAndReturnObject(comment)
+            comment_ids.append(comment.id.val)
 
         self.args += [str(fakefile)]
-        self.args += ['--annotation_link', '%s' % comment.id.val]
-
+        if fixture.arg_type == 'Java':
+            self.args += ['--']
+        for i in range(fixture.n):
+            self.args += [fixture.annotation_link_arg, '%s' % comment_ids[i]]
+        print self.args
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         obj = self.get_object(e, 'Image')
-        annotation = self.get_linked_annotation(obj.id.val)
+        annotations = self.get_linked_annotations(obj.id.val)
 
-        assert annotation
-        assert annotation.id.val == comment.id.val
+        assert len(annotations) == fixture.n
+        assert set([x.id.val for x in annotations]) == set(comment_ids)
 
     def testDatasetArgument(self, tmpdir, capfd):
         """Test argument linking imported image to a dataset"""
@@ -284,9 +358,10 @@ class TestImport(CLITest):
         self.args += ['--debug=%s' % level]
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        levels = self.parse_debug_levels(o)
-        assert set(levels) <= set(debug_levels[debug_levels.index(level):])
+        out, err = capfd.readouterr()
+        levels, loggers = self.parse_debug_levels(out)
+        expected_levels = debug_levels[debug_levels.index(level):]
+        assert set(levels) <= set(expected_levels), out
 
     def testImportSummary(self, tmpdir, capfd):
         """Test import summary output"""
@@ -383,3 +458,165 @@ class TestImport(CLITest):
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
+
+    @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
+    def testNamingArguments(self, fixture, tmpdir, capfd):
+        """Test naming arguments for the imported image/plate"""
+
+        if fixture.obj_type == 'Image':
+            fakefile = tmpdir.join("test.fake")
+        else:
+            fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
+                                   "fields=1&plateAcqs=1.fake")
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        if fixture.name_arg:
+            self.args += [fixture.name_arg, 'name']
+        if fixture.description_arg:
+            self.args += [fixture.description_arg, 'description']
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, fixture.obj_type)
+
+        if fixture.name_arg:
+            assert obj.getName().val == 'name'
+        if fixture.description_arg:
+            assert obj.getDescription().val == 'description'
+
+    @pytest.mark.parametrize("arg", ['--no-thumbnails', '--no_thumbnails'])
+    def testNoThumbnails(self, tmpdir, capfd, arg):
+        """Test symlink import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        self.args += ['--', arg]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        out, err = capfd.readouterr()
+        image = self.get_object(err, 'Image')
+
+        # Check no thumbnails
+        assert self.get_thumbnail(image.id.val) is None
+
+    @pytest.mark.parametrize(
+        "skipargs", skip_fixtures, ids=["_".join(x) for x in skip_fixtures])
+    def testSkipArguments(self, tmpdir, capfd, skipargs):
+        """Test symlink import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        for skiparg in skipargs:
+            self.args += ['--skip', skiparg]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        out, err = capfd.readouterr()
+        image = self.get_object(err, 'Image')
+
+        # Check min/max calculation
+        query = ("select p from Pixels p left outer "
+                 "join fetch p.channels as c "
+                 "join fetch c.logicalChannel as lc "
+                 "join fetch p.image as i where i.id = %s" % image.id.val)
+        pixels = self.query.findByQuery(query, None)
+        if 'minmax' in skipargs or 'all' in skipargs:
+            assert pixels.getChannel(0).getStatsInfo() is None
+            assert pixels.getSha1().val == "Foo"
+        else:
+            assert pixels.getChannel(0).getStatsInfo()
+            assert pixels.getSha1() != "Foo"
+
+        # Check no thumbnails
+        if 'thumbnails' in skipargs or 'all' in skipargs:
+            assert self.get_thumbnail(image.id.val) is None
+        else:
+            assert self.get_thumbnail(image.id.val)
+
+        # Check UpgradeCheck skip
+        levels, loggers = self.parse_debug_levels(out)
+        if 'upgrade' in skipargs or 'all' in skipargs:
+            assert 'ome.system.UpgradeCheck' not in loggers, out
+
+    def testSymlinkImport(self, tmpdir, capfd):
+        """Test symlink import"""
+
+        fakefile = tmpdir.join("ln_s.fake")
+        fakefile.write('')
+        fakefile.chmod(stat.S_IREAD)
+
+        self.args += [str(fakefile)]
+        self.args += ['--', '--transfer', 'ln_s']
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+
+        assert obj
+
+    target_fixtures = [
+        ("Dataset", "test.fake", '-d'),
+        ("Screen",
+         "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake",
+         "-r")]
+
+    @pytest.mark.parametrize("container,filename,arg", target_fixtures)
+    def testTargetInDifferentGroup(self, container, filename, arg,
+                                   tmpdir, capfd):
+        """
+        The workflow this test exercises is currently broken. Until
+        it is investigated and fixed the error is trapped early and
+        an exception is raised. The test is modified to test for this
+        fail case. See ticket 12781 (and 11539).
+        """
+        new_group = self.new_group(experimenters=[self.user])
+        self.sf.getAdminService().getEventContext()  # Refresh
+        target = eval("omero.model."+container+"I")()
+        target.name = rstring('testTargetInDifferentGroup')
+        target = self.update.saveAndReturnObject(
+            target, {"omero.group": str(new_group.id.val)})
+        assert target.details.group.id.val == new_group.id.val
+
+        fakefile = tmpdir.join(filename)
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        self.args += [arg, '%s' % target.id.val]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+        # o, e = capfd.readouterr()
+        # obj = self.get_object(e, 'Image')
+
+        # assert obj.details.id.val == new_group.id.val
+
+    @pytest.mark.parametrize("container,filename,arg", target_fixtures)
+    def testUnknownTarget(self, container, filename, arg, tmpdir):
+        target = eval("omero.model."+container+"I")()
+        target.name = rstring('testUnknownTarget')
+        target = self.update.saveAndReturnObject(target)
+
+        params = omero.sys.ParametersI()
+        query = "select c from " + container + " as c"
+        targets = self.query.findAllByQuery(
+            query, params, {"omero.group": "-1"})
+        tids = [t.id.val for t in targets]
+        assert target.id.val in tids
+        unknown = max(tids) + 1
+        assert unknown not in tids
+
+        fakefile = tmpdir.join(filename)
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        self.args += [arg, '%s' % unknown]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)

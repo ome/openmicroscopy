@@ -18,27 +18,27 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ThumbnailStore.html">ThumbnailStore.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/ThumbnailStore.html">ThumbnailStore.html</a>
          **/
         ["ami", "amd"] interface ThumbnailStore extends StatefulServiceInterface
             {
                 bool setPixelsId(long pixelsId) throws ServerError;
-                bool isInProgress() throws ServerError;
-                void setRenderingDefId(long renderingDefId) throws ServerError;
-                long getRenderingDefId() throws ServerError;
-                Ice::ByteSeq getThumbnail(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
-                omero::sys::IdByteMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, omero::sys::LongList pixelsIds) throws ServerError;
-                omero::sys::IdByteMap getThumbnailByLongestSideSet(omero::RInt size, omero::sys::LongList pixelsIds) throws ServerError;
-                Ice::ByteSeq getThumbnailByLongestSide(omero::RInt size) throws ServerError;
-                Ice::ByteSeq getThumbnailByLongestSideDirect(omero::RInt size) throws ServerError;
-                Ice::ByteSeq getThumbnailDirect(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
-                Ice::ByteSeq getThumbnailForSectionDirect(int theZ, int theT, omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
-                Ice::ByteSeq getThumbnailForSectionByLongestSideDirect(int theZ, int theT, omero::RInt size) throws ServerError;
+                idempotent bool isInProgress() throws ServerError;
+                idempotent void setRenderingDefId(long renderingDefId) throws ServerError;
+                idempotent long getRenderingDefId() throws ServerError;
+                idempotent Ice::ByteSeq getThumbnail(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
+                idempotent omero::sys::IdByteMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, omero::sys::LongList pixelsIds) throws ServerError;
+                idempotent omero::sys::IdByteMap getThumbnailByLongestSideSet(omero::RInt size, omero::sys::LongList pixelsIds) throws ServerError;
+                idempotent Ice::ByteSeq getThumbnailByLongestSide(omero::RInt size) throws ServerError;
+                idempotent Ice::ByteSeq getThumbnailByLongestSideDirect(omero::RInt size) throws ServerError;
+                idempotent Ice::ByteSeq getThumbnailDirect(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
+                idempotent Ice::ByteSeq getThumbnailForSectionDirect(int theZ, int theT, omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
+                idempotent Ice::ByteSeq getThumbnailForSectionByLongestSideDirect(int theZ, int theT, omero::RInt size) throws ServerError;
                 void createThumbnails() throws ServerError;
                 void createThumbnail(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
                 void createThumbnailsByLongestSideSet(omero::RInt size, omero::sys::LongList pixelsIds) throws ServerError;
-                bool thumbnailExists(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
-                void resetDefaults() throws ServerError;
+                idempotent bool thumbnailExists(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
+                idempotent void resetDefaults() throws ServerError;
             };
     };
 };

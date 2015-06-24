@@ -8,7 +8,7 @@
 package ome.security.auth;
 
 import java.security.Permissions;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.security.SecuritySystem;
@@ -17,6 +17,10 @@ import ome.services.messages.LoginAttemptMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * Listens for any {@link LoginAttemptMessage}. If there are more than some
@@ -36,7 +40,13 @@ public class LoginAttemptListener implements
     private final static Logger log = LoggerFactory
             .getLogger(LoginAttemptListener.class);
 
-    private final ConcurrentHashMap<String, AtomicInteger> counts = new ConcurrentHashMap<String, AtomicInteger>();
+    private final LoadingCache<String, AtomicInteger> counts = CacheBuilder.newBuilder().build(
+            new CacheLoader<String, AtomicInteger>() {
+                @Override
+                public AtomicInteger load(String key) {
+                    return new AtomicInteger(0);
+                }
+            });
 
     private final int throttleCount;
 
@@ -53,11 +63,12 @@ public class LoginAttemptListener implements
             return; // EARLY EXIT.
         }
 
-        if (!counts.containsKey(lam.user)) {
-            counts.putIfAbsent(lam.user, new AtomicInteger(0));
+        AtomicInteger ai = null;
+        try {
+            ai = counts.get(lam.user);
+        } catch (ExecutionException e) {
+            /* cannot occur unless loading thread is interrupted */
         }
-
-        AtomicInteger ai = counts.get(lam.user);
         if (lam.success) {
             int previous = ai.getAndSet(0);
             if (previous > 0) {

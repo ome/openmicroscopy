@@ -19,7 +19,7 @@ Requirements:
 Read about Robot Framework at
 http://code.google.com/p/robotframework/
 
-Before installing please visit 
+Before installing please visit
 https://code.google.com/p/robotframework/wiki/Installation
 
 Note that the script jybot, required for the Insight tests, is not
@@ -58,29 +58,25 @@ brew install chromedriver
 Setting up
 ----------
 
-If you wish to set-up data, i.e. create a Project, dataset and
-import few images in the dataset, you first need to run
+If you wish to set-up the data required for the Robot test, you first need to
+run the robot setup script (assuming the `ICE_CONFIG` environment variable is
+properly configured) from the `dist` folder of the server:
 
 ```
-./build.py test-compile
+cd dist/
+bash ../components/tests/ui/robot_setup.sh
 ```
 
-then start your server and run
+This command will create a `robot_ice.config` file containing the credentials
+for the robot user. To run the Robot Framework tests, you will need a valid
+configuration file under ``components/tests/ui/resources/config.txt``. To
+generate this configuration file from a running server, you can use the CLI
+robot plugin, e.g. for a  local server:
 
 ```
-./build.py -f components/tests/ui/build.xml setup-db
-```
-
-If you need more images, run the last command again. The images will be
-imported in the dataset created the first time.
-
-To run the Robot Framework tests, you will need a valid configuration file
-under ``components/tests/ui/resources/config.txt``. To generate this
-configuration file from a running server, you can use the CLI robot plugin,
-e.g. for a  local server:
-
-```
-dist/bin/omero --path components/tests/ui/plugins robot config > components/tests/ui/resources/config.txt
+cd ../
+mv dist/robot_ice.config components/tests/ui/resources/
+ICE_CONFIG=$(pwd)/components/tests/ui/resources/robot_ice.config dist/bin/omero --path components/tests/ui/plugins robot config > components/tests/ui/resources/config.txt
 ```
 
 Note this command will create the Robot configuration file using the
@@ -167,7 +163,7 @@ To run the tests in a given test
 ./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=menus/context-menus.txt
 ```
 
-The output of the test can be found under 
+The output of the test can be found under
 
 ```
 components/tests/ui/target/reports/insight/menus/
@@ -180,11 +176,11 @@ OMERO.web
 
 To run the tests locally, you will first need to start OMERO.web, please see
 
-http://www.openmicroscopy.org/site/support/omero5/sysadmins/unix/install-web.html
+http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/unix/install-web.html
 
 or
 
-http://www.openmicroscopy.org/site/support/omero5/sysadmins/windows/install-web.html
+http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/windows/install-web.html
 
 for more information.
 

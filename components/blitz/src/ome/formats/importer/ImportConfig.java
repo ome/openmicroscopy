@@ -31,8 +31,8 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
-import omero.RString;
 import omero.model.Annotation;
+import omero.model.NamedValue;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -107,6 +107,7 @@ public class ImportConfig {
     public final StrValue sessionKey;
     public final LongValue group;
     public final BoolValue doThumbnails;
+    public final BoolValue noStatsInfo;
     public final StrValue email;
     public final StrValue userSpecifiedName;
     public final StrValue userSpecifiedDescription;
@@ -118,6 +119,8 @@ public class ImportConfig {
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
+    public final StrValue qaBaseURL;
+    public final BoolValue checkUpgrade;
 
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
@@ -133,6 +136,7 @@ public class ImportConfig {
     public final AnnotationListValue annotations;
     public final DoubleArrayValue userPixels;
 
+    public final static String DEFAULT_QABASEURL = "http://qa.openmicroscopy.org.uk/qa";
     /**
      * Keys for fileset version information entries.
      * @author m.t.b.carroll@dundee.ac.uk
@@ -183,7 +187,7 @@ public class ImportConfig {
 
     /**
      * Calls
-     * {@link ImportConfig#ImportConfig(Preferences, PreferenceContext, IniFileLoader, Properties)}
+     * {@link ImportConfig#ImportConfig(Preferences, IniFileLoader, Properties)}
      * with user preferences, a local {@link PreferenceContext}, an
      * {@link IniFileLoader} initialized with the given argument, and
      * {@link System#getProperties()}.
@@ -242,7 +246,10 @@ public class ImportConfig {
         sessionKey   = new StrValue("session", this);
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
+        noStatsInfo  = new BoolValue("noStatsInfo", this, false);
         email        = new StrValue("email", this);
+        qaBaseURL    = new StrValue("qaBaseURL", this, DEFAULT_QABASEURL);
+        checkUpgrade  = new BoolValue("checkUpgrade", this, true);
         userSpecifiedName = new StrValue("userSpecifiedName", this);
         userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
@@ -289,7 +296,7 @@ public class ImportConfig {
      * as provenance that is useful for debugging.
      * @param versionInfo the map into which version information is to be added
      */
-    public void fillVersionInfo(Map<String, RString> versionInfo) {
+    public void fillVersionInfo(List<NamedValue> versionInfo) {
         final Map<VersionInfo, String> properties = new HashMap<VersionInfo, String>();
         properties.put(VersionInfo.BIO_FORMATS_VERSION, getBioFormatsVersion());
         properties.put(VersionInfo.CLIENT_LANGUAGE_NAME, "Java");
@@ -304,15 +311,17 @@ public class ImportConfig {
         /* fill any useful information for Ice to serialize */
         for (final Map.Entry<VersionInfo, String> property : properties.entrySet()) {
             if (StringUtils.isNotEmpty(property.getValue())) {
-                versionInfo.put(property.getKey().key, rstring(property.getValue()));
+                versionInfo.add(new NamedValue(property.getKey().key, property.getValue()));
             }
         }
     }
 
     /**
      * Modifies the logging level of everything under the
-     * <code>ome.format</code> and <code>loci</code> package hierarchically.
-     * @param level if null, then {@link #ini#getDebugLevel()} will be used.
+     * <code>ome.formats</code>, <code>ome.services.blitz</code>,
+     * <code>ome.system</code> and <code>loci</code> packages hierarchically.
+     * @param levelString if null, then {@link #ini#getDebugLevel()} will be
+     * used.
      */
      public void configureDebug(String levelString) {
          Level level;
@@ -321,8 +330,16 @@ public class ImportConfig {
          } else {
              level = Level.toLevel(levelString);
          }
-         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.formats")).setLevel(level);
-         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("loci")).setLevel(level);
+         setLevel("ome.formats", level);
+         setLevel("ome.services.blitz", level);
+         setLevel("ome.system", level);
+         setLevel("loci", level);
+     }
+
+     private void setLevel(String loggerName, Level level) {
+         Logger logger = LoggerFactory.getLogger(loggerName);
+         if (!(logger instanceof ch.qos.logback.classic.Logger)) return;
+         ((ch.qos.logback.classic.Logger) logger).setLevel(level);
      }
 
     //
@@ -355,9 +372,6 @@ public class ImportConfig {
      */
     public boolean isUpgradeNeeded() {
 
-        if (getStaticDisableUpgradeCheck()) {
-            log.debug("UpgradeCheck disabled.");
-        }
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
         String url = bundle.getString("omero.upgrades.url");
         UpgradeCheck check = new UpgradeCheck(url, getVersionNumber(), agent.get());
@@ -411,40 +425,33 @@ public class ImportConfig {
     }
 
     /**
-     * @return ini application title
-     */
-    public boolean getStaticDisableUpgradeCheck() {
-        return ini.getStaticDisableUpgradeCheck();
-    }
-    
-    /**
      * @return ini getForceFileArchiveOn
      */
     public boolean getForceFileArchiveOn() {
         return ini.getForceFileArchiveOn();
-    }    
+    }
 
     /**
      * @return ini getStaticDisableHistory
      */
     public boolean getStaticDisableHistory() {
         return ini.getStaticDisableHistory();
-    }   
-    
+    }
+
     /**
      * @return ini getUserDisableHistory
      */
     public boolean getUserDisableHistory() {
         return ini.getUserDisableHistory();
-    }      
-    
+    }
+
     /**
      * @param b - true if Quaqua should be used
       */
     public void setUserDisableHistory(boolean b) {
         ini.setUserDisableHistory(b);
     }
-    
+
     /**
      * @return ini version note
      */
@@ -516,24 +523,24 @@ public class ImportConfig {
     }
 
     /**
-     * @return ini feedback URL for QA system
+     * @return feedback URL for QA system
      */
     public String getFeedbackUrl() {
-        return ini.getUploaderURL();
+        return qaBaseURL + "/upload_processing/";
     }
 
     /**
-     * @return ini token URL for QA system
+     * @return token URL for QA system
      */
     public String getTokenUrl() {
-        return ini.getUploaderTokenURL();
+        return qaBaseURL + "/initial/";
     }
 
     /**
-     * @return ini upload URL for QA system
+     * @return upload URL for QA system
      */
     public String getUploaderUrl() {
-        return ini.getUploaderURL();
+        return qaBaseURL + "/upload_processing/";
     }
 
     /**

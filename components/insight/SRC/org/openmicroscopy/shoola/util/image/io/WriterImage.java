@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.image.io.ImageWriter
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -39,6 +39,7 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -101,9 +102,12 @@ public class WriterImage
     				ImageIO.getImageWritersByFormatName(format);
     		ImageWriter writer = writers.next();
     		ios = ImageIO.createImageOutputStream(f);
+			if (ios == null) {
+				throw new IOException("Can't access file");
+			}
     		writer.setOutput(ios);
     		writer.write(img);
-    	} catch (Exception e) {
+    	} catch (IOException e) {
     		throw new EncoderException("Cannot encode the image.", e);
     	} finally {
 			if (ios != null) {

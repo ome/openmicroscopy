@@ -29,7 +29,7 @@ Open Browser To Login Page
     Page Should Be Open         ${login url}    OMERO.web - Login
 
 Open Browser And Log In As User
-    Open Browser To Login Page      ${WELCOME URL}          ${LOGIN URL}
+    Open Browser To Login Page      ${LOGIN URL}          ${LOGIN URL}
     Log In As                       ${USERNAME}             ${PASSWORD}         ${SERVER_ID}
     Page Should Be Open             ${WELCOME URL}          Webclient
 

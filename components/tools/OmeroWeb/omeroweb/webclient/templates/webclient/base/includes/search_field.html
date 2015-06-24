@@ -20,7 +20,7 @@
 {% endcomment %}
 
 
-<form id="search" action="{% url 'load_template' 'search' %}" method="post" title="Search OMERO">
+<form id="search" action="{% url 'load_template' 'search' %}" method="post" title="Search OMERO">{% csrf_token %}
 
     <div id="top_search_field">
         <label class="inline_label" for="id_search_query">Search:</label>

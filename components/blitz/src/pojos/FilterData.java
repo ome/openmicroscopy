@@ -2,7 +2,7 @@
  * pojos.FilterData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -28,12 +28,15 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.units.BigResult;
 import omero.RDouble;
-import omero.RInt;
 import omero.RString;
 import omero.model.Filter;
 import omero.model.FilterType;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.TransmittanceRange;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Object hosting a filter.
@@ -67,61 +70,149 @@ public class FilterData
 	/**
 	 * Returns the cut in value or <code>null</code>.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
+	public Length getCutIn(UnitsLength unit) throws BigResult
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null)
+			return null;
+		Length l = range.getCutIn();
+		return unit == null ? l : new LengthI(l, unit);
+	}
+	
+	/**
+	 * Returns the cut in value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutIn(UnitsLength)}
+	 */
+	@Deprecated
 	public Integer getCutIn()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutIn();
+		Length value = range.getCutIn();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
+	}
+	
+	/**
+	 * Returns the cut in tolerance value or <code>null</code>.
+	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
+	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
+	 */
+	public Length getCutInTolerance(UnitsLength unit) throws BigResult
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null) 
+			return null;
+		Length l = range.getCutInTolerance();
+		if (l==null)
+			return null;
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the cut in tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutInTolerance(UnitsLength)}
 	 */
+	@Deprecated
 	public Integer getCutInTolerance()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutInTolerance();
+		Length value = range.getCutInTolerance();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out value or <code>null</code>.
+	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
+	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
+	 */
+	public Length getCutOut(UnitsLength unit) throws BigResult
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null)
+			return null;
+		Length l = range.getCutOut();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the cut out value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutOut(UnitsLength)}
 	 */
+	@Deprecated
 	public Integer getCutOut()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutOut();
+		Length value = range.getCutOut();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out tolerance value or <code>null</code>.
+	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
+	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
+	 */
+	public Length getCutOutTolerance(UnitsLength unit) throws BigResult
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null) 
+			return null;
+		Length l = range.getCutOutTolerance();
+		if (l==null)
+			return null;
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the cut out tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutOutTolerance(UnitsLength)}
 	 */
+	@Deprecated
 	public Integer getCutOutTolerance()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutOutTolerance();
+		Length value = range.getCutOutTolerance();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
 	}
 	
 	/**

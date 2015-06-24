@@ -1,0 +1,60 @@
+*** Settings ***
+Documentation     Tests Map Annotations
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Test Map Annotation
+    [Documentation]     Tests creation of Map Annotation on New Project
+
+    ${projectId}=                       Create Project
+    Wait Until Page Contains Element    css=div.mapAnnContainer
+    # No rows selected. Toolbar should allow 'Insert' only.
+    Xpath Should Not Have Class   xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Insert rows']  button-disabled
+    Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Copy rows']    button-disabled
+    Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Paste rows']   button-disabled
+    Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Delete rows']  button-disabled
+
+    # Map annotation should have a single row with 'Add Key', 'Add Value'
+    Xpath Should Match X Times      //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    1
+    Page Should Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]
+    Page Should Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Value')]
+
+    # Before click...
+    Xpath Should Not Have Class     xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr           ui-selected
+    Page Should NotContain Element  xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td/input
+    # Clicking the row should highlight it, clear placeholder text and start edit
+    Click Element                       xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[1]
+    Xpath Should Have Class             xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr           ui-selected
+    Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]
+    Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Value')]
+    Page Should Contain Element         xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[1]/input
+
+    # Enter some text, using 'Tab' to move between key/value fields
+    ${key}=             Set Variable    RobotTestKey
+    ${value}=           Set Variable    RobotTestValue
+    Input Text          xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[1]/input   ${key}
+    Press Key           xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[1]/input   \\13    # Enter key
+    # Input should be re-created in the second td
+    Page Should Not Contain Element     xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[1]/input
+    Page Should Contain Element         xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[2]/input
+    Input Text                          xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[2]/input    ${value}
+    Press Key                           xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[2]/input    \\13
+    # After value has been entered, we should have a second row
+    Xpath Should Match X Times      //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    2
+
+    # Refresh to check saved data
+    Go To                               ${WELCOME URL}?show=project-${projectId}
+    Wait Until Page Contains Element    css=div.mapAnnContainer
+    Page Should Contain Element         xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${key}')]
+    Page Should Contain Element         xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${value}')]
+    # Table shouldn't now have 'Add Key' or 'Add Value' placeholders
+    Xpath Should Match X Times          //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    1
+    Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]
+    Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Value')]

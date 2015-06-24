@@ -26,7 +26,7 @@
 """
 
 import omero.cli
-import test.integration.library as lib
+import library as lib
 
 
 def call(*args):

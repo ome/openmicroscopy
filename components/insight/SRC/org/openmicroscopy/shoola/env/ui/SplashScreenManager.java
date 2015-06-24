@@ -32,10 +32,14 @@ import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
+
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
@@ -43,6 +47,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
@@ -170,15 +175,32 @@ class SplashScreenManager
     		v = (String) version;
     	OMEROInfo info = 
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
-        
-    	String port = ""+info.getPortSSL();
-    	
-    	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port, 
-    			info.getHostName(), connectToServer());
+    	int p = -1;
+    	String port = ""+ info.getPortSSL();
+    	String host = info.getHostName();
+    	boolean configurable = info.isHostNameConfigurable();
+    	//check if we have jnlp option
+    	String jnlpHost = System.getProperty("jnlp.omero.host");
+    	if (CommonsLangUtils.isNotBlank(jnlpHost)) {
+    	    host = jnlpHost;
+    	    configurable = false;
+    	}
+        String jnlpPort = System.getProperty("jnlp.omero.port");
+        if (CommonsLangUtils.isNotBlank(jnlpPort)) {
+            port = jnlpPort;
+            p = Integer.parseInt(port);
+            configurable = false;
+        }
+        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
+        boolean serverAvailable = connectToServer();
+        if (CommonsLangUtils.isNotBlank(jnlpSession)) {
+            serverAvailable = false;
+        }
+    	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port,
+    			host, serverAvailable);
     	view.setEncryptionConfiguration(info.isEncrypted(),
     			info.isEncryptedConfigurable());
-    	view.setHostNameConfiguration(info.getHostName(),
-    			info.isHostNameConfigurable());
+    	view.setHostNameConfiguration(host, configurable, p);
 		view.showConnectionSpeed(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = view.getPreferredSize();
@@ -263,10 +285,15 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		if (view == null) return;
+		Boolean b = (Boolean) container.getRegistry().lookup(
+		        LookupNames.SESSION_KEY);
+		if (b != null && b.booleanValue()) {
+		    view.setUserName("");
+		}
 		view.close();
 		view = null;
 		isOpen = false;
-		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN,
 				Boolean.valueOf(false));
 	}
 
@@ -303,7 +330,9 @@ class SplashScreenManager
 		if (doneTasks == totalTasks) {
 			view.setStatusVisible(false, lc == null);
 			if (lc == null) view.requestFocusOnField();
-			if (!connectToServer()) view.setVisible(false);
+			if (!connectToServer()) {
+			    view.setVisible(false);
+			}
 		}
 	}
     

@@ -42,6 +42,51 @@ try
     assert(~isempty(image), 'OMERO:LoadMetadataAdvanced', 'Image Id not valid');
     fprintf(1, 'Image %g created\n', imageId);
     
+    %Create ROI. In this example, we create an ROI with a rectangular shape and
+    %attach it to an image to then test deleting the ROIs.
+    
+    % First create a rectangular shape
+    disp('Create rectangular and point shape');
+    rectangle = createRectangle(0, 0, 10, 20);
+    rectangle = setShapeCoordinates(rectangle, 0, 0, 0);
+    point = createPoint(0, 0);
+    point = setShapeCoordinates(point, 0, 0, 0);
+    
+    % Create the roi.
+    roi = omero.model.RoiI;
+    % Attach the shape to the roi, several shapes can be added.
+    roi.addShape(rectangle);
+    roi.addShape(point);
+    % Link the roi and the image
+    roi.setImage(omero.model.ImageI(imageId, false));
+    % Save the ROI
+    roi = session.getUpdateService().saveAndReturnObject(roi);
+    fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
+    
+    % Retrieve the roi linked to an image.
+    fprintf(1, 'Reading ROIs attached to image %g\n', imageId);
+    roiResult =  session.getRoiService().findByImage(imageId, []);
+    rois = toMatlabList(roiResult.rois);
+    fprintf(1, 'Found %g ROI(s)\n', numel(rois));
+    
+    % Remove all the shapes from the first ROI
+    roi = rois(1);
+    shapes = roi.copyShapes();
+    if (shapes.size > 0)
+        fprintf(1, '  Removing %g shapes\n', shapes.size);
+        for j = 1 : shapes.size
+            roi.removeShape(shapes.get(j-1));
+        end
+        roi = session.getUpdateService().saveAndReturnObject(roi);
+    end
+        
+    % Delete ROI
+    fprintf(1, 'Deleting ROI %g\n', roi.getId().getValue());
+    targetObj = java.util.Hashtable;
+    targetObj.put('ROI', toJavaList(roi.getId().getValue(), 'java.lang.Long'));
+    deleteCommand = omero.cmd.Delete2(targetObj, [], false);
+    session.submit(deleteCommand);
+
     % Delete the image. You can delete more than one image at a time.
     fprintf(1, 'Deleting image %g\n', imageId);
     deleteImages(session, imageId);

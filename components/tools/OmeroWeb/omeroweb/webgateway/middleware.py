@@ -7,6 +7,7 @@ from django.utils.cache import patch_vary_headers
 
 re_accepts_gzip = re.compile(r'\bgzip\b')
 
+
 class GZipMiddleware(object):
     """
     This middleware compresses content if the browser allows gzip compression.
@@ -15,7 +16,8 @@ class GZipMiddleware(object):
     """
     def process_response(self, request, response):
         # It's not worth compressing non-OK or really short responses.
-        # omeroweb: the tradeoff for less than 8192k of uncompressed text is not worth it most of the times.
+        # omeroweb: the tradeoff for less than 8192k of uncompressed text is
+        # not worth it most of the times.
         if response.status_code != 200 or len(response.content) < 8192:
             return response
 
@@ -23,9 +25,10 @@ class GZipMiddleware(object):
         if response.has_header('Content-Encoding'):
             return response
 
-        # omeroweb: we don't want to compress everything, so doing an opt-in approach
+        # omeroweb: we don't want to compress everything, so doing an opt-in
+        # approach
         ctype = response.get('Content-Type', '').lower()
-        if not "javascript" in ctype and not "text" in ctype:
+        if "javascript" not in ctype and "text" not in ctype:
             return response
 
         patch_vary_headers(response, ('Accept-Encoding',))

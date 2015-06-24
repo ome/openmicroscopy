@@ -13,23 +13,12 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
+from omero_ext.argparse import SUPPRESS
 
-try:
-    from omeroweb import settings
+HELP = "OMERO.web configuration/deployment tools"
 
-    CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
-    CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
 
-    for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
-        global_name, default_value, mapping, using_default = \
-            settings.CUSTOM_SETTINGS_MAPPINGS[key]
-        global_value = getattr(settings, global_name, "(unset)")
-        CONFIG_TABLE += CONFIG_TABLE_FMT % (key, using_default, global_value)
-except:
-    CONFIG_TABLE = "INVALID OR LOCKED CONFIGURATION! Cannot display default"\
-        " values"
-
-HELP = """OMERO.web configuration/deployment tools
+LONGHELP = """OMERO.web configuration/deployment tools
 
 Configuration:
 
@@ -38,11 +27,10 @@ Configuration:
 
 %s
 
-Example Nginx usage:
+Example Nginx developer usage:
 
     omero config set omero.web.debug true
-    omero config set omero.web.application_server fastcgi
-    omero web config nginx --http=8000 >> nginx.conf
+    omero web config nginx-development --http=8000 >> nginx.conf
     omero web start
     nginx -c `pwd`/nginx.conf
     omero web status
@@ -60,7 +48,7 @@ Example IIS usage:
     omero web iis --remove
     iisreset
 
-""" % CONFIG_TABLE
+"""
 
 
 class WebControl(BaseControl):
@@ -68,13 +56,25 @@ class WebControl(BaseControl):
     def _configure(self, parser):
         sub = parser.sub()
 
-        parser.add(sub, self.start, "Primary start for the OMERO.web server")
+        parser.add(sub, self.help, "Extended help")
+        start = parser.add(
+            sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
-        parser.add(sub, self.restart, "Restart the OMERO.web server")
+        restart = parser.add(
+            sub, self.restart, "Restart the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
 
         iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
         iis.add_argument("--remove", action="store_true", default=False)
+
+        for x in (start, restart, iis):
+            group = x.add_mutually_exclusive_group()
+            group.add_argument(
+                "--keep-sessions", action="store_true",
+                help="Skip clean-up of expired sessions at startup")
+            group.add_argument(
+                "--no-wait", action="store_true",
+                help="Do not wait on expired sessions clean-up")
 
         #
         # Advanced
@@ -82,27 +82,39 @@ class WebControl(BaseControl):
 
         config = parser.add(
             sub, self.config,
-            "Output a config template for server"
-            " ('nginx' or 'apache' for the moment)")
-        config.add_argument("type", choices=("nginx", "apache"))
-        config.add_argument(
+            "Output a config template for web server\n"
+            "  nginx: Nginx system configuration for inclusion\n"
+            "  nginx-development: Standalone user-run Nginx server\n"
+            "  apache: Apache 2.2 with mod_fastcgi\n"
+            "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
+        config.add_argument("type", choices=(
+            "nginx", "nginx-development", "apache", "apache-fcgi"))
+        nginx_group = config.add_argument_group(
+            'Nginx arguments', 'Optional arguments for nginx templates.')
+        nginx_group.add_argument(
             "--http", type=int,
-            help="HTTP port for web server (not fastcgi)")
-        config.add_argument(
-            "--system", action="store_true",
-            help="System appropriate configuration file")
+            help="HTTP port for web server")
+        nginx_group.add_argument(
+            "--max-body-size", type=str, default='0',
+            help="Maximum allowed size of the client request body."
+            "Default: 0 (disabled)")
+        nginx_group.add_argument(
+            "--system", action="store_true", help=SUPPRESS)
 
         parser.add(
             sub, self.syncmedia,
             "Advanced use: Creates needed symlinks for static"
             " media files (Performed automatically by 'start')")
 
-        parser.add(
+        clearsessions = parser.add(
             sub, self.clearsessions,
             "Advanced use: Can be run as a cron job or directly to clean "
             "out expired sessions.\n See "
             "https://docs.djangoproject.com/en/1.6/topics/http/sessions/"
             "#clearing-the-session-store for more information.")
+        clearsessions.add_argument(
+            "--no-wait", action="store_true",
+            help="Do not wait on expired sessions clean-up")
 
         #
         # Developer
@@ -125,101 +137,127 @@ class WebControl(BaseControl):
             "Developer use: Loads the blitz gateway into a Python"
             " interpreter")
 
-        selenium = parser.add(
-            sub, self.seleniumtest,
-            "Developer use: runs selenium tests on a django app")
-        selenium.add_argument(
-            "--config", action="store", help="ice.config location")
-        selenium.add_argument("djangoapp", help="Django-app to be tested")
-        selenium.add_argument("seleniumserver", help="E.g. localhost")
-        selenium.add_argument("hostname", help="E.g. http://localhost:4080")
-        selenium.add_argument("browser", help="E.g. firefox")
+    def help(self, args):
+        """Return extended help"""
+        from omeroweb import settings
+        try:
+            CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
+            CONFIG_TABLE = CONFIG_TABLE_FMT % (
+                "Key", "Default?", "Current value")
+
+            for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
+                global_name, default_value, mapping, desc, using_default = \
+                    settings.CUSTOM_SETTINGS_MAPPINGS[key]
+                global_value = getattr(settings, global_name, "(unset)")
+                CONFIG_TABLE += CONFIG_TABLE_FMT % (
+                    key, using_default, global_value)
+        except:
+            CONFIG_TABLE = (
+                "INVALID OR LOCKED CONFIGURATION!"
+                " Cannot display default values")
+
+        self.ctx.err(LONGHELP % CONFIG_TABLE)
+
+    def _get_python_dir(self):
+        return self.ctx.dir / "lib" / "python"
+
+    def _get_templates_dir(self):
+        return self.ctx.dir / "etc" / "templates"
+
+    def _set_nginx_fastcgi(self, d, settings):
+        script_info = (
+            "fastcgi_split_path_info ^(%s)(.*)$;\n"
+            "            fastcgi_param PATH_INFO $fastcgi_path_info;\n"
+            "            fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n")
+        script_info_fallback = (
+            "fastcgi_param PATH_INFO $fastcgi_script_name;\n")
+        try:
+            d["FASTCGI_PATH_SCRIPT_INFO"] = (
+                script_info % settings.FORCE_SCRIPT_NAME)
+        except:
+            d["FASTCGI_PATH_SCRIPT_INFO"] = script_info_fallback
+
+    def _set_apache_fcgi_fastcgi(self, d, settings):
+        # OMERO.web requires the fastcgi PATH_INFO variable, which
+        # mod_proxy_fcgi obtains by taking everything after the last
+        # path component containing a dot.
+        d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
     def config(self, args):
+        """Generate a configuration file from a template"""
+        from omeroweb import settings
         if not args.type:
-            self.ctx.out(
-                "Available configuration helpers:\n - nginx, apache\n")
-        else:
-            server = args.type
+            self.ctx.die(
+                "Available configuration helpers:\n"
+                " - nginx, nginx-development, apache, apache-fcgi\n")
+
+        if args.system:
+            self.ctx.err(
+                "WARNING: --system is no longer supported, see --help")
+
+        server = args.type
+        if args.http:
+            port = args.http
+        elif server == 'nginx-development':
             port = 8080
-            if args.http:
-                port = args.http
-            if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-                if settings.APPLICATION_SERVER_PORT == port:
-                    self.ctx.die(
-                        678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
-                        % (port, settings.APPLICATION_SERVER_PORT))
+        else:
+            port = 80
 
-            d = {
-                "ROOT": self.ctx.dir,
-                "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
-                "omeroweb",
-                "STATIC_URL": settings.STATIC_URL.rstrip("/")
-            }
+        if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+            if settings.APPLICATION_SERVER_PORT == port:
+                self.ctx.die(
+                    678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
+                    % (port, settings.APPLICATION_SERVER_PORT))
 
+        d = {
+            "ROOT": self.ctx.dir,
+            "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
+            "STATIC_URL": settings.STATIC_URL.rstrip("/"),
+            "NOW": str(datetime.now())}
+
+        if server in ("nginx", "nginx-development"):
+            d["HTTPPORT"] = port
+            d["MAX_BODY_SIZE"] = args.max_body_size
+
+        # FORCE_SCRIPT_NAME always has a starting /, and will not have a
+        # trailing / unless there is no prefix (/)
+        # WEB_PREFIX will never end in / (so may be empty)
+
+        try:
+            d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+        except:
+            d["FORCE_SCRIPT_NAME"] = "/"
+
+        if server in ("apache", "apache-fcgi"):
             try:
-                d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+                d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             except:
-                d["FORCE_SCRIPT_NAME"] = "/"
+                d["WEB_PREFIX"] = ""
 
-            if server == "nginx":
-                if args.system:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.system.template").read()
-                else:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.template").read()
+        if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+            self.ctx.die(
+                679, "Web template configuration requires fastcgi-tcp")
 
-                if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-                    fastcgi_pass = "%s:%s" \
-                        % (settings.APPLICATION_SERVER_HOST,
-                           settings.APPLICATION_SERVER_PORT)
-                else:
-                    fastcgi_pass = "unix:%s/var/django_fcgi.sock" \
-                        % self.ctx.dir
-                d["FASTCGI_PASS"] = fastcgi_pass
-                d["HTTPPORT"] = port
+        d["FASTCGI_EXTERNAL"] = '%s:%s' % (
+            settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
 
-                try:
-                    d["FASTCGI_PATH_SCRIPT_INFO"] = \
-                        "fastcgi_split_path_info ^(%s)(.*)$;\n" \
-                        "            " \
-                        "fastcgi_param PATH_INFO $fastcgi_path_info;\n" \
-                        "            " \
-                        "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
-                        % (settings.FORCE_SCRIPT_NAME)
-                except:
-                    d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
-                                                    "$fastcgi_script_name;\n"
+        if server in ("nginx", "nginx-development"):
+            self._set_nginx_fastcgi(d, settings)
 
-            if server == "apache":
-                c = file(self.ctx.dir / "etc" /
-                         "apache.conf.template").read()
+        if server == "apache-fcgi":
+            self._set_apache_fcgi_fastcgi(d, settings)
 
-                if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-                    fastcgi_external = '-host %s:%s' % \
-                        (settings.APPLICATION_SERVER_HOST,
-                         settings.APPLICATION_SERVER_PORT)
-                else:
-                    fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
-                        self.ctx.dir
-                d["FASTCGI_EXTERNAL"] = fastcgi_external
-                try:
-                    d["REWRITERULE"] = \
-                        "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
-                        % settings.FORCE_SCRIPT_NAME.rstrip("/")
-                except:
-                    d["REWRITERULE"] = ""
-                d["NOW"] = str(datetime.now())
-
-            self.ctx.out(c % d)
+        template_file = "%s.conf.template" % server
+        c = file(self._get_templates_dir() / template_file).read()
+        self.ctx.out(c % d)
 
     def syncmedia(self, args):
         self.collectstatic()
 
     def enableapp(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        location = self._get_python_dir() / "omeroweb"
         if not args.appname:
+            from omeroweb import settings
             apps = [x.name for x in filter(
                 lambda x: x.isdir() and
                 (x / 'scripts' / 'enable.py').exists(),
@@ -243,7 +281,7 @@ class WebControl(BaseControl):
             self.syncmedia(None)
 
     def gateway(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "-i", location /
                 "../omero/gateway/scripts/dbhelpers.py"]
         self.set_environ()
@@ -251,36 +289,9 @@ class WebControl(BaseControl):
             os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         self.ctx.call(args, cwd=location)
 
-    def seleniumtest(self, args):
-        try:
-            ice_config = args.config
-            appname = args.djangoapp
-            seleniumserver = args.seleniumserver
-            hostname = args.hostname
-            browser = args.browser
-        except:
-            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp}"
-                         " [seleniumserver] [hostname] [browser]")
-
-        if appname.find('.') > 0:
-            appname = appname.split('.')
-            appbase = appname[0]
-            location = self.ctx.dir / appbase
-            appname = '.'.join(appname[1:])
-        else:
-            appbase = "omeroweb"
-            location = self.ctx.dir / "lib" / "python" / "omeroweb"
-
-        cargs = [sys.executable, location / appname / "tests" /
-                 "seleniumtests.py", seleniumserver, hostname, browser]
-        # cargs += args.arg[1:]
-        self.set_environ(ice_config=ice_config)
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-        self.ctx.call(cargs, cwd=location)
-
     def call(self, args):
         try:
-            location = self.ctx.dir / "lib" / "python" / "omeroweb"
+            location = self._get_python_dir() / "omeroweb"
             cargs = []
             appname = args.appname
             scriptname = args.scriptname.split(' ')
@@ -300,27 +311,34 @@ class WebControl(BaseControl):
             print traceback.print_exc()
 
     def collectstatic(self):
-        # Ensure that static media is copied to the correct location
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        """Ensure that static media is copied to the correct location"""
+        location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
         rv = self.ctx.call(args, cwd=location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
 
     def clearsessions(self, args):
-        # Clean out expired sessions.
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        args = [sys.executable, "manage.py", "clearsessions"]
-        rv = self.ctx.call(args, cwd=location)
-        if rv != 0:
-            self.ctx.die(607, "Failed to clear sessions.\n")
+        """Clean out expired sessions."""
+        self.ctx.out("Clearing expired sessions. This may take some time... ")
+        location = self._get_python_dir() / "omeroweb"
+        cmd = [sys.executable, "manage.py", "clearsessions"]
+        if not args.no_wait:
+            rv = self.ctx.call(cmd, cwd=location)
+            if rv != 0:
+                self.ctx.die(607, "Failed to clear sessions.\n")
+            self.ctx.out("[OK]")
+        else:
+            self.ctx.popen(cmd, cwd=location)
 
     def start(self, args):
         self.collectstatic()
+        if not args.keep_sessions:
+            self.clearsessions(args)
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        location = self._get_python_dir() / "omeroweb"
         self.ctx.out("Starting OMERO.web... ", newline=False)
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None and cache_backend.startswith("file:///"):
@@ -469,11 +487,14 @@ using bin\omero web start on Windows with FastCGI.
                                  self.ctx.dir / 'bin')
 
     def iis(self, args):
-        self.collectstatic()
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
 
-        web_iis = self.ctx.dir / "lib" / "python" / "omero_web_iis.py"
+        self.collectstatic()
+        if not args.keep_sessions:
+            self.clearsessions(args)
+
+        web_iis = self._get_python_dir() / "omero_web_iis.py"
         cmd = [sys.executable, str(web_iis)]
         if args.remove:
             cmd.append("remove")

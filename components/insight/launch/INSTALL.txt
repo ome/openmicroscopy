@@ -1,38 +1,35 @@
-  
   Open Microscopy Environment - Install Notes (Java Client)
   ---------------------------------------------------------
 
-  ________
+
   Preamble
+  ________
 
   The client software requires a J2SE Java Runtime Environment (JRE) to
-  run (version 1.6 or higher). 
-  If you don't have one already, you can download the J2SE JRE install bundle 
+  run (version 1.6 or higher).
+  If you don't have one already, you can download the J2SE JRE install bundle
   from:
 
-    http://java.sun.com/j2se/downloads/
+    http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 
   NOTE
   You don't need to download the whole J2SE SDK, just the JRE is enough.
- 
 
-  _________________
   Install Procedure
+  _________________
 
   Extract the downloaded bundle in any directory on your local file system,
   and check that the startup scripts are executable:
     OMEROinsight_unix.sh
     OMEROimporter_unix.sh
-    OMEROeditor_unix.sh
 
   If you are connecting to the internet through a web proxy, make sure you edit
   the startup scripts accordingly (example configuration is provided within
   the scripts).
 
-
-  ____________________
   Running The Software
+  ____________________
 
   Run the script from a terminal:
   $ ./OMEROinsight_unix.sh
@@ -42,11 +39,9 @@
   a file browser.
 
   Enter your OMERO user name, password and the name of the server then press
-  the log in button. 
-  You should not have to modify the port value. 
+  the log in button.
+  You should not have to modify the port value.
   Enjoy OMERO!
 
-  You can also run the importer and editor as standalone applications by
-  running OMEROimporter_unix.sh or OMEROeditor_unix.sh.
-  
-  
+  You can also run the importer as a standalone application by running
+  OMEROimporter_unix.sh.

@@ -23,12 +23,12 @@
 {% endcomment %}
 
     
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.plateview.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.plateview.css"|add:url_suffix %}" media="all" />
     
-    <script type="text/javascript" src="{% static "webgateway/js/ome.plateview.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.plateview.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js"|add:url_suffix %}"></script>
 
     <script type="text/javascript">
 
@@ -36,8 +36,16 @@
             var $container = $("#content_details");
             var rel = $container.attr('rel').split("-");
             var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
-            $parent.data("well_index", field);     // let the parent node keep track of current index
-            $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
+            // let the parent node keep track of current index
+            $parent.data("well_index", field);
+            // If a well is selected, add this data to the parent node too
+            // (handled in center_plugin.thumbs.js.html)
+            var $selWell = $('td.ui-selected:first');
+            if ($selWell.length > 0) {
+                $parent.data("well_id", $selWell.attr('id').replace('well-', ''));
+            }
+            // this will cause center and right panels to update
+            $parent.children("a:eq(0)").click();
             return false;
         }
         
@@ -91,7 +99,7 @@
                 OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
             });
             $( '#spw' ).on( "dblclick", "td.well img", function(event) {
-                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
+                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
             });
 
             wpv.self.selectable({

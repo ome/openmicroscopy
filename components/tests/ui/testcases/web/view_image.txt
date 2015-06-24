@@ -1,0 +1,43 @@
+*** Settings ***
+Documentation     Tests browsing to an Image and opening Image Viewer
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Test Open Viewer
+    [Documentation]     Tests double-click to open image viewer
+
+    Select And Expand Project
+    Select And Expand Dataset
+    Select And Expand Image
+    Wait Until Page Contains Element    xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
+    ${imageName}=                       Get Text         xpath=//div[contains(@class, 'data_heading')]//h1/span
+    ${imageId}=                         Get Text         xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+    # Open Image Viewer 3 different ways and check
+    Click Element                       xpath=//button[@title='Open full image viewer in new window']
+    Check Image Viewer                  ${imageName}    2
+    Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
+    Check Image Viewer                  ${imageName}    3
+    Double Click Element                css=#image-${imageId}>a
+    Check Image Viewer                  ${imageName}    4
+
+
+*** Keywords ***
+
+Check Image Viewer
+    [Arguments]          ${title}       ${windowCount}
+    # Should have 2 windows open
+    ${windowIds}=                       Get Window Identifiers
+    Length Should Be                    ${windowIds}        ${windowCount}
+    # Image Viewer title is the image name.
+    Select Window                       title=${imageName}
+    # Loading of image within viewport indicates all is OK
+    Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     30
+    # Select parent window #(closing fails on Chrome)
+    Select Window                       title=Webclient

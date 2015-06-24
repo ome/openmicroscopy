@@ -54,7 +54,7 @@ public class ImportEvent {
 
     public static class PROGRESS_EVENT extends ImportEvent {
         public final int index;
-        public final String filename;
+        public final ImportContainer container;
         public final IObject target;
         public final Long pixId;
         public final int series;
@@ -62,10 +62,10 @@ public class ImportEvent {
         public final Integer numDone;
         public final Integer total;
 
-        public PROGRESS_EVENT(int index, String filename, IObject target, Long pixId,
+        public PROGRESS_EVENT(int index, ImportContainer container, IObject target, Long pixId,
                 int series, ImportSize size, Integer numDone, Integer total) {
             this.index = index;
-            this.filename = filename;
+            this.container = container;
             this.target = target;
             this.pixId = pixId;
             this.series = series;
@@ -86,9 +86,9 @@ public class ImportEvent {
     public static class POST_UPLOAD_EVENT extends PROGRESS_EVENT {
         public final Long logFileId;
 
-        public POST_UPLOAD_EVENT(int index, String filename, IObject target, Long pixId,
+        public POST_UPLOAD_EVENT(int index, ImportContainer container, IObject target, Long pixId,
                 int series, ImportSize size, Integer numDone, Integer total, Long logFileId) {
-            super(index, filename, target, pixId, series, size, numDone, total);
+            super(index, container, target, pixId, series, size, numDone, total);
             this.logFileId = logFileId;
         }
 
@@ -212,6 +212,12 @@ public class ImportEvent {
                 Long uploadedBytes, Long contentLength, Exception exception) {
             super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
                     exception);
+        }
+    }
+
+    public static class FILESET_EXCLUSION extends FILE_UPLOAD_EVENT {
+        public FILESET_EXCLUSION(String filename, int fileIndex, int fileTotal) {
+            super(filename, fileIndex, fileTotal, 0l, 0l, null);
         }
     }
 
@@ -345,108 +351,124 @@ public class ImportEvent {
     //
 
     public static class BEGIN_POST_PROCESS extends PROGRESS_EVENT {
-        public BEGIN_POST_PROCESS(int index, String filename, IObject target,
+        public BEGIN_POST_PROCESS(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     public static class END_POST_PROCESS extends PROGRESS_EVENT {
-        public END_POST_PROCESS(int index, String filename, IObject target,
+        public END_POST_PROCESS(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     public static class BEGIN_SAVE_TO_DB extends PROGRESS_EVENT {
-        public BEGIN_SAVE_TO_DB(int index, String filename, IObject target,
+        public BEGIN_SAVE_TO_DB(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     public static class END_SAVE_TO_DB extends PROGRESS_EVENT {
-        public END_SAVE_TO_DB(int index, String filename, IObject target,
+        public END_SAVE_TO_DB(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     public static class DATASET_STORED extends PROGRESS_EVENT {
-        public DATASET_STORED(int index, String filename, IObject target,
+        public DATASET_STORED(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
-            super(index, filename, target, pixId, series, size, numDone, total);
+            super(index, container, target, pixId, series, size, numDone, total);
         }
     }
 
     public static class DATA_STORED extends PROGRESS_EVENT {
-        public DATA_STORED(int index, String filename, IObject target,
+        public DATA_STORED(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     public static class IMPORT_ARCHIVING extends PROGRESS_EVENT {
-        public IMPORT_ARCHIVING(int index, String filename, IObject target,
+        public IMPORT_ARCHIVING(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     public static class IMPORT_OVERLAYS extends PROGRESS_EVENT {
-        public IMPORT_OVERLAYS(int index, String filename, IObject target,
+        public IMPORT_OVERLAYS(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     public static class IMPORT_PROCESSING extends PROGRESS_EVENT {
-        public IMPORT_PROCESSING(int index, String filename, IObject target,
+        public IMPORT_PROCESSING(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
         }
     }
 
     // These extra PROGRESS_EVENT classes are added to allow some meaningful
     // event reporting under FS rather than abusing the ones above
 
-    public static class METADATA_IMPORTED extends POST_UPLOAD_EVENT {
-        public METADATA_IMPORTED(int index, String filename, IObject target,
+    public static class IMPORT_STARTED extends POST_UPLOAD_EVENT {
+        public IMPORT_STARTED(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size,
                 Integer numDone, Integer total, Long fsId) {
-            super(index, filename, target, pixId, series, size, numDone, total, fsId);
+            super(index, container, target, pixId, series, size, numDone, total, fsId);
+        }
+
+        @Override
+        public String toLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(getClass().getSimpleName());
+            sb.append(String.format(" Logfile: %d", logFileId));
+            return sb.toString();
+        }
+    }
+
+    public static class METADATA_IMPORTED extends POST_UPLOAD_EVENT {
+        public METADATA_IMPORTED(int index, ImportContainer container, IObject target,
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, container, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class THUMBNAILS_GENERATED extends POST_UPLOAD_EVENT {
-        public THUMBNAILS_GENERATED(int index, String filename, IObject target,
+        public THUMBNAILS_GENERATED(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size,
                 Integer numDone, Integer total, Long fsId) {
-            super(index, filename, target, pixId, series, size, numDone, total, fsId);
+            super(index, container, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class PIXELDATA_PROCESSED extends POST_UPLOAD_EVENT {
-        public PIXELDATA_PROCESSED(int index, String filename, IObject target,
+        public PIXELDATA_PROCESSED(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size,
                 Integer numDone, Integer total, Long fsId) {
-            super(index, filename, target, pixId, series, size, numDone, total, fsId);
+            super(index, container, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class METADATA_PROCESSED extends POST_UPLOAD_EVENT {
-        public METADATA_PROCESSED(int index, String filename, IObject target,
+        public METADATA_PROCESSED(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size,
                 Integer numDone, Integer total, Long fsId) {
-            super(index, filename, target, pixId, series, size, numDone, total, fsId);
+            super(index, container, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class OBJECTS_RETURNED extends POST_UPLOAD_EVENT {
-        public OBJECTS_RETURNED(int index, String filename, IObject target,
+        public OBJECTS_RETURNED(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size,
                 Integer numDone, Integer total, Long fsId) {
-            super(index, filename, target, pixId, series, size, numDone, total, fsId);
+            super(index, container, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
@@ -454,10 +476,10 @@ public class ImportEvent {
         public final List<Pixels> pixels;
         public final Fileset fileset;
         public final List<IObject> objects;
-        public IMPORT_DONE(int index, String filename, IObject target,
+        public IMPORT_DONE(int index, ImportContainer container, IObject target,
                 Long pixId, int series, ImportSize size, List<Pixels> pixels,
                 Fileset fileset, List<IObject> objects) {
-            super(index, filename, target, pixId, series, size, null, null);
+            super(index, container, target, pixId, series, size, null, null);
             this.pixels = pixels;
             this.fileset = fileset;
             this.objects = objects;
@@ -467,7 +489,7 @@ public class ImportEvent {
         public String toLog() {
             StringBuilder sb = new StringBuilder();
             sb.append(getClass().getSimpleName());
-            sb.append(String.format(" Imported file: %s", filename));
+            sb.append(String.format(" Imported file: %s", container.getFile().getAbsolutePath()));
             return sb.toString();
         }
     }

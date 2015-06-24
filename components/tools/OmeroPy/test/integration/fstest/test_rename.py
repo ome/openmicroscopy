@@ -38,7 +38,6 @@ pytestmark = pytest.mark.fs_suite
 class TestRename(AbstractRepoTest):
 
     def setup_method(self, method):
-        super(TestRename, self).setup_method(method)
         self.pixels = self.client.sf.getPixelsService()
         self.query = self.client.sf.getQueryService()
         self.update = self.client.sf.getUpdateService()

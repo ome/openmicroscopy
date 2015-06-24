@@ -88,7 +88,7 @@ TEST( PermissionsTest, testClientSet ) {
     ASSERT_EQ("value", di->getCallContext()["test"]);
 }
 
-void assertPerms(const string& msg, const client_ptr& client,
+static void assertPerms(const string& msg, const client_ptr& client,
         const IObjectPtr& obj, bool ann, bool edit) {
 
     IQueryPrx query = client->getSession()->getQueryService();
@@ -99,26 +99,30 @@ void assertPerms(const string& msg, const client_ptr& client,
 }
 
 TEST( PermissionsTest, testAdjustPermissions ) {
+    try {
+        Fixture f;
+        ExperimenterGroupPtr group = f.newGroup("rwr---");
+        ExperimenterPtr user1 = f.newUser(group);
+        ExperimenterPtr user2 = f.newUser(group);
+        f.login(user1, user1->getOmeName()->getValue());
+        IQueryPrx query = f.client->getSession()->getQueryService();
+        IUpdatePrx update = f.client->getSession()->getUpdateService();
 
-    Fixture f;
-    ExperimenterGroupPtr group = f.newGroup("rwr---");
-    ExperimenterPtr user1 = f.newUser(group);
-    ExperimenterPtr user2 = f.newUser(group);
-    f.login(user1, user1->getOmeName()->getValue());
-    IQueryPrx query = f.client->getSession()->getQueryService();
-    IUpdatePrx update = f.client->getSession()->getUpdateService();
+        CommentAnnotationPtr c = new CommentAnnotationI();
+        c = CommentAnnotationPtr::dynamicCast( update->saveAndReturnObject(c) );
 
-    CommentAnnotationPtr c = new CommentAnnotationI();
-    c = CommentAnnotationPtr::dynamicCast( update->saveAndReturnObject(c) );
+        assertPerms("creator can ann/edit", f.client, c, true, true);
+        f.login(user2, user2->getOmeName()->getValue());
+        assertPerms("group member can't ann/edit", f.client, c, false, false);
 
-    assertPerms("creator can ann/edit", f.client, c, true, true);
-    f.login(user2, user2->getOmeName()->getValue());
-    assertPerms("group member can't ann/edit", f.client, c, false, false);
+        // Search all groups for the annotation
+        std::stringstream groupId;
+        groupId << group->getId()->getValue();
+        std::string gid = groupId.str();
+        f.root->getImplicitContext()->put("omero.group", gid);
+        assertPerms("root can ann/edit", f.root, c, true, true);
+    } catch (const omero::ValidationException& ve) {
+        FAIL() << "validation exception:" + ve.message;
+    }
 
-    // Search all groups for the annotation
-    std::stringstream groupId;
-    groupId << group->getId()->getValue();
-    std::string gid = groupId.str();
-    f.root->getImplicitContext()->put("omero.group", gid);
-    assertPerms("root can ann/edit", f.root, c, true, true);
 }

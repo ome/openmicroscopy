@@ -13,8 +13,9 @@ FOR TRAINING PURPOSES ONLY!
 
 import omero
 import omero.callbacks
+from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 
 
 # Create a connection
@@ -22,11 +23,12 @@ from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-
-# Configuration
+# Create a new Project
 # =================================================================
-projectId = 507        # NB: This will be deleted! 
-
+project = omero.model.ProjectI()
+project.setName(rstring("New Project"))
+project = conn.getUpdateService().saveAndReturnObject(project)
+projectId = project.id.val
 
 # Load the Project
 # =================================================================
@@ -46,13 +48,13 @@ print "\nProject:", project.getName()
 # deleting a Project and you want to delete Datasets and Images.
 obj_ids = [projectId]
 deleteChildren = False
-handle = conn.deleteObjects("Project", obj_ids,\
-        deleteAnns=True, deleteChildren=deleteChildren)
+handle = conn.deleteObjects(
+    "Project", obj_ids, deleteAnns=True, deleteChildren=deleteChildren)
 
 
 # Retrieve callback and wait until delete completes
 # =================================================================
-# This is not necessary for the Delete to complete. Can be used 
+# This is not necessary for the Delete to complete. Can be used
 # if you want to know when delete is finished or if there were any errors
 cb = omero.callbacks.CmdCallbackI(conn.c, handle)
 print "Deleting, please wait."

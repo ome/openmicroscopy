@@ -27,7 +27,7 @@
 import path
 import omero
 import omero.tables
-import test.integration.library as lib
+import library as lib
 import pytest
 
 from omero import columns
@@ -90,6 +90,7 @@ class TestTables(lib.ITest):
         table.addData(cols)
         assert [0] == table.getWhereList('(lc==1)', None, 0, 0, 0)
         return table.getOriginalFile()
+        # Not closing for re-use
 
     def testUpdate(self):
         ofile = self.testBlankTable()
@@ -103,6 +104,7 @@ class TestTables(lib.ITest):
         next = data.columns[0].values[0]
         assert prev != next
         assert next == 100
+        table.delete()
 
     def testTicket2175(self):
         assert self.client.sf.sharedResources().areTablesEnabled()
@@ -120,8 +122,10 @@ class TestTables(lib.ITest):
         data = table.readCoordinates([0, 1])
 
         self.checkMaskCol(data.columns[0])
+        table.delete()
+        table.close()
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def test2098(self):
         """
         Creates and downloads an HDF file and checks
@@ -140,6 +144,7 @@ class TestTables(lib.ITest):
             table.initialize([lc])
             table.addData([lc])
         finally:
+            # Not deleting since queried
             table.close()
 
         # Reload the file
@@ -150,7 +155,7 @@ class TestTables(lib.ITest):
         p = path.path(self.tmpfile())
         self.client.download(file, str(p))
         assert p.size == file.size.val
-        assert self.client.sha1(p) == file.hash.val
+        # BUG: assert self.client.sha1(p) == file.hash.val
 
     def test2855MetadataMethods(self):
         """
@@ -167,8 +172,10 @@ class TestTables(lib.ITest):
             easier testing.
             """
             m = unwrap(m)
-            del m["initialized"]
-            del m["version"]
+            assert "__initialized" in m
+            assert "__version" in m
+            del m["__initialized"]
+            del m["__version"]
             return m
 
         try:
@@ -192,7 +199,24 @@ class TestTables(lib.ITest):
             assert 1 == unwrap(table.getMetadata("f"))
             assert {"s": "b", "i": 1, "f": 1} == clean(table.getAllMetadata())
 
+            # Replace all user-metadata
+            table.setAllMetadata({"s2": rstring("b2"), "l2": rlong(3)})
+            assert {"s2": "b2", "l2": 3} == clean(table.getAllMetadata())
+            assert table.getMetadata("s") is None
+
+            table.setAllMetadata({})
+            assert {} == clean(table.getAllMetadata())
+
+            table.setMetadata("z", rint(1))
+            with pytest.raises(omero.ApiUsageException):
+                table.setMetadata("__z", rint(2))
+            assert {"z": 1} == clean(table.getAllMetadata())
+
+            with pytest.raises(omero.ValidationException):
+                table.setMetadata("z", rint(None))
+
         finally:
+            table.delete()
             table.close()
 
     def test2910(self):
@@ -206,6 +230,7 @@ class TestTables(lib.ITest):
         lc = omero.grid.LongColumn("lc", None, None)
         file = table.getOriginalFile()
         table.initialize([lc])
+        # Not deleting since queried
         table.close()
 
         # As the second user, try to modify it
@@ -228,7 +253,6 @@ class TestTables(lib.ITest):
         with pytest.raises(omero.SecurityViolation):
             table.setAllMetadata({})
 
-    @pytest.mark.xfail(reason="ticket 11610")
     def testDelete(self):
         group = self.new_group(perms="rwr---")
         user1 = self.new_client(group)
@@ -255,6 +279,8 @@ class TestTables(lib.ITest):
         table.addData([lc])
         assert [0] == table.getWhereList(
             '(lc==var)', {"var": rlong(1)}, 0, 0, 0)
+        table.delete()
+        table.close()
 
     def test4000TableRead(self):
         """
@@ -269,6 +295,8 @@ class TestTables(lib.ITest):
         table.initialize([lc])
         table.addData([lc])
         assert [123] == table.read([0], 0, 0).columns[0].values
+        table.delete()
+        table.close()
 
     def testCallContext(self):
         """
@@ -285,6 +313,7 @@ class TestTables(lib.ITest):
         table = sr.newTable(1, "/test")
         assert table
         ofile = table.getOriginalFile()
+        table.close()
 
         # Add the user to another group
         # and try to load the table
@@ -293,10 +322,34 @@ class TestTables(lib.ITest):
         client.sf.setSecurityContext(group2)
 
         # Use -1 for all group access
-        sr.openTable(ofile, {"omero.group": "-1"})
+        table = sr.openTable(ofile, {"omero.group": "-1"})
+        table.close()
 
         # Load the group explicitly
-        sr.openTable(ofile, {"omero.group": gid1})
+        table = sr.openTable(ofile, {"omero.group": gid1})
+        table.delete()
+        table.close()
+
+    def testGetHeaders(self):
+        """
+        Check all required fields are included in the headers
+        """
+        grid = self.client.sf.sharedResources()
+        table = grid.newTable(1, "/test")
+        assert table
+
+        cols = [columns.LongColumnI('no desc'),
+                columns.LongColumnI('scalar', 'scalar desc'),
+                columns.LongArrayColumnI('array', 'array desc', 3)]
+        table.initialize(cols)
+        h = table.getHeaders()
+        assert len(h) == 3
+        assert (h[0].name, h[0].description) == ('no desc', '')
+        assert (h[1].name, h[1].description) == ('scalar', 'scalar desc')
+        assert (h[2].name, h[2].description, h[2].size) == (
+            'array', 'array desc', 3)
+        table.delete()
+        table.close()
 
     def test10049openTableUnreadable(self):
         """
@@ -310,6 +363,7 @@ class TestTables(lib.ITest):
         table = sr1.newTable(1, "/test")
         assert table
         ofile = table.getOriginalFile()
+        table.close()
 
         # Create a second user and try to open the table
         group2 = self.new_group()
@@ -340,6 +394,8 @@ class TestTables(lib.ITest):
         scol.values = ['abcd']
         with pytest.raises(omero.ValidationException):
             table.addData([scol])
+        table.delete()
+        table.close()
 
     def testArrayColumn(self):
         """
@@ -360,6 +416,8 @@ class TestTables(lib.ITest):
         testl = data.columns[0].values
         assert [-2, -1] == testl[0]
         assert [1, 2] == testl[1]
+        table.delete()
+        table.close()
 
     def testArrayColumnSize1(self):
         """
@@ -380,6 +438,8 @@ class TestTables(lib.ITest):
         testl = data.columns[0].values
         assert [0.5] == testl[0]
         assert [0.25] == testl[1]
+        table.delete()
+        table.close()
 
     def testAllColumnsSameTable(self):
         """
@@ -496,6 +556,9 @@ class TestTables(lib.ITest):
         assert [-2, -1] == testla2[0]
         assert [654, 321] == testla2[1]
 
+        table.delete()
+        table.close()
+
     def test10431uninitialisedTableReadWrite(self):
         """
         Return an error when attempting to read/write an uninitialised table
@@ -515,5 +578,77 @@ class TestTables(lib.ITest):
             table.slice([], [])
         with pytest.raises(omero.ApiUsageException):
             table.getWhereList('', None, 0, 0, 0)
+
+        table.delete()
+        table.close()
+
+    def test12606fileSizeCheck(self):
+        """
+        Close may write additional data to a table after a flush, this is
+        most likely to occur for very small writes such as attribute changes
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        assert table
+        lcol = columns.LongColumnI('longcol', 'long col')
+        table.initialize([lcol])
+        table.setMetadata('test', wrap('test'))
+        tid = unwrap(table.getOriginalFile().getId())
+        table.close()
+
+        table = grid.openTable(omero.model.OriginalFileI(tid))
+        assert table
+        table.delete()
+        table.close()
+
+    @pytest.mark.parametrize('data', (
+        {"__version": omero.rtypes.rstring("4")},
+        ("__version", omero.rtypes.rstring("4")),
+    ))
+    def testCantWriteInternalMetadata(self, data):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/testInternalMetadata.h5")
+        table.initialize([columns.LongColumnI('lc')])
+        with pytest.raises(omero.ApiUsageException):
+            if isinstance(data, dict):
+                table.setAllMetadata(data)
+            else:
+                table.setMetadata(*data)
+
+        table.delete()
+        table.close()
+
+    @pytest.mark.parametrize('data', (
+        {"version": omero.rtypes.rstring("4")},
+        ("version", omero.rtypes.rstring("4")),
+    ))
+    def testCanWriteAlmostInternalMetadata(self, data):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/testInternalMetadata.h5")
+        table.initialize([columns.LongColumnI('lc')])
+        if isinstance(data, dict):
+            table.setAllMetadata(data)
+        else:
+            table.setMetadata(*data)
+        assert "4" == table.getMetadata("version").val
+
+        table.delete()
+        table.close()
+
+    def testCanReadInternalMetadata(self):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/testInternalMetadata.h5")
+        table.initialize([columns.LongColumnI('lc')])
+        assert table.getMetadata("__version")
+        table.delete()
+        table.close()
 
 # TODO: Add tests for error conditions

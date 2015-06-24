@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -40,19 +41,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
 import pojos.GroupData;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 
 /** 
@@ -283,7 +289,7 @@ public class SearchComponent
 	{
 		firePropertyChange(CANCEL_SEARCH_PROPERTY,
 				Boolean.valueOf(false), Boolean.valueOf(true));
-		setSearchEnabled(false);
+		setSearchEnabled(-1);
 	}
 	
 	/** Sets the default contexts. */
@@ -479,17 +485,19 @@ public class SearchComponent
 		return groupsContext; 
 	}
 	
-	/**
-	 * Sets the buttons enabled when performing  search.
-	 * 
-	 * @param b Pass <code>true</code> to enable the {@link #searchButton}, 
-	 * 			<code>false</code>otherwise, and modifies the cursor.
-	 */
-	public void setSearchEnabled(boolean b)
-	{
-		if (b) setSearchEnabled("Searching", b);
-		else setSearchEnabled("", b);
-	}
+    /**
+     * Sets the buttons enabled when performing search.
+     * 
+     * @param resultSize
+     *            Number of results found, pass <code>-1</code> if search still
+     *            in progress
+     */
+    public void setSearchEnabled(int resultSize) {
+        if (resultSize == -1)
+            setSearchEnabled("Searching...", false);
+        else
+            setSearchEnabled(resultSize + " results found", false);
+    }
 	
 	/**
 	 * Sets the buttons enabled when performing  search.
@@ -555,7 +563,9 @@ public class SearchComponent
 				search();
 				break;
 			case HELP:
-				help();
+			    String url = (String) DataBrowserAgent.getRegistry().lookup(
+			            LookupNames.HELP_ON_LINE_SEARCH);
+				help(url);
 				break;
 			case RESET_DATE:
 			        uiDelegate.resetDate();
@@ -564,7 +574,7 @@ public class SearchComponent
 	}
 
 	/** Subclasses should override this method. */
-	protected void help() {}
+	protected void help(String url) {}
 	
 	/**
 	 * Handles a SearchEvent (sent by the search field

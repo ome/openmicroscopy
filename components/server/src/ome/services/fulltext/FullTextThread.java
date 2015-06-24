@@ -13,8 +13,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import ome.services.eventlogs.EventLogLoader;
@@ -22,7 +24,9 @@ import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 import ome.util.DetailsFieldBridge;
+import ome.util.SqlAction;
 
 /**
  * Library entry-point for indexing. Once the {@link FullTextThread} is properly
@@ -43,6 +47,27 @@ public class FullTextThread extends ExecutionThread {
 
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "FullText");
+
+    private static final Executor.Work<?> PREPARE_INDEXING = new Executor.SimpleWork("FullTextIndexer", "prepare") {
+        /**
+         * Since this instance is used repeatedly, we need to check for
+         * already set SqlAction
+         */
+        @Override
+        public synchronized void setSqlAction(SqlAction sql) {
+            if (getSqlAction() == null) {
+                super.setSqlAction(sql);
+            }
+        }
+
+        @Transactional(readOnly = false)
+        @Override
+        public Object doWork(Session session, ServiceFactory sf) {
+            // Re-index entries noted in the _updated_annotations table.
+            getSqlAction().refreshEventLogFromUpdatedAnnotations();
+            return null;
+        }
+    };
 
     final protected boolean waitForLock;
     
@@ -126,25 +151,23 @@ public class FullTextThread extends ExecutionThread {
         final Map<String, String> callContext = new HashMap<String, String>();
         callContext.put("omero.group", "-1");
 
+        final boolean gotLock;
         if (waitForLock) {
             DetailsFieldBridge.lock();
+            gotLock = true;
+        } else {
+            gotLock = DetailsFieldBridge.tryLock();
+        }
+        if (gotLock) {
             try {
                 DetailsFieldBridge.setFieldBridge(this.bridge);
+                this.executor.execute(callContext, getPrincipal(), PREPARE_INDEXING);
                 this.executor.execute(callContext, getPrincipal(), work);
             } finally {
                 DetailsFieldBridge.unlock();
             }
         } else {
-            if (DetailsFieldBridge.tryLock()) {
-                try {
-                    DetailsFieldBridge.setFieldBridge(this.bridge);
-                    this.executor.execute(callContext, getPrincipal(), work);
-                } finally {
-                    DetailsFieldBridge.unlock();
-                }
-            } else {
-                log.info("Currently running; skipping");
-            }
+            log.info("Currently running; skipping");
         }
     }
 

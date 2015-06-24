@@ -74,8 +74,7 @@ class ZoomWindowUI
     private void initComponents()
     {
     	 layeredPane = new JLayeredPane();
-    	 if (model.hasOpenGLSupport()) canvas = new ZoomPanel(model);
-    	 else canvas = new ZoomBIPanel(model);
+    	 canvas = new ZoomBIPanel(model);
     	 layeredPane.add(canvas, Integer.valueOf(0));
     	 getVerticalScrollBar().addMouseMotionListener(this);
          getHorizontalScrollBar().addMouseMotionListener(this);

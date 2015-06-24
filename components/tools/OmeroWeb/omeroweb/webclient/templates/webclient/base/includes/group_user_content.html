@@ -80,13 +80,13 @@
                         {% else %}
                         <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
                         {% endifequal %}
-                            {% setting UI_MENU_DROPDOWN.ALL %}
+                        {{ ui.dropdown_menu.everyone }}
                         </a>
                     </li>
                 {% endif %}
                 
-                {% if grp.leaders %}
-                    <li class="non_selectable"><strong>{% setting UI_MENU_DROPDOWN.LEADERS %}</strong></li>
+                {% if ui.dropdown_menu.leaders and grp.leaders %}
+                    <li class="non_selectable"><strong>{{ ui.dropdown_menu.leaders }}</strong></li>
                     {% for user in grp.leaders %}
                         <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
                             <!-- if this user is in current group, we just switch user -->
@@ -96,14 +96,14 @@
                             {% else %}
                             <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
                             {% endifequal %}
-                                {{ user.getFullName }}
+                            {{ user.getFullName }}
                             </a>
                         </li>
                     {% endfor %}
                 {% endif %}
                 
-                {% if grp.colleagues %}
-                    <li class="non_selectable"><strong>{% setting UI_MENU_DROPDOWN.COLLEAGUES %}</strong></li>
+                {% if ui.dropdown_menu.colleagues and grp.colleagues %}
+                    <li class="non_selectable"><strong>{{ ui.dropdown_menu.colleagues }}</strong></li>
                     {% for user in grp.colleagues %}
                         <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
                             {% ifequal grp.id active_group.id %}

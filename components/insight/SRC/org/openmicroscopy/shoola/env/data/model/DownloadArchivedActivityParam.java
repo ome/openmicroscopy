@@ -26,10 +26,12 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+import java.util.List;
 
 import javax.swing.Icon;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import pojos.ImageData;
@@ -57,7 +59,7 @@ public class DownloadArchivedActivityParam
     private File location;
     
     /** The collection of archived images to download. */
-    private ImageData image;
+    private List<ImageData> images;
     
     /** Flag indicating to override or not the files when saving.*/
     private boolean override;
@@ -69,11 +71,11 @@ public class DownloadArchivedActivityParam
      * @param image The archived images to download.
      * @param icon The icon associated to the parameters.
      */
-    public DownloadArchivedActivityParam(File location, ImageData image,
+    public DownloadArchivedActivityParam(File location, List<ImageData> images,
     		Icon icon)
     {
     	this.location = location;
-    	this.image = image;
+    	this.images = images;
     	this.icon = icon;
     	this.override = false;
     }
@@ -113,6 +115,6 @@ public class DownloadArchivedActivityParam
      * 
      * @return See above.
      */
-    public ImageData getImage() { return image; }
+    public List<ImageData> getImages() { return images; }
 
 }

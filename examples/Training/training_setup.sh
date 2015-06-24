@@ -59,7 +59,7 @@ bin/omero obj new ScreenPlateLink parent=$screen child=$plate
 # Import orphaned plate
 echo "Importing SPW file"
 touch "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake"
-bin/omero import "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake" > plate_import.log 2>&1
+bin/omero import -r $screen "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake" > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 
 # Logout
@@ -70,10 +70,12 @@ echo "omero.host=$HOSTNAME" > "$CONFIG_FILENAME"
 echo "omero.port=$PORT" >> "$CONFIG_FILENAME"
 echo "omero.user=$USER_NAME" >> "$CONFIG_FILENAME"
 echo "omero.pass=$USER_PASSWORD" >> "$CONFIG_FILENAME"
+echo "omero.group=$GROUP_NAME" >> "$CONFIG_FILENAME"
 echo "omero.projectid=${project##*:}" >> "$CONFIG_FILENAME"
 echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 echo "omero.imageid=${imageid}" >> "$CONFIG_FILENAME"
 echo "omero.plateid=${plateid}" >> "$CONFIG_FILENAME"
+echo "omero.screenid=${screen##*:}" >> "$CONFIG_FILENAME"
 
 # Remove fake file
 rm *.fake

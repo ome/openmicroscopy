@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -16,7 +16,7 @@ module omero {
 
     module api {
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ILdap.html">ILdap.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/ILdap.html">ILdap.html</a>
          **/
         ["ami", "amd"] interface ILdap extends ServiceInterface
             {
@@ -26,10 +26,16 @@ module omero {
                 idempotent ExperimenterList searchByAttributes(string dn, StringSet attributes, StringSet values) throws ServerError;
                 idempotent omero::model::Experimenter searchByDN(string userdn) throws ServerError;
                 idempotent string findDN(string username) throws ServerError;
+                idempotent string findGroupDN(string groupname) throws ServerError;
                 idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
-                idempotent void setDN(long experimenterID, bool isLdap) throws ServerError;
+                idempotent omero::model::ExperimenterGroup findGroup(string groupname) throws ServerError;
+
+                ["deprecated:setDN() is deprecated. Set the LDAP flag on model objects instead."]
+                idempotent void setDN(omero::RLong experimenterID, string dn) throws ServerError;
+
                 idempotent bool getSetting() throws ServerError;
                 idempotent ExperimenterList discover() throws ServerError;
+                idempotent ExperimenterGroupList discoverGroups() throws ServerError;
                 omero::model::Experimenter createUser(string username) throws ServerError;
             };
 

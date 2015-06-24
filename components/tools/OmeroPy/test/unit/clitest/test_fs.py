@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,6 @@ import pytest
 from omero.cli import CLI
 from omero.plugins.fs import FsControl
 
-subcommands = ("images", "repos", "sets")
-
 
 class TestTag(object):
 
@@ -38,7 +36,7 @@ class TestTag(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', subcommands)
+    @pytest.mark.parametrize('subcommand', FsControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

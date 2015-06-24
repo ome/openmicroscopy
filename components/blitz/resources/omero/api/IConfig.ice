@@ -17,12 +17,16 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IConfig.html">IConfig.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/IConfig.html">IConfig.html</a>
          **/
         ["ami", "amd"] interface IConfig extends ServiceInterface
             {
                 idempotent string getVersion() throws ServerError;
                 idempotent string getConfigValue(string key) throws ServerError;
+                idempotent omero::api::StringStringMap getConfigValues(string keyRegex) throws ServerError;
+                idempotent omero::api::StringStringMap getConfigDefaults() throws ServerError;
+                idempotent omero::api::StringStringMap getClientConfigValues() throws ServerError;
+                idempotent omero::api::StringStringMap getClientConfigDefaults() throws ServerError;
                 idempotent void setConfigValue(string key, string value) throws ServerError;
                 idempotent bool setConfigValueIfEquals(string key, string value, string test) throws ServerError;
                 idempotent string getDatabaseUuid() throws ServerError;

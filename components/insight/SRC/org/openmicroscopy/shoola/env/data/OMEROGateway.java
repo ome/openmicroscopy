@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OMEROGateway
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -51,18 +49,15 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -89,7 +84,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
+
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -100,12 +95,12 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-import ome.parameters.Filter;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
+import ome.util.search.LuceneQueryBuilder;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.ChecksumValidationException;
@@ -124,6 +119,7 @@ import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
+import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
@@ -144,7 +140,6 @@ import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
@@ -168,11 +163,9 @@ import omero.grid.WellColumn;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
@@ -182,7 +175,6 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
@@ -194,6 +186,7 @@ import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -217,11 +210,7 @@ import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
-import omero.model.TermAnnotationI;
-import omero.model.TimestampAnnotation;
-import omero.model.TimestampAnnotationI;
 import omero.model.Well;
-import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
@@ -244,6 +233,7 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
@@ -333,9 +323,6 @@ class OMEROGateway
 
 	/** Maximum size of pixels read at once. */
 	private static final int				INC = 262144;//256000;
-
-	/** The maximum number read at once. */
-	private static final int				MAX_BYTES = 1024;
 
 	/**
 	 * The maximum number of thumbnails retrieved before restarting the
@@ -438,6 +425,12 @@ class OMEROGateway
 	/** Checks if the network is up or not.*/
 	private NetworkChecker networkChecker;
 
+	/**
+	 * Reference to the config service (set during session creation, see
+	 * {@link #createSession(String, String, String, boolean, String, int)}
+	 */
+	private IConfigPrx configService;
+	
 	/**
 	 * Creates the query to load the file set corresponding to a given image.
 	 *
@@ -992,7 +985,7 @@ class OMEROGateway
 	private List<String> formatText(List<String> terms, String field)
 	{
 		if (CollectionUtils.isEmpty(terms)) return null;
-		if (StringUtils.isBlank(field)) return terms;
+		if (CommonsLangUtils.isBlank(field)) return terms;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		Iterator<String> j = terms.iterator();
 		while (j.hasNext())
@@ -1483,7 +1476,7 @@ class OMEROGateway
 			} else if (prx instanceof RenderingEnginePrx) {
 				RenderingEnginePrx re = (RenderingEnginePrx) prx;
 				if (!re.lookupRenderingDef(pixelsID)) {
-					re.resetDefaults();
+					re.resetDefaultSettings(true);
 					re.lookupRenderingDef(pixelsID);
 				}
 			}
@@ -1573,7 +1566,7 @@ class OMEROGateway
 	 */
 	private boolean startWithWildCard(String value)
 	{
-		if (StringUtils.isBlank(value)) return false;
+		if (CommonsLangUtils.isBlank(value)) return false;
 		Iterator<String> i = WILD_CARDS.iterator();
 		String card = null;
 		while (i.hasNext()) {
@@ -1694,6 +1687,8 @@ class OMEROGateway
 			return XmlAnnotation.class;
 		else if (FilesetData.class.equals(nodeType))
 			return Fileset.class;
+		else if (MapAnnotationData.class.equals(nodeType))
+			return MapAnnotation.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -1721,7 +1716,8 @@ class OMEROGateway
 		else if (TagAnnotationData.class.getName().equals(data) ||
 				TermAnnotationData.class.getName().equals(data) ||
 				FileAnnotationData.class.getName().equals(data) ||
-				TextualAnnotationData.class.getName().equals(data))
+				TextualAnnotationData.class.getName().equals(data) ||
+				MapAnnotationData.class.getName().equals(data))
 			return REF_ANNOTATION;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
@@ -1805,11 +1801,8 @@ class OMEROGateway
 	 * @param userName The user name to be used for login.
 	 * @param password The password to be used for login.
 	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and
-	 * 					  thumbnails depending on the connection speed.
-	 * @param groupID The id of the group or <code>-1</code>.
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
-     * 					<code>false</code> otherwise.
+     *                  <code>false</code> otherwise.
      * @param agentName The name to register with the server.
      * @param port The port to use.
 	 * @return The user's details.
@@ -1824,14 +1817,32 @@ class OMEROGateway
 	{
 		this.encrypted = encrypted;
 		client secureClient = null;
+		
 		try {
 		    // client must be cleaned up by caller.
-			if (port > 0) secureClient = new client(hostName, port);
-			else secureClient = new client(hostName);
-			secureClient.setAgent(agentName);
-			ServiceFactoryPrx entryEncrypted
-			    = secureClient.createSession(userName, password);
+		    if (port > 0) secureClient = new client(hostName, port);
+		    else secureClient = new client(hostName);
+		    secureClient.setAgent(agentName);
+		    ServiceFactoryPrx entryEncrypted;
+		    boolean session = true;
+		    try {
+		        //Check if it is a session first
+		        ServiceFactoryPrx guestSession = secureClient.createSession("guest", "guest");
+		        guestSession.getSessionService().getSession(userName);
+		    } catch (Exception e) {
+		        //thrown if it is not a session or session has experied.
+		        session = false;
+		    } finally {
+		        secureClient.closeSession();
+		    }
+		    if (session) {
+		        entryEncrypted = secureClient.joinSession(userName);
+		    } else {
+		        entryEncrypted = secureClient.createSession(userName, password);
+		    }
+		    configService = entryEncrypted.getConfigService();
 			serverVersion = entryEncrypted.getConfigService().getVersion();
+
 			String ip = null;
 	        try {
 				ip = InetAddress.getByName(hostName).getHostAddress();
@@ -1852,12 +1863,28 @@ class OMEROGateway
 		}
 		return secureClient;
 	}
+	
+	/**
+	 * Get the omero client properties from the server
+	 * @return See above.
+	 */
+	Map<String, String> getOmeroClientProperties() throws DSOutOfServiceException,
+			DSAccessException {
+		if (configService == null)
+			return null;
+
+		try {
+			return configService.getClientConfigValues();
+		} catch (Exception e) {
+			handleException(e, "Cannot access config service. ");
+			return null;
+		}
+	}
 
 	/**
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
 	 * credentials. The <code>createSession</code> method must be invoked before.
 	 *
-	 * @param userName The user name to be used for login.
 	 * @param secureClient Reference to the client
 	 * @param hostName The name of the server.
 	 * @param compression The compression level used for images and
@@ -1872,7 +1899,7 @@ class OMEROGateway
 	 *                                  or the credentials are invalid.
 	 * @see #createSession(String, String, String, long, boolean, String)
 	 */
-	ExperimenterData login(client secureClient, String userName, String hostName,
+	ExperimenterData login(client secureClient, String hostName,
 		float compression, long groupID, int port)
 		throws DSOutOfServiceException
 	{
@@ -1882,6 +1909,7 @@ class OMEROGateway
 			connected = true;
 			ServiceFactoryPrx entryEncrypted = secureClient.getSession();
 			IAdminPrx prx = entryEncrypted.getAdminService();
+			String userName = prx.getEventContext().userName;
 			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
 					prx.lookupExperimenter(userName));
 			if (groupID >= 0) {
@@ -2201,6 +2229,10 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
+		    ExperimenterData exp = ctx.getExperimenterData();
+		    if (exp != null && ctx.isSudo()) {
+	            c = c.getConnector(exp.getUserName());
+	        }
 		    IContainerPrx service = c.getPojosService();
 			return PojoMapper.asDataObjects(
 					service.loadContainerHierarchy(
@@ -2580,18 +2612,11 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
-	 * @see IUpdate#deleteObject(IObject)
 	 */
 	void deleteObject(SecurityContext ctx, IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
-        Connector c = getConnector(ctx, true, false);
-		try {
-		    IUpdatePrx service = c.getUpdateService();
-			service.deleteObject(object);
-		} catch (Throwable t) {
-			handleException(t, "Cannot delete the object.");
-		}
+	    deleteObjects(ctx, Collections.singletonList(object));
 	}
 
 	/**
@@ -2602,22 +2627,42 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException       If an error occurred while trying to
 	 *                                 retrieve data from OMERO service.
-	 * @see IUpdate#deleteObject(IObject)
 	 */
 	void deleteObjects(SecurityContext ctx, List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
-        Connector c = getConnector(ctx, true, false);
-		try {
-		    IUpdatePrx service = c.getUpdateService();
-			Iterator<IObject> i = objects.iterator();
-			//TODO: need method
-			while (i.hasNext())
-				service.deleteObject(i.next());
-
-		} catch (Throwable t) {
-			handleException(t, "Cannot delete the object.");
-		}
+        try {
+            /* convert the list of objects to lists of IDs by OMERO model class name */
+            final Map<String, List<Long>> objectIds = new HashMap<String, List<Long>>();
+            for (final IObject object : objects) {
+                /* determine actual model class name for this object */
+                Class<? extends IObject> objectClass = object.getClass();
+                while (true) {
+                    final Class<?> superclass = objectClass.getSuperclass();
+                    if (IObject.class == superclass) {
+                        break;
+                    } else {
+                        objectClass = superclass.asSubclass(IObject.class);
+                    }
+                }
+                final String objectClassName = objectClass.getSimpleName();
+                /* then add the object's ID to the list for that class name */
+                final Long objectId = object.getId().getValue();
+                List<Long> idsThisClass = objectIds.get(objectClassName);
+                if (idsThisClass == null) {
+                    idsThisClass = new ArrayList<Long>();
+                    objectIds.put(objectClassName, idsThisClass);
+                }
+                idsThisClass.add(objectId);
+            }
+            /* now delete the objects */
+            final Request request = Requests.delete(objectIds);
+            final client client = getConnector(ctx, true, false).getClient();
+            final HandlePrx handle = client.getSession().submit(request);
+            new RequestCallback(client, handle).loop(50, 250);
+        } catch (Throwable t) {
+            handleException(t, "Cannot delete the object.");
+        }
 	}
 
 	/**
@@ -3447,6 +3492,53 @@ class OMEROGateway
 	}
 
 	/**
+     * Finds the links if any between the specified parent and children.
+     *
+     * @param ctx The security context.
+     * @param childID The id of the child.
+     * @param userID The id of the user.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    Set<DataObject> findPlateFromRun(SecurityContext ctx, long childID,
+            long userID)
+    throws DSOutOfServiceException, DSAccessException
+    {
+        Set<DataObject> data = new HashSet<DataObject>();
+        List<Long> ids = new ArrayList<Long>();
+        ParametersI param = new ParametersI();
+        param.addLong("acqId", childID);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("select plate from Plate as plate where plate.id = (select acq.plate "
+                + "from PlateAcquisition acq where acq.id = :acqId)");
+
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IQueryPrx service = c.getQueryService();
+            List results = service.findAllByQuery(sb.toString(), param);
+            Iterator i = results.iterator();
+            Plate plate;
+            long id;
+            while (i.hasNext()) {
+                plate =  (Plate) i.next();
+                id = plate.getId().getValue();
+                if (!ids.contains(id)) {
+                    data.add(PojoMapper.asDataObject(plate));
+                    ids.add(id);
+                }
+            }
+        } catch (Throwable t) {
+            handleException(t, "Cannot find the plates containing the image.");
+        }
+
+        return data;
+    }
+    
+	/**
 	 * Retrieves an updated version of the specified object.
 	 *
 	 * @param ctx The security context.
@@ -3977,7 +4069,7 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
-		if (StringUtils.isBlank(mimeType))
+		if (CommonsLangUtils.isBlank(mimeType))
 			mimeType =  DEFAULT_MIMETYPE;
 
 		boolean fileCreated = false;
@@ -4112,7 +4204,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx service = c.getAdminService();
+		    IAdminPrx service = c.getAdminService(true);
 			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
@@ -5006,6 +5098,10 @@ class OMEROGateway
             
             int batchSize = context.getTypes().size()==1 ? 1000 : context.getTypes().size()*500;
             
+            // if search for Plates automatically include Plate Runs
+            if(context.getTypes().contains(PlateData.class))
+                context.getTypes().add(PlateAcquisitionData.class);
+            
             for (Class<? extends DataObject> type : context.getTypes()) {
                 try {
                     // set general parameters
@@ -5049,21 +5145,16 @@ class OMEROGateway
                         m.put("omero.group", ""+ctx.getGroupID());
                     }
                     
-                    if (isVersion53()) {
-                        // the lucene query can be build server side
-                        DateFormat df = new SimpleDateFormat("yyyyMMdd");
-                        String fields = resolveScopeIdsAsString(context.getScope());
-                        String dFrom = from != null ? df.format(from) : null;
-                        String dTo = to != null ? df.format(to) : null;
+                    DateFormat df = new SimpleDateFormat("yyyyMMdd");
+                    String fields = resolveScopeIdsAsString(context.getScope());
+                    String dFrom = from != null ? df.format(from) : null;
+                    String dTo = to != null ? df.format(to) : null;
+                    try {
                         service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
                                 context.getQuery(), m);
-                    } else {
-                        // have to build lucene query client side for versions pre 5.0.3
-                        String query = LuceneQueryBuilder.buildLuceneQuery(
-                                resolveScopeIds(context.getScope()), from, to,
-                                dateType, context.getQuery());
-                        dsFactory.getLogger().info(this, "Performing lucene search for type " + type.getSimpleName() + ": " + query);
-                        service.byFullText(query, m);
+                    } catch (ApiUsageException e) {
+                        result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                        return result;
                     }
                     
                     try {
@@ -5164,21 +5255,6 @@ class OMEROGateway
             }
     
             return result;
-        }
-        
-        /**
-         * Just checks if the server is version >= 5.0.3
-         * 
-         * @return
-         * @throws DSOutOfServiceException
-         */
-        private boolean isVersion53() throws DSOutOfServiceException {
-            String tmp[] = getServerVersion().split("\\.");
-            int v1 = Integer.parseInt(tmp[0]);
-            int v2 = Integer.parseInt(tmp[1]);
-            int v3 = Integer.parseInt(tmp[2]);
-    
-            return v1 >= 5 && (v2 >= 1 || v3 >= 3);
         }
         
 	/**
@@ -5572,54 +5648,6 @@ class OMEROGateway
 			handleException(t, "Cannot count the collection.");
 		}
 		return new HashMap();
-	}
-
-	/**
-	 * Removes the description linked to the tags.
-	 *
-	 * @param ctx The security context.
-	 * @param tagID  The id of tag to handle.
-	 * @param userID The id of the user who annotated the tag.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	void removeTagDescription(SecurityContext ctx, long tagID, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-	    Connector c = getConnector(ctx, true, false);
-		try {
-		    IQueryPrx service = c.getQueryService();
-			String type = "ome.model.annotations.TextAnnotation";
-			ParametersI param = new ParametersI();
-			param.addLong("uid", userID);
-			param.addLong("id", tagID);
-
-			String sql =  "select link from AnnotationAnnotationLink as link ";
-			sql += "where link.parent.id = :id";
-			sql += " and link.child member of "+type;
-			sql += " and link.details.owner.id = :uid";
-
-			List l = service.findAllByQuery(sql, param);
-			//remove all the links if any
-			if (l != null) {
-				Iterator i = l.iterator();
-				AnnotationAnnotationLink link;
-				IObject child;
-				while (i.hasNext()) {
-					link = (AnnotationAnnotationLink) i.next();
-					child = link.getChild();
-					if (!((child instanceof TagAnnotation) ||
-						(child instanceof TermAnnotation)))  {
-						deleteObject(ctx, link);
-						deleteObject(ctx, child);
-					}
-				}
-			}
-		} catch (Exception e) {
-			handleException(e, "Cannot remove the tag description.");
-		}
 	}
 
 	/** Keeps the services alive. */
@@ -6215,6 +6243,9 @@ class OMEROGateway
 		map.put("IDs", omero.rtypes.rlist(ids));
 		map.put("Data_Type", omero.rtypes.rstring(type));
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+		if (CommonsLangUtils.isNotEmpty(param.getBatchExportFilename()))
+			map.put("Folder_Name",
+		omero.rtypes.rstring(param.getBatchExportFilename()));
 		return runScript(ctx, id, map);
 	}
 
@@ -6626,8 +6657,8 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
-	 * @param name		The name to give to the imported image.
-	 * @param usedFiles The files returned composing the import.
+	 * @param ic The import container.
+	 * @param status The component used to give feedback.
      * @param close Pass <code>true</code> to close the import,
      * 		<code>false</code> otherwise.
      * @param userName The user's name.
@@ -6636,10 +6667,10 @@ class OMEROGateway
 	 */
     Object importImageFile(SecurityContext ctx, ImportableObject object,
             IObject container, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs, String userName)
+            boolean close, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
-    	status.setHCS(hcs);
+        status.setImportContainer(ic);
         ImportConfig config = new ImportConfig();
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
@@ -7161,7 +7192,7 @@ class OMEROGateway
 								}
 								if (shapeIndex !=-1) {
 									if (!removed.contains(coord))
-										updateService.deleteObject(serverShape);
+										deleteObject(ctx, serverShape);
 									serverRoi.addShape(
 											(Shape) shape.asIObject());
 								} else {
@@ -7471,6 +7502,7 @@ class OMEROGateway
 						systemGroup = true;
 					}
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					exp.setLdap(omero.rtypes.rbool(false));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
 						id = svc.createExperimenterWithPassword(exp,
@@ -7523,6 +7555,7 @@ class OMEROGateway
 
 			g = new ExperimenterGroupI();
 			g.setName(omero.rtypes.rstring(groupData.getName()));
+			g.setLdap(omero.rtypes.rbool(false));
 			g.setDescription(omero.rtypes.rstring(groupData.getDescription()));
 			g.getDetails().setPermissions(createPermissions(
 					object.getPermissions()));
@@ -7560,6 +7593,7 @@ class OMEROGateway
 						l.add(systemGroup);
 					} else l.add(userGroup);
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					exp.setLdap(omero.rtypes.rbool(false));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
 						id = svc.createExperimenterWithPassword(exp,
@@ -7937,7 +7971,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx svc = c.getAdminService();
+		    IAdminPrx svc = c.getAdminService(true);
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);
@@ -8291,6 +8325,22 @@ class OMEROGateway
 	}
 
 	/**
+	 * Checks if there is alreay a {@link Save} object for the same
+	 * {@link IObject} in <code>saves</code> list. 
+	 * @param save The Save to look for
+	 * @param saves The collection of Saves to look in
+	 * @return <code>true</code> if it's already in the list, <code>
+	 *     false</code> otherwise.
+	 */
+	private boolean contains(Save save, List<Save> saves) {
+	    for(Save save2 : saves) {
+	        if(save2.obj == save.obj)
+	            return true;
+	    }
+	    return false;
+	}
+	
+	/**
 	 * Moves data between groups.
 	 *
 	 * @param ctx The security context of the source group.
@@ -8306,8 +8356,11 @@ class OMEROGateway
 			Map<DataObject, List<IObject>> map, Map<String, String> options)
 		throws DSOutOfServiceException, DSAccessException
 	{
+	    // map ~ Map<'Object to move', 'Destinations to move the object to'>
 		Connector c = getConnector(ctx, true, true);
-		if (c == null) return null; // TODO:
+		if (c == null) 
+		    return null; 
+		
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			Entry<DataObject, List<IObject>> entry;
@@ -8317,81 +8370,32 @@ class OMEROGateway
 			List<IObject> l;
 			Iterator<IObject> j;
 			List<Request> commands = new ArrayList<Request>();
-			Chgrp cmd;
-			long id;
+			List<Save> saves = new ArrayList<Save>();
 			Save save;
-			Map<Long, List<IObject>> images = new HashMap<Long, List<IObject>>();
+			Map<String, List<Long>> objects = new HashMap<String, List<Long>>();
 			while (i.hasNext()) {
 				entry = i.next();
 				data = entry.getKey();
 				l = entry.getValue();
-				if (data instanceof ImageData) {
-					images.put(data.getId(), l);
-				} else {
-					cmd = new Chgrp(createDeleteCommand(
-						data.getClass().getName()), data.getId(), options,
-						target.getGroupID());
-					commands.add(cmd);
-					j = l.iterator();
-					while (j.hasNext()) {
-						save = new Save();
-						save.obj = j.next();
-						commands.add(save);
-					}
+				String key = PojoMapper.getGraphType(data.getClass());
+				List<Long> values = objects.get(key);
+				if(values==null) {
+				    values = new ArrayList<Long>();
+				    objects.put(key, values);
 				}
+				values.add(data.getId());
+				
+				for (IObject obj : l) {
+                  save = new Save();
+                  save.obj = obj;
+                    if (!contains(save, saves))
+                        saves.add(save);
+              }
 			}
-			if (images.size() > 0) {
-				Set<DataObject> fsList = getFileSet(ctx, images.keySet());
-				List<Long> all = new ArrayList<Long>();
-				Iterator<DataObject> kk = fsList.iterator();
-				FilesetData fs;
-				long imageId;
-				List<Long> imageIds;
-				Iterator<Long> ii;
-				while (kk.hasNext()) {
-					fs = (FilesetData) kk.next();
-					imageIds = fs.getImageIds();
-					if (imageIds.size() > 0) {
-						imageId = imageIds.get(0);
-						cmd = new Chgrp(createDeleteCommand(
-								FilesetData.class.getName()), fs.getId(),
-								options, target.getGroupID());
-						commands.add(cmd);
-						all.addAll(imageIds);
-						ii = imageIds.iterator();
-						while (ii.hasNext()) {
-							l = images.get(ii.next());
-							j = l.iterator();
-							while (j.hasNext()) {
-								save = new Save();
-								save.obj = j.next();
-								commands.add(save);
-							}
-						}
-					}
-				}
-
-				//Now check that all the ids are covered.
-				Entry<Long, List<IObject>> ee;
-				Iterator<Entry<Long, List<IObject>>> e =
-						images.entrySet().iterator();
-				while (e.hasNext()) {
-					ee = e.next();
-					if (!all.contains(ee.getKey())) { //pre-fs data.
-						cmd = new Chgrp(createDeleteCommand(
-								ImageData.class.getName()), ee.getKey(),
-								options, target.getGroupID());
-						commands.add(cmd);
-						l = images.get(ee.getKey());
-						j = l.iterator();
-						while (j.hasNext()) {
-							save = new Save();
-							save.obj = j.next();
-							commands.add(save);
-						}
-					}
-				}
-			}
+			
+			commands.add(Requests.chgrp(objects, target.getGroupID()));
+			commands.addAll(saves);
+			
 			return c.submit(commands, target);
 		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
