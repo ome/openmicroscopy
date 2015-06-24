@@ -319,10 +319,6 @@ INTERNAL_SETTINGS_MAPPING = {
          parse_boolean,
          ("Whether to use a TLS (secure) connection when talking to the SMTP"
           " server.")],
-
-    # Deprecated
-    "omero.web.send_broken_link_emails":
-        ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean, None],
 }
 
 CUSTOM_SETTINGS_MAPPINGS = {
@@ -651,6 +647,13 @@ DEPRECATED_SETTINGS_MAPPINGS = {
          None,
          leave_none_unset_int,
          ("Use omero.client.viewer.initial_zoom_level instead.")],
+    "omero.web.send_broken_link_emails":
+        ["SEND_BROKEN_LINK_EMAILS",
+         "false",
+         parse_boolean,
+         ("Replaced by django.middleware.common.BrokenLinkEmailsMiddleware."
+          "To get notification set :property:`omero.web.admins` property.")
+         ],
 }
 
 del CUSTOM_HOST
@@ -805,6 +808,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
 )
 
 
