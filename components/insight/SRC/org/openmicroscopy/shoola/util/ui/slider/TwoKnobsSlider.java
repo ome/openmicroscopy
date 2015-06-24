@@ -269,7 +269,7 @@ public class TwoKnobsSlider
 		if (knobControl == LEFT) { //left knob moved.
 			model.setStartValue(uiDelegate.xValueForPosition(left, true));
 		} else if (knobControl == RIGHT) { //right knob moved.
-			model.setEndValue(uiDelegate.xValueForPosition(right, false));
+			model.setEndValue(uiDelegate.xValueForPosition(x, false));
 		}
 		repaint();
 	}
