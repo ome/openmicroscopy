@@ -1746,7 +1746,7 @@ class GraphControl(CmdControl):
             inc = args.include.split(",")
         exc = self.default_exclude()
         if args.exclude:
-            exc = exc.extend(args.exclude.split(","))
+            exc.extend(args.exclude.split(","))
 
         if inc or exc:
             opt = omero.cmd.graphs.ChildOption()
