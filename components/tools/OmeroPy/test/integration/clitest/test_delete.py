@@ -284,6 +284,64 @@ class TestDelete(CLITest):
         # Check that the image has not been deleted,
         assert self.query.find('Image', img.id.val)
 
+    # Test combinations of include and exclude other than annotations
+    @pytest.fixture()
+    def simpleHierarchy(self):
+        proj = self.make_project()
+        dset = self.make_dataset()
+        img = self.update.saveAndReturnObject(self.new_image())
+        self.link(proj, dset)
+        self.link(dset, img)
+        return proj, dset, img
+
+    def testExcludeNone(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert not self.query.find('Dataset', dset.id.val)
+        assert not self.query.find('Image', img.id.val)
+
+    def testIncludeExcludeSecond(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Dataset']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert self.query.find('Dataset', dset.id.val)
+        assert self.query.find('Image', img.id.val)
+
+    def testExcludeThird(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Image']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert not self.query.find('Dataset', dset.id.val)
+        assert self.query.find('Image', img.id.val)
+
+    def testIncludeExclude(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Dataset']
+        self.args += ['--include', 'Image']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert self.query.find('Dataset', dset.id.val)
+        assert not self.query.find('Image', img.id.val)
+
     # These tests check the default exclusion of the annotations:
     # FileAnnotation, TagAnnotation and TermAnnotation
 
