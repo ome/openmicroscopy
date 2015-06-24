@@ -176,6 +176,9 @@
 
             // For 'number' fields, only allow numbers input.
             $(".number").numbersOnly();
+
+            // Focus first input
+            $('input:visible, select:visible').first().focus();
         });
     </script>
 {% endblock %}
@@ -210,10 +213,12 @@
         </div>
         <div class="footer">
             <div style="float:right">
-                <a href="#" onClick="self.close()">Cancel</a>
-                <input id="submit" type="submit" value="Run Script" />
+                <a href="#" tabIndex="3" onClick="self.close()">Cancel</a>
+                <input id="submit" tabIndex="2" type="submit" value="Run Script" />
             </div>
-            <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' scriptId %}');">View Script</a>
+            <a href="#" tabIndex="0" onClick="return OME.openPopup('{% url 'get_original_file' scriptId %}');">
+                View Script
+            </a>
         </div>
     </form>
 {% endblock %}
