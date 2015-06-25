@@ -313,8 +313,6 @@
         <bean parent="graphPolicyRule" p:matches="!$to_private, L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}/d"
                                        p:changes="I:{r}"/>
 
-        <!-- If a container is moved then consider its contents for moving if they are deletable and not going to a private group. -->
-
         <!-- In considering moving a container's contents, do not move an object if it is in another container. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E]{ia}, L.child = D:[E]{r}" p:changes="D:{a}"/>
