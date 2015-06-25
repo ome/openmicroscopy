@@ -286,8 +286,17 @@
                         for (var r = 0; r < result.data.rows.length; r++) {
                           v = ("" + result.data.rows[r][col]).escapeHTML();
                           if (url) {
-                            href = url.replace("%s", v);
-                            v = "<a target='new' href='" + href + "'>" + v + "</a>";
+                            // split links on ';' and create link for each
+                            var tokens = v.split(";"),
+                                token,
+                                links = [];
+                            for (var t=0; t<tokens.length; t++) {
+                                token = $.trim(tokens[t]);
+                                href = url.replace("%s", token);
+                                token = "<a target='new' href='" + href + "'>" + token + "</a>";
+                                links.push(token);
+                            }
+                            v = links.join("; ");
                           }
                           values.push(v);
                         }
