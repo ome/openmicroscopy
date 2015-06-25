@@ -132,6 +132,21 @@
         <bean parent="graphPolicyRule" p:matches="OTF[D].filterSet = FS:[E]" p:changes="FS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="OTF[D].objective = O:[E]" p:changes="O:[D]"/>
 
+        <!-- An instrument may not be linked directly to the image, so note relevance via settings. -->
+
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].detectorSettings = S:[ED], S.detector = D:[E]{i}"
+                                       p:changes="D:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].lightSourceSettings = S:[ED], S.lightSource = LS:[E]{i}"
+                                       p:changes="LS:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Image[D].objectiveSettings = S:[ED], S.objective = O:[E]{i}"
+                                       p:changes="O:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.detector = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.lightSource = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.objective = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.detector = [D]" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.lightSource = [D]" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.objective = [D]" p:changes="IN:{r}"/>
+
         <!-- Delete emission and excitation filter links if either parent or child is deleted. -->
 
         <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = [D]" p:changes="L:[D]"/>
