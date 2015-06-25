@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -1104,11 +1105,21 @@ class MeasurementViewerComponent
 		view.displayAnalysisResults();
 	}
 
-        /**
-         * Implemented as specified by the {@link MeasurementViewer} interface.
-         * @see MeasurementViewer#exportGraph()
-         */
-        public void exportGraph() {
-            view.exportGraph();
-        }
+	/**
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#exportGraph()
+	 */
+	public void exportGraph() {
+	    view.exportGraph();
+	}
+
+	/**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setROIAnnotations(Map)
+     */
+	public void setROIAnnotations(Map<Long, List<AnnotationData>> result)
+	{
+	    if (model.getState() == DISCARDED) return;
+
+	}
 }
