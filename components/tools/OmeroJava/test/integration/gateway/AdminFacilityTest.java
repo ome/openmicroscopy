@@ -65,4 +65,16 @@ public class AdminFacilityTest extends GatewayTest {
         exp = adminFacility.createExperimenter(rootCtx, exp, UUID.randomUUID().toString(), "test", groups, false, true);
         Assert.assertTrue(exp.getId()>-1);
     }
+    
+    @Test(dependsOnMethods = {"testCreateExperimenter"})
+    public void testLookupExperimenter() throws DSOutOfServiceException, DSAccessException {
+        ExperimenterData e = adminFacility.lookupExperimenter(rootCtx, exp.getUserName());
+        Assert.assertEquals(exp.getId(), e.getId());
+    }
+    
+    @Test(dependsOnMethods = {"testCreateGroup"})
+    public void testLookupGroup() throws DSOutOfServiceException, DSAccessException {
+        GroupData g = adminFacility.lookupGroup(rootCtx, group.getName());
+        Assert.assertEquals(group.getId(), g.getId());
+    }
 }

@@ -67,12 +67,11 @@ public class AdminFacility extends Facility {
 
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
-            ExperimenterGroup g = lookupGroup(ctx, groupData.getName());
 
-            if (g != null)
+            if (lookupGroup(ctx, groupData.getName()) != null)
                 return null;
 
-            g = new ExperimenterGroupI();
+            ExperimenterGroup g = new ExperimenterGroupI();
             g.setName(omero.rtypes.rstring(groupData.getName()));
             g.setLdap(omero.rtypes.rbool(false));
             g.setDescription(omero.rtypes.rstring(groupData.getDescription()));
@@ -111,7 +110,7 @@ public class AdminFacility extends Facility {
                     l.add(((GroupData) j.next()).asGroup());
             }
             long id;
-            Experimenter value;
+            ExperimenterData value;
             boolean systemGroup = false;
             final ExperimenterGroup userGroup = new ExperimenterGroupI(
                     getRoles(ctx).userGroupId, false);
@@ -164,12 +163,13 @@ public class AdminFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMEDS
      *             service.
      */
-    public ExperimenterGroup lookupGroup(SecurityContext ctx, String name)
+    public GroupData lookupGroup(SecurityContext ctx, String name)
             throws DSOutOfServiceException, DSAccessException {
 
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
-            return svc.lookupGroup(name);
+            ExperimenterGroup g =  svc.lookupGroup(name);
+            return (GroupData) (g == null ? null : PojoMapper.asDataObject(g));
         } catch (Exception e) {
             if (e instanceof ApiUsageException)
                 return null;
@@ -193,12 +193,13 @@ public class AdminFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMEDS
      *             service.
      */
-    public Experimenter lookupExperimenter(SecurityContext ctx, String name)
+    public ExperimenterData lookupExperimenter(SecurityContext ctx, String name)
             throws DSOutOfServiceException, DSAccessException {
 
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
-            return svc.lookupExperimenter(name);
+            Experimenter exp = svc.lookupExperimenter(name);
+            return exp == null ? null : (ExperimenterData) PojoMapper.asDataObject(exp);
         } catch (Exception e) {
             if (e instanceof ApiUsageException)
                 return null;
