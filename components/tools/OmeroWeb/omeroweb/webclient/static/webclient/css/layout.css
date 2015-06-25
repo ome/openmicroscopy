@@ -979,7 +979,10 @@
 	}
 	
 	
-	
+	/* Bulk Annotations */
+	.bulk_annotations_table td {
+		white-space: normal !important;
+	}
 		
 	
 
