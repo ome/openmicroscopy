@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.model.IObject;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -36,6 +39,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.util.PojoMapper;
 
 /**
  *
@@ -216,6 +220,37 @@ public class BrowseFacilityTest extends GatewayTest {
         result = browseFacility.getImages(ctx, user2.getId(), ids);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.iterator().next().getId(), img2.getId());
+    }
+
+    @Test
+    public void testFindIObject() throws DSOutOfServiceException,
+            DSAccessException {
+        SecurityContext ctx = new SecurityContext(group.getId());
+        
+        IObject obj = browseFacility.findIObject(ctx, ds.asIObject());
+        Assert.assertEquals(ds.getId(), obj.getId().getValue());
+
+        obj = browseFacility.findIObject(ctx,
+                PojoMapper.getModelType(ProjectData.class).getName(),
+                proj.getId());
+        Assert.assertEquals(proj.getId(), obj.getId().getValue());
+
+        obj = browseFacility.findIObject(ctx,
+                PojoMapper.getModelType(ImageData.class).getName(),
+                img.getId(), true);
+        Assert.assertEquals(img.getId(), obj.getId().getValue());
+
+        ScreenData s = browseFacility.findObject(rootCtx, ScreenData.class,
+                screen.getId(), true);
+        Assert.assertEquals(screen.getId(), s.getId());
+    }
+
+    @Test
+    public void testFindObject() throws DSOutOfServiceException,
+            DSAccessException {
+        ScreenData s = browseFacility.findObject(rootCtx, ScreenData.class,
+                screen.getId(), true);
+        Assert.assertEquals(screen.getId(), s.getId());
     }
 
     private void initData() throws Exception {
