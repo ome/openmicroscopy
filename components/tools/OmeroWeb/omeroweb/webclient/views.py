@@ -56,7 +56,7 @@ from django.views.decorators.http import require_POST
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ContainerForm
-from forms import ShareForm, ShareFormWithImages
+from forms import ShareForm, BasketShareForm
 from forms import ContainerNameForm, ContainerDescriptionForm
 from forms import CommentAnnotationForm, TagsAnnotationForm,  UsersForm
 from forms import MetadataFilterForm, MetadataDetectorForm
@@ -2223,7 +2223,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 conn.getObjects("Image",
                                 request.REQUEST.getlist('image')))
             if request.method == 'POST':
-                form = ShareFormWithImages(
+                form = BasketShareForm(
                     initial={'experimenters': experimenters,
                              'images': images_to_share},
                     data=request.REQUEST.copy())
@@ -2247,7 +2247,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     'enable': True,
                     'selected': request.REQUEST.getlist('image')
                 }
-                form = ShareFormWithImages(initial=initial)
+                form = BasketShareForm(initial=initial)
         template = "webclient/public/share_form.html"
         context = {'manager': manager, 'form': form}
 

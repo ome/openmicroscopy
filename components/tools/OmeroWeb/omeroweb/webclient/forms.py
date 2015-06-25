@@ -132,10 +132,10 @@ class ShareForm(NonASCIIForm):
         return self.cleaned_data['expiration']
 
 
-class ShareFormWithImages(ShareForm):
+class BasketShareForm(ShareForm):
 
     def __init__(self, *args, **kwargs):
-        super(ShareFormWithImages, self).__init__(*args, **kwargs)
+        super(BasketShareForm, self).__init__(*args, **kwargs)
 
         try:
             self.fields['image'] = GroupModelMultipleChoiceField(
