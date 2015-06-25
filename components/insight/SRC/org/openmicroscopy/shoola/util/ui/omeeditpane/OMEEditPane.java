@@ -91,7 +91,13 @@ class OMEEditPane
 		}
 		timer.start();
 	}
-	
+
+	/** Updates the component hosting the UI.*/
+	private void onUpdate()
+	{
+	    this.component.onUpdate();
+	}
+
 	/**
 	 * Creates a new instance.
 	 * Initializes the default maps and styles.
@@ -126,12 +132,12 @@ class OMEEditPane
             
             @Override
             public void removeUpdate(DocumentEvent e) {
-                component.onUpdate();
+                onUpdate();
             }
             
             @Override
             public void insertUpdate(DocumentEvent e) {
-                component.onUpdate();
+                onUpdate();
             }
             
             @Override
