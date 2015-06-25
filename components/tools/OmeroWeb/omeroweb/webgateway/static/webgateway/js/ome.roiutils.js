@@ -24,6 +24,41 @@ $.fn.get_generic_shape = function(transform, z_plane, t_plane, shape_type) {
     };
 }
 
+$.fn.get_font_size = function(img_width, img_height) {
+    var max_font_size = 512;
+    var default_font_size = 12
+
+    if (img_width && img_height) {
+        if (img_width <= max_font_size && img_height <= max_font_size)
+            return default_font_size;
+        var rx = default_font_size*(img_width/max_font_size);
+        var ry = default_font_size*(img_height/max_font_size);
+
+        return Math.floor(Math.max(rx, ry));
+    } else {
+        return default_font_size;
+    }
+}
+
+$.fn.get_text_config = function(text_value, font_family, font_size, font_style) {
+    // default font family and font_style
+    var ffamily = typeof font_family !== "undefined" ? font_family : "sans-serif";
+    var fstyle = typeof font_style !== "undefined" ? font_style : "Normal";
+    var fsize = typeof font_size !== "undefined" ? font_size : $.fn.get_font_size();
+    return {
+        "fontFamily": ffamily,
+        "fontStyle": fstyle,
+        "fontSize": fsize,
+        "textValue": text_value,
+        "fontColor": "red"
+    };
+}
+
+$.fn.add_text_to_shape = function(shape_conf, text_conf) {
+    $.extend(shape_conf, text_conf);
+    return shape_conf;
+}
+
 $.fn.get_ome_rectangle = function(x, y, height, width, z_plane, t_plane, transform, shape_config) {
     // if no shape_config was given, use the default one
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
@@ -96,25 +131,16 @@ $.fn.get_ome_label = function(x, y, text_value, z_plane, t_plane, transform,
     // if no shape_config was given, use the default one
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
 
-    // default font family and font_style
-    var ffamily = typeof font_family !== "undefined" ? font_family : "sans-serif";
-    var fstyle = typeof font_style !== "undefined" ? font_style : "Normal";
-    // TODO: check how to obtain a default font size
-    var font_config = {
-        "fontFamily": ffamily,
-        "fontStyle": fstyle,
-        "fontSize": font_size
-    };
+    var text_conf = $.fn.get_text_config(text_value, font_family, font_size, font_style);
 
     var label_conf = {
         "x": x,
-        "y": y,
-        "textValue": text_value
+        "y": y
     };
 
-    $.extend(label_conf, font_config);
     $.extend(label_conf, $.fn.get_generic_shape(transform, z_plane, t_plane, "Label"));
     $.extend(label_conf, shape_config);
+    label_conf = $.fn.add_text_to_shape(label_conf, text_conf);
 
     return label_conf;
 }
