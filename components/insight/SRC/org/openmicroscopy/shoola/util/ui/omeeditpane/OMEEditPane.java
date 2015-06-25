@@ -67,10 +67,10 @@ class OMEEditPane
 	private static String DOC_TYPE = "text/wiki";
 	
 	/** The editor kit	 */
-	private OMEEditorKit		editorKit;
+	private final OMEEditorKit		editorKit;
 	
 	/** Reference to the main component. */
-	private OMEWikiComponent 	component;
+	private final OMEWikiComponent 	component;
 	
 	/** The timer. */
 	private Timer			timer;
