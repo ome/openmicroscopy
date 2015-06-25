@@ -23,19 +23,18 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JFrame;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 
+import pojos.AnnotationData;
 import pojos.ChannelData;
-//Application-internal dependencies
 import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
@@ -406,4 +405,11 @@ public interface MeasurementViewer
 	 * Exports the graph as JPEG or PNG.
 	 */
 	public void exportGraph();
+
+	/**
+	 * Sets the annotations associated to the shapes.
+	 *
+	 * @param result The roi annotations to set.
+	 */
+    public void setROIAnnotations(Map<Long, List<AnnotationData>> result);
 }

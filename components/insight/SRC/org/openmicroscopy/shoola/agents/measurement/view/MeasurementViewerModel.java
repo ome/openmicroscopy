@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
@@ -1894,4 +1895,16 @@ class MeasurementViewerModel
 	 * @param channels The value to set.
 	 */
 	void setChannelData(List<ChannelData> channels) { metadata = channels; }
+
+	/**
+	 * Loads the annotations linked to rois.
+	 *
+	 * @param shapeIds The shape's id.
+	 */
+	void fireLoadROIAnnotations(List<Long> shapeIds)
+	{
+	    ROIAnnotationLoader loader = new ROIAnnotationLoader(component,
+	            getSecurityContext(), shapeIds);
+	    loader.load();
+	}
 }
