@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,12 +33,17 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
+
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
@@ -74,7 +80,10 @@ class FileUploader
     
     /** The total number of files.*/
     private int total;
-    
+
+    /** The number of log files if any.*/
+    private int logFileCount;
+
     /**
      * Creates a new instance.
      * 
@@ -103,6 +112,7 @@ class FileUploader
 				nodes.put(object, node);
 			}
 		}
+		logFileCount = 0;
 	}
 	
 	/** 
@@ -134,6 +144,13 @@ class FileUploader
         if (f != null) {
         	FileTableNode node = nodes.get(f);
         	if (node != null) node.setStatus(false);
+        	File file = f.getFile();
+        	String extension = FilenameUtils.getExtension(file.getName());
+        	if (CommonsLangUtils.isNotBlank(extension)) {
+        	    if (extension.toLowerCase().equals("log")) {
+        	        logFileCount++;
+        	    }
+        	}
         	nodes.remove(f);
         }
         int v = total-nodes.size();
@@ -149,13 +166,35 @@ class FileUploader
         	String s = "";
         	String verb = "has";
         	if (total > 1) {
-        		s = "s";
         		verb = "have";
         	}
         	StringBuffer buf = new StringBuffer();
         	String term;
-        	if (details.isExceptionOnly()) term = "exception";
-        	else term = "file";
+        	if (details.isExceptionOnly()) {
+        	    term = "exception";
+        	    if (total > 1) {
+                    s = "s";
+                }
+        	} else {
+        	    if (logFileCount > 0) {
+        	        term = "log file";
+        	        if (logFileCount > 1) {
+        	            term +="s";
+        	        }
+        	        int diff = total-logFileCount;
+        	        if (diff > 0) {
+        	            term += " and file";
+        	        }
+        	        if (diff > 1) {
+        	            s = "s";
+        	        }
+        	    } else {
+        	        term = "file";
+        	        if (total > 1) {
+                        s = "s";
+                    }
+        	    }
+        	}
         	buf.append("The ");
         	buf.append(term);
     		buf.append(s);
