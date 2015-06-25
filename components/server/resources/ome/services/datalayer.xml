@@ -90,8 +90,15 @@
     <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
   </bean>
 
-  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  <alias alias="transactionManager" name="${omero.db.transactionManager}"/>
+
+  <bean id="dsTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"/>
+  </bean>
+
+  <bean id="hibTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
   <!-- Properties and actions: chooses between concrete implementations for

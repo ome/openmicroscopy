@@ -73,6 +73,7 @@
         -->
         <property name="Ice.IPv6" value="0"/>
       </target>
+      <property name="omero.db.transactionManager" value="dsTransactionManager"/>
     </properties>
 
     <properties id="PythonServer">
@@ -245,6 +246,7 @@
           <properties refid="Blitz"/>
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
+          <property name="omero.db.transactionManager" value="hibTransactionManager"/>
           <!-- Silence these -->
           <property name="REPLACEMENT:indexer" value="REPLACEME"/>
         </properties>
