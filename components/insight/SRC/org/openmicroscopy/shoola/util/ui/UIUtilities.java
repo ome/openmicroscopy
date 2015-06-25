@@ -38,6 +38,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.PrintWriter;
@@ -54,6 +56,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -83,12 +86,14 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -2798,5 +2803,17 @@ public class UIUtilities
             return findParent(parent, c);
         }
         return null;
+    }
+
+    /**
+     * Copies the passed value to the System clipboard
+     * @param value
+     */
+    public static void copyToClipboard(String value)
+    {
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Clipboard clipboard = toolkit.getSystemClipboard();
+        StringSelection strSel = new StringSelection(value);
+        clipboard.setContents(strSel, null);
     }
 }
