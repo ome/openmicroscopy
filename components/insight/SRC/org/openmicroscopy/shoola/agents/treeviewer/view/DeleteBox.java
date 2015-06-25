@@ -43,13 +43,20 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
+
+
+import org.jdesktop.swingx.JXLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -91,8 +98,8 @@ public class DeleteBox
 		
 	/** Text display if the user is a group owner. */
 	private static final String		WARNING_GROUP_OWNER = "Some data " +
-			"might be used by other users,\nthey will no longer be able to " +
-			"use or see them.";
+			"might be used by other users"+CommonsLangUtils.LINE_SEPARATOR+
+			"they will no longer be able to use or see them.";
 	
     /**
      * Text display if other user's data is going to be deleted 
@@ -239,10 +246,11 @@ public class DeleteBox
 			body = new JPanel();
 			body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
 			body.add(UIUtilities.buildComponentPanel(p));
-			JLabel label = UIUtilities.setTextFont(WARNING_GROUP_OWNER, 
+			JXLabel label = UIUtilities.setTextFontX(WARNING_GROUP_OWNER, 
 					Font.BOLD);
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			body.add(UIUtilities.buildComponentPanel(label));
+			body.add(Box.createVerticalStrut(5));
 		} else body = p;
 		if (add)
 			addBodyComponent(UIUtilities.buildComponentPanel(body));

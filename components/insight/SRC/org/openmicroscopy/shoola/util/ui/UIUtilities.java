@@ -54,6 +54,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -83,12 +84,15 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -953,6 +957,25 @@ public class UIUtilities
     {
     	if (s == null) s = "";
         JLabel label = new JLabel(s);
+        Font font = label.getFont();
+        Font newFont = font.deriveFont(fontStyle);
+        label.setFont(newFont);
+        return label;
+    }
+
+    /**
+     * Displays the specified string into a {@link JLabel} and sets 
+     * the font to <code>bold</code>.
+     * 
+     * @param s         The string to display.
+     * @param fontStyle The style of the font.
+     * @return See above.
+     */
+    public static JXLabel setTextFontX(String s, int fontStyle)
+    {
+        if (s == null) s = "";
+        JXLabel label = new JXLabel(s);
+        label.setLineWrap(true); 
         Font font = label.getFont();
         Font newFont = font.deriveFont(fontStyle);
         label.setFont(newFont);
