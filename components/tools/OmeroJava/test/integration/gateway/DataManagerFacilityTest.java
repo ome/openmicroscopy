@@ -20,7 +20,9 @@
  */
 package integration.gateway;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,20 +56,17 @@ public class DataManagerFacilityTest extends GatewayTest {
 
     ProjectData proj;
     DatasetData ds;
-
+    ImageData img;
+    
     @Test
-    public void testSaveAndReturnObjectProject()
+    public void testSaveAndReturnObject()
             throws DSOutOfServiceException, DSAccessException {
         ProjectData proj = new ProjectData();
         proj.setName(UUID.randomUUID().toString());
         this.proj = (ProjectData) datamanagerFacility.saveAndReturnObject(
                 rootCtx, proj);
         Assert.assertTrue(this.proj.getId() > -1);
-    }
-
-    @Test(dependsOnMethods = { "testSaveAndReturnObjectProject" })
-    public void testSaveAndReturnObjectDataset()
-            throws DSOutOfServiceException, DSAccessException {
+        
         DatasetData ds = new DatasetData();
         ds.setName(UUID.randomUUID().toString());
         Set<ProjectData> projs = new HashSet<ProjectData>(1);
@@ -78,12 +77,12 @@ public class DataManagerFacilityTest extends GatewayTest {
         Assert.assertTrue(this.ds.getId() > -1);
     }
 
-    @Test(dependsOnMethods = { "testSaveAndReturnObjectDataset" })
+    @Test(dependsOnMethods = { "testSaveAndReturnObject" })
     public void testAddImage() throws Exception {
         long imgId = createImage(rootCtx);
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(imgId);
-        ImageData img = browseFacility.getImages(rootCtx, ids).iterator()
+        img = browseFacility.getImages(rootCtx, ids).iterator()
                 .next();
         Assert.assertNotNull(img);
 
@@ -95,6 +94,26 @@ public class DataManagerFacilityTest extends GatewayTest {
         ids.add(ds.getId());
         ds = browseFacility.getDatasets(rootCtx, ids).iterator().next();
         Assert.assertEquals(ds.getImages().size(), 1);
+    }
+    
+    @Test(dependsOnMethods = { "testAddImage" })
+    public void testUpdateObject() throws DSOutOfServiceException, DSAccessException {
+        Timestamp timestamp = img.getUpdated();
+        String newName = UUID.randomUUID().toString();
+        img.setName(newName);
+        datamanagerFacility.updateObject(rootCtx, img.asIObject(), null);
+        img = browseFacility.getImage(rootCtx, img.getId());
+        Assert.assertEquals(img.getName(), newName);
+        Assert.assertTrue(img.getUpdated().after(timestamp));
+    }
+    
+    @Test(dependsOnMethods = { "testUpdateObject" })
+    public void testDeleteObject() throws DSOutOfServiceException, DSAccessException {
+        datamanagerFacility.deleteObject(rootCtx, img.asIObject());
+        List<Long> ids = new ArrayList<Long>(1);
+        ids.add(img.getId());
+        Collection<ImageData> img = browseFacility.getImages(rootCtx, ids);
+        Assert.assertTrue(img.isEmpty());
     }
 
     private long createImage(SecurityContext ctx) throws Exception {
