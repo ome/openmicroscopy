@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-
-//Java imports
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
@@ -43,15 +41,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 
-
-
-import org.jdesktop.swingx.JXLabel;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -246,7 +237,7 @@ public class DeleteBox
 			body = new JPanel();
 			body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
 			body.add(UIUtilities.buildComponentPanel(p));
-			JXLabel label = UIUtilities.setTextFontX(WARNING_GROUP_OWNER, 
+			JLabel label = UIUtilities.setTextFontX(WARNING_GROUP_OWNER, 
 					Font.BOLD);
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			body.add(UIUtilities.buildComponentPanel(label));

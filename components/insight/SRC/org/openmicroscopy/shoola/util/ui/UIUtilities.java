@@ -944,6 +944,18 @@ public class UIUtilities
     {
     	return UIUtilities.setTextFont(s, Font.BOLD);
     }
+
+    /**
+     * Displays the specified string into a {@link JLabel} and sets 
+     * the font to <code>bold</code>.
+     * 
+     * @param s The string to display.
+     * @return See above.
+     */
+    public static JLabel setTextFontX(String s)
+    {
+        return UIUtilities.setTextFontX(s, Font.BOLD);
+    }
     
     /**
      * Displays the specified string into a {@link JLabel} and sets 
@@ -971,14 +983,33 @@ public class UIUtilities
      * @param fontStyle The style of the font.
      * @return See above.
      */
-    public static JXLabel setTextFontX(String s, int fontStyle)
+    public static JLabel setTextFontX(String s, int fontStyle)
     {
         if (s == null) s = "";
         JXLabel label = new JXLabel(s);
-        label.setLineWrap(true); 
+        label.setLineWrap(true);
         Font font = label.getFont();
         Font newFont = font.deriveFont(fontStyle);
         label.setFont(newFont);
+        return label;
+    }
+
+    /**
+     * Displays the specified string into a {@link JLabel} and sets 
+     * the font to <code>bold</code>.
+     * 
+     * @param s         The string to display.
+     * @param fontStyle The style of font.
+     * @param fontSize  The size of the font.
+     * @return See above.
+     */
+    public static JLabel setTextFontX(String s, int fontStyle, int fontSize)
+    {
+        if (s == null) s = "";
+        JXLabel label = new JXLabel(s);
+        label.setLineWrap(true);
+        Font font = label.getFont();
+        label.setFont(font.deriveFont(fontStyle, fontSize));
         return label;
     }
     
