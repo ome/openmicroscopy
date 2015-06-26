@@ -171,6 +171,7 @@ import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
 import omero.model.DoubleAnnotation;
+import omero.model.Ellipse;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -182,11 +183,13 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.Label;
 import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
+import omero.model.Mask;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -199,9 +202,12 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Rect;
 import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Screen;
@@ -223,6 +229,7 @@ import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
+import pojos.EllipseData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -232,20 +239,27 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
+import pojos.LineData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
+import pojos.MaskData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
+import pojos.PointData;
+import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROICoordinate;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
+import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.ShapeData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TextData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
@@ -1689,6 +1703,22 @@ class OMEROGateway
 			return Fileset.class;
 		else if (MapAnnotationData.class.equals(nodeType))
 			return MapAnnotation.class;
+		else if (RectangleData.class.equals(nodeType))
+            return Rect.class;
+		else if (EllipseData.class.equals(nodeType))
+            return Ellipse.class;
+		else if (LineData.class.equals(nodeType))
+            return Line.class;
+		else if (MaskData.class.equals(nodeType))
+            return Mask.class;
+		else if (PointData.class.equals(nodeType))
+            return Point.class;
+		else if (PolylineData.class.equals(nodeType))
+            return Polyline.class;
+		else if (PolygonData.class.equals(nodeType))
+            return Polygon.class;
+		else if (TextData.class.equals(nodeType))
+            return Label.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
