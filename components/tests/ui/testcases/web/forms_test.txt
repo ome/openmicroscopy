@@ -92,9 +92,9 @@ Test Share
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
     # Test Editing of Share.
-    Wait Until Page Contains Element            id=edit_share
+    Wait Until Page Contains Element            id=editshareButton
     Sleep                                       0.5
-    Click Element                               id=edit_share
+    Click Element                               id=editshareButton
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Edited Share Message
     Click Dialog Button                         Accept
