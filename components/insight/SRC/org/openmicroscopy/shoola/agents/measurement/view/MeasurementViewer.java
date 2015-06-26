@@ -35,9 +35,11 @@ import org.jhotdraw.draw.AttributeKey;
 
 import pojos.AnnotationData;
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -411,5 +413,5 @@ public interface MeasurementViewer
 	 *
 	 * @param result The roi annotations to set.
 	 */
-    public void setROIAnnotations(Map<Long, List<AnnotationData>> result);
+    public void setROIAnnotations(Map<DataObject, StructuredDataResults> result);
 }

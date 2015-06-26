@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -77,6 +78,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
+import pojos.ShapeData;
 import pojos.WorkflowData;
 
 /** 
@@ -839,10 +841,11 @@ class MeasurementViewerComponent
 		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
+		List<DataObject> nodes = null;
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result);
-			} 	
+			    nodes = model.setServerROI(result);
+			}
 		} catch (Exception e) {
 			String s = "Cannot convert server ROI into UI objects:";
 			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
@@ -854,6 +857,9 @@ class MeasurementViewerComponent
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
 		postEvent(MeasurementToolLoaded.ADD);
+		if (CollectionUtils.isNotEmpty(nodes)) {
+		    model.fireLoadROIAnnotations(nodes);
+		}
 	}
 
 	/** 
@@ -877,6 +883,7 @@ class MeasurementViewerComponent
 		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
+		List<DataObject> nodes = null;
 		try 
 		{
 			boolean hasResult = false;
@@ -894,7 +901,7 @@ class MeasurementViewerComponent
 			if (hasResult) {
 				//some ROI previously saved.
 				//result.ge
-				model.setServerROI(result);	
+			    nodes = model.setServerROI(result);
 			} else {
 				model.fireROILoading(null);
 				return;
@@ -914,7 +921,9 @@ class MeasurementViewerComponent
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
 		postEvent(MeasurementToolLoaded.ADD);
-		return;
+		if (CollectionUtils.isNotEmpty(nodes)) {
+		    model.fireLoadROIAnnotations(nodes);
+		}
 	}
 
 	/** 
@@ -1113,7 +1122,7 @@ class MeasurementViewerComponent
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#setROIAnnotations(Map)
      */
-	public void setROIAnnotations(Map<Long, List<AnnotationData>> result)
+	public void setROIAnnotations(Map<DataObject, StructuredDataResults> result)
 	{
 	    if (model.getState() == DISCARDED) return;
 

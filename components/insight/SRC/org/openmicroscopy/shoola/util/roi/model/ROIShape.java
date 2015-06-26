@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -41,6 +42,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import pojos.ShapeData;
 
 /** 
  * 
@@ -55,9 +58,12 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-public class ROIShape 
+public class ROIShape
 {
-	
+
+    /** The server side object associated to this node.*/
+    private ShapeData data;
+
 	/** The id of the ROIShape. */
 	private long id;
 	
@@ -159,14 +165,29 @@ public class ROIShape
 	 * @return See above.
 	 */
 	public long getROIShapeID() { return id; }
-	
+
 	/**
-	 * This id will only be used by server objects.
-	 * @param id The id of the 
+     * This id will only be used by server objects.
+     * @param id The id of the 
+     */
+    public void setROIShapeID(long id) { this.id = id; }
+
+	/**
+	 * Returns the server side shape associated to this object or
+	 * <code>null</code>.
+	 *
+	 * @return See above.
 	 */
-	public void setROIShapeID(long id) { this.id = id; }
-	
-	
+	public ShapeData getData() { return data; }
+
+	/**
+	 * Sets the server side shape associated to this object or
+	 * <code>null</code>.
+	 *
+	 * @return See above.
+	 */
+    public void setData(ShapeData data) { this.data = data; }
+
 	/**
 	 * Get the id of the ROI the ROIShape belongs to.
 	 * @return see above.
