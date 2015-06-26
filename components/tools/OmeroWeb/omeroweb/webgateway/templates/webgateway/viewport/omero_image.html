@@ -389,7 +389,7 @@
       $("#show-rois-a").removeAttr("href");
       $("#show-rois-a").css("color", "gray");
       // ... and enable the "Hide ROIs" button
-      $("#hide-rois-a").on("click", function(){hide_rois(); console.log("hide rois"); return false;});
+      $("#hide-rois-a").on("click", function(){hide_rois(); return false;});
       $("#hide-rois-a").attr("href", "#");
       $("#hide-rois-a").css("color", "");
 
@@ -409,7 +409,7 @@
       $("#hide-rois-a").removeAttr("href");
       $("#hide-rois-a").css("color", "gray");
       // ... and enable the "Show ROIs" button
-      $("#show-rois-a").on("click", function(){show_rois(); console.log("show rois"); return false;});
+      $("#show-rois-a").on("click", function(){show_rois(); return false;});
       $("#show-rois-a").attr("href", "#");
       $("#show-rois-a").css("color", "");
 
@@ -963,7 +963,7 @@
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
                 {% ifnotequal roiCount 0 %}
-                    <a id="show-rois-a" href="#" onclick="show_rois(); console.log('show rois ORIGINAL'); return false;">Show ROIs</a> |
+                    <a id="show-rois-a" href="#" onclick="show_rois(); return false;">Show ROIs</a> |
                     <!-- <a id="hide-rois-a" href="#" onclick="hide_rois(); return false;">Hide</a> -->
                     <a id="hide-rois-a" style="color:gray">Hide</a>
                 {% endifnotequal %}
