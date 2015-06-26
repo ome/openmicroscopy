@@ -102,6 +102,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import pojos.ShapeData;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -642,9 +643,10 @@ class MeasurementViewerModel
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois)
+	List<DataObject> setServerROI(Collection rois)
 		throws ROICreationException, NoSuchROIException
 	{
+	    List<DataObject> nodes = new ArrayList<DataObject>();
 		measurementResults = rois;
 		state = MeasurementViewer.READY;
 		List<ROI> roiList = new ArrayList<ROI>();
@@ -656,7 +658,7 @@ class MeasurementViewerModel
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
 					result.getROIs(), userID));
 		}
-		if (roiList == null) return false;
+		if (roiList == null) return nodes;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
@@ -676,16 +678,20 @@ class MeasurementViewerModel
 				entry = (Entry) j.next();
 				shape = (ROIShape) entry.getValue();
 				coord = shape.getCoord3D();
-				if (coord.getTimePoint() > sizeT) return false;
-				if (coord.getZSection() > sizeZ) return false;
-				c = coord.getChannel();
-				f = shape.getFigure();
-				if (c >= 0 && f.isVisible())
-					f.setVisible(isChannelActive(c));
+				if (coord.getTimePoint() < sizeT &&
+				        coord.getZSection() < sizeZ) {
+				    c = coord.getChannel();
+	                f = shape.getFigure();
+	                if (shape.getData() != null) {
+	                    nodes.add(shape.getData());
+	                }
+	                if (c >= 0 && f.isVisible())
+	                    f.setVisible(isChannelActive(c));
+				}
 			}
 		}
 		checkIfHasROIToDelete();
-		return true;
+		return nodes;
 	}
 
 	/**

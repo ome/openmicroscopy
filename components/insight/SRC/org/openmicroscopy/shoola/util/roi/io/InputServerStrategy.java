@@ -236,6 +236,7 @@ class InputServerStrategy
 		addMissingAttributes(fig);
 		ROIShape shape = new ROIShape(roi, coord, fig, fig.getBounds());
 		shape.setROIShapeID(data.getId());
+		shape.setData(data);
 		return shape;
 	}
 

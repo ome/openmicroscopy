@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.AnnotationData;
@@ -89,6 +90,6 @@ public class ROIAnnotationLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-        viewer.setROIAnnotations((Map<Long, List<AnnotationData>>) result);
+        viewer.setROIAnnotations((Map<DataObject, StructuredDataResults>) result);
     }
 }
