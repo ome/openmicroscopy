@@ -1733,6 +1733,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
+        self.SERVICE_OPTS.setOmeroGroup('-1')
         img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
 

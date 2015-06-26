@@ -139,13 +139,14 @@
                     }
                 });
 
+                {% if manager.share.id %}
                 $("#editshareButton").click(function() {
 
                     $("#edit_share_form").dialog("open");
                     $("#edit_share_form").load(
                         "{% url 'manage_action_containers' 'edit' 'share' manager.share.id %}");
                 });
-
+                {% endif %}
             });
     </script>
     
@@ -292,8 +293,10 @@
         </div>
 
 
+    {% if manager.share.id %}
     <!-- hidden form for edit share - shown in dialog & loaded by AJAX -->
     <form id="edit_share_form" action="{% url 'manage_action_containers' 'save' 'share' manager.share.id %}" method="post" title="Edit Share" class="standard_form">{% csrf_token %}
     </form>
+    {% endif %}
 
 {% endblock %}

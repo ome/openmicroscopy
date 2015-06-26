@@ -26,6 +26,15 @@
  */
 
 
+    /* jstree */
+
+    #Public .jstree-default ul li ul li.isDisabled a ins{
+        opacity: 0.5;
+    }
+
+    #Public .jstree-default ul li ul li.isExpired a{
+        font-style: italic;
+    }
 
 
 
