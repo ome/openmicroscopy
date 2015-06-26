@@ -38,12 +38,15 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.Pixels;
 import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.Thumbnail;
 import omero.sys.EventContext;
+import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -107,8 +110,10 @@ public class PermissionsTest extends AbstractServerTest {
      * @throws ServerError unexpected
      */
     private List<IObject> annotateImage(long imageId) throws ServerError {
+        final ParametersI params = new ParametersI().addId(imageId);
+        final Image image = (Image) iQuery.findByQuery("FROM Image i JOIN FETCH i.pixels WHERE i.id = :id", params);
+
         final List<IObject> annotationObjects = new ArrayList<IObject>();
-        final Image image = (Image) iQuery.get("Image", imageId);
 
         for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(), new TagAnnotationI()}) {
             ImageAnnotationLink link = new ImageAnnotationLinkI();
@@ -125,6 +130,11 @@ public class PermissionsTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         annotationObjects.add(roi.proxy());
         annotationObjects.add(roi.getShape(0).proxy());
+
+        Thumbnail thumbnail = mmFactory.createThumbnail();
+        thumbnail.setPixels((Pixels) image.getPrimaryPixels().proxy());
+        thumbnail = (Thumbnail) iUpdate.saveAndReturnObject(thumbnail);
+        annotationObjects.add(thumbnail.proxy());
 
         return annotationObjects;
     }

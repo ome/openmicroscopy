@@ -39,11 +39,13 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.Pixels;
 import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.Thumbnail;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -148,6 +150,14 @@ public class PermissionsTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         annotationObjects.add(roi.proxy());
         annotationObjects.add(roi.getShape(0).proxy());
+
+        final ParametersI params = new ParametersI().addId(image.getId());
+        final Pixels pixels = (Pixels) iQuery.findByQuery("FROM Pixels WHERE image.id = :id", params);
+
+        Thumbnail thumbnail = mmFactory.createThumbnail();
+        thumbnail.setPixels((Pixels) pixels.proxy());
+        thumbnail = (Thumbnail) iUpdate.saveAndReturnObject(thumbnail);
+        annotationObjects.add(thumbnail.proxy());
 
         return annotationObjects;
     }
@@ -353,7 +363,13 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
-        assertOwnedBy(ownerAnnotations, recipient);
+        for (final IObject annotation : ownerAnnotations) {
+            if (annotation instanceof Thumbnail) {
+                assertOwnedBy(annotation, importer);
+            } else {
+                assertOwnedBy(annotation, recipient);
+            }
+        }
         assertOwnedBy(otherAnnotations, annotator);
         disconnect();
     }
