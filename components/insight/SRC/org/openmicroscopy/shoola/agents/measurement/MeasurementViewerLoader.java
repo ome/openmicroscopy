@@ -35,6 +35,8 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import omero.log.LogMessage;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
+
 
 /** 
  * Parent of all classes that load data asynchronously for a 
@@ -74,6 +76,9 @@ public abstract class MeasurementViewerLoader
     
     /** The security context.*/
     protected final SecurityContext ctx;
+
+    /** Convenience reference for subclasses. */
+    protected final MetadataHandlerView mhView;
     
     /**
      * Creates a new instance.
@@ -90,8 +95,10 @@ public abstract class MeasurementViewerLoader
         this.ctx = ctx;
         this.viewer = viewer;
         registry = MeasurementAgent.getRegistry();
-        idView = (ImageDataView) 
-        			registry.getDataServicesView(ImageDataView.class);
+        idView = (ImageDataView)
+                registry.getDataServicesView(ImageDataView.class);
+        mhView = (MetadataHandlerView) 
+                registry.getDataServicesView(MetadataHandlerView.class);
     }
     
     /** Notifies the {@link #viewer} that the data retrieval is finished. */

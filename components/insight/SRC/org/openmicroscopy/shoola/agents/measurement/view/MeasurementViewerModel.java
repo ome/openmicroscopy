@@ -95,6 +95,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
@@ -1903,12 +1904,12 @@ class MeasurementViewerModel
 	/**
 	 * Loads the annotations linked to rois.
 	 *
-	 * @param shapeIds The shape's id.
+	 * @param shapes The shapes
 	 */
-	void fireLoadROIAnnotations(List<Long> shapeIds)
+	void fireLoadROIAnnotations(List<DataObject> shapes)
 	{
 	    ROIAnnotationLoader loader = new ROIAnnotationLoader(component,
-	            getSecurityContext(), shapeIds);
+	            getSecurityContext(), shapes);
 	    loader.load();
 	}
 }
