@@ -72,6 +72,10 @@ testng.useDefaultListeners=false
 # etc/ivyconf.xml for more information.
 loci.resolver=omero-resolver
 
+# Controls how long CmdCallbackI based tests will wait
+# to finish.
+omero.test.timeout=500
+
 ############################################
 # hard-wired (compile-time) values
 ############################################
