@@ -387,11 +387,11 @@
       else
         $("#show-rois-a").off("click");
       $("#show-rois-a").removeAttr("href");
-      $("#show-rois-a").attr("style", "color:gray");
+      $("#show-rois-a").css("color", "gray");
       // ... and enable the "Hide ROIs" button
       $("#hide-rois-a").on("click", function(){hide_rois(); console.log("hide rois"); return false;});
       $("#hide-rois-a").attr("href", "#");
-      $("#hide-rois-a").removeAttr("style");
+      $("#hide-rois-a").css("color", "");
 
       // loads ROIs (if needed) and shows.
       viewport.viewportimg.get(0).show_rois(theZ, theT, filter);
@@ -407,11 +407,11 @@
       // Disable the "Hide ROIs" button ...
       $("#hide-rois-a").off("click");
       $("#hide-rois-a").removeAttr("href");
-      $("#hide-rois-a").attr("style", "color:gray");
+      $("#hide-rois-a").css("color", "gray");
       // ... and enable the "Show ROIs" button
       $("#show-rois-a").on("click", function(){show_rois(); console.log("show rois"); return false;});
       $("#show-rois-a").attr("href", "#");
-      $("#show-rois-a").removeAttr("style");
+      $("#show-rois-a").css("color", "");
 
       $("#roi_table_postit").hide();
       $(".postit-close-btn").off("click");
