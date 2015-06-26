@@ -340,6 +340,10 @@ public class PermissionsTest extends AbstractServerTest {
 
                         for (final String fromPerms : permsCases) {
                             for (final String toPerms : permsCases) {
+                                if (fromPerms.equals(toPerms)) {
+                                    /* not a permissions change */
+                                    continue;
+                                }
                                 final Object[] testCase = new Object[index];
                                 testCase[IS_GROUP_OWNER] = isGroupOwner;
                                 testCase[IS_GROUP_MEMBER] = isGroupOwner;
