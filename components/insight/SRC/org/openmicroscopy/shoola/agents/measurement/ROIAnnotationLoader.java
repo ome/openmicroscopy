@@ -29,6 +29,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.AnnotationData;
+import pojos.DataObject;
 
 
 /**
@@ -42,8 +43,8 @@ public class ROIAnnotationLoader
     extends MeasurementViewerLoader
 {
 
-    /** The id of the files to load. */
-    private List<Long> shapeIds;
+    /** The shape to handle */
+    private List<DataObject> shapes;
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
@@ -54,15 +55,15 @@ public class ROIAnnotationLoader
      * @param viewer The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param shapeIds The ids of the shapes.
+     * @param shapes The shapes.
      */
     public ROIAnnotationLoader(MeasurementViewer viewer, SecurityContext ctx,
-            List<Long> shapeIds)
+            List<DataObject> shapes)
     {
         super(viewer, ctx);
-        if (CollectionUtils.isEmpty(shapeIds)) 
+        if (CollectionUtils.isEmpty(shapes)) 
             throw new IllegalArgumentException("No shapes specified.");
-        this.shapeIds = shapeIds;
+        this.shapes = shapes;
     }
 
 
@@ -72,7 +73,7 @@ public class ROIAnnotationLoader
      */
     public void load()
     {
-        //handle = idView.loadROI(ctx, imageID, fileID, userID, this);
+        handle = mhView.loadStructuredData(ctx, shapes, -1, false, this);
     }
 
     /**
