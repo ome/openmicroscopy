@@ -22,6 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
@@ -86,9 +87,9 @@ public class DeleteBox
 			"deleted only if you own them and if they are not used by others.";
 		
 	/** Text display if the user is a group owner. */
-	private static final String		WARNING_GROUP_OWNER = "Some data " +
-			"might be used by other users"+CommonsLangUtils.LINE_SEPARATOR+
-			"they will no longer be able to use or see them.";
+	private static final String		WARNING_GROUP_OWNER = "<html>Some data " +
+			"might be used by other users<br/>"+
+			"they will no longer be able to use or see them.</html>";
 	
     /**
      * Text display if other user's data is going to be deleted 
@@ -226,7 +227,7 @@ public class DeleteBox
 			body = new JPanel();
 			body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
 			body.add(UIUtilities.buildComponentPanel(p));
-			JLabel label = UIUtilities.setTextFontX(WARNING_GROUP_OWNER, 
+			JLabel label = UIUtilities.setTextFont(WARNING_GROUP_OWNER, 
 					Font.BOLD);
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			body.add(UIUtilities.buildComponentPanel(label));
