@@ -81,9 +81,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private Helper helper;
     private GraphTraversal graphTraversal;
 
-    int targetObjectCount = 0;
-    int deletedObjectCount = 0;
-    int movedObjectCount = 0;
+    private int targetObjectCount = 0;
+    private int deletedObjectCount = 0;
+    private int movedObjectCount = 0;
 
     /**
      * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -177,13 +177,12 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                         }
                     } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
                     /* note IDs to target for the class */
-                    for (final long id : oneClassToTarget.getValue()) {
-                        targetMultimap.put(targetObjectClass.getName(), id);
-                        targetObjectCount++;
-                    }
+                    final Collection<Long> ids = oneClassToTarget.getValue();
+                    targetMultimap.putAll(targetObjectClass.getName(), ids);
+                    targetObjectCount += ids.size();
                 }
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets(true);
@@ -195,6 +194,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
                 throw helper.cancel(new ERR(), e, "bad-step");
             }
+        } catch (Cancel c) {
+            throw c;
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
@@ -227,14 +228,14 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             for (final Entry<String, Collection<Long>> oneMovedClass : result.getKey().asMap().entrySet()) {
                 final String className = oneMovedClass.getKey();
                 final Collection<Long> ids = oneMovedClass.getValue();
-                movedObjectCount += ids.size();
                 movedObjects.put(className, new ArrayList<Long>(ids));
+                movedObjectCount += ids.size();
             }
             for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
                 final String className = oneDeletedClass.getKey();
                 final Collection<Long> ids = oneDeletedClass.getValue();
-                deletedObjectCount += ids.size();
                 deletedObjects.put(className, new ArrayList<Long>(ids));
+                deletedObjectCount += ids.size();
             }
             final Chgrp2Response response = new Chgrp2Response(movedObjects, deletedObjects);
             helper.setResponseIfNull(response);
