@@ -209,8 +209,6 @@ public class DeleteBox
 		int index = 0;
 		while (i.hasNext()) {
 			layout.insertRow(index, TableLayout.PREFERRED);
-			//typesPane.add(Box.createHorizontalStrut(5), "0, "+index);
-			//typesPane.add(i.next(), "1, "+index);
 			typesPane.add(i.next());
 			index++;
 		}
@@ -241,7 +239,7 @@ public class DeleteBox
 					Font.BOLD);
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			body.add(UIUtilities.buildComponentPanel(label));
-			body.add(Box.createVerticalStrut(5));
+			body.add(Box.createVerticalStrut(10));
 		} else body = p;
 		if (add)
 			addBodyComponent(UIUtilities.buildComponentPanel(body));
