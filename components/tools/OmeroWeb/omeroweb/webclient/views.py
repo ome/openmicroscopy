@@ -2269,7 +2269,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 initial['expiration'] = \
                     manager.share.getExpireDate().strftime("%Y-%m-%d")
             form = ShareForm(initial=initial)  # 'guests':share.guestsInShare,
-            context = {'share': manager, 'form': form}
+            context = {'manager': manager, 'form': form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/data/container_form.html"
@@ -2298,7 +2298,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     int(conn.server_id))
                 manager.updateShareOrDiscussion(
                     host, message, members, enable, expiration)
-                return HttpResponse("DONE")
+                return HttpResponse("success")
             else:
                 template = "webclient/public/share_form.html"
                 context = {'share': manager, 'form': form}

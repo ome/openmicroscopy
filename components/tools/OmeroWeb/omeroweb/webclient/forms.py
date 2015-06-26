@@ -52,26 +52,20 @@ logger = logging.getLogger(__name__)
 help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 
 help_wiki = (
-    '<span id="markup" data-content="Markups - <small>If you\'d like to'
-    ' include URL please type:'
-    '<br/><b>http://www.openmicroscopy.org/</b></small>">'
-    '<img src="%s" /></span>') % help_button
-
-help_wiki_c = (
-    '<span id="markup_c" data-content="Markups - <small>If you\'d like to'
-    ' include URL please type:'
-    '<br/><b>http://www.openmicroscopy.org/</b></small>">'
+    '<span class="tooltip" title="Markups - If you\'d like to'
+    ' include URL please type: http://www.openmicroscopy.org/">'
     '<img src="%s" /></span>') % help_button
 
 help_enable = (
-    '<span id="enable" data-content="Enable/Disable - <small>This option'
-    ' allows the owner to keep the access control of the share.</small>">'
+    '<span class="tooltip" title="Enable/Disable - This option'
+    ' allows the owner to keep the access control of the share.">'
     '<img src="%s" /></span>') % help_button
 
 help_expire = (
-    '<span id="expire" data-content="Expire date - <small>This date defines'
+    '<span class="tooltip" title="Expire date - This date defines'
     ' when share will stop being available. Date format:'
-    ' YYYY-MM-DD.</small>"><img src="%s" /></span>') % help_button
+    ' YYYY-MM-DD."><img src="%s" /></span>') % help_button
+
 
 #################################################################
 # Non-model Form
@@ -103,7 +97,7 @@ class ShareForm(NonASCIIForm):
 
     message = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 5, 'cols': 50}),
-        help_text=help_wiki_c)
+        help_text=help_wiki)
     expiration = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={'size': 10}),

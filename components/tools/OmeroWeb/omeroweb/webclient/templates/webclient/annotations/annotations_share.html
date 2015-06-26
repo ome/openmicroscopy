@@ -67,17 +67,6 @@
                     },
                 });
 
-                $(".tooltip").parent().children("span").hide(); // hide tool tip source
-                $(".tooltip").tooltip({
-                    items: '.tooltip',
-                    content: function() {
-                        return $(this).parent().children("span").html();
-                    },
-                    track: true,
-                    show: false,
-                    hide: false
-                });
-
                 $(".removeComment").click(function(event) {
                     removeItem(event, "ann_comment_wrapper");
                 });
@@ -119,50 +108,44 @@
                 }
                 
                 // Edit share: launch dialog with edit-share form
-                if ($("#edit_share_div").length === 0) {
-                    $("<div id='edit_share_div'></div>").appendTo('body').hide();
-                }
-                $("#edit_share").click(function(){
-                    // set-up the edit-share form to use dialog
-                    $("#edit_share_div").dialog({
-                        resizable: true,
-                        height: 650,
-                        width:500,
-                        modal: true,
-                        buttons: {
-                            "Accept": function() {
-                                // simply submit the form (AJAX handling set-up below)
-                                $("#edit_share_form").submit();
-                                $( this ).dialog( "close" );
-                            },
-                            "Cancel": function() {
-                                $( this ).dialog( "close" );
-                            }
+
+                // AJAX handling of create-discussion form
+                $("#edit_share_form").ajaxForm({
+                    success: function(html) {
+                        if (html == "success") {
+                            $("#edit_share_form").dialog( "close" );
+                            OME.share_selection_changed(
+                                "{{ manager.share.getShareType }}-{{ manager.share.id }}");
+                        } else {
+                            $("#edit_share_form").html(html);
                         }
-                    });
-                    var edit_share_url = $(this).attr('href');
-                    // load form via AJAX...
-                    $("#edit_share_div").load(edit_share_url, function(){
-                        $('#edit_share_form').ajaxForm({
-                            success: function(data) {
-                                 // update the UI  - only available if the owner is editing share
-                                {% if manager.share.id %}
-                                OME.share_selection_changed(
-                                    "{{ manager.share.getShareType }}-{{ manager.share.id }}");
-                                {% endif %}
-                            }
-                        });
-                        $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
-                        $("#markup_c, #enable, #expire").tooltip({
-                              track: true,
-                              show: false,
-                              hide: false
-                          });
-                    });
-                    return false;
+                    },
                 });
-                
-                
+
+                $("#edit_share_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 600,
+                    width:450,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form
+                            $("#edit_share_form").submit();
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+
+                $("#editshareButton").click(function() {
+
+                    $("#edit_share_form").dialog("open");
+                    $("#edit_share_form").load(
+                        "{% url 'manage_action_containers' 'edit' 'share' manager.share.id %}");
+                });
+
             });
     </script>
     
@@ -220,8 +203,7 @@
             {% if manager.share %}
                 <h2>{{ manager.share.getShareType }} <strong>{{ manager.share.id }}</strong>
                     {% if manager.share.isOwned %}
-                        <a id="edit_share" href="{% url 'manage_action_containers' 'edit' 'share' manager.share.id %}">
-                            <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
+                        <input id="editshareButton" class="button" type="image" src="{% static 'webclient/image/color_line16.png' %}" alt="Edit Share" title="Edit Share">
                         </a>
                     {% endif %}</h2>
 
@@ -309,5 +291,9 @@
 
         </div>
 
+
+    <!-- hidden form for edit share - shown in dialog & loaded by AJAX -->
+    <form id="edit_share_form" action="{% url 'manage_action_containers' 'save' 'share' manager.share.id %}" method="post" title="Edit Share" class="standard_form">{% csrf_token %}
+    </form>
 
 {% endblock %}

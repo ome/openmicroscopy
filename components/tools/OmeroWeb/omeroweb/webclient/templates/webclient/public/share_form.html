@@ -28,93 +28,59 @@ $(document).ready(function () {
     $("#id_members").chosen({disable_search_threshold:5, placeholder_text:'Choose members of the share'});
 
     $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
+
+    $(".tooltip").tooltip({
+        items: '.tooltip',
+        track: true,
+        show: false,
+        hide: false
+    });
 }); 
 
 
 </script>
 
-{% if manager %}
+<p>{% trans "Fields marked in red are mandatory." %}</p>
 
-    <p>{% trans "Fields marked in red are mandatory." %}</p>
+{% if manager.share.id %}
 
-    <div>
-            {% for field in form %}
-                {% ifequal field.label_tag form.image.label_tag %}
-                    {% if field.errors %}
-                        <div>{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}</div>
-                        <div>{{ field.errors }}</div>
-                    {% endif %}
-                    <div class="hiddenField">{{ field }}</div>
-                {% else %}
-                    {% ifequal field.label_tag form.enable.label_tag %}
-                        <div>
-                            {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
-                            {{ field }}
-                            {{ field.help_text|safe }}
-                            {% if field.errors %}{{ field.errors }}{% endif %}
-                        </div>
-                    {% else %}
-                        <div>{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %} {{ field.help_text|safe }}</div>
-                        <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
-                        <div>{{ field }}</div>
-                    {% endifequal %}
-                {% endifequal %}
-            {% endfor %}
-    </div>
+    {% if manager.share.isExpired %}
 
-{% else %}
+        <p class="error">This share has expired. You must change the date to the future before saving.</p>
 
-    <h1>{% trans "Edit" %} {{ share.share.getShareType|lower }}:</h1>
-
-    {% if share.share.isExpired %}
-
-        <p class="error">This share has expired. You must choose an expiry date in the future before you can edit the share</p>
-
-        <form id='edit_share_form' title="Edit Share" action="{% url 'manage_action_containers' 'save' 'share' share.share.id %}" method="post" class="standard_form">{% csrf_token %}
-        
-            <!-- if the share has expired, we only want to show the Date Expiry field -->
-            {% for field in form %}
-                {% ifequal field.label_tag form.expiration.label_tag %}
-                    <div>{{ field.label_tag }}</div>
-                    <div>{{ field }}</div>
-                {% else %}
-                    <!-- include the other fields (hidden) to make the form valid -->
-                    <div style="display:none">{{ field }}</div>
-                {% endifequal %}
-            {% endfor %}
-        </form>
-
-    {% else %}
-
-        <form id='edit_share_form' title="Edit Share" action="{% url 'manage_action_containers' 'save' 'share' share.share.id %}" method="post" class="standard_form">{% csrf_token %}
-
-            <p>{% trans "Fields marked in red are mandatory." %}</p>
-        
-            {% for field in form %}
-                {% ifequal field.label_tag form.enable.label_tag %}
-                    <!-- we're using a different layout just for the 'enable' field -->
-                    <div>
-                        {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
-                        {{ field }} {{ field.help_text|safe }}
-                        {% if field.errors %}{{ field.errors }}{% endif %}
-                    </div>
-                {% else %}
-                    <!-- all other fields use this layout -->
-                    <div {% if share.share.isExpired %}style="display:none"{% endif %}>
-                        <div>
-                            {% if field.field.required %}
-                                <span class="required">{{ field.label_tag }}</span>
-                            {% else %}
-                                {{ field.label_tag }}
-                            {% endif %}
-                            {{ field.help_text|safe }}
-                        </div>
-                        <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
-                        <div>{{ field }}</div>
-                    </div>
-                {% endifequal %}
-            {% endfor %}
-        </form>
     {% endif %}
 
 {% endif %}
+
+<div>
+    {% for field in form %}
+        {% ifequal field.label_tag form.image.label_tag %}
+            {% if field.errors %}
+                <div>{% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}</div>
+                <div>{{ field.errors }}</div>
+            {% endif %}
+            <div class="hiddenField">{{ field }}</div>
+        {% else %}
+            {% ifequal field.label_tag form.enable.label_tag %}
+                <div>
+                    {% if field.field.required %}<span class="required">{{ field.label_tag }}</span>{% else %}{{ field.label_tag }}{% endif %}
+                    {{ field }}
+                    {{ field.help_text|safe }}
+                    {% if field.errors %}{{ field.errors }}{% endif %}
+                </div>
+            {% else %}
+                <div>{% if field.field.required %}
+                    <span class="required">{{ field.label_tag }}</span>
+                {% else %}
+                    {{ field.label_tag }}
+                {% endif %}
+                {{ field.help_text|safe }}</div>
+                <div>{% if field.errors %}{{ field.errors }}{% endif %}</div>
+                <div>{{ field }}</div>
+            {% endifequal %}
+        {% endifequal %}
+    {% endfor %}
+</div>
+
+</form>
+
