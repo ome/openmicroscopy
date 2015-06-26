@@ -41,8 +41,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import info.clearthought.layout.TableLayout;
-
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -200,17 +198,10 @@ public class DeleteBox
 	private void layoutComponents(boolean groupLeader)
 	{
 		Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
-		TableLayout layout = new TableLayout();
-		double[] columns = {130, TableLayout.PREFERRED};
-		layout.setColumn(columns);
-		//typesPane.setLayout(layout);
 		typesPane.setLayout(new BoxLayout(typesPane, BoxLayout.Y_AXIS));
 		typesPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-		int index = 0;
 		while (i.hasNext()) {
-			layout.insertRow(index, TableLayout.PREFERRED);
 			typesPane.add(i.next());
-			index++;
 		}
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -239,7 +230,7 @@ public class DeleteBox
 					Font.BOLD);
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			body.add(UIUtilities.buildComponentPanel(label));
-			body.add(Box.createVerticalStrut(10));
+			body.add(Box.createVerticalStrut(5));
 		} else body = p;
 		if (add)
 			addBodyComponent(UIUtilities.buildComponentPanel(body));
