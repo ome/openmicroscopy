@@ -102,6 +102,7 @@ class FileUploader
 		this.src = src;
 		nodes = new HashMap<ImportErrorObject, FileTableNode>();
 		List l = (List) details.getObjectToSubmit();
+		logFileCount = 0;
 		if (l != null) {
 			Iterator i = l.iterator();
 			FileTableNode node;
@@ -110,9 +111,17 @@ class FileUploader
 				node = (FileTableNode) i.next();
 				object = node.getFailure();
 				nodes.put(object, node);
+	            File f = object.getFile();
+	            if (f != null) {
+	                String extension = FilenameUtils.getExtension(f.getName());
+	                if (CommonsLangUtils.isNotBlank(extension)) {
+	                    if (extension.toLowerCase().equals("log")) {
+	                        logFileCount++;
+	                    }
+	                }
+	            }
 			}
 		}
-		logFileCount = 0;
 	}
 	
 	/** 
@@ -144,13 +153,6 @@ class FileUploader
         if (f != null) {
         	FileTableNode node = nodes.get(f);
         	if (node != null) node.setStatus(false);
-        	File file = f.getFile();
-        	String extension = FilenameUtils.getExtension(file.getName());
-        	if (CommonsLangUtils.isNotBlank(extension)) {
-        	    if (extension.toLowerCase().equals("log")) {
-        	        logFileCount++;
-        	    }
-        	}
         	nodes.remove(f);
         }
         int v = total-nodes.size();
