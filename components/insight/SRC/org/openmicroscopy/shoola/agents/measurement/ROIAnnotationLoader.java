@@ -23,9 +23,10 @@ package org.openmicroscopy.shoola.agents.measurement;
 import java.util.List;
 import java.util.Map;
 
+import omero.gateway.SecurityContext;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
