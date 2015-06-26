@@ -462,18 +462,26 @@ public class GraphTraversal {
      * Traverse model object graph to determine steps for the proposed operation.
      * @param session the Hibernate session to use for HQL queries
      * @param objects the model objects to process
-     * @param if the given model objects are to be included (instead of just deleted)
+     * @param include if the given model objects are to be included (instead of just deleted)
+     * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects
      * @throws GraphException if the model objects were not as expected
      */
     public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
-            SetMultimap<String, Long> objects, boolean include) throws GraphException {
+            SetMultimap<String, Long> objects, boolean include, boolean applyRules) throws GraphException {
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
         targetSet.addAll(objectsToCIs(session, objects));
-        /* actually do the planning of the operation */
-        planning.toProcess.addAll(targetSet);
-        planOperation(session);
+        if (applyRules) {
+            /* actually do the planning of the operation */
+            planning.toProcess.addAll(targetSet);
+            planOperation(session);
+        } else {
+            /* act as if the target objects have no links and no rules match them */
+            for (final CI targetObject : targetSet) {
+                planning.blockedBy.put(targetObject, new HashSet<CI>());
+            }
+        }
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final SetMultimap<String, Long> included = HashMultimap.create();
         for (final CI includedObject : planning.included) {
@@ -490,12 +498,13 @@ public class GraphTraversal {
      * Traverse model object graph to determine steps for the proposed operation.
      * @param session the Hibernate session to use for HQL queries
      * @param objectInstances the model objects to process, may be unloaded with ID only
-     * @param if the given model objects are to be included (instead of just deleted)
+     * @param include if the given model objects are to be included (instead of just deleted)
+     * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects, may be unloaded with ID only
      * @throws GraphException if the model objects were not as expected
      */
     public Entry<Collection<IObject>, Collection<IObject>> planOperation(Session session,
-            Collection<? extends IObject> objectInstances, boolean include) throws GraphException {
+            Collection<? extends IObject> objectInstances, boolean include, boolean applyRules) throws GraphException {
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
         final SetMultimap<String, Long> objectsToQuery = HashMultimap.create();
@@ -509,9 +518,16 @@ public class GraphTraversal {
             }
         }
         targetSet.addAll(objectsToCIs(session, objectsToQuery));
-        /* actually do the planning of the operation */
-        planning.toProcess.addAll(targetSet);
-        planOperation(session);
+        if (applyRules) {
+            /* actually do the planning of the operation */
+            planning.toProcess.addAll(targetSet);
+            planOperation(session);
+        } else {
+            /* act as if the target objects have no links and no rules match them */
+            for (final CI targetObject : targetSet) {
+                planning.blockedBy.put(targetObject, new HashSet<CI>());
+            }
+        }
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final Collection<IObject> included = new ArrayList<IObject>(planning.included.size());
         for (final CI includedObject : planning.included) {
