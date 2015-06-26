@@ -379,17 +379,16 @@
         <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E]{i}.file = [E]{r}" p:changes="FA:{r}"/>
         <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E]{i}.originalFile = [E]{r}" p:changes="FE:{r}"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E]{i}.source = [E]{r}" p:changes="ROI:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{i}, L.child = [E]{r}" p:changes="J:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{i}, L.parent = [E]{r}"
-                                       p:changes="P:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{i}, L.child = [E]{r}" p:changes="J:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{i}, L.parent = [E]{r}" p:changes="P:{r}"/>
 
         <!-- Consider deleting or moving an original file if it is unlinked from an object. -->
 
-        <bean parent="graphPolicyRule" p:matches="FileAnnotation[I].file = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="FilesetEntry[I].originalFile = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Roi[I].source = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [I], L.child = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = [I], L.parent = OF:[E]{i}" p:changes="OF:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="FileAnnotation[I].file = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="FilesetEntry[I].originalFile = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Roi[I].source = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [I], L.child = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = [I], L.parent = OF:[E]{i}" p:changes="OF:{r}"/>
 
         <!-- Do not move an original file that is being used by an object. -->
 
@@ -410,9 +409,8 @@
         <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E]{r}.file = [E]{a}" p:changes="FA:{a}"/>
         <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E]{r}.originalFile = [E]{a}" p:changes="FE:{a}"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E]{r}.source = [E]{a}" p:changes="ROI:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{r}, L.child = [E]{a}" p:changes="J:[E]{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{r}, L.parent = [E]{a}"
-                                       p:changes="P:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{r}, L.child = [E]{a}" p:changes="J:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{r}, L.parent = [E]{a}" p:changes="P:{a}"/>
 
         <!-- Delete remaining settings if holder object is moved. -->
 
@@ -626,10 +624,10 @@
 
         <!-- If a screen is moved then also move the plate if it is used in no other screen. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [I], L.child = P:[E]{i}/o" p:changes="P:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [I], L.child = P:[E]{i}/o" p:changes="P:{r}"/>
         <bean parent="graphPolicyRule" p:matches="$to_private, L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{r}, S =/!o P"
-                                       p:changes="P:[E]{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:[E]{a}"/>
+                                       p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}" p:changes="P:[I]"/>
 
         <!--

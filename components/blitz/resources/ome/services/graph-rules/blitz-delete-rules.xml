@@ -307,7 +307,7 @@
         <bean parent="graphPolicyRule" p:matches="FilesetEntry[D].originalFile = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="JobOriginalFileLink[D].child = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="PixelsOriginalFileMap[D].parent = OF:[E]{i}" p:changes="OF:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Roi[D].source = OF:[E]{i}" p:changes="OF:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Roi[D].source = OF:[E]{i}" p:changes="OF:{r}"/>
 
         <!-- Consider deleting an original file if it is linked to a job that is deleted. -->
 
@@ -471,8 +471,8 @@
 
         <!-- If a screen is deleted then also delete the plate if it is used in no other screen. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [D], L.child = P:[E]{i}/d" p:changes="P:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [D], L.child = P:[E]{i}/d" p:changes="P:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}/d" p:changes="P:[D]"/>
 
         <!-- Delete screen-plate links if either the screen or plate is deleted regardless of permissions. -->
