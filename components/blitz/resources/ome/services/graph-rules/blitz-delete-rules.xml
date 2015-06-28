@@ -366,10 +366,6 @@
 
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{o}/d" p:changes="I:[D]"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="P:Pixels[!O]" p:changes="P:[-]"/>  <!-- for ROI masks -->
-
         <!-- DISPLAY -->
 
         <!-- If rendering settings are deleted then delete the subgraph below. -->
@@ -438,6 +434,7 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[D].rois = ROI:[E]" p:changes="ROI:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E], P.image = I:[E]{i}/d" p:changes="I:{r}"/>
 
         <!-- SCREEN -->
