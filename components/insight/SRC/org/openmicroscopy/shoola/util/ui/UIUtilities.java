@@ -38,6 +38,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.PrintWriter;
@@ -2848,5 +2850,17 @@ public class UIUtilities
             return findParent(parent, c);
         }
         return null;
+    }
+
+    /**
+     * Copies the passed value to the System clipboard
+     * @param value
+     */
+    public static void copyToClipboard(String value)
+    {
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Clipboard clipboard = toolkit.getSystemClipboard();
+        StringSelection strSel = new StringSelection(value);
+        clipboard.setContents(strSel, null);
     }
 }
