@@ -50,10 +50,10 @@ public class ROIAnnotationLoader
     private CallHandle  handle;
 
     /**
-     * Creates a new instance. 
-     * 
+     * Creates a new instance.
+     *
      * @param viewer The viewer this data loader is for.
-     *                Mustn't be <code>null</code>.
+     *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param shapes The shapes.
      */
