@@ -741,10 +741,40 @@ $.fn.roi_display = function(options) {
         }
 
         // hides the ROIs from display
-        this.hide_rois = function() {
-            active_rois = {};
-            rois_displayed = false;
-            this.refresh_rois();
+        this.hide_rois = function(hide_ome_rois, hide_external_rois) {
+            var hide_ome_rois = typeof hide_ome_rois !== "undefined" ? hide_ome_rois : true;
+            var hide_external_rois = typeof hide_external_rois !== "undefined" ? hide_external_rois : true;
+
+            if (!hide_ome_rois && !hide_external_rois) {
+                console.warn("HIDE_OME_ROIS and HIDE_EXTERNAL_ROIS are False, nothing to do");
+                return;
+            }
+
+            console.log("HIDE OME ROIS: " + hide_ome_rois + " HIDE EXTERNAL ROIS: " + hide_external_rois);
+
+            if (hide_ome_rois && hide_external_rois) {
+                rois_displayed = false;
+                active_rois = {};
+                this.refresh_rois();
+            } else {
+                if (!hide_ome_rois) {
+                    for (var r = 0; r < external_rois.length; r++) {
+                        delete(active_rois[external_rois[r].id]);
+                    }
+                }
+                else if (!hide_external_rois) {
+                    for (var r = 0; r < roi_json.length; r++) {
+                        delete(active_rois[roi_json[r].id]);
+                    }
+                }
+                if (Object.keys(active_rois).length == 0) {
+                    rois_displayed = false;
+                    this.refresh_rois();
+                }
+                else {
+                    this.refresh_active_rois();
+                }
+            }
         }
         
         this.show_labels = function(visible, filter) {
