@@ -600,6 +600,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
 
                 context['baseurl'] = reverse('webgateway').rstrip('/')
                 context['form_well_index'] = form_well_index
+                context['index'] = index
                 template = "webclient/data/plate.html"
     else:
         if view == 'tree':
