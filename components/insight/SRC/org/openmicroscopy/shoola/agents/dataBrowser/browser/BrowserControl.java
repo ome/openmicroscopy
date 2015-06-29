@@ -447,6 +447,9 @@ class BrowserControl
      */
     public void navigate(int direction, boolean multiSel) {
         ImageDisplay current = model.getLastSelectedDisplay();
+        if (current == null)
+            return;
+        
         Rectangle b = current.getBounds();
         
         int x = b.x;
