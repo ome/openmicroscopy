@@ -1,0 +1,12 @@
+<ivy-module version="1.0">
+  <info
+    organisation="zeroc"
+    module="ice-glacier2"
+    status="integration"
+    revision="3.6.0"
+  />
+  <publications>
+    <artifact name="ice-glacier2" type="jar"/>
+  </publications>
+</ivy-module>
+
