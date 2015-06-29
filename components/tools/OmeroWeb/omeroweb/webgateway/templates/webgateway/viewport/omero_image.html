@@ -381,17 +381,18 @@
       // if roi_table_postit is closed using close button, hide ROIs
       $(".postit-close-btn").on("click", function() {hide_rois(); return false;});
 
+      var $show_rois_a = $("#show-rois-a");
       // Disable the "Show ROIs" button ...
-      if ($("#show-rois-a").attr("onclick") != undefined)
-        $("#show-rois-a").removeAttr("onclick");
+      if ($show_rois_a.attr("onclick") != undefined)
+        $show_rois_a.removeAttr("onclick");
       else
-        $("#show-rois-a").off("click");
-      $("#show-rois-a").removeAttr("href");
-      $("#show-rois-a").css("color", "gray");
+        $show_rois_a.off("click");
+      $show_rois_a.removeAttr("href");
+      $show_rois_a.css("color", "gray");
       // ... and enable the "Hide ROIs" button
-      $("#hide-rois-a").on("click", function(){hide_rois(); return false;});
-      $("#hide-rois-a").attr("href", "#");
-      $("#hide-rois-a").css("color", "");
+      $("#hide-rois-a").on("click", function(){hide_rois(); return false;})
+              .attr("href", "#")
+              .css("color", "");
 
       // loads ROIs (if needed) and shows.
       viewport.viewportimg.get(0).show_rois(theZ, theT, filter);
@@ -405,13 +406,13 @@
       }
 
       // Disable the "Hide ROIs" button ...
-      $("#hide-rois-a").off("click");
-      $("#hide-rois-a").removeAttr("href");
-      $("#hide-rois-a").css("color", "gray");
+      $("#hide-rois-a").off("click")
+              .removeAttr("href")
+              .css("color", "gray");
       // ... and enable the "Show ROIs" button
-      $("#show-rois-a").on("click", function(){show_rois(); return false;});
-      $("#show-rois-a").attr("href", "#");
-      $("#show-rois-a").css("color", "");
+      $("#show-rois-a").on("click", function () { show_rois(); return false; })
+              .attr("href", "#")
+              .css("color", "");
 
       $("#roi_table_postit").hide();
       $(".postit-close-btn").off("click");
