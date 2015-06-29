@@ -67,11 +67,6 @@ test.with.fail=false
 testng.verbose=2
 testng.useDefaultListeners=false
 
-# Determines which Ivy resolver to use for
-# finding the loci libraries. Look in
-# etc/ivyconf.xml for more information.
-loci.resolver=omero-resolver
-
 ############################################
 # hard-wired (compile-time) values
 ############################################
