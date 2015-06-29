@@ -576,9 +576,30 @@ public class UpdateServiceTest extends AbstractServerTest {
         //Create a roi
         ROIData roiData = new ROIData();
         roiData.setImage((Image) i.proxy());
-        //Add shape
-        RectangleData r = new RectangleData(0, 0, 1, 1);
+        //Add rectangle
+        ShapeData r = new RectangleData(0, 0, 1, 1);
         roiData.addShapeData(r);
+        //Add ellipse
+        r = new EllipseData(2, 2, 1, 1);
+        roiData.addShapeData(r);
+        //Add point
+        r = new PointData(1, 1);
+        roiData.addShapeData(r);
+        //Add line
+        r = new LineData(0, 1, 1, 2);
+        roiData.addShapeData(r);
+        //Add polygon
+        String points = "points[10,10] points1[10,10] points2[10,10]";
+        Polygon rect = new PolygonI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        r = new PolygonData(rect);
+        roiData.addShapeData(r);
+        //Add polyline
+        Polyline polyline = new PolylineI();
+        polyline.setPoints(omero.rtypes.rstring(points));
+        r = new PolylineData(polyline);
+        roiData.addShapeData(r);
+
         Roi roi = (Roi) iUpdate.saveAndReturnObject(roiData.asIObject());
         //annotate both roi and the shape.
         RoiAnnotationLink ral = new RoiAnnotationLinkI();
