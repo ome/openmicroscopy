@@ -29,7 +29,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.AnnotationData;
 import pojos.DataObject;
 
 
