@@ -50,7 +50,10 @@
     </filesystem>
 
       <!-- Lookup via maven cache -->
-      <filesystem name="user-maven" m2compatible="true" force="false" cache="local" descriptor="required">
+      <filesystem name="user-maven" m2compatible="true" force="false"
+          checkmodified="true" changingMatcher="regexp"
+          changingPattern=".*SNAPSHOT.*"
+          cache="local" descriptor="required">
         <artifact pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
         <ivy pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
       </filesystem>
@@ -58,7 +61,7 @@
       <!-- Remote downloads; cached to '~/.m2/repository' -->
       <ibiblio name="maven" m2compatible="true" cache="maven"
           usepoms="true" useMavenMetadata="false"/>
-      <ibiblio name="ome-artifactory"
+      <ibiblio name="ome-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
 
@@ -76,8 +79,8 @@
     <chain name="omero-resolver" returnFirst="true">
         <resolver ref="main"/>
         <resolver ref="repo"/>
-        <resolver ref="ome-artifactory"/>
         <resolver ref="user-maven"/>
+        <resolver ref="ome-artifactory"/>
         <resolver ref="maven"/>
         <resolver ref="com.springsource.repository.bundles.release"/>
         <resolver ref="com.springsource.repository.bundles.external"/>
