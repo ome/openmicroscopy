@@ -30,7 +30,6 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.AnnotationData;
 import pojos.DataObject;
 
 
