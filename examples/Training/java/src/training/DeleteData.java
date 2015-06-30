@@ -23,15 +23,12 @@
  */
 package training;
 
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import omero.cmd.Delete2;
-import omero.cmd.Request;
 import omero.cmd.Response;
-import omero.model.Annotation;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.gateway.facility.DataManagerFacility;
+import omero.log.SimpleLogger;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.Dataset;
@@ -43,6 +40,7 @@ import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
+import pojos.ExperimenterData;
 
 /** 
  * Sample code showing how to delete data.
@@ -65,8 +63,9 @@ public class DeleteData
     private String password = "password";
     //end edit
 
-    /** Reference to the connector.*/
-    private Connector connector;
+    private Gateway gateway;
+    
+    private SecurityContext ctx;
 
     /**
      * Creates an original file.
@@ -95,18 +94,15 @@ public class DeleteData
     private void deleteImage()
             throws Exception
     {
+        DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+        
         //First create an image.
         Image img = new ImageI();
         img.setName(omero.rtypes.rstring("image1"));
         img.setDescription(omero.rtypes.rstring("descriptionImage1"));
-        img = (Image) connector.getUpdateService().saveAndReturnObject(img);
+        img = (Image) dm.saveAndReturnObject(ctx, img, null);
 
-        Delete2 deleteCmd = new Delete2();
-        List<Long> ids = Collections.singletonList(img.getId().getValue());
-        deleteCmd.targetObjects = new HashMap<String, List<Long>>();
-        deleteCmd.targetObjects.put(Image.class.getSimpleName(), ids);
-        List<Request> requests = Collections.<Request>singletonList(deleteCmd);
-        Response rsp = connector.submit(requests);
+        Response rsp = dm.deleteObject(ctx, img);
         System.err.println(rsp);
     }
 
@@ -119,21 +115,18 @@ public class DeleteData
     private void deleteFileAnnotation()
             throws Exception
     {
+        DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+        
         Dataset d = new DatasetI();
         d.setName(omero.rtypes.rstring("FileAnnotationDelete"));
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(createOriginalFile());
         d.linkAnnotation(fa);
-        d = (Dataset) connector.getUpdateService().saveAndReturnObject(d);
+        d = (Dataset) dm.saveAndReturnObject(ctx, d, null);
         fa = (FileAnnotation) d.linkedAnnotationList().get(0);
 
 
-        Delete2 deleteCmd = new Delete2();
-        List<Long> ids = Collections.singletonList(fa.getId().getValue());
-        deleteCmd.targetObjects = new HashMap<String, List<Long>>();
-        deleteCmd.targetObjects.put(Annotation.class.getSimpleName(), ids);
-        List<Request> requests = Collections.<Request>singletonList(deleteCmd);
-        Response rsp = connector.submit(requests);
+        Response rsp = dm.deleteObject(ctx, fa);
         System.err.println(rsp);
     }
 
@@ -150,16 +143,25 @@ public class DeleteData
             info.setPassword(password);
             info.setUserName(userName);
         }
-        connector = new Connector(info);
+        LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
         try {
-            connector.connect();
+            ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
+            
             deleteImage();
             deleteFileAnnotation();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                connector.disconnect(); // Be sure to disconnect
+                gateway.disconnect(); // Be sure to disconnect
             } catch (Exception e) {
                 e.printStackTrace();
             }
