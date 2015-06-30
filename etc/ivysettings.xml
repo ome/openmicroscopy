@@ -80,8 +80,8 @@
         <resolver ref="main"/>
         <resolver ref="repo"/>
         <resolver ref="user-maven"/>
-        <resolver ref="ome-artifactory"/>
         <resolver ref="maven"/>
+        <resolver ref="ome-artifactory"/>
     </chain>
 
     <!-- Spring resolver which has as its first resolver the location
