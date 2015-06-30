@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import omero.api.IContainerPrx;
 import omero.api.IUpdatePrx;
 import omero.cmd.Request;
+import omero.cmd.Response;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -83,9 +84,9 @@ public class DataManagerFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public void deleteObject(SecurityContext ctx, IObject object)
+    public Response deleteObject(SecurityContext ctx, IObject object)
             throws DSOutOfServiceException, DSAccessException {
-        deleteObjects(ctx, Collections.singletonList(object));
+        return deleteObjects(ctx, Collections.singletonList(object));
     }
 
     /**
@@ -101,7 +102,7 @@ public class DataManagerFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public void deleteObjects(SecurityContext ctx, List<IObject> objects)
+    public Response deleteObjects(SecurityContext ctx, List<IObject> objects)
             throws DSOutOfServiceException, DSAccessException {
         try {
             /*
@@ -132,10 +133,11 @@ public class DataManagerFacility extends Facility {
             }
             /* now delete the objects */
             final Request request = Requests.delete(objectIds);
-            gateway.submit(ctx, request).loop(50, 250);
+            return gateway.submit(ctx, request).loop(50, 250);
         } catch (Throwable t) {
             handleException(this, t, "Cannot delete the object.");
         }
+        return null;
     }
 
     /**
