@@ -497,7 +497,6 @@ $.fn.roi_display = function(options) {
 
         this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois) {
             if (roi_json == null) {
-                console.error("OMERO ROIs must be loaded in order to push external shapes");
                 load_rois(false, undefined, roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois);
             } else {
                 $viewportimg.trigger("push_shape", [roi_id, shape_id, shape_config, refresh_rois,
@@ -546,7 +545,6 @@ $.fn.roi_display = function(options) {
                 console.warn("There are no external ROIs, nothing to do");
                 return;
             }
-
             for(var r=0; r<external_rois.length; r++) {
                 var roi = external_rois[r];
                 if (roi["id"] == resolve_id(roi_id)) {
@@ -581,26 +579,18 @@ $.fn.roi_display = function(options) {
                 console.warn("There are no external ROIs, nothing to do");
                 return;
             }
-
-            console.warn("Try to remove ROI " + roi_id);
-
             for (var r=0; r<external_rois.length; r++) {
                 var roi = external_rois[r];
                 if (roi["id"] == resolve_id(roi_id)) {
-                    console.log("Removing ROI with index " + external_rois.indexOf(roi));
                     external_rois.splice(external_rois.indexOf(roi), 1);
                     this.deactivate_roi(resolve_id(roi_id));
 
                     var refresh = typeof refresh !== "undefined" ? refresh : false;
                     if (refresh) {
-                        console.log("Active ROIs filter");
-                        console.log(active_rois);
                         if (Object.keys(active_rois).length != 0) {
                             this.refresh_active_rois();
-                            console.log("Refreshing active ROIs [this.remove_roi]");
                         } else {
                             this.hide_rois();
-                            console.log("No ROIs in active ROIs filter, hide them all [this.remove_roi]");
                         }
                     }
                     return;
@@ -749,8 +739,6 @@ $.fn.roi_display = function(options) {
                 console.warn("HIDE_OME_ROIS and HIDE_EXTERNAL_ROIS are False, nothing to do");
                 return;
             }
-
-            console.log("HIDE OME ROIS: " + hide_ome_rois + " HIDE EXTERNAL ROIS: " + hide_external_rois);
 
             if (hide_ome_rois && hide_external_rois) {
                 rois_displayed = false;
