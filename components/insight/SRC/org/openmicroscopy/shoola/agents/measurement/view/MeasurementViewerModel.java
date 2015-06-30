@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationSaver;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
@@ -94,6 +95,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
+import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -102,7 +104,6 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
-import pojos.ShapeData;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -1917,5 +1918,19 @@ class MeasurementViewerModel
 	    ROIAnnotationLoader loader = new ROIAnnotationLoader(component,
 	            getSecurityContext(), shapes);
 	    loader.load();
+	}
+
+	/**
+	 * Saves the annotations.
+	 *
+	 * @param toAdd The annotation to add.
+	 * @param toRemove The annotation to remove.
+	 */
+	void fireAnnotationSaving(Map<DataObject, List<AnnotationData>> toAdd,
+	        Map<DataObject, List<AnnotationData>> toRemove)
+	{
+	    ROIAnnotationSaver saver = new ROIAnnotationSaver(component,
+	            getSecurityContext(), toAdd, toRemove);
+	    saver.load();
 	}
 }
