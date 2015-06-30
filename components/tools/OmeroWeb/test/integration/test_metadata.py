@@ -41,7 +41,8 @@ class TestCoreMetadata(IWebTest):
         # show right panel for image
         request_url = reverse('load_metadata_details', args=['image', iid])
         data = {}
-        rsp = _get_response(self.django_client, request_url, data, status_code=200)
+        rsp = _get_response(self.django_client, request_url,
+                            data, status_code=200)
         html = rsp.content
         # Units are µm by default
         assert "Pixels Size (XYZ) (µm):" in html
@@ -56,6 +57,7 @@ class TestCoreMetadata(IWebTest):
         conn.getUpdateService().saveObject(p)
 
         # Should now be showning pixels
-        rsp = _get_response(self.django_client, request_url, data, status_code=200)
+        rsp = _get_response(self.django_client,
+                            request_url, data, status_code=200)
         html = rsp.content
         assert "Pixels Size (XYZ) (pixel):" in html
