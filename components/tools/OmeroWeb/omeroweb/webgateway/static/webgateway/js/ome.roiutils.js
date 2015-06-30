@@ -101,10 +101,9 @@ $.fn.get_ome_ellipse = function(center_x, center_y, radius_x, radius_y, z_plane,
         "ry": radius_y
     };
 
-    $.extend(ellipse_conf, $.fn.get_ome_point(center_x, center_y, transform,
-        z_plane, t_plane, transform));
+    $.extend(ellipse_conf, $.fn.get_ome_point(center_x, center_y, z_plane, t_plane,
+        transform, shape_config));
     ellipse_conf.type = "Ellipse";
-    $.extend(ellipse_conf, shape_config);
 
     return ellipse_conf;
 }
