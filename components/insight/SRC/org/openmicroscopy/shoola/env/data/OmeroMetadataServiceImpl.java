@@ -2526,6 +2526,5 @@ class OmeroMetadataServiceImpl
                }
            }
         }
-        return null;
     }
 }
