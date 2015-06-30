@@ -39,6 +39,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Well;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.DataObject;
@@ -49,6 +50,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.WellData;
 import pojos.util.PojoMapper;
 
 /**
@@ -831,6 +833,41 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the wells for a given plate 
+     * @param ctx The {@link SecurityContext}
+     * @param plateId The ID of the plate
+     * @return A collection of {@link WellData}s
+     */
+    public Collection<WellData> getWells(SecurityContext ctx, long plateId) {
+        Collection<WellData> result = new ArrayList<WellData>();
+        try {
+            IQueryPrx proxy = gateway.getQueryService(ctx);
+            StringBuilder sb = new StringBuilder();
+            ParametersI param = new ParametersI();
+            param.addLong("plateID", plateId);
+            sb.append("select well from Well as well ");
+            sb.append("left outer join fetch well.plate as pt ");
+            sb.append("left outer join fetch well.wellSamples as ws ");
+            sb.append("left outer join fetch ws.plateAcquisition as pa ");
+            sb.append("left outer join fetch ws.image as img ");
+            sb.append("left outer join fetch img.pixels as pix ");
+            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("where well.plate.id = :plateID");
+
+            List<IObject> results = proxy.findAllByQuery(sb.toString(), param);
+            Iterator<IObject> i = results.iterator();
+            WellData well;
+            while (i.hasNext()) {
+                well = new WellData((Well) i.next());
+                result.add(well);
+            }
+        } catch (Throwable t) {
+            logError(this, "Could not load wells", t);
+        }
+        return result;
+    }
+    
     /** Load Images */
 
     /**
