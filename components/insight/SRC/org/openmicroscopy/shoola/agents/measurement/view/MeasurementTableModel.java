@@ -28,8 +28,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
+
+import omero.model.Length;
+import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /**
@@ -133,6 +139,22 @@ public class MeasurementTableModel extends AbstractTableModel
                 buffer.append("= "+UIUtilities.formatToDecimal(total));
             }
             return buffer.toString();
+        } else if (value instanceof Length) {
+            MeasurementUnits units = getUnitsType();
+            Length n = (Length) value;
+            String s;
+            if (!units.getUnit().equals(UnitsLength.PIXEL)) {
+                KeyDescription key = getColumnNames().get(col);
+                String k = key.getKey();
+                s = UIUtilities.formatValue(n, AnnotationKeys.AREA.getKey().equals(k));
+                if (CommonsLangUtils.isNotBlank(s))
+                   return s;
+            } else {
+                s = UIUtilities.twoDecimalPlaces(n.getValue());
+                if (CommonsLangUtils.isNotBlank(s)) {
+                    return s;
+                }
+            }
         }
         return rowData.getElement(col);
     }
