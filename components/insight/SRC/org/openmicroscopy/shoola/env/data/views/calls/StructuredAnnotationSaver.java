@@ -181,7 +181,8 @@ public class StructuredAnnotationSaver
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.saveData(ctx, toAdd, toRemove, userID);
+                os.saveAnnotationData(ctx, toAdd, toRemove, userID);
+                result = Boolean.TRUE;
             }
         };
     }
@@ -256,6 +257,6 @@ public class StructuredAnnotationSaver
             Map<DataObject, List<AnnotationData>> toRemove, long userID)
     {
         this.ctx = ctx;
-        loadCall = loadBatchCall(toAdd, toRemove, null, userID);
+        loadCall = loadBatchCall(toAdd, toRemove, userID);
     }
 }
