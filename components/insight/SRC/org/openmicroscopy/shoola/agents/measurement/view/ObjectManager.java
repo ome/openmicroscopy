@@ -486,5 +486,9 @@ class ObjectManager
 	 */
 	public int getIndex() { return INDEX; }
 
+	void loadTags()
+	{
+	    
+	}
 }
 	
