@@ -56,10 +56,10 @@ import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationSaver;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
+import org.openmicroscopy.shoola.agents.measurement.TagsLoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 
 import pojos.WorkflowData;
 
@@ -228,6 +228,8 @@ class MeasurementViewerModel
     /** The sorter to order shapes.*/
     private ViewerSorter sorter;
 
+    /** Collection of existing tags if any. */
+    private Collection existingTags;
 
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary.
@@ -1883,8 +1885,8 @@ class MeasurementViewerModel
     */
 	boolean isMember()
 	{
-		if (MetadataViewerAgent.isAdministrator()) return false;
-		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
+		if (MeasurementAgent.isAdministrator()) return false;
+		Collection groups = MeasurementAgent.getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g, gRef = null;
 		long gId = getImage().getGroupId();
@@ -1933,4 +1935,29 @@ class MeasurementViewerModel
 	            getSecurityContext(), toAdd, toRemove);
 	    saver.load();
 	}
+
+	/**
+     * Sets the collection of existing tags.
+     * 
+     * @param tags The value to set.
+     */
+    void setExistingTags(Collection tags)
+    {
+        if (tags != null) existingTags = sorter.sort(tags);
+    }
+
+    /**
+     * Returns the collection of existing tags.
+     * 
+     * @return See above.
+     */
+    Collection getExistingTags() { return existingTags; }
+
+    /** Fires an asynchronous retrieval of existing tags. */
+    void fireExistingTagsLoading()
+    {
+        TagsLoader loader = new TagsLoader(component,
+                getSecurityContext(), true);
+        loader.load();
+    }
 }

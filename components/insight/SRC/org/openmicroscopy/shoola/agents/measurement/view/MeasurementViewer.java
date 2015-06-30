@@ -414,4 +414,11 @@ public interface MeasurementViewer
 	 * @param result The roi annotations to set.
 	 */
     public void setROIAnnotations(Map<DataObject, StructuredDataResults> result);
+
+    /**
+     * Sets the tags.
+     *
+     * @param tags The value to set.
+     */
+    public void setExistingTags(Collection tags);
 }
