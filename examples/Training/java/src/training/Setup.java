@@ -2,7 +2,7 @@
  * training.Setup
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -123,7 +123,6 @@ public class Setup {
 			//wrong configuration
 			info = null;
 		}
-		new Connector(info);
 		new CreateImage(info);
 		new DeleteData(info);
 		new HowToUseTables(info);
