@@ -2,7 +2,7 @@
  * training.RawDataAccess 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,20 +26,22 @@ package training;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 //Third-party libraries
 
-import omero.api.IContainerPrx;
 //Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
-import omero.model.Image;
-import omero.sys.ParametersI;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.RawDataFacility;
+import omero.gateway.rnd.Plane2D;
+import omero.log.SimpleLogger;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import training.util.DataSink;
-import training.util.Plane2D;
 
 /** 
  * Sample code showing how to access raw data.
@@ -67,8 +69,9 @@ public class RawDataAccess
 	/** The image.*/
 	private ImageData image;
 
-	/** Reference to the connector.*/
-	private Connector connector;
+	private Gateway gateway;
+    
+    private SecurityContext ctx;
 	
 	/**
 	 * Loads the image.
@@ -79,14 +82,8 @@ public class RawDataAccess
 	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		IContainerPrx proxy = connector.getContainerService();
-		List<Image> results = proxy.getImages(Image.class.getName(),
-				Arrays.asList(imageID), new ParametersI());
-		//You can directly interact with the IObject or the Pojos object.
-		//Follow interaction with the Pojos.
-		if (results.size() == 0)
-			throw new Exception("Image does not exist. Check ID.");
-		return new ImageData(results.get(0));
+	    BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+	    return browse.getImage(ctx, imageID);
 	}
 	
 	/**
@@ -97,39 +94,23 @@ public class RawDataAccess
 	private void retrievePlane()
 		throws Exception
 	{
+	    RawDataFacility rdf = gateway.getFacility(RawDataFacility.class);
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
 		int sizeC = pixels.getSizeC();
-		int sizeX = pixels.getSizeX();
-		int sizeY = pixels.getSizeY();
-		long pixelsId = pixels.getId();
-		RawPixelsStorePrx store = null;
 		
-		try {
-			store = connector.getRawPixelsStore();
-			store.setPixelsId(pixelsId, false);
-			DataSink data = new DataSink(pixels);
-			Plane2D p;
-			for (int z = 0; z < sizeZ; z++) {
-				for (int t = 0; t < sizeT; t++) {
-					for (int c = 0; c < sizeC; c++) {
-						 byte[] plane = store.getPlane(z, c, t);
-						 p = data.getPlane(plane);
-						 for (int x = 0; x < sizeX; x++) {
-							for (int y = 0; y < sizeY; y++) {
-								//System.err.println(p.getPixelValue(x, y));
-							}
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			throw new Exception("Cannot read the plane", e);
-		} finally {
-			if (store != null) store.close();
-		}
+        try {
+            Plane2D p;
+            for (int z = 0; z < sizeZ; z++) 
+                for (int t = 0; t < sizeT; t++) 
+                    for (int c = 0; c < sizeC; c++) 
+                            p = rdf.getPlane(ctx, pixels, z, t, c);
+            
+        } catch (Exception e) {
+            throw new Exception("Cannot read the plane", e);
+        } 
 	}
 	
 	/**
@@ -140,6 +121,8 @@ public class RawDataAccess
 	private void retrieveTile()
 		throws Exception
 	{
+	    // TODO: Add method to RawDataFacility !
+	    
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		int sizeZ = pixels.getSizeZ();
@@ -148,7 +131,7 @@ public class RawDataAccess
 		long pixelsId = pixels.getId();
 		RawPixelsStorePrx store = null;
 		try {
-			store = connector.getRawPixelsStore();
+			store = gateway.getPixelsStore(ctx);
 			store.setPixelsId(pixelsId, false);
 			//tile = (50, 50, 10, 10)  x, y, width, height of tile
 			int x = 0;
@@ -177,6 +160,8 @@ public class RawDataAccess
 	private void retrieveStack()
 		throws Exception
 	{
+	    // TODO: Add method to RawDataFacility !
+	    
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		int sizeT = pixels.getSizeT();
@@ -184,7 +169,7 @@ public class RawDataAccess
 		long pixelsId = pixels.getId();
 		RawPixelsStorePrx store = null;
 		try {
-			store = connector.getRawPixelsStore();
+			store = gateway.getPixelsStore(ctx);
 			store.setPixelsId(pixelsId, false);
 			for (int t = 0; t < sizeT; t++) {
 				for (int c = 0; c < sizeC; c++) {
@@ -206,6 +191,8 @@ public class RawDataAccess
 	private void retrieveHypercube()
 		throws Exception
 	{
+	    // TODO: Add method to RawDataFacility !
+	    
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		long pixelsId = pixels.getId();
@@ -232,7 +219,7 @@ public class RawDataAccess
 		}
 		RawPixelsStorePrx store = null;
 		try {
-			store = connector.getRawPixelsStore();
+			store = gateway.getPixelsStore(ctx);
 			store.setPixelsId(pixelsId, false);
 			byte[] values = store.getHypercube(offset, size, step);
 		} catch (Exception e) {
@@ -256,9 +243,19 @@ public class RawDataAccess
 			info.setUserName(userName);
 			info.setImageId(imageId);
 		}
-		connector = new Connector(info);
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
 		try {
-			connector.connect();
+		    ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
+            
 			image = loadImage(info.getImageId());
 			retrievePlane();
 			retrieveTile();
@@ -268,7 +265,7 @@ public class RawDataAccess
 			e.printStackTrace();
 		} finally {
 			try {
-				connector.disconnect(); // Be sure to disconnect
+			    gateway.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
