@@ -75,10 +75,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </then></if>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
-        </ivy:buildlist>
-        <ivy:buildlist reference="nobf.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**/"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**, **/bioformats/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
@@ -327,7 +324,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <macrodef name="launchSuite">
         <attribute name="suite"/>
-        <attribute name="excludes" default="**/tools/build.xml,**/tests/build.xml"/>
+        <attribute name="excludes" default="**/tools/build.xml,**/tests/build.xml,**/bioformats/**"/>
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
@@ -719,7 +716,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <target name="release-hudson" depends="check-ivy"
             description="Saves to the hudson repository for dependent builds">
-        <iterate buildpathref="nobf.buildpath" target="artifactory"/>
+        <iterate buildpathref="all.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-training" description="Produces a zip with the examples/Training files">
