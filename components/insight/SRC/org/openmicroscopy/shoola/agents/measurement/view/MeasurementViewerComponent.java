@@ -72,13 +72,11 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
-import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
-import pojos.ShapeData;
 import pojos.WorkflowData;
 
 /** 
@@ -1127,4 +1125,13 @@ class MeasurementViewerComponent
 	    if (model.getState() == DISCARDED) return;
 
 	}
+
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setExistingTags(Collection)
+     */
+    public void setExistingTags(Collection tags) {
+        model.setExistingTags(tags);
+        
+    }
 }
