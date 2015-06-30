@@ -2,7 +2,7 @@
  * training.LoadMetadataAdvanced
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -31,13 +31,22 @@ import java.util.List;
 
 //Third-party libraries
 
+
+
+
+
 //Application-internal dependencies
 import omero.api.IContainerPrx;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.log.SimpleLogger;
 import omero.model.Channel;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
 import pojos.ChannelData;
+import pojos.ExperimenterData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
@@ -64,9 +73,12 @@ public class LoadMetadataAdvanced
 	private long imageId = 1;
 	//end edit
 	
-	/** Reference to the connector.*/
-	private Connector connector;
+	private Gateway gateway;
+    
+    private SecurityContext ctx;
 	
+    //TODO: Implement and use a MetadataFacility for doing this stuff!
+    
 	/**
 	 * Load the image acquisition data.
 	 * 
@@ -75,7 +87,7 @@ public class LoadMetadataAdvanced
 	private void loadAcquisitionData(ConfigurationInfo info)
 		throws Exception
 	{
-		IContainerPrx proxy = connector.getContainerService();
+		IContainerPrx proxy = gateway.getPojosService(ctx);
 		ParametersI po = new ParametersI();
 		po.acquisitionData(); // load the acquisition data.
 		List<Image> results = proxy.getImages(Image.class.getName(), 
@@ -97,7 +109,7 @@ public class LoadMetadataAdvanced
 	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		IContainerPrx proxy = connector.getContainerService();
+		IContainerPrx proxy = gateway.getPojosService(ctx);
 		List<Image> results = proxy.getImages(Image.class.getName(),
 				Arrays.asList(imageID), new ParametersI());
 		//You can directly interact with the IObject or the Pojos object.
@@ -120,7 +132,7 @@ public class LoadMetadataAdvanced
 			throw new Exception("Image does not exist. Check ID.");
 		long pixelsId = image.getDefaultPixels().getId();
 		Pixels pixels =
-			connector.getPixelsService().retrievePixDescription(pixelsId);
+			gateway.getPixelsService(ctx).retrievePixDescription(pixelsId);
 		List<Channel> l = pixels.copyChannels();
 		Iterator<Channel> i = l.iterator();
 		int index = 0;
@@ -146,16 +158,27 @@ public class LoadMetadataAdvanced
 			info.setUserName(userName);
 			info.setImageId(imageId);
 		}
-		connector = new Connector(info);
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
 		try {
-			connector.connect(); //First connect.
+		    //First connect.
+		    ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
+           
 			loadAcquisitionData(info);
 			loadChannelData(info);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				connector.disconnect(); // Be sure to disconnect
+			    gateway.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
