@@ -187,10 +187,30 @@ public class DataManagerFacility extends Facility {
      */
     public DataObject saveAndReturnObject(SecurityContext ctx, DataObject object)
             throws DSOutOfServiceException, DSAccessException {
+        return PojoMapper.asDataObject(saveAndReturnObject(ctx, object.asIObject()));
+    }
+    
+    /**
+     * Updates the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param object
+     *            The object to update.
+     * @return The updated object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @see IPojos#updateDataObject(IObject, Map)
+     */
+    public IObject saveAndReturnObject(SecurityContext ctx, IObject object)
+            throws DSOutOfServiceException, DSAccessException {
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx);
-            IObject result = service.saveAndReturnObject(object.asIObject());
-            return PojoMapper.asDataObject(result);
+            IObject result = service.saveAndReturnObject(object);
+            return result;
         } catch (Throwable t) {
             handleException(this, t, "Cannot update the object.");
         }
@@ -251,10 +271,33 @@ public class DataManagerFacility extends Facility {
     public DataObject saveAndReturnObject(SecurityContext ctx,
             DataObject object, String userName) throws DSOutOfServiceException,
             DSAccessException {
+        return PojoMapper.asDataObject(saveAndReturnObject(ctx, object.asIObject(), userName));
+    }
+    
+    /**
+     * Updates the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param object
+     *            The object to update.
+     * @param userName
+     *            The name of the user to create the data for.
+     * @return The updated object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @see IPojos#updateDataObject(IObject, Map)
+     */
+    public IObject saveAndReturnObject(SecurityContext ctx,
+            IObject object, String userName) throws DSOutOfServiceException,
+            DSAccessException {
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx, userName);
-            IObject result = service.saveAndReturnObject(object.asIObject());
-            return PojoMapper.asDataObject(result);
+            IObject result = service.saveAndReturnObject(object);
+            return result;
         } catch (Throwable t) {
             handleException(this, t, "Cannot update the object.");
         }

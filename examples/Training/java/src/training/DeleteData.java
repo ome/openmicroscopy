@@ -100,7 +100,7 @@ public class DeleteData
         Image img = new ImageI();
         img.setName(omero.rtypes.rstring("image1"));
         img.setDescription(omero.rtypes.rstring("descriptionImage1"));
-        img = (Image) dm.saveAndReturnObject(ctx, img, null);
+        img = (Image) dm.saveAndReturnObject(ctx, img);
 
         Response rsp = dm.deleteObject(ctx, img);
         System.err.println(rsp);
@@ -122,7 +122,7 @@ public class DeleteData
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(createOriginalFile());
         d.linkAnnotation(fa);
-        d = (Dataset) dm.saveAndReturnObject(ctx, d, null);
+        d = (Dataset) dm.saveAndReturnObject(ctx, d);
         fa = (FileAnnotation) d.linkedAnnotationList().get(0);
 
 

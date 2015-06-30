@@ -2,7 +2,7 @@
  * training.WriteData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -30,19 +30,21 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
-
-import omero.api.IContainerPrx;
 //Application-internal dependencies
 import omero.api.IMetadataPrx;
 import omero.api.IQueryPrx;
-import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.DataManagerFacility;
+import omero.log.SimpleLogger;
 import omero.model.Annotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -51,7 +53,6 @@ import omero.model.DatasetI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
-import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
@@ -66,6 +67,7 @@ import omero.model.TagAnnotationI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
@@ -108,8 +110,9 @@ public class WriteData
 	
 	private String description = "description";
 	
-	/** Reference to the connector.*/
-	private Connector connector;
+    private Gateway gateway;
+    
+    private SecurityContext ctx;
 	
 	/**
 	 * Loads the image.
@@ -120,14 +123,8 @@ public class WriteData
 	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		IContainerPrx proxy = connector.getContainerService();
-		List<Image> results = proxy.getImages(Image.class.getName(),
-				Arrays.asList(imageID), new ParametersI());
-		//You can directly interact with the IObject or the Pojos object.
-		//Follow interaction with the Pojos.
-		if (results.size() == 0)
-			throw new Exception("Image does not exist. Check ID.");
-		return new ImageData(results.get(0));
+	    BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+	    return browse.getImage(ctx, imageID);
 	}
 	
 	/** 
@@ -137,6 +134,8 @@ public class WriteData
 	private void createNewDataset(ConfigurationInfo info)
 		throws Exception
 	{
+	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+	    
 		//Using IObject directly
 		Dataset dataset = new DatasetI();
 		dataset.setName(omero.rtypes.rstring("new Name 1"));
@@ -147,15 +146,16 @@ public class WriteData
 		datasetData.setName("new Name 2");
 		datasetData.setDescription("new description 2");
 		
+		
 		ProjectDatasetLink link = new ProjectDatasetLinkI();
 		link.setChild(dataset);
 		link.setParent(new ProjectI(info.getProjectId(), false));
-		IObject r = connector.getUpdateService().saveAndReturnObject(link);
+		IObject r = dm.saveAndReturnObject(ctx, link);
 		//With pojo
 		link = new ProjectDatasetLinkI();
 		link.setChild(datasetData.asDataset());
 		link.setParent(new ProjectI(info.getProjectId(), false));
-		r = connector.getUpdateService().saveAndReturnObject(link);
+		r = dm.saveAndReturnObject(ctx, link);
 	}
 	
 	/** 
@@ -164,6 +164,8 @@ public class WriteData
 	private void createNewTag(ConfigurationInfo info)
 		throws Exception
 	{
+	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+	    
 		TagAnnotation tag = new TagAnnotationI();
 		tag.setTextValue(omero.rtypes.rstring("new tag 1"));
 		tag.setDescription(omero.rtypes.rstring("new tag 1"));
@@ -175,12 +177,12 @@ public class WriteData
 		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
 		link.setChild(tag);
 		link.setParent(new ProjectI(info.getProjectId(), false));
-		IObject r = connector.getUpdateService().saveAndReturnObject(link);
+		IObject r = dm.saveAndReturnObject(ctx, link);
 		//With pojo
 		link = new ProjectAnnotationLinkI();
 		link.setChild(tagData.asAnnotation());
 		link.setParent(new ProjectI(info.getProjectId(), false));
-		r = connector.getUpdateService().saveAndReturnObject(link);
+		r = dm.saveAndReturnObject(ctx, link);
 	}
 	
 	
@@ -195,6 +197,8 @@ public class WriteData
 	private void createFileAnnotationAndLinkToImage()
 		throws Exception
 	{
+	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+	    
 		// To retrieve the image see above.
 		File file = File.createTempFile("temp-file-name_", ".tmp"); 
 		String name = file.getName();
@@ -202,7 +206,6 @@ public class WriteData
 		String path = absolutePath.substring(0, 
 				absolutePath.length()-name.length());
 		
-		IUpdatePrx iUpdate = connector.getUpdateService(); // service used to write object
 		// create the original file object.
 		OriginalFile originalFile = new OriginalFileI();
 		originalFile.setName(omero.rtypes.rstring(name));
@@ -213,13 +216,13 @@ public class WriteData
 		originalFile.setHasher(checksumAlgorithm);
 		originalFile.setMimetype(omero.rtypes.rstring(fileMimeType)); // or "application/octet-stream"
 		// now we save the originalFile object
-		originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
+		originalFile = (OriginalFile) dm.saveAndReturnObject(ctx, originalFile);
 
 		// Initialize the service to load the raw data
 		RawFileStorePrx rawFileStore = null;
 		FileInputStream stream = null;
 		try {
-			rawFileStore = connector.getRawFileStore();
+			rawFileStore = gateway.getRawFileService(ctx);
 			rawFileStore.setFileId(originalFile.getId().getValue());
 			// open file and read stream.
 			stream = new FileInputStream(file);
@@ -252,14 +255,14 @@ public class WriteData
 		fa.setNs(omero.rtypes.rstring(ConfigurationInfo.TRAINING_NS)); // The name space you have set to identify the file annotation.
 
 		// save the file annotation.
-		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		fa = (FileAnnotation) dm.saveAndReturnObject(ctx, fa);
 
 		// now link the image and the annotation
 		ImageAnnotationLink link = new ImageAnnotationLinkI();
 		link.setChild(fa);
 		link.setParent(image.asImage());
 		// save the link back to the server.
-		link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+		link = (ImageAnnotationLink) dm.saveAndReturnObject(ctx, link);
 		// To attach to a Dataset use DatasetAnnotationLink;
 	}
 	
@@ -270,13 +273,13 @@ public class WriteData
 	private void loadAnnotationsLinkedToImage()
 		throws Exception
 	{
-		long userId = connector.getAdminService().getEventContext().userId;
+		long userId = gateway.getLoggedInUser().getId();
 		List<String> nsToInclude = new ArrayList<String>();
 		nsToInclude.add(ConfigurationInfo.TRAINING_NS);
 		List<String> nsToExclude = new ArrayList<String>();
 		ParametersI param = new ParametersI();
 		param.exp(omero.rtypes.rlong(userId)); //load the annotation for a given user.
-		IMetadataPrx proxy = connector.getMetadataService();
+		IMetadataPrx proxy = gateway.getMetadataService(ctx);
 		// retrieve the annotations linked to images, for datasets use: omero.model.Dataset.class
 		List<Annotation> annotations = proxy.loadSpecifiedAnnotations(
 				FileAnnotation.class.getName(), nsToInclude, nsToExclude, param);
@@ -287,7 +290,7 @@ public class WriteData
 		RawFileStorePrx store = null;
 		File file = File.createTempFile("temp-file-name_", ".tmp"); 
 		try {
-			store = connector.getRawFileStore();
+			store = gateway.getRawFileService(ctx);
 			int index = 0;
 			FileOutputStream stream = new FileOutputStream(file);
 			OriginalFile of;
@@ -336,7 +339,7 @@ public class WriteData
 	{
 		ParametersI param = new ParametersI();
 		param.map.put("id", omero.rtypes.rlong(id));
-		IQueryPrx svc = connector.getQueryService();
+		IQueryPrx svc = gateway.getQueryService(ctx);
 		return (OriginalFile) svc.findByQuery(
 				"select p from OriginalFile as p " +
 				"where p.id = :id", param);
@@ -355,9 +358,18 @@ public class WriteData
 			info.setImageId(imageId);
 			info.setProjectId(projectId);
 		}
-		connector = new Connector(info);
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
 		try {
-			connector.connect();
+		    ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
 			image = loadImage(info.getImageId());
 			createFileAnnotationAndLinkToImage();
 			loadAnnotationsLinkedToImage();
@@ -367,7 +379,7 @@ public class WriteData
 			e.printStackTrace();
 		} finally {
 			try {
-				connector.disconnect(); // Be sure to disconnect
+			    gateway.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
