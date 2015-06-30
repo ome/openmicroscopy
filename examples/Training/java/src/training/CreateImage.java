@@ -2,7 +2,7 @@
  * training.CreateImage 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -37,11 +37,17 @@ import java.util.Map;
 
 
 
+
+
 //Application-internal dependencies
 import omero.RLong;
 import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.log.SimpleLogger;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -52,6 +58,7 @@ import omero.model.LengthI;
 import omero.model.PixelsType;
 import ome.model.enums.UnitsLength;
 import omero.sys.ParametersI;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -86,8 +93,9 @@ public class CreateImage
 	/** The image.*/
 	private ImageData image;
 	
-	/** Reference to the connector.*/
-	private Connector connector;
+	private Gateway gateway;
+    
+    private SecurityContext ctx;
 	
 	/**
 	 * Loads the image.
@@ -98,7 +106,7 @@ public class CreateImage
 	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		IContainerPrx proxy = connector.getContainerService();
+		IContainerPrx proxy = gateway.getPojosService(ctx);
 		List<Image> results = proxy.getImages(Image.class.getName(),
 				Arrays.asList(imageID), new ParametersI());
 		//You can directly interact with the IObject or the Pojos object.
@@ -154,7 +162,7 @@ public class CreateImage
 		//Create a new image.
 		Map<Integer, byte[]> map = new LinkedHashMap<Integer, byte[]>();
 		try {
-			store = connector.getRawPixelsStore();
+			store = gateway.getPixelsStore(ctx);
 			store.setPixelsId(pixelsId, false);
 			for (int t = 0; t < sizeT; t++) {
 				for (int c = 0; c < sizeC; c++) {
@@ -172,7 +180,7 @@ public class CreateImage
 		}
 
 		//Now we are going to create the new image.
-		IPixelsPrx proxy = connector.getPixelsService();
+		IPixelsPrx proxy = gateway.getPixelsService(ctx);
 		List<IObject> l = proxy.getAllEnumerations(PixelsType.class.getName());
 		Iterator<IObject> i = l.iterator();
 		PixelsType type = null;
@@ -203,11 +211,11 @@ public class CreateImage
 		DatasetImageLink link = new DatasetImageLinkI();
 		link.setParent(new DatasetI(info.getDatasetId(), false));
 		link.setChild(new ImageI(newImage.getId(), false));
-		connector.getUpdateService().saveAndReturnObject(link);
+		gateway.getUpdateService(ctx).saveAndReturnObject(link);
 		
 		//Write the data.
 		try {
-			store = connector.getRawPixelsStore();
+			store = gateway.getPixelsStore(ctx);
 			store.setPixelsId(newImage.getDefaultPixels().getId(), false);
 			int index = 0;
 			for (int t = 0; t < sizeT; t++) {
@@ -242,16 +250,26 @@ public class CreateImage
 			info.setDatasetId(datasetId);
 			info.setImageId(imageId);
 		}
-		connector = new Connector(info);
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
 		try {
-			connector.connect();
+		    ExperimenterData user = gateway.connect(cred);
+		    ctx = new SecurityContext(user.getGroupId());
+		    
 			image = loadImage(info.getImageId());
 			CreateNewImage(info);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				connector.disconnect(); // Be sure to disconnect
+			    gateway.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
