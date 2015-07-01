@@ -22,7 +22,6 @@
 import omero
 from omero.plugins.delete import DeleteControl
 from test.integration.clitest.cli import CLITest
-from omero.rtypes import rstring
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
@@ -35,27 +34,6 @@ class TestDelete(CLITest):
         super(TestDelete, self).setup_method(method)
         self.cli.register("delete", DeleteControl, "TEST")
         self.args += ["delete"]
-
-    def create_object(self, object_type):
-        # create object
-        if object_type == 'Dataset':
-            new_object = omero.model.DatasetI()
-        elif object_type == 'Project':
-            new_object = omero.model.ProjectI()
-        elif object_type == 'Plate':
-            new_object = omero.model.PlateI()
-        elif object_type == 'Screen':
-            new_object = omero.model.ScreenI()
-        elif object_type == 'Image':
-            new_object = self.new_image()
-        new_object.name = rstring("")
-        new_object = self.update.saveAndReturnObject(new_object)
-
-        # check object has been created
-        found_object = self.query.get(object_type, new_object.id.val)
-        assert found_object.id.val == new_object.id.val
-
-        return new_object.id.val
 
     @pytest.mark.parametrize("object_type", object_types)
     def testDeleteMyData(self, object_type):
@@ -305,6 +283,64 @@ class TestDelete(CLITest):
 
         # Check that the image has not been deleted,
         assert self.query.find('Image', img.id.val)
+
+    # Test combinations of include and exclude other than annotations
+    @pytest.fixture()
+    def simpleHierarchy(self):
+        proj = self.make_project()
+        dset = self.make_dataset()
+        img = self.update.saveAndReturnObject(self.new_image())
+        self.link(proj, dset)
+        self.link(dset, img)
+        return proj, dset, img
+
+    def testExcludeNone(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert not self.query.find('Dataset', dset.id.val)
+        assert not self.query.find('Image', img.id.val)
+
+    def testIncludeExcludeSecond(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Dataset']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert self.query.find('Dataset', dset.id.val)
+        assert self.query.find('Image', img.id.val)
+
+    def testExcludeThird(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Image']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert not self.query.find('Dataset', dset.id.val)
+        assert self.query.find('Image', img.id.val)
+
+    def testIncludeExclude(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Dataset']
+        self.args += ['--include', 'Image']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert self.query.find('Dataset', dset.id.val)
+        assert not self.query.find('Image', img.id.val)
 
     # These tests check the default exclusion of the annotations:
     # FileAnnotation, TagAnnotation and TermAnnotation
