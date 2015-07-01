@@ -39,12 +39,6 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
-
-
-
-
-
-
 //Application-internal dependencies
 import omero.RString;
 import omero.model.Annotation;
@@ -233,7 +227,21 @@ public class PojoMapper
         else if (object instanceof Fileset) 
         	return new FilesetData((Fileset) object);
         else if (object instanceof MapAnnotation)
-        	return new MapAnnotationData((MapAnnotation)object);
+        	return new MapAnnotationData((MapAnnotation) object);
+        else if (object instanceof Rect)
+            return new RectangleData((Rect) object);
+        else if (object instanceof Ellipse)
+            return new EllipseData((Ellipse) object);
+        else if (object instanceof Point)
+            return new PointData((Point) object);
+        else if (object instanceof Polyline)
+            return new PolylineData((Polyline) object);
+        else if (object instanceof Polygon)
+            return new PolygonData((Polygon) object);
+        else if (object instanceof Mask)
+            return new MaskData((Mask) object);
+        else if (object instanceof Label)
+            return new TextData((Label) object);
         return null;
     }
     
