@@ -492,7 +492,13 @@ class MeasurementViewerControl
 		}
 		if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 	}
-	
+
+	/** Loads the tags.*/
+    void loadTags()
+    {
+        model.loadTags();
+    }
+    
     /**
      * Reacts to property change.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

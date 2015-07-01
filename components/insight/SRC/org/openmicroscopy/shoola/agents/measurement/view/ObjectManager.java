@@ -130,7 +130,10 @@ class ObjectManager
 	
 	/** Reference to the View. */
 	private MeasurementViewerUI 		view;
-	
+
+	/** Reference to the Model. */
+    private MeasurementViewerControl control;
+
 	/** 
 	 * The table selection listener attached to the table displaying the 
 	 * objects.
@@ -211,15 +214,19 @@ class ObjectManager
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param view 	Reference to the control. Mustn't be <code>null</code>.
-	 * @param model	Reference to the Model. Mustn't be <code>null</code>.
+	 * @param view Reference to the view. Mustn't be <code>null</code>.
+	 * @param controller Reference to the control. Mustn't be <code>null</code>.
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	ObjectManager(MeasurementViewerUI view, MeasurementViewerModel model)
+	ObjectManager(MeasurementViewerUI view, MeasurementViewerControl control,
+	        MeasurementViewerModel model)
 	{
 		if (view == null) throw new IllegalArgumentException("No view.");
 		if (model == null) throw new IllegalArgumentException("No model.");
+		if (control == null) throw new IllegalArgumentException("No control.");
 		this.view = view;
 		this.model = model;
+		this.control = control;
 		initComponents();
 		buildGUI();
 	}
@@ -486,9 +493,10 @@ class ObjectManager
 	 */
 	public int getIndex() { return INDEX; }
 
+	/** Loads the tags.*/
 	void loadTags()
 	{
-	    
+	    control.loadTags();
 	}
 }
-	
+

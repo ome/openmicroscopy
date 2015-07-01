@@ -382,7 +382,7 @@ class MeasurementViewerUI
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
-		roiManager = new ObjectManager(this, model);
+		roiManager = new ObjectManager(this, controller, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
         if (showGraph) {
