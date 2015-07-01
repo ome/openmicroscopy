@@ -207,6 +207,10 @@ public class ModelMapper
     		return ((PlateAcquisitionAnnotationLink) link).getParent();
     	if (link instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) link).getParent();
+    	if (link instanceof ShapeAnnotationLink)
+            return ((ShapeAnnotationLink) link).getParent();
+    	if (link instanceof RoiAnnotationLink)
+            return ((RoiAnnotationLink) link).getParent();
     	return null;
     }
     
