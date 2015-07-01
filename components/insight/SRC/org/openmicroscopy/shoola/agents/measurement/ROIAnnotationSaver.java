@@ -97,7 +97,6 @@ public class ROIAnnotationSaver
     public void handleResult(Object result)
     {
         if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-        //
-        System.err.println("Tagged");
+        
     }
 }

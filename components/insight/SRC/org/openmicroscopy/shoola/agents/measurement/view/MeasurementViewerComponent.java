@@ -1203,7 +1203,6 @@ class MeasurementViewerComponent
         while (i.hasNext()) {
             shape = (ROIFigure) i.next();
             data = (StructuredDataResults) shape.getAttribute(AnnotationKeys.TAG);
-            //Structur
             if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
                 l.addAll(data.getTags());
             }
