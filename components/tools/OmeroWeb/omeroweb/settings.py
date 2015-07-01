@@ -88,20 +88,20 @@ LOGGING = {
     'handlers': {
         'default': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'clogging.cloghandler.ConcurrentRotatingFileHandler',
             'filename': os.path.join(
                 LOGDIR, 'OMEROweb.log').replace('\\', '/'),
             'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 5,
+            'backupCount': 10,
             'formatter': 'standard',
         },
         'request_handler': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'clogging.cloghandler.ConcurrentRotatingFileHandler',
             'filename': os.path.join(
                 LOGDIR, 'OMEROweb_request.log').replace('\\', '/'),
             'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 5,
+            'backupCount': 10,
             'formatter': 'standard',
         },
         'null': {
