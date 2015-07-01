@@ -36,6 +36,7 @@ import org.jhotdraw.draw.AttributeKey;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.TagAnnotationData;
 import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
@@ -424,4 +425,11 @@ public interface MeasurementViewer
 
     /** Loads and displays the existing tags.*/
     public void loadTags();
+
+    /**
+     * Tags the selected figures.
+     *
+     * @param tags The tags to use.
+     */
+    public void tagSelectedFigures(List<AnnotationData> tags);
 }
