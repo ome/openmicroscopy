@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 
@@ -1132,10 +1132,51 @@ class MeasurementViewerComponent
      */
 	public void setROIAnnotations(Map<DataObject, StructuredDataResults> result)
 	{
-	    if (model.getState() == DISCARDED) return;
-
+	    if (model.getState() == DISCARDED ||
+	            result == null || result.size() == 0) return;
+	    //Update the UI elements
+	    Collection<ROIFigure> figures = model.getAllFigures();
+	    if (CollectionUtils.isEmpty(figures)) return;
+	    Iterator<ROIFigure> i = figures.iterator();
+	    ROIFigure f;
+	    ShapeData shape;
+	    Map<Long, StructuredDataResults> r = convertMap(result, null);
+	    StructuredDataResults sd;
+	    while (i.hasNext()) {
+            f = i.next();
+            shape = f.getROIShape().getData();
+            sd = r.get(shape.getId());
+            if (sd != null) {
+                f.setAttribute(MeasurementAttributes.TAG, sd);
+            }
+        }
 	}
 
+	/**
+	 * Converts the results map.
+	 *
+	 * @param result The map to handle
+	 * @param type The type of object to look for or <code>null</code>.
+	 * @return See above.
+	 */
+	private Map<Long, StructuredDataResults> convertMap(
+	        Map<DataObject, StructuredDataResults> result, Class<?> type) {
+	    Map<Long, StructuredDataResults> r = new HashMap<Long, StructuredDataResults>();
+	    Entry<DataObject, StructuredDataResults> e;
+	    Iterator<Entry<DataObject, StructuredDataResults>>
+	    i = result.entrySet().iterator();
+	    while (i.hasNext()) {
+            e = i.next();
+            if (type == null) {
+                r.put(e.getKey().getId(), e.getValue());
+            } else {
+                if (e.getKey().getClass().equals(type)) {
+                    r.put(e.getKey().getId(), e.getValue());
+                }
+            }
+        }
+	    return r;
+	}
     /**
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#setExistingTags(Collection)
@@ -1185,7 +1226,7 @@ class MeasurementViewerComponent
     {
         Collection<ROIShape> shapes = model.getSelectedShapes();
         if (CollectionUtils.isEmpty(shapes)) return;
-        //TODO: check annotation to remove
+        
         Iterator<ROIShape> i = shapes.iterator();
         ROIShape shape;
         Object data;
@@ -1197,9 +1238,10 @@ class MeasurementViewerComponent
             objects.add(shape.getData());
             data = shape.getFigure().getAttribute(MeasurementAttributes.TAG);
             if (data != null) {
-                //l.add(data);
+                l.add(data);
             }
         }
-        model.fireAnnotationSaving(objects, tags, l);
+        //TODO: check annotation to remove
+        model.fireAnnotationSaving(objects, tags, null);
     }
 }
