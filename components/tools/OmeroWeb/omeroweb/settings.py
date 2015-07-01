@@ -804,11 +804,11 @@ USE_I18N = True
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 # See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.common.BrokenLinkEmailsMiddleware',
 )
 
 
