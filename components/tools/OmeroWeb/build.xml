@@ -61,7 +61,7 @@
         </if>
         <if><not><available file="${basedir}/../target/lib/python/clogging"/></not>
             <then>
-                <untar compression="gzip" src="${lib.dir}/repository/ConcurrentLogHandler-0.9.1.tar.gz" dest="${basedir}/../target/lib/python">
+                <untar compression="gzip" src="${lib.dir}/repository/ConcurrentLogHandler-0.9.1.tar.gz" dest="${basedir}/../target/lib/fallback">
                     <patternset>
                         <include name="ConcurrentLogHandler-0.9.1/src/**"/>
                     </patternset>
@@ -71,7 +71,7 @@
                         </filtermapper>
                     </mapper>
                 </untar>
-                <touch file="${basedir}/../target/lib/python/clogging/__init__.py"/>
+                <touch file="${basedir}/../target/lib/fallback/clogging/__init__.py"/>
             </then>
         </if>
         <if><not><available file="${basedir}/../target/lib/python/pipeline"/></not>
