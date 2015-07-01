@@ -106,7 +106,7 @@ public class RenderImages
 		long pixelsId = pixels.getId();
 		RenderingEnginePrx proxy = null;
 		try {
-			proxy = gateway.getRenderingService(ctx, pixelsId, .85f);
+			proxy = gateway.getRenderingService(ctx, pixelsId);
 			proxy.lookupPixels(pixelsId);
 			if (!(proxy.lookupRenderingDef(pixelsId))) {
 				proxy.resetDefaultSettings(true);

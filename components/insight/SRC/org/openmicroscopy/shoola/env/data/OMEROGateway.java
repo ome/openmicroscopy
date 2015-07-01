@@ -2470,7 +2470,7 @@ class OMEROGateway
 	{
 	    RenderingEnginePrx service = null;
 		try {
-		    service = gw.getRenderingService(ctx, pixelsID, ctx.getCompression());
+		    service = gw.getRenderingService(ctx, pixelsID);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();

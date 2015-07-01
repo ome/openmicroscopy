@@ -787,11 +787,11 @@ public class Gateway {
      *             Thrown if the service cannot be initialized.
      */
     public RenderingEnginePrx getRenderingService(SecurityContext ctx,
-            long pixelsID, float compression) throws DSOutOfServiceException,
+            long pixelsID) throws DSOutOfServiceException,
             ServerError {
         Connector c = getConnector(ctx, true, false);
         if (c != null)
-            return c.getRenderingService(pixelsID, compression);
+            return c.getRenderingService(pixelsID, ctx.getCompression());
         return null;
     }
 
