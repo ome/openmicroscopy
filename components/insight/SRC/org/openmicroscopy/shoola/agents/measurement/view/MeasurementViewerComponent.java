@@ -41,6 +41,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
+import omero.model.TagAnnotation;
+
 import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -72,8 +74,11 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import com.sun.jna.StructureReadContext;
 
 import pojos.AnnotationData;
 import pojos.ChannelData;
@@ -1138,14 +1143,23 @@ class MeasurementViewerComponent
 	    ShapeData shape;
 	    Map<Long, StructuredDataResults> r = convertMap(result, null);
 	    StructuredDataResults sd;
+	    List<ROIShape> shapes = new ArrayList<ROIShape>();
 	    while (i.hasNext()) {
             f = i.next();
             shape = f.getROIShape().getData();
             sd = r.get(shape.getId());
             if (sd != null) {
-                f.setAttribute(MeasurementAttributes.TAG, sd);
+                f.setAttribute(AnnotationKeys.TAG, sd);
+                shapes.add(f.getROIShape());
+                List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
+                tags.add(new TagAnnotationData("test"));
+                sd.setTags(tags);
+                System.err.println(sd.getTags());
             }
         }
+	    if (CollectionUtils.isNotEmpty(shapes)) {
+	        view.displayAnnotations(shapes);
+	    }
 	}
 
 	/**
@@ -1184,13 +1198,14 @@ class MeasurementViewerComponent
         if (CollectionUtils.isEmpty(shapes)) return;
         Iterator<Figure> i = shapes.iterator();
         ROIFigure shape;
-        Object data;
+        StructuredDataResults data;
         List<Object> l = new ArrayList<Object>();
         while (i.hasNext()) {
             shape = (ROIFigure) i.next();
-            data = shape.getAttribute(MeasurementAttributes.TAG);
-            if (data != null) {
-                l.add(data);
+            data = (StructuredDataResults) shape.getAttribute(AnnotationKeys.TAG);
+            //Structur
+            if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
+                l.addAll(data.getTags());
             }
         }
         //Bring up the selection Wizard
@@ -1225,19 +1240,20 @@ class MeasurementViewerComponent
         
         Iterator<ROIShape> i = shapes.iterator();
         ROIShape shape;
-        Object data;
+        StructuredDataResults data;
         ShapeData object;
         List<Object> l = new ArrayList<Object>();
         List<DataObject> objects = new ArrayList<DataObject>();
         while (i.hasNext()) {
             shape = i.next();
             objects.add(shape.getData());
-            data = shape.getFigure().getAttribute(MeasurementAttributes.TAG);
-            if (data != null) {
-                l.add(data);
+            data = (StructuredDataResults) shape.getFigure().getAttribute(AnnotationKeys.TAG);
+            //Structur
+            if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
+                l.addAll(data.getTags());
             }
         }
-        //TODO: check annotation to remove
+        //TODO: check annotation to remove i.e. remove null
         model.fireAnnotationSaving(objects, tags, null);
     }
 }

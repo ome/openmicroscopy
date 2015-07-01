@@ -65,10 +65,6 @@ public class MeasurementAttributes
 	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
 		new AttributeKey<Color>("MeasurementTextColour", 
 				IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-	
-	/** Should the figure show the measurement text. */
-    public static final AttributeKey<StructuredDataResults> TAG =
-        new AttributeKey<StructuredDataResults>("Tag", null);
     
 	/** create instance. */
 	private MeasurementAttributes()

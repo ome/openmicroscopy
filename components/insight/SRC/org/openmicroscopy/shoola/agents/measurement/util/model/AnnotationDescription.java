@@ -103,6 +103,7 @@ public class AnnotationDescription
 														"Workflow");
 		annotationDescription.put(AnnotationKeys.KEYWORDS,
 														"Keywords");
+		annotationDescription.put(AnnotationKeys.TAG, "Tag");
 		}
 }
 

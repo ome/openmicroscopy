@@ -1658,4 +1658,8 @@ class MeasurementViewerUI
     
             graphPane.saveGraph(file, type);
         }
+
+    void displayAnnotations(List<ROIShape> shapes) {
+        roiInspector.setSelectedFigures(shapes);
+    }
 }
