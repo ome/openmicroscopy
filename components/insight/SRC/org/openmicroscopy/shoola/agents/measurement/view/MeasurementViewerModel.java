@@ -104,6 +104,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import pojos.ShapeData;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -825,6 +826,25 @@ class MeasurementViewerModel
 		}
 		return roiList;
 	}
+
+	/**
+	 * Returns a collection of the currently selected shapes in the drawing view.
+	 *
+	 * @return see above.
+	 */
+    Collection<ROIShape> getSelectedShapes()
+    {
+        Collection<Figure> selectedFigs = getDrawingView().getSelectedFigures();
+        List<ROIShape> l = new ArrayList<ROIShape>();
+        Iterator<Figure> figIterator = selectedFigs.iterator();
+        ROIFigure fig;
+        while (figIterator.hasNext())
+        {
+            fig = (ROIFigure) figIterator.next();
+            l.add(fig.getROIShape());
+        }
+        return l;
+    }
 
 	/**
 	 * Removes the <code>ROIShape</code> on the current View corresponding

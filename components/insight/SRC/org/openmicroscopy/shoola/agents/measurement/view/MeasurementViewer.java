@@ -421,4 +421,7 @@ public interface MeasurementViewer
      * @param tags The value to set.
      */
     public void setExistingTags(Collection tags);
+
+    /** Loads and displays the existing tags.*/
+    public void loadTags();
 }

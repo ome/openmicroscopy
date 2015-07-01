@@ -44,12 +44,14 @@ import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
-
+import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 
@@ -74,13 +76,17 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
+import pojos.ShapeData;
+import pojos.TagAnnotationData;
 import pojos.WorkflowData;
 
 /** 
@@ -1136,6 +1142,38 @@ class MeasurementViewerComponent
      */
     public void setExistingTags(Collection tags) {
         model.setExistingTags(tags);
-        
+        //Display the UI.
+        Collection<Figure> shapes = model.getSelectedFigures();
+        if (CollectionUtils.isEmpty(shapes)) return;
+        Iterator<Figure> i = shapes.iterator();
+        ROIFigure shape;
+        Object data;
+        List<Object> l = new ArrayList<Object>();
+        while (i.hasNext()) {
+            shape = (ROIFigure) i.next();
+            data = shape.getAttribute(MeasurementAttributes.TAG);
+            if (data != null) {
+                l.add(data);
+            }
+        }
+        //Bring up the selection Wizard
+        SelectionWizard wizard = new SelectionWizard(
+                view, tags, l, TagAnnotationData.class, true,
+                model.getCurrentUser());
+        wizard.addPropertyChangeListener(controller);
+        UIUtilities.centerAndShow(wizard);
+    }
+
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#loadTags()
+     */
+    public void loadTags() {
+        Collection tags = model.getExistingTags();
+        if (tags == null) {
+            model.fireExistingTagsLoading();
+        } else {
+            setExistingTags(tags);
+        }
     }
 }

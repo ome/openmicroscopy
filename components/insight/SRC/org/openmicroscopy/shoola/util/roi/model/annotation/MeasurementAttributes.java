@@ -26,12 +26,15 @@ package org.openmicroscopy.shoola.util.roi.model.annotation;
 //Java imports
 import java.awt.Color;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+
+import pojos.AnnotationData;
 
 /** 
  * 
@@ -46,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttribut
  * </small>
  * @since OME3.0
  */
-public class MeasurementAttributes  
+public class MeasurementAttributes
 	extends DrawingAttributes 
 {
 	
@@ -67,6 +70,10 @@ public class MeasurementAttributes
 		new AttributeKey<Color>("MeasurementTextColour", 
 				IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
 	
+	/** Should the figure show the measurement text. */
+    public static final AttributeKey<AnnotationData> TAG =
+        new AttributeKey<AnnotationData>("Tag", null);
+    
 	/** create instance. */
 	private MeasurementAttributes()
 	{
@@ -78,12 +85,10 @@ public class MeasurementAttributes
 	{	
 		if (ref == null)
 			 // it's ok, we can call this constructor
-			ref = new MeasurementAttributes();		
+			ref = new MeasurementAttributes();
 		return ref;
 	}
 
 	/** Private ref. */
 	private static MeasurementAttributes ref;
 }
-
-
