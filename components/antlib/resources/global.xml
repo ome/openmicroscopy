@@ -500,7 +500,7 @@
             <sequential>
                 <trycatch>
                     <try>
-                        <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="@{settingsRef}" log="quiet"/>
+                        <ivy:resolve file="test.xml" type="jar,bundle" conf="test" settingsRef="@{settingsRef}" log="quiet"/>
                         <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
                         <ivyeclipse conf="test" filter="@{filter}"/>
                     </try>
@@ -512,7 +512,7 @@
                         ***************************************************************************
 
                         </echo>
-                        <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="@{settingsRef}" log="quiet"/>
+                        <ivy:resolve file="ivy.xml" type="jar,bundle" conf="build" settingsRef="@{settingsRef}" log="quiet"/>
                         <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
                         <ivyeclipse conf="build" filter="@{filter}"/>
                     </catch>
