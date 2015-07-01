@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -76,6 +77,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -89,6 +91,9 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+
+import pojos.AnnotationData;
+import pojos.TagAnnotationData;
 
 /** 
  * The MeasurementViewer's Controller.
@@ -512,6 +517,23 @@ class MeasurementViewerControl
             model.discard();
 		else if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(name)) {
 			model.deleteAllROIs((Integer) evt.getNewValue());
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+		    Map m = (Map) evt.getNewValue();
+            if (m == null || m.size() != 1)
+                return;
+            Set set = m.entrySet();
+            Entry entry;
+            Iterator i = set.iterator();
+            Class type;
+            while (i.hasNext()) {
+                entry = (Entry) i.next();
+                type = (Class) entry.getKey();
+                if (TagAnnotationData.class.getName().equals(type.getName())) {
+                    List<AnnotationData> tags =
+                            (List<AnnotationData>) entry.getValue();
+                    model.tagSelectedFigures(tags);
+                }
+            }
 		}
 	}
 

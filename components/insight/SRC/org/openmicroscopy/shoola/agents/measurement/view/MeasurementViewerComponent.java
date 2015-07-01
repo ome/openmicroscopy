@@ -1176,4 +1176,30 @@ class MeasurementViewerComponent
             setExistingTags(tags);
         }
     }
+
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#tagSelectedFigures()
+     */
+    public void tagSelectedFigures(List<AnnotationData> tags)
+    {
+        Collection<ROIShape> shapes = model.getSelectedShapes();
+        if (CollectionUtils.isEmpty(shapes)) return;
+        //TODO: check annotation to remove
+        Iterator<ROIShape> i = shapes.iterator();
+        ROIShape shape;
+        Object data;
+        ShapeData object;
+        List<Object> l = new ArrayList<Object>();
+        List<DataObject> objects = new ArrayList<DataObject>();
+        while (i.hasNext()) {
+            shape = i.next();
+            objects.add(shape.getData());
+            data = shape.getFigure().getAttribute(MeasurementAttributes.TAG);
+            if (data != null) {
+                //l.add(data);
+            }
+        }
+        model.fireAnnotationSaving(objects, tags, l);
+    }
 }
