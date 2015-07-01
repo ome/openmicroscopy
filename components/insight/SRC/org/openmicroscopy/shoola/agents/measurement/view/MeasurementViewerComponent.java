@@ -1151,10 +1151,6 @@ class MeasurementViewerComponent
             if (sd != null) {
                 f.setAttribute(AnnotationKeys.TAG, sd);
                 shapes.add(f.getROIShape());
-                List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
-                tags.add(new TagAnnotationData("test"));
-                sd.setTags(tags);
-                System.err.println(sd.getTags());
             }
         }
 	    if (CollectionUtils.isNotEmpty(shapes)) {
