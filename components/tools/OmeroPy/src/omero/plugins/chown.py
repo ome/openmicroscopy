@@ -16,13 +16,12 @@
 from omero.cli import CLI, GraphControl, ExperimenterArg
 import sys
 
-HELP = """Transfer data between usrs
-
-Transfer entire graphs of data based on the ID of the top-node.
+HELP = """Transfer ownership of data between users. Entire graphs of data,
+based on the ID of the top-node, are transferred.
 
 Examples:
 
-    # In each case transfer an image to user 101
+    # In each case transfer the ownership of an image to user 101
     omero chown 101 Image:1
     omero chown User:101 Image:2
     omero chown Experimenter:101 Image:3
@@ -41,7 +40,7 @@ Examples:
     # if the transfer had been run
     omero chown 101 Dataset:53 --dry-run
     # Do a dry run of a transfer, reporting all the objects
-    # that would have been transfered
+    # that would have been transferred
     omero chown 101 Dataset:53 --dry-run --report
 
 """
@@ -57,7 +56,7 @@ class ChownControl(GraphControl):
     def _pre_objects(self, parser):
         parser.add_argument(
             "usr", nargs="?", type=ExperimenterArg,
-            help="""user to transfer objects to""")
+            help="""user to transfer ownership of objects to""")
 
     def _process_request(self, req, args, client):
         # Retrieve user id
