@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -95,14 +95,7 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
     public final Set<Details> review(Map<String, Set<Details>> linkedFrom, Details rootObject, Map<String, Set<Details>> linkedTo,
             Set<String> notNullable, boolean isErrorRules) throws GraphException {
         /* note all the model objects that may be adjusted in review */
-        final Set<Details> allTerms = new HashSet<Details>();
-        allTerms.add(rootObject);
-        for (final Set<Details> terms : linkedFrom.values()) {
-            allTerms.addAll(terms);
-        }
-        for (final Set<Details> terms : linkedTo.values()) {
-            allTerms.addAll(terms);
-        }
+        final Set<Details> allTerms = GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
         /* allow isAdjustedBeforeReview to adjust objects before review */
         final Set<Details> changedTerms = new HashSet<Details>();
         for (final Details object : allTerms) {
