@@ -23,18 +23,14 @@
 package org.openmicroscopy.shoola.util.roi.model.annotation;
 
 
-//Java imports
 import java.awt.Color;
 
-
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 
-//Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
-import pojos.AnnotationData;
 
 /** 
  * 
@@ -71,8 +67,8 @@ public class MeasurementAttributes
 				IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
 	
 	/** Should the figure show the measurement text. */
-    public static final AttributeKey<AnnotationData> TAG =
-        new AttributeKey<AnnotationData>("Tag", null);
+    public static final AttributeKey<StructuredDataResults> TAG =
+        new AttributeKey<StructuredDataResults>("Tag", null);
     
 	/** create instance. */
 	private MeasurementAttributes()
