@@ -1011,6 +1011,16 @@ class OMEROGateway
 		else if (WellSample.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
+		else if (RectangleData.class.equals(klass) ||
+		        EllipseData.class.equals(klass) ||
+		        PointData.class.equals(klass) ||
+		        PolygonData.class.equals(klass) ||
+		        PolylineData.class.equals(klass) ||
+		        TextData.class.equals(klass) || MaskData.class.equals(klass)) {
+		    table = "ShapeAnnotationLink";
+		} else if (ROIData.class.equals(klass)) {
+		    table = "RoiAnnotationLink";
+		}
 		else table = "AnnotationAnnotationLink";
 		return table;
 	}
