@@ -398,7 +398,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="test-dist" description="Copy test files into dist for further testing" depends="test-compile">
-        <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="test.xml" type="jar,bundle" conf="test" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
