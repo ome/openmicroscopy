@@ -25,30 +25,19 @@ package training;
 
 
 //Java imports
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
-
-
-
-
 //Application-internal dependencies
-import omero.api.IContainerPrx;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
+import omero.gateway.facility.MetadataFacility;
 import omero.log.SimpleLogger;
-import omero.model.Channel;
-import omero.model.Image;
-import omero.model.Pixels;
-import omero.sys.ParametersI;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.ImageAcquisitionData;
-import pojos.ImageData;
 
 /** 
  * Sample code showing how to load image metadata
@@ -77,8 +66,6 @@ public class LoadMetadataAdvanced
     
     private SecurityContext ctx;
 	
-    //TODO: Implement and use a MetadataFacility for doing this stuff!
-    
 	/**
 	 * Load the image acquisition data.
 	 * 
@@ -87,36 +74,9 @@ public class LoadMetadataAdvanced
 	private void loadAcquisitionData(ConfigurationInfo info)
 		throws Exception
 	{
-		IContainerPrx proxy = gateway.getPojosService(ctx);
-		ParametersI po = new ParametersI();
-		po.acquisitionData(); // load the acquisition data.
-		List<Image> results = proxy.getImages(Image.class.getName(), 
-				Arrays.asList(info.getImageId()), po);
-		if (results.size() == 0)
-			throw new Exception("Image does not exist. Check ID.");
-		ImageAcquisitionData image = new ImageAcquisitionData(results.get(0));
-		//Display information about the image
-		//e.g. humidity
+	    MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
+	    ImageAcquisitionData image = mdf.getImageAcquisitionData(ctx, info.getImageId());
 		System.err.println(image.getHumidity());
-	}
-	
-	/**
-	 * Loads the image.
-	 * 
-	 * @param imageID The id of the image to load.
-	 * @return See above.
-	 */
-	private ImageData loadImage(long imageID)
-		throws Exception
-	{
-		IContainerPrx proxy = gateway.getPojosService(ctx);
-		List<Image> results = proxy.getImages(Image.class.getName(),
-				Arrays.asList(imageID), new ParametersI());
-		//You can directly interact with the IObject or the Pojos object.
-		//Follow interaction with the Pojos.
-		if (results.size() == 0)
-			throw new Exception("Image does not exist. Check ID.");
-		return new ImageData(results.get(0));
 	}
 	
 	/**
@@ -127,21 +87,12 @@ public class LoadMetadataAdvanced
 	private void loadChannelData(ConfigurationInfo info)
 		throws Exception
 	{
-		ImageData image = loadImage(info.getImageId());
-		if (image == null)
-			throw new Exception("Image does not exist. Check ID.");
-		long pixelsId = image.getDefaultPixels().getId();
-		Pixels pixels =
-			gateway.getPixelsService(ctx).retrievePixDescription(pixelsId);
-		List<Channel> l = pixels.copyChannels();
-		Iterator<Channel> i = l.iterator();
-		int index = 0;
-		//Easier to use Pojo to access data.
-		ChannelData channel;
-		while (i.hasNext()) {
-			channel = new ChannelData(index, i.next());
-			index++;
-		}
+	    MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
+	    
+	    List<ChannelData> data = mdf.getChannelData(ctx, info.getImageId());
+	    for(ChannelData c : data) {
+	        System.out.println(c.getIndex());
+	    }
 	}
 
 	/**
