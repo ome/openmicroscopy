@@ -1921,14 +1921,15 @@ class MeasurementViewerModel
 	/**
 	 * Saves the annotations.
 	 *
+	 * @param toAnnotate The objects to annotate.
 	 * @param toAdd The annotation to add.
 	 * @param toRemove The annotation to remove.
 	 */
-	void fireAnnotationSaving(Map<DataObject, List<AnnotationData>> toAdd,
-	        Map<DataObject, List<AnnotationData>> toRemove)
+	void fireAnnotationSaving(Collection<DataObject> toAnnotate,
+	        List<AnnotationData> toAdd, List<Object> toRemove)
 	{
 	    ROIAnnotationSaver saver = new ROIAnnotationSaver(component,
-	            getSecurityContext(), toAdd, toRemove);
+	            getSecurityContext(), toAnnotate, toAdd, toRemove);
 	    saver.load();
 	}
 

@@ -20,8 +20,8 @@
  */
 package org.openmicroscopy.shoola.agents.measurement;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -43,11 +43,14 @@ public class ROIAnnotationSaver
 {
 
     /** The shapes to annotate */
-    private Map<DataObject, List<AnnotationData>> toAdd;
+    private Collection<DataObject> objects;
+
+    /** The shapes to annotate */
+    private List<AnnotationData> toAdd;
 
     /** The shapes to remove the annotation from.*/
-    private Map<DataObject, List<AnnotationData>> toRemove;
-    
+    private List<Object> toRemove;
+
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
 
@@ -57,16 +60,18 @@ public class ROIAnnotationSaver
      * @param viewer The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
      * @param ctx The security context.
+     * @param objects The objects.
      * @param toAdd The shapes to annotate.
      * @param toRemove  The shapes to remove the annotation from.
      */
     public ROIAnnotationSaver(MeasurementViewer viewer, SecurityContext ctx,
-            Map<DataObject, List<AnnotationData>> toAdd,
-            Map<DataObject, List<AnnotationData>> toRemove)
+            Collection<DataObject> objects, List<AnnotationData> toAdd,
+            List<Object> toRemove)
     {
         super(viewer, ctx);
         this.toAdd = toAdd;
         this.toRemove = toRemove;
+        this.objects = objects;
     }
 
     /**
@@ -75,7 +80,7 @@ public class ROIAnnotationSaver
      */
     public void load()
     {
-        handle = mhView.annotateData(ctx, toAdd, toRemove, -1, this);
+        mhView.saveData(ctx, objects, toAdd, toRemove, null, -1, this);
     }
 
     /**
