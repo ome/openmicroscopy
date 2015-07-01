@@ -40,6 +40,20 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Application-internal dependencies
 import omero.RString;
 import omero.model.Annotation;
@@ -50,6 +64,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DoubleAnnotation;
+import omero.model.Ellipse;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
@@ -58,17 +73,23 @@ import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Label;
 import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
+import omero.model.Mask;
 import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -87,6 +108,7 @@ import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
+import pojos.EllipseData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
@@ -94,15 +116,21 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
+import pojos.MaskData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
+import pojos.PointData;
+import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
+import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TextData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
@@ -209,7 +237,21 @@ public class PojoMapper
         else if (object instanceof Fileset) 
         	return new FilesetData((Fileset) object);
         else if (object instanceof MapAnnotation)
-        	return new MapAnnotationData((MapAnnotation)object);
+        	return new MapAnnotationData((MapAnnotation) object);
+        else if (object instanceof Rect)
+            return new RectangleData((Rect) object);
+        else if (object instanceof Ellipse)
+            return new EllipseData((Ellipse) object);
+        else if (object instanceof Point)
+            return new PointData((Point) object);
+        else if (object instanceof Polyline)
+            return new PolylineData((Polyline) object);
+        else if (object instanceof Polygon)
+            return new PolygonData((Polygon) object);
+        else if (object instanceof Mask)
+            return new MaskData((Mask) object);
+        else if (object instanceof Label)
+            return new TextData((Label) object);
         return null;
     }
     
