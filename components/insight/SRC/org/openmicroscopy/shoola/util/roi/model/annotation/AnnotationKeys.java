@@ -34,6 +34,10 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+import org.jhotdraw.draw.AttributeKey;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+
 //Application-internal dependencies
 import omero.model.Length;
 import omero.model.LengthI;
@@ -139,7 +143,12 @@ public class AnnotationKeys
 	 */
 	public static final AnnotationKey<String> NAMESPACE = 
 		new AnnotationKey<String>("Namespace", WorkflowData.DEFAULTWORKFLOW);
-	
+
+	   
+    /** Should the figure show the measurement text. */
+    public static final AnnotationKey<StructuredDataResults> TAG =
+        new AnnotationKey<StructuredDataResults>("Tag", null);
+    
 	/**
 	 * The keywords associated with the ROI.
 	 */
@@ -175,7 +184,8 @@ public class AnnotationKeys
         		WIDTH,
         		HEIGHT, 
         		NAMESPACE,
-        		KEYWORDS
+        		KEYWORDS,
+        		TAG
         //		ROIID, 
         //		FIGURETYPE
         		
