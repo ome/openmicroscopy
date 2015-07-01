@@ -121,36 +121,31 @@ public class RawDataAccess
 	private void retrieveTile()
 		throws Exception
 	{
-	    // TODO: Add method to RawDataFacility !
+	    RawDataFacility rdf = gateway.getFacility(RawDataFacility.class);
 	    
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
 		int sizeC = pixels.getSizeC();
-		long pixelsId = pixels.getId();
-		RawPixelsStorePrx store = null;
 		try {
-			store = gateway.getPixelsStore(ctx);
-			store.setPixelsId(pixelsId, false);
 			//tile = (50, 50, 10, 10)  x, y, width, height of tile
 			int x = 0;
 			int y = 0;
 			int width = pixels.getSizeX()/2;
 			int height = pixels.getSizeY()/2;
+			Plane2D p;
 			for (int z = 0; z < sizeZ; z++) {
 				for (int t = 0; t < sizeT; t++) {
 					for (int c = 0; c < sizeC; c++) {
-						byte[] plane = store.getTile(z, c, t, x, y, width,
+						p = rdf.getTile(ctx, pixels, z, t, c, x, y, width,
 								height);
 					}
 				}
 			}
 		} catch (Exception e) {
 			throw new Exception("Cannot read the tiles", e);
-		} finally {
-			if (store != null) store.close();
-		}
+		} 
 	}
 	/**
 	 * Retrieve a given stack.

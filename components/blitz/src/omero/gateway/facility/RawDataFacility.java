@@ -78,14 +78,7 @@ public class RawDataFacility extends Facility {
      */
     public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
             int t, int c) throws DataSourceException {
-        Plane2D data = null;
-        try {
-            DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
-            data = ds.getPlane(ctx, z, t, c, true);
-        } catch (ExecutionException e) {
-            throw new DataSourceException("Can't initiate DataSink", e);
-        }
-        return data;
+        return getPlane(ctx, pixels, z, t, c, true);
     }
 
     /**
@@ -115,6 +108,83 @@ public class RawDataFacility extends Facility {
         try {
             DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
             data = ds.getPlane(ctx, z, t, c, close);
+            if (close)
+                cache.invalidate(pixels.getId());
+        } catch (ExecutionException e) {
+            throw new DataSourceException("Can't initiate DataSink", e);
+        }
+        return data;
+    }
+    
+    /**
+     * Extracts a 2D tile from the pixels set. Connection to the PixelsStore
+     * will be closed automatically.
+     * 
+     * @param ctx
+     *            The security context.
+     * @param pixels
+     *            The {@link PixelsData} object to fetch the data from.
+     * @param z
+     *            The z-section at which data is to be fetched.
+     * @param t
+     *            The timepoint at which data is to be fetched.
+     * @param c
+     *            The channel at which data is to be fetched.
+     * @param x
+     *            The x coordinate
+     * @param y
+     *            The y coordinate
+     * @param w
+     *            The width of the tile
+     * @param h
+     *            The height of the tile
+     * @return A plane 2D object that encapsulates the actual tile pixels.
+     * @throws DataSourceException
+     *             If an error occurs while retrieving the plane data from the
+     *             pixels source.
+     */
+    public Plane2D getTile(SecurityContext ctx, PixelsData pixels, int z,
+            int t, int c, int x, int y, int w, int h)
+            throws DataSourceException {
+        return getTile(ctx, pixels, z, t, c, x, y, w, h, true);
+    }
+
+    /**
+     * Extracts a 2D tile from the pixels set
+     * 
+     * @param ctx
+     *            The security context.
+     * @param pixels
+     *            The {@link PixelsData} object to fetch the data from.
+     * @param z
+     *            The z-section at which data is to be fetched.
+     * @param t
+     *            The timepoint at which data is to be fetched.
+     * @param c
+     *            The channel at which data is to be fetched.
+     * @param x
+     *            The x coordinate
+     * @param y
+     *            The y coordinate
+     * @param w
+     *            The width of the tile
+     * @param h
+     *            The height of the tile
+     * @param close
+     *            Pass <code>true></code> to close the connection to the
+     *            Pixelstore, <code>false</code> to leave it open.
+     * @return A plane 2D object that encapsulates the actual tile pixels.
+     * @throws DataSourceException
+     *             If an error occurs while retrieving the plane data from the
+     *             pixels source.
+     */
+    public Plane2D getTile(SecurityContext ctx, PixelsData pixels, int z,
+            int t, int c, int x, int y, int w, int h, boolean close)
+            throws DataSourceException {
+        Plane2D data = null;
+        try {
+            DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
+            data = ds.getTile(ctx, z, t, c, x, y, w, h, close);
             if (close)
                 cache.invalidate(pixels.getId());
         } catch (ExecutionException e) {

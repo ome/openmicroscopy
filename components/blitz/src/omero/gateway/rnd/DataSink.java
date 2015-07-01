@@ -261,6 +261,55 @@ public class DataSink
             gw.getCacheService().addElement(cacheID, planeIndex, plane);
         return plane;
     }
+    
+    /**
+     * Extracts a 2D tile from the pixels set this object is working for.
+     *
+     * @param ctx
+     *            The security context.
+     * @param z
+     *            The z-section at which data is to be fetched.
+     * @param t
+     *            The timepoint at which data is to be fetched.
+     * @param c
+     *            The channel at which data is to be fetched.
+     * @param x
+     *            The x coordinate
+     * @param y
+     *            The y coordinate
+     * @param w
+     *            The width of the tile
+     * @param h
+     *            The height of the tile
+     * @param close
+     * @return A plane 2D object that encapsulates the actual plane pixels.
+     * @throws DataSourceException
+     *             If an error occurs while retrieving the plane data from the
+     *             pixels source.
+     */
+    public Plane2D getTile(SecurityContext ctx, int z, int t, int c, int x,
+            int y, int w, int h, boolean close) throws DataSourceException {
+        byte[] data = null;
+        try {
+            // initializes if null.
+            if (store == null) {
+                store = gw.createPixelsStore(ctx);
+                store.setPixelsId(source.getId(), false);
+            }
+            data = store.getTile(z, c, t, x, y, w, h);
+        } catch (Exception e) {
+            String p = "(" + z + ", " + c + ", " + t + ", " + x + ", " + y
+                    + ", " + w + ", " + h + ")";
+            throw new DataSourceException("Cannot retrieve the plane " + p, e);
+        } finally {
+            if (close) {
+                gw.closeService(ctx, store);
+                store = null;
+            }
+        }
+        ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
+        return new Plane2D(array, w, h, bytesPerPixels, strategy);
+    }
 
     /**
      * Extracts a 2D plane from the pixels set this object is working for.
