@@ -96,6 +96,21 @@
         <bean parent="graphPolicyRule" p:matches="OTF[I].filterSet = FS:[E]" p:changes="FS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="OTF[I].objective = O:[E]" p:changes="O:[I]"/>
 
+        <!-- An instrument may not be linked directly to the image, so note relevance via settings. -->
+
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = S:[ED], S.detector = D:[E]{i}"
+                                       p:changes="D:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = S:[ED], S.lightSource = LS:[E]{i}"
+                                       p:changes="LS:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Image[I].objectiveSettings = S:[ED], S.objective = O:[E]{i}"
+                                       p:changes="O:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.detector = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.lightSource = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.objective = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.detector = [I]" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.lightSource = [I]" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.objective = [I]" p:changes="IN:{r}"/>
+
         <!-- Move emission and excitation filter links if both parent and child are moved. -->
 
         <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[ED].parent = [I], L.child = [I]"
@@ -298,8 +313,6 @@
         <bean parent="graphPolicyRule" p:matches="!$to_private, L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}/d"
                                        p:changes="I:{r}"/>
 
-        <!-- If a container is moved then consider its contents for moving if they are deletable and not going to a private group. -->
-
         <!-- In considering moving a container's contents, do not move an object if it is in another container. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E]{ia}, L.child = D:[E]{r}" p:changes="D:{a}"/>
@@ -366,17 +379,16 @@
         <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E]{i}.file = [E]{r}" p:changes="FA:{r}"/>
         <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E]{i}.originalFile = [E]{r}" p:changes="FE:{r}"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E]{i}.source = [E]{r}" p:changes="ROI:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{i}, L.child = [E]{r}" p:changes="J:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{i}, L.parent = [E]{r}"
-                                       p:changes="P:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{i}, L.child = [E]{r}" p:changes="J:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{i}, L.parent = [E]{r}" p:changes="P:{r}"/>
 
         <!-- Consider deleting or moving an original file if it is unlinked from an object. -->
 
-        <bean parent="graphPolicyRule" p:matches="FileAnnotation[I].file = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="FilesetEntry[I].originalFile = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Roi[I].source = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [I], L.child = OF:[E]{i}" p:changes="OF:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = [I], L.parent = OF:[E]{i}" p:changes="OF:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="FileAnnotation[I].file = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="FilesetEntry[I].originalFile = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Roi[I].source = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [I], L.child = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = [I], L.parent = OF:[E]{i}" p:changes="OF:{r}"/>
 
         <!-- Do not move an original file that is being used by an object. -->
 
@@ -397,9 +409,8 @@
         <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E]{r}.file = [E]{a}" p:changes="FA:{a}"/>
         <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E]{r}.originalFile = [E]{a}" p:changes="FE:{a}"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E]{r}.source = [E]{a}" p:changes="ROI:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{r}, L.child = [E]{a}" p:changes="J:[E]{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{r}, L.parent = [E]{a}"
-                                       p:changes="P:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{r}, L.child = [E]{a}" p:changes="J:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{r}, L.parent = [E]{a}" p:changes="P:{a}"/>
 
         <!-- Delete remaining settings if holder object is moved. -->
 
@@ -568,12 +579,12 @@
         <!-- Move contained objects: shapes of moved ROIs, pixels of moved masks. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[E]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E]" p:changes="P:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]{i}" p:changes="I:{r}"/>
 
-        <!-- Delete contained objects: shapes of deleted ROIs, pixels of deleted masks. -->
+        <!-- Delete the shapes of deleted ROIs. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[D]"/>
 
         <!-- SCREEN -->
 
@@ -613,10 +624,10 @@
 
         <!-- If a screen is moved then also move the plate if it is used in no other screen. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [I], L.child = P:[E]{i}/o" p:changes="P:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [I], L.child = P:[E]{i}/o" p:changes="P:{r}"/>
         <bean parent="graphPolicyRule" p:matches="$to_private, L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{r}, S =/!o P"
-                                       p:changes="P:[E]{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:[E]{a}"/>
+                                       p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}" p:changes="P:[I]"/>
 
         <!--

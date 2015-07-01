@@ -57,7 +57,8 @@ public class GraphPolicyRule {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphPolicyRule.class);
 
     private static final Pattern NEW_TERM_PATTERN =
-            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udon]+)?");
+            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udon]+)?(\\;\\S+)?");
+    private static final Pattern PREDICATE_PATTERN = Pattern.compile("\\;(\\w+)\\=([^\\;]+)(\\;\\S+)?");
     private static final Pattern EXISTING_TERM_PATTERN = Pattern.compile("(\\w+)");
     private static final Pattern CHANGE_PATTERN = Pattern.compile("(\\w+\\:)(\\[[EDIO\\-]\\])?(\\{[iroa]\\})?(\\/n)?");
 
@@ -111,12 +112,15 @@ public class GraphPolicyRule {
          * Does not adjust {@code namedTerms} or {@code isCheckAllPermissions} unless the match succeeds,
          * in which case sets {@code isCheckAllPermissions} to {@code false} if
          * {@code details.isCheckPermissions == false}.
+         * @param predicates the predicate matchers that may be named in policy rules
          * @param namedTerms the name dictionary of matched terms (updated by this method)
          * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects (updated by this method)
          * @param details the details of the term
          * @return if the term matches
+         * @throws GraphException if the match attempt could not be completed
          */
-        boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details);
+        boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions, Details details) throws GraphException;
     }
 
     /**
@@ -134,7 +138,9 @@ public class GraphPolicyRule {
             this.termName = termName;
         }
 
-        public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
+        @Override
+        public boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions, Details details) {
             return details.equals(namedTerms.get(termName));
         }
     }
@@ -156,6 +162,7 @@ public class GraphPolicyRule {
         private final Set<GraphPolicy.Ability> requiredAbilities;
         private final Set<GraphPolicy.Ability> prohibitedAbilities;
         private final Boolean isCheckPermissions;
+        private final Map<String, String> predicateArguments;
 
         /**
          * Construct a new term match. All arguments may be {@code null}.
@@ -168,11 +175,12 @@ public class GraphPolicyRule {
          * @param requiredAbilities the abilities that the user must have to operate upon the object
          * @param prohibitedAbilities the abilities that the user must not have to operate upon the object
          * @param isCheckPermissions if permissions are being checked for the object, may be {@code null}
+         * @param predicateArguments arguments that must satisfy named predicates, may be {@code null}
          */
         NewTermMatch(String termName, Class<? extends IObject> requiredClass, Class<? extends IObject> prohibitedClass,
                 Collection<GraphPolicy.Action> permittedActions, Collection<GraphPolicy.Orphan> permittedOrphans,
                 Collection<GraphPolicy.Ability> requiredAbilities, Collection<GraphPolicy.Ability> prohibitedAbilities,
-                Boolean isCheckPermissions) {
+                Boolean isCheckPermissions, Map<String, String> predicateArguments) {
             this.termName = termName;
             this.requiredClass = requiredClass;
             this.prohibitedClass = prohibitedClass;
@@ -198,9 +206,12 @@ public class GraphPolicyRule {
                 this.prohibitedAbilities = ImmutableSet.copyOf(prohibitedAbilities);
             }
             this.isCheckPermissions = isCheckPermissions;
+            this.predicateArguments = predicateArguments;
         }
 
-        public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
+        @Override
+        public boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions, Details details) throws GraphException {
             final Class<? extends IObject> subjectClass = details.subject.getClass();
             final boolean previousIsCheckAllPermissions = isCheckAllPermissions.booleanValue();
             if (previousIsCheckAllPermissions && !details.isCheckPermissions) {
@@ -214,6 +225,19 @@ public class GraphPolicyRule {
                 Sets.difference(requiredAbilities, details.permissions).isEmpty() &&
                 Sets.intersection(prohibitedAbilities, details.permissions).isEmpty() &&
                 (isCheckPermissions == null || isCheckPermissions == details.isCheckPermissions)) {
+                if (predicateArguments != null) {
+                    for (final Entry<String, String> predicateArgument : predicateArguments.entrySet()) {
+                        final String predicateName = predicateArgument.getKey();
+                        final String predicateValue = predicateArgument.getValue();
+                        final GraphPolicyRulePredicate predicate = predicates.get(predicateName);
+                        if (predicate == null) {
+                            throw new GraphException("unknown predicate: " + predicateName);
+                        }
+                        if (!predicate.isMatch(details, predicateValue)) {
+                            return false;
+                        }
+                    }
+                }
                 if (termName == null) {
                     return true;
                 } else {
@@ -266,6 +290,7 @@ public class GraphPolicyRule {
          * Does not adjust {@code namedTerms} or {@code isCheckAllPermissions} unless the match succeeds,
          * in which case sets {@code isCheckAllPermissions} to {@code false} if
          * {@code leftDetails.isCheckPermissions && rightDetails.isCheckPermissions == false}.
+         * @param predicates the predicate matchers that may be named in policy rules
          * @param namedTerms the name dictionary of matched terms (to be updated by this method)
          * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects
          * @param leftDetails the details of the left term, holding the property
@@ -273,9 +298,11 @@ public class GraphPolicyRule {
          * @param classProperty the name of the declaring class and property
          * @param notNullable if the property is not nullable
          * @return if the relationship matches
+         * @throws GraphException if the match attempt could not be completed
          */
-        boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions,
-                Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) {
+        boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
+                MutableBoolean isCheckAllPermissions,
+                Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) throws GraphException {
             if ((this.sameOwner != null && leftDetails.ownerId != null && rightDetails.ownerId != null &&
                  this.sameOwner != leftDetails.ownerId.equals(rightDetails.ownerId)) ||
                 (this.notNullable != null && this.notNullable != notNullable) ||
@@ -284,8 +311,8 @@ public class GraphPolicyRule {
             }
             final Map<String, Details> newNamedTerms = new HashMap<String, Details>(namedTerms);
             final MutableBoolean newIsCheckAllPermissions = new MutableBoolean(isCheckAllPermissions.booleanValue());
-            final boolean isMatch = leftTerm.isMatch(newNamedTerms, newIsCheckAllPermissions, leftDetails) &&
-                                   rightTerm.isMatch(newNamedTerms, newIsCheckAllPermissions, rightDetails);
+            final boolean isMatch = leftTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, leftDetails) &&
+                                   rightTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, rightDetails);
             if (isMatch) {
                 namedTerms.putAll(newNamedTerms);
                 isCheckAllPermissions.setValue(newIsCheckAllPermissions.booleanValue());
@@ -469,6 +496,7 @@ public class GraphPolicyRule {
         final Collection<GraphPolicy.Ability> requiredAbilities;
         final Collection<GraphPolicy.Ability> prohibitedAbilities;
         Boolean isCheckPermissions = null;
+        final Map<String, String> predicateArguments;
 
         /* parse term name, if any */
 
@@ -578,10 +606,27 @@ public class GraphPolicyRule {
             }
         }
 
+        /* parse named predicate arguments, if any */
+
+        if (newTermMatcher.group(6) == null) {
+            predicateArguments = null;
+        } else {
+            predicateArguments = new HashMap<String, String>();
+            String remainingPredicates = newTermMatcher.group(6);
+            while (remainingPredicates != null) {
+                final Matcher predicateMatcher = PREDICATE_PATTERN.matcher(remainingPredicates);
+                if (!predicateMatcher.matches()) {
+                    throw new GraphException("failed to parse predicates suffixing match term " + term);
+                }
+                predicateArguments.put(predicateMatcher.group(1), predicateMatcher.group(2));
+                remainingPredicates = predicateMatcher.group(3);
+            }
+        }
+
         /* construct new term match */
 
         return new NewTermMatch(termName, requiredClass, prohibitedClass, permittedActions, permittedOrphans,
-                requiredAbilities, prohibitedAbilities, isCheckPermissions);
+                requiredAbilities, prohibitedAbilities, isCheckPermissions, predicateArguments);
 
     }
 
@@ -851,239 +896,239 @@ public class GraphPolicyRule {
             }
             return changedObjects;
         }
-    }
 
-    /**
-     * If there is only a single match, the policy rule may apply multiple times to the root object,
-     * through applying to multiple properties or to collection properties.
-     * @param linkedFrom details of the objects linking to the root object, by property
-     * @param rootObject details of the root objects
-     * @param linkedTo details of the objects linked by the root object, by property
-     * @param notNullable which properties are not nullable
-     * @param policyRule the policy rule to consider applying
-     * @param changedObjects the set of details of objects that result from applied changes
-     * @throws GraphException if a term named for a change is not defined in the matching
-     */
-    private static void reviewWithSingleMatch(Map<String, Set<Details>> linkedFrom,
-            Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
-            ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
-        final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
-        final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
-        if (!policyRule.termMatchers.isEmpty()) {
-            /* apply the term matchers */
-            final Set<Details> allTerms = GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
-            for (final TermMatch matcher : policyRule.termMatchers) {
-                for (final Details object : allTerms) {
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, object)) {
-                        recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
-                        namedTerms.clear();
-                        isCheckAllPermissions.setValue(true);
-                    }
-                }
-            }
-        }
-        /* apply the relationship matchers */
-        for (final RelationshipMatch matcher : policyRule.relationshipMatchers) {
-            /* consider the root object as the linked object */
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
-                final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(classProperty);
-                for (final Details linkerObject : dataPerProperty.getValue()) {
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
-                            linkerObject, rootObject, classProperty, isNotNullable)) {
-                        recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
-                        namedTerms.clear();
-                        isCheckAllPermissions.setValue(true);
-                    }
-                }
-            }
-            /* consider the root object as the linker object */
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
-                final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(classProperty);
-                for (final Details linkedObject : dataPerProperty.getValue()) {
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
-                            rootObject, linkedObject, classProperty, isNotNullable)) {
-                        recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
-                        namedTerms.clear();
-                        isCheckAllPermissions.setValue(true);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * If there are multiple matches, the policy rule may apply only once to the root object.
-     * Terms named in any of the matches may be used in any of the changes.
-     * @param linkedFrom details of the objects linking to the root object, by property
-     * @param rootObject details of the root objects
-     * @param linkedTo details of the objects linked by the root object, by property
-     * @param notNullable which properties are not nullable
-     * @param policyRule the policy rule to consider applying
-     * @param changedObjects the set of details of objects that result from applied changes
-     * @throws GraphException if a term named for a change is not defined in the matching
-     */
-    private static void reviewWithManyMatches(Map<String, Set<Details>> linkedFrom,
-            Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
-            ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
-        final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
-        final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
-        final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
-        final Set<Details> allTerms = unmatchedTerms.isEmpty() ? Collections.<Details>emptySet()
-                : GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
-        final Set<RelationshipMatch> unmatchedRelationships = new HashSet<RelationshipMatch>(policyRule.relationshipMatchers);
-        /* try all the matchers against all the terms */
-        do {
-            final int namedTermCount = namedTerms.size();
-            Iterator<TermMatch> unmatchedTermIterator;
-            Iterator<RelationshipMatch> unmatchedRelationshipIterator;
-            /* apply the term matchers */
-            unmatchedTermIterator = unmatchedTerms.iterator();
-            while (unmatchedTermIterator.hasNext()) {
-                final TermMatch matcher = unmatchedTermIterator.next();
-                for (final Details object : allTerms) {
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, object)) {
-                        unmatchedTermIterator.remove();
-                    }
-                }
-            }
-            /* consider the root object as the linked object */
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
-                final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(classProperty);
-                for (final Details linkerObject : dataPerProperty.getValue()) {
-                    unmatchedTermIterator = unmatchedTerms.iterator();
-                    while (unmatchedTermIterator.hasNext()) {
-                        final TermMatch matcher = unmatchedTermIterator.next();
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkerObject)) {
-                            unmatchedTermIterator.remove();
+        /**
+         * If there is only a single match, the policy rule may apply multiple times to the root object,
+         * through applying to multiple properties or to collection properties.
+         * @param linkedFrom details of the objects linking to the root object, by property
+         * @param rootObject details of the root objects
+         * @param linkedTo details of the objects linked by the root object, by property
+         * @param notNullable which properties are not nullable
+         * @param policyRule the policy rule to consider applying
+         * @param changedObjects the set of details of objects that result from applied changes
+         * @throws GraphException if a term named for a change is not defined in the matching
+         */
+        private void reviewWithSingleMatch(Map<String, Set<Details>> linkedFrom,
+                Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
+                ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
+            final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
+            final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
+            if (!policyRule.termMatchers.isEmpty()) {
+                /* apply the term matchers */
+                final Set<Details> allTerms = GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
+                for (final TermMatch matcher : policyRule.termMatchers) {
+                    for (final Details object : allTerms) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object)) {
+                            recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
+                            namedTerms.clear();
+                            isCheckAllPermissions.setValue(true);
                         }
                     }
-                    unmatchedRelationshipIterator = unmatchedRelationships.iterator();
-                    while (unmatchedRelationshipIterator.hasNext()) {
-                        final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                }
+            }
+            /* apply the relationship matchers */
+            for (final RelationshipMatch matcher : policyRule.relationshipMatchers) {
+                /* consider the root object as the linked object */
+                for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
+                    final String classProperty = dataPerProperty.getKey();
+                    final boolean isNotNullable = notNullable.contains(classProperty);
+                    for (final Details linkerObject : dataPerProperty.getValue()) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
                                 linkerObject, rootObject, classProperty, isNotNullable)) {
-                            unmatchedRelationshipIterator.remove();
+                            recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
+                            namedTerms.clear();
+                            isCheckAllPermissions.setValue(true);
+                        }
+                    }
+                }
+                /* consider the root object as the linker object */
+                for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
+                    final String classProperty = dataPerProperty.getKey();
+                    final boolean isNotNullable = notNullable.contains(classProperty);
+                    for (final Details linkedObject : dataPerProperty.getValue()) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
+                                rootObject, linkedObject, classProperty, isNotNullable)) {
+                            recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
+                            namedTerms.clear();
+                            isCheckAllPermissions.setValue(true);
                         }
                     }
                 }
             }
-            /* consider the root object as the linker object */
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
-                final String classProperty = dataPerProperty.getKey();
-                final boolean isNotNullable = notNullable.contains(classProperty);
-                for (final Details linkedObject : dataPerProperty.getValue()) {
-                    unmatchedTermIterator = unmatchedTerms.iterator();
-                    while (unmatchedTermIterator.hasNext()) {
-                        final TermMatch matcher = unmatchedTermIterator.next();
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkedObject)) {
+        }
+
+        /**
+         * If there are multiple matches, the policy rule may apply only once to the root object.
+         * Terms named in any of the matches may be used in any of the changes.
+         * @param linkedFrom details of the objects linking to the root object, by property
+         * @param rootObject details of the root objects
+         * @param linkedTo details of the objects linked by the root object, by property
+         * @param notNullable which properties are not nullable
+         * @param policyRule the policy rule to consider applying
+         * @param changedObjects the set of details of objects that result from applied changes
+         * @throws GraphException if a term named for a change is not defined in the matching
+         */
+        private void reviewWithManyMatches(Map<String, Set<Details>> linkedFrom,
+                Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
+                ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
+            final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
+            final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
+            final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
+            final Set<Details> allTerms = unmatchedTerms.isEmpty() ? Collections.<Details>emptySet()
+                    : GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
+            final Set<RelationshipMatch> unmatchedRelationships = new HashSet<RelationshipMatch>(policyRule.relationshipMatchers);
+            /* try all the matchers against all the terms */
+            do {
+                final int namedTermCount = namedTerms.size();
+                Iterator<TermMatch> unmatchedTermIterator;
+                Iterator<RelationshipMatch> unmatchedRelationshipIterator;
+                /* apply the term matchers */
+                unmatchedTermIterator = unmatchedTerms.iterator();
+                while (unmatchedTermIterator.hasNext()) {
+                    final TermMatch matcher = unmatchedTermIterator.next();
+                    for (final Details object : allTerms) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object)) {
                             unmatchedTermIterator.remove();
                         }
                     }
-                    unmatchedRelationshipIterator = unmatchedRelationships.iterator();
-                    while (unmatchedRelationshipIterator.hasNext()) {
-                        final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
-                        if (matcher.isMatch(namedTerms, isCheckAllPermissions,
-                                rootObject, linkedObject, classProperty, isNotNullable)) {
-                            unmatchedRelationshipIterator.remove();
+                }
+                /* consider the root object as the linked object */
+                for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
+                    final String classProperty = dataPerProperty.getKey();
+                    final boolean isNotNullable = notNullable.contains(classProperty);
+                    for (final Details linkerObject : dataPerProperty.getValue()) {
+                        unmatchedTermIterator = unmatchedTerms.iterator();
+                        while (unmatchedTermIterator.hasNext()) {
+                            final TermMatch matcher = unmatchedTermIterator.next();
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject)) {
+                                unmatchedTermIterator.remove();
+                            }
+                        }
+                        unmatchedRelationshipIterator = unmatchedRelationships.iterator();
+                        while (unmatchedRelationshipIterator.hasNext()) {
+                            final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
+                                    linkerObject, rootObject, classProperty, isNotNullable)) {
+                                unmatchedRelationshipIterator.remove();
+                            }
                         }
                     }
                 }
-            }
-            /* match relationships among existing terms without any property link via the root object */
-            unmatchedRelationshipIterator = unmatchedRelationships.iterator();
-            while (unmatchedRelationshipIterator.hasNext()) {
-                final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
-                if (matcher.propertyName != null || matcher.notNullable != null) continue;
-                final String leftTermName = matcher.getExistingLeftTerm();
-                if (leftTermName == null) continue;
-                final String rightTermName = matcher.getExistingRightTerm();
-                if (rightTermName == null) continue;
-                final Details leftDetails = namedTerms.get(leftTermName);
-                if (leftDetails == null) continue;
-                final Details rightDetails = namedTerms.get(rightTermName);
-                if (rightDetails == null) continue;
-                if (matcher.isMatch(namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false)) {
-                    unmatchedRelationshipIterator.remove();
+                /* consider the root object as the linker object */
+                for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
+                    final String classProperty = dataPerProperty.getKey();
+                    final boolean isNotNullable = notNullable.contains(classProperty);
+                    for (final Details linkedObject : dataPerProperty.getValue()) {
+                        unmatchedTermIterator = unmatchedTerms.iterator();
+                        while (unmatchedTermIterator.hasNext()) {
+                            final TermMatch matcher = unmatchedTermIterator.next();
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject)) {
+                                unmatchedTermIterator.remove();
+                            }
+                        }
+                        unmatchedRelationshipIterator = unmatchedRelationships.iterator();
+                        while (unmatchedRelationshipIterator.hasNext()) {
+                            final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
+                                    rootObject, linkedObject, classProperty, isNotNullable)) {
+                                unmatchedRelationshipIterator.remove();
+                            }
+                        }
+                    }
                 }
-            }
-            if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
-                /* success, all matched */
-                recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
-                return;
-            } else if (namedTerms.size() == namedTermCount) {
-                /* failure, all matchers will fail on retry */
-                return;
-            }
-        } while (true);
-    }
-
-    /**
-     * Effect the changes.
-     * @param policyRule the policy rule that is now to be effected
-     * @param changedObjects the objects affected by the policy rules (to be updated by this method)
-     * @param namedTerms the name dictionary of matched terms
-     * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects
-     * @throws GraphException if a term to change is one not named among the policy rule's matchers,
-     * or if the policy rule's consequence is itself an error condition
-     */
-    private static void recordChanges(ParsedPolicyRule policyRule, Set<Details> changedObjects,
-            Map<String, Details> namedTerms, boolean isCheckAllPermissions) throws GraphException {
-        final StringBuffer logMessage;
-        if (LOGGER != null && LOGGER.isDebugEnabled()) {
-            /* log applicable rule match and old status of terms */
-            logMessage = new StringBuffer();
-            logMessage.append("matched ");
-            logMessage.append(policyRule.asString);
-            logMessage.append(", where ");
-            for (final Entry<String, Details> namedTerm : namedTerms.entrySet()) {
-                logMessage.append(namedTerm.getKey());
-                logMessage.append(" is ");
-                logMessage.append(namedTerm.getValue());
-                logMessage.append(", ");
-            }
-        } else {
-            /* not logging rule matches */
-            logMessage = null;
+                /* match relationships among existing terms without any property link via the root object */
+                unmatchedRelationshipIterator = unmatchedRelationships.iterator();
+                while (unmatchedRelationshipIterator.hasNext()) {
+                    final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                    if (matcher.propertyName != null || matcher.notNullable != null) continue;
+                    final String leftTermName = matcher.getExistingLeftTerm();
+                    if (leftTermName == null) continue;
+                    final String rightTermName = matcher.getExistingRightTerm();
+                    if (rightTermName == null) continue;
+                    final Details leftDetails = namedTerms.get(leftTermName);
+                    if (leftDetails == null) continue;
+                    final Details rightDetails = namedTerms.get(rightTermName);
+                    if (rightDetails == null) continue;
+                    if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false)) {
+                        unmatchedRelationshipIterator.remove();
+                    }
+                }
+                if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
+                    /* success, all matched */
+                    recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
+                    return;
+                } else if (namedTerms.size() == namedTermCount) {
+                    /* failure, all matchers will fail on retry */
+                    return;
+                }
+            } while (true);
         }
-        if (policyRule.errorMessage != null) {
-            /* throw the error that is this rule's consequence */
-            String message = policyRule.errorMessage;
-            for (final Entry<String, Details> namedTerm : namedTerms.entrySet()) {
-                /* expand each named term to its actual match */
-                final String termName = namedTerm.getKey();
-                final IObject termMatch = namedTerm.getValue().subject;
-                message = message.replace("{" + termName + "}",
-                        termMatch.getClass().getSimpleName() + '[' + termMatch.getId() + ']');
+
+        /**
+         * Effect the changes.
+         * @param policyRule the policy rule that is now to be effected
+         * @param changedObjects the objects affected by the policy rules (to be updated by this method)
+         * @param namedTerms the name dictionary of matched terms
+         * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects
+         * @throws GraphException if a term to change is one not named among the policy rule's matchers,
+         * or if the policy rule's consequence is itself an error condition
+         */
+        private static void recordChanges(ParsedPolicyRule policyRule, Set<Details> changedObjects,
+                Map<String, Details> namedTerms, boolean isCheckAllPermissions) throws GraphException {
+            final StringBuffer logMessage;
+            if (LOGGER != null && LOGGER.isDebugEnabled()) {
+                /* log applicable rule match and old status of terms */
+                logMessage = new StringBuffer();
+                logMessage.append("matched ");
+                logMessage.append(policyRule.asString);
+                logMessage.append(", where ");
+                for (final Entry<String, Details> namedTerm : namedTerms.entrySet()) {
+                    logMessage.append(namedTerm.getKey());
+                    logMessage.append(" is ");
+                    logMessage.append(namedTerm.getValue());
+                    logMessage.append(", ");
+                }
+            } else {
+                /* not logging rule matches */
+                logMessage = null;
+            }
+            if (policyRule.errorMessage != null) {
+                /* throw the error that is this rule's consequence */
+                String message = policyRule.errorMessage;
+                for (final Entry<String, Details> namedTerm : namedTerms.entrySet()) {
+                    /* expand each named term to its actual match */
+                    final String termName = namedTerm.getKey();
+                    final IObject termMatch = namedTerm.getValue().subject;
+                    message = message.replace("{" + termName + "}",
+                            termMatch.getClass().getSimpleName() + '[' + termMatch.getId() + ']');
+                }
+                if (logMessage != null) {
+                    /* log error rule match */
+                    logMessage.append("error thrown");
+                    LOGGER.debug(logMessage.toString());
+                }
+                throw new GraphException(message);
+            }
+            /* note the new changes to the terms */
+            final Map<Change, Details> changedTerms = new HashMap<Change, Details>();
+            for (final Change change : policyRule.changes) {
+                changedTerms.put(change, change.toChanged(namedTerms));
+            }
+            /* a permissions override on any match propagates to all truly changed terms */
+            if (!isCheckAllPermissions) {
+                for (final Entry<Change, Details> changedTerm : changedTerms.entrySet()) {
+                    if (changedTerm.getKey().isEffectiveChange()) {
+                        changedTerm.getValue().isCheckPermissions = false;
+                    }
+                }
             }
             if (logMessage != null) {
-                /* log error rule match */
-                logMessage.append("error thrown");
+                /* log new status of terms */
+                logMessage.append("making ");
+                logMessage.append(Joiner.on(", ").join(changedTerms.values()));
                 LOGGER.debug(logMessage.toString());
             }
-            throw new GraphException(message);
+            changedObjects.addAll(changedTerms.values());
         }
-        /* note the new changes to the terms */
-        final Map<Change, Details> changedTerms = new HashMap<Change, Details>();
-        for (final Change change : policyRule.changes) {
-            changedTerms.put(change, change.toChanged(namedTerms));
-        }
-        /* a permissions override on any match propagates to all truly changed terms */
-        if (!isCheckAllPermissions) {
-            for (final Entry<Change, Details> changedTerm : changedTerms.entrySet()) {
-                if (changedTerm.getKey().isEffectiveChange()) {
-                    changedTerm.getValue().isCheckPermissions = false;
-                }
-            }
-        }
-        if (logMessage != null) {
-            /* log new status of terms */
-            logMessage.append("making ");
-            logMessage.append(Joiner.on(", ").join(changedTerms.values()));
-            LOGGER.debug(logMessage.toString());
-        }
-        changedObjects.addAll(changedTerms.values());
     }
 }
