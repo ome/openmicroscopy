@@ -35,11 +35,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
+
+
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -55,9 +60,12 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.WellSampleData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -167,7 +175,7 @@ class RendererModel
     private RenderingDefinitionHistory history = new RenderingDefinitionHistory();
     
     /** Reference to the image. */
-    private ImageData image;
+    private DataObject image;
 
     /** The security context.*/
     private SecurityContext ctx;
@@ -210,7 +218,7 @@ class RendererModel
 	 * 
 	 * @param image The value to set.
 	 */
-	void setImage(ImageData image) { this.image = image; }
+	void setImage(DataObject image) { this.image = image; }
 
 	/**
 	 * Sets the rendering control.
@@ -232,7 +240,19 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	ImageData getRefImage() { return image; }
+	ImageData getRefImage()
+	{
+	    if (image instanceof ImageData) {
+	        return (ImageData) image;
+	    }
+	    return ((WellSampleData) image).getImage();
+	}
+
+	/**
+	 * Returns the ref object.
+	 * @return
+	 */
+	DataObject getObject() { return image; }
 
 	/**
 	 * Returns <code>true</code> if one channel is selected,
@@ -1736,7 +1756,7 @@ class RendererModel
 	 * @return See above
 	 */
 	boolean isIntegerPixelData() {
-        String t = image.getDefaultPixels().getPixelType();
+        String t = getRefImage().getDefaultPixels().getPixelType();
         return t.equals(OmeroImageService.INT_8)
                 || t.equals(OmeroImageService.UINT_8)
                 || t.equals(OmeroImageService.INT_16)
@@ -1744,4 +1764,5 @@ class RendererModel
                 || t.equals(OmeroImageService.INT_32)
                 || t.equals(OmeroImageService.UINT_32);
 	}
+
 }
