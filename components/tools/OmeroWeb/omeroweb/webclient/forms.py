@@ -52,17 +52,17 @@ logger = logging.getLogger(__name__)
 help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 
 help_wiki = (
-    '<span class="tooltip" title="Markups - If you\'d like to'
-    ' include URL please type: http://www.openmicroscopy.org/">'
+    '<span class="tooltip" title="Markups: If you\'d like to include URL,'
+    ' please enter it in the format: http://www.openmicroscopy.org/">'
     '<img src="%s" /></span>') % help_button
 
 help_enable = (
-    '<span class="tooltip" title="Enable/Disable - This option'
+    '<span class="tooltip" title="Enable/Disable: This option'
     ' allows the owner to keep the access control of the share.">'
     '<img src="%s" /></span>') % help_button
 
 help_expire = (
-    '<span class="tooltip" title="Expire date - This date defines'
+    '<span class="tooltip" title="Expire date: This date defines'
     ' when share will stop being available. Date format:'
     ' YYYY-MM-DD."><img src="%s" /></span>') % help_button
 
