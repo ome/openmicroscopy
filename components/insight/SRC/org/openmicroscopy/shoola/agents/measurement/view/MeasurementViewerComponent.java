@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-//Java imports
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,14 +40,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
-import omero.model.TagAnnotation;
-
 import org.apache.commons.collections.CollectionUtils;
-//Third-party libraries
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
@@ -1310,5 +1306,24 @@ class MeasurementViewerComponent
             }
         }
         model.fireAnnotationSaving(objects, toAdd, toRemove);
+    }
+
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#onAnnotationSaved()
+     */
+    public void onAnnotationSaved() {
+        //Load the annotation for the selected shapes.
+      //Display the UI.
+        Collection<ROIShape> shapes = model.getSelectedShapes();
+        if (CollectionUtils.isEmpty(shapes)) return;
+        Iterator<ROIShape> i = shapes.iterator();
+        ROIShape shape;
+        List<DataObject> nodes = new ArrayList<DataObject>();
+        while (i.hasNext()) {
+            shape = (ROIShape) i.next();
+            nodes.add(shape.getData());
+        }
+        model.fireLoadROIAnnotations(nodes);
     }
 }
