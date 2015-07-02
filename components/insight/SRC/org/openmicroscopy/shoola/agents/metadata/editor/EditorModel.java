@@ -3559,7 +3559,8 @@ class EditorModel
 			renderer.onSettingsApplied(rndControl);
 		} else {
 		    renderer = RendererFactory.createRenderer(getSecurityContext(),
-                    rndControl, getImage(), getRndIndex(), getXMLAnnotations());
+                    rndControl, (DataObject) getRefObject(), getRndIndex(),
+                    getXMLAnnotations());
 		}
 	}
 

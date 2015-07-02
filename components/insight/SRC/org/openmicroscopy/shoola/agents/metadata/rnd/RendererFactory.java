@@ -23,15 +23,12 @@
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
-//Java imports
 import java.util.Collection;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import pojos.ImageData;
+
+import pojos.DataObject;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -59,7 +56,7 @@ public class RendererFactory
      * @return See above.
      */
     public static Renderer createRenderer(SecurityContext ctx,
-    		RenderingControl rndControl, ImageData image, int rndIndex,
+    		RenderingControl rndControl, DataObject image, int rndIndex,
     		Collection<XMLAnnotationData> modulo)
     {
         RendererModel model = new RendererModel(ctx, rndControl, rndIndex);
