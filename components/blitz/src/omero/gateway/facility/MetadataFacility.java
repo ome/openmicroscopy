@@ -30,6 +30,7 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.Channel;
 import omero.model.Pixels;
+import omero.sys.ParametersI;
 import pojos.ChannelData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -63,7 +64,9 @@ public class MetadataFacility extends Facility {
      */
     public ImageAcquisitionData getImageAcquisitionData(SecurityContext ctx,
             long imageId) {
-        ImageData img = browse.getImage(ctx, imageId);
+        ParametersI params = new ParametersI();
+        params.acquisitionData();
+        ImageData img = browse.getImage(ctx, imageId, params);
         return new ImageAcquisitionData(img.asImage());
     }
 

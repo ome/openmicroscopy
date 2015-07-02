@@ -909,6 +909,22 @@ public class BrowseFacility extends Facility {
     public ImageData getImage(SecurityContext ctx, long id) {
         return getImages(ctx, Collections.singleton(id)).iterator().next();
     }
+    
+    /**
+     * Loads a image
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param id
+     *            The ids of the image to load
+     * @param params
+     *            Custom parameters, can be <code>null</code>
+     * @return The {@link ImageData}
+     */
+    public ImageData getImage(SecurityContext ctx, long id, ParametersI params) {
+        return getImages(ctx, Collections.singleton(id), params).iterator()
+                .next();
+    }
 
     /**
      * Loads the images with the given ids
@@ -921,9 +937,23 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids) {
+        return getImages(ctx, ids, null);
+    }
+    
+    /**
+     * Loads the images with the given ids
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param ids
+     *            The ids of the images to load
+     * @param params
+     *            Custom parameters, can be <code>null</code>
+     * @return A collection of {@link ImageData}s
+     */
+    public Collection<ImageData> getImages(SecurityContext ctx,
+            Collection<Long> ids, ParametersI params) {
         try {
-            ParametersI param = new ParametersI();
-
             List<Long> idsList = new ArrayList<Long>(ids.size());
             for (long id : ids)
                 idsList.add(id);
@@ -931,7 +961,7 @@ public class BrowseFacility extends Facility {
             IContainerPrx service = gateway.getPojosService(ctx);
             List<Image> images = service.getImages(
                     PojoMapper.getModelType(ImageData.class).getName(),
-                    idsList, param);
+                    idsList, params);
 
             Collection<ImageData> result = new ArrayList<ImageData>(
                     images.size());
