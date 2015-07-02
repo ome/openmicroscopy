@@ -80,8 +80,15 @@
         <resolver ref="main"/>
         <resolver ref="repo"/>
         <resolver ref="user-maven"/>
-        <resolver ref="ome-artifactory"/>
         <resolver ref="maven"/>
+        <resolver ref="ome-artifactory"/>
+    </chain>
+
+    <!-- Spring resolver which has as its first resolver the location
+    where all our jars will be published -->
+    <chain name="spring-resolver" returnFirst="true">
+        <resolver ref="repo"/>
+        <resolver ref="user-maven"/>
         <resolver ref="com.springsource.repository.bundles.release"/>
         <resolver ref="com.springsource.repository.bundles.external"/>
     </chain>
@@ -108,6 +115,7 @@
   <modules>
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
+    <module organisation="org.springframework" resolver="spring-resolver"/>
   </modules>
 
   <triggers/>
