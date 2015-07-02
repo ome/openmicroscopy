@@ -78,6 +78,8 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.sun.jna.StructureReadContext;
 
 import pojos.AnnotationData;
@@ -1196,16 +1198,39 @@ class MeasurementViewerComponent
         ROIFigure shape;
         StructuredDataResults data;
         List<Object> l = new ArrayList<Object>();
+        List<Long> ids = new ArrayList<Long>();
+        boolean valid = tags != null && CollectionUtils.isNotEmpty(tags);
+        TagAnnotationData d;
         while (i.hasNext()) {
             shape = (ROIFigure) i.next();
             data = (StructuredDataResults) shape.getAttribute(AnnotationKeys.TAG);
             if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
-                l.addAll(data.getTags());
+                if (valid) {
+                    Iterator<TagAnnotationData> j = data.getTags().iterator();
+                    while (j.hasNext()) {
+                        d = j.next();
+                        ids.add(d.getId());
+                        l.add(d);
+                    }
+                } else {
+                    l.addAll(data.getTags());
+                }
+            }
+        }
+        //if tags not empty.
+        List<Object> available = new ArrayList<Object>();
+        if (valid) {
+            Iterator j = tags.iterator();
+            while (j.hasNext()) {
+                AnnotationData object = (AnnotationData) j.next();
+                if (!ids.contains(object.getId())) {
+                    available.add(object);
+                }
             }
         }
         //Bring up the selection Wizard
         SelectionWizard wizard = new SelectionWizard(
-                view, tags, l, TagAnnotationData.class, true,
+                view, available, l, TagAnnotationData.class, true,
                 model.getCurrentUser());
         wizard.addPropertyChangeListener(controller);
         UIUtilities.centerAndShow(wizard);
@@ -1232,23 +1257,40 @@ class MeasurementViewerComponent
     {
         Collection<ROIShape> shapes = model.getSelectedShapes();
         if (CollectionUtils.isEmpty(shapes)) return;
-        
+
+        System.err.println(tags);
+        Multimap<Long, AnnotationData> m = ArrayListMultimap.create();
+        Iterator<AnnotationData> j = tags.iterator();
+        AnnotationData an;
+        while (j.hasNext()) {
+            an = j.next();
+            m.put(an.getId(), an);
+        }
         Iterator<ROIShape> i = shapes.iterator();
         ROIShape shape;
         StructuredDataResults data;
-        ShapeData object;
-        List<Object> l = new ArrayList<Object>();
+        List<AnnotationData> originalTags = new ArrayList<AnnotationData>();
         List<DataObject> objects = new ArrayList<DataObject>();
         while (i.hasNext()) {
             shape = i.next();
             objects.add(shape.getData());
-            data = (StructuredDataResults) shape.getFigure().getAttribute(AnnotationKeys.TAG);
-            //Structur
+            data = (StructuredDataResults)
+                    shape.getFigure().getAttribute(AnnotationKeys.TAG);
             if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
-                l.addAll(data.getTags());
+                originalTags.addAll(data.getTags());
             }
         }
+        //Original
+        Multimap<Long, AnnotationData> mo = ArrayListMultimap.create();
+        j = originalTags.iterator();
+        while (j.hasNext()) {
+            an = j.next();
+            mo.put(an.getId(), an);
+        }
+        //Now we prepare the list of annotations to add or remove
+        List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+        
         //TODO: check annotation to remove i.e. remove null
-        model.fireAnnotationSaving(objects, tags, null);
+        model.fireAnnotationSaving(objects, toAdd, null);
     }
 }
