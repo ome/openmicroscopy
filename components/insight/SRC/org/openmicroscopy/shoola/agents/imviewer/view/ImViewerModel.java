@@ -561,7 +561,7 @@ class ImViewerModel
 	{
 		metadataViewer = MetadataViewerFactory.getViewer("",
 				MetadataViewer.RND_SPECIFIC);
-		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
+		metadataViewer.setRootObject(getImage(), metadataViewer.getUserID(),
 				getSecurityContext());
 		
 		// there might already exist another MetadataViewer with modified
@@ -1499,7 +1499,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isImageLoaded() { return (image != null); }
+	boolean isImageLoaded() { return image != null; }
 	
 	/**
 	 * Returns the ID of the viewed image.
@@ -1942,7 +1942,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	long getOwnerID() { return image.getOwner().getId(); }
+	long getOwnerID() { return getImage().getOwner().getId(); }
 
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
@@ -2664,7 +2664,7 @@ class ImViewerModel
     void fireImagAcquisitionDataLoading() {
         if (component.getImageAcquisitionData() == null) {
             AcquisitionDataLoader loader = new AcquisitionDataLoader(component,
-                    ctx, image);
+                    ctx, getImage());
             loader.load();
         }
     }
