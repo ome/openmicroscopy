@@ -807,14 +807,24 @@ class EditorControl
 				break;
 			case VIEW_IMAGE:
 				Object refObject = view.getRefObject();
-				ImageData img = null;
-				if (refObject instanceof ImageData) {
-		        	img = (ImageData) refObject;
-		        } else if (refObject instanceof WellSampleData) {
-		        	img = ((WellSampleData) refObject).getImage();
+				DataObject img = null;
+				if (refObject instanceof ImageData ||
+				   refObject instanceof WellSampleData) {
+		        	img = (DataObject) refObject;
 		        }
 				if (img != null) {
 					ViewImageObject vio = new ViewImageObject(img);
+					DataObject po = null;
+		            DataObject gpo = null;
+		            refObject = view.getParentRootObject();
+		            if (refObject instanceof DataObject) {
+		                po = (DataObject) refObject;
+		            }
+		            refObject = view.getGrandParentRootObject();
+                    if (refObject instanceof DataObject) {
+                        gpo = (DataObject) refObject;
+                    }
+					vio.setContext(po, gpo);
 					MetadataViewerAgent.getRegistry().getEventBus().post(
 						new ViewImage(model.getSecurityContext(), vio, null));
 				}
