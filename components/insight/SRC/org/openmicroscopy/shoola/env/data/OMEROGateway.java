@@ -7174,18 +7174,20 @@ class OMEROGateway
 				si = clientCoordMap.entrySet().iterator();
 				Shape serverShape;
 				long sid;
+				Shape sh;
 				while (si.hasNext()) {
 					entry = (Entry) si.next();
 					coord = (ROICoordinate) entry.getKey();
 					shape = (ShapeData) entry.getValue();
-
+					sh = (Shape) shape.asIObject();
+					ModelMapper.unloadCollections(sh);
 					if (shape != null) {
 						if (!serverCoordMap.containsKey(coord))
-							serverRoi.addShape((Shape) shape.asIObject());
+							serverRoi.addShape(sh);
 						else if (shape.isDirty()) {
 							shapeIndex = -1;
 							if (deleted.contains(shape.getId())) {
-								serverRoi.addShape((Shape) shape.asIObject());
+								serverRoi.addShape(sh);
 								break;
 							}
 							for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
@@ -7233,16 +7235,15 @@ class OMEROGateway
 								if (shapeIndex !=-1) {
 									if (!removed.contains(coord))
 										deleteObject(ctx, serverShape);
-									serverRoi.addShape(
-											(Shape) shape.asIObject());
+									serverRoi.addShape(sh);
 								} else {
 									throw new Exception("serverRoi.shapeList " +
 										"is corrupted");
 								}
 							}
-							else
-								serverRoi.setShape(shapeIndex,
-									(Shape) shape.asIObject());
+							else {
+							    serverRoi.setShape(shapeIndex, sh);
+							}
 						}
 					}
 				}
