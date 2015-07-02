@@ -104,7 +104,6 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
-import pojos.ShapeData;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;

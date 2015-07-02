@@ -432,4 +432,7 @@ public interface MeasurementViewer
      * @param tags The tags to use.
      */
     public void tagSelectedFigures(List<AnnotationData> tags);
+
+    /** Notifies that the annotations have been saved. Reloads.*/
+    public void onAnnotationSaved();
 }
