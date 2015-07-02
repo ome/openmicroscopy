@@ -219,11 +219,11 @@
                 <table>
                     <tr>
                         <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.share.getOwner.getFullName }}</td>                    
+                        <td id='owner_fullname'>{{ manager.share.getOwner.getFullName }}</td>
                     </tr>
                     <tr>
                         <th>Status:</th>
-                        <td id='status'>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}{% if manager.share.isExpired %}; EXPIRED{% endif %}</td>
+                        <td id='status'>{% if manager.share.isExpired %}EXPIRED{% else %}{% if manager.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}{% endif %}</td>
                     </tr>
                     <tr>
                         <th>Creation Date:</th>
