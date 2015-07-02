@@ -495,14 +495,14 @@
         </macrodef>
 
         <macrodef name="tryEclipse">
-            <attribute name="settingsRef"/>
+            <attribute name="settingsRef" default="ivy.${ant.project.name}"/>
             <attribute name="filter" default="false"/>
             <sequential>
                 <trycatch>
                     <try>
-                        <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="@{settingsRef}" log="quiet"/>
+                        <ivy:resolve file="test.xml" type="jar,bundle" conf="test" settingsRef="@{settingsRef}" log="quiet"/>
                         <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-                        <ivyeclipse conf="test" filter="@{filter}"/>
+                        <ivyeclipse conf="test" filter="@{filter}" settingsRef="@{settingsRef}"/>
                     </try>
                     <catch>
                         <echo>
@@ -512,9 +512,9 @@
                         ***************************************************************************
 
                         </echo>
-                        <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="@{settingsRef}" log="quiet"/>
+                        <ivy:resolve file="ivy.xml" type="jar,bundle" conf="build" settingsRef="@{settingsRef}" log="quiet"/>
                         <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-                        <ivyeclipse conf="build" filter="@{filter}"/>
+                        <ivyeclipse conf="build" filter="@{filter}" settingsRef="@{settingsRef}"/>
                     </catch>
                 </trycatch>
             </sequential>
