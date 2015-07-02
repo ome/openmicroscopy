@@ -565,9 +565,9 @@ class ImViewerModel
 				getSecurityContext());
 		
 		// there might already exist another MetadataViewer with modified
-		// rendering settings; if so copy it's original settings
+		// rendering settings; if so copy its original settings
                 MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
-                        ImageData.class.getName(), image.getId());
+                        ImageData.class.getName(), getImageID());
                 if (otherViewer != null) {
                     Renderer otherRenderer = otherViewer.getRenderer();
                     if (otherRenderer != null)
@@ -598,6 +598,7 @@ class ImViewerModel
 		this.ctx = ctx;
 		this.imageID = imageID;
 		initialize(bounds, separateWindow);
+		System.err.println(imageID);
 	}
 	
 	/**
@@ -635,6 +636,12 @@ class ImViewerModel
 		}
 	}
 
+	/**
+	 * Returns the object of reference.
+	 *
+	 * @return See above.
+	 */
+	DataObject getRefObject() { return image; }
 	/**
 	 * Called by the <code>ImViewer</code> after creation to allow this
 	 * object to store a back reference to the embedding component.
@@ -2199,12 +2206,12 @@ class ImViewerModel
 	 * 
 	 * @param image The value to set.
 	 */
-	void setImageData(ImageData image)
+	void setImageData(DataObject image)
 	{
 		state = ImViewer.LOADING_RND;
 		this.image = image;
 		initializeMetadataViewer();
-		currentPixelsID = image.getDefaultPixels().getId();
+		currentPixelsID = getImage().getDefaultPixels().getId();
 		if (metadataViewer != null)
 			metadataViewer.setParentRootObject(parent, grandParent);
 	}
@@ -2570,7 +2577,7 @@ class ImViewerModel
 	 */
 	boolean isHCSImage()
 	{
-		return (image instanceof WellSampleData);
+		return image instanceof WellSampleData;
 	}
 
         /**

@@ -524,7 +524,21 @@ class ImViewerComponent
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
 	}
-	
+
+	/**
+	 * Sets the image and starts the initialization process.
+	 *
+	 * @param data The value to set.
+	 */
+    private void setImage(DataObject data)
+    {
+        model.setImageData(data);
+        view.setImageData();
+        if (model.getMetadataViewer() != null)
+            model.getMetadataViewer().addPropertyChangeListener(controller);
+        fireStateChange();
+    }
+
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
@@ -637,16 +651,11 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);
-				/*
-				if (model.isImageLoaded())
-					model.fireRenderingControlLoading(model.getPixelsID());
-				else model.fireImageLoading();
-				*/
 				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
 				} else {
 					model.setState(ImViewer.LOADING_IMAGE_DATA);
-					setImageData(model.getImage());
+					setImage(model.getRefObject());
 				}
 				fireStateChange();
 				break;
@@ -2618,11 +2627,7 @@ class ImViewerComponent
 					"invoked in the LOADING_IMAGE_DATA.");
 		if (data == null)
 			throw new IllegalArgumentException("No image to set.");
-		model.setImageData(data);
-		view.setImageData();
-		if (model.getMetadataViewer() != null)
-			model.getMetadataViewer().addPropertyChangeListener(controller);
-		fireStateChange();
+		setImage(data);
 	}
 
 	/** 
