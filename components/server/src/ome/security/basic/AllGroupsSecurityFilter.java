@@ -84,7 +84,7 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         this.sql = sql;
     }
 
-    private static String myFilterCondition() {
+    protected String myFilterCondition() {
         return String.format(
                 "\n( "
                 + "\n  1 = :is_share OR "

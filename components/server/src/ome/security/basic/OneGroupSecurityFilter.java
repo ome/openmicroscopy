@@ -67,7 +67,7 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
         super(roles);
     }
 
-    private static String myFilterCondition() {
+    protected String myFilterCondition() {
         return "(\n"
                 // Should handle hidden groups at the top-level
                 // ticket:1784 - Allowing system objects to be read.
