@@ -3211,7 +3211,8 @@ class ImViewerComponent
 	 */
 	public void loadTiles(Rectangle region)
 	{
-		if (model.getState() == DISCARDED) return;
+		if (model.getState() == DISCARDED || !model.isRendererLoaded()) 
+		    return;
 		if (region == null) 
 			region = model.getBrowser().getVisibleRectangle();
 		Map<Integer, Tile> tiles = getTiles();
