@@ -433,6 +433,17 @@ $.fn.roi_display = function(options) {
             return external_rois;
         }
 
+        this.get_full_roi_json = function() {
+            if (!roi_json && !external_rois)
+                return null;
+            else if (roi_json && external_rois)
+                return $.merge(roi_json, external_rois);
+            else if (roi_json && !external_rois)
+                return roi_json;
+            else if (!roi_json && external_rois)
+                return external_rois;
+        }
+
         var check_ext_shape_id = function(roi_id, shape_id) {
             // check if ROI ID is already used by one on OMERO's ROIs...
             for (var rx=0; rx<roi_json.length; rx++) {
