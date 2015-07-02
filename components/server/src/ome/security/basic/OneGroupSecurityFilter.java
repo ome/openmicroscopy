@@ -48,20 +48,6 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
 
     static public final String current_group = "current_group";
 
-    private static String myFilterCondition = "(\n"
-                // Should handle hidden groups at the top-level
-                // ticket:1784 - Allowing system objects to be read.
-                + "\n  ( group_id = :current_group AND "
-                + "\n     ( 1 = :is_nonprivate OR "
-                + "\n       1 = :is_adminorpi OR "
-                + "\n       owner_id = :current_user"
-                + "\n     )"
-                + "\n  ) OR"
-                + "\n  group_id = %s OR " // ticket:1794
-                // Will need to add something about world readable here.
-                + "\n 1 = :is_share"
-                + "\n)\n";
-
     /**
      * default constructor which calls all the necessary setters for this
      * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
@@ -81,8 +67,24 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
         super(roles);
     }
 
+    private static String myFilterCondition() {
+        return "(\n"
+                // Should handle hidden groups at the top-level
+                // ticket:1784 - Allowing system objects to be read.
+                + "\n  ( group_id = :current_group AND "
+                + "\n     ( 1 = :is_nonprivate OR "
+                + "\n       1 = :is_adminorpi OR "
+                + "\n       owner_id = :current_user"
+                + "\n     )"
+                + "\n  ) OR"
+                + "\n  group_id = %s OR " // ticket:1794
+                // Will need to add something about world readable here.
+                + "\n 1 = :is_share"
+                + "\n)\n";
+    }
+
     public String getDefaultCondition() {
-        return String.format(myFilterCondition, roles.getUserGroupId());
+        return String.format(myFilterCondition(), roles.getUserGroupId());
     }
 
     public Map<String, String> getParameterTypes() {
