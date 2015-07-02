@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -49,6 +50,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
@@ -88,6 +90,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -2006,13 +2009,8 @@ class ImViewerComponent
 	 */
 	public void showMeasurementTool(Point point)
 	{
-		//TODO: Review for HCS.
-		if (!model.isHCSImage()) {
-			postMeasurementEvent(null);
-			return;
-		}
 		Collection measurements = model.getMeasurements();
-		if (measurements == null || measurements.size() == 0) {
+		if (CollectionUtils.isEmpty(measurements)) {
 			postMeasurementEvent(null);
 			return;
 		}
@@ -2021,23 +2019,20 @@ class ImViewerComponent
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		Iterator i;
-		if (measurements != null) {
-			i = measurements.iterator();
-			FileAnnotationData fa;
-			JCheckBox box;
-			Object object;
-			while (i.hasNext()) {
-				object = i.next();
-				if (object instanceof FileAnnotationData) {
-					fa = (FileAnnotationData) object;
-					box = new JCheckBox(fa.getDescription());
-					box.setSelected(true);
-					p.add(box);
-					boxes.put(box, fa);
-				}
-			}
-		}
-		
+		i = measurements.iterator();
+        FileAnnotationData fa;
+        JCheckBox box;
+        Object object;
+        while (i.hasNext()) {
+            object = i.next();
+            if (object instanceof FileAnnotationData) {
+                fa = (FileAnnotationData) object;
+                box = new JCheckBox(fa.getDescription());
+                box.setSelected(true);
+                p.add(box);
+                boxes.put(box, fa);
+            }
+        }
 		if (boxes.size() == 0)  return;
 		
 		view.setMeasurementLaunchingStatus(true);
