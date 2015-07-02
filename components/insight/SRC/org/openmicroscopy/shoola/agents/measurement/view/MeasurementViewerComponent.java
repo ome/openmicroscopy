@@ -1262,7 +1262,6 @@ class MeasurementViewerComponent
         Collection<ROIShape> shapes = model.getSelectedShapes();
         if (CollectionUtils.isEmpty(shapes)) return;
 
-        System.err.println(tags);
         Multimap<Long, AnnotationData> m = ArrayListMultimap.create();
         Iterator<AnnotationData> j = tags.iterator();
         AnnotationData an;
@@ -1293,8 +1292,27 @@ class MeasurementViewerComponent
         }
         //Now we prepare the list of annotations to add or remove
         List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
-        
-        //TODO: check annotation to remove i.e. remove null
-        model.fireAnnotationSaving(objects, toAdd, null);
+        List<Object> toRemove = new ArrayList<Object>();
+        if (CollectionUtils.isNotEmpty(m.get(-1L))) {
+            toAdd.addAll(m.removeAll(-1L));
+        }
+        Iterator<Entry<Long, AnnotationData>> k = m.entries().iterator();
+        Entry<Long, AnnotationData> e;
+        while (k.hasNext()) {
+            e = k.next();
+            Long id = e.getKey();
+            if (!mo.containsKey(id)) {
+                toAdd.add(e.getValue());
+            }
+        }
+        k = mo.entries().iterator();
+        while (k.hasNext()) {
+            e = k.next();
+            Long id = e.getKey();
+            if (!m.containsKey(id)) {
+                toRemove.add(e.getValue());
+            }
+        }
+        model.fireAnnotationSaving(objects, toAdd, toRemove);
     }
 }
