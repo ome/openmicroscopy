@@ -6157,7 +6157,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
+	Collection<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
 			List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException
 	{
