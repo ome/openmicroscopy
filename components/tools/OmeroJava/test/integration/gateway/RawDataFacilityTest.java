@@ -71,6 +71,23 @@ public class RawDataFacilityTest extends GatewayTest {
         Assert.assertEquals(planeData, rawData);
     }
     
+    @Test
+    public void testGetTile() throws DataSourceException {
+        ImageData img = browseFacility.getImage(rootCtx, imgId);
+        int x = 0, y=0, w=img.getDefaultPixels().getSizeX(), h=1;
+        
+        // get the first pixel row of the image as "tile"
+        Plane2D plane = rawdataFacility.getTile(rootCtx, img.getDefaultPixels(), 0, 0, 0, x, y, w, h);
+        byte[] planeData = new byte[w];
+        for(int i=0; i<w; i++)
+            planeData[i] = plane.getRawValue(i);
+        
+        byte[] rawDataPart = new byte[w];
+        System.arraycopy(rawData, 0, rawDataPart, 0, w);
+        
+        Assert.assertEquals(planeData, rawDataPart);
+    }
+    
     private void initData() throws Exception {
         ProjectData p = createProject(rootCtx);
         DatasetData d = createDataset(rootCtx, p);
