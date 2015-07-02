@@ -7248,7 +7248,9 @@ class OMEROGateway
 		try {
 		    IRoiPrx svc = c.getROIService();
 			RoiOptions options = new RoiOptions();
-			options.userId = omero.rtypes.rlong(userID);
+			if (userID >= 0) {
+			    options.userId = omero.rtypes.rlong(userID);
+			}
 			Collection files = PojoMapper.asDataObjects(
 					svc.getRoiMeasurements(imageID, options));
 			List results = new ArrayList();
