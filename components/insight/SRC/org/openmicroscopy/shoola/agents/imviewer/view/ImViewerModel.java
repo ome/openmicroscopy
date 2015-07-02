@@ -2125,7 +2125,7 @@ class ImViewerModel
 		this.grandParent = grandParent;
 		if (metadataViewer != null)
 			metadataViewer.setParentRootObject(parent, grandParent);
-		if (isHCSImage()) fireMeasurementsLoading();
+		fireMeasurementsLoading();
 	}
 	
 	/**
