@@ -23,19 +23,12 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 
-//Java imports
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
 import java.util.Map;
-import java.util.Map.Entry;
 
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import omero.gateway.SecurityContext;
@@ -175,7 +168,8 @@ public class StructuredAnnotationSaver
      */
     private BatchCall loadBatchCall(
             final Map<DataObject, List<AnnotationData>> toAdd,
-            Map<DataObject, List<AnnotationData>> toRemove, final long userID)
+            final Map<DataObject, List<AnnotationData>> toRemove,
+            final long userID)
     {
         return new BatchCall("Saving") {
             public void doCall() throws Exception
@@ -186,7 +180,7 @@ public class StructuredAnnotationSaver
             }
         };
     }
-    
+
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
