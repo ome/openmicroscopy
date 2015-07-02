@@ -1266,14 +1266,24 @@ class MeasurementViewerComponent
         StructuredDataResults data;
         List<AnnotationData> originalTags = new ArrayList<AnnotationData>();
         List<DataObject> objects = new ArrayList<DataObject>();
+        ShapeData d;
         while (i.hasNext()) {
             shape = i.next();
-            objects.add(shape.getData());
-            data = (StructuredDataResults)
-                    shape.getFigure().getAttribute(AnnotationKeys.TAG);
-            if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
-                originalTags.addAll(data.getTags());
+            d = shape.getData();
+            if (d != null && d.getId() > 0) {
+                objects.add(d);
+                data = (StructuredDataResults)
+                        shape.getFigure().getAttribute(AnnotationKeys.TAG);
+                if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
+                    originalTags.addAll(data.getTags());
+                }
             }
+        }
+        if (objects.isEmpty()) {
+            UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("ROI Annotations",
+                    "You must save the ROI before annotating it.");
+            return;
         }
         //Original
         Multimap<Long, AnnotationData> mo = ArrayListMultimap.create();
