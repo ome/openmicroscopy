@@ -207,10 +207,28 @@ public class ROIReader {
         if (roi.getFillColor() != null) {
             settings.setFill(roi.getFillColor());
         }
-
+      
+        int pos = roi.getPosition();
         int c = roi.getCPosition();
         int z = roi.getZPosition();
         int t = roi.getTPosition();
+        
+        ImagePlus image = roi.getImage();        
+        if (!image.isHyperStack()) {
+			int imageC = image.getNChannels();
+			int imageT = image.getNFrames();
+        	
+        	if (imageT > 1) {
+        		shape.setC(0);
+        		shape.setZ(0);
+        		t = pos;
+        	} else if (imageC > 1) {
+        		c = pos;
+        		shape.setZ(0);
+        		shape.setT(0);
+        	}
+        }
+        
         if (c != 0) {
             shape.setC(c-1);
         }
@@ -306,8 +324,14 @@ public class ROIReader {
     {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
+        Roi[] rois = overlay.toArray();
+        
+        for (Roi roi : rois) {
+        	roi.setImage(image);
+        }
+        
         if (overlay == null) return null;
-        return read(imageID, overlay.toArray());
+        return read(imageID, rois);
     }
 
     /**
