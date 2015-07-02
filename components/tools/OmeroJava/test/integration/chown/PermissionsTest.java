@@ -22,7 +22,9 @@ package integration.chown;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import omero.RLong;
 import omero.RType;
@@ -40,8 +42,10 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.RoiI;
+import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
+import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -72,7 +76,7 @@ public class PermissionsTest extends AbstractServerTest {
     @BeforeClass
     public void setupOtherGroup() throws Exception {
         systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
-        userOtherGroup = newUserAndGroup("rw----");
+        userOtherGroup = newUserAndGroup("rwr---");
         final ExperimenterGroup group = new ExperimenterGroupI(userOtherGroup.groupId, false);
         adminOtherGroup = newUserInGroup(group, false);
         addUsers(systemGroup, Collections.singletonList(adminOtherGroup.userId), false);
@@ -99,20 +103,41 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Add a comment and a ROI to the given image.
-     * @param imageId an image ID
+     * Add the given annotation to the given image.
+     * @param image an image
+     * @param annotation an annotation
+     * @return the new loaded link from the image to the annotation
+     * @throws ServerError unexpected
+     */
+    private ImageAnnotationLink annotateImage(Image image, Annotation annotation) throws ServerError {
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+        if (annotation.isLoaded() && annotation.getId() != null) {
+            annotation = (Annotation) annotation.proxy();
+        }
+
+        final ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent(image);
+        link.setChild(annotation);
+        return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Add a comment, tag and a ROI to the given image.
+     * @param image an image
      * @return the new model objects
      * @throws ServerError unexpected
      */
-    private List<IObject> annotateImage(long imageId) throws ServerError {
+    private List<IObject> annotateImage(Image image) throws ServerError {
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+
         final List<IObject> annotationObjects = new ArrayList<IObject>();
-        final Image image = (Image) iQuery.get("Image", imageId);
 
         for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(), new TagAnnotationI()}) {
-            ImageAnnotationLink link = new ImageAnnotationLinkI();
-            link.setParent((Image) image.proxy());
-            link.setChild(annotation);
-            link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+            final ImageAnnotationLink link = annotateImage(image, annotation);
             annotationObjects.add(link.proxy());
             annotationObjects.add(link.getChild().proxy());
         }
@@ -143,7 +168,10 @@ public class PermissionsTest extends AbstractServerTest {
      * @param expectedOwner a user's event context
      * @throws ServerError unexpected
      */
-    private void assertOwnedBy(Collection<IObject> objects, EventContext expectedOwner) throws ServerError {
+    private void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
+        if (objects.isEmpty()) {
+            throw new IllegalArgumentException("must assert about some objects");
+        }
         for (final IObject object : objects) {
             final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
             final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
@@ -155,7 +183,7 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Test that a specific case of using {@link Chown2} behaves as expected.
+     * Test a specific case of using {@link Chown2} with owner's shared annotations in a private group.
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
@@ -163,7 +191,106 @@ public class PermissionsTest extends AbstractServerTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown test cases")
-    public void testChown(boolean isDataOwner, boolean isAdmin, boolean isRecipientInGroup, boolean isExpectSuccess)
+    public void testChownPrivate(boolean isDataOwner, boolean isAdmin, boolean isRecipientInGroup, boolean isExpectSuccess)
+            throws Exception {
+
+        /* set up the users and group for this test case */
+
+        final EventContext importer, chowner, recipient;
+        final ExperimenterGroup dataGroup;
+
+        importer = newUserAndGroup("rw----");
+
+        final long dataGroupId = importer.groupId;
+        dataGroup = new ExperimenterGroupI(dataGroupId, false);
+
+        recipient = isRecipientInGroup ? newUserInGroup(dataGroup, false) : userOtherGroup;
+
+        if (isDataOwner) {
+            chowner = importer;
+        } else {
+            chowner = isAdmin ? adminOtherGroup : recipient;
+        }
+
+        if (isAdmin && chowner != adminOtherGroup) {
+            addUsers(systemGroup, Collections.singletonList(chowner.userId), false);
+        }
+
+        /* note which objects were used to annotate an image */
+
+        final List<IObject> imageAnnotations;
+        final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
+
+        /* import and annotate an image */
+
+        init(importer);
+        final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
+        final long imageId = image.getId().getValue();
+        testImages.add(imageId);
+        imageAnnotations = annotateImage(image);
+
+        /* tag another image with the tags from the first image */
+
+        final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
+        testImages.add(otherImage.getId().getValue());
+        for (final IObject annotation : imageAnnotations) {
+            if (annotation instanceof TagAnnotation) {
+                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
+                tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+            }
+        }
+        disconnect();
+
+        /* perform the chown */
+
+        init(chowner);
+        final Chown2 chown = new Chown2();
+        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
+        chown.userId = recipient.userId;
+        doChange(client, factory, chown, isExpectSuccess);
+        disconnect();
+
+        if (!isExpectSuccess) {
+            return;
+        }
+
+        /* check that the objects' ownership is all as expected */
+
+        final Set<Long> imageLinkIds = new HashSet<Long>();
+
+        logRootIntoGroup(dataGroupId);
+        assertOwnedBy(image, recipient);
+        for (final IObject annotation : imageAnnotations) {
+            if (annotation instanceof TagAnnotation) {
+                assertOwnedBy(annotation, importer);
+            } else if (annotation instanceof ImageAnnotationLink) {
+                imageLinkIds.add(annotation.getId().getValue());
+            } else {
+                assertOwnedBy(annotation, recipient);
+            }
+        }
+        assertOwnedBy(tagLinksOnOtherImage, importer);
+
+        /* check that the image's links to the tags that were also linked to the other image were deleted */
+
+        final String query = "SELECT COUNT(id) FROM ImageAnnotationLink WHERE id IN (:ids)";
+        final ParametersI params = new ParametersI().addIds(imageLinkIds);
+        final List<List<RType>> results = iQuery.projection(query, params);
+        final long remainingLinkCount = ((RLong) results.get(0).get(0)).getValue();
+        Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - tagLinksOnOtherImage.size());
+        disconnect();
+    }
+
+    /**
+     * Test a specific case of using {@link Chown2} with owner's and others' annotations in a read-annotate group.
+     * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
+     * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
+     * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
+     * @param isExpectSuccess if the chown is expected to succeed
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "chown test cases")
+    public void testChownReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isRecipientInGroup, boolean isExpectSuccess)
             throws Exception {
 
         /* set up the users and group for this test case */
@@ -200,13 +327,13 @@ public class PermissionsTest extends AbstractServerTest {
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        ownerAnnotations = annotateImage(imageId);
+        ownerAnnotations = annotateImage(image);
         disconnect();
 
         /* have another user annotate the image */
 
         init(annotator);
-        otherAnnotations = annotateImage(image.getId().getValue());
+        otherAnnotations = annotateImage(image);
         disconnect();
 
         /* perform the chown */

@@ -1110,6 +1110,7 @@ class TreeViewerWin
 	MetadataViewer resetMetadataViewer()
 	{
 		MetadataViewer v = model.resetMetadataViewer();
+		v.addPropertyChangeListener(controller);
 		if (rightComponent != null) rightPane.remove(rightComponent);
 		rightComponent = v.getEditorUI();
 		if (metadataVisible) {

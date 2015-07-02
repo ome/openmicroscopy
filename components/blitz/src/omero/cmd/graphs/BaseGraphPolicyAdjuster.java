@@ -29,6 +29,7 @@ import org.hibernate.Session;
 import ome.model.IObject;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPolicy;
+import ome.services.graphs.GraphPolicyRulePredicate;
 
 /**
  * The base class assists adjustment of an existing graph traversal policy.
@@ -73,6 +74,16 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
      */
     protected boolean isBlockedFromAdjustment(Details object) {
         return false;
+    }
+
+    @Override
+    public void registerPredicate(GraphPolicyRulePredicate predicate) {
+        graphPolicy.registerPredicate(predicate);
+    }
+
+    @Override
+    public GraphPolicy getCleanInstance() {
+        return graphPolicy.getCleanInstance();
     }
 
     @Override

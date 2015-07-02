@@ -35,6 +35,8 @@ import java.util.Map;
 
 import javax.swing.JEditorPane;
 import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -65,10 +67,10 @@ class OMEEditPane
 	private static String DOC_TYPE = "text/wiki";
 	
 	/** The editor kit	 */
-	private OMEEditorKit		editorKit;
+	private final OMEEditorKit		editorKit;
 	
 	/** Reference to the main component. */
-	private OMEWikiComponent 	component;
+	private final OMEWikiComponent 	component;
 	
 	/** The timer. */
 	private Timer			timer;
@@ -89,7 +91,13 @@ class OMEEditPane
 		}
 		timer.start();
 	}
-	
+
+	/** Updates the component hosting the UI.*/
+	private void onUpdate()
+	{
+	    this.component.onUpdate();
+	}
+
 	/**
 	 * Creates a new instance.
 	 * Initializes the default maps and styles.
@@ -120,6 +128,21 @@ class OMEEditPane
 			
 		});
 	    addFocusListener(this);
+	    getDocument().addDocumentListener(new DocumentListener() {
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                onUpdate();
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                onUpdate();
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}
+        });
 	}
 	
 	/**
