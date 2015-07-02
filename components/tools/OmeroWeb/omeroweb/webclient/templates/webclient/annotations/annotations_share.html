@@ -113,7 +113,7 @@
                 $("#edit_share_form").ajaxForm({
                     success: function(html) {
                         if (html == "success") {
-                            $("#edit_share_form").dialog( "close" );
+                            $("#edit_share_form").empty().dialog( "close" ).attr("action", "#");
                             OME.share_selection_changed(
                                 "{{ manager.share.getShareType }}-{{ manager.share.id }}");
                         } else {
@@ -134,7 +134,7 @@
                             $("#edit_share_form").submit();
                         },
                         "Cancel": function() {
-                            $( this ).dialog( "close" );
+                            $( this ).empty().dialog( "close" ).attr("action", "#");
                         }
                     }
                 });
@@ -145,6 +145,8 @@
                     $("#edit_share_form").dialog("open");
                     $("#edit_share_form").load(
                         "{% url 'manage_action_containers' 'edit' 'share' manager.share.id %}");
+                    $("#edit_share_form").attr("action",
+                        "{% url 'manage_action_containers' 'save' 'share' manager.share.id %}");
                 });
                 {% endif %}
             });
@@ -295,7 +297,7 @@
 
     {% if manager.share.id %}
     <!-- hidden form for edit share - shown in dialog & loaded by AJAX -->
-    <form id="edit_share_form" action="{% url 'manage_action_containers' 'save' 'share' manager.share.id %}" method="post" title="Edit Share" class="standard_form">{% csrf_token %}
+    <form id="edit_share_form" action="#" method="post" title="Edit Share" class="standard_form">{% csrf_token %}
     </form>
     {% endif %}
 
