@@ -27,6 +27,7 @@ import logging
 import sys
 import csv
 import re
+import json
 from getpass import getpass
 from getopt import getopt, GetoptError
 
@@ -112,7 +113,7 @@ class HeaderResolver(object):
 
     def __init__(self, target_object, headers):
         self.target_object = target_object
-        self.headers = [v.replace('/', '\\') for v in headers]
+        self.headers = headers
         self.headers_as_lower = [v.lower() for v in self.headers]
 
     def create_columns(self):
@@ -134,11 +135,23 @@ class HeaderResolver(object):
         columns = list()
         for i, header_as_lower in enumerate(self.headers_as_lower):
             name = self.headers[i]
+            description = ""
+            if "%%" in name:
+                name, description = name.split("%%", 1)
+                name = name.strip()
+                # description is key=value. Convert to json
+                if "=" in description:
+                    k, v = description.split("=", 1)
+                    k = k.strip()
+                    description = json.dumps({k: v.strip()})
+            # HDF5 does not allow / in column names
+            name = name.replace('/', '\\')
             try:
-                column = self.screen_keys[header_as_lower](name, '', list())
+                column = self.screen_keys[header_as_lower](name, description,
+                                                           list())
             except KeyError:
-                column = StringColumn(name, '', self.DEFAULT_COLUMN_SIZE,
-                                      list())
+                column = StringColumn(name, description,
+                                      self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
         for column in columns:
             if column.__class__ is PlateColumn:
@@ -153,11 +166,23 @@ class HeaderResolver(object):
         columns = list()
         for i, header_as_lower in enumerate(self.headers_as_lower):
             name = self.headers[i]
+            description = ""
+            if "%%" in name:
+                name, description = name.split("%%", 1)
+                name = name.strip()
+                # description is key=value. Convert to json
+                if "=" in description:
+                    k, v = description.split("=", 1)
+                    k = k.strip()
+                    description = json.dumps({k: v.strip()})
+            # HDF5 does not allow / in column names
+            name = name.replace('/', '\\')
             try:
-                column = self.plate_keys[header_as_lower](name, '', list())
+                column = self.plate_keys[header_as_lower](name, description,
+                                                          list())
             except KeyError:
-                column = StringColumn(name, '', self.DEFAULT_COLUMN_SIZE,
-                                      list())
+                column = StringColumn(name, description,
+                                      self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
         for column in columns:
             if column.__class__ is PlateColumn:
