@@ -419,6 +419,9 @@ public class ShapeSettingsData
 		Length size = shape.getFontSize();
 		if (size != null) {
 		    try {
+		        if (size.getUnit().equals(UnitsLength.PIXEL)) {
+		            return size.getValue();
+		        }
                 return (new LengthI(size, UnitsLength.POINT)).getValue();
             } catch (Exception e) {
                 if (e instanceof BigResult) {
