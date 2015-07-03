@@ -2298,7 +2298,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     int(conn.server_id))
                 manager.updateShareOrDiscussion(
                     host, message, members, enable, expiration)
-                return HttpResponse("success")
+                r = "enable" if enable else "disable"
+                return HttpResponse(r)
             else:
                 template = "webclient/public/share_form.html"
                 context = {'share': manager, 'form': form}

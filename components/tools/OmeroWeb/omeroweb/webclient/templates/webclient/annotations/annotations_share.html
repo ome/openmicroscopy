@@ -112,10 +112,15 @@
                 // AJAX handling of create-discussion form
                 $("#edit_share_form").ajaxForm({
                     success: function(html) {
-                        if (html == "success") {
+                        if ($.inArray(html, ["enable", "disable"]) > -1) {
                             $("#edit_share_form").empty().dialog( "close" ).attr("action", "#");
                             OME.share_selection_changed(
                                 "{{ manager.share.getShareType }}-{{ manager.share.id }}");
+                            if (html == "enable") {
+                                $("#" + $.jstree._focused().get_selected().attr("id")).removeClass("isDisabled");
+                            } else {
+                                $("#" + $.jstree._focused().get_selected().attr("id")).addClass("isDisabled");
+                            }
                         } else {
                             $("#edit_share_form").html(html);
                         }
