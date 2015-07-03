@@ -171,12 +171,15 @@ del event
 del count
 del get_event
 
+WSGI = "wsgi"
+WSGITCP = "wsgi-tcp"
+WSGI_TYPES = (WSGI, WSGITCP)
 FASTCGI = "fastcgi"
 FASTCGITCP = "fastcgi-tcp"
 FASTCGI_TYPES = (FASTCGI, FASTCGITCP)
 DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = FASTCGITCP
-ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
+ALL_SERVER_TYPES = (WSGI, WSGITCP, FASTCGITCP, FASTCGI, DEVELOPMENT)
 
 DEFAULT_SESSION_ENGINE = 'omeroweb.filesessionstore'
 SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
@@ -361,6 +364,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          leave_none_unset,
          ("Used as the value of the SCRIPT_NAME environment variable in any"
           " HTTP request.")],
+    "omero.web.use_x_forwarded_host":
+        ["USE_X_FORWARDED_HOST",
+         "false",
+         parse_boolean,
+         ("Specifies whether to use the X-Forwarded-Host header in preference "
+          "to the Host header. This should only be enabled if a proxy which "
+          "sets this header is in use.")],
     "omero.web.static_url":
         ["STATIC_URL",
          "/static/",
@@ -1034,7 +1044,6 @@ DEFAULT_USER = os.path.join(
 # broken-link notifications when
 # SEND_BROKEN_LINK_EMAILS=True.
 MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
-
 
 # https://docs.djangoproject.com/en/1.6/releases/1.6/#default-session-serialization-switched-to-json
 # JSON serializer, which is now the default, cannot handle

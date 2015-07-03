@@ -88,6 +88,7 @@ class WebControl(BaseControl):
             "  apache: Apache 2.2 with mod_fastcgi\n"
             "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
         config.add_argument("type", choices=(
+            "gunicorn", "gunicorn-development",
             "nginx", "nginx-development", "apache", "apache-fcgi"))
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
@@ -189,7 +190,9 @@ class WebControl(BaseControl):
         if not args.type:
             self.ctx.die(
                 "Available configuration helpers:\n"
-                " - nginx, nginx-development, apache, apache-fcgi\n")
+                " - gunicorn, gunicorn-development\n"
+                " nginx, nginx-development,"
+                " apache, apache-fcgi \n")
 
         if args.system:
             self.ctx.err(
@@ -198,12 +201,13 @@ class WebControl(BaseControl):
         server = args.type
         if args.http:
             port = args.http
-        elif server == 'nginx-development':
+        elif server in ('nginx-development', 'gunicorn-development'):
             port = 8080
         else:
             port = 80
 
-        if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+        if settings.APPLICATION_SERVER in (settings.FASTCGITCP,
+                                           settings.WSGITCP):
             if settings.APPLICATION_SERVER_PORT == port:
                 self.ctx.die(
                     678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
@@ -215,7 +219,8 @@ class WebControl(BaseControl):
             "STATIC_URL": settings.STATIC_URL.rstrip("/"),
             "NOW": str(datetime.now())}
 
-        if server in ("nginx", "nginx-development"):
+        if server in ("nginx", "nginx-development",
+                      "gunicorn", "gunicorn-development"):
             d["HTTPPORT"] = port
             d["MAX_BODY_SIZE"] = args.max_body_size
 
@@ -234,9 +239,11 @@ class WebControl(BaseControl):
             except:
                 d["WEB_PREFIX"] = ""
 
-        if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+        if settings.APPLICATION_SERVER not in (settings.FASTCGITCP,
+                                               settings.WSGITCP):
             self.ctx.die(
-                679, "Web template configuration requires fastcgi-tcp")
+                679,
+                "Web template configuration requires fastcgi-tcp or wsgi-tcp")
 
         d["FASTCGI_EXTERNAL"] = '%s:%s' % (
             settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
@@ -352,7 +359,7 @@ class WebControl(BaseControl):
         deploy = getattr(settings, 'APPLICATION_SERVER')
 
         # 3216
-        if deploy in (settings.FASTCGI_TYPES):
+        if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
             if "Windows" == platform.system():
                 self.ctx.out("""
 WARNING: Unless you **really** know what you are doing you should NOT be
@@ -401,6 +408,17 @@ using bin\omero web start on Windows with FastCGI.
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT}).split()
             rv = self.ctx.popen(args=django, cwd=location)  # popen
+        elif deploy == settings.WSGI:
+            pass
+        elif deploy == settings.WSGITCP:
+            cmd = "gunicorn -D -p %(base)s/var/django.pid"
+            cmd += " -b %(host)s:%(port)s -w 5"
+            cmd += " omeroweb.wsgi:application"
+            django = (cmd % {
+                'base': self.ctx.dir,
+                'host': settings.APPLICATION_SERVER_HOST,
+                'port': settings.APPLICATION_SERVER_PORT}).split()
+            rv = self.ctx.popen(args=django, cwd=location)  # popen
         else:
             django = [sys.executable, "manage.py", "runserver", link,
                       "--noreload", "--nothreading"]
@@ -418,7 +436,7 @@ using bin\omero web start on Windows with FastCGI.
         else:
             cache_backend = ''
         rv = 0
-        if deploy in settings.FASTCGI_TYPES:
+        if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
             try:
                 f = open(self.ctx.dir / "var" / "django.pid", 'r')
                 pid = int(f.read())
@@ -440,7 +458,7 @@ using bin\omero web start on Windows with FastCGI.
         self.ctx.out("Stopping OMERO.web... ", newline=False)
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER')
-        if deploy in settings.FASTCGI_TYPES:
+        if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
             if "Windows" == platform.system():
                 self.ctx.out("""
 WARNING: Unless you **really** know what you are doing you should NOT be
