@@ -521,6 +521,7 @@ class MeasurementResults
 		}
 		String filename = file.getAbsolutePath();
 		MeasurementTableModel tm = (MeasurementTableModel) results.getModel();
+		tm = tm.copy();
 		tm.setShowUnits(true);
 		ExcelWriter writer = new ExcelWriter(filename);
 		writer.openFile();
