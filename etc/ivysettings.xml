@@ -61,10 +61,10 @@
       <!-- Remote downloads; cached to '~/.m2/repository' -->
       <ibiblio name="maven" m2compatible="true" cache="maven"
           usepoms="true" useMavenMetadata="false"/>
-      <ibiblio name="unstable-artifactory"
+      <ibiblio name="ome-simple-artifactory"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
-           root="http://artifacts.openmicroscopy.org/artifactory/simple/ome.unstable/"/>
+           root="http://artifacts.openmicroscopy.org/artifactory/simple/${simple.repository}/"/>
       <ibiblio name="ome-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
