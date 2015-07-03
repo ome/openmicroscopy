@@ -34,10 +34,6 @@ import java.util.Set;
 
 //Third-party libraries
 
-
-import org.jhotdraw.draw.AttributeKey;
-import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-
 //Application-internal dependencies
 import omero.model.Length;
 import omero.model.LengthI;
@@ -146,8 +142,8 @@ public class AnnotationKeys
 
 	   
     /** Should the figure show the measurement text. */
-    public static final AnnotationKey<StructuredDataResults> TAG =
-        new AnnotationKey<StructuredDataResults>("Tag", null);
+    public static final AnnotationKey<Object> TAG =
+        new AnnotationKey<Object>("Tag", null);
     
 	/**
 	 * The keywords associated with the ROI.

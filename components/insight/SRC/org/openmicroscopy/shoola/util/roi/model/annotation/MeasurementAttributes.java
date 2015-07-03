@@ -27,7 +27,6 @@ import java.awt.Color;
 
 import org.jhotdraw.draw.AttributeKey;
 
-import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
