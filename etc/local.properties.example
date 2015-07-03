@@ -48,7 +48,7 @@ ivy.log.conflict.resolution=false
 ivy.log.resolved.revision=false
 
 # The resolver to use for OME dependencies like Bio-Formats
-ome.resolver=ome-resolver
+ome.resolver=unstable-artifactory
 
 # Default keystore values
 jarsign.keystore=${omero.home}/lib/keystore
