@@ -855,18 +855,18 @@ public class Gateway {
             }
             serverVersion = entryEncrypted.getConfigService().getVersion();
 
-            String ip = null;
-            try {
-                ip = InetAddress.getByName(c.getServer().getHostname())
-                        .getHostAddress();
-            } catch (Exception e) {
-                log.warn(this, new LogMessage("Failed to get inet address: "
-                        + c.getServer().getHostname(), e));
+            if (c.isCheckNetwork()) {
+                try {
+                    String ip = InetAddress.getByName(
+                            c.getServer().getHostname()).getHostAddress();
+                    networkChecker = new NetworkChecker(ip, log);
+                } catch (Exception e) {
+                    log.warn(this, new LogMessage(
+                            "Failed to get inet address: "
+                                    + c.getServer().getHostname(), e));
+                }
             }
-
-            if (c.isCheckNetwork())
-                networkChecker = new NetworkChecker(ip, log);
-
+            
             Runnable r = new Runnable() {
                 public void run() {
                     try {
