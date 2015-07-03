@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -608,6 +609,16 @@ class InputServerStrategy
             }
         }
 		FONT_SIZE.set(figure, value);
+		Object ho = figure.getAttribute(MeasurementAttributes.FONT_FACE);
+        Font f;
+        if (ho != null) {
+            f = (Font) ho;
+            f.deriveFont(value.floatValue());
+        } else {
+            f = new Font(ROIFigure.FONT_FAMILY, ROIFigure.FONT_STYLE,
+                    value.intValue());
+        }
+        FONT_FACE.set(figure, f);
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());
