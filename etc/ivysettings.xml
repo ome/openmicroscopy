@@ -84,6 +84,12 @@
         <resolver ref="ome-artifactory"/>
     </chain>
 
+    <!-- Resolver for OME dependencies-->
+    <chain name="ome-resolver" returnFirst="true">
+        <resolver ref="user-maven"/>
+        <resolver ref="ome-artifactory"/>
+    </chain>
+
     <!-- Spring resolver which has as its first resolver the location
     where all our jars will be published -->
     <chain name="spring-resolver" returnFirst="true">
@@ -116,6 +122,8 @@
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="spring-resolver"/>
+    <module organisation="ome" name="appbundler" resolver="ome-resolver"/>
+    <module organisation="ome" resolver="${ome.resolver}"/>
   </modules>
 
   <triggers/>
