@@ -95,13 +95,13 @@
                 load_viewport();
             }
 
-            var ext_rois = viewport.viewportimg.get(0).get_external_roi_json()
             var roi_id;
-            if (ext_rois) {
-                roi_id = "EXT_" + ext_rois.length;
-            } else {
-                roi_id = "EXT_0";
-            }
+            if (shape.type == "Rectangle")
+                roi_id = "EXT_RECT_" + shapes_counter.rectangle;
+            else if (shape.type == "Ellipse")
+                roi_id = "EXT_ELL_" + shapes_counter.ellipse;
+            else if (shape.type == "Line")
+                roi_id = "EXT_LINE_" + shapes_counter.line;
             viewport.viewportimg.get(0).push_shape(roi_id, 1, shape, true);
 
             rois_list.push(roi_id);
