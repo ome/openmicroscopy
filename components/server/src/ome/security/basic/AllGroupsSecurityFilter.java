@@ -99,7 +99,7 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
     }
 
     public String getDefaultCondition() {
-        return String.format(myFilterCondition(), roles.getUserGroupId());
+        return myFilterCondition();
     }
 
     public Map<String, String> getParameterTypes() {
