@@ -55,7 +55,10 @@ public class MeasurementTableModel extends AbstractTableModel
     
     /** Collection of <code>Object</code>s hosted by this model. */
     private List<MeasurementObject> values;
-    
+
+    /** Flag indicating to display the units.*/
+    private boolean showUnits;
+
     /**
      * Creates a new instance.
      * 
@@ -73,6 +76,13 @@ public class MeasurementTableModel extends AbstractTableModel
         this.values = new ArrayList<MeasurementObject>();
         this.unitsType = units;
     }
+
+    /**
+     * Sets the flag indicating to show the units.
+     *
+     * @param showUnits See above.
+     */
+    void setShowUnits(boolean showUnits) { this.showUnits = showUnits; }
 
     public List<KeyDescription> getColumnNames() { return  columnNames; }
 
@@ -139,20 +149,24 @@ public class MeasurementTableModel extends AbstractTableModel
                 buffer.append("= "+UIUtilities.formatToDecimal(total));
             }
             return buffer.toString();
-        } else if (value instanceof Length) {
-            MeasurementUnits units = getUnitsType();
-            Length n = (Length) value;
-            String s;
-            if (!units.getUnit().equals(UnitsLength.PIXEL)) {
-                KeyDescription key = getColumnNames().get(col);
-                String k = key.getKey();
-                s = UIUtilities.formatValue(n, AnnotationKeys.AREA.getKey().equals(k));
-                if (CommonsLangUtils.isNotBlank(s))
-                   return s;
-            } else {
-                s = UIUtilities.twoDecimalPlaces(n.getValue());
-                if (CommonsLangUtils.isNotBlank(s)) {
-                    return s;
+        }
+        if (showUnits) {
+            if (value instanceof Length) {
+                MeasurementUnits units = getUnitsType();
+                Length n = (Length) value;
+                String s;
+                if (!units.getUnit().equals(UnitsLength.PIXEL)) {
+                    KeyDescription key = getColumnNames().get(col);
+                    String k = key.getKey();
+                    s = UIUtilities.formatValueNoUnit(n,
+                            AnnotationKeys.AREA.getKey().equals(k));
+                    if (CommonsLangUtils.isNotBlank(s))
+                       return s;
+                } else {
+                    s = UIUtilities.twoDecimalPlaces(n.getValue());
+                    if (CommonsLangUtils.isNotBlank(s)) {
+                        return s;
+                    }
                 }
             }
         }
@@ -198,5 +212,18 @@ public class MeasurementTableModel extends AbstractTableModel
     public boolean isCellEditable(int row, int col) 
     { 
         return false;
+    }
+
+    /**
+     * Creates a copy of the model.
+     *
+     * @return See above.
+     */
+    MeasurementTableModel copy()
+    {
+        MeasurementTableModel model = new MeasurementTableModel(
+                this.columnNames, this.unitsType);
+        model.values.addAll(this.values);
+        return model;
     }
 }
