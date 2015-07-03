@@ -242,7 +242,7 @@ public class MeasurementTableModel extends AbstractTableModel
         MeasurementTableModel model = new MeasurementTableModel(
                 list, this.unitsType);
         model.values.addAll(this.values);
-        //Check column names de
+        //Add the units to the column names.
         for (int i = 0; i < model.getColumnCount(); i++) {
             List<String> symbols = new ArrayList<String>();
             key = model.getColumnNames().get(i);
