@@ -305,6 +305,9 @@
                         row.addClass(col % 2 == 1 ? 'odd' : 'even');
                         $('td:first-child', row).html(label + ":&nbsp;");
                         $('td:last-child', row).html(value);
+                        if (value.length === 0) {
+                            row.addClass('noTabularData');
+                        }
                         table.append(row);
                     }
                     if (callback) {
