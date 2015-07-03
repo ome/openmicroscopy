@@ -87,7 +87,7 @@ public class GatewayTest {
         String version = gw.getServerVersion();
         Assert.assertTrue(version != null && version.trim().length() > 0);
     }
-
+    
     /**
      * Initializes the Gateway.
      *
@@ -97,11 +97,16 @@ public class GatewayTest {
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
 
+        omero.client client =  new omero.client();
+        String pass = client.getProperty("omero.rootpass");
+        String host = client.getProperty("omero.host");
+        String port = client.getProperty("omero.port");
+        
         LoginCredentials c = new LoginCredentials();
-        c.getServer().setHostname("localhost");
-        c.getServer().setPort(4064);
+        c.getServer().setHostname(host);
+        c.getServer().setPort(Integer.parseInt(port));
         c.getUser().setUsername("root");
-        c.getUser().setPassword("omero");
+        c.getUser().setPassword(pass);
 
         gw = new Gateway(new NullLogger());
         root = gw.connect(c);
