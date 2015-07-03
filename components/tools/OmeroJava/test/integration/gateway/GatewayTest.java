@@ -40,7 +40,7 @@ import omero.gateway.facility.Facility;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.facility.TransferFacility;
-import omero.log.NullLogger;
+import omero.log.SimpleLogger;
 import omero.model.IObject;
 import omero.model.PixelsType;
 
@@ -108,7 +108,7 @@ public class GatewayTest {
         c.getUser().setUsername("root");
         c.getUser().setPassword(pass);
 
-        gw = new Gateway(new NullLogger());
+        gw = new Gateway(new SimpleLogger());
         root = gw.connect(c);
 
         rootCtx = new SecurityContext(root.getDefaultGroup().getGroupId());
@@ -125,7 +125,8 @@ public class GatewayTest {
 
     @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
-        gw.disconnect();
+        if (gw != null)
+            gw.disconnect();
     }
 
     GroupData createGroup() throws DSOutOfServiceException,
