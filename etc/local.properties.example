@@ -73,7 +73,9 @@ testng.useDefaultListeners=false
 loci.resolver=omero-resolver
 
 # Controls how long CmdCallbackI based tests will wait
-# to finish.
+# to finish. Value is approximately the number of
+# milliseconds to wait, but depends on the specific
+# number of retries used by each test.
 omero.test.timeout=500
 
 ############################################
