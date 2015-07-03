@@ -880,7 +880,10 @@ public class BrowseFacility extends Facility {
     public Collection<ImageData> getUserImages(SecurityContext ctx) {
         try {
             ParametersI param = new ParametersI();
-
+            param.grp(omero.rtypes.rlong(ctx.getGroupID()));
+            if (ctx.getExperimenter() >= 0) 
+                param.exp(omero.rtypes.rlong(ctx.getExperimenter()));
+            
             IContainerPrx service = gateway.getPojosService(ctx);
             List<Image> images = service.getUserImages(param);
 

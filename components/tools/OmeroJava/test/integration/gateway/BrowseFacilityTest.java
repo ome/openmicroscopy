@@ -66,7 +66,7 @@ public class BrowseFacilityTest extends GatewayTest {
     private ScreenData screen2;
     private PlateData plate2;
     private ImageData img2;
-
+    
     @Override
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
@@ -198,10 +198,10 @@ public class BrowseFacilityTest extends GatewayTest {
     public void testGetImages() {
         SecurityContext ctx = new SecurityContext(group.getId());
 
-        // get images of the user
+        // get images of the root user
         Collection<ImageData> result = browseFacility.getUserImages(ctx);
-        Assert.assertEquals(result.size(), 0);
-
+        Assert.assertEquals(result.size(), 2);
+        
         // get specific image
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(img.getId());
