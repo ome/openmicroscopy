@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -1977,7 +1978,58 @@ class MeasurementViewerModel
     void fireExistingTagsLoading()
     {
         TagsLoader loader = new TagsLoader(component,
-                getSecurityContext(), true);
+                getSecurityContext(), canRetrieveAll());
         loader.load();
+    }
+
+    /**
+     * Indicates to load all annotations available if the user can annotate
+     * and is an administrator/group owner or to only load the user's
+     * annotation.
+     * 
+     * @return See above
+     */
+    private boolean canRetrieveAll()
+    {
+        if (!pixels.canAnnotate()) return false;
+        //check the group level
+        GroupData group = getGroup(pixels.getGroupId());
+        if (group == null) return false;
+        switch (group.getPermissions().getPermissionsLevel()) {
+            case GroupData.PERMISSIONS_GROUP_READ:
+                if (MeasurementAgent.isAdministrator()) return true;
+                Set leaders = group.getLeaders();
+                Iterator i = leaders.iterator();
+                long userID = getCurrentUser().getId();
+                ExperimenterData exp;
+                while (i.hasNext()) {
+                    exp = (ExperimenterData) i.next();
+                    if (exp.getId() == userID)
+                        return true;
+                }
+                return false;
+            case GroupData.PERMISSIONS_PRIVATE:
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns the group corresponding to the specified id or <code>null</code>.
+     * 
+     * @param groupId The identifier of the group.
+     * @return See above.
+     */
+    private GroupData getGroup(long groupId)
+    {
+        Collection groups = MeasurementAgent.getAvailableUserGroups();
+        if (groups == null) return null;
+        Iterator i = groups.iterator();
+        GroupData group;
+        while (i.hasNext()) {
+            group = (GroupData) i.next();
+            if (group.getId() == groupId) return group;
+        }
+        return null;
     }
 }
