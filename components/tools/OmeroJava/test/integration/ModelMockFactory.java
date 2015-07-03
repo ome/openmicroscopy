@@ -200,6 +200,9 @@ public class ModelMockFactory {
         img.setName(rstring(uniqueName));
         img.setDescription(rstring(uniqueDesc));
         img.setSeries(rint(0));
+        Format f = new FormatI();
+        f.setValue(rstring("JPEG"));
+        img.setFormat(f);
         return img;
     }
 
