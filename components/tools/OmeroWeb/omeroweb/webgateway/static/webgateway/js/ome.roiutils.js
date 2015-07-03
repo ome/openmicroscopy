@@ -50,7 +50,6 @@ $.fn.get_text_config = function(text_value, font_family, font_size, font_style) 
         "fontStyle": fstyle,
         "fontSize": fsize,
         "textValue": text_value,
-        "fontColor": "red"
     };
 }
 
