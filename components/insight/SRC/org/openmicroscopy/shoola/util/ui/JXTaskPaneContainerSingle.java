@@ -150,8 +150,9 @@ public class JXTaskPaneContainerSingle
 	 * <code>JXTaskPane</code>.
 	 * @see JXTaskPaneContainer#add(Component)
 	 */
-	public void add(JXTaskPane component)
+    public void add(JXTaskPane component)
 	{
+	    component.setAnimated(false);
 		int index = panes.size();
 		panes.put(component, index);
         GridBagConstraints c = new GridBagConstraints();
