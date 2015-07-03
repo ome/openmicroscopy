@@ -47,6 +47,9 @@ ivy.log.module.when.found=false
 ivy.log.conflict.resolution=false
 ivy.log.resolved.revision=false
 
+# The resolver to use for OME dependencies like Bio-Formats
+ome.resolver=unstable-artifactory
+
 # Default keystore values
 jarsign.keystore=${omero.home}/lib/keystore
 jarsign.alias=omedev
@@ -66,11 +69,6 @@ test.with.fail=false
 # Output verbosity from testng
 testng.verbose=2
 testng.useDefaultListeners=false
-
-# Determines which Ivy resolver to use for
-# finding the loci libraries. Look in
-# etc/ivyconf.xml for more information.
-loci.resolver=omero-resolver
 
 ############################################
 # hard-wired (compile-time) values

@@ -1,7 +1,3 @@
-[submodule "components/bioformats"]
-	path = components/bioformats
-	url = git://github.com/openmicroscopy/bioformats.git
-	ignore = dirty
 [submodule "docs/sphinx"]
 	path = docs/sphinx
 	url = git://github.com/openmicroscopy/ome-documentation.git
