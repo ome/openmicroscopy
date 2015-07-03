@@ -772,7 +772,7 @@ class LocationDialog extends JDialog implements ActionListener,
                     activeWindow = (e.getStateChange() == ItemEvent.SELECTED);
                 }
             });
-            b = new JRadioButton("Add Image from all image windows");
+            b = new JRadioButton("Add Images from all image windows");
             buttons.add(b);
             group.add(b);
             pane = new JPanel();

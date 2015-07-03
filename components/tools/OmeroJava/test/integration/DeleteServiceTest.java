@@ -305,6 +305,9 @@ public class DeleteServiceTest extends AbstractServerTest {
  //       objects.put(REF_INSTRUMENT, iUpdate.saveAndReturnObject(mmFactory
  //               .createInstrument()));
         // Create another instrument to hold the detector to be deleted
+
+        /* Note: The objects below are not presently legal targets for Delete2 requests.
+
         Instrument instrument = (Instrument) iUpdate
                 .saveAndReturnObject(mmFactory.createInstrument());
         Detector detector = mmFactory.createDetector();
@@ -336,6 +339,8 @@ public class DeleteServiceTest extends AbstractServerTest {
         lightLaser = (Laser) iUpdate.saveAndReturnObject(lightLaser);
         // add light to the list
         objects.put(Laser.class.getSimpleName(), lightLaser);
+
+        */
 
         return objects;
     }
@@ -448,7 +453,8 @@ public class DeleteServiceTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    /* broken because Detector is not a legal target for Delete2 */
+    @Test(groups = "broken")
     public void testDeleteBasicDetector() throws Exception {
         // Create an instrument to hold the detector to be deleted
         Instrument instrument = (Instrument) iUpdate

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -708,7 +708,11 @@ class ImViewerControl
 	 */
 	void setSelectedXYPlane(int z, int t, int bin)
 	{ 
-		model.setSelectedXYPlane(z, t, bin); 
+        boolean enableSave = z != model.getDefaultZ()
+                || t != model.getDefaultT();
+        model.setSelectedXYPlane(z, t, bin);
+        if (enableSave)
+            actionsMap.get(SAVE_RND_SETTINGS).setEnabled(true);
 	}
 
 	/**

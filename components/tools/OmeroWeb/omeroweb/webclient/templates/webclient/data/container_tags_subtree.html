@@ -24,7 +24,7 @@
 
 {% if manager.containers.images %}
 {% for d in manager.containers.images %}
-    <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}">
+    <li id='image-{{ d.id }}' rel="image" class="{{ d.getPermsCss }}">
         <a href="#" data-name="{{ d.name|escape }}" >
           {{ d.name|default:"Image"|escape }}
         </a>

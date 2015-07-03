@@ -47,14 +47,6 @@ $.fn.postit = function(cfg) {
     /* Some extra details on the dragbar */
     var dragbar = self.find('h1:first');
     dragbar.dblclick(function(e) { self.toggleClass('collapsed'); });
-    self.bind("mousewheel", function(e){
-      // Respond to mouse wheel in IE. (It returns up/dn motion in multiples of 120)
-      if (e.wheelDelta >= 120)
-        self.addClass('collapsed');
-      else if (e.wheelDelta <= -120)
-        self.removeClass('collapsed');
-      e.preventDefault();
-    })
 
     if (dragbar.get(0).addEventListener) {
       // Respond to mouse wheel in Firefox

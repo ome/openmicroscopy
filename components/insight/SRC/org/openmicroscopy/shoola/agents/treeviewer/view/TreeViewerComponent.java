@@ -2206,7 +2206,7 @@ class TreeViewerComponent
 				break;
 			case AVAILABLE_SCRIPTS_MENU:
 				if (model.getAvailableScripts() == null) {
-					model.loadScripts(p);
+					model.loadScripts(p, c);
 					firePropertyChange(SCRIPTS_LOADING_PROPERTY,
 							Boolean.valueOf(false), Boolean.valueOf(true));
 					return;
@@ -3974,8 +3974,7 @@ class TreeViewerComponent
 		
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
-		mv.addPropertyChangeListener(controller);
-		
+
 		//reset search
 		clearFoundResults();
 	}
@@ -3996,8 +3995,7 @@ class TreeViewerComponent
 		view.clearMenus();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
-		mv.addPropertyChangeListener(controller);
-		
+
 		//reset search
 		clearFoundResults();
 		model.getAdvancedFinder().reset(
@@ -4332,7 +4330,13 @@ class TreeViewerComponent
 		if (browser == null) objects = new ArrayList<DataObject>();
 		else objects = browser.getSelectedDataObjects();
 
-		if (objects == null) objects = new ArrayList<DataObject>();
+		if (CollectionUtils.isEmpty(objects)) {
+		    DataBrowser db = model.getDataViewer();
+		    objects = new ArrayList<DataObject>();
+		    if (db != null && db.getBrowser() != null) {
+		        objects.addAll(db.getBrowser().getSelectedDataObjects());
+		    }
+		}
 		//setStatus(false);
 		//Check if the objects are in the same group.
 		Iterator<DataObject> i = objects.iterator();
@@ -4890,5 +4894,18 @@ class TreeViewerComponent
     public boolean isSystemGroup(long groupID, String key)
     {
         return model.isSystemGroup(groupID, key);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#getSelectedObjectsFromBrowser()
+     */
+    public Collection<DataObject> getSelectedObjectsFromBrowser()
+    {
+        DataBrowser db = model.getDataViewer();
+        if (db != null && db.getBrowser() != null) {
+            return db.getBrowser().getSelectedDataObjects();
+        }
+        return null;
     }
 }

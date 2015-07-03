@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 
+import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.delete.Deletion;
@@ -56,6 +57,7 @@ public class GraphRequestFactory {
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Deletion deletionInstance;
+    private final ImmutableSetMultimap<Class<? extends Request>, Class<? extends IObject>> allTargets;
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
     private final ImmutableSetMultimap<String, String> unnullable;
     private final ImmutableSet<String> defaultExcludeNs;
@@ -67,6 +69,7 @@ public class GraphRequestFactory {
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param deletionInstance a deletion instance for deleting files
+     * @param allTargets legal target object classes for all request classes that use the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param defaultExcludeNs the default value for an unset excludeNs field
@@ -74,12 +77,22 @@ public class GraphRequestFactory {
      * @throws GraphException if the graph path rules could not be parsed
      */
     public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs,
-            boolean isGraphsWrap) throws GraphException {
+            Map<Class<? extends Request>, List<String>> allTargets, Map<Class<? extends Request>, List<GraphPolicyRule>> allRules,
+            List<String> unnullable, Set<String> defaultExcludeNs, boolean isGraphsWrap) throws GraphException {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
+
+        final ImmutableSetMultimap.Builder<Class<? extends Request>, Class<? extends IObject>> allTargetsBuilder =
+                ImmutableSetMultimap.builder();
+        for (final Map.Entry<Class<? extends Request>, List<String>> rules : allTargets.entrySet()) {
+            final Class<? extends Request> requestClass = rules.getKey();
+            for (final String targetClassName : rules.getValue()) {
+                allTargetsBuilder.put(requestClass, graphPathBean.getClassForSimpleName(targetClassName));
+            }
+        }
+        this.allTargets = allTargetsBuilder.build();
 
         final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> graphPoliciesBuilder = ImmutableMap.builder();
         for (final Map.Entry<Class<? extends Request>, List<GraphPolicyRule>> rules : allRules.entrySet()) {
@@ -134,6 +147,10 @@ public class GraphRequestFactory {
                 final Constructor<R> constructor = requestClass.getConstructor(GraphPathBean.class, GraphRequestFactory.class);
                 request = constructor.newInstance(graphPathBean, this);
             } else {
+                final Set<Class<? extends IObject>> targetClasses = allTargets.get(requestClass);
+                if (targetClasses.isEmpty()) {
+                    throw new IllegalArgumentException("no legal target classes defined for request class " + requestClass);
+                }
                 GraphPolicy graphPolicy = graphPolicies.get(requestClass);
                 if (graphPolicy == null) {
                     throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
@@ -141,9 +158,10 @@ public class GraphRequestFactory {
                     graphPolicy = graphPolicy.getCleanInstance();
                 }
                 final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class,
-                        GraphPathBean.class, Deletion.class, GraphPolicy.class, SetMultimap.class);
+                        GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
                 request =
-                        constructor.newInstance(aclVoter, systemTypes, graphPathBean, deletionInstance, graphPolicy, unnullable);
+                        constructor.newInstance(aclVoter, systemTypes, graphPathBean, deletionInstance, targetClasses, graphPolicy,
+                                unnullable);
             }
         } catch (Exception e) {
             /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */

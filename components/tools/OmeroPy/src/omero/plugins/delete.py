@@ -21,19 +21,30 @@ To delete linked annoations they must be explicitly included.
 
 Examples:
 
-    bin/omero delete --list   # Print all of the graphs
+    # Delete an image but not its linked tag, file and term annotations
+    omero delete Image:50
+    # Delete an image including linked tag, file and term annotations
+    omero delete Image:51 --include TagAnnotation,FileAnnotation,TermAnnotation
+    # Delete an image including all linked annotations
+    omero delete Image:52 --include Annotation
 
-    bin/omero delete Image:50
-    bin/omero delete Plate:1
-    bin/omero delete Image:51,52 OriginalFile:101
-    bin/omero delete Project:101 --exclude Dataset,Image
+    # Delete three images and two datasets including their contents
+    omero delete  omero delete Image:101,102,103 Dataset:201,202
+    # Delete a project excluding contained datasets and linked annotations
+    omero delete Project:101 --exclude Dataset,Annotation
 
-    # Force delete of linked annotations
-    bin/omero delete Image:51 --include Annotation
+    # Delete all images contained under a project
+    omero delete Project/Dataset/Image:53
+    # Delete all images contained under two projects
+    omero delete Project/Image:201,202
+
+    # Do a dry run of a delete reporting the outcome if the delete had been run
+    omero delete Dataset:53 --dry-run
+    # Do a dry run of a delete, reporting all the objects
+    # that would have been deleted
+    omero delete Dataset:53 --dry-run --report
 
 """
-
-EXCLUDED_PACKAGES = ["ome.model.display"]
 
 
 class DeleteControl(GraphControl):
@@ -53,26 +64,11 @@ class DeleteControl(GraphControl):
             self.print_delete_response(rsp)
 
     def print_delete_response(self, rsp):
-        self.ctx.out("Deleted objects")
-        objIds = self._get_object_ids(rsp)
-        for k in objIds:
-            self.ctx.out("%s:%s" % (k, objIds[k]))
-
-    def _get_object_ids(self, rsp):
-        import collections
-        objIds = {}
-        for k in rsp.deletedObjects.keys():
-            if rsp.deletedObjects[k]:
-                for excl in EXCLUDED_PACKAGES:
-                    if not k.startswith(excl):
-                        ids = ','.join(map(str, rsp.deletedObjects[k]))
-                        objIds[k] = ids
-        newIds = collections.OrderedDict(sorted(objIds.items()))
-        objIds = collections.OrderedDict()
-        for k in newIds:
-            key = k[k.rfind('.')+1:]
-            objIds[key] = newIds[k]
-        return objIds
+        if rsp.deletedObjects:
+            self.ctx.out("Deleted objects")
+            objIds = self._get_object_ids(rsp.deletedObjects)
+            for k in objIds:
+                self.ctx.out("  %s:%s" % (k, objIds[k]))
 
     def default_exclude(self):
         """

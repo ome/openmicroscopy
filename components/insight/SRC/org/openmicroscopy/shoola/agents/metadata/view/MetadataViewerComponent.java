@@ -561,7 +561,7 @@ class MetadataViewerComponent
 			}
 		}  else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
-			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
+			if (CollectionUtils.isEmpty(toAdd) && CollectionUtils.isEmpty(toRemove)) {
 				model.fireSaving(object, metadata, toSave, asynch);
 				b = false;
 			}	
