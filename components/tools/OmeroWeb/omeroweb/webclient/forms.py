@@ -51,11 +51,6 @@ logger = logging.getLogger(__name__)
 # TODO: change to reverse
 help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 
-help_wiki = (
-    '<span class="tooltip" title="Markups: If you\'d like to include URL,'
-    ' please enter it in the format: http://www.openmicroscopy.org/">'
-    '<img src="%s" /></span>') % help_button
-
 help_enable = (
     '<span class="tooltip" title="Enable/Disable: This option'
     ' allows the owner to keep the access control of the share.">'
@@ -96,8 +91,7 @@ class ShareForm(NonASCIIForm):
             'message', 'expiration', 'enable', 'members']  # , 'guests']
 
     message = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 5, 'cols': 50}),
-        help_text=help_wiki)
+        widget=forms.Textarea(attrs={'rows': 5, 'cols': 50}))
     expiration = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={'size': 10}),
@@ -149,8 +143,7 @@ class ContainerForm(NonASCIIForm):
         widget=forms.TextInput(attrs={'size': 45}))
     description = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 2, 'cols': 49}),
-        required=False,
-        help_text=help_wiki)
+        required=False)
 
 
 class ContainerNameForm(NonASCIIForm):
