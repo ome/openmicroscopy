@@ -451,12 +451,19 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
         omero.model.ShapeI.getPoints() into list of (x,y) points.
         E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503,
         190,491] points2[309,427, 366,503, 190,491]"
+        or the new format: "309,427 366,503 190,491"
         """
         pointLists = string.strip().split("points")
         if len(pointLists) < 2:
-            logger.error(
-                "Unrecognised ROI shape 'points' string: %s" % string)
-            return ""
+            if len(pointLists) == 1 and pointLists[0]:
+                xys = pointLists[0].split()
+                xyList = [tuple(map(int, xy.split(','))) for xy in xys]
+                return xyList
+
+            msg = "Unrecognised ROI shape 'points' string: %s" % string
+            logger.error(msg)
+            raise ValueError(msg)
+
         firstList = pointLists[1]
         xyList = []
         for xy in firstList.strip(" []").split(", "):
