@@ -2710,6 +2710,28 @@ public class UIUtilities
 		
 		return v;
 	}
+
+	/**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached and
+     * if squared flag is set, also attaches the square symbol.
+     * @param value The value to format
+     * @param squared Pass <code>true</code> to attach the square symbol
+     * @return See above. 
+     */
+    public static String formatValueNoUnit(Length value, boolean squared) {
+        Length converted = squared ? transformSquareSize(value) :
+            transformSize(value);
+        String v;
+        if (value.getUnit().equals(UnitsLength.PIXEL))
+            v = value.getValue() == 0 ? null : ""+((int) value.getValue());
+        else
+            v = UIUtilities.twoDecimalPlaces(converted.getValue());
+        
+        if (v == null)
+            return "";
+        return v;
+    }
     
 	/**
      * Formats the passed value in seconds.
