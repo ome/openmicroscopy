@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
@@ -35,8 +36,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -82,17 +85,6 @@ public class JXTaskPaneContainerSingle
 		setLayout(layout);
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
-		
-        JPanel filler = new JPanel();
-        filler.setBackground(UIUtilities.BACKGROUND);
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 100;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.weighty = 1;
-        c.anchor = GridBagConstraints.CENTER;
-        super.add(filler, c);
 	}
 	
 	/** Creates a new instance. */
@@ -159,8 +151,8 @@ public class JXTaskPaneContainerSingle
         c.gridx = 0;
         c.gridy = index;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0;
-        c.weighty = 1;
+        c.weightx = 1;
+        c.weighty = 0;
         c.anchor = GridBagConstraints.NORTH;
         super.add(component, c);
 		component.addPropertyChangeListener(
