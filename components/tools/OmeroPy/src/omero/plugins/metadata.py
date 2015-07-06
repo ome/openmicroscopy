@@ -10,7 +10,6 @@
 
 import sys
 
-from omero import ClientError
 from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
