@@ -51,6 +51,54 @@ from omero.model import PolygonI
 from omero.model import MaskI
 from omero.rtypes import rdouble, rint, rstring
 
+#
+# HELPERS
+#
+
+
+def pointsStringToXYlist(string):
+    """
+    Method for converting the string returned from
+    omero.model.ShapeI.getPoints() into list of (x,y) points.
+    E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503,
+    190,491] points2[309,427, 366,503, 190,491]"
+    or the new format: "309,427 366,503 190,491"
+    """
+    pointLists = string.strip().split("points")
+    if len(pointLists) < 2:
+        if len(pointLists) == 1 and pointLists[0]:
+            xys = pointLists[0].split()
+            xyList = [tuple(map(int, xy.split(','))) for xy in xys]
+            return xyList
+
+        msg = "Unrecognised ROI shape 'points' string: %s" % string
+        raise ValueError(msg)
+
+    firstList = pointLists[1]
+    xyList = []
+    for xy in firstList.strip(" []").split(", "):
+        x, y = xy.split(",")
+        xyList.append((int(x.strip()), int(y.strip())))
+    return xyList
+
+
+def xyListToBbox(xyList):
+    """
+    Returns a bounding box (x,y,w,h) that will contain the shape
+    represented by the XY points list
+    """
+    xList, yList = [], []
+    for xy in xyList:
+        x, y = xy
+        xList.append(x)
+        yList.append(y)
+    return (min(xList), min(yList), max(xList)-min(xList),
+            max(yList)-min(yList))
+
+
+#
+# Data implementation
+#
 
 ##
 # abstract, defines the method that call it as abstract.
