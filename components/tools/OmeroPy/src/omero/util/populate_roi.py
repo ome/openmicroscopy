@@ -34,11 +34,13 @@ from getpass import getpass
 from getopt import getopt, GetoptError
 from Queue import Queue
 
-from omero.rtypes import rdouble, rstring, rint
+from omero.rtypes import rdouble, rstring, rint, unwrap
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, \
     FileAnnotationI, RoiI, EllipseI, PointI
 from omero.grid import ImageColumn, WellColumn, RoiColumn, LongColumn, \
     DoubleColumn
+
+from omero.sys import ParametersI
 from omero.util.temp_files import create_path
 from omero import client
 
@@ -281,7 +283,9 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         files based on regular expression matching.
         """
         for original_file in self.original_files:
-            if original_file.mimetype.val != self.companion_format:
+            if original_file.mimetype and \
+                    original_file.mimetype.val != self.companion_format:
+                # In OMERO5, the mimetype will not be set.
                 continue
             name = original_file.name.val
             match = self.log_regex.match(name)
@@ -322,8 +326,9 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
 
     def is_this_type(klass, original_files):
         for original_file in original_files:
-            format = original_file.mimetype.val
-            if format == klass.companion_format \
+            format = unwrap(original_file.mimetype)
+            # In OMERO5, "Companion/*" is unused.
+            if (format is None or format == klass.companion_format) \
                and klass.log_regex.match(original_file.name.val):
                 return True
     is_this_type = classmethod(is_this_type)
@@ -376,7 +381,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
 
     def is_this_type(klass, original_files):
         for original_file in original_files:
-            format = original_file.mimetype.val
+            format = unwrap(original_file.mimetype)
             name = original_file.name.val
             if format == klass.companion_format and name.endswith('.res'):
                 return True
@@ -429,7 +434,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
 
     def is_this_type(klass, original_files):
         for original_file in original_files:
-            format = original_file.mimetype.val
+            format = unwrap(original_file.mimetype)
             name = original_file.name.val
             if format == klass.companion_format and name.endswith('.xml'):
                 return True
@@ -511,6 +516,23 @@ class PlateAnalysisCtxFactory(object):
                 if original_file_obj_map is not None:
                     original_file_obj_map[f.id.val] = obj
 
+    # OMERO5 support
+
+    def find_filesets_for_plate(self, plateid):
+        """
+        OMERO5 support. See #12235
+        """
+        return self.query_service.findAllByQuery((
+            'select ofile from Fileset f '
+            'join f.usedFiles as fse '
+            'join fse.originalFile as ofile '
+            'join f.images as i '
+            'join i.wellSamples ws '
+            'join ws.well w '
+            'join w.plate p '
+            'where p.id = :id'),
+            ParametersI().addId(plateid))
+
     def get_analysis_ctx(self, plate_id):
         """Retrieves a plate analysis context for a given plate."""
         # Using a set since 1) no one was using the image.id key and 2)
@@ -521,14 +543,18 @@ class PlateAnalysisCtxFactory(object):
         original_files = set()
         original_file_image_map = dict()
         images = self.find_images_for_plate(plate_id)
-        for i, image in enumerate(images):
-            for ws in image.copyWellSamples():
-                plate = ws.well.plate
-                if plate not in plates:
-                    plates.add(plate)
-                    self.gather_original_files(plate, original_files, None)
-            self.gather_original_files(
-                image, original_files, original_file_image_map)
+        fileset = self.find_filesets_for_plate(plate_id)
+        if fileset:
+            original_files.update(fileset)
+        else:
+            for i, image in enumerate(images):
+                for ws in image.copyWellSamples():
+                    plate = ws.well.plate
+                    if plate not in plates:
+                        plates.add(plate)
+                        self.gather_original_files(plate, original_files, None)
+                self.gather_original_files(
+                    image, original_files, original_file_image_map)
         for klass in self.implementations:
             if klass.is_this_type(original_files):
                 return klass(images, original_files,
