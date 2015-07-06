@@ -28,6 +28,7 @@ from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
+from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
@@ -444,45 +445,6 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
         lineColour = colours[color]
     # used for padding if we go outside the image area
     bg_color = (221, 221, 221)
-
-    def pointsStringToXYlist(string):
-        """
-        Method for converting the string returned from
-        omero.model.ShapeI.getPoints() into list of (x,y) points.
-        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503,
-        190,491] points2[309,427, 366,503, 190,491]"
-        or the new format: "309,427 366,503 190,491"
-        """
-        pointLists = string.strip().split("points")
-        if len(pointLists) < 2:
-            if len(pointLists) == 1 and pointLists[0]:
-                xys = pointLists[0].split()
-                xyList = [tuple(map(int, xy.split(','))) for xy in xys]
-                return xyList
-
-            msg = "Unrecognised ROI shape 'points' string: %s" % string
-            logger.error(msg)
-            raise ValueError(msg)
-
-        firstList = pointLists[1]
-        xyList = []
-        for xy in firstList.strip(" []").split(", "):
-            x, y = xy.split(",")
-            xyList.append((int(x.strip()), int(y.strip())))
-        return xyList
-
-    def xyListToBbox(xyList):
-        """
-        Returns a bounding box (x,y,w,h) that will contain the shape
-        represented by the XY points list
-        """
-        xList, yList = [], []
-        for xy in xyList:
-            x, y = xy
-            xList.append(x)
-            yList.append(y)
-        return (min(xList), min(yList), max(xList)-min(xList),
-                max(yList)-min(yList))
 
     bBox = None   # bounding box: (x, y, w, h)
     shape = {}
