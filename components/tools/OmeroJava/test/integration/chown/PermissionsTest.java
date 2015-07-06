@@ -402,6 +402,10 @@ public class PermissionsTest extends AbstractServerTest {
             for (final boolean isAdmin : booleanCases) {
                 for (final boolean isGroupOwner : booleanCases) {
                     for (final boolean isRecipientInGroup : booleanCases) {
+                        if (isAdmin && isGroupOwner) {
+                            /* not an interesting case */
+                            continue;
+                        }
                         final Object[] testCase = new Object[index];
                         testCase[IS_DATA_OWNER] = isDataOwner;
                         testCase[IS_ADMIN] = isAdmin;
