@@ -38,7 +38,7 @@ from omero.model import FileAnnotationI, PlateAnnotationLinkI
 from omero.model import RoiAnnotationLinkI
 from omero.model import RoiI, PointI
 from omero.rtypes import rdouble, rint, rstring, unwrap
-from omero.sys import ParametersI
+
 from omero.util.populate_metadata import ParsingContext
 from omero.util.populate_roi import AbstractMeasurementCtx
 from omero.util.populate_roi import AbstractPlateAnalysisCtx

@@ -347,14 +347,12 @@ class ITest(object):
             images.append(pixels.getImage())
         return images
 
-        fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
-                               "fields=1&plateAcqs=1.fake")
-
     def importPlates(
         self, client=None,
         plates=1, plateAcqs=1,
         plateCols=1, plateRows=1,
-        fields=1, **kwargs):
+        fields=1, **kwargs
+    ):
 
         if client is None:
             client = self.client
