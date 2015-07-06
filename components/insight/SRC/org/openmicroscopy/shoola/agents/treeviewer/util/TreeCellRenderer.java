@@ -781,14 +781,20 @@ public class TreeCellRenderer
             w = w-r.x;
             if (v > w) {
                 //truncate the text
-                v = fm.stringWidth(text);
-                int charWidth = fm.charWidth('A');
-                int vv = (w-getIconGap()-5)/charWidth;
-                if (vv < 0) vv = 0;
-                String value = UIUtilities.formatPartialName(text, vv);
+                int targetWidth = (w - getIconGap() - 5);
+                String value = text;
+                int l = text.length();
+                int valueWidth = fm.stringWidth(value);
+                while (valueWidth > targetWidth) {
+                    value = UIUtilities.formatPartialName(text, --l);
+                    valueWidth = fm.stringWidth(value);
+                }
                 setText(value);
                 w = getPreferredWidth();
                 Dimension d = new Dimension(w, fm.getHeight()+4);
+                if (vp.getComponentCount() > 0) {
+                    vp.getComponent(0).setPreferredSize(d);
+                }
                 setSize(d);//4 b/c GTK L&F
                 setPreferredSize(d);//4 b/c GTK L&F
             }
@@ -798,4 +804,5 @@ public class TreeCellRenderer
     	droppedAllowed = false;
     	super.paintComponent(g);
 	}
+    
 }
