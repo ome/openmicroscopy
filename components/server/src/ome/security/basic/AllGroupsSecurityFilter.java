@@ -62,18 +62,6 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
 
     static public final String filterName = "securityFilter";
 
-    private static String myFilterCondition = String.format(
-                  "\n( "
-                + "\n  1 = :is_share OR "
-                + "\n  1 = :is_admin OR "
-                + "\n  (group_id in (:leader_of_groups)) OR "
-                + "\n  (owner_id = :current_user AND %s) OR " // 1st arg U
-                + "\n  (group_id in (:member_of_groups) AND %s) OR " // 2nd arg G
-                + "\n  (%s) " // 3rd arg W
-                + "\n)"
-                + "\n", isGranted(USER, READ), isGranted(GROUP, READ),
-                isGranted(WORLD, READ));
-
     final SqlAction sql;
 
     /**
@@ -96,8 +84,22 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         this.sql = sql;
     }
 
+    protected String myFilterCondition() {
+        return String.format(
+                "\n( "
+                + "\n  1 = :is_share OR "
+                + "\n  1 = :is_admin OR "
+                + "\n  (group_id in (:leader_of_groups)) OR "
+                + "\n  (owner_id = :current_user AND %s) OR " // 1st arg U
+                + "\n  (group_id in (:member_of_groups) AND %s) OR " // 2nd arg G
+                + "\n  (%s) " // 3rd arg W
+                + "\n)"
+                + "\n", isGranted(USER, READ), isGranted(GROUP, READ),
+                isGranted(WORLD, READ));
+    }
+
     public String getDefaultCondition() {
-        return String.format(myFilterCondition, roles.getUserGroupId());
+        return myFilterCondition();
     }
 
     public Map<String, String> getParameterTypes() {
