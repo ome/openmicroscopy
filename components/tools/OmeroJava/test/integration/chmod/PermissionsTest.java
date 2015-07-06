@@ -275,37 +275,6 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * @return a specific test case for annotation chmod
-     */
-    @DataProvider(name = "chmod annotation test cases (debug)")
-    public Object[][] provideChmodAnnotationCaseDebug() {
-        int index = 0;
-        final int IS_GROUP_OWNER = index++;
-        final int IS_GROUP_MEMBER = index++;
-        final int IS_DATA_OWNER = index++;
-        final int IS_ADMIN = index++;
-        final int FROM_PERMS = index++;
-        final int TO_PERMS = index++;
-        final int IS_EXPECT_SUCCESS = index++;
-        final int IS_EXPECT_DELETE_OTHER = index++;
-
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        final Object[] testCase = new Object[index];
-        testCase[IS_GROUP_OWNER] = true;
-        testCase[IS_GROUP_MEMBER] = true;
-        testCase[IS_DATA_OWNER] = true;
-        testCase[IS_ADMIN] = false;
-        testCase[FROM_PERMS] = "rwra--";
-        testCase[TO_PERMS] = "rw----";
-        testCase[IS_EXPECT_SUCCESS] = true;
-        testCase[IS_EXPECT_DELETE_OTHER] = true;
-        testCases.add(testCase);
-
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-
-    /**
      * @return a variety of test cases for annotation chmod
      */
     @DataProvider(name = "chmod annotation test cases")
@@ -342,13 +311,15 @@ public class PermissionsTest extends AbstractServerTest {
                                 }
                                 final Object[] testCase = new Object[index];
                                 testCase[IS_GROUP_OWNER] = isGroupOwner;
-                                testCase[IS_GROUP_MEMBER] = isGroupOwner;
+                                testCase[IS_GROUP_MEMBER] = isGroupMember;
                                 testCase[IS_DATA_OWNER] = isDataOwner;
                                 testCase[IS_ADMIN] = isAdmin;
                                 testCase[FROM_PERMS] = fromPerms;
                                 testCase[TO_PERMS] = toPerms;
                                 testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner;
                                 testCase[IS_EXPECT_DELETE_OTHER] = "rwra--".equals(fromPerms) && "rw----".equals(toPerms);
+                                // DEBUG: if (isGroupOwner == true && isGroupMember == true && isDataOwner == true &&
+                                //            isAdmin == true && "rwra--".equals(fromPerms) && "rw----".equals(toPerms))
                                 testCases.add(testCase);
                             }
                         }
@@ -435,25 +406,6 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * @return a specific test case for container chmod
-     */
-    @DataProvider(name = "chmod container test cases (debug)")
-    public Object[][] provideChmodContainerCaseDebug() {
-        int index = 0;
-        final int IS_IMAGE_OWNER = index++;
-        final int IS_LINK_OWNER = index++;
-
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        final Object[] testCase = new Object[index];
-        testCase[IS_IMAGE_OWNER] = true;
-        testCase[IS_LINK_OWNER] = true;
-        testCases.add(testCase);
-
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-
-    /**
      * @return a variety of test cases for container chmod
      */
     @DataProvider(name = "chmod container test cases")
@@ -471,6 +423,7 @@ public class PermissionsTest extends AbstractServerTest {
                 final Object[] testCase = new Object[index];
                 testCase[IS_IMAGE_OWNER] = isImageOwner;
                 testCase[IS_LINK_OWNER] = isLinkOwner;
+                // DEBUG: if (isImageOwner == true && isLinkOwner == true)
                 testCases.add(testCase);
             }
         }
@@ -715,23 +668,6 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * @return group permissions for a specific private-group failure test case
-     */
-    @DataProvider(name = "private-group failure test cases (debug)")
-    public Object[][] providePrivateGroupFailureCaseDebug() {
-        int index = 0;
-        final int GROUP_PERMS = index++;
-
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        final Object[] testCase = new Object[index];
-        testCase[GROUP_PERMS] = "rw----";
-        testCases.add(testCase);
-
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-
-    /**
      * @return group permissions for private-group failure test cases
      */
     @DataProvider(name = "private-group failure test cases")
@@ -746,6 +682,7 @@ public class PermissionsTest extends AbstractServerTest {
                 for (final String groupPerms : permsCases) {
                     final Object[] testCase = new Object[index];
                     testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG: if ("rwr---".equals(groupPerms))
                     testCases.add(testCase);
         }
 
