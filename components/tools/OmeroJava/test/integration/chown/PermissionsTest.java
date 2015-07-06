@@ -78,8 +78,7 @@ public class PermissionsTest extends AbstractServerTest {
 
     private final List<Long> testImages = Collections.synchronizedList(new ArrayList<Long>());
 
-    private ExperimenterGroup systemGroup;
-    private EventContext userOtherGroup, adminOtherGroup;
+    private ExperimenterGroup systemGroup, otherGroup;
 
     /**
      * Set up admin and non-admin users who are not a member of the groups created by tests.
@@ -88,10 +87,7 @@ public class PermissionsTest extends AbstractServerTest {
     @BeforeClass
     public void setupOtherGroup() throws Exception {
         systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
-        userOtherGroup = newUserAndGroup("rwr---");
-        final ExperimenterGroup group = new ExperimenterGroupI(userOtherGroup.groupId, false);
-        adminOtherGroup = newUserInGroup(group, false);
-        addUsers(systemGroup, Collections.singletonList(adminOtherGroup.userId), false);
+        otherGroup = new ExperimenterGroupI(iAdmin.getEventContext().groupId, false);
     }
 
     /**
@@ -206,12 +202,13 @@ public class PermissionsTest extends AbstractServerTest {
      * Test a specific case of using {@link Chown2} with owner's shared annotations in a private group.
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
+     * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccess if the chown is expected to succeed
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown annotation test cases")
-    public void testChownAnnotationPrivate(boolean isDataOwner, boolean isAdmin, boolean isRecipientInGroup,
+    public void testChownAnnotationPrivate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
             boolean isExpectSuccess) throws Exception {
 
         /* set up the users and group for this test case */
@@ -224,15 +221,15 @@ public class PermissionsTest extends AbstractServerTest {
         final long dataGroupId = importer.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
-        recipient = isRecipientInGroup ? newUserInGroup(dataGroup, false) : userOtherGroup;
+        recipient = newUserInGroup(isRecipientInGroup ? dataGroup : otherGroup, false);
 
         if (isDataOwner) {
             chowner = importer;
         } else {
-            chowner = isAdmin ? adminOtherGroup : recipient;
+            chowner = newUserInGroup(dataGroup, isGroupOwner);
         }
 
-        if (isAdmin && chowner != adminOtherGroup) {
+        if (isAdmin) {
             addUsers(systemGroup, Collections.singletonList(chowner.userId), false);
         }
 
@@ -305,13 +302,14 @@ public class PermissionsTest extends AbstractServerTest {
      * Test a specific case of using {@link Chown2} with owner's and others' annotations in a read-annotate group.
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
+     * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccess if the chown is expected to succeed
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown annotation test cases")
-    public void testChownAnnotationReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isRecipientInGroup,
-            boolean isExpectSuccess) throws Exception {
+    public void testChownAnnotationReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner,
+            boolean isRecipientInGroup, boolean isExpectSuccess) throws Exception {
 
         /* set up the users and group for this test case */
 
@@ -323,15 +321,15 @@ public class PermissionsTest extends AbstractServerTest {
         final long dataGroupId = importer.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
-        recipient = isRecipientInGroup ? newUserInGroup(dataGroup, false) : userOtherGroup;
+        recipient = newUserInGroup(isRecipientInGroup ? dataGroup : otherGroup, false);
 
         if (isDataOwner) {
             chowner = importer;
         } else {
-            chowner = isAdmin ? adminOtherGroup : recipient;
+            chowner = newUserInGroup(dataGroup, isGroupOwner);
         }
 
-        if (isAdmin && chowner != adminOtherGroup) {
+        if (isAdmin) {
             addUsers(systemGroup, Collections.singletonList(chowner.userId), false);
         }
 
@@ -392,6 +390,7 @@ public class PermissionsTest extends AbstractServerTest {
         int index = 0;
         final int IS_DATA_OWNER = index++;
         final int IS_ADMIN = index++;
+        final int IS_GROUP_OWNER = index++;
         final int IS_RECIPIENT_IN_GROUP = index++;
         final int IS_EXPECT_SUCCESS = index++;
 
@@ -400,6 +399,7 @@ public class PermissionsTest extends AbstractServerTest {
         final Object[] testCase = new Object[index];
         testCase[IS_DATA_OWNER] = true;
         testCase[IS_ADMIN] = true;
+        testCase[IS_GROUP_OWNER] = true;
         testCase[IS_RECIPIENT_IN_GROUP] = true;
         testCase[IS_EXPECT_SUCCESS] = true;
         testCases.add(testCase);
@@ -415,6 +415,7 @@ public class PermissionsTest extends AbstractServerTest {
         int index = 0;
         final int IS_DATA_OWNER = index++;
         final int IS_ADMIN = index++;
+        final int IS_GROUP_OWNER = index++;
         final int IS_RECIPIENT_IN_GROUP = index++;
         final int IS_EXPECT_SUCCESS = index++;
 
@@ -424,13 +425,16 @@ public class PermissionsTest extends AbstractServerTest {
 
         for (final boolean isDataOwner : booleanCases) {
             for (final boolean isAdmin : booleanCases) {
-                for (final boolean isRecipientInGroup : booleanCases) {
-                    final Object[] testCase = new Object[index];
-                    testCase[IS_DATA_OWNER] = isDataOwner;
-                    testCase[IS_ADMIN] = isAdmin;
-                    testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
-                    testCase[IS_EXPECT_SUCCESS] = isAdmin || isDataOwner && isRecipientInGroup;
-                    testCases.add(testCase);
+                for (final boolean isGroupOwner : booleanCases) {
+                    for (final boolean isRecipientInGroup : booleanCases) {
+                        final Object[] testCase = new Object[index];
+                        testCase[IS_DATA_OWNER] = isDataOwner;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_GROUP_OWNER] = isGroupOwner;
+                        testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
+                        testCase[IS_EXPECT_SUCCESS] = isAdmin || (isGroupOwner || isDataOwner) && isRecipientInGroup;
+                        testCases.add(testCase);
+                    }
                 }
             }
         }
