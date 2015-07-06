@@ -12,6 +12,7 @@ import sys
 
 from omero import ClientError
 from omero.cli import BaseControl
+from omero.cli import CLI
 from omero.cli import ProxyStringType
 from omero.gateway import BlitzGateway
 
@@ -21,6 +22,7 @@ Provides access to and editing of the metadata which
 is typically shown in the right handle panel of the
 GUI clients.
 """
+
 
 class Metadata(object):
     """
@@ -35,8 +37,29 @@ class Metadata(object):
         assert obj_wrapper
         self.obj_wrapper = obj_wrapper
 
-    def original(self):
+    def get_type(self):
+        t = self.obj_wrapper._obj.ice_staticId()
+        return t.split("::")[-1]
+
+    def get_id(self):
+        return self.obj_wrapper.getId()
+
+    def get_name(self):
+        otype = self.get_type()
+        oid = self.get_id()
+        return "%s:%s" % (otype, oid)
+
+    def get_parent(self):
+        return self.__class__(self.obj_wrapper.getParent())
+
+    def get_roi_count(self):
+        return self.obj_wrapper.getROICount()
+
+    def get_original(self):
         return self.obj_wrapper.loadOriginalMetadata()
+
+    def __getattr__(self, name):
+        return getattr(self.obj_wrapper, name)
 
     def __str__(self):
         return "<Metadata%s>" % self.obj_wrapper
@@ -49,8 +72,10 @@ class MetadataControl(BaseControl):
         sub = parser.sub()
         summary = parser.add(sub, self.summary)
         original = parser.add(sub, self.original)
+        measures = parser.add(sub, self.measures)
+        bulkanns = parser.add(sub, self.bulkanns)
 
-        for x in (summary, original,):
+        for x in (summary, original, bulkanns, measures):
             x.add_argument("obj",
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
@@ -64,15 +89,23 @@ class MetadataControl(BaseControl):
         wrapper = conn.getObject(klass, oid)
         return Metadata(wrapper)
 
+    # READ METHODS
+
     def summary(self, args):
         "Provide a general summary of available metadata"
         md = self._load(args)
-        print md
+        name = md.get_name()
+        line = "-" * len(name)
+        self.ctx.out(name)
+        self.ctx.out(line)
+        self.ctx.out("Name: %s" % md.name)
+        self.ctx.out("Roi count: %s" % md.get_roi_count())
+        self.ctx.out("Parent: %s" % md.get_parent().get_name())
 
     def original(self, args):
         "Print the original metadata in ini format"
         md = self._load(args)
-        source, global_om, series_om = md.original()
+        source, global_om, series_om = md.get_original()
         om = (("Global", global_om),
               ("Series", series_om))
 
@@ -81,6 +114,18 @@ class MetadataControl(BaseControl):
             self.ctx.out("[%sMetadata]" % name)
             for k, v in tuples:
                 self.ctx.out("%s=%s" % (k, v))
+
+    def bulkanns(self, args):
+        ("Provide a list of the NSBULKANNOTATION tables linked "
+         "to the given object")
+        md = self._load(args)
+        print md
+
+    def measures(self, args):
+        ("Provide a list of the NSMEASUREMENT tables linked "
+         "to the given object")
+        md = self._load(args)
+        print md
 
 try:
     register("metadata", MetadataControl, HELP)
