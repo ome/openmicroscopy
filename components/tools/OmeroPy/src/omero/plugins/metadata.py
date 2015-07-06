@@ -15,6 +15,8 @@ from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
 from omero.gateway import BlitzGateway
+from omero.util.populate_roi import PlateAnalysisCtxFactory
+
 
 HELP = """metadata methods
 
@@ -80,6 +82,19 @@ class MetadataControl(BaseControl):
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
 
+        populate = parser.add(sub, self.populate)
+        dry_or_not = populate.add_mutually_exclusive_group()
+        dry_or_not.add_argument("-n", "--dry-run", action="store_true")
+        dry_or_not.add_argument("-f", "--force", action="store_false",
+                                dest="dry_run")
+        populate.add_argument(
+            "plate", type=ProxyStringType("Plate"))
+        populate.add_argument(
+            "--measurement", type=int,
+            default=None, help=(
+                "Index of the measurement to populate. By default, all"
+            ))
+
     def _load(self, args):
         client = self.ctx.conn(args)
         conn = BlitzGateway(client_obj=client)
@@ -126,6 +141,25 @@ class MetadataControl(BaseControl):
          "to the given object")
         md = self._load(args)
         print md
+
+    # WRITE
+
+    def populate(self, args):
+        client = self.ctx.conn(args)
+        factory = PlateAnalysisCtxFactory(client.sf)
+        ctx = factory.get_analysis_ctx(args.plate.id.val)
+        count = ctx.get_measurement_count()
+        for i in range(count):
+            if args.dry_run:
+                self.ctx.out(
+                    "Measurement %d has %s result files." % (
+                        i, ctx.get_result_file_count(i)))
+            else:
+                if args.measurement is not None:
+                    if args.measurement != i:
+                        continue
+                meas = ctx.get_measurement_ctx(i)
+                meas.parse_and_populate()
 
 try:
     register("metadata", MetadataControl, HELP)
