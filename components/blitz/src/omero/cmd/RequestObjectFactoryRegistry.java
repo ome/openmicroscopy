@@ -176,10 +176,9 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChmodI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        // TODO: Chmod2 too slow to be automatically substituted for Chmod
-                        /* if (graphRequestFactory.isGraphsWrap()) {
+                        if (graphRequestFactory.isGraphsWrap()) {
                             return new ChmodFacadeI(graphRequestFactory);
-                        } else */ {
+                        } else {
                             return new ChmodI(ic,
                                     ctx.getBean("chmodStrategy", ChmodStrategy.class));
                         }

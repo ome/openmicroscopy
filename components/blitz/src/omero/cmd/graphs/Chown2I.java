@@ -84,9 +84,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private GraphTraversal graphTraversal;
     private Set<Long> acceptableGroups;
 
-    int targetObjectCount = 0;
-    int deletedObjectCount = 0;
-    int givenObjectCount = 0;
+    private int targetObjectCount = 0;
+    private int deletedObjectCount = 0;
+    private int givenObjectCount = 0;
 
     /**
      * Construct a new <q>chown</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -177,13 +177,12 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         }
                     } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
                     /* note IDs to target for the class */
-                    for (final long id : oneClassToTarget.getValue()) {
-                        targetMultimap.put(targetObjectClass.getName(), id);
-                        targetObjectCount++;
-                    }
+                    final Collection<Long> ids = oneClassToTarget.getValue();
+                    targetMultimap.putAll(targetObjectClass.getName(), ids);
+                    targetObjectCount += ids.size();
                 }
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets(false);
@@ -195,6 +194,8 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
                 throw helper.cancel(new ERR(), e, "bad-step");
             }
+        } catch (Cancel c) {
+            throw c;
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
@@ -227,14 +228,14 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             for (final Entry<String, Collection<Long>> oneGivenClass : result.getKey().asMap().entrySet()) {
                 final String className = oneGivenClass.getKey();
                 final Collection<Long> ids = oneGivenClass.getValue();
-                givenObjectCount += ids.size();
                 givenObjects.put(className, new ArrayList<Long>(ids));
+                givenObjectCount += ids.size();
             }
             for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
                 final String className = oneDeletedClass.getKey();
                 final Collection<Long> ids = oneDeletedClass.getValue();
-                deletedObjectCount += ids.size();
                 deletedObjects.put(className, new ArrayList<Long>(ids));
+                deletedObjectCount += ids.size();
             }
             final Chown2Response response = new Chown2Response(givenObjects, deletedObjects);
             helper.setResponseIfNull(response);

@@ -41,56 +41,190 @@
 
         <!-- see blitz-graph-rules.xml for rule syntax -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = X:[E]/!d, L.child = T:TagAnnotation[D]"
-                                       p:error="may not delete {T} because {X} is tagged with it"/>
-        <bean parent="graphPolicyRule" p:matches="G:IGlobal[E]" p:changes="G:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="X:[E].details.group = ExperimenterGroup[I]" p:changes="X:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent =/!o [E], L.child = C:[E]" p:changes="L:[D]/n, C:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child =/!o C:[E]" p:changes="L:[D]/n, C:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:BooleanAnnotation[E]{o}" p:changes="C:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:CommentAnnotation[E]{o}" p:changes="C:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:NumericAnnotation[E]{o}" p:changes="C:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:TimestampAnnotation[E]{o}" p:changes="C:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[D].child = C:XmlAnnotation[E]{o}" p:changes="C:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="R:Roi[E].image =/!o [E]" p:changes="R:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].pixels =/!o [E]" p:changes="RD:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E].pixels =/!o [E]" p:changes="T:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="R:Roi[D]/!no.image = [!O]/o" p:changes="R:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[D]/!no.pixels = [!O]/o" p:changes="RD:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="T:Thumbnail[D]/!no.pixels = [!O]/o" p:changes="T:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="[D] =? X:!ILink[E]{o}/d" p:changes="X:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="[D] =?/o X:!ILink[E]{o}" p:changes="X:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!DO].parent = [D], L.child = C:!Job[E]/!d" p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:[E]{o}/d" p:changes="C:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:Job[E]{o}" p:changes="C:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = C:[D]" p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [D]" p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [E]{a}" p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.channels = [D]" p:changes="P:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.settings = [D]" p:changes="P:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [D]" p:changes="P:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="!ILink[D] == X:!IGlobal[E]{o}/d" p:changes="X:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="!ILink[D] = X:[E]{i}" p:changes="X:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="!ILink[E]{r} = X:[E]{i}" p:changes="X:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:[E]{i}" p:changes="C:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="DS:DetectorSettings[E]{i}.detector = [E]{r}" p:changes="DS:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="LS:LightSettings[E]{i}.lightSource = [E]{r}" p:changes="LS:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="OS:ObjectiveSettings[E]{i}.objective = [E]{r}" p:changes="OS:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/d == [D]" p:changes="X:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/!d == [D]" p:changes="X:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E].file = [D]" p:changes="FA:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:!Job[E]{r}/!d" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[E]{r}/!o" p:changes="A:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="A:TagAnnotation[E]{r}/!o" p:changes="A:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="A:TermAnnotation[E]{r}/!o" p:changes="A:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [E], L.child = C:!Pixels[E]{r}" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:!ILink[E]{r}" p:changes="X:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[E]{a}.parent = [D]" p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]{i}" p:changes="C:{a}"/>
+        <!-- Note that these rules apply only for downgrading a group to private. -->
+
+        <!-- ACQUISITION -->
+
+        <!-- Delete cross-owner links regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = FS:[E], L.child = EF:[E], FS =/!o EF"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[E].parent = FS:[E], L.child = EF:[E], FS =/!o EF"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[E].parent = LP:[E], L.child = EF:[E], LP =/!o EF"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = LP:[E], L.child = EF:[E], LP =/!o EF"
+                                       p:changes="L:[D]/n"/>
+
+        <!-- Delete cross-owner settings regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[E].detectorSettings =/!o S:[E]" p:changes="S:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[E].lightSourceSettings =/!o S:[E]" p:changes="S:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="Image[E].objectiveSettings =/!o S:[E]" p:changes="S:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector =/!o [E]" p:changes="S:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource =/!o [E]" p:changes="S:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective =/!o [E]" p:changes="S:[D]/n"/>
+
+        <!-- Cannot downgrade if images have cross-owner subgraphs. -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].imagingEnvironment =/!o IE:[E]"
+                                       p:error="cannot downgrade to private as {I} uses differently owned {IE}"/>
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].instrument =/!o IN:[E]"
+                                       p:error="cannot downgrade to private as {I} uses differently owned {IN}"/>
+
+        <!-- ANNOTATIONS -->
+
+        <!-- Delete cross-owner links regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = X:[E], L.child = A:[E], X =/!o A"
+                                       p:changes="L:[D]/n"/>
+
+        <!-- If a basic or comment annotation is unlinked then consider it for deletion regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:BasicAnnotation[E]{i}" p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:CommentAnnotation[E]{i}" p:changes="A:{r}"/>
+
+        <!-- If a list, map, or XML annotation is unlinked then consider it for deletion. -->
+
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:ListAnnotation[E]{i}/d" p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:MapAnnotation[E]{i}/d" p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:XmlAnnotation[E]{i}/d"  p:changes="A:{r}"/>
+
+        <!-- In considering deleting an annotation then do not delete the annotation if it remains linked. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [E]{ia}, L.child = A:Annotation[E]{r}"
+                                       p:changes="A:{a}"/>
+
+        <!-- Delete orphaned annotations, ignoring permissions for BasicAnnotation and CommentAnnotation. -->
+
+        <bean parent="graphPolicyRule" p:matches="A:BasicAnnotation[E]{o}" p:changes="A:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="A:CommentAnnotation[E]{o}" p:changes="A:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{o}/d" p:changes="A:[D]"/>
+
+        <!-- If an annotation link's parent or child is deleted then delete the link regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].child = [D]" p:changes="L:[D]/n"/>
+
+        <!-- Ensure that rules with multiple matches may apply for links. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[!O]" p:changes="L:[-]"/>
+
+        <!-- CONTAINERS -->
+
+        <!-- Delete cross-owner links regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[E], L.child = D:[E], P =/!o D"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[E], L.child = I:[E], D =/!o I"
+                                       p:changes="L:[D]/n"/>
+
+        <!-- CORE -->
+
+        <!-- Do not delete an original file that is being used by an object. -->
+
+        <bean parent="graphPolicyRule" p:matches="FileAnnotation.file = OF:[E]{r}" p:changes="OF:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="FilesetEntry.originalFile = OF:[E]{r}" p:changes="OF:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="Roi[E].source = OF:[E]{r}" p:changes="OF:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [E], L.child = OF:[E]{r}" p:changes="OF:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = [E], L.parent = OF:[E]{r}" p:changes="OF:{a}"/>
+
+        <!-- If an original file is orphaned then delete it. -->
+
+        <bean parent="graphPolicyRule" p:matches="OF:OriginalFile[E]{o}" p:changes="OF:[D]"/>
+
+        <!-- Cannot downgrade to a private group if the image has a differently owned stage label. -->
+
+        <bean parent="graphPolicyRule" p:matches="Image[E].stageLabel =/!o SL:[E]"
+                                       p:error="cannot downgrade to private as {E} uses differently owned {SL}"/>
+
+        <!-- Ensure that rules with multiple matches may apply for links. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>
+
+        <!-- DISPLAY -->
+
+        <!-- Regardless of permissions delete others' rendering settings and thumbnails. -->
+
+        <bean parent="graphPolicyRule" p:matches="Pixels[E].settings =/!o RD:[E]" p:changes="RD:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="Pixels[E].thumbnails =/!o T:[E]" p:changes="T:[D]/n"/>
+
+        <!-- If rendering settings are deleted then delete the subgraph below. -->
+
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].quantization = Q:[E]" p:changes="Q:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].waveRendering = CB:[E]" p:changes="CB:[D]"/>
+
+        <!-- EXPERIMENT -->
+
+        <!-- Cannot downgrade if image is associated with differently owned experiment. -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].experiment =/!o E:[E]"
+                                       p:error="cannot downgrade to private as {E} uses differently owned {I}"/>
+
+        <!-- JOB -->
+
+        <!-- Cannot downgrade to a private group if jobs have differently owned original files. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E], L.child = OF:[E], J =/!o OF"
+                                       p:error="cannot downgrade to private as {J} has differently owned {OF}"/>
+
+        <!-- Ensure that rules with multiple matches may apply for links. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[!O]" p:changes="L:[-]"/>
+
+        <!-- META -->
+
+        <!-- If an object is deleted then also delete or move its external info regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="[D].details.externalInfo = EI:[E]" p:changes="EI:[D]/n"/>
+
+        <!-- Consider every model object in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="X:[E].details.group = [I]" p:changes="X:[-]"/>
+
+        <!-- ROI -->
+
+        <!-- Regardless of permissions delete others' ROIs. -->
+
+        <bean parent="graphPolicyRule" p:matches="Image[E].rois =/!o ROI:[E]" p:changes="ROI:[D]/n"/>
+
+        <!-- Consider deleting an original file if it is unlinked from a ROI. -->
+
+        <bean parent="graphPolicyRule" p:matches="Roi[D].source = OF:[E]{i}" p:changes="OF:{r}"/>
+
+        <!-- Delete the shapes of deleted ROIs. -->
+
+        <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
+
+        <!-- SCREEN -->
+
+        <!-- Cannot downgrade to a private group if the image has a differently owned field. -->
+
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample.image =/!o I:[E]"
+                                       p:error="cannot downgrade to private as {WS} uses differently owned {I}"/>
+
+        <!-- Cannot downgrade to a private group if wells have differently owned reagents. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink.parent = W:[E], L.child = R:[E], W =/!o R"
+                                       p:error="cannot downgrade to private as {W} has differently owned {R}"/>
+
+        <!-- Cannot downgrade to a private group if screen has differently owned reagents. -->
+
+        <bean parent="graphPolicyRule" p:matches="S:Screen[E].reagents =/!o R:Reagent"
+                                       p:error="cannot downgrade to private as {S} has differently owned {R}"/>
+
+        <!-- Delete cross-owner links regardless of permissions. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[E], L.child = P:[E], S =/!o P" p:changes="L:[D]/n"/>
+
+        <!-- STATS -->
+
+        <!-- Delete cross-owner statistics. -->
+
+        <bean parent="graphPolicyRule" p:matches="Channel[E].statsInfo =/!o SI:[E]" p:changes="SI:[D]"/>
+
     </util:list>
 
 </beans>

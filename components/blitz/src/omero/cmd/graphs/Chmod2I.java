@@ -88,9 +88,9 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     private GraphTraversal graphTraversal;
     private Set<Long> acceptableGroups;
 
-    int targetObjectCount = 0;
-    int deletedObjectCount = 0;
-    int changedObjectCount = 0;
+    private int targetObjectCount = 0;
+    private int deletedObjectCount = 0;
+    private int changedObjectCount = 0;
 
     /**
      * Construct a new <q>chmod</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -157,42 +157,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         }
         graphPolicyAdjusters = null;
 
-        final boolean isToGroupReadable = Utils.toPermissions(perm1).isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
-
-        if (isToGroupReadable) {
-            /* for permissions change to not-private, no changes are required based on policy rules */
-            graphPolicyWithOptions = new BaseGraphPolicyAdjuster(graphPolicyWithOptions) {
-                @Override
-                protected boolean isBlockedFromAdjustment(Details object) {
-                    return true;
-                }
-            };
-        } else {
-            /* for permissions change to private, objects not in private groups must have policy rule checks for deletion */
-            graphPolicyWithOptions = new BaseGraphPolicyAdjuster(graphPolicyWithOptions) {
-                private final Map<Long, Boolean> isGroupReadableById = new HashMap<Long, Boolean>();
-
-                @Override
-                public void noteDetails(Session session, IObject object, String realClass, long id) {
-                    /* note whether groups are private */
-                    if (object instanceof ExperimenterGroup && !isGroupReadableById.containsKey(id)) {
-                        final ExperimenterGroup group = (ExperimenterGroup) session.get(ExperimenterGroup.class, id);
-                        final Permissions permissions = group.getDetails().getPermissions();
-                        final boolean isGroupReadable = permissions.isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
-                        isGroupReadableById.put(id, isGroupReadable);
-                    }
-                    super.noteDetails(session, object, realClass, id);
-                }
-
-                @Override
-                protected boolean isBlockedFromAdjustment(Details object) {
-                    /* for groups that are already private, no changes are required based on policy rules */
-                    final Long groupId = object.subject instanceof ExperimenterGroup ? object.subject.getId() : object.groupId;
-                    return Boolean.FALSE.equals(isGroupReadableById.get(groupId));
-                }
-            };
-        }
-
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
                 graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
     }
@@ -222,13 +186,42 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                         }
                     } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
                     /* note IDs to target for the class */
-                    for (final long id : oneClassToTarget.getValue()) {
-                        targetMultimap.put(targetObjectClass.getName(), id);
-                        targetObjectCount++;
-                    }
+                    final Collection<Long> ids = oneClassToTarget.getValue();
+                    targetMultimap.putAll(targetObjectClass.getName(), ids);
+                    targetObjectCount += ids.size();
                 }
-                final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
+                /* only downgrade to private requires the graph policy rules to be applied */
+                final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan;
+                final Permissions newPermissions = Utils.toPermissions(perm1);
+                final boolean isToGroupReadable = newPermissions.isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
+                if (isToGroupReadable) {
+                    /* can always skip graph policy rules as is not downgrade to private */
+                    plan = graphTraversal.planOperation(helper.getSession(), targetMultimap, true, false);
+                } else {
+                    /* determine which target groups are not already private ... */
+                    final String groupClass = ExperimenterGroup.class.getName();
+                    final SetMultimap<String, Long> targetsNotPrivate = HashMultimap.create();
+                    final Map<Long, Boolean> readableByGroupId = new HashMap<Long, Boolean>();
+                    for (final Long groupId : targetMultimap.get(groupClass)) {
+                        Boolean isFromGroupReadable = readableByGroupId.get(groupId);
+                        if (isFromGroupReadable == null) {
+                            final Session session = helper.getSession();
+                            final ExperimenterGroup group = (ExperimenterGroup) session.get(ExperimenterGroup.class, groupId);
+                            if (group == null) {
+                                final Exception e = new IllegalArgumentException("no group " + groupId);
+                                throw helper.cancel(new ERR(), e, "bad-group");
+                            }
+                            final Permissions permissions = group.getDetails().getPermissions();
+                            isFromGroupReadable = permissions.isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
+                            readableByGroupId.put(groupId, isFromGroupReadable);
+                        }
+                        if (isFromGroupReadable) {
+                            targetsNotPrivate.put(groupClass, groupId);
+                        }
+                    }
+                    /* ... and apply the graph policy rules to those */
+                    plan = graphTraversal.planOperation(helper.getSession(), targetsNotPrivate, true, true);
+                }
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets(false);
@@ -240,6 +233,8 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
                 throw helper.cancel(new ERR(), e, "bad-step");
             }
+        } catch (Cancel c) {
+            throw c;
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
@@ -272,14 +267,14 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
             for (final Entry<String, Collection<Long>> oneChangedClass : result.getKey().asMap().entrySet()) {
                 final String className = oneChangedClass.getKey();
                 final Collection<Long> ids = oneChangedClass.getValue();
-                changedObjectCount += ids.size();
                 changedObjects.put(className, new ArrayList<Long>(ids));
+                changedObjectCount += ids.size();
             }
             for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
                 final String className = oneDeletedClass.getKey();
                 final Collection<Long> ids = oneDeletedClass.getValue();
-                deletedObjectCount += ids.size();
                 deletedObjects.put(className, new ArrayList<Long>(ids));
+                deletedObjectCount += ids.size();
             }
             final Chmod2Response response = new Chmod2Response(changedObjects, deletedObjects);
             helper.setResponseIfNull(response);
