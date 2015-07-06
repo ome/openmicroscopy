@@ -25,6 +25,7 @@ fs plugin for querying repositories, filesets, and the like.
 
 import sys
 
+from collections import defaultdict
 from collections import namedtuple
 
 from omero import client as Client
@@ -34,6 +35,7 @@ from omero.cli import admin_only
 from omero.cli import CmdControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
+from omero.gateway import BlitzGateway
 
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
@@ -258,6 +260,11 @@ class FsControl(CmdControl):
         sets.add_argument(
             "--check", action="store_true",
             help="checks each fileset for validity (admins only)")
+
+        ls = parser.add(sub, self.ls)
+        ls.add_argument(
+            "fileset",
+            type=ProxyStringType("Fileset"))
 
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
@@ -675,6 +682,17 @@ Examples:
 
             tb.row(idx, *tuple(obj))
         self.ctx.out(str(tb.build()))
+
+    def ls(self, args):
+        """List all the original files contained in a fileset"""
+        client = self.ctx.conn(args)
+        gateway = BlitzGateway(client_obj=client)
+        gateway.SERVICE_OPTS.setOmeroGroup("-1")
+        fileset = gateway.getObject("Fileset", args.fileset.id.val)
+
+        defaultdict(list)
+        for ofile in fileset.listFiles():
+            print ofile.path + ofile.name
 
     @admin_only
     def set_repo(self, args):
