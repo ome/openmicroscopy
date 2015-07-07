@@ -89,7 +89,7 @@ class WebControl(BaseControl):
             "  apache: Apache 2.2 with mod_fastcgi\n"
             "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
         config.add_argument("type", choices=(
-            "gunicorn", "gunicorn-development", 
+            "gunicorn", "gunicorn-development",
             "nginx", "nginx-development",
             "apache", "apache-fcgi", "apache-wsgi"))
         nginx_group = config.add_argument_group(
@@ -253,12 +253,12 @@ class WebControl(BaseControl):
             except:
                 d["WEB_PREFIX"] = ""
 
-        if settings.APPLICATION_SERVER not in (settings.FASTCGITCP,
-                                               settings.WSGITCP,
-                                               settings.WSGI):
+        if settings.APPLICATION_SERVER not in (settings.FASTCGI_TYPES +
+                                               settings.WSGI_TYPES):
             self.ctx.die(
                 679,
-                "Web template configuration requires fastcgi-tcp or wsgi-tcp")
+                "Web template configuration requires"
+                " fastcgi-tcp or wsgi/wsgi-tcp.")
 
         d["FASTCGI_EXTERNAL"] = '%s:%s' % (
             settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
@@ -408,17 +408,7 @@ using bin\omero web start on Windows with FastCGI.
                     pid_path.remove()
                     self.ctx.err("Removed stale %s" % pid_path)
 
-        if deploy == settings.FASTCGI:
-            cmd = "python manage.py runfcgi workdir=./"
-            cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
-            cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
-            cmd += " maxchildren=5 minspare=1 maxspare=5"
-            cmd += " maxrequests=%(maxrequests)d"
-            django = (cmd % {
-                'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
-                'base': self.ctx.dir}).split()
-            rv = self.ctx.popen(args=django, cwd=location)  # popen
-        elif deploy == settings.FASTCGITCP:
+        if deploy == settings.FASTCGITCP:
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork host=%(host)s port=%(port)s"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"

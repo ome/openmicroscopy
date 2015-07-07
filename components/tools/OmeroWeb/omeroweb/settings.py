@@ -174,12 +174,11 @@ del get_event
 WSGI = "wsgi"
 WSGITCP = "wsgi-tcp"
 WSGI_TYPES = (WSGI, WSGITCP)
-FASTCGI = "fastcgi"
 FASTCGITCP = "fastcgi-tcp"
-FASTCGI_TYPES = (FASTCGI, FASTCGITCP)
+FASTCGI_TYPES = (FASTCGITCP, )
 DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = FASTCGITCP
-ALL_SERVER_TYPES = (WSGI, WSGITCP, FASTCGITCP, FASTCGI, DEVELOPMENT)
+ALL_SERVER_TYPES = (WSGI, WSGITCP, FASTCGITCP, DEVELOPMENT)
 
 DEFAULT_SESSION_ENGINE = 'omeroweb.filesessionstore'
 SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
@@ -348,7 +347,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("OMERO.web is configured to use FastCGI TCP by default. If you are "
           "using a non-standard web server configuration you may wish to "
           "change this before generating your web server configuration. "
-          "Available options \"fastcgi\" / \"fastcgi-tcp\"")],
+          "Available options: \"fastcgi-tcp\", \"wsgi-tcp\", \"wsgi\"")],
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
