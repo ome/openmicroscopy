@@ -805,6 +805,27 @@ $.fn.roi_display = function(options) {
             }
         }
 
+        this.restore_shape = function(roi_id, shape_id) {
+            var backup_key = get_backup_key(roi_id, shape_id);
+            if (backup_key in original_shapes_backup) {
+                var original_shape = original_shapes_backup[backup_key];
+                this.update_shape_text(roi_id, shape_id, original_shape.textValue, original_shape.fontFamily,
+                    original_shape.fontSize, original_shape.fontStyle);
+                this.update_shape_config(roi_id, shape_id, original_shape.strokeColor, original_shape.strokeAlpha,
+                    original_shape.strokeWidth, original_shape.fillColor, original_shape.fillAlpha);
+                delete original_shapes_backup[backup_key];
+
+                this.refresh_active_rois();
+            }
+        }
+
+        this.restore_shapes = function() {
+            for (var bk_key in original_shapes_backup) {
+                var sh_id = bk_key.split("::");
+                this.restore_shape(sh_id[0], sh_id[1]);
+            }
+        }
+
         this.update_shape_text = function(roi_id, shape_id, text_value,
                                           font_family, font_size, font_style) {
             // look for shape in OME ROIs and external ones
