@@ -8,6 +8,7 @@
 
 """
 
+import traceback
 from datetime import datetime
 from omero.cli import BaseControl, CLI
 import platform
@@ -88,8 +89,9 @@ class WebControl(BaseControl):
             "  apache: Apache 2.2 with mod_fastcgi\n"
             "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
         config.add_argument("type", choices=(
-            "gunicorn", "gunicorn-development",
-            "nginx", "nginx-development", "apache", "apache-fcgi"))
+            "gunicorn", "gunicorn-development", 
+            "nginx", "nginx-development",
+            "apache", "apache-fcgi", "apache-wsgi"))
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
         nginx_group.add_argument(
@@ -184,6 +186,18 @@ class WebControl(BaseControl):
         # path component containing a dot.
         d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
+    def _set_apache_wsgi(self, d, settings):
+        # WSGIDaemonProcess requires python-path and user
+        d["OMEROUSER"] = os.getlogin()
+        try:
+            import Ice
+            d["ICEPYTHONROOT"] = os.path.dirname(Ice.__file__)
+        except:
+            print traceback.print_exc()
+            self.ctx.err(
+                "Cannot import Ice.")
+        d["OMEROPYTHONROOT"] = self._get_python_dir()
+
     def config(self, args):
         """Generate a configuration file from a template"""
         from omeroweb import settings
@@ -192,7 +206,7 @@ class WebControl(BaseControl):
                 "Available configuration helpers:\n"
                 " - gunicorn, gunicorn-development\n"
                 " nginx, nginx-development,"
-                " apache, apache-fcgi \n")
+                " apache, apache-fcgi, apache-wsgi\n")
 
         if args.system:
             self.ctx.err(
@@ -233,14 +247,15 @@ class WebControl(BaseControl):
         except:
             d["FORCE_SCRIPT_NAME"] = "/"
 
-        if server in ("apache", "apache-fcgi"):
+        if server in ("apache", "apache-fcgi", "apache-wsgi"):
             try:
                 d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             except:
                 d["WEB_PREFIX"] = ""
 
         if settings.APPLICATION_SERVER not in (settings.FASTCGITCP,
-                                               settings.WSGITCP):
+                                               settings.WSGITCP,
+                                               settings.WSGI):
             self.ctx.die(
                 679,
                 "Web template configuration requires fastcgi-tcp or wsgi-tcp")
@@ -253,6 +268,9 @@ class WebControl(BaseControl):
 
         if server == "apache-fcgi":
             self._set_apache_fcgi_fastcgi(d, settings)
+
+        if server in ("apache-wsgi"):
+            self._set_apache_wsgi(d, settings)
 
         template_file = "%s.conf.template" % server
         c = file(self._get_templates_dir() / template_file).read()
@@ -314,7 +332,6 @@ class WebControl(BaseControl):
             self.set_environ()
             self.ctx.call(cargs, cwd=location)
         except:
-            import traceback
             print traceback.print_exc()
 
     def collectstatic(self):
