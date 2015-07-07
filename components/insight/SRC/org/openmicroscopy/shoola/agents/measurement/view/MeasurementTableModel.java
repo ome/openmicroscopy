@@ -154,9 +154,7 @@ public class MeasurementTableModel extends AbstractTableModel
             }
             return buffer.toString();
         }
-        System.err.println(value);
         if (showUnits) {
-            //System.err.println(value);
             if (value instanceof Length) {
                 MeasurementUnits units = getUnitsType();
                 Length n = (Length) value;
