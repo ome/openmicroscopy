@@ -78,7 +78,7 @@ STANDARD_LOGFORMAT = (
     '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
     ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s')
 
-if platform.system() in ("Windows"):
+if platform.system() in ("Windows",):
     LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
 else:
     LOGGING_CLASS = 'clogging.cloghandler.ConcurrentRotatingFileHandler'
