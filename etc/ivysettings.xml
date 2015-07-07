@@ -61,6 +61,10 @@
       <!-- Remote downloads; cached to '~/.m2/repository' -->
       <ibiblio name="maven" m2compatible="true" cache="maven"
           usepoms="true" useMavenMetadata="false"/>
+      <ibiblio name="ome-simple-artifactory"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+           root="http://artifacts.openmicroscopy.org/artifactory/simple/${simple.repository}/"/>
       <ibiblio name="ome-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
@@ -81,6 +85,12 @@
         <resolver ref="repo"/>
         <resolver ref="user-maven"/>
         <resolver ref="maven"/>
+        <resolver ref="ome-artifactory"/>
+    </chain>
+
+    <!-- Resolver for OME dependencies-->
+    <chain name="ome-resolver" returnFirst="true">
+        <resolver ref="user-maven"/>
         <resolver ref="ome-artifactory"/>
     </chain>
 
@@ -116,6 +126,8 @@
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="spring-resolver"/>
+    <module organisation="ome" name="appbundler" resolver="ome-resolver"/>
+    <module organisation="ome" resolver="${ome.resolver}"/>
   </modules>
 
   <triggers/>
