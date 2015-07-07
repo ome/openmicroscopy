@@ -166,7 +166,7 @@ public class AbstractServerTest extends AbstractTest {
     public String GUEST_GROUP = "guest";
 
     /** Scaling factor used for CmdCallbackI loop timings. */
-    protected long scalingFactor = 500;
+    protected long scalingFactor;
 
     /** The client object, this is the entry point to the Server. */
     protected omero.client client;
@@ -250,6 +250,14 @@ public class AbstractServerTest extends AbstractTest {
         root = newRootOmeroClient();
         tmp.__del__();
 
+        try {
+            scalingFactor = new Long(System.getProperty("omero.test.timeout"));
+        } catch (Exception e) {
+            log.warn("Problem setting 'omero.test.timeout' to: " +
+                    System.getProperty("omero.test.timeout") +
+                    ". Defaulting to 500.");
+            scalingFactor = 500;
+        }
         final EventContext ctx = newUserAndGroup("rw----");
         this.userFsDir = ctx.userName + "_" + ctx.userId + FsFile.separatorChar;
         SimpleBackOff backOff = new SimpleBackOff();
