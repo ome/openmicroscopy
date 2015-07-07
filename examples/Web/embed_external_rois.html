@@ -81,6 +81,28 @@
             return colors[Math.floor(Math.random() * colors.length)];
         };
 
+        var flush_colors = function () {
+            var vimg = viewport.viewportimg.get(0);
+            var ext_rois = vimg.get_external_roi_json();
+
+            for(var r=0; r<ext_rois.length; r++) {
+                var roi_id = ext_rois[r].id;
+                var shapes = ext_rois[r].shapes;
+                for (var s=0; s<shapes.length; s++) {
+                    var shape_id = shapes[s].id;
+                    var shape_color = shapes[s].fillColor;
+                    var new_color = get_random_color();
+                    while (new_color == shape_color) {
+                        new_color = get_random_color();
+                    }
+                    vimg.update_shape_config(roi_id, shape_id, new_color, undefined,
+                            undefined, new_color, undefined, false);
+                }
+            }
+
+            vimg.refresh_active_rois();
+        }
+
         var get_img_properties = function () {
             return {
                 "z_pos": viewport.getPos().z,
@@ -106,9 +128,13 @@
 
             rois_list.push(roi_id);
 
-            if ($("#pop-roi").is(":disabled") || $("#pull-roi").is(":disabled")) {
-                $("#pop-roi").removeAttr("disabled");
-                $("#pull-roi").removeAttr("disabled");
+            var $pop_roi = $("#pop-roi");
+            var $pull_roi = $("#pull-roi");
+
+            if ($pop_roi.is(":disabled") || $pull_roi.is(":disabled")) {
+                $pop_roi.removeAttr("disabled");
+                $pull_roi.removeAttr("disabled");
+                $("#flush-colors").removeAttr("disabled");
             }
         };
 
@@ -118,6 +144,11 @@
             if (rois_list.length == 0) {
                 $("#pop-roi").attr("disabled", "disabled");
                 $("#pull-roi").attr("disabled", "disabled");
+                $("#flush-colors").attr("disabled", "disabled");
+                var $reset_shapes = $("#reset-shapes");
+                if (! $reset_shapes.is(":disabled")) {
+                    $reset_shapes.attr("disabled", "disabled");
+                }
             }
         };
 
@@ -324,6 +355,19 @@
 
             $("#pull-roi").click(function () {
                 pull_roi();
+            });
+
+            $("#flush-colors").click(function() {
+                flush_colors();
+                var $reset = $("#reset-shapes");
+                if ($reset.is(":disabled")) {
+                    $reset.removeAttr("disabled");
+                }
+            });
+
+            $("#reset-shapes").click(function() {
+                viewport.viewportimg.get(0).restore_shapes();
+                $("#reset-shapes").attr("disabled", "disabled");
             })
 
             $("#viewport-scalebar").change(function () {
@@ -372,6 +416,10 @@
 
 <button id="pull-roi" title="PULL ROI" disabled>Remove OLDEST ROI</button>
 <button id="pop-roi" title="POP ROI" disabled>Remove NEWEST ROI</button>
+
+<button id="flush-colors" title="FLUSH COLORS" disabled>Flush Colors</button>
+
+<button id="reset-shapes" title="RESET SHAPES" disabled>Reset shapes</button>
 
 <div id="viewport" class="viewport"></div>
 </body>
