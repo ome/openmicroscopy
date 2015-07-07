@@ -5706,7 +5706,8 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
             if t > 0:
                 return datetime.fromtimestamp(t / 1000)
         except:
-            return super(_PlateAcquisitionWrapper, self).getDate()
+            pass
+        return super(_PlateAcquisitionWrapper, self).getDate()
 
     def getName(self):
         name = super(_PlateAcquisitionWrapper, self).getName()
