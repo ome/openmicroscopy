@@ -77,8 +77,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private Helper helper;
     private GraphTraversal graphTraversal;
 
-    int targetObjectCount = 0;
-    int deletedObjectCount = 0;
+    private int targetObjectCount = 0;
+    private int deletedObjectCount = 0;
 
     /**
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -159,13 +159,12 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                         }
                     } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
                     /* note IDs to target for the class */
-                    for (final long id : oneClassToTarget.getValue()) {
-                        targetMultimap.put(targetObjectClass.getName(), id);
-                        targetObjectCount++;
-                    }
+                    final Collection<Long> ids = oneClassToTarget.getValue();
+                    targetMultimap.putAll(targetObjectClass.getName(), ids);
+                    targetObjectCount += ids.size();
                 }
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false);
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets(true);
@@ -177,6 +176,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
                 throw helper.cancel(new ERR(), e, "bad-step");
             }
+        } catch (Cancel c) {
+            throw c;
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
@@ -209,8 +210,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
             for (final String className : Sets.union(resultProcessed.keySet(), resultDeleted.keySet())) {
                 final Set<Long> ids = Sets.union(resultProcessed.get(className), resultDeleted.get(className));
-                deletedObjectCount += ids.size();
                 deletedObjects.put(className, new ArrayList<Long>(ids));
+                deletedObjectCount += ids.size();
             }
             final Delete2Response response = new Delete2Response(deletedObjects);
             helper.setResponseIfNull(response);

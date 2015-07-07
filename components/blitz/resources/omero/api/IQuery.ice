@@ -34,7 +34,51 @@ module omero {
                 idempotent omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
                 idempotent IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
                 idempotent IObjectList           findAllByFullText(string klass, string query, omero::sys::Parameters params) throws ServerError;
+
+                /**
+                 * Return a sequence of [omero::RType] sequences.
+                 *
+                 * <p>
+                 * Each element of the outer sequence is one row in the return value.
+                 * Each element of the inner sequence is one column specified in the HQL.
+                 * </p>
+                 *
+                 * <p>
+                 * [omero::model::IObject] instances are returned wrapped in an [omero::rtype::RObject]
+                 * instance. Primitives are mapped to the expected [omero::RType] subclass. Types without
+                 * an [omero::RType] mapper if returned will throw an exception if present in the select
+                 * except where a manual conversion is present on the server. This includes:
+                 * </p>
+                 *
+                 * <ul>
+                 * <li>
+                 *     [omero::model::Permissions] instances are serialized to an [omero::RMap]
+                 *     containing the keys: perms, canAnnotate, canEdit, canLink, canDelete
+                 * </li>
+                 * <li>
+                 *     The quantity types like [omero::model::Length] are serialized
+                 *     to an [omero::RMap] containing the keys: value, unit, symbol
+                 * </li>
+                 * </ul>
+                 *
+                 * <p>
+                 * As with SQL, if an aggregation statement is used, a group by clause must be added.
+                 * </p>
+                 *
+                 * <p>
+                 * Examples:
+                 * <pre>
+                 *   select i.name, i.description from Image i where i.name like '%.dv'
+                 *
+                 *   select tag.textValue, tagset.textValue from TagAnnotation tag join tag.annotationLinks l join l.child tagset
+                 *
+                 *   select p.pixelsType.value, count(p.id) from Pixel p group by p.pixelsType.value
+                 * </pre>
+                 * </p>
+                 *
+                 **/
                 idempotent RTypeSeqSeq           projection(string query, omero::sys::Parameters params) throws ServerError;
+
                 idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
             };
 

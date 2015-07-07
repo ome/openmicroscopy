@@ -222,6 +222,7 @@ omero.version=${omero.version}
                 <jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
                 <jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
                 <jvmarg value="-Domero.testing=true"/>
+                <jvmarg value="-Domero.test.timeout=${omero.test.timeout}"/>
                 <jvmarg value="-Domero.db.poolsize=${omero.db.poolsize}"/>
             </testng>
         </presetdef>
