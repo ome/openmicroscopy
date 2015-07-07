@@ -248,7 +248,7 @@ public class AbstractServerTest extends AbstractTest {
 
         try {
             scalingFactor = new Long(System.getProperty("omero.test.timeout"));
-        } catch {
+        } catch (Exception e) {
             log.warn("Problem setting 'omero.test.timeout' to: " +
                     System.getProperty("omero.test.timeout") +
                     ". Defaulting to 500.");
