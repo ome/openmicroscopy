@@ -38,30 +38,6 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
-OME.addToBasket = function(selected, prefix) {
-    var productListQuery = new Array("action=add");
-    if (selected && selected.length > 0) {
-        selected.each(function(i) {
-            productListQuery[i+1]= $(this).attr('id').replace("-","=");
-        });
-    } else {
-        OME.alert_dialog("Please select at least one element.");
-        return;
-    }
-    $.ajax({
-        type: "POST",
-        url: prefix, //this.href,
-        data: productListQuery.join("&"),
-        success: function(responce){
-            if(responce.match(/(Error: ([A-z]+))/gi)) {
-                OME.alert_dialog(responce);
-            } else {
-                OME.calculateCartTotal(responce);
-            }
-        }
-    });
-};
-
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data) {
     var selected_objs = [];
@@ -140,10 +116,9 @@ OME.select_fileset_images = function(filesetId) {
 
 // actually called when share is edited, to refresh right-hand panel
 OME.share_selection_changed = function(share_id) {
-    $("body")
-        .data("selected_objects.ome", [{"id": share_id}])
-        .trigger("selection_change.ome");
+    $("body").trigger("selection_change.ome");
 };
+
 
 // Standard ids are in the form TYPE-ID, web extensions may add an
 // additional -SUFFIX
