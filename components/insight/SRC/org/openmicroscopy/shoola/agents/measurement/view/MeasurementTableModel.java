@@ -263,6 +263,13 @@ public class MeasurementTableModel extends AbstractTableModel
                             !l.getUnit().equals(UnitsLength.PIXEL)) {
                         symbols.add(s);
                     }
+                } else if (v instanceof Number) {
+                    if (k.equals(AnnotationKeys.ANGLE.getKey())) {
+                        String s = "("+UIUtilities.DEGREE_SYMBOL+")";
+                        if (!symbols.contains(s)) {
+                            symbols.add(s);
+                        }
+                    }
                 }
             }
             if (symbols.size() == 1) {
