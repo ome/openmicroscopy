@@ -776,6 +776,21 @@ $.fn.roi_display = function(options) {
                 }
             }
         }
+
+        get_shape = function(roi_id, shape_id, roi_list) {
+            for (var rx=0; rx<roi_list.length; rx++) {
+                if (roi_list[rx].id == roi_id) {
+                    var shapes = roi_list[rx].shapes;
+                    for (var sx=0; sx<shapes.length; sx++) {
+                        if (shapes[sx].id == shape_id)
+                            return shapes[sx];
+                    }
+                    console.error("ROI with ID " + roi_id + "has no shape with ID " + shape_id);
+                }
+            }
+            return null;
+        }
+
         get_backup_key = function(roi_id, shape_id) {
             return roi_id + "::" + shape_id;
         }
@@ -790,6 +805,48 @@ $.fn.roi_display = function(options) {
             }
         }
 
+        this.update_shape_text = function(roi_id, shape_id, text_value,
+                                          font_family, font_size, font_style) {
+            // look for shape in OME ROIs and external ones
+            var sh = get_shape(roi_id, shape_id, roi_json);
+            if (!sh)
+                sh = get_shape(roi_id, shape_id, external_roi);
+
+            if (sh) {
+                backup_shape(roi_id, shape_id, sh);
+
+                sh.textValue = typeof text_value !== "undefined" ? text_value : sh.textValue;
+                sh.fontFamily = typeof font_family !== "undefined" ? font_family : sh.fontFamily;
+                sh.fontSize = typeof font_size !== "undefined" ? font_size : sh.fontSize;
+                sh.fontStyle = typeof font_style !== "undefined" ? font_style : sh.fontStyle;
+
+                this.refresh_active_rois();
+            } else {
+                console.error("Unable to find a shape for ROI ID " + roi_id + " and SHAPE ID " + shape_id);
+            }
+        }
+
+        this.update_shape_config = function(roi_id, shape_id, stroke_color, stroke_alpha,
+                                            stroke_width, fill_color, fill_alpha) {
+            // look for shape in OME ROIs and external ones
+            var sh = get_shape(roi_id, shape_id, roi_json);
+            if (!sh)
+                sh = get_shape(roi_id, shape_id, external_roi);
+
+            if (sh) {
+                backup_shape(roi_id, shape_id, sh);
+
+                sh.strokeWidth = typeof stroke_width !== "undefined" ? stroke_width : sh.strokeWidth;
+                sh.strokeAlpha = typeof stroke_alpha !== "undefined" ? stroke_alpha : sh.strokeAlpha;
+                sh.strokeColor = typeof stroke_color !== "undefined" ? stroke_color : sh.strokeColor;
+                sh.fillAlpha = typeof fill_alpha !== "undefined" ? fill_alpha : sh.fillAlpha;
+                sh.fillColor = typeof fill_color !== "undefined" ? fill_color : sh.fillColor;
+
+                this.refresh_active_rois();
+            } else {
+                console.error("Unable to find a shape for ROI ID " + roi_id + " and SHAPE ID " + shape_id);
+            }
+        }
         
         this.show_labels = function(visible, filter) {
             roi_label_displayed = visible;
