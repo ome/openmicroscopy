@@ -154,14 +154,16 @@ public class MeasurementTableModel extends AbstractTableModel
             }
             return buffer.toString();
         }
+        System.err.println(value);
         if (showUnits) {
+            //System.err.println(value);
             if (value instanceof Length) {
                 MeasurementUnits units = getUnitsType();
                 Length n = (Length) value;
                 String s;
+                KeyDescription key = getColumnNames().get(col);
+                String k = key.getKey();
                 if (!units.getUnit().equals(UnitsLength.PIXEL)) {
-                    KeyDescription key = getColumnNames().get(col);
-                    String k = key.getKey();
                     if (unitsDisplay.size() > col && unitsDisplay.get(col)) {
                         s = UIUtilities.formatValue(n,
                                 AnnotationKeys.AREA.getKey().equals(k));
@@ -172,10 +174,9 @@ public class MeasurementTableModel extends AbstractTableModel
                     if (CommonsLangUtils.isNotBlank(s))
                        return s;
                 } else {
-                    s = UIUtilities.twoDecimalPlaces(n.getValue());
-                    if (CommonsLangUtils.isNotBlank(s)) {
-                        return s;
-                    }
+                    s = UIUtilities.formatValueNoUnit(n,
+                            AnnotationKeys.AREA.getKey().equals(k));
+                    return s;
                 }
             }
         }
