@@ -42,13 +42,13 @@ $.fn.roi_display = function(options) {
         this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
         var roi_label_displayed = true;     // show/hide labels within shapes
-        
+
         var selected_shape_id = null;  // html page is kept in sync with this
         var selectedClone = null;      // a highlighted shape cloned from currently selected shape
-        
+
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
-        
+
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
 
@@ -58,7 +58,7 @@ $.fn.roi_display = function(options) {
             else
                 return parseInt(id);
         };
-        
+
         // break long labels into multiple lines
         var formatShapeText = function(text_string) {
             var rows = parseInt(Math.sqrt(text_string.length / 6));     // rough ratio: cols = rows * 6
@@ -98,7 +98,7 @@ $.fn.roi_display = function(options) {
             }
             return text_string;
         }
-        
+
         var draw_shape = function(shape) {
             var newShape = null;
             if (shape['type'] == 'Ellipse') {
@@ -154,7 +154,7 @@ $.fn.roi_display = function(options) {
             }
             return newShape;
         }
-        
+
         var get_tool_tip = function(shape) {
             var toolTip = "";
             if (shape['type'] == 'Ellipse') {
@@ -178,7 +178,7 @@ $.fn.roi_display = function(options) {
             }
             return toolTip;
         }
-        
+
         // if the currently selected shape is visible - highlight it
         display_selected = function() {
             // *NB: For some reason, can't overlay text with selectedClone.
@@ -187,7 +187,7 @@ $.fn.roi_display = function(options) {
                 if (selectedClone.node.parentNode.parentNode) selectedClone.remove();
             }
             if (selected_shape_id == null) return;
-            
+
             selectedClone = null;
             for (var i=0; i<shape_objects.length; i++) {
                 var s = shape_objects[i];
@@ -211,11 +211,11 @@ $.fn.roi_display = function(options) {
             }
             return selectedClone;
         }
-        
+
         this.set_selected_shape = function(shape_id) {
             selected_shape_id = shape_id;
             $viewportimg.trigger("shape_click", [shape_id]);
-            var sel_shape = display_selected(); 
+            var sel_shape = display_selected();
             var sel_x;
             var sel_y;
             // we will only get the shape if currently displayed (current Z/T section)
@@ -251,7 +251,7 @@ $.fn.roi_display = function(options) {
             }
             return {'x':sel_x, 'y':sel_y};
         }
-        
+
         // called when user clicks on ROI
         handle_shape_click = function(event) {
             var shape = this;
@@ -671,9 +671,9 @@ $.fn.roi_display = function(options) {
                                     // clicking the text should do the same as clicking the shape
                                     txt.id = shape['id'] + "_shape_text";
                                     txt.click(handle_shape_click);
-                                    
+
                                 }
-                                
+
                                 // handle other text-specific attributes...
                                 var txtAttr = {};
                                 if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
@@ -805,29 +805,40 @@ $.fn.roi_display = function(options) {
             }
         }
 
-        this.restore_shape = function(roi_id, shape_id) {
+        this.restore_shape = function(roi_id, shape_id, refresh_view) {
+            var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;
             var backup_key = get_backup_key(roi_id, shape_id);
             if (backup_key in original_shapes_backup) {
                 var original_shape = original_shapes_backup[backup_key];
                 this.update_shape_text(roi_id, shape_id, original_shape.textValue, original_shape.fontFamily,
-                    original_shape.fontSize, original_shape.fontStyle);
+                    original_shape.fontSize, original_shape.fontStyle, false);
                 this.update_shape_config(roi_id, shape_id, original_shape.strokeColor, original_shape.strokeAlpha,
-                    original_shape.strokeWidth, original_shape.fillColor, original_shape.fillAlpha);
+                    original_shape.strokeWidth, original_shape.fillColor, original_shape.fillAlpha, false);
                 delete original_shapes_backup[backup_key];
 
+                if (refresh_view) {
+                    this.refresh_active_rois();
+                }
+            }
+        }
+
+        this.restore_shapes = function(refresh_view) {
+            var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;
+
+            for (var bk_key in original_shapes_backup) {
+                var sh_id = bk_key.split("::");
+                this.restore_shape(sh_id[0], sh_id[1], false);
+            }
+
+            if (refresh_view) {
                 this.refresh_active_rois();
             }
         }
 
-        this.restore_shapes = function() {
-            for (var bk_key in original_shapes_backup) {
-                var sh_id = bk_key.split("::");
-                this.restore_shape(sh_id[0], sh_id[1]);
-            }
-        }
+        this.update_shape_text = function (roi_id, shape_id, text_value, font_family, font_size, font_style,
+                                           refresh_view) {
+            var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;
 
-        this.update_shape_text = function(roi_id, shape_id, text_value,
-                                          font_family, font_size, font_style) {
             // look for shape in OME ROIs and external ones
             var sh = get_shape(roi_id, shape_id, roi_json);
             if (!sh)
@@ -841,14 +852,18 @@ $.fn.roi_display = function(options) {
                 sh.fontSize = typeof font_size !== "undefined" ? font_size : sh.fontSize;
                 sh.fontStyle = typeof font_style !== "undefined" ? font_style : sh.fontStyle;
 
-                this.refresh_active_rois();
+                if(refresh_view) {
+                    this.refresh_active_rois();
+                }
             } else {
                 console.error("Unable to find a shape for ROI ID " + roi_id + " and SHAPE ID " + shape_id);
             }
         }
 
         this.update_shape_config = function(roi_id, shape_id, stroke_color, stroke_alpha,
-                                            stroke_width, fill_color, fill_alpha) {
+                                            stroke_width, fill_color, fill_alpha, refresh_view) {
+            var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;
+
             // look for shape in OME ROIs and external ones
             var sh = get_shape(roi_id, shape_id, roi_json);
             if (!sh)
@@ -863,12 +878,14 @@ $.fn.roi_display = function(options) {
                 sh.fillAlpha = typeof fill_alpha !== "undefined" ? fill_alpha : sh.fillAlpha;
                 sh.fillColor = typeof fill_color !== "undefined" ? fill_color : sh.fillColor;
 
-                this.refresh_active_rois();
+                if(refresh_view) {
+                    this.refresh_active_rois();
+                }
             } else {
                 console.error("Unable to find a shape for ROI ID " + roi_id + " and SHAPE ID " + shape_id);
             }
         }
-        
+
         this.show_labels = function(visible, filter) {
             roi_label_displayed = visible;
             this.refresh_rois(undefined, undefined, filter);
