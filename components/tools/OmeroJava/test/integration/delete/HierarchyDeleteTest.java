@@ -685,23 +685,6 @@ public class HierarchyDeleteTest extends AbstractServerTest {
     }
 
     /**
-     * @return a specific test case for dataset to plate
-     */
-    @DataProvider(name = "dataset to plate test cases (debug)")
-    public Object[][] provideDatasetToPlateCaseDebug() {
-        int index = 0;
-        final int TARGET = index++;
-
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        final Object[] testCase = new Object[index];
-        testCase[TARGET] = Target.IMAGES;
-        testCases.add(testCase);
-
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-
-    /**
      * @return a variety of test cases for dataset to plate
      */
     @DataProvider(name = "dataset to plate test cases")
@@ -714,6 +697,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         for (final Target target : Target.values()) {
             final Object[] testCase = new Object[index];
             testCase[TARGET] = target;
+            // DEBUG: if (target == Target.DATASET)
             testCases.add(testCase);
         }
 
