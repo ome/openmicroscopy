@@ -258,7 +258,8 @@ public class MeasurementTableModel extends AbstractTableModel
                     }
                     
                     String s = l.getSymbol();
-                    if (!symbols.contains(s)) {
+                    if (!symbols.contains(s) &&
+                            !l.getUnit().equals(UnitsLength.PIXEL)) {
                         symbols.add(s);
                     }
                 }
