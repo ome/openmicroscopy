@@ -363,7 +363,13 @@ class WebControl(BaseControl):
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
         location = self._get_python_dir() / "omeroweb"
-        self.ctx.out("Starting OMERO.web... ", newline=False)
+        deploy = getattr(settings, 'APPLICATION_SERVER')
+        if deploy == settings.WSGI:
+            self.ctx.out("OMERO.web is ready. Restart apache.")
+            return
+        else:
+            self.ctx.out("Starting OMERO.web... ", newline=False)
+
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None and cache_backend.startswith("file:///"):
             cache_backend = cache_backend[7:]
@@ -373,7 +379,6 @@ class WebControl(BaseControl):
                 self.ctx.out("CACHE_BACKEND '%s' not writable or missing." %
                              getattr(settings, 'CACHE_BACKEND'))
                 return 1
-        deploy = getattr(settings, 'APPLICATION_SERVER')
 
         # 3216
         if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
@@ -425,8 +430,6 @@ using bin\omero web start on Windows with FastCGI.
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT}).split()
             rv = self.ctx.popen(args=django, cwd=location)  # popen
-        elif deploy == settings.WSGI:
-            pass
         elif deploy == settings.WSGITCP:
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " -b %(host)s:%(port)s -w 5"
