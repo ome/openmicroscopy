@@ -686,39 +686,59 @@ public class TreeCellRenderer
         		droppedAllowed = false;
         	}
         }
+        
         setIcon(FILE_TEXT_ICON);
-        if (!(value instanceof TreeImageDisplay)) return this;
+        
+        if (!(value instanceof TreeImageDisplay)) 
+            return this;
+        
         node = (TreeImageDisplay) value;
         int w = 0;
         FontMetrics fm = getFontMetrics(getFont());
         Object ho = node.getUserObject();
-        if (node.getLevel() == 0) {// && !(ho instanceof FileData)) {
-        	if (ho instanceof ExperimenterData) setIcon(OWNER_ICON);
-        	else setIcon(ROOT_ICON);
-            if (getIcon() != null) w += getIcon().getIconWidth();
+        if (node.getLevel() == 0) {
+            String text = node.getNodeName();
+            if (numberChildrenVisible) 
+                text = node.getNodeText();
+            
+        	if (ho instanceof ExperimenterData) 
+        	    setIcon(OWNER_ICON);
+        	else 
+        	    setIcon(ROOT_ICON);
+        	
+            if (getIcon() != null)
+                w += getIcon().getIconWidth();
             w += getIconTextGap();
-            w += fm.stringWidth(getText());
+            w += fm.stringWidth(text);
             setPreferredSize(new Dimension(w, fm.getHeight()));
+            
             Color c = node.getHighLight();
-            if (c == null) c = tree.getForeground();
+            if (c == null) 
+                c = tree.getForeground();
             setForeground(c);
-            if (!sel) setBorderSelectionColor(getBackground());
-            else setTextColor(getBackgroundSelectionColor());
+            
+            if (!sel)
+                setBorderSelectionColor(getBackground());
+            else 
+                setTextColor(getBackgroundSelectionColor());
             return this;
         } 
         setIcon(node);
-        if (numberChildrenVisible) setText(node.getNodeText());
-        else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
+        
         Color c = node.getHighLight();
-        if (c == null) c = tree.getForeground();
+        if (c == null)
+            c = tree.getForeground();
         setForeground(c);
-        if (!sel) setBorderSelectionColor(getBackground());
-        else setTextColor(getBackgroundSelectionColor());
-        if (getIcon() != null) w += getIcon().getIconWidth();
-        else w += SIZE.width;
+        
+        if (!sel) 
+            setBorderSelectionColor(getBackground());
+        else 
+            setTextColor(getBackgroundSelectionColor());
+        
         w = getPreferredWidth();
-        setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
+        
+        setPreferredSize(new Dimension(w, fm.getHeight()+4));
         setEnabled(node.isSelectable());
         return this;
     }
@@ -730,12 +750,17 @@ public class TreeCellRenderer
      */
     private int getPreferredWidth()
     {
+        String text = node.getNodeName();
+        if (numberChildrenVisible) 
+            text = node.getNodeText();
+        
         FontMetrics fm = getFontMetrics(getFont());
         int w = getIconGap();
         xText = w;
         if (node instanceof TreeFileSet)
-            w +=  fm.stringWidth(getText())+40;
-        else w += fm.stringWidth(getText());
+            w +=  fm.stringWidth(text)+40;
+        else
+            w += fm.stringWidth(text);
         return w;
     }
 
@@ -752,30 +777,17 @@ public class TreeCellRenderer
         w += getIconTextGap();
         return w;
     }
-    
-    /**
-     * Overridden to highlight the destination of the target.
-     * @see paintComponent(Graphics)
-     */
-    public void paintComponent(Graphics g)
-    {
-        if (ref == null) {
-            ref = (JScrollPane) UIUtilities.findParent(this, JScrollPane.class);
-        }
-    	if (isTargetNode) {
-			if (!droppedAllowed) {
-				if (selected) g.setColor(backgroundSelectionColor);
-				else g.setColor(backgroundNonSelectionColor);
-				
-			} else g.setColor(draggedColor);
-			g.fillRect(xText, 0, getSize().width, getSize().height);
-		}
-    	if (ref != null) {
-    	    JViewport vp = ref.getViewport();
-    	    int w = vp.getSize().width;
+
+    @Override
+    public String getText() {
+        if (ref != null) {
+            // trim the text so that it fits into the given space
+            JViewport vp = ref.getViewport();
+            int w = vp.getSize().width;
             FontMetrics fm = getFontMetrics(getFont());
             String text = node.getNodeName();
-            if (numberChildrenVisible) text = node.getNodeText();
+            if (numberChildrenVisible) 
+                text = node.getNodeText();
             int v = getPreferredSize().width;
             Rectangle r = getBounds();
             w = w-r.x;
@@ -789,20 +801,35 @@ public class TreeCellRenderer
                     value = UIUtilities.formatPartialName(text, --l);
                     valueWidth = fm.stringWidth(value);
                 }
-                setText(value);
-                w = getPreferredWidth();
-                Dimension d = new Dimension(w, fm.getHeight()+4);
-                if (vp.getComponentCount() > 0) {
-                    vp.getComponent(0).setPreferredSize(d);
-                }
-                setSize(d);//4 b/c GTK L&F
-                setPreferredSize(d);//4 b/c GTK L&F
+                return value;
             }
-    	}
-    	selected = false;
-    	isTargetNode = false;
-    	droppedAllowed = false;
-    	super.paintComponent(g);
-	}
+            return text;
+        }
+        return super.getText();
+    }
+
+    /**
+     * Overridden to highlight the destination of the target.
+     * @see paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
+    {
+        if (ref == null) {
+            ref = (JScrollPane) UIUtilities.findParent(this, JScrollPane.class);
+        }
+        if (isTargetNode) {
+            if (!droppedAllowed) {
+                if (selected) g.setColor(backgroundSelectionColor);
+                else g.setColor(backgroundNonSelectionColor);
+                
+            } else g.setColor(draggedColor);
+            g.fillRect(xText, 0, getSize().width, getSize().height);
+        }
+        selected = false;
+        isTargetNode = false;
+        droppedAllowed = false;
+        super.paintComponent(g);
+    }
+
     
 }
