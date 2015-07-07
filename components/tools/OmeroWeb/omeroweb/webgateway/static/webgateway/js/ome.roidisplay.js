@@ -37,6 +37,7 @@ $.fn.roi_display = function(options) {
         var roi_json = null;           // load ROI data as json when needed
         var active_rois = {};          // show only the active ROIs
         var external_roi = null;       // ROIs specified using an external software
+        var original_shapes_backup = {};  // backup of the original configuration of shapes
         this.theZ = null;
         this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
@@ -775,6 +776,20 @@ $.fn.roi_display = function(options) {
                 }
             }
         }
+        get_backup_key = function(roi_id, shape_id) {
+            return roi_id + "::" + shape_id;
+        }
+
+        backup_shape = function(roi_id, shape_id, shape_conf) {
+            var backup_key = get_backup_key(roi_id, shape_id);
+            console.log(backup_key);
+            console.log(original_shapes_backup);
+            if (!(backup_key in original_shapes_backup)) {
+                // clone the shape_conf object as "original" and keep a reference to updated object (used to restore)
+                original_shapes_backup[backup_key] = $.extend({}, shape_conf);
+            }
+        }
+
         
         this.show_labels = function(visible, filter) {
             roi_label_displayed = visible;
