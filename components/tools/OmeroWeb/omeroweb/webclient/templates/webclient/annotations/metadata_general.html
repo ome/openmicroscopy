@@ -908,13 +908,14 @@
                         <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
                         </a>
-                        <input type="button" href="{% url 'list_scripts' %}" title="Run Script"
-                            class="btn silver btn_script_dark scriptButton button-disabled" disabled="disabled">
+                        <div class="toolbar">
+                            <input type="button" href="{% url 'list_scripts' %}" title="Run Script"
+                                class="btn silver btn_script_dark scriptButton button-disabled" disabled="disabled">
                             <!-- Class "scriptButton" also on <span> as that
                                  is actually what we're clicking on.
                             -->
                             <span class="scriptButton"></span>
-                        </a>
+                        </div>
                         <script type="text/javascript">
                             $(".annotations_section .scriptButton").click(
                                 {webindex: "{% url 'webindex' %}"},
