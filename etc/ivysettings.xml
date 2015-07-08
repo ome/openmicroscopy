@@ -42,7 +42,7 @@
     </filesystem>
     <filesystem name="repo" cache="local">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].xml"/>
+        <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
     </filesystem>
     <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
