@@ -162,7 +162,7 @@ button::-moz-focus-inner {
 	    height:18px;
 	    display:block;
 	}
-	input.btn_script_dark {
+	.toolbar input.btn_script_dark {
 		margin:0;
 		padding:0;
 		width:22px;
@@ -170,7 +170,7 @@ button::-moz-focus-inner {
 		display:block;
 		cursor:pointer;
 	}
-	input.btn_script_dark.button-disabled:hover {
+	.toolbar input.btn_script_dark.button-disabled:hover {
 		/* Overrides the default "button-disabled" class semantics for the
 		 * script button.  They are focused towards use in the toolbar.
 		 */
