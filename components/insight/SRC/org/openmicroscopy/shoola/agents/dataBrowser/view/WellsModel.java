@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.DecoratorVisitor;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
+import omero.gateway.model.TableResult;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;

@@ -25,18 +25,20 @@ package training;
 
 
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import ome.formats.model.UnitsFactory;
 import omero.RInt;
-import omero.api.RoiOptions;
-import omero.api.RoiResult;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
+import omero.gateway.facility.ROIFacility;
+import omero.gateway.model.ROIResult;
 import omero.log.SimpleLogger;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
@@ -121,6 +123,7 @@ public class ROIs
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+        ROIFacility roifac = gateway.getFacility(ROIFacility.class);
         
         Roi roi = new RoiI();
         roi.setImage(image.asImage());
@@ -242,10 +245,9 @@ public class ROIs
         mask.setWidth(omero.rtypes.rdouble(100.0));
         mask.setHeight(omero.rtypes.rdouble(100.0));
         mask.setPixels(new PixelsI(image.getDefaultPixels().getId(), false));
-        roi = (Roi) dm.saveAndReturnObject(ctx, roi);
+        
+        ROIData roiData = roifac.saveROIs(ctx, image.getId(), Arrays.asList(new ROIData(roi))).iterator().next();
 
-        //now check that the shape has been added.
-        ROIData roiData = new ROIData(roi);
         //Retrieve the shape on plane (0, 0)
         List<ShapeData> shapes = roiData.getShapes(0, 0);
         Iterator<ShapeData> i = shapes.iterator();
@@ -271,18 +273,18 @@ public class ROIs
         }
 
 
+        List<ROIResult> roiresults = roifac.loadROIs(ctx, image.getId());
+        
         // Retrieve the roi linked to an image
-        RoiResult r = gateway.getROIService(ctx).findByImage(
-                image.getId(), new RoiOptions());
-        if (r == null)
-            throw new Exception("No rois linked to Image:"+image.getId());
-        List<Roi> rois = r.rois;
+        ROIResult r = roiresults.iterator().next();
+        Collection<ROIData> rois = r.getROIs();
         if (rois == null)
             throw new Exception("No rois linked to Image:"+image.getId());
         List<Shape> list;
-        Iterator<Roi> j = rois.iterator();
-        while (j.hasNext()) {
-            roi = j.next();
+        Iterator<ROIData> j = rois.iterator();
+        while (j.hasNext()) { 
+            roiData = j.next();
+            roi = (Roi) roiData.asIObject();
             list = roi.copyShapes();
             //size = 2
             //remove first shape
@@ -292,32 +294,35 @@ public class ROIs
         }
 
         //Check that the shape does not have shape.
-        r = gateway.getROIService(ctx).findByImage(
-                image.getId(), new RoiOptions());
+        roiresults = roifac.loadROIs(ctx, image.getId());
+        r = roiresults.iterator().next();
         if (r == null)
             throw new Exception("No rois linked to Image:"+image.getId());
-        rois = r.rois;
+        rois = r.getROIs();
         if (rois == null)
             throw new Exception("No rois linked to Image:"+image.getId());
         j = rois.iterator();
         while (j.hasNext()) {
-            roi = j.next();
+            roiData = j.next();
+            roi = (Roi) roiData.asIObject();
             list = roi.copyShapes();
             System.err.println(list.size());
         }
+       
         //Load rois on a plane z=1, t=0
-        r = gateway.getROIService(ctx).findByPlane(
-                image.getId(), 1, 0, new RoiOptions());
+        r = roifac.loadROIsByPlane(ctx, image.getId(), 1, 0).iterator().next();
         if (r == null)
             throw new Exception("No rois linked to image:"+image.getId());
         j = rois.iterator();
         while (j.hasNext()) {
-            roi = j.next();
+            roi = (Roi) j.next().asIObject();
             list = roi.copyShapes();
             System.err.println(list.size());
         }
-        //load a given rois
-        r = gateway.getROIService(ctx).findByRoi(roi.getId().getValue(), null);
+        
+        //load a given roi
+        r = roifac.loadROI(ctx, roi.getId().getValue());
+        System.out.println(r.getROIs().size());
     }
 
     /**

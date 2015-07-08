@@ -20,11 +20,13 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.model;
+package omero.gateway.model;
 
 
 //Java imports
 import java.util.Collection;
+
+import pojos.ROIData;
 
 //Third-party libraries
 
@@ -47,7 +49,7 @@ public class ROIResult
 {
 
 	/** The collection of rois. */
-	private Collection rois;
+	private Collection<ROIData> rois;
 	
 	/** The ID of the original file */
 	private long fileID;
@@ -60,7 +62,7 @@ public class ROIResult
 	 * 
 	 * @param rois The collection of ROIs.
 	 */
-	public ROIResult(Collection rois)
+	public ROIResult(Collection<ROIData> rois)
 	{
 		this(rois, -1, null);
 	}
@@ -71,7 +73,7 @@ public class ROIResult
 	 * @param rois 	 The collection of ROIs.
 	 * @param fileID The id of the file.
 	 */
-	public ROIResult(Collection rois, long fileID)
+	public ROIResult(Collection<ROIData> rois, long fileID)
 	{
 		this(rois, fileID, null);
 	}
@@ -83,7 +85,7 @@ public class ROIResult
 	 * @param fileID The id of the file.
 	 * @param result The result table associated to the ROIS.
 	 */
-	public ROIResult(Collection rois, long fileID, Object result)
+	public ROIResult(Collection<ROIData> rois, long fileID, Object result)
 	{
 		this.rois = rois;
 		this.fileID = fileID;
@@ -102,7 +104,7 @@ public class ROIResult
 	 * 
 	 * @return See above.
 	 */
-	public Collection getROIs() { return rois; }
+	public Collection<ROIData> getROIs() { return rois; }
 	
 	/** 
 	 * Returns the id of the file.

@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -63,9 +64,11 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
-import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+
 import omero.gateway.SecurityContext;
+import omero.gateway.model.ROIResult;
+
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;

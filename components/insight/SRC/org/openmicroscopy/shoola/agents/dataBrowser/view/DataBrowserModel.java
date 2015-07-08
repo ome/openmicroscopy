@@ -37,6 +37,7 @@ import java.util.Set;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.AnnotatedFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.CommentsFilter;
@@ -64,10 +65,10 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import omero.gateway.SecurityContext;
 
+import omero.gateway.SecurityContext;
+import omero.gateway.model.TableResult;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;

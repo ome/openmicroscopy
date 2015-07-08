@@ -37,7 +37,7 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.TableResult;
+import omero.gateway.model.TableResult;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 import pojos.WellData;

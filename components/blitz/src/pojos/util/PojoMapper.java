@@ -273,6 +273,29 @@ public class PojoMapper
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
+    public static <T extends DataObject> Collection<T> asCastedDataObjects(List objects)
+    {
+        if (objects == null) return new HashSet<T>();
+        Set<T> set = new HashSet<T>(objects.size());
+        Iterator i = objects.iterator();
+        DataObject data;
+        while (i.hasNext()) {
+            data = asDataObject((IObject) i.next());
+            if (data != null) 
+                set.add((T) data);
+        }
+        return set;
+    }
+    
+    /**
+     * Converts each {@link IObject element} of the collection into its 
+     * corresponding {@link DataObject}.
+     * 
+     * @param objects   The set of objects to convert.
+     * @return          A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
     public static Set asDataObjects(List objects)
     {
         if (objects == null) return new HashSet<DataObject>();

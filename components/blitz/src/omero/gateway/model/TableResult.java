@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.model;
+package omero.gateway.model;
 
 
 //Java imports

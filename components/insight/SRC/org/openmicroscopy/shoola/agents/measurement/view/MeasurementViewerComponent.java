@@ -52,11 +52,15 @@ import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.model.ROIResult;
+
 import omero.gateway.SecurityContext;
+import omero.gateway.model.ROIResult;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
+
 import omero.log.LogMessage;
 import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
