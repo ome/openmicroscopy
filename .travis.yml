@@ -1,27 +1,43 @@
 language: java
 
-env:
-    - BUILD="build-python"
-    - BUILD="build-java"
+jdk:
+  - openjdk7
+
+# This (sudo: false) is needed to "run on container-based infrastructure" on
+# which cache: is available
+# http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+sudo: false
+
+# http://docs.travis-ci.com/user/caching/#Arbitrary-directories
+cache:
+  directories:
+  - $HOME/.m2
 
 matrix:
       fast_finish: true
 
-jdk:
-  - openjdk7
+addons:
+  apt_packages:
+    - git
+    - zeroc-ice34
+    - python-imaging
+    - python-numpy
+    - python-tables
+    - cmake
+    - libgtest-dev
+
+env:
+    - BUILD="build-python"
+    - BUILD="build-java"
 
 before_install:
-    - sudo apt-get -qq update
-    - travis_retry sudo apt-get install -qq git
-    - travis_retry sudo apt-get install -qq zeroc-ice34
-    - travis_retry sudo apt-get install -qq python-imaging python-numpy python-tables python-genshi
-    - if [[ $BUILD == 'build-cpp' ]]; then travis_retry sudo apt-get install -qq cmake libgtest-dev; fi
     - git config github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
     - git config --global user.email snoopycrimecop@gmail.com
     - git config --global user.name 'Snoopy Crime Cop'
-    - sudo pip install scc pytest
+    - pip install --user scc pytest
+    - export PATH=$PATH:$HOME/.local/bin
     - scc travis-merge
-    - if [[ $BUILD == 'build-python' ]]; then travis_retry sudo pip install flake8==2.4.0; fi
+    - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0; fi
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-flake8; fi
 
 # retries the build due to:
