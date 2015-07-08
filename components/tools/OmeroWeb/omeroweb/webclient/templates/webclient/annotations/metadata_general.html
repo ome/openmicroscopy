@@ -911,14 +911,13 @@
                         {% with fileanns=manager.file_annotations %}
                             {% include "webclient/annotations/fileanns.html" %}
                         {% endwith %}
-                        <script type="text/javascript">
-                            $("#fileanns_container").on(
-                                "change", "li input[type=checkbox]",
-                                OME.fileAnnotationCheckboxChanged
-                            );
-                        </script>
                     </ul>
-
+                    <script type="text/javascript">
+                        $("#fileanns_container").on(
+                            "change", "li input[type=checkbox]",
+                            OME.fileAnnotationCheckboxChanged
+                        );
+                    </script>
             </div>
 
 
