@@ -737,10 +737,11 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
-            <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/"/>
-            <copy todir="${dist.dir}">
-                <fileset dir="${omero.home}/lib/" includes="licenses/**"/>
-            </copy>
+        <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/"/>
+        <mkdir dir="${dist.dir}/share"/>
+        <copy todir="${dist.dir}/share">
+            <fileset dir="${omero.home}/lib/" includes="licenses/**"/>
+        </copy>
     </target>
 
     <target name="copy-history" depends="init">
@@ -767,25 +768,29 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="copy-client" depends="init">
-            <mkdir dir="${dist.dir}/lib/client"/>
-            <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
-            <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
-            <ivy:report conf="client" todir="${dist.dir}/lib"
-                graph="false" settingsRef="ivy.toplevel"/>
+        <mkdir dir="${dist.dir}/lib/client"/>
+        <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
+        <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+        <mkdir dir="${dist.dir}/share/client"/>
+        <ivy:report conf="client" todir="${dist.dir}/share/client"
+            outputpattern="dependencies.html" graph="false"
+            settingsRef="ivy.toplevel"/>
     </target>
 
     <target name="copy-server" depends="init">
-            <mkdir dir="${dist.dir}/lib/server"/>
-            <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
-            <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
-            <ivy:report conf="server" todir="${dist.dir}/lib"
-                graph="false" settingsRef="ivy.toplevel"/>
+        <mkdir dir="${dist.dir}/lib/server"/>
+        <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
+        <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+        <mkdir dir="${dist.dir}/share/server"/>
+        <ivy:report conf="server" todir="${dist.dir}/share/server"
+            outputpattern="dependencies.html" graph="false"
+            settingsRef="ivy.toplevel"/>
     </target>
 
     <target name="create-workdirs" depends="init">
-            <mkdir dir="${dist.dir}/var"/>
+        <mkdir dir="${dist.dir}/var"/>
     </target>
 
     <macrodef name="jar_update_if">
