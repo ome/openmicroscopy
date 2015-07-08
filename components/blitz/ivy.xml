@@ -14,14 +14,14 @@
     <artifact name="blitz" type="source" ext="jar" m:classifier="sources"/>
     <artifact name="blitz" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
-  <dependencies>
+  <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <!-- Public -->
-    <dependency org="zeroc" name="ice" rev="${versions.ice}" conf="build,client,server->default"/>
-    <dependency org="zeroc" name="ice-glacier2" rev="${versions.ice}" conf="build,client,server->default"/>
-    <dependency org="zeroc" name="ice-grid" rev="${versions.ice}" conf="build,client,server->default"/>
-    <dependency org="zeroc" name="ice-storm" rev="${versions.ice}" conf="build,client,server->default"/>
+    <dependency org="zeroc" name="ice" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-glacier2" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-grid" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-storm" rev="${versions.ice}"/>
     <dependency org="javax.jts" name="jts" rev="${versions.jts}" conf="build,server->default"/>
     <!-- Export -->
     <dependency org="org.ini4j" name="ini4j" rev="0.3.2"/>
@@ -30,7 +30,6 @@
     <dependency org="org.apache.httpcomponents" name="httpcore" rev="${versions.httpcore}"/>
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
-    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="OME" name="ome-java" rev="${versions.ome-java}"/>
   </dependencies>

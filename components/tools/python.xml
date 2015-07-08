@@ -117,12 +117,6 @@ build_year = "${python_build_year}"
     </macrodef>
 
     <target name="python-install" unless="env.NOPYTHON">
-        <!-- The renaming which takes place here doesn't seem to work with eggs.
-        Rolling back to using the expanded directory
-        <installIvy/>
-        <ivy:resolve settingsRef="ivy.${ant.project.name}" file="${basedir}/ivy.xml" type="jar" log="quiet"/>
-        <publishArtifact pattern="dist/*.egg"/>
-        -->
         <copy todir="../target/lib/python">
             <fileset dir="${basedir}/build/lib" includes="**/*"/>
         </copy>

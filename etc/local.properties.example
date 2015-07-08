@@ -47,6 +47,12 @@ ivy.log.module.when.found=false
 ivy.log.conflict.resolution=false
 ivy.log.resolved.revision=false
 
+# The resolver to use for OME dependencies like Bio-Formats
+ome.resolver=ome-resolver
+# The name of the OME artifactory repository to use when ome.resolver is
+# switched to ome-simple-artifactory
+simple.repository=ome.unstable
+
 # Default keystore values
 jarsign.keystore=${omero.home}/lib/keystore
 jarsign.alias=omedev
@@ -66,11 +72,6 @@ test.with.fail=false
 # Output verbosity from testng
 testng.verbose=2
 testng.useDefaultListeners=false
-
-# Determines which Ivy resolver to use for
-# finding the loci libraries. Look in
-# etc/ivyconf.xml for more information.
-loci.resolver=omero-resolver
 
 # Controls how long CmdCallbackI based tests will wait
 # to finish. Value is approximately the number of

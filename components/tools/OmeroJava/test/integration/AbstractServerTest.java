@@ -138,8 +138,6 @@ import org.testng.annotations.BeforeClass;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import spec.AbstractTest;
-
 /**
  * Base test for integration tests.
  *

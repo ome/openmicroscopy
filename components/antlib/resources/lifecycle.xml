@@ -20,7 +20,7 @@
   http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
 
   Each target stair-steps down to prepare:
-  dist->integration->install->package->compile->generate->prepare
+  dist->install->package->compile->generate->prepare->retrieve
 
 -->
 
@@ -56,16 +56,26 @@
         <tryEclipse settingsRef="ivy.${ant.project.name}"/>
     </target>
 
-    <target name="retrieve" unless="retrieve.done">
+    <target name="retrieve" unless="retrieve.done"
+        description="Copy resolves JAR dependencies">
         <property name="retrieve.done" value="true"/>
         <installIvy/>
         <ivy:retrieve settingsRef="ivy.${ant.project.name}"
-            type="jar"
+            type="jar,bundle"
             pattern="${deps.lib.dir}/[artifact](-[classifier]).[ext]"
-            log="quiet" sync="false" symlink="true" haltonfailure="${package-extra}"/>
+            log="quiet" sync="false" symlink="true"
+            haltonfailure="${package-extra}"/>
     </target>
 
-    <target name="prepare" depends="retrieve">
+    <target name="dependencytree"
+        description="Generate a tree of dependencies">
+        <installIvy/>
+        <ivy:dependencytree settingsRef="ivy.${ant.project.name}"
+            haltonfailure="${package-extra}"/>
+    </target>
+
+    <target name="prepare" depends="retrieve" description="Prepare resources">
+        <echo>Preparing: ${deps.lib.dir}</echo>
         <mkdir dir="${deps.lib.dir}"/>
         <defineClasspath/>
         <defineVariables/>
@@ -112,10 +122,10 @@ omero.version=${omero.version}
     </target>
 
     <target name="generate" depends="prepare">
-                <pathconvert property="omero.path" refid="omero.classpath"/>
-                <echo file="${resrc.dest}/Classpath.sh">
-                  export CLASSPATH=${omero.path}
-                </echo>
+        <pathconvert property="omero.path" refid="omero.classpath"/>
+        <echo file="${resrc.dest}/Classpath.sh">
+          export CLASSPATH=${omero.path}
+        </echo>
         <copyResources/>
     </target>
 
@@ -169,7 +179,8 @@ omero.version=${omero.version}
         </sequential>
     </macrodef>
 
-    <target name="compile" depends="generate" unless="skip.compile">
+    <target name="compile" depends="generate" unless="skip.compile"
+        description="Compile classes">
         <myjavac>
           <src path="${src.dir}"/>
           <src path="${src.dest}"/>
@@ -249,7 +260,8 @@ omero.version=${omero.version}
     </macrodef>
 
 
-    <target name="test-compile" depends="testng-init" unless="test.skip">
+    <target name="test-compile" depends="testng-init" unless="test.skip"
+        description="Compile test classes">
         <!-- may be overridden by fail-on-error -->
         <property name="test.with.fail" value="false"/>
         <property name="unit.suite" value="unit.testng.xml"/>
@@ -357,37 +369,35 @@ omero.version=${omero.version}
         </jar>
     </target>
 
-    <target name="package-extra">
+    <target name="package-extra" description="Package sources and Javadocs">
 
         <if><equals arg1="true" arg2="${package-extra}"/>
-            <then>
-
-        <jar destfile="${target.dir}/${ivy.module}-sources.jar">
-            <fileset dir="${src.dir}" includes="**/*.java"/>
-            <fileset dir="${src.dest}" includes="**/*.java"/>
-        </jar>
-        <mkdir dir="${target.dir}/javadocs"/>
-        <javadoc
-            classpathref="omero.classpath"
-            failonerror="true"
-            Verbose="false"
-            maxmemory="${javadoc.maxmem}"
-            destdir="${target.dir}/javadocs"
-            author="true"
-            version="true"
-            use="true"
-            encoding="UTF-8"
-            docencoding="UTF-8"
-            breakiterator="true"
-            useexternalfile="true"
-            additionalparam="${javadoc.doclint}">
-            <fileset dir="${src.dir}" includes="**/*.java"/>
-            <fileset dir="${src.dest}" includes="**/*.java"/>
-        </javadoc>
-        <jar destfile="${target.dir}/${ivy.module}-javadoc.jar">
+        <then>
+            <jar destfile="${target.dir}/${ivy.module}-sources.jar">
+                <fileset dir="${src.dir}" includes="**/*.java"/>
+                <fileset dir="${src.dest}" includes="**/*.java"/>
+            </jar>
+            <mkdir dir="${target.dir}/javadocs"/>
+            <javadoc
+                classpathref="omero.classpath"
+                failonerror="true"
+                Verbose="false"
+                maxmemory="${javadoc.maxmem}"
+                destdir="${target.dir}/javadocs"
+                author="true"
+                version="true"
+                use="true"
+                encoding="UTF-8"
+                docencoding="UTF-8"
+                breakiterator="true"
+                useexternalfile="true"
+                additionalparam="${javadoc.doclint}">
+                <fileset dir="${src.dir}" includes="**/*.java"/>
+                <fileset dir="${src.dest}" includes="**/*.java"/>
+            </javadoc>
+            <jar destfile="${target.dir}/${ivy.module}-javadoc.jar">
                 <fileset dir="${target.dir}/javadocs"/>
-        </jar>
-
+            </jar>
         </then></if>
     </target>
 
@@ -443,9 +453,11 @@ omero.version=${omero.version}
         </do-checkstyle>
     </target>
 
-    <target name="install" depends="package">
+    <target name="install" depends="package" description="Publish artifacts">
         <property name="ivy.pom.version" value="${omero.version}"/>
-        <ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${target.dir}/${ivy.module}.pom">
+        <ivy:makepom ivyfile="${basedir}/ivy.xml"
+            settingsRef="ivy.${ant.project.name}"
+            pomfile="${target.dir}/${ivy.module}.pom">
             <mapping conf="build" scope="compile"/>
             <mapping conf="runtime" scope="compile"/>
             <mapping conf="client" scope="compile"/>
@@ -457,8 +469,8 @@ omero.version=${omero.version}
         <publishArtifact haltonmissing="${package-extra}"/>
     </target>
 
-    <!-- Previously dependend on integration, but that may need special controls.
-    For the time being, depenending solely on "install" -->
+    <!-- Previously depend on integration, but that may need special controls.
+    For the time being, depending solely on "install" -->
     <target name="dist" depends="install">
         <!-- empty by default -->
     </target>
