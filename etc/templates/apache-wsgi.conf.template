@@ -76,8 +76,8 @@
 
 </VirtualHost>
 
-
-WSGISocketPrefix /var/run/wsgi
-
+# see https://code.google.com/p/modwsgi/wiki/ConfigurationIssues
+WSGISocketPrefix run/wsgi
+# WSGISocketPrefix /var/run/wsgi
 
 
