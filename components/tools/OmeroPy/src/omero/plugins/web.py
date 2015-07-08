@@ -421,6 +421,10 @@ using bin\omero web start on Windows with FastCGI.
                 'port': settings.APPLICATION_SERVER_PORT}).split()
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         elif deploy == settings.WSGITCP:
+            try:
+                os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
+            except:
+                pass
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " -b %(host)s:%(port)s -w 5"
             cmd += " omeroweb.wsgi:application"
