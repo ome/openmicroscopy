@@ -5,6 +5,9 @@ jdk:
 
 sudo: false
 
+cache:
+  - $HOME/.m2
+
 matrix:
       fast_finish: true
 
