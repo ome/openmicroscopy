@@ -272,7 +272,7 @@ class WebControl(BaseControl):
         if server == "apache-fcgi":
             self._set_apache_fcgi_fastcgi(d, settings)
 
-        if server in ("apache-wsgi"):
+        if server == "apache-wsgi":
             self._set_apache_wsgi(d, settings)
 
         template_file = "%s.conf.template" % server
@@ -368,8 +368,9 @@ class WebControl(BaseControl):
         location = self._get_python_dir() / "omeroweb"
         deploy = getattr(settings, 'APPLICATION_SERVER')
         if deploy == settings.WSGI:
-            self.ctx.out("OMERO.web is ready. Restart apache.")
-            return
+            self.ctx.out("You are deploying OMERO.web using apache and"
+                         " mod_wsgi.")
+            return 1
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
 
@@ -384,7 +385,7 @@ class WebControl(BaseControl):
                 return 1
 
         # 3216
-        if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
+        if deploy in (settings.FASTCGI_TYPES + (settings.WSGI,)):
             if "Windows" == platform.system():
                 self.ctx.out("""
 WARNING: Unless you **really** know what you are doing you should NOT be
