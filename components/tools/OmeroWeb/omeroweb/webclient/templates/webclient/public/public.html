@@ -138,7 +138,11 @@
                                     "icon" : {
                                         "image" : '{% static "webclient/image/left_sidebar_icon_public.png" %}'
                                     },
-                                    "select_node" : function(obj){return !obj.hasClass('disabled');},
+                                    "select_node" : function(obj){
+                                        if (!obj.hasClass('isOwned')) {
+                                            return !obj.hasClass('isDisabled');
+                                        }
+                                    },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
@@ -149,7 +153,11 @@
                                     "icon" : {
                                         "image" : '{% static "webclient/image/wp_protocol16.png" %}'
                                     },
-                                    "select_node" : function(obj){return !obj.hasClass('disabled');},
+                                    "select_node" : function(obj){
+                                        if (!obj.hasClass('isOwned')) {
+                                            return !obj.hasClass('isDisabled');
+                                        }
+                                    },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
@@ -160,6 +168,7 @@
                                     "icon" : {
                                         "image" : '{% static "webclient/image/image16.png" %}'
                                     },
+                                    "select_node" : function(obj){return !obj.hasClass('isDisabled')},
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,

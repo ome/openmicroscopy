@@ -39,6 +39,7 @@ import ome.model.IObject;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
+import ome.services.graphs.GraphPolicyRulePredicate;
 import omero.cmd.SkipHead;
 
 /**
@@ -99,6 +100,11 @@ public class SkipHeadPolicy {
         /* construct the function corresponding to the model graph descent truncation */
 
         return new GraphPolicy() {
+            @Override
+            public void registerPredicate(GraphPolicyRulePredicate predicate) {
+                graphPolicy.registerPredicate(predicate);
+            }
+
             @Override
             public GraphPolicy getCleanInstance() {
                 throw new IllegalStateException("not expecting to provide a clean instance");

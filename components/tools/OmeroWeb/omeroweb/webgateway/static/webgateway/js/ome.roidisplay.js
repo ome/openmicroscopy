@@ -705,7 +705,7 @@ $.fn.roi_display = function(options) {
                                     // need *some* fill so that shape is clickable
                                     newShape.attr({'fill':'#000', 'fill-opacity': 0.01 });
                                 }
-                                if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
+                                if (shape['strokeAlpha']) { newShape.attr({'stroke-opacity': shape['strokeAlpha']}); }
                                 if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
                                 else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                             }
