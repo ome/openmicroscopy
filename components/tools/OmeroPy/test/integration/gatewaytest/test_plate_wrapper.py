@@ -87,7 +87,8 @@ class TestPlateAcquistionWrapper(object):
 
         plateacq = update_service.saveAndReturnObject(plateacq)
         plate_id = plateacq.plate.id.val
-        return gw.getObject('Plate', plate_id)
+        plate = gw.getObject('Plate', plate_id)
 
         acq = list(plate.listPlateAcquisitions())[0]
-        assert acq.getStartTime() > 0
+        assert acq.getStartTime() is None
+        assert acq.getDate() > datetime.fromtimestamp(0)
