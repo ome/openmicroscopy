@@ -34,24 +34,25 @@ $.fn.roi_display = function(options) {
             var json_url = options.json_url;
         }
 
-        var roi_json = null;           // load ROI data as json when needed
-        var active_rois = {};          // show only the active ROIs
-        var external_roi = null;       // ROIs specified using an external software
+        var roi_json = null;              // load ROI data as json when needed
+        var active_rois = {};             // show only the active ROIs
+        var external_roi = null;          // ROIs specified using an external software
         var original_shapes_backup = {};  // backup of the original configuration of shapes
         this.theZ = null;
         this.theT = null;
-        var rois_displayed = false;   // flag to toggle visability.
+        var rois_displayed = false;         // flag to toggle visability.
         var roi_label_displayed = true;     // show/hide labels within shapes
 
         var selected_shape_id = null;  // html page is kept in sync with this
         var selectedClone = null;      // a highlighted shape cloned from currently selected shape
 
-        // for keeping track of objects - E.g. de-select all. 
+        // for keeping track of objects - E.g. de-select all.
         var shape_objects = new Array();
 
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
 
+        // convert given id to a number if possible
         var resolve_id = function(id) {
             if(isNaN(parseInt(id)))
                 return id;
@@ -425,15 +426,17 @@ $.fn.roi_display = function(options) {
             }
         }
 
-        // returns the ROI data as json. May be null if not yet loaded! 
+        // returns the ROI data as json. May be null if not yet loaded!
         this.get_roi_json = function() {
             return roi_json;
         }
 
+        // return the data of external ROI as json. May be null if not loaded!
         this.get_external_roi_json = function() {
             return external_roi;
         }
 
+        // get json of all ROI, OME ones and external ones, as a unique list
         this.get_full_roi_json = function() {
             if (!roi_json && !external_roi)
                 return null;
@@ -445,6 +448,11 @@ $.fn.roi_display = function(options) {
                 return external_roi;
         }
 
+        /*
+        Check if given ROI and SHAPE ID can be used to define a new external ROI.
+        ROI ID is valid if it is not alredy in use by an OME ROI.
+        SHAPE ID is valid if it is not alredy in use by another shape for external ROI with given ROI ID.
+         */
         var check_ext_shape_id = function(roi_id, shape_id) {
             // check if ROI ID is already used by one on OMERO's ROIs...
             for (var rx=0; rx<roi_json.length; rx++) {
@@ -484,10 +492,12 @@ $.fn.roi_display = function(options) {
             return true;
         }
 
+        // configure a shape obtained using function in ome.roiutils.js as a proper shape for OMERO.web viewer
         var configure_shape = function(shape_id, shape_config) {
             shape_config["id"] = shape_id;
         }
 
+        // build a proper ROI definition that can be used by OMERO.web viewer
         var build_roi_description = function(roi_id, shapes) {
             return {
                 "id": roi_id,
@@ -495,6 +505,7 @@ $.fn.roi_display = function(options) {
             };
         }
 
+        // append a shape to ROI with ID roi_id
         var append_shape = function(roi_id, shape_config, rois_collection) {
             for (var x=0; x<rois_collection.length; x++) {
                 if (rois_collection[x]["id"] == roi_id) {
@@ -507,6 +518,12 @@ $.fn.roi_display = function(options) {
             rois_collection.push(roi);
         };
 
+        /*
+        Add a SHAPE definition to OMERO.web viewer. Shape will be associated to ROI with ID roi_id
+        and will obtain ID shape_id. Shape is described using shape_config dictionary.
+        If refresh_rois is TRUE, automatically refresh viewport.
+        If hide_ome_rois is TRUE, hide OME ROI when refreshing viewport.
+         */
         this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois) {
             if (roi_json == null) {
                 load_rois(false, undefined, roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois);
@@ -552,6 +569,10 @@ $.fn.roi_display = function(options) {
             }
         });
 
+        /*
+        Remove SHAPE with ID shape_id from ROI with ID roi_id from external ROI list.
+        If refresh is TRUE, automatically refresh viewport.
+         */
         this.remove_shape = function(roi_id, shape_id, refresh) {
             if (! external_roi) {
                 console.warn("There are no external ROIs, nothing to do");
@@ -585,7 +606,10 @@ $.fn.roi_display = function(options) {
             }
             console.warn("There is no ROI with ID " + roi_id);
         };
-
+        /*
+        Remove ROI with ID roi_id from external ROI list.
+        If refresh is TRUE, automatically refresh viewport.
+         */
         this.remove_roi = function(roi_id, refresh) {
             if (! external_roi) {
                 console.warn("There are no external ROIs, nothing to do");
@@ -641,13 +665,13 @@ $.fn.roi_display = function(options) {
                             || typeof shape.theZ === "undefined")) {
                         var newShape = draw_shape(shape);
                         var toolTip = get_tool_tip(shape);
-                        // Add text - NB: text is not 'attached' to shape in any way. 
+                        // Add text - NB: text is not 'attached' to shape in any way.
                         if (newShape != null) {
                             if (shape['type'] == 'PolyLine') {
                                 newShape.attr({'fill-opacity': 0});
                             }
                             if ((shape['textValue'] != null) && (shape['textValue'].length > 0)) {
-                                // Show text 
+                                // Show text
                                 if (shape['type'] == 'Label') {
                                     var txt = newShape; // if shape is label itself, use it
                                     if (shape['strokeColor']) txt.attr({'fill': shape['strokeColor']}); // this is Insight's behavior
@@ -777,6 +801,7 @@ $.fn.roi_display = function(options) {
             }
         }
 
+        // Retrieve shape with ID shape_id from ROI with ID roi_di from roi_list
         get_shape = function(roi_id, shape_id, roi_list) {
             for (var rx=0; rx<roi_list.length; rx++) {
                 if (roi_list[rx].id == roi_id) {
@@ -791,20 +816,27 @@ $.fn.roi_display = function(options) {
             return null;
         }
 
+        // Get backup key for given roi_id and shape_id
         get_backup_key = function(roi_id, shape_id) {
             return roi_id + "::" + shape_id;
         }
 
+        /*
+        Save a backup copy of shape_config using shape_id and roi_id to build backup key.
+        If a backup for given shape_id and roi_id already exists, do nothing.
+         */
         backup_shape = function(roi_id, shape_id, shape_conf) {
             var backup_key = get_backup_key(roi_id, shape_id);
-            console.log(backup_key);
-            console.log(original_shapes_backup);
             if (!(backup_key in original_shapes_backup)) {
                 // clone the shape_conf object as "original" and keep a reference to updated object (used to restore)
                 original_shapes_backup[backup_key] = $.extend({}, shape_conf);
             }
         }
 
+        /*
+        Restore from backup SHAPE with ID shape_id for ROI with id roi_id.
+        If refresh_view is TRUE, automatically refresh viewport.
+         */
         this.restore_shape = function(roi_id, shape_id, refresh_view) {
             var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;
             var backup_key = get_backup_key(roi_id, shape_id);
@@ -822,6 +854,7 @@ $.fn.roi_display = function(options) {
             }
         }
 
+        // Restore all shapes with a backup
         this.restore_shapes = function(refresh_view) {
             var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;
 
@@ -835,6 +868,11 @@ $.fn.roi_display = function(options) {
             }
         }
 
+        /*
+        Update text for SHAPE with ID shape_id related to ROI with ID roi_id.
+        Only input values that are not "undefined" will be updated, previuos value will be kept
+        for all values passed as "undefined".
+         */
         this.update_shape_text = function (roi_id, shape_id, text_value, font_family, font_size, font_style,
                                            refresh_view) {
             var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;
@@ -860,6 +898,11 @@ $.fn.roi_display = function(options) {
             }
         }
 
+        /*
+        Update shape configuration for SHAPE with ID shape_id related to ROI with ID roi_id.
+        Only input values that are not "undefined" will be updated, previuos value will be kept
+        for all values passed as "undefined".
+         */
         this.update_shape_config = function(roi_id, shape_id, stroke_color, stroke_alpha,
                                             stroke_width, fill_color, fill_alpha, refresh_view) {
             var refresh_view = typeof refresh_view !== "undefined" ? refresh_view : true;

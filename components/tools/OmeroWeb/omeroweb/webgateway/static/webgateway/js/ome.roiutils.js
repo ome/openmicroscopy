@@ -1,3 +1,4 @@
+// get a shape configuration described as a dictionary compatible with OMERO.web viewer
 $.fn.get_shape_config = function(stroke_width, stroke_alpha, stroke_color, fill_alpha, fill_color) {
     // default configuration for shape config
     var stroke_width = typeof stroke_width !== "undefined" ? stroke_width : 1.0;
@@ -15,6 +16,7 @@ $.fn.get_shape_config = function(stroke_width, stroke_alpha, stroke_color, fill_
     };
 }
 
+// generic shape configuration: Z, T, transform and shape type
 $.fn.get_generic_shape = function(transform, z_plane, t_plane, shape_type) {
     return {
         "transform": typeof transform !== "undefined" ? transform : "none",
@@ -24,6 +26,7 @@ $.fn.get_generic_shape = function(transform, z_plane, t_plane, shape_type) {
     };
 }
 
+// utility function to get default font size based on image's width and height
 $.fn.get_font_size = function(img_width, img_height) {
     var max_font_size = 512;
     var default_font_size = 12
@@ -40,6 +43,7 @@ $.fn.get_font_size = function(img_width, img_height) {
     }
 }
 
+// generic text configuration: text value, font family, font size and style
 $.fn.get_text_config = function(text_value, font_family, font_size, font_style) {
     // default font family and font_style
     var ffamily = typeof font_family !== "undefined" ? font_family : "sans-serif";
@@ -49,15 +53,17 @@ $.fn.get_text_config = function(text_value, font_family, font_size, font_style) 
         "fontFamily": ffamily,
         "fontStyle": fstyle,
         "fontSize": fsize,
-        "textValue": text_value,
+        "textValue": text_value
     };
 }
 
+// add a dictionary with a text definition to given shape
 $.fn.add_text_to_shape = function(shape_conf, text_conf) {
     $.extend(shape_conf, text_conf);
     return shape_conf;
 }
 
+// get a rectangle configuration described as a dictionary compatible with OMERO.web viewer
 $.fn.get_ome_rectangle = function(x, y, height, width, z_plane, t_plane, transform, shape_config) {
     // if no shape_config was given, use the default one
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
@@ -75,6 +81,7 @@ $.fn.get_ome_rectangle = function(x, y, height, width, z_plane, t_plane, transfo
     return rect_conf;
 }
 
+// get a point configuration described as a dictionary compatible with OMERO.web viewer
 $.fn.get_ome_point = function(center_x, center_y, z_plane, t_plane, transform, shape_config) {
     // if no shape_config was given, use the default one
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
@@ -90,6 +97,7 @@ $.fn.get_ome_point = function(center_x, center_y, z_plane, t_plane, transform, s
     return point_conf;
 }
 
+// get an ellipse configuration described as a dictionary compatible with OMERO.web viewer
 $.fn.get_ome_ellipse = function(center_x, center_y, radius_x, radius_y, z_plane, t_plane,
                          transform, shape_config) {
     // if no shape_config was given, use the default one
@@ -107,6 +115,7 @@ $.fn.get_ome_ellipse = function(center_x, center_y, radius_x, radius_y, z_plane,
     return ellipse_conf;
 }
 
+// get a line configuration described as a dictionary compatible with OMERO.web viewer
 $.fn.get_ome_line = function(x1, y1, x2, y2, z_plane, t_plane, transform, shape_config) {
     // if no shape_config was given, use the default one
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
@@ -124,6 +133,7 @@ $.fn.get_ome_line = function(x1, y1, x2, y2, z_plane, t_plane, transform, shape_
     return line_conf;
 }
 
+// get a label configuration described as a dictionary compatible with OMERO.web viewer
 $.fn.get_ome_label = function(x, y, text_value, z_plane, t_plane, transform,
                               font_family, font_size, font_style, shape_config) {
     // if no shape_config was given, use the default one
@@ -143,6 +153,7 @@ $.fn.get_ome_label = function(x, y, text_value, z_plane, t_plane, transform,
     return label_conf;
 }
 
+// get a polygon configuration described as a dictionary compatible with OMERO.web viewer
 $.fn.get_ome_polygon = function(points, z_plane, t_plane, transform, shape_config) {
     // if no shape_config was given, use the default one
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
