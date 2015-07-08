@@ -286,11 +286,11 @@ class PublishingDialog
     			}
     			movieButton.setEnabled(data.getSizeT() > 1 ||
                         data.getSizeZ() > 1);
-                splitViewFigureButton.setEnabled(data.getSizeC() > 1);
+                splitViewFigureButton.setEnabled(b && data.getSizeC() > 1);
                 movieItem.setEnabled(data.getSizeT() > 1 ||
                         data.getSizeZ() > 1);
-                splitViewFigureItem.setEnabled(b && data.getSizeC() > 1);
-                splitViewROIFigureItem.setEnabled(b && data.getSizeC() > 1);
+                splitViewFigureItem.setEnabled(b);
+                splitViewROIFigureItem.setEnabled(b);
                 movieFigureItem.setEnabled(true);
 			} catch (Exception e) {}
     	} else {

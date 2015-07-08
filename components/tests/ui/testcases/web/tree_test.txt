@@ -32,17 +32,17 @@ Test Container Creation Enabled
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
-    Node Popup Menu Item Should Be Enabled      Project
+    Node Popup Menu Item Should Be Disabled     Project
     Node Popup Menu Item Should Be Enabled      Dataset
-    Node Popup Menu Item Should Be Enabled      Screen
+    Node Popup Menu Item Should Be Disabled     Screen
     Node Popup Menu Item Should Be Enabled      Delete
     Select And Expand Dataset
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
-    Node Popup Menu Item Should Be Enabled      Project
-    Node Popup Menu Item Should Be Enabled      Dataset
-    Node Popup Menu Item Should Be Enabled      Screen
+    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Disabled     Dataset
+    Node Popup Menu Item Should Be Disabled     Screen
     Node Popup Menu Item Should Be Enabled      Delete
     ${imageId}=                                 Select And Expand Image
     Create Button Should Be Enabled             project

@@ -373,6 +373,26 @@
 
       // Show postit. Table will be built on callback from loading
       $("#roi_table_postit").show();
+      // Check all ROI visibility buttons
+      $('#toggle_roi_visibility').prop("checked", true);
+      $('[class^="shape_visibility"]').each(function(index, checkbox) {
+        checkbox.checked = true;
+      });
+      // if roi_table_postit is closed using close button, hide ROIs
+      $(".postit-close-btn").on("click", function() {hide_rois(); return false;});
+
+      var $show_rois_a = $("#show-rois-a");
+      // Disable the "Show ROIs" button ...
+      if ($show_rois_a.attr("onclick") != undefined)
+        $show_rois_a.removeAttr("onclick");
+      else
+        $show_rois_a.off("click");
+      $show_rois_a.removeAttr("href");
+      $show_rois_a.css("color", "gray");
+      // ... and enable the "Hide ROIs" button
+      $("#hide-rois-a").on("click", function(){hide_rois(); return false;})
+              .attr("href", "#")
+              .css("color", "");
 
       // loads ROIs (if needed) and shows.
       viewport.viewportimg.get(0).show_rois(theZ, theT, filter);
@@ -384,7 +404,18 @@
       if (viewport.viewportimg.get(0).hide_rois) {
           viewport.viewportimg.get(0).hide_rois();
       }
+
+      // Disable the "Hide ROIs" button ...
+      $("#hide-rois-a").off("click")
+              .removeAttr("href")
+              .css("color", "gray");
+      // ... and enable the "Show ROIs" button
+      $("#show-rois-a").on("click", function () { show_rois(); return false; })
+              .attr("href", "#")
+              .css("color", "");
+
       $("#roi_table_postit").hide();
+      $(".postit-close-btn").off("click");
   }
 
   var NOZT = "";
@@ -933,8 +964,8 @@
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
                 {% ifnotequal roiCount 0 %}
-                    <a href="#" onclick="show_rois(); return false;">Show ROIs</a> |
-                    <a href="#" onclick="hide_rois(); return false;">Hide</a>
+                    <a id="show-rois-a" href="#" onclick="show_rois(); return false;">Show ROIs</a> |
+                    <a id="hide-rois-a" style="color:gray">Hide</a>
                 {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}

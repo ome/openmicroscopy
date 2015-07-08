@@ -26,7 +26,11 @@
  */
 
 
+    /* jstree */
 
+    #Public .jstree-default ul li ul li.isDisabled a ins{
+        opacity: 0.5;
+    }
 
 
 	/* User Selection */

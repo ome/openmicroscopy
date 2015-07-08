@@ -22,6 +22,7 @@ package omero.cmd.graphs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +36,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
+import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.delete.Deletion;
@@ -66,6 +68,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final Set<Class<? extends IObject>> targetClasses;
     private final Deletion deletionInstance;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
@@ -74,8 +77,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private Helper helper;
     private GraphTraversal graphTraversal;
 
-    int targetObjectCount = 0;
-    int deletedObjectCount = 0;
+    private int targetObjectCount = 0;
+    private int deletedObjectCount = 0;
 
     /**
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -83,15 +86,17 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
+     * @param targetClasses legal target object classes for chown
      * @param graphPolicy the graph policy to apply for delete
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
     public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
+            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
+        this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
     }
@@ -138,17 +143,28 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
                 final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
                 for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    String className = oneClassToTarget.getKey();
-                    if (className.lastIndexOf('.') < 0) {
-                        className = graphPathBean.getClassForSimpleName(className).getName();
+                    /* determine actual class from given target object class name */
+                    String targetObjectClassName = oneClassToTarget.getKey();
+                    final int lastDot = targetObjectClassName.lastIndexOf('.');
+                    if (lastDot > 0) {
+                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
                     }
-                    for (final long id : oneClassToTarget.getValue()) {
-                        targetMultimap.put(className, id);
-                        targetObjectCount++;
-                    }
+                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
+                    /* check that it is legal to target the given class */
+                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
+                    do {
+                        if (!legalTargetsIterator.hasNext()) {
+                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
+                            throw helper.cancel(new ERR(), e, "bad-target");
+                        }
+                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
+                    /* note IDs to target for the class */
+                    final Collection<Long> ids = oneClassToTarget.getValue();
+                    targetMultimap.putAll(targetObjectClass.getName(), ids);
+                    targetObjectCount += ids.size();
                 }
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false);
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets(true);
@@ -160,6 +176,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
                 throw helper.cancel(new ERR(), e, "bad-step");
             }
+        } catch (Cancel c) {
+            throw c;
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
@@ -192,8 +210,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
             for (final String className : Sets.union(resultProcessed.keySet(), resultDeleted.keySet())) {
                 final Set<Long> ids = Sets.union(resultProcessed.get(className), resultDeleted.get(className));
-                deletedObjectCount += ids.size();
                 deletedObjects.put(className, new ArrayList<Long>(ids));
+                deletedObjectCount += ids.size();
             }
             final Delete2Response response = new Delete2Response(deletedObjects);
             helper.setResponseIfNull(response);

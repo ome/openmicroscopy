@@ -822,6 +822,7 @@ public class PojosServiceTest extends AbstractServerTest {
                     Assert.assertTrue(
                             imageIdsPaged.add(image.getId().getValue()),
                             "paged query should not return duplicates");
+                    assertTrue(image.getFormat().isLoaded());
                 }
                 startImageIndex += pageSize;
             }
@@ -959,7 +960,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 img = (Image) object;
                 if (img.getId().getValue() == i.getId().getValue())
                     value++;
-
+                assertTrue(img.getFormat().isLoaded());
                 count++;
             }
         }

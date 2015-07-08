@@ -78,9 +78,10 @@ def parse_permissions_css(permissions, ownerid, conn):
     restrictions = ('canEdit',
                     'canAnnotate',
                     'canLink',
-                    'canDelete',
-                    'isOwned')
+                    'canDelete')
     permissionsCss = [r for r in restrictions if permissions.get(r)]
+    if ownerid == conn.getUserId():
+        permissionsCss.append("isOwned")
     if ownerid == conn.getUserId() or conn.isAdmin():
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
@@ -104,7 +105,6 @@ def marshal_plate(conn, row):
     plate['id'] = plate_id.val
     plate['name'] = name.val
     plate['permsCss'] = parse_permissions_css(permissions, owner_id.val, conn)
-    plate['isOwned'] = owner_id.val == conn.getUserId()
     plate['plateAcquisitions'] = list()
     return plate
 
@@ -137,7 +137,6 @@ def marshal_plate_acquisition(conn, row):
         plate_acquisition['name'] = 'Run %d' % pa_id.val
     plate_acquisition['permsCss'] = \
         parse_permissions_css(permissions, owner_id.val, conn)
-    plate_acquisition['isOwned'] = owner_id.val == conn.getUserId()
     return plate_acquisition
 
 
@@ -159,7 +158,6 @@ def marshal_dataset(conn, row):
     dataset = dict()
     dataset['id'] = dataset_id.val
     dataset['name'] = name.val
-    dataset['isOwned'] = owner_id.val == conn.getUserId()
     dataset['childCount'] = child_count.val
     dataset['permsCss'] = \
         parse_permissions_css(permissions, owner_id.val, conn)
@@ -221,13 +219,12 @@ def marshal_projects(conn, experimenter_id):
                                         project_group_id, cache)
 
         if len(projects) == 0 or projects[-1]['id'] != project_id.val:
-            is_owned = experimenter_id == conn.getUserId()
             perms_css = parse_permissions_css(
                 project_permissions, experimenter_id, conn
             )
             project = {
                 'id': project_id.val, 'name': project_name.val,
-                'isOwned': is_owned, 'permsCss': perms_css, 'datasets': list()
+                'permsCss': perms_css, 'datasets': list()
             }
             projects.append(project)
 
@@ -366,14 +363,12 @@ def marshal_screens(conn, experimenter_id=None):
                                        screen_owner_id, screen_group_id, cache)
 
         if len(screens) == 0 or screen_id.val != screens[-1]['id']:
-            is_owned = screen_owner_id.val == conn.getUserId()
             perms_css = parse_permissions_css(
                 screen_permissions, screen_owner_id.val, conn
             )
             screen = {
                 'id': screen_id.val, 'name': screen_name.val,
-                'isOwned': is_owned, 'permsCss': perms_css,
-                'plates': list()
+                'permsCss': perms_css, 'plates': list()
             }
             screens.append(screen)
         screen = screens[-1]

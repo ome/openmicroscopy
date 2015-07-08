@@ -46,6 +46,7 @@ import javax.swing.JComponent;
 
 
 
+
 import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -53,6 +54,7 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
@@ -498,13 +500,12 @@ public class TreeViewerAgent
     /** Display the save dialog when used in plugin mode.*/
     private void handleSaveEvent(SaveEvent evt)
     {
-        if (evt == null) return;
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
-        if (exp == null) 
-            return;
+        if (evt == null || exp == null) return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         SaveResultsAction a = new SaveResultsAction(viewer, LookupNames.IMAGE_J);
+        a.setSaveIndex(evt.getSaveIndex());
         a.actionPerformed(
                 new ActionEvent(new JButton(), ActionEvent.ACTION_PERFORMED, ""));
     }
@@ -524,6 +525,21 @@ public class TreeViewerAgent
         viewer.download(evt.getFolder(), evt.isOverride());
     }
 
+    /**
+     * Updates the view when the mode is changed.
+     *
+     * @param evt The event to handle.
+     */
+    private void handleScriptDisplay(ScriptDisplay evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, evt.getSource(),
+                evt.getLocation());
+    }
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -592,6 +608,7 @@ public class TreeViewerAgent
         bus.register(this, SearchSelectionEvent.class);
         bus.register(this, SaveEvent.class);
         bus.register(this, DownloadEvent.class);
+        bus.register(this, ScriptDisplay.class);
     }
 
     /**
@@ -658,6 +675,9 @@ public class TreeViewerAgent
             handleSaveEvent((SaveEvent) e);
 		else if (e instanceof DownloadEvent)
             handleDownloadEvent((DownloadEvent) e);
+        else if (e instanceof ScriptDisplay) {
+            handleScriptDisplay((ScriptDisplay) e);
+        }
 	}
 
 }

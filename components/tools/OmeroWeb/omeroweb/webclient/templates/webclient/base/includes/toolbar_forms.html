@@ -1,0 +1,100 @@
+{% load i18n %}
+{% load common_filters %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+
+{% endcomment %}
+
+
+<script type="text/javascript">
+if (typeof OME === "undefined") { OME={}; }
+
+    OME.createShare = function(data) {
+
+        var productListQuery = new Array();
+        for (var i=0; i<data.length; i++) {
+            productListQuery[i] = data[i]["id"].replace("-","=");
+        }
+        var query = '{% url 'manage_action_containers' "add" "share" %}' + "?"+productListQuery.join("&");
+
+        $("#create_share_form").dialog("open");
+        $("#create_share_form").attr("action", query)
+        $("#create_share_form").load(query);
+        return false;
+    }
+
+    $(document).ready(function(){
+
+        // AJAX handling of create-discussion form
+        $("#create_share_form").ajaxForm({
+            success: function(html) {
+                if (html == "success") {
+                    $("#create_share_form").dialog( "close" );
+                    //document.location.href = "{% url 'load_template' 'public' %}";
+                    $("#share_dialog_form").dialog("open").show();
+                } else {
+                    $("#create_share_form").html(html);
+                }
+            },
+        });
+
+        $("#share_dialog_form").dialog({
+            autoOpen: false,
+            resizable: true,
+            height: 150,
+            width:300,
+            modal: true,
+            buttons: {
+                "OK": function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+
+        $("#create_share_form").dialog({
+            autoOpen: false,
+            resizable: true,
+            height: 600,
+            width:450,
+            modal: true,
+            buttons: {
+                "Accept": function() {
+                    // simply submit the form
+                    $("#create_share_form").submit();
+                },
+                "Cancel": function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+
+
+    });
+</script>
+
+
+
+<!-- hidden form for creating share - shown in dialog & loaded by AJAX -->
+<form id="create_share_form" action="#" method="post" title="Create Share" class="standard_form">{% csrf_token %}
+</form>
+
+<form id="share_dialog_form" action="#" title="Create Share" style="display:none">
+    <p id="deleteOthersWarning" style="font-size: 120%; font-weight: bold">
+        Share was created successfully.
+    </p>
+</form>

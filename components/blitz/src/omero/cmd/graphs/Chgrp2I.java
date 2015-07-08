@@ -22,6 +22,7 @@ package omero.cmd.graphs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +38,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
+import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -71,6 +73,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Deletion deletionInstance;
+    private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
 
@@ -78,9 +81,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private Helper helper;
     private GraphTraversal graphTraversal;
 
-    int targetObjectCount = 0;
-    int deletedObjectCount = 0;
-    int movedObjectCount = 0;
+    private int targetObjectCount = 0;
+    private int deletedObjectCount = 0;
+    private int movedObjectCount = 0;
 
     /**
      * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -88,15 +91,17 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
+     * @param targetClasses legal target object classes for chown
      * @param graphPolicy the graph policy to apply for chgrp
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
     public Chgrp2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
+            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
+        this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
     }
@@ -156,17 +161,28 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                 /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
                 final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
                 for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    String className = oneClassToTarget.getKey();
-                    if (className.lastIndexOf('.') < 0) {
-                        className = graphPathBean.getClassForSimpleName(className).getName();
+                    /* determine actual class from given target object class name */
+                    String targetObjectClassName = oneClassToTarget.getKey();
+                    final int lastDot = targetObjectClassName.lastIndexOf('.');
+                    if (lastDot > 0) {
+                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
                     }
-                    for (final long id : oneClassToTarget.getValue()) {
-                        targetMultimap.put(className, id);
-                        targetObjectCount++;
-                    }
+                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
+                    /* check that it is legal to target the given class */
+                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
+                    do {
+                        if (!legalTargetsIterator.hasNext()) {
+                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
+                            throw helper.cancel(new ERR(), e, "bad-target");
+                        }
+                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
+                    /* note IDs to target for the class */
+                    final Collection<Long> ids = oneClassToTarget.getValue();
+                    targetMultimap.putAll(targetObjectClass.getName(), ids);
+                    targetObjectCount += ids.size();
                 }
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets(true);
@@ -178,6 +194,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
                 throw helper.cancel(new ERR(), e, "bad-step");
             }
+        } catch (Cancel c) {
+            throw c;
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
@@ -210,14 +228,14 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             for (final Entry<String, Collection<Long>> oneMovedClass : result.getKey().asMap().entrySet()) {
                 final String className = oneMovedClass.getKey();
                 final Collection<Long> ids = oneMovedClass.getValue();
-                movedObjectCount += ids.size();
                 movedObjects.put(className, new ArrayList<Long>(ids));
+                movedObjectCount += ids.size();
             }
             for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
                 final String className = oneDeletedClass.getKey();
                 final Collection<Long> ids = oneDeletedClass.getValue();
-                deletedObjectCount += ids.size();
                 deletedObjects.put(className, new ArrayList<Long>(ids));
+                deletedObjectCount += ids.size();
             }
             final Chgrp2Response response = new Chgrp2Response(movedObjects, deletedObjects);
             helper.setResponseIfNull(response);

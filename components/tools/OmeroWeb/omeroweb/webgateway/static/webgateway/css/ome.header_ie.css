@@ -201,50 +201,7 @@
 					.dropdown a, #group_user_chooser li strong{
 						color:#333;
 					}
-				
-	
-	/* Basket Panel */			
-				
-	#basket_panel li {
-		border-bottom:solid 1px #D7D7D7;
-		
-	}
 
-	#basket_panel li:last-child {
-		border-bottom:none;
-	}
-		
-	
-		#cartTotal {
-			color:white;
-			text-shadow:0 1px 0 #1F2933;
-		}
-	
-
-	/* Basket Panel */
-	
-		.basket_image {
-			background-color:white;
-			
-			-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
-			   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
-			        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-		}
-
-
-			#basket_panel h1 {
-				color: #333;
-			}
-		
-			#basket_panel .date {
-				color:#999;
-			}
-		
-		
-		
-	
-	
-	
 	
 /* Activity Monitor */
 	

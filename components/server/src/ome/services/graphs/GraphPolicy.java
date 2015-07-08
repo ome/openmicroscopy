@@ -21,6 +21,7 @@ package ome.services.graphs;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -177,11 +178,22 @@ public abstract class GraphPolicy {
     }
 
     /**
-     * A stateful graph policy must override this method to provide a clone that has fresh state.
+     * The predicates that have been registered with {@link GraphPolicy#registerPredicate(GraphPolicyRulePredicate)}.
+     */
+    protected final Map<String, GraphPolicyRulePredicate> predicates = new HashMap<String, GraphPolicyRulePredicate>();
+
+    /**
+     * Create a clone of this graph policy that has fresh state.
      * @return an instance ready to begin a new graph traversal
      */
-    public GraphPolicy getCleanInstance() {
-        return this;
+    public abstract GraphPolicy getCleanInstance();
+
+    /**
+     * Use the given predicate in executing this graph policy.
+     * @param predicate a graph policy predicate
+     */
+    public void registerPredicate(GraphPolicyRulePredicate predicate) {
+        predicates.put(predicate.getName(), predicate);
     }
 
     /**
@@ -207,7 +219,9 @@ public abstract class GraphPolicy {
      * @param id the ID of the object
      */
     public void noteDetails(Session session, IObject object, String realClass, long id) {
-        /* This method is a no-op that subclasses may override. */
+        for (final GraphPolicyRulePredicate predicate : predicates.values()) {
+            predicate.noteDetails(session, object, realClass, id);
+        }
     }
 
     /**

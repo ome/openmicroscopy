@@ -38,30 +38,6 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
-OME.addToBasket = function(selected, prefix) {
-    var productListQuery = new Array("action=add");
-    if (selected && selected.length > 0) {
-        selected.each(function(i) {
-            productListQuery[i+1]= $(this).attr('id').replace("-","=");
-        });
-    } else {
-        OME.alert_dialog("Please select at least one element.");
-        return;
-    }
-    $.ajax({
-        type: "POST",
-        url: prefix, //this.href,
-        data: productListQuery.join("&"),
-        success: function(responce){
-            if(responce.match(/(Error: ([A-z]+))/gi)) {
-                OME.alert_dialog(responce);
-            } else {
-                OME.calculateCartTotal(responce);
-            }
-        }
-    });
-};
-
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data) {
     var selected_objs = [];
@@ -72,7 +48,7 @@ OME.handle_tree_selection = function(data) {
         var share_id = null;
         if (selected.length == 1) {
             var pr = selected.parent().parent();
-            if (pr.length>0 && pr.attr('rel') && pr.attr('rel').replace("-locked", "")==="share") {
+            if (pr.length>0 && pr.attr('rel') && pr.attr('rel')==="share") {
                 share_id = pr.attr("id").split("-")[1];
             }
         }
@@ -140,10 +116,9 @@ OME.select_fileset_images = function(filesetId) {
 
 // actually called when share is edited, to refresh right-hand panel
 OME.share_selection_changed = function(share_id) {
-    $("body")
-        .data("selected_objects.ome", [{"id": share_id}])
-        .trigger("selection_change.ome");
+    $("body").trigger("selection_change.ome");
 };
+
 
 // Standard ids are in the form TYPE-ID, web extensions may add an
 // additional -SUFFIX
@@ -484,7 +459,7 @@ OME.handleDelete = function() {
         if (!first_parent) first_parent = datatree._get_parent(this);
         var $this = $(this);
         ajax_data[i] = $this.attr('id').replace("-","=");
-        var dtype = $this.attr('rel').replace("-locked", "");
+        var dtype = $this.attr('rel');
         if (dtype in dtypes) dtypes[dtype] += 1;
         else dtypes[dtype] = 1;
         if (!q && $this.attr('rel').indexOf('image')<0) q = true;
@@ -587,7 +562,7 @@ jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         items: '.tooltip',
         content: function() {
-            return $(this).parent().children("span.tooltip_html").html();
+            return $(this).parent().find("span.tooltip_html").html();
         },
         track: true,
         show: false,

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,11 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -33,13 +36,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 
@@ -71,24 +75,13 @@ public class JXTaskPaneContainerSingle
 	/** Flag indicating that a tab pane can or cannot be expanded. */
 	private boolean	expandable;
 	
-	/** The height of a <code>JXTaskPane</code> when collapsed.*/
-	private int minimumHeight;
-	
-	private TableLayout layout;
+	private GridBagLayout layout = new GridBagLayout();
 	
 	/** Initializes the component. */
 	private void initialize()
 	{
 		expandable = true;
 		panes = new HashMap<JXTaskPane, Integer>();
-		if (getLayout() instanceof VerticalLayout) {
-			VerticalLayout vl = (VerticalLayout) getLayout();
-			vl.setGap(1);
-		}
-		layout = new TableLayout();
-		double[] columns = {TableLayout.FILL};
-		
-		layout.setColumn(columns);
 		setLayout(layout);
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
@@ -149,15 +142,19 @@ public class JXTaskPaneContainerSingle
 	 * <code>JXTaskPane</code>.
 	 * @see JXTaskPaneContainer#add(Component)
 	 */
-	public void add(JXTaskPane component)
+    public void add(JXTaskPane component)
 	{
+	    component.setAnimated(false);
 		int index = panes.size();
-		//super.add(component);
 		panes.put(component, index);
-		if (component.isCollapsed())
-			minimumHeight = component.getPreferredSize().height;
-		layout.insertRow(index, TableLayout.PREFERRED);
-		super.add(component, "0, "+index);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = index;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.anchor = GridBagConstraints.NORTH;
+        super.add(component, c);
 		component.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
@@ -179,13 +176,17 @@ public class JXTaskPaneContainerSingle
 		Component c;
 		JXTaskPane p;
 		if (src.isCollapsed()) {
-			if (hasTaskPaneExpanded()) return;
+			if (hasTaskPaneExpanded()) 
+			    return;
 			for (int i = 0; i < comp.length; i++) {
 				c = comp[i];
 				if (c instanceof JXTaskPane) {
 					p = (JXTaskPane) c;
 					if (p == src) {
-						layout.setRow(i, minimumHeight);
+                        GridBagConstraints con = layout.getConstraints(p);
+                        con.fill = GridBagConstraints.HORIZONTAL;
+                        con.weighty = 0;
+                        layout.setConstraints(p, con);
 					}
 				}
 			}
@@ -197,15 +198,23 @@ public class JXTaskPaneContainerSingle
 			c = comp[i];
 			if (c instanceof JXTaskPane) {
 				p = (JXTaskPane) c;
-				if (p != src) {
-					p.setCollapsed(true);
-					p.setSpecial(false);
-					layout.setRow(i, minimumHeight);
-				} else layout.setRow(i, TableLayout.FILL);
+                if (p != src) {
+                    p.setCollapsed(true);
+                    p.setSpecial(false);
+                    GridBagConstraints con = layout.getConstraints(p);
+                    con.fill = GridBagConstraints.HORIZONTAL;
+                    con.weighty = 0;
+                    layout.setConstraints(p, con);
+                } else {
+                    GridBagConstraints con = layout.getConstraints(p);
+                    con.fill = GridBagConstraints.BOTH;
+                    con.weighty = 1;
+                    layout.setConstraints(p, con);
+                }
 			}
 		}
 		src.setSpecial(true);
 		firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 	}
-
+	
 }

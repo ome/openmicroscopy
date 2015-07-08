@@ -40,7 +40,7 @@
         <td id='pixels_type'>{{ image.getPixelsType }}</td>
     </tr>
     <tr>
-        <th>Pixels Size (XYZ) ({{ image.getPixelSizeXMicrons|lengthunit}}):</th>
+        <th>Pixels Size (XYZ) ({{ image.getPixelSizeUnits }}):</th>
         <td id='pixels_size'>
             <div class='tooltip'>{{ image.getPixelSizeXMicrons|lengthformat|floatformat:2 }} x {{ image.getPixelSizeYMicrons|lengthformat|floatformat:2 }} 
                 {% if image.getPixelSizeZMicrons %} x {{ image.getPixelSizeZMicrons|lengthformat|floatformat:2 }} {% endif %}
