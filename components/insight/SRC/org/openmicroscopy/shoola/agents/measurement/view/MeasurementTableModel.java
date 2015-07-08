@@ -131,7 +131,7 @@ public class MeasurementTableModel extends AbstractTableModel
         if (row < 0 || row > values.size()) return null;
         MeasurementObject rowData = values.get(row);
         Object value = rowData.getElement(col);
-        if (value instanceof List) {
+        if (value instanceof List && !showUnits) {
             List<Object> l = (List<Object>) value;
             
             if (l.size() == 1) 
@@ -156,31 +156,48 @@ public class MeasurementTableModel extends AbstractTableModel
         }
         if (showUnits) {
             if (value instanceof Length) {
-                MeasurementUnits units = getUnitsType();
                 Length n = (Length) value;
-                String s;
-                KeyDescription key = getColumnNames().get(col);
-                String k = key.getKey();
-                if (!units.getUnit().equals(UnitsLength.PIXEL)) {
-                    if (unitsDisplay.size() > col && unitsDisplay.get(col)) {
-                        s = UIUtilities.formatValue(n,
-                                AnnotationKeys.AREA.getKey().equals(k));
-                    } else {
-                        s = UIUtilities.formatValueNoUnit(n,
-                                AnnotationKeys.AREA.getKey().equals(k));
+                return convertLength(n, col);
+            } else if (value instanceof List) {
+                List l = (List) value;
+                Iterator<Object> i = l.iterator();
+                Object v;
+                StringBuilder buffer = new StringBuilder();
+                while (i.hasNext()) {
+                    v = i.next();
+                    if (v instanceof Length) {
+                        Length n = (Length) v;
+                        String s = convertLength(n, col);
+                        if (s != null) {
+                            buffer.append(s);
+                            buffer.append(" ");
+                        }
+                        return buffer.toString();
                     }
-                    if (CommonsLangUtils.isNotBlank(s))
-                       return s;
-                } else {
-                    s = UIUtilities.formatValueNoUnit(n,
-                            AnnotationKeys.AREA.getKey().equals(k));
-                    return s;
                 }
             }
         }
-        return rowData.getElement(col);
+        return value;
     }
     
+    private String convertLength(Length n, int col) {
+        KeyDescription key = getColumnNames().get(col);
+        MeasurementUnits units = getUnitsType();
+        String k = key.getKey();
+        String s = null;
+        if (!units.getUnit().equals(UnitsLength.PIXEL)) {
+            if (unitsDisplay.size() > col && unitsDisplay.get(col)) {
+                s = UIUtilities.formatValue(n,
+                        AnnotationKeys.AREA.getKey().equals(k));
+            } else {
+                s = UIUtilities.formatValueNoUnit(n,
+                        AnnotationKeys.AREA.getKey().equals(k));
+            }
+            if (CommonsLangUtils.isNotBlank(s))
+               return s;
+        }
+        return UIUtilities.twoDecimalPlaces(n.getValue());
+    }
     /**
      * Sets the specified value.
      * @see AbstractTableModel#setValueAt(Object, int, int)
@@ -263,7 +280,7 @@ public class MeasurementTableModel extends AbstractTableModel
                     }
                 } else if (v instanceof Number) {
                     if (k.equals(AnnotationKeys.ANGLE.getKey())) {
-                        String s = "("+UIUtilities.DEGREE_SYMBOL+")";
+                        String s = UIUtilities.DEGREE_SYMBOL;
                         if (!symbols.contains(s)) {
                             symbols.add(s);
                         }
@@ -271,10 +288,11 @@ public class MeasurementTableModel extends AbstractTableModel
                 }
             }
             if (symbols.size() == 1) {
-                String value = key.getDescription()+" "+symbols.get(0);
+                String value = key.getDescription()+" ("+symbols.get(0);
                 if (AnnotationKeys.AREA.getKey().equals(k)) {
                     value += UIUtilities.SQUARED_SYMBOL;
                 }
+                value += ")";
                 key.setDescription(value);
                 model.unitsDisplay.add(false);
             } else {
