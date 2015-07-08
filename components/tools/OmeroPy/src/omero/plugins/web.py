@@ -251,7 +251,10 @@ class WebControl(BaseControl):
             try:
                 d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             except:
-                d["WEB_PREFIX"] = ""
+                if server == "apache-wsgi":
+                    d["WEB_PREFIX"] = "/"
+                else:
+                    d["WEB_PREFIX"] = ""
 
         if settings.APPLICATION_SERVER not in (settings.FASTCGI_TYPES +
                                                settings.WSGI_TYPES):
