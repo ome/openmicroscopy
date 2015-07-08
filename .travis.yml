@@ -19,7 +19,6 @@ addons:
     - python-imaging
     - python-numpy
     - python-tables
-    - python-genshi
     - cmake
     - libgtest-dev
 
