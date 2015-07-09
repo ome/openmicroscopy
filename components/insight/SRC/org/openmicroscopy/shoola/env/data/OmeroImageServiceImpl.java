@@ -87,19 +87,27 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import omero.gateway.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+
+import pojos.util.PojoMapper;
+
 import org.openmicroscopy.shoola.env.data.util.Resolver;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
@@ -533,7 +541,7 @@ class OmeroImageServiceImpl
 	 */
 	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
 	{
-	    return null != gateway.getConnector(ctx, true, true);
+	    return gateway.getGateway().isAlive(ctx);
 	}
 
 	/** 
@@ -1495,11 +1503,11 @@ class OmeroImageServiceImpl
 					file = new File(path);
 				}
 		}
-		File f = gateway.exportImageAsOMEObject(ctx, index, file, imageID);
-		if (target == null) return f;
+		gateway.exportImageAsOMEObject(ctx, index, file, imageID);
+		if (target == null) return file;
 		//Apply the transformations
 		List<InputStream> transforms = target.getTransforms();
-		if (CollectionUtils.isEmpty(transforms)) return f;
+		if (CollectionUtils.isEmpty(transforms)) return file;
 		//Apply each transform one after another.
 		
 		File r;
@@ -1512,11 +1520,11 @@ class OmeroImageServiceImpl
 			if (index == EXPORT_AS_OMETIFF) {
 				tmp = File.createTempFile(RandomStringUtils.random(60, false, true),
 	                    "."+XMLFilter.OME_XML);
-				String c = new TiffParser(f.getAbsolutePath()).getComment();
+				String c = new TiffParser(file.getAbsolutePath()).getComment();
 				FileUtils.writeStringToFile(tmp, c, encoding);
 				transformed = applyTransforms(tmp, transforms, encoding);
 			} else {
-			    transformed = applyTransforms(f, transforms, encoding);
+			    transformed = applyTransforms(file, transforms, encoding);
 			}
 			//Copy the result
 			if (index == EXPORT_AS_OME_XML) {
@@ -1896,20 +1904,10 @@ class OmeroImageServiceImpl
 	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
 			throws DSAccessException, DSOutOfServiceException
 	{
-		if (ctx == null) return null;
-		//check import as
-		Connector c = gateway.getConnector(ctx, true, false);
-		ExperimenterData exp = ctx.getExperimenterData();
-        if (exp != null && ctx.isSudo()) {
-            try {
-                c = c.getConnector(exp.getUserName());
-            } catch (Throwable e) {
-                throw new DSOutOfServiceException(
-                        "Cannot create ThumbnailStore", e);
-            }
-        }
-		// Pass close responsibility off to the caller.
-		return c.getThumbnailService();
+        if (ctx != null)
+            return gateway.getGateway().createThumbnailStore(ctx);
+
+        return null;
 	}
 	
 	/**
@@ -1938,17 +1936,16 @@ class OmeroImageServiceImpl
         return PixelsServicesFactory.convert(def);
     }
 
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#createPixelsStore(SecurityContext)
-	 */
-	public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
-	        throws DSAccessException, DSOutOfServiceException
-	{
-	    if (ctx == null) return null;
-	    Connector c = gateway.getConnector(ctx, true, false);
-	    // Pass close responsibility off to the caller.
-	    return c.getPixelsStore();
-	}
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * 
+     * @see OmeroImageService#createPixelsStore(SecurityContext)
+     */
+    public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
+            throws DSAccessException, DSOutOfServiceException {
+        if (ctx != null)
+            return gateway.getGateway().createPixelsStore(ctx);
+        return null;
+    }
 
 }

@@ -32,6 +32,9 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
+
 //Application-internal dependencies
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
@@ -53,11 +56,16 @@ import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
 
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
+import omero.gateway.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;

@@ -29,8 +29,12 @@ import java.util.Map;
 //Third-party libraries
 
 
+
+
+import omero.gateway.Gateway;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.cache.CacheService;
+import omero.gateway.cache.CacheService;
+
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -38,7 +42,9 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -98,6 +104,8 @@ class RegistryImpl
 
     /** Reference to the Cache service. */
     private CacheService			cache;
+    
+    private Gateway gateway;
     
     /* may be constructed only by classes in this package */
     RegistryImpl() { }
@@ -260,5 +268,13 @@ class RegistryImpl
      * @param cache The {@link CacheService}.
      */
     void setCacheService(CacheService cache) { this.cache = cache; }
+
+    public Gateway getGateway() {
+        return gateway;
+    }
+
+    void setGateway(Gateway gateway) {
+        this.gateway = gateway;
+    }
     
 }

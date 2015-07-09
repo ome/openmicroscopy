@@ -29,14 +29,17 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.cache.CacheService;
+import omero.gateway.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.gateway.Gateway;
+import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -71,5 +74,6 @@ public class NullRegistry
     public AdminService getAdminService() { return null; }
 	public CacheService getCacheService() { return null; }
 	public String lookupRemote(String name) { return null; }
-
+    public Gateway getGateway() { return null;}
+    
 }

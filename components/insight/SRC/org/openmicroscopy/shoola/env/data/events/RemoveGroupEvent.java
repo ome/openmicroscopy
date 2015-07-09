@@ -28,7 +28,7 @@ package org.openmicroscopy.shoola.env.data.events;
 
 //Third-party libraries
 
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 

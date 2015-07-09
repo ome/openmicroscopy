@@ -31,14 +31,17 @@ import java.util.List;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
+import omero.gateway.rnd.DataSink;
+
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+
 import pojos.PixelsData;
 
 /** 
@@ -83,12 +86,7 @@ public class Analyser
     	return new BatchCall("Analysing shapes") {
     		            public void doCall() throws Exception
             {
-    		    
-            	DataSink sink = PixelsServicesFactory.createDataSink(pixels);
-            	ROIAnalyser analyser = new ROIAnalyser(sink, 
-            					pixels.getSizeZ(), pixels.getSizeT(),
-            					pixels.getSizeC(), pixels.getSizeX(),
-            					pixels.getSizeY());
+            	ROIAnalyser analyser = new ROIAnalyser(context.getGateway(), pixels);
             	try {
             		result = analyser.analyze(ctx, shapes, channels);
 				} catch (Exception e) {

@@ -61,6 +61,7 @@
                 <include name="ome/services/**/*.class"/>
                 <include name="omero/**/*.class"/>
                 <include name="pojos/*.class"/>
+                <include name="pojos/**/*.class"/>
                 <exclude name="omero/**/_*Tie.class"/>
                 <exclude name="omero/_*Del*.class"/>
                 <exclude name="omero/internal/**"/>
@@ -106,6 +107,7 @@
             <fileset dir="${blitz.comp}/src">
                 <include name="ome/formats/**/*.java"/>
                 <include name="pojos/*.java"/>
+                <include name="pojos/**/*.java"/>
                 <include name="omero/**/*.java"/>
             </fileset>
         </jar>
