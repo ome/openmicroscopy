@@ -160,6 +160,52 @@ class TestWeb(object):
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
+    @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
+    @pytest.mark.parametrize('server_type', [
+        "gunicorn", "gunicorn-development"])
+    @pytest.mark.parametrize('http', [False, 8081])
+    @pytest.mark.parametrize('prefix', [None, '/test'])
+    @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
+    @pytest.mark.parametrize('cgiport', [None, '12345'])
+    def testNginxGunicornConfig(self, server_type, http, prefix, cgihost,
+                                cgiport, max_body_size, capsys, monkeypatch):
+
+        static_prefix = self.add_prefix(prefix, monkeypatch)
+        expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
+
+        self.args += ["config"]
+        self.args += server_type.split()
+        if http:
+            self.args += ["--http", str(http)]
+        if max_body_size:
+            self.args += ["--max-body-size", max_body_size]
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        lines = self.clean_generated_file(o)
+
+        if server_type.split()[0] == "gunicorn":
+            missing = self.required_lines_in([
+                "upstream omeroweb_server {",
+                "server %s fail_timeout=0;" % expected_cgi,
+                "server {",
+                "listen %s;" % (http or 80),
+                "client_max_body_size %s;" % (max_body_size or '0'),
+                "location %s {" % static_prefix[:-1],
+                "location %s {" % (prefix or "/"),
+                ], lines)
+        else:
+            missing = self.required_lines_in([
+                "upstream omeroweb_server {",
+                "server %s fail_timeout=0;" % expected_cgi,
+                "server {",
+                "listen %s;" % (http or 8080),
+                "client_max_body_size %s;" % (max_body_size or '0'),
+                "location %s {" % static_prefix[:-1],
+                "location %s {" % (prefix or "/"),
+                ], lines)
+        assert not missing, 'Line not found: ' + str(missing)
+
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
     @pytest.mark.parametrize('cgiport', [None, '12345'])
