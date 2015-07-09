@@ -447,6 +447,8 @@ class TestModel(object):
         assert ctor1.val == ctor2.val
 
     u = unicode("u")
+    cn = '中國'
+    cnu = u'中國'
 
     class UStr(object):
 
@@ -461,6 +463,8 @@ class TestModel(object):
         (rstring, u, "u"),
         (rstring, u.encode("utf-8"), "u"),
         (rstring, UStr(u), "u"),
+        (rstring, cn, cn),
+        (rstring, cnu, cn),
     ))
     def testMoreConversions(self, data):
         # Some useful conversions were not supported in 5.1.2 and

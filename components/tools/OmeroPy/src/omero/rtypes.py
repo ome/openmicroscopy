@@ -300,9 +300,11 @@ def rstring(val):
         if len(val) == 0:
             return remptystr
         else:
+            if isinstance(val, unicode):
+                val = val.encode("utf-8")
             return RStringI(val)
     else:
-        return RStringI(str(val))
+        return rstring(unicode(val))
 
 # Static factory methods (collections)
 # =========================================================================
