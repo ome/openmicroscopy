@@ -59,8 +59,8 @@
     <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- spring -->
     <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
-    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.context.support" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="spring-aop" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="spring-context-support" rev="${versions.spring}"/>
     <dependency org="org.springframework.security" name="spring-security-core" rev="${versions.spring-security}"/>
     <dependency org="org.springframework.security" name="spring-security-config" rev="${versions.spring-security}"/>
     <dependency org="org.springframework.security" name="spring-security-ldap" rev="${versions.spring-security}"/>
