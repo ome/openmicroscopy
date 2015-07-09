@@ -14,6 +14,7 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
+import pwd
 from omero_ext.argparse import SUPPRESS
 
 HELP = "OMERO.web configuration/deployment tools"
@@ -188,7 +189,7 @@ class WebControl(BaseControl):
 
     def _set_apache_wsgi(self, d, settings):
         # WSGIDaemonProcess requires python-path and user
-        d["OMEROUSER"] = os.getlogin()
+        d["OMEROUSER"] = pwd.getpwuid(os.getuid()).pw_name
         try:
             import Ice
             d["ICEPYTHONROOT"] = os.path.dirname(Ice.__file__)
