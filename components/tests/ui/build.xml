@@ -90,6 +90,7 @@
     <!-- file created while running the web-chrome target -->
     <property name="google.log" value="${basedir}/libpeerconnection.log"/>
 
+    <import file="${import.dir}/gitversion.xml" optional="true"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
