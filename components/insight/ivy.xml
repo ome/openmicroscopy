@@ -42,7 +42,6 @@
     <dependency org="commons-digester" name="commons-digester" rev="${versions.commons-digester}"/>
     <dependency org="commons-discovery" name="commons-discovery" rev="${versions.commons-discovery}"/>
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
-    <dependency org="commons-logging" name="commons-logging" rev="${versi:ons.commons-logging}"/>
     <dependency org="commons-validator" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>

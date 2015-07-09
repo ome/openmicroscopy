@@ -32,7 +32,7 @@
     <dependency org="velocity" name="velocity" rev="${versions.velocity}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="spring-core" rev="${versions.spring}" conf="build,runtime->runtime"/>
+    <dependency org="org.springframework" name="spring-core" rev="${versions.spring}" conf="build,runtime->default"/>
     <!-- Moving all testing dependencies back to "build" for eclipse .classpath generation-->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
