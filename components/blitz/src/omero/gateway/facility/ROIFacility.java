@@ -332,6 +332,7 @@ public class ROIFacility extends Facility {
             RoiResult tempResults;
             int shapeIndex;
 
+            Collection<ROIData> updated = new ArrayList<ROIData>();
             List<Long> deleted = new ArrayList<Long>();
             Image unloaded = new ImageI(imageID, false);
             Roi rr;
@@ -345,7 +346,8 @@ public class ROIFacility extends Facility {
                 {
                     rr = (Roi) roi.asIObject();
                     rr.setImage(unloaded);
-                    updateService.saveAndReturnObject(rr);
+                    rr = (Roi) updateService.saveAndReturnObject(rr);
+                    updated.add(new ROIData(rr));
                     continue;
                 }
 
@@ -395,6 +397,7 @@ public class ROIFacility extends Facility {
                         if (s != null) {
                             serverRoi.removeShape(s);
                             serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
+                            updated.add(new ROIData(serverRoi));
                         }
                     } else {
                         s = (Shape) entry.getValue();
@@ -407,6 +410,7 @@ public class ROIFacility extends Facility {
                                 removed.add(coord);
                                 serverRoi.removeShape(s);
                                 serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
+                                updated.add(new ROIData(serverRoi));
                                 deleted.add(s.getId().getValue());
                             }
                         }
@@ -504,11 +508,12 @@ public class ROIFacility extends Facility {
                     serverRoi.setNamespaces(ri.getNamespaces());
                     serverRoi.setKeywords(ri.getKeywords());
                     serverRoi.setImage(unloaded);
-                    updateService.saveAndReturnObject(serverRoi);
+                    ri = (Roi) updateService.saveAndReturnObject(serverRoi);
+                    updated.add(new ROIData(ri));
                 }
 
             }
-            return roiList;
+            return updated;
         } catch (Exception e) {
             handleException(this, e, "Cannot Save the ROI for image: "
                     + imageID);
