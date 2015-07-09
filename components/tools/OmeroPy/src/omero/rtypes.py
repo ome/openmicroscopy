@@ -56,7 +56,7 @@ def rtype(val):
         return rlong(val)
     elif isinstance(val, float):
         return rfloat(val)
-    elif isinstance(val, str):
+    elif isinstance(val, StringTypes):
         return rstring(val)
     elif isinstance(val, omero.model.IObject):
         return robject(val)
