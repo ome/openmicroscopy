@@ -163,11 +163,13 @@ public class MeasurementTableModel extends AbstractTableModel
                 Iterator<Object> i = l.iterator();
                 Object v;
                 StringBuilder buffer = new StringBuilder();
+                int size = l.size();
                 while (i.hasNext()) {
                     v = i.next();
                     if (v instanceof Length) {
                         Length n = (Length) v;
-                        String s = convertLength(n, col);
+                        Object s = convertLength(n, col);
+                        if (size == 1) return s;
                         if (s != null) {
                             buffer.append(s);
                             buffer.append(" ");
@@ -180,7 +182,7 @@ public class MeasurementTableModel extends AbstractTableModel
         return value;
     }
     
-    private String convertLength(Length n, int col) {
+    private Object convertLength(Length n, int col) {
         KeyDescription key = getColumnNames().get(col);
         MeasurementUnits units = getUnitsType();
         String k = key.getKey();
@@ -190,23 +192,23 @@ public class MeasurementTableModel extends AbstractTableModel
                 s = UIUtilities.formatValue(n,
                         AnnotationKeys.AREA.getKey().equals(k));
             } else {
-                s = UIUtilities.formatValueNoUnit(n,
+                return UIUtilities.formatValueNoUnitAsNumber(n,
                         AnnotationKeys.AREA.getKey().equals(k));
             }
             if (CommonsLangUtils.isNotBlank(s))
                return s;
         }
-        return UIUtilities.twoDecimalPlaces(n.getValue());
+        Number value = UIUtilities.twoDecimalPlacesAsNumber(n.getValue());
+        if (value.doubleValue() == 0) return null;
+        return value;
     }
+
     /**
      * Sets the specified value.
      * @see AbstractTableModel#setValueAt(Object, int, int)
      */
-    public void setValueAt(Object value, int row, int col) 
-    {
+    public void setValueAt(Object value, int row, int col) {}
 
-    }
-    
     /**
      * Overridden to return the name of the specified column.
      * @see AbstractTableModel#getColumnName(int)
