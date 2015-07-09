@@ -20,15 +20,15 @@ http {
     default_type  application/octet-stream;
     client_body_temp_path %(ROOT)s/var/nginx_tmp;
 
-    keepalive_timeout  65;
+    keepalive_timeout 65;
 
     upstream omeroweb_server {
         server %(FASTCGI_EXTERNAL)s fail_timeout=0;
     }
     
     server {
-        listen       %(HTTPPORT)d;
-        server_name  _;
+        listen %(HTTPPORT)d;
+        server_name _;
         proxy_temp_path %(ROOT)s/var/nginx_tmp;
 
         sendfile on;
@@ -40,12 +40,11 @@ http {
             try_files $uri /maintainance.html =502;
         }
 
-        location %(FORCE_SCRIPT_NAME)s {
-
-            error_page 502 @maintenance;
-            try_files $uri @proxy_to_app;
+        # weblitz django apps serve media from here
+        location %(STATIC_URL)s {
+            alias %(OMEROWEBROOT)s/static;
         }
-        
+
         location @proxy_to_app {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
@@ -53,10 +52,12 @@ http {
 
             proxy_pass http://omeroweb_server;
         }
-        
-        # weblitz django apps serve static content from here
-        location %(STATIC_URL)s {
-            alias %(OMEROWEBROOT)s/static;
+
+        location %(FORCE_SCRIPT_NAME)s {
+
+            error_page 502 @maintenance;
+            # checks for static file, if not found proxy to app
+            try_files $uri @proxy_to_app;
         }
 
     }
