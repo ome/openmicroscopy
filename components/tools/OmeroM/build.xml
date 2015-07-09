@@ -23,6 +23,8 @@
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir" value="${up-one}/antlib/resources"/>
+
+    <import file="${import.dir}/gitversion.xml" optional="true"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
