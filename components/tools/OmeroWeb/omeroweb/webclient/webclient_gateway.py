@@ -1733,6 +1733,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
+        self.SERVICE_OPTS.setOmeroGroup('-1')
         img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
 
@@ -2397,16 +2398,36 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if 'link' in kwargs:
             self.link = 'link' in kwargs and kwargs['link'] or None
 
-    """
-    This override standard omero.gateway.ImageWrapper.getChannels
-    and catch exceptions.
-    """
+    def getPixelSizeUnits(self):
+        """
+        We use the pixelSizeX to find the appropriate units.
+        By default, we get the actual size in Microns, then use the
+        lengthunit filter to pick the most suitable size (same logic
+        is used for doing the length conversions).
+        However, if unit can't be converted, then we just return the
+        current unit's symbol.
+        """
+        from webgateway.templatetags.common_filters import lengthunit
+        try:
+            size = self.getPixelSizeX(units="MICROMETER")
+        except:
+            size = self.getPixelSizeX(True)
+            if size is not None:
+                return size.getSymbol()
+        if size is None:
+                size = 0
+        else:
+            size = size.getValue()
+        return lengthunit(size)
 
     def getPixelSizeXMicrons(self):
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeX(units="MICROMETER")
+        try:
+            size = self.getPixelSizeX(units="MICROMETER")
+        except:
+            size = self.getPixelSizeX(True)
         if size is None:
             return 0
         return size.getValue()
@@ -2415,7 +2436,10 @@ class ImageWrapper (OmeroWebObjectWrapper,
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeY(units="MICROMETER")
+        try:
+            size = self.getPixelSizeY(units="MICROMETER")
+        except:
+            size = self.getPixelSizeY(True)
         if size is None:
             return 0
         return size.getValue()
@@ -2424,12 +2448,19 @@ class ImageWrapper (OmeroWebObjectWrapper,
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeZ(units="MICROMETER")
+        try:
+            size = self.getPixelSizeZ(units="MICROMETER")
+        except:
+            size = self.getPixelSizeZ(True)
         if size is None:
             return 0
         return size.getValue()
 
     def getChannels(self, *args, **kwargs):
+        """
+        This override standard omero.gateway.ImageWrapper.getChannels
+        and catch exceptions.
+        """
         try:
             return super(ImageWrapper, self).getChannels(*args, **kwargs)
         except Exception:

@@ -77,7 +77,7 @@ $(document).ready(function() {
         }
         // handle single object (or multi-image) selection...
         var oid = selected.attr('id');                              // E.g. 'dataset-501'
-        var orel = selected.attr('rel').replace("-locked", "");     // E.g. 'dataset'
+        var orel = selected.attr('rel');     // E.g. 'dataset'
         var page = selected.data("page") || null;                   // Check for pagination
         var well_index = selected.data("well_index") || 0;       // and well index
 
@@ -132,18 +132,18 @@ $(document).ready(function() {
                 page = pr.data("page") || null;
             }
             if (pr.length>0 && pr.attr('id')!==crel) {
-                if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
+                if(pr.attr('rel')==="share" && pr.attr('id')!==crel) {
                     update['rel'] = pr.attr('id');
                     update['url'] = prefix+'load_public/'+pr.attr('id').split("-")[1]+'/?view=icon';
-                } else if (pr.attr('rel').replace("-locked", "")=="tag") {
+                } else if (pr.attr('rel')=="tag") {
                     update['rel'] = pr.attr('id');
-                    update['url'] = prefix+'load_tags/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
-                } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
+                    update['url'] = prefix+'load_tags/'+pr.attr('rel')+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                } else if (pr.attr('rel')!=="orphaned") {
                     update['rel'] = pr.attr('id');
-                    update['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                    update['url'] = prefix+'load_data/'+pr.attr('rel')+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
                 } else {
                     update['rel'] = pr.attr("id");
-                    update['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/?view=icon';
+                    update['url'] = prefix+'load_data/'+pr.attr('rel')+'/?view=icon';
                 }
             }
         } else {

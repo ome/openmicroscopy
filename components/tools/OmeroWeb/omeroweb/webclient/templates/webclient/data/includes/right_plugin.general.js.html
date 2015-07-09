@@ -84,7 +84,7 @@ $(function () {
             $("#annotation_tabs").tabs("enable", general_tab_index);    // always want metadata_general enabled
             var url = null;
             //var oid = selected.attr('id');
-            //var orel = selected[0].attr('rel').replace("-locked", "");
+            //var orel = selected[0].attr('rel');
             var oid = selected[0]["id"];
             var orel = oid.split("-")[0];
             if (typeof oid =="undefined" || oid==false) return;

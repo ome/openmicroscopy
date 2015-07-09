@@ -67,63 +67,38 @@ Test Channel Rename
     Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]    10
 
 
-Test Basket Share
-    [Documentation]     Tests adding image to basket, creating a share and editing share
+Test Share
+    [Documentation]     Tests creating and editing share
 
     # Go To                                       ${WELCOME URL}
     Select And Expand Project
     Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
-    Click Element                               basketButton
-    Go To                                       ${WELCOME URL}basket/
-    Wait Until Page Contains Element            xpath=//table[@id='dataTable']
-    Click Element                               xpath=//table[@id='dataTable']//tr/td
-    Click Element                               create_share
+    Click Element                               createshareButton
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Created via Selenium Test
-    Select From List                            id_members      1
+    Click Element                               xpath=//div[@id='id_members_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element                 xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
+
     Submit Form                                 create_share_form
+    Wait Until Page Contains Element            id=share_dialog_form
+    Page Should Contain Element                 id=deleteOthersWarning
+    Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]
+    Click Dialog Button                         OK
+
+    Go To                                       ${WELCOME URL}public/
     Wait Until Page Contains Element            id=Public
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
-    # Test Editing of Share. NB: Adding a Comment to Share is currently broken.
-    Wait Until Page Contains Element            id=edit_share
-    Click Element                               id=edit_share
+    # Test Editing of Share.
+    Wait Until Page Contains Element            id=editshareButton
+    Sleep                                       0.5
+    Click Element                               id=editshareButton
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Edited Share Message
-    Submit Form                                 edit_share_form
+    Click Dialog Button                         Accept
     Wait Until Page Contains                    Edited Share Message
-    # Add Comment
-    Input Text                                  id_comment      New Discussion Comment
-    Submit Form                                 add_share_comment_form
-    Wait Until Page Contains Element            xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]
-
-
-Test Discussion
-
-    Set Selenium Speed                          1 seconds
-    Go To                                       ${WELCOME URL}basket/
-    Click Element                               id=chatButton
-    Wait Until Page Contains Element            create_discussion_form
-    # Can't Use IDs for form fields because they are not unique. Page also contains #create_share_form with these fields.
-    Wait Until Page Contains Element            css=#create_discussion_form textarea    10
-    Input Text                                  css=#create_discussion_form textarea    Created via Selenium Test
-    Select From List                            css=#create_discussion_form select      1
-    Submit Form                                 create_discussion_form
-    # Click Element                               css=div.ui-dialog-buttonset:visible button:first
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a    60
-    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a
-    # Test Editing of Discussion. NB: Adding a Comment to Share is currently broken.
-    Wait Until Page Contains Element            id=edit_share
-    Click Element                               id=edit_share
-    Wait Until Page Contains Element            id_message
-    Input Text                                  id_message      Edited Discussion Message
-    Submit Form                                 edit_share_form
-    # Bug - right panel does not refresh on it's own. Need to click the discussion in tree again
-    Go To                                       ${WELCOME URL}public/
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a    60
-    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a
-    Wait Until Page Contains                    Edited Discussion Message       60
     # Add Comment
     Input Text                                  id_comment      New Discussion Comment
     Submit Form                                 add_share_comment_form

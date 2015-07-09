@@ -16,10 +16,7 @@
   </publications>
   <dependencies defaultconfmapping="build,server->default">
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" conf="build->build;server->runtime"/><!-- for DBEnumCheck -->
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <!-- Ice -->
     <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
@@ -42,14 +39,24 @@
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
-    <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
+    <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}">
+        <exclude org="xml-apis"/>
+    </dependency>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
-    <dependency org="javax.mail" name="mail" rev="${versions.mail}"/>
-    <dependency org="org.subethamail" name="subethasmtp" rev="${versions.subethasmtp}"/>
+    <dependency org="javax.mail" name="mail" rev="${versions.mail}">
+        <exclude org="javax.activation"/>
+        <exclude org="com.google.code.findbugs"/>
+    </dependency>
+    <dependency org="org.subethamail" name="subethasmtp" rev="${versions.subethasmtp}">
+        <exclude org="org.slf4j"/>
+    </dependency>
     <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
     <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/><!--now org.apache.pdfbox -->
     <dependency org="org.fontbox" name="fontbox" rev="${versions.fontbox}"/>
+    <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
+    <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
+    <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- spring -->
     <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
     <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>

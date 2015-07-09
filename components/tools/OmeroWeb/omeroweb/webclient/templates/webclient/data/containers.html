@@ -89,7 +89,7 @@
             var c = tree._get_children('#experimenter-0');
             c.each(function(){
                 var $node = $(this),
-                    rel = $node.attr('rel').replace("-locked",""),
+                    rel = $node.attr('rel'),
                     nodeTxt = OME.jsTreeNodeText($node);
                 if (topNodes.hasOwnProperty(rel)) {
                     topNodes[rel].push(nodeTxt.toLowerCase());
@@ -140,7 +140,7 @@
                 var pasteRenderingSettings = function(selected, owner, reset) {
                     var ids = [],
                         rdef_url = copy_paste_rdef_url,
-                        rel = selected.attr('rel').replace('-locked','');
+                        rel = selected.attr('rel');
                     if (owner) {
                         rdef_url = apply_owners_rdef_url;
                     } else if (reset) {
@@ -288,7 +288,7 @@
 
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
-                        'paste': false, 'delete':false, 'annotation':false, 'basket':false};
+                        'paste': false, 'delete':false, 'annotation':false, 'createshare':false};
                     // We 'canCreate' top level items, E.g. Project, Dataset, Screen, if the current userId is self or 'All Members'
                     var userId = {{ ome.user_id }},
                         canCreate = (userId === {{ ome.user.id }} || userId === -1);
@@ -314,13 +314,13 @@
                                 if (to_paste && to_paste[0].id.indexOf("image")>=0) {
                                     toolbar_config['paste'] = true;
                                 }
-                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').indexOf("experimenter") < 0) {
                                     toolbar_config["copy"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("image")>=0) {
-                                toolbar_config['basket'] = true;
+                                toolbar_config['createshare'] = true;
                                 toolbar_config['cut'] = true;
-                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("orphaned") < 0) {
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').indexOf("orphaned") < 0) {
                                     toolbar_config["copy"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("screen")>=0) {
@@ -329,11 +329,11 @@
                                 }
                             } else if(selected.attr("id").indexOf("plate")>=0) {
                                 toolbar_config['copy'] = true;
-                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').indexOf("experimenter") < 0) {
                                     toolbar_config["cut"] = true;
                                 }
                             }
-                            if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
+                            if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel'), ["project", "dataset", "screen"]) > -1)) {
                                 toolbar_config['paste'] = true;
                             }
                         }
@@ -355,6 +355,7 @@
                             enableToolbarButton('delete', false);
                             enableToolbarButton('cut', false);
                             enableToolbarButton('copy', false);
+                            enableToolbarButton('createshare', false);
                         }
                     }
                 });
@@ -393,10 +394,10 @@
                                 var url;
                                 if (n.attr) {
                                     var parent = this._get_parent(n);
-                                    if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
-                                        url = "{% url 'load_data' %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                    if ($.inArray($(parent).attr("rel"), ["project", "screen"]) > -1) {
+                                        url = "{% url 'load_data' %}"+$(parent).attr("rel")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
                                     } else {
-                                        url = "{% url 'load_data' %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                        url = "{% url 'load_data' %}"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
                                     }
                                 } else {
                                     url = "{% url 'load_data' %}";
@@ -407,7 +408,7 @@
                             // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
                             "data" : function (n) {
                                 var r = { "view" : "tree" };
-                                if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
+                                if (n.attr && $.inArray(n.attr("rel"), ["dataset", "orphaned"]) > -1) {
                                     // pagination supported for 'dataset' and 'orphaned'...
                                     var page = n.data("page") || null;      // this data is added by OME.doPagination()
                                     if (page) r["page"] = page;
@@ -423,10 +424,10 @@
                         // This will prevent moving or creating any other type as a root node
                         "max_depth" : -1,
                         "max_children" : -1,
-                        "valid_children" : [ "experimenter", "experimenter-locked" ],
+                        "valid_children" : [ "experimenter" ],
                         "types" : {
                             "experimenter" : {
-                                "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+                                "valid_children" : [ "project", "dataset", "screen", "plate" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/icon_user.png" %}'
                                 },
@@ -436,36 +437,15 @@
                                 "delete_node" : false,
                                 "remove" : false
                             },
-                            "experimenter-locked" : {
-                                "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "screen", "screen-locked", "plate", "plate-locked" ],
-                                "icon" : {
-                                    "image" : '{% static "webclient/image/icon_user.png" %}'
-                                },
-                                "start_drag" : false
-                            },
                             "project" : {
-                                "valid_children" : [ "dataset", "dataset-locked" ],
-                                "icon" : {
-                                    "image" : '{% static "webclient/image/folder16.png" %}'
-                                },
-                                "start_drag" : false
-                            },
-                            "project-locked" : {
-                                "valid_children" : [ "dataset", "dataset-locked" ],
+                                "valid_children" : [ "dataset" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder16.png" %}'
                                 },
                                 "start_drag" : false
                             },
                             "dataset" : {
-                                "valid_children" : [ "image", "image-locked" ],
-                                "icon" : {
-                                    "image" : '{% static "webclient/image/folder_image16.png" %}'
-                                },
-                                "start_drag" : function(obj){return obj.hasClass('canLink');}
-                            },
-                            "dataset-locked" : {
-                                "valid_children" : [ "image", "image-locked" ],
+                                "valid_children" : [ "image" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_image16.png" %}'
                                 },
@@ -478,35 +458,14 @@
                                 },
                                 "start_drag" : function(obj){return obj.hasClass('canLink');}
                             },
-                            "image-locked" : {
-                                "valid_children" : "none",
-                                "icon" : {
-                                    "image" : '{% static "webclient/image/image16.png" %}'
-                                },
-                                "start_drag" : function(obj){return obj.hasClass('canLink');}
-                            },
                             "screen" : {
-                                "valid_children" : [ "plate", "plate-locked" ],
-                                "icon" : {
-                                    "image" : '{% static "webclient/image/folder_screen16.png" %}'
-                                },
-                                "start_drag" : false
-                            },
-                            "screen-locked" : {
-                                "valid_children" : [ "plate", "plate-locked" ],
+                                "valid_children" : [ "plate" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_screen16.png" %}'
                                 },
                                 "start_drag" : false
                             },
                             "plate" : {
-                                "valid_children" : "acquisition",
-                                "icon" : {
-                                    "image" : '{% static "webclient/image/folder_plate16.png" %}'
-                                },
-                                "start_drag" : function(obj){return obj.hasClass('canLink');}
-                            },
-                            "plate-locked" : {
                                 "valid_children" : "acquisition",
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_plate16.png" %}'
@@ -520,15 +479,8 @@
                                 },
                                 "create_node" : false
                             },
-                            "acquisition-locked" : {
-                                "valid_children" : "none",
-                                "icon" : {
-                                    "image" : '{% static "webclient/image/image16.png" %}'
-                                },
-                                "start_drag" : false
-                            },
                             "orphaned" : {
-                                "valid_children" : [ "image", "image_locked" ],
+                                "valid_children" : [ "image" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_yellow16.png" %}'
                                 },
@@ -542,9 +494,9 @@
                                 var p = this._get_parent(m.r);
                                 if(!p) return false;
                                 if (p == -1) return true;
-                                if ($.inArray(m.r.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
+                                if ($.inArray(m.r.attr("rel"), ["orphaned"]) > -1)
                                     return false;
-                                if ($.inArray(p.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
+                                if ($.inArray(p.attr("rel"), ["orphaned"]) > -1)
                                     return false;
                                 if (!m.cr.hasClass("canLink"))
                                     return false;
@@ -632,7 +584,7 @@
                                 "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
                                 "action": OME.handleDelete
                             };
-                            
+
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
                                 "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
@@ -641,11 +593,11 @@
                                 }
                             };
                             
-                            config["basket"] = {
-                                "label" : "Add to Basket",
-                                "icon"  : '{% static "webclient/image/icon_basic_basket_16.png" %}',                                    
+                            config["share"] = {
+                                "label" : "Create share",
+                                "icon"  : '{% static "webclient/image/icon_toolbar_share2.png" %}',
                                 "action": function(){
-                                    OME.addToBasket(this.get_selected(), '{% url 'update_basket' %}');
+                                    OME.createShare(this.get_selected());
                                 }
                             };
 
@@ -689,16 +641,18 @@
                             if(!obj.hasClass('canChgrp')) {
                                 config["chgrp"]["_disabled"] = true;
                             }
-                            // if experimenter or orphaned is selected, use 'locked' flag to decide permissions
+                            // if experimenter or orphaned is selected, use cssPerm classes to decide permissions
                             if(obj.attr("id").indexOf("experimenter")>=0 || obj.attr("rel") == 'orphaned') {
-                                var canCreate = $("#experimenter-0").attr("rel").indexOf("locked")>=0;
+                                var userId = {{ ome.user_id }},
+                                canCreate = (userId === {{ ome.user.id }} || userId === -1);
                                 // see #8879 config["ccp"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
-                                config["basket"]["_disabled"] = true;
-                                if(canCreate) {
+                                config["share"]["_disabled"] = true;
+                                if(!canCreate) {
                                     // see #8879 config["create"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
@@ -707,7 +661,7 @@
                             } else if(!obj.hasClass('canLink')) {
                                 // see #8879 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
-                                config["basket"]["_disabled"] = true;
+                                config["share"]["_disabled"] = true;
                                 config["create"]["submenu"]["project"]["_disabled"] = true;
                                 config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                 config["create"]["submenu"]["screen"]["_disabled"] = true;
@@ -718,9 +672,11 @@
                                 // see #8879 otherwise the options depend on type of node...
                                 var to_paste = this.data.crrm.cp_nodes || this.data.crrm.ct_nodes || false;
                                 if(obj.attr("id").indexOf("project")>=0) {
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("dataset")>=0)) {  // if we don't have a dataset
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;  // disable paste
                                     }
@@ -728,11 +684,15 @@
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
                                         config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     }
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
                                     // see #8879 config["create"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("image")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
                                         config["ccp"]["submenu"]["copy"]["_disabled"] = true;
@@ -741,7 +701,7 @@
                                 } else if(obj.attr("id").indexOf("screen")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("plate")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
@@ -750,20 +710,20 @@
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("acquisition")>=0) {
                                     // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     config["chgrp"]["_disabled"] = true;
                                 } else {
                                     // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     config["delete"]["_disabled"] = true;
                                 }
                             }
@@ -778,7 +738,7 @@
                                 config["renderingsettings"]["_disabled"] = false;
                                 config["renderingsettings"]["submenu"]["copy_rdef"]["_disabled"] = false;
                             }
-                            if($.inArray(obj.attr("rel").replace('-locked',''), ["image", "dataset", "plate", "acquisition"])>=0) {
+                            if($.inArray(obj.attr("rel"), ["image", "dataset", "plate", "acquisition"])>=0) {
                                 // if 'canAnnotate' then we can paste settings to image/dataset/plate
                                 if(obj.hasClass('canAnnotate')) {
                                     config["renderingsettings"]["_disabled"] = false;
@@ -808,7 +768,7 @@
                         obj_rel = $this.parent().attr('rel'),
                         ob_id = $this.parent().attr('id'),
                         iid;
-                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                    if (obj_rel=='image') {
                         iid = ob_id.split("-")[1];
                         OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/" + iid + "/"));
                     }
@@ -829,28 +789,28 @@
                         var remove = false;
                         var url;
                         if (data.inst.data.crrm.cp_nodes) {
-                            url = '{% url 'manage_action_containers' "paste" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                            url = '{% url 'manage_action_containers' "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = {
-                                "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
+                                "destination" : data.rslt.np.attr("rel") +'-'+data.rslt.np.attr("id").split("-")[1]
                             }
                         } else  {
                             // 'cr' is destination, 'op' is current parent
                             if (data.rslt.cr.attr('rel')!="orphaned") {
-                                url = '{% url 'manage_action_containers' "move" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/';
+                                url = '{% url 'manage_action_containers' "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
                                 var p = "orphaned-0";
                                 // ...but parent may be project if we are orphaning a dataset or drag'n'drop image
                                 if (data.rslt.op.attr("rel")) {
-                                    p = data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1];
+                                    p = data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1];
                                 }
                                 var d = {
                                     "parent" : p,
-                                    "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
+                                    "destination" : data.rslt.np.attr("rel") +'-'+data.rslt.np.attr("id").split("-")[1]
                                 };
                                 if (data.inst.get_container().find('#'+this.id).length > 1 ) data.inst.delete_node(this);
                             } else {
-                                url = '{% url 'manage_action_containers' "remove" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                                url = '{% url 'manage_action_containers' "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                                 d = {
-                                    "parent" : data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1]
+                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
                                 };
                             }
                         }
@@ -888,11 +848,11 @@
                             data.inst.refresh(data.inst._get_node('#orphaned-0'));
                         }
                         //refresh destination (will already be expanded, even if orphaned)
-                        if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
+                        if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel"), ["dataset", "orphaned"]) > -1) {
                             data.inst.refresh(data.inst._get_node('#'+data.rslt.cr.attr('id')));
                         }
                         // select the destination (select source if destination is orphaned)
-                        if (data.rslt.cr.attr("rel").replace("-locked", "") === "orphaned") {
+                        if (data.rslt.cr.attr("rel") === "orphaned") {
                             data.inst.select_node(data.rslt.op);
                         } else {
                             data.inst.select_node(data.rslt.cr);
@@ -934,8 +894,11 @@
                 case "deleteButton":
                         OME.handleDelete();
                     break;
-                case "basketButton":
-                    OME.addToBasket($.jstree._focused().get_selected(), '{% url 'update_basket' %}');
+                case "createshareButton":
+                    OME.createShare($.jstree._focused().get_selected());
+                    break;
+                case "createchatButton":
+                    OME.createShare();
                     break;
                 case "refreshButton":
                     // clear selection of center/right panels, refresh and notify
@@ -1011,12 +974,13 @@
 			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link" /> </li>
             <li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link" title="Copy a link to the selected object" /> </li>
 			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link" title="Paste the copied link" /> </li>
-			
-			<li class="seperator">
-			
+
 			<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
-			<li><input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_basket.png" %}" alt="Add to basket" title="Add to basket"></li>
-			
+
+            <li class="seperator">
+
+			<li><input id="createshareButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_share2.png" %}" alt="Create Share" title="Create Share"></li>
+
 			<li class="seperator"></li>
 			
 			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> </li>

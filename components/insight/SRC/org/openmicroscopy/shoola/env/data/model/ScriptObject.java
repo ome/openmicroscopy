@@ -191,10 +191,13 @@ public class ScriptObject
      * Flag indicating if the script is an official script i.e.
      * release by the team or not.
      */
-    private boolean	official;
+    private boolean official;
 
     /** The specified data types if set e.g. image.*/
     private List<Class<?>> dataTypes;
+
+    /** The id of the group the object to the script on belong to.*/
+    private long groupID;
 
     /**
      * Converts the specified values to the corresponding class.
@@ -293,6 +296,7 @@ public class ScriptObject
         journalRef = "";
         mimeType = null;
         official = true;
+        groupID = -1;
     }
 
     /**
@@ -638,6 +642,23 @@ public class ScriptObject
     {
         return DATA_TYPE.equals(key);
     }
+
+    /**
+     * Sets the id of the group.
+     *
+     * @param groupID The value to set.
+     */
+    public void setGroupID(long groupID)
+    {
+        this.groupID = groupID;
+    }
+
+    /**
+     * Returns the id of the group.
+     *
+     * @return See above.
+     */
+    public long getGroupID() { return groupID; }
 
     /**
      * 

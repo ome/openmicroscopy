@@ -9,7 +9,6 @@ package integration.delete;
 import static omero.rtypes.rbool;
 import static omero.rtypes.rstring;
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +43,7 @@ import omero.model.ExperimenterGroupI;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -63,6 +63,7 @@ import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.HashMultimap;
@@ -530,7 +531,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
      * The image should be deleted, but not its projection.
      * @throws Exception unexpected
      */
-    @Test(groups = {"ticket:12856", "broken"})
+    @Test(groups = {"ticket:12856"})
     public void testDeletingDatasetWithProjectedImage() throws Exception {
         newUserAndGroup("rw----");
 
@@ -570,7 +571,136 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         /* check what is left afterward */
         assertDoesNotExist(dataset);
-        assertDoesNotExist(original);  // FIXME: still exists!
+        assertDoesNotExist(original);
         assertExists(projection);
+    }
+
+    /* for dataset to plate test cases */
+    private enum Target { DATASET, IMAGES, PLATE };
+
+    /**
+     * Test deletion on a dataset, plate, or images, where the plate's images are in the dataset.
+     * @param target the target of the delete operation
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "dataset to plate test cases")
+    public void testDeletingDatasetToPlate(Target target) throws Exception {
+        newUserAndGroup("rw----");
+
+        /* create a plate */
+
+        Plate plate = mmFactory.createPlate(2, 2, 1, 1, false);
+        plate = (Plate) iUpdate.saveAndReturnObject(plate).proxy();
+        final long plateId = plate.getId().getValue();
+
+        /* find the plate's images */
+
+        final List<Long> imageIds = new ArrayList<Long>();
+        final String hql = "SELECT image.id FROM WellSample where well.id IN (SELECT id FROM Well WHERE plate.id = :id)";
+        final omero.sys.Parameters params = new ParametersI().addId(plateId);
+        for (final List<RType> result : iQuery.projection(hql, params)) {
+            final Long imageId = ((RLong) result.get(0)).getValue();
+            imageIds.add(imageId);
+        }
+
+        /* create the dataset and link the images to it */
+
+        final Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset()).proxy();
+        final long datasetId = dataset.getId().getValue();
+
+        final List<Long> linkIds = new ArrayList<Long>(imageIds.size());
+        for (final long imageId : imageIds) {
+            DatasetImageLink link = new DatasetImageLinkI();
+            link.setParent(dataset);
+            link.setChild(new ImageI(imageId, false));
+            linkIds.add(iUpdate.saveAndReturnObject(link).getId().getValue());
+        }
+
+        /* perform the deletion */
+
+        final boolean isExpectSuccess = target != Target.IMAGES;
+
+        final Delete2 delete = new Delete2();
+
+        switch (target) {
+        case DATASET:
+            delete.targetObjects = ImmutableMap.of("Dataset", Collections.singletonList(datasetId));
+            break;
+        case IMAGES:
+            delete.targetObjects = ImmutableMap.of("Image", imageIds);
+            break;
+        case PLATE:
+            delete.targetObjects = ImmutableMap.of("Plate", Collections.singletonList(plateId));
+            break;
+        }
+
+        doChange(client, factory, delete, isExpectSuccess);
+
+        if (isExpectSuccess) {
+
+            /* check that exactly the expected objects were deleted */
+
+            switch (target) {
+            case DATASET:
+                assertDoesNotExist("Dataset", datasetId);
+                assertAllExist("Image", imageIds);
+                assertNoneExist("DatasetImageLink", linkIds);
+                assertExists("Plate", plateId);
+                break;
+            case IMAGES:
+                Assert.fail("cannot delete images while used by well samples");
+            case PLATE:
+                assertExists("Dataset", datasetId);
+                assertAllExist("Image", imageIds);
+                assertAllExist("DatasetImageLink", linkIds);
+                assertDoesNotExist("Plate", plateId);
+                break;
+            }
+        }
+
+        /* delete the remaining "containers" */
+
+        switch (target) {
+        case DATASET:
+            delete.targetObjects = ImmutableMap.of("Plate", Collections.singletonList(plateId));
+            break;
+        case IMAGES:
+            delete.targetObjects = ImmutableMap.of(
+                    "Dataset", Collections.singletonList(datasetId),
+                    "Plate", Collections.singletonList(plateId));
+            break;
+        case PLATE:
+            delete.targetObjects = ImmutableMap.of("Dataset", Collections.singletonList(datasetId));
+            break;
+        }
+
+        doChange(client, factory, delete, true);
+
+        /* check that all the objects are now deleted */
+
+        assertDoesNotExist("Dataset", datasetId);
+        assertNoneExist("Image", imageIds);
+        assertNoneExist("DatasetImageLink", linkIds);
+        assertDoesNotExist("Plate", plateId);
+    }
+
+    /**
+     * @return a variety of test cases for dataset to plate
+     */
+    @DataProvider(name = "dataset to plate test cases")
+    public Object[][] provideDatasetToPlateCases() {
+        int index = 0;
+        final int TARGET = index++;
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final Target target : Target.values()) {
+            final Object[] testCase = new Object[index];
+            testCase[TARGET] = target;
+            // DEBUG: if (target == Target.DATASET)
+            testCases.add(testCase);
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
     }
 }

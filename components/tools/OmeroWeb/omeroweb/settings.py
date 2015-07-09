@@ -247,6 +247,8 @@ INTERNAL_SETTINGS_MAPPING = {
         ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
     "omero.web.upgrades.url":
         ["UPGRADES_URL", None, leave_none_unset, None],
+    "omero.web.check_version":
+        ["CHECK_VERSION", "true", parse_boolean, None],
 
     # Allowed hosts:
     # https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
@@ -317,10 +319,6 @@ INTERNAL_SETTINGS_MAPPING = {
          parse_boolean,
          ("Whether to use a TLS (secure) connection when talking to the SMTP"
           " server.")],
-
-    # Deprecated
-    "omero.web.send_broken_link_emails":
-        ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean, None],
 }
 
 CUSTOM_SETTINGS_MAPPINGS = {
@@ -649,6 +647,13 @@ DEPRECATED_SETTINGS_MAPPINGS = {
          None,
          leave_none_unset_int,
          ("Use omero.client.viewer.initial_zoom_level instead.")],
+    "omero.web.send_broken_link_emails":
+        ["SEND_BROKEN_LINK_EMAILS",
+         "false",
+         parse_boolean,
+         ("Replaced by django.middleware.common.BrokenLinkEmailsMiddleware."
+          "To get notification set :property:`omero.web.admins` property.")
+         ],
 }
 
 del CUSTOM_HOST
@@ -799,6 +804,7 @@ USE_I18N = True
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 # See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

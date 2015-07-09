@@ -304,21 +304,11 @@ class TestCsrf(IWebTest):
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data)
 
-    def test_basket_actions(self):
+    def test_create_share(self):
 
-        # Create discussion
-        request_url = reverse("basket_action", args=["createdisc"])
-        data = {
-            'enable': 'on',
-            'members': self.user.id.val,
-            'message': 'foobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Create share
         img = self.image_with_channels()
-        request_url = reverse("basket_action", args=["createshare"])
+        request_url = reverse("manage_action_containers",
+                              args=["add", "share"])
         data = {
             'enable': 'on',
             'image': img.id.val,
@@ -326,18 +316,14 @@ class TestCsrf(IWebTest):
             'message': 'foobar'
         }
 
-        # edit share
+        _post_response(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
+
+    def test_edit_share(self):
+
         # create images
         images = [self.createTestImage(session=self.sf),
                   self.createTestImage(session=self.sf)]
-
-        # put images into the basket
-        session = self.django_client.session
-        session['imageInBasket'] = [i.id.val for i in images]
-        session.save()
-
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
 
         sid = self.sf.getShareService().createShare(
             "foobar", rtime(None), images, [self.user], [], True)

@@ -290,12 +290,18 @@ public class FileImportComponent
 	    String logText = "View Import Log";
 	    String checksumText = "View Checksum";
 	    String exceptionText = "View Exception";
+	    String copyExceptionText = "Copy Exception to Clipboard";
 	    Object result = statusLabel.getImportResult();
 	    switch (resultIndex) {
 	    case FAILURE_LIBRARY:
 	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
                 public void actionPerformed(ActionEvent e) {
                     viewError();
+                }
+            }));
+	        menu.add(new JMenuItem(new AbstractAction(copyExceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    copyErrorToClipboard();
                 }
             }));
 	        break;
@@ -308,6 +314,11 @@ public class FileImportComponent
 	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
                 public void actionPerformed(ActionEvent e) {
                     viewError();
+                }
+            }));
+	        menu.add(new JMenuItem(new AbstractAction(copyExceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    copyErrorToClipboard();
                 }
             }));
 	        break;
@@ -517,6 +528,16 @@ public class FileImportComponent
 	        UIUtilities.centerAndShow(d);
 	    }
 	}
+
+	/** Copies the error to the clipboard.*/
+    private void copyErrorToClipboard()
+    {
+        Object o = statusLabel.getImportResult();
+        if (o instanceof ImportException) {
+            String v = UIUtilities.printErrorText((ImportException) o);
+            UIUtilities.copyToClipboard(v);
+        }
+    }
 
 	/** Browses the node or the data object. */
 	private void browse()

@@ -17,21 +17,12 @@
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build;client->runtime;server->runtime"/>
-    <!-- Bioformats -->
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,server,client->build">
-        <artifact name="formats-api"/>
-        <artifact name="formats-bsd"/>
-        <artifact name="formats-common"/>
-        <artifact name="formats-gpl"/>
-        <artifact name="ome-xml"/>
-        <artifact name="specification"/>
-        <!-- forks & stubs -->
-        <artifact name="jai_imageio"/>
-        <artifact name="lwf-stubs"/>
-        <artifact name="mdbtools-java"/>
-        <artifact name="metakit"/>
-        <artifact name="ome-poi"/>
-        <artifact name="turbojpeg"/>
+    <!-- Bio-Formats -->
+    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}" transitive="true">
+        <exclude org="com.jgoodies"/>
+        <exclude org="org.perf4j"/>
+        <exclude org="org.slf4j"/>
+        <exclude org="xml-apis"/>
     </dependency>
     <!-- Hibernate server -->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build,server->default"/>
@@ -41,7 +32,10 @@
     <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="build,server->default"/>
     <dependency org="javassist" name="javassist" rev="${versions.javassist}" conf="build,server->default"/>
     <!-- Hibernate -->
-    <dependency org="${omero.db.org}" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default"/>
+    <dependency org="${omero.db.org}" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default">
+        <exclude org="org.slf4j"/>
+        <exclude org="com.github.dblock.waffle"/>
+    </dependency>
     <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-annotations}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-core" rev="${versions.hibernate}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build,server->default"/>
@@ -55,11 +49,11 @@
     <dependency org="freemarker" name="freemarker" rev="${versions.freemarker}" conf="build->default"/>
     <dependency org="org.hibernate" name="jtidy" rev="${versions.jtidy}" conf="build->default"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.beans" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.context" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.jdbc" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.transaction" rev="${versions.spring}" conf="build,client,server->default"/>
+    <dependency org="org.springframework" name="org.springframework.beans" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="org.springframework.context" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="org.springframework.jdbc" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="org.springframework.transaction" rev="${versions.spring}"/>
     <!-- also spring; added here instead of in server to make tests pass -->
     <dependency org="org.springframework" name="org.springframework.asm" rev="${versions.spring}"/>
     <dependency org="org.springframework" name="org.springframework.expression" rev="${versions.spring}"/>

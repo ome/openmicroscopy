@@ -66,17 +66,6 @@ urlpatterns = patterns(
         views.group_user_content,
         name="group_user_content"),
 
-    # load basket
-    url(r'^basket/empty/$', views.empty_basket, name="empty_basket"),
-    url(r'^basket/update/$', views.update_basket, name="update_basket"),
-    url(r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$',
-        views.basket_action,
-        name="basket_action"),
-    url(r'^basket_content/$',
-        views.basket_action,
-        {'template': 'webclient/basket/basketContent.html'},
-        name="basket_content"),
-
     # update, display activities, E.g. delete queues, scripts etc.
     url(r'^activities/', views.activities, name="activities"),
     url(r'^activities_json/',

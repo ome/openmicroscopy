@@ -131,15 +131,15 @@
 	}
 	
 
-	/* Queue + Baskets */
-	#queue, #baskets {
+	/* Queue */
+	#queue {
 	    padding:0;
 	    float:left;
 		border:solid 1px blue;
 	    top: -1px;
 	}
 
-	#jobstatus, #cartTotal {
+	#jobstatus {
 	    font-size: 80%;
 	    position: absolute;
 	    right: 0px;
@@ -190,7 +190,7 @@
 	    display: none;
 	}
 
-	#activities_panel a, #basket_panel a {
+	#activities_panel a {
 	    text-decoration: none;
 	    color: #00f;
 	}
@@ -226,19 +226,9 @@
 	#activities_panel .script_error {
 	    color: red;
 	}
-	#activities_spinner, #basket_spinner {
+	#activities_spinner {
 	float: right;
 	}
-	#basket_panel_link {
-	    float: right;
-	}
-	
-
-
-
-
-
-
 
 
 	 
