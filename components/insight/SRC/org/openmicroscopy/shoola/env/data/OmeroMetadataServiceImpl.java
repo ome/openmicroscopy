@@ -205,7 +205,7 @@ class OmeroMetadataServiceImpl
 	{
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(annotation.getId());
-		List l = gateway.findAnnotationLinks(ctx, object.getClass().getName(),
+		List l = gateway.findAnnotationLinks(ctx, object.getClass(),
 				-1, ids);
 		if (l == null) return false;
 		return l.size() > 0;
@@ -1280,7 +1280,7 @@ class OmeroMetadataServiceImpl
 			} 
 		}
 		List l = null;
-		String klass = PojoMapper.getModelType(type).getName();
+		Class klass = PojoMapper.getModelType(type);
 		if (ids.size() != 0)
 			l = gateway.findAnnotationLinks(ctx, klass, id, ids);
 		if (l != null) {
