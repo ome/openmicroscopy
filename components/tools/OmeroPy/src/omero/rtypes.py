@@ -28,6 +28,8 @@ IceImport.load("omero_RTypes_ice")
 IceImport.load("omero_Scripts_ice")
 IceImport.load("omero_model_RTypes_ice")
 
+from types import StringTypes
+
 
 def rtype(val):
     """
@@ -294,12 +296,13 @@ def rstring(val):
         return remptystr
     elif isinstance(val, omero.RString):
         return val
-    elif isinstance(val, str):
+    elif isinstance(val, StringTypes):
         if len(val) == 0:
             return remptystr
         else:
             return RStringI(val)
-    raise ValueError("Not string type: %s" % type(val))
+    else:
+        return RStringI(str(val))
 
 # Static factory methods (collections)
 # =========================================================================
