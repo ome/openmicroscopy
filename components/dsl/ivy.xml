@@ -29,7 +29,6 @@
     <!-- build requirements -->
     <dependency org="org.apache.ant" name="ant" rev="${versions.ant}"/>
     <dependency org="velocity-tools" name="velocity-tools-generic" rev="${versions.velocity-tools}"/>
-    <dependency org="velocity" name="velocity" rev="${versions.velocity}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
     <!-- spring -->
     <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->default"/>
@@ -40,7 +39,6 @@
     <dependency org="antlr" name="antlr" rev="${versions.antlr}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="jmock" name="jmock" rev="1.0.1"/>
-    <dependency org="junit" name="junit" rev="3.8.1"/>
     <dependency org="net.sourceforge.findbugs" name="findbugs-ant" rev="${versions.findbugs}"/>
     <dependency org="oro" name="oro" rev="${versions.oro}"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
