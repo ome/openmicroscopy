@@ -65,6 +65,7 @@
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="scriptRepoHelper"/>
             <constructor-arg ref="checksumProviderFactory"/>
+            <constructor-arg ref="paramsCache"/>
         </bean>
     </constructor-arg>
   </bean>
@@ -118,6 +119,7 @@
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="TopicManager"/>
             <constructor-arg ref="Registry"/>
+            <constructor-arg ref="paramsCache"/>
             <constructor-arg ref="scriptRepoHelper"/>
             <constructor-arg value="${omero.grid.registry_timeout}"/>
             <constructor-arg value="${omero.scripts.timeout}"/>

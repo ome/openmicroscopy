@@ -15,54 +15,25 @@
             <delete file="${basedir}/.sconsign.dblite"/>
         </target>
 
-	<target name="compile" depends="generate,_compile" unless="skip.compile"/>
-	<target name="_compile" description="Internal develop target which doesn't run codegen">
-            <if>
-                <uptodate targetfile="${target.dir}/blitz.jar">
-                    <srcfiles dir="${basedir}" includes="**/*.java,**/*.ice,**/*.vm"/>
-                </uptodate>
-            <then>
-                <echo>Up to date</echo>
-            </then>
-            <else>
-                <antcall target="icegen" inheritRefs="true" inheritAll="true"/>
-		<hard-wire file="ome/services/blitz/fire/SessionManagerI.java"
-		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
-
-                <!-- WORKAROUND: Attempting to compile mutually dependent directories
-                     via javac is quite complicated. Moving the difficult file out of the way -->
-                <property name="file.real.sessionmanager" value="${src.dest}/ome/services/blitz/fire/SessionManagerI.java"/>
-                <property name="file.fake.sessionmanager" value="${src.dest}/ome/services/blitz/fire/SessionManagerI.fake"/>
-                <move file="${file.real.sessionmanager}" tofile="${file.fake.sessionmanager}"/>
-		<myjavac>
-		    <src path="${src.dir}"/>
-		    <src path="${src.dest}"/>
-		    <src path="${basedir}/generated"/>
-		    <include name="pojos/**"/>
-		    <include name="omero/**"/>
-		    <include name="omero/model/**"/>
-		    <include name="ome/services/blitz/impl/CloseableServant.java"/>
-		    <include name="ome/services/blitz/util/ConvertToBlitzExceptionMessage.java"/>
-		    <include name="ome/services/blitz/util/ObjectFactoryRegistry.java"/>
-		    <include name="ome/formats/model/UnitsFactory.java"/>
-		</myjavac>
-		<myjavac>
-		    <src path="${src.dir}"/>
-		    <src path="${src.dest}"/>
-		    <src path="${basedir}/generated"/>
-                    <exclude name="omero/**"/>
-                    <exclude name="omero/model/**"/>
-		</myjavac>
-                <move file="${file.fake.sessionmanager}" tofile="${file.real.sessionmanager}"/>
-		<myjavac>
-		    <include name="**/SessionManagerI.java"/>
-		    <src path="${src.dest}"/>
-		</myjavac>
-                <delete file="${file.real.sessionmanager}"/>
-                <delete file="${file.fake.sessionmanager}"/><!-- Just in case -->
-            </else>
-            </if>
-	</target>
+    <target name="compile" depends="generate,_compile" unless="skip.compile"/>
+    <target name="_compile" description="Internal develop target which doesn't run codegen">
+        <if>
+            <uptodate targetfile="${target.dir}/blitz.jar">
+                <srcfiles dir="${basedir}" includes="**/*.java,**/*.ice,**/*.vm"/>
+            </uptodate>
+        <then>
+            <echo>Up to date</echo>
+        </then>
+        <else>
+            <antcall target="icegen" inheritRefs="true" inheritAll="true"/>
+            <myjavac>
+                <src path="${src.dir}"/>
+                <src path="${src.dest}"/>
+                <src path="${basedir}/generated"/>
+            </myjavac>
+        </else>
+        </if>
+    </target>
 
     <!-- = = = = = = = = = = = = = = = = =
           generate model
