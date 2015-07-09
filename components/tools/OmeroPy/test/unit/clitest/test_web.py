@@ -22,7 +22,10 @@
 import pytest
 from difflib import unified_diff
 import re
+import pwd
+import os
 from path import path
+import Ice
 import omero.cli
 from omero.plugins.web import WebControl
 from omeroweb import settings
@@ -226,6 +229,41 @@ class TestWeb(object):
                 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]',
                 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
                 'ProxyPass /.fcgi/ fcgi://%s/' % expected_cgi,
+                ], lines)
+        assert not missing, 'Line not found: ' + str(missing)
+
+    @pytest.mark.parametrize('prefix', [None, '/test'])
+    def testApacheWSGIConfig(self, prefix, capsys, monkeypatch):
+
+        static_prefix = self.add_prefix(prefix, monkeypatch)
+        username = pwd.getpwuid(os.getuid()).pw_name
+        icepath = os.path.dirname(Ice.__file__)
+
+        self.args += ["config", "apache-wsgi"]
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        lines = self.clean_generated_file(o)
+        if prefix:
+            missing = self.required_lines_in([
+                ('DocumentRoot ', 'lib/python/omeroweb'),
+                ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
+                 'display-name=%%{GROUP} user=%s ' % username +
+                 'python-path=%s' % icepath, 'lib/python/omeroweb'),
+                ('WSGIScriptAlias %s ' % prefix,
+                 'lib/python/omeroweb/wsgi.py'),
+                ('Alias %s ' % static_prefix[:-1],
+                 'lib/python/omeroweb/static'),
+                ], lines)
+        else:
+            missing = self.required_lines_in([
+                ('DocumentRoot ', 'lib/python/omeroweb'),
+                ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
+                 'display-name=%%{GROUP} user=%s ' % username +
+                 'python-path=%s' % icepath, 'lib/python/omeroweb'),
+                ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py'),
+                ('Alias /static ', 'lib/python/omeroweb/static'),
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
