@@ -69,15 +69,6 @@
           usepoms="true" useMavenMetadata="true"
           m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
 
-      <url name="com.springsource.repository.bundles.release" cache="maven">
-        <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-        <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-      </url>
-      <url name="com.springsource.repository.bundles.external" cache="maven">
-        <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-        <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-      </url>
-
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
     <chain name="omero-resolver" returnFirst="true">
@@ -97,10 +88,8 @@
     <!-- Spring resolver which has as its first resolver the location
     where all our jars will be published -->
     <chain name="spring-resolver" returnFirst="true">
-        <resolver ref="repo"/>
         <resolver ref="user-maven"/>
-        <resolver ref="com.springsource.repository.bundles.release"/>
-        <resolver ref="com.springsource.repository.bundles.external"/>
+        <resolver ref="maven"/>
     </chain>
 
    <!-- Resolver for all the test jars which should not be shipped -->

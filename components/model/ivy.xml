@@ -36,26 +36,13 @@
         <exclude org="org.slf4j"/>
         <exclude org="com.github.dblock.waffle"/>
     </dependency>
-    <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-annotations}" conf="build,server->default"/>
-    <dependency org="org.hibernate" name="hibernate-core" rev="${versions.hibernate}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build,server->default"/>
-    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-core" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-analyzers" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.solr" name="solr-analysis-extras" rev="${versions.lucene}" conf="build,server->default"/>
     <!-- build only -->
     <dependency org="org.hibernate" name="hibernate-tools" rev="${versions.hibernate-tools}" conf="build->default"/>
     <dependency org="freemarker" name="freemarker" rev="${versions.freemarker}" conf="build->default"/>
     <dependency org="org.hibernate" name="jtidy" rev="${versions.jtidy}" conf="build->default"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.beans" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.context" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.jdbc" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.transaction" rev="${versions.spring}"/>
-    <!-- also spring; added here instead of in server to make tests pass -->
-    <dependency org="org.springframework" name="org.springframework.asm" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.expression" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="spring-orm" rev="${versions.spring}"/>
   </dependencies>
 </ivy-module>

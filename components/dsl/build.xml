@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="dsl" default="install" basedir=".">
+<project name="dsl" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
+
+    <target name="report" depends="prepare">
+        <mkdir dir="${target.dir}/build.deps"/>
+        <ivy:report conf="client" todir="${target.dir}/build.deps"
+            outputpattern="dependencies.html" graph="false"
+            settingsRef="ivy.dsl"/>
+    </target>
 
 </project>
