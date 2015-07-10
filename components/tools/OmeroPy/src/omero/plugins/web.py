@@ -164,6 +164,9 @@ class WebControl(BaseControl):
     def _get_python_dir(self):
         return self.ctx.dir / "lib" / "python"
 
+    def _get_fallback_dir(self):
+        return self.ctx.dir / "lib" / "fallback"
+
     def _get_templates_dir(self):
         return self.ctx.dir / "etc" / "templates"
 
@@ -202,6 +205,7 @@ class WebControl(BaseControl):
             self.ctx.err(
                 "Cannot import Ice.")
         d["OMEROPYTHONROOT"] = self._get_python_dir()
+        d["OMEROFALLBACKNROOT"] = self._get_fallback_dir()
 
     def config(self, args):
         """Generate a configuration file from a template"""

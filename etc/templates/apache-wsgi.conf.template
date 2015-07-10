@@ -56,7 +56,7 @@
 
   DocumentRoot %(OMEROWEBROOT)s
 
-  WSGIDaemonProcess omeroweb processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROWEBROOT)s
+  WSGIDaemonProcess omeroweb processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKNROOT)s:%(OMEROWEBROOT)s
   
   WSGIProcessGroup omeroweb
 
