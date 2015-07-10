@@ -22,7 +22,6 @@
 import pytest
 from difflib import unified_diff
 import re
-import pwd
 import os
 from path import path
 import Ice
@@ -282,7 +281,12 @@ class TestWeb(object):
     def testApacheWSGIConfig(self, prefix, capsys, monkeypatch):
 
         static_prefix = self.add_prefix(prefix, monkeypatch)
-        username = pwd.getpwuid(os.getuid()).pw_name
+        try:
+            import pwd
+            username = pwd.getpwuid(os.getuid()).pw_name
+        except ImportError:
+            import getpass
+            username = getpass.getuser()
         icepath = os.path.dirname(Ice.__file__)
 
         self.args += ["config", "apache-wsgi"]
