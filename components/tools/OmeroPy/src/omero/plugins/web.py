@@ -90,7 +90,7 @@ class WebControl(BaseControl):
             "  nginx-wsgi-development: Standalone user-run Nginx server\n"
             "  apache: Apache 2.2 with mod_fastcgi\n"
             "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n"
-            "  apache-wsgi: Apache 2.4+ with mod_wsgi\n")
+            "  apache-wsgi: Apache 2.2+ with mod_wsgi\n")
         config.add_argument("type", choices=(
             "nginx", "nginx-development",
             "nginx-wsgi", "nginx-wsgi-development",
