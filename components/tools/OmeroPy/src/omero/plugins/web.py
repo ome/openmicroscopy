@@ -86,11 +86,14 @@ class WebControl(BaseControl):
             "Output a config template for web server\n"
             "  nginx: Nginx system configuration for inclusion\n"
             "  nginx-development: Standalone user-run Nginx server\n"
+            "  nginx-wsgi: Standalone user-run Nginx server\n"
+            "  nginx-wsgi-development: Standalone user-run Nginx server\n"
             "  apache: Apache 2.2 with mod_fastcgi\n"
-            "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
+            "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n"
+            "  apache-wsgi: Apache 2.4+ with mod_wsgi\n")
         config.add_argument("type", choices=(
-            "gunicorn", "gunicorn-development",
             "nginx", "nginx-development",
+            "nginx-wsgi", "nginx-wsgi-development",
             "apache", "apache-fcgi", "apache-wsgi"))
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
@@ -205,7 +208,7 @@ class WebControl(BaseControl):
             self.ctx.err(
                 "Cannot import Ice.")
         d["OMEROPYTHONROOT"] = self._get_python_dir()
-        d["OMEROFALLBACKNROOT"] = self._get_fallback_dir()
+        d["OMEROFALLBACKROOT"] = self._get_fallback_dir()
 
     def config(self, args):
         """Generate a configuration file from a template"""
@@ -213,7 +216,7 @@ class WebControl(BaseControl):
         if not args.type:
             self.ctx.die(
                 "Available configuration helpers:\n"
-                " - gunicorn, gunicorn-development\n"
+                " - nginx-wsgi, nginx-wsgi-development\n"
                 " nginx, nginx-development,"
                 " apache, apache-fcgi, apache-wsgi\n")
 
@@ -224,7 +227,7 @@ class WebControl(BaseControl):
         server = args.type
         if args.http:
             port = args.http
-        elif server in ('nginx-development', 'gunicorn-development'):
+        elif server in ('nginx-development', 'nginx-wsgi-development'):
             port = 8080
         else:
             port = 80
@@ -243,7 +246,8 @@ class WebControl(BaseControl):
             "NOW": str(datetime.now())}
 
         if server in ("nginx", "nginx-development",
-                      "gunicorn", "gunicorn-development"):
+                      "nginx-wsgi", "nginx-wsgi-development",
+                      "apache-wsgi"):
             d["HTTPPORT"] = port
             d["MAX_BODY_SIZE"] = args.max_body_size
 

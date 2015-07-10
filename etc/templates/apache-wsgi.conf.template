@@ -52,11 +52,11 @@
 ### Stanza for OMERO.web created %(NOW)s
 ###
 
-<VirtualHost _default_:80>
+<VirtualHost _default_:%(HTTPPORT)d>
 
   DocumentRoot %(OMEROWEBROOT)s
 
-  WSGIDaemonProcess omeroweb processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKNROOT)s:%(OMEROWEBROOT)s
+  WSGIDaemonProcess omeroweb processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKROOT)s:%(OMEROWEBROOT)s
   
   WSGIProcessGroup omeroweb
 

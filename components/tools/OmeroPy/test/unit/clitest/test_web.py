@@ -161,7 +161,7 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
     @pytest.mark.parametrize('server_type', [
-        "gunicorn", "gunicorn-development"])
+        "nginx-wsgi", "nginx-wsgi-development"])
     @pytest.mark.parametrize('http', [False, 8081])
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
@@ -183,12 +183,12 @@ class TestWeb(object):
         o, e = capsys.readouterr()
         lines = self.clean_generated_file(o)
 
-        if server_type.split()[0] == "gunicorn":
+        if "development" in server_type:
             missing = self.required_lines_in([
                 "upstream omeroweb_server {",
                 "server %s fail_timeout=0;" % expected_cgi,
                 "server {",
-                "listen %s;" % (http or 80),
+                "listen %s;" % (http or 8080),
                 "client_max_body_size %s;" % (max_body_size or '0'),
                 "location %s {" % static_prefix[:-1],
                 "location %s {" % (prefix or "/"),
@@ -198,7 +198,7 @@ class TestWeb(object):
                 "upstream omeroweb_server {",
                 "server %s fail_timeout=0;" % expected_cgi,
                 "server {",
-                "listen %s;" % (http or 8080),
+                "listen %s;" % (http or 80),
                 "client_max_body_size %s;" % (max_body_size or '0'),
                 "location %s {" % static_prefix[:-1],
                 "location %s {" % (prefix or "/"),
@@ -278,7 +278,8 @@ class TestWeb(object):
         assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
-    def testApacheWSGIConfig(self, prefix, capsys, monkeypatch):
+    @pytest.mark.parametrize('http', [False, 8081])
+    def testApacheWSGIConfig(self, prefix, http, capsys, monkeypatch):
 
         static_prefix = self.add_prefix(prefix, monkeypatch)
         try:
@@ -290,13 +291,18 @@ class TestWeb(object):
         icepath = os.path.dirname(Ice.__file__)
 
         self.args += ["config", "apache-wsgi"]
+        if http:
+            self.args += ["--http", str(http)]
+
         self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
         lines = self.clean_generated_file(o)
+        print lines
         if prefix:
             missing = self.required_lines_in([
+                ("<VirtualHost _default_:%s>" % (http or 80)),
                 ('DocumentRoot ', 'lib/python/omeroweb'),
                 ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
@@ -308,6 +314,7 @@ class TestWeb(object):
                 ], lines)
         else:
             missing = self.required_lines_in([
+                ("<VirtualHost _default_:%s>" % (http or 80)),
                 ('DocumentRoot ', 'lib/python/omeroweb'),
                 ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
