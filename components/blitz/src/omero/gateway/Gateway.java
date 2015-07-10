@@ -178,6 +178,7 @@ public class Gateway {
                 log.warn(this, new LogMessage("Cannot close connector", e));
             }
         }
+        Facility.clear();
         groupConnectorMap.clear();
         keepAliveExecutor.shutdown();
         connected = false;
@@ -1350,8 +1351,11 @@ public class Gateway {
                     .getServer().getPort());
             ServiceFactoryPrx prx = client.createSession(login.getUser()
                     .getUsername(), login.getUser().getPassword());
-            prx.setSecurityContext(new ExperimenterGroupI(ctx.getGroupID(),
-                    false));
+
+            if(ctx.getGroupID()>=0)
+                prx.setSecurityContext(new ExperimenterGroupI(ctx.getGroupID(),
+                        false));
+            
             c = new Connector(ctx, client, prx, login.isEncryption(), log);
             groupConnectorMap.put(ctx.getGroupID(), c);
         } catch (Throwable e) {
