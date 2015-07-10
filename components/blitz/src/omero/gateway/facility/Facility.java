@@ -101,6 +101,13 @@ public abstract class Facility {
 
         });
     }
+    
+    /**
+     * Clears the Facility object cache
+     */
+    public static void clear() {
+        Facility.cache.invalidateAll();
+    }
 
     /**
      * Helper method to simplify logging
