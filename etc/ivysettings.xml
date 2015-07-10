@@ -155,6 +155,7 @@
     <module organisation="abbot" resolver="laughingpanda-resolver"/>
     <module organisation="jretrofit" resolver="laughingpanda-resolver"/>
     <module organisation="ome" name="appbundler" resolver="ome-resolver"/>
+    <module organisation="zeroc" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
   </modules>
 
