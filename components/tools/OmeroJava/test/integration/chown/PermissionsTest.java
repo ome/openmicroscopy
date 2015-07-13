@@ -438,7 +438,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext datasetOwner, imageOwner, linkOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup(groupPermissions);
+        datasetOwner = newUserAndGroup(groupPermissions, true);
 
         final long dataGroupId = datasetOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -449,7 +449,7 @@ public class PermissionsTest extends AbstractServerTest {
             imageOwner = datasetOwner;
             linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
         } else {
-            imageOwner = newUserInGroup(dataGroup, false);
+            imageOwner = newUserInGroup(dataGroup, true);
             linkOwner = isLinkOwner ? datasetOwner : imageOwner;
         }
 
@@ -515,7 +515,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext datasetOwner, imageOwner, linkOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup(groupPermissions);
+        datasetOwner = newUserAndGroup(groupPermissions, true);
 
         final long dataGroupId = datasetOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -526,7 +526,7 @@ public class PermissionsTest extends AbstractServerTest {
             imageOwner = datasetOwner;
             linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
         } else {
-            imageOwner = newUserInGroup(dataGroup, false);
+            imageOwner = newUserInGroup(dataGroup, true);
             linkOwner = isLinkOwner ? datasetOwner : imageOwner;
         }
 
@@ -620,7 +620,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext imageOwner, projectionOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        imageOwner = newUserAndGroup("rwrw--");
+        imageOwner = newUserAndGroup("rwrw--", true);
 
         final long dataGroupId = imageOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -691,7 +691,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext imageOwner, otherImageOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        imageOwner = newUserAndGroup("rwrw--");
+        imageOwner = newUserAndGroup("rwrw--", true);
 
         final long dataGroupId = imageOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -788,7 +788,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext datasetOwner, plateOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup("rwrw--");
+        datasetOwner = newUserAndGroup("rwrw--", true);
 
         final long dataGroupId = datasetOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
