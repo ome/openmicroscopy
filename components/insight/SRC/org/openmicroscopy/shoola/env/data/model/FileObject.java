@@ -45,6 +45,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -265,9 +266,10 @@ public class FileObject
             int SizeT_org = SizeT_cur;
             int SizeZ_org = SizeZ_cur;
             for(int x=0; x<size; x++) {
-                SizeC_org = Integer.valueOf(nodeList.item(x).getAttributes().getNamedItem("SizeC").getNodeValue());
-                SizeT_org = Integer.valueOf(nodeList.item(x).getAttributes().getNamedItem("SizeT").getNodeValue());
-                SizeZ_org = Integer.valueOf(nodeList.item(x).getAttributes().getNamedItem("SizeZ").getNodeValue());
+                NamedNodeMap attributes = nodeList.item(x).getAttributes();
+                SizeC_org = Integer.valueOf(attributes.getNamedItem("SizeC").getNodeValue());
+                SizeT_org = Integer.valueOf(attributes.getNamedItem("SizeT").getNodeValue());
+                SizeZ_org = Integer.valueOf(attributes.getNamedItem("SizeZ").getNodeValue());
             }
             if (SizeC_cur != SizeC_org || SizeT_cur != SizeT_org || SizeZ_cur != SizeZ_org){
                 return true;
@@ -301,8 +303,15 @@ public class FileObject
             } catch (IOException e) {
                 e.printStackTrace(pw);
                 IJ.log(pw.toString());
+            } finally {
+                try {
+                    sw.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                pw.close();
             }
-
         return doc;
     }
 
