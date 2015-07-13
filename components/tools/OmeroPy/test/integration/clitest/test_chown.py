@@ -32,6 +32,8 @@ all_grps = {'omero.group': '-1'}
 
 class TestChown(CLITest):
 
+    DEFAULT_GROUP_OWNER = True
+
     def setup_method(self, method):
         super(TestChown, self).setup_method(method)
         self.cli.register("chown", ChownControl, "TEST")
