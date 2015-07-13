@@ -794,7 +794,7 @@ public class PermissionsTest extends AbstractServerTest {
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
         plateOwner = newUserInGroup(dataGroup, false);
-        recipient = newUserInGroup(dataGroup, true);
+        recipient = newUserInGroup(dataGroup, false);
 
         /* create a plate */
 
