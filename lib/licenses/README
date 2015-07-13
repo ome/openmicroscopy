@@ -188,14 +188,6 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifcats:    FontBox-*.jar
-  Project:      FontBox, an open source Java library for parsing font files
-  Web Site:     http://sourceforge.net/projects/fontbox
-                http://fontbox.org no longer relevant.
-  License:      BSD (according to https://olex.openlogic.com/licenses/45)
-  License File: fontbox.txt
-
-
   Artifacts:    freemarker-*.jar
   Project:      FreeMarker, a template engine
   Web Site:     http://freemarker.org
@@ -386,13 +378,6 @@
   Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
-
-
-  Artifacts:    PDFBox-*.jar
-  Project:      Apache PDFBox - Java PDF Library
-  Web Site:     http://incubator.apache.org/pdfbox
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
 
 
   Artifacts:    perf4j-*.jar
