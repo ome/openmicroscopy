@@ -44,14 +44,10 @@
     </dependency>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
-    <dependency org="javax.mail" name="mail" rev="${versions.mail}">
-        <exclude org="javax.activation"/>
-        <exclude org="com.google.code.findbugs"/>
-    </dependency>
     <dependency org="org.subethamail" name="subethasmtp" rev="${versions.subethasmtp}">
         <exclude org="org.slf4j"/>
+        <exclude org="com.google.code.findbugs"/>
     </dependency>
-    <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
     <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/>
     <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
     <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
