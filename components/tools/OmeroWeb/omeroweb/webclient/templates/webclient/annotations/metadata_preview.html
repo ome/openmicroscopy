@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load common_tags %}
 
 {% comment %}
 <!--
@@ -352,7 +352,7 @@
 	
 <!-- open-image link -->
 
-			<button id="preview_open_viewer" class="btn silver btn_text" href="#" alt="View" title="Open full viewer">
+			<button id="preview_open_viewer" class="btn silver btn_text" href="#" alt="View" title="Open full viewer" rel="{% content_identifier "preview" manager.image.id %}"> <!-- rel is used by robot framework, do not remove it! -->
 				<span>
                 {% trans "Full viewer" %} 
 				</span>
