@@ -201,6 +201,7 @@ import omero.model.PlateI;
 import omero.model.Point;
 import omero.model.PointI;
 import omero.model.Polygon;
+import omero.model.PolygonI;
 import omero.model.Polyline;
 import omero.model.PolylineI;
 import omero.model.Project;
@@ -1021,7 +1022,7 @@ class OMEROGateway
 		else if (RectangleData.class.equals(klass) || RectI.class.equals(klass) ||
 		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
 		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
-		        PolygonData.class.equals(klass) || Polygon.class.equals(klass) ||
+		        PolygonData.class.equals(klass) || PolygonI.class.equals(klass) ||
 		        PolylineData.class.equals(klass) || PolylineI.class.equals(klass) ||
 		        TextData.class.equals(klass) || LabelI.class.equals(klass) ||
 		        MaskData.class.equals(klass) || MaskI.class.equals(klass)) {
