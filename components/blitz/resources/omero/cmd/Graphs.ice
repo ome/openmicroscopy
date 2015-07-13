@@ -298,9 +298,8 @@ module omero {
 
         /**
          * Change the ownership of model objects.
-         * The user must be an administrator, or
-         * they must be the owner of the objects
-         * or an owner of the objects' group, with
+         * The user must be an administrator, or they
+         * must be an owner of the objects' group, with
          * the target user a member of the objects' group.
          **/
         class Chown2 extends GraphModify2 {
