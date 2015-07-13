@@ -852,8 +852,6 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* perform the chown */
 
-        final boolean isExpectSuccess = target != Target.PLATE;
-
         init(datasetOwner);
         final Chown2 chown = new Chown2();
 
@@ -870,12 +868,10 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         chown.userId = recipient.userId;
-        doChange(client, factory, chown, isExpectSuccess);
+        doChange(client, factory, chown, true);
         disconnect();
 
         logRootIntoGroup(dataGroupId);
-
-        if (isExpectSuccess) {
 
             /* check that the objects' ownership is all as expected */
 
@@ -893,9 +889,11 @@ public class PermissionsTest extends AbstractServerTest {
                 assertOwnedBy(plate, plateOwner);
                 break;
             case PLATE:
-                Assert.fail("cannot change plate ownership without changing that of its images");
+                assertOwnedBy(dataset, datasetOwner);
+                assertOwnedBy(images, datasetOwner);
+                assertOwnedBy(links, datasetOwner);
+                assertOwnedBy(plate, recipient);
             }
-        }
 
         /* delete the objects as clean-up */
 
