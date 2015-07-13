@@ -216,7 +216,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext importer, chowner, recipient;
         final ExperimenterGroup dataGroup;
 
-        importer = newUserAndGroup("rw----");
+        importer = newUserAndGroup("rw----", isDataOwner && isGroupOwner);
 
         final long dataGroupId = importer.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -316,7 +316,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext importer, annotator, chowner, recipient;
         final ExperimenterGroup dataGroup;
 
-        importer = newUserAndGroup("rwra--");
+        importer = newUserAndGroup("rwra--", isDataOwner && isGroupOwner);
 
         final long dataGroupId = importer.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
