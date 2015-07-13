@@ -411,7 +411,7 @@ public class PermissionsTest extends AbstractServerTest {
                         testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_GROUP_OWNER] = isGroupOwner;
                         testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
-                        testCase[IS_EXPECT_SUCCESS] = isAdmin || (isGroupOwner || isDataOwner) && isRecipientInGroup;
+                        testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
                         // DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
                         //            isRecipientInGroup == true)
                         testCases.add(testCase);
