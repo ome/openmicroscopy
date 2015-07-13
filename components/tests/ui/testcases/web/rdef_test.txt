@@ -44,12 +44,14 @@ Wait For BlockUI
     Wait For Condition                      return ($("div.blockOverlay").length == 0)
 
 Wait For Preview Load
-    # Wait For Condition                      return ($("#viewport-img").length == 0)
-    Sleep                                   0.5
+    [Arguments]          ${status}          ${oldIdentifier}
+    Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element        xpath=//button[@id='preview_open_viewer'][@rel!='${oldIdentifier}']       ${WAIT}
     Wait Until Page Contains Element        xpath=//button[@id="wblitz-ch0-color"]
+    ${status}    ${oldId}    Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]@rel
+    [Return]                                ${status}          ${oldId}
 
 Wait For Image Panel
-    Wait Until Page Contains Element        xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
+    Wait Until Element Is Visible           xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]  ${WAIT}
     ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
     [Return]                                ${imageId}
 
@@ -69,7 +71,7 @@ Test Rdef Copy Paste Save
     Select And Expand Image
     ${imageId}=                             Wait For Image Panel
     Click Link                              Preview
-    Wait For Preview Load
+    ${status}    ${oldId}                   Wait For Preview Load       FAIL      '1'
 
     # Undo, Redo & Save should be disabled
     Element Should Be Disabled              id=rdef-undo-btn
@@ -100,6 +102,7 @@ Test Rdef Copy Paste Save
     # Click Undo - Channel should be Yellow
     Click Element                           id=rdef-undo-btn
     Wait For Channel Color                  rgb(255, 255, 0)
+
     # And all buttons Undo, Redo & Save enabled
     Element Should Be Enabled               id=rdef-undo-btn
     Element Should Be Enabled               id=rdef-redo-btn
@@ -119,13 +122,14 @@ Test Rdef Copy Paste Save
 
     # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
     Click Element                           id=image_icon-${imageId}
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
     # Channel should be Yellow
     Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image by using 'Down Arrow'
     Key Down                                40
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+
     # Images should be compatible, so 'Paste' should become enabled.
     Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
 
@@ -138,7 +142,7 @@ Test Rdef Copy Paste Save
 
     # Return to Previous Image (now Blue)
     Click Element                           id=image_icon-${imageId}
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(0, 0, 255)
 
 
@@ -150,7 +154,7 @@ Test Owners Rdef
     Select And Expand Image
     ${imageId}=                             Wait For Image Panel
     Click Link                              Preview
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load      FAIL    '1'
 
     # Set to "Imported"
     Click Element                           id=rdef-reset-btn
@@ -177,7 +181,7 @@ Test Owners Rdef
     Go To                                   ${WELCOME URL}?show=image-${imageId}
     Wait For Image Panel
     Click Link                              Preview
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
 
     # Bit more reliable with this, but try to remove it if possible...
     Set Selenium Speed                      0.5
@@ -225,7 +229,7 @@ Test Owners Rdef
     Wait For Condition                      return ($.trim($("#image_icon-${imageId_2} img").attr('src')) != '${thumbSrc}')
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId_2}
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(255, 255, 255)
     Textfield Value Should Be               wblitz-ch0-cw-end           200
 
@@ -235,7 +239,7 @@ Test Owners Rdef
     Wait For Condition                      return ($.trim($("#image_icon-${imageId} img").attr('src')) != '${thumbSrc}')
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(0, 255, 0)
     Textfield Value Should Be               wblitz-ch0-cw-end           100
 
@@ -245,7 +249,7 @@ Test Owners Rdef
     Wait For Condition                      return ($.trim($("#image_icon-${imageId} img").attr('src')) != '${thumbSrc}')
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
-    Wait For Preview Load
+    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  ${importedChColor}
     Textfield Value Should Be               wblitz-ch0-cw-end           ${importedMax}
 
@@ -274,4 +278,3 @@ Test Owners Rdef
     Wait Until Page Contains Element        id=wblitz-ch0
     Click Link                              Edit
     Textfield Value Should Be               wblitz-ch0-cw-end    200
-
