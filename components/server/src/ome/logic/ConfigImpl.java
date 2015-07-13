@@ -386,7 +386,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
         Pattern p = Pattern.compile(VERSION_REGEX);
         Matcher m = p.matcher(version);
         if (!m.matches()) {
-            throw new InternalException("Bad version format");
+            throw new InternalException("Bad version format:" + version);
         }
         return m.group(1);
     }
