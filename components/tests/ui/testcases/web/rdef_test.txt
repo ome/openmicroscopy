@@ -183,9 +183,6 @@ Test Owners Rdef
     Click Link                              Preview
     ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
 
-    # Bit more reliable with this, but try to remove it if possible...
-    Set Selenium Speed                      0.5
-
     # Set to "Imported"
     Click Element                           id=rdef-reset-btn
     Wait For Channel Color                  ${importedChColor}
@@ -255,12 +252,15 @@ Test Owners Rdef
 
     # Open full image viewer
     # Toggle the color, then paste settings and check it has reverted
+
+    # Bit more reliable with this, but try to remove it if possible...
+    Set Selenium Speed                      0.5
+
     Go To                                   ${WELCOME URL}img_detail/${imageId}
     Wait Until Page Contains Element        id=wblitz-ch0
-    ${checked1}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    ${checked1}=                            Checkbox Should Be Selected  id=wblitz-rmodel
     Click Element                           id=wblitz-rmodel
-    ${checked2}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
-    Should Not Be True                      "${checked1}" == "${checked2}"
+    ${checked2}=                            Checkbox Should Not Be Selected  id=wblitz-rmodel
     Click Link                              Edit
     # We are currently at 'Imported' settings
     Textfield Value Should Be               wblitz-ch0-cw-end    255
