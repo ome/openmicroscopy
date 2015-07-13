@@ -20,7 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # from omero.cli import NonZeroReturnCode
-import omero
 from omero.plugins.chown import ChownControl
 from test.integration.clitest.cli import CLITest
 import pytest
@@ -50,12 +49,10 @@ class TestChown(CLITest):
                       '%s:%s' % (object_type, oid)]
         self.cli.invoke(self.args, strict=True)
 
-        # check the object has been transfered
+        # check the object has been transferred
         obj = client.sf.getQueryService().get(object_type, oid, all_grps)
         assert obj.id.val == oid
         assert obj.details.owner.id.val == user.id.val
-        with pytest.raises(omero.SecurityViolation):
-            self.query.get(object_type, oid, all_grps)
 
     def testChownBasicUsageWithName(self):
         oid = self.create_object("Image")
@@ -67,12 +64,10 @@ class TestChown(CLITest):
                       '%s:%s' % ("Image", oid)]
         self.cli.invoke(self.args, strict=True)
 
-        # check the object has been transfered
+        # check the object has been transferred
         obj = client.sf.getQueryService().get("Image", oid, all_grps)
         assert obj.id.val == oid
         assert obj.details.owner.id.val == user.id.val
-        with pytest.raises(omero.SecurityViolation):
-            self.query.get("Image", oid, all_grps)
 
     def testChownDifferentGroup(self):
         oid = self.create_object("Image")
@@ -83,9 +78,7 @@ class TestChown(CLITest):
                       '%s:%s' % ("Image", oid)]
         self.cli.invoke(self.args, strict=True)
 
-        # check the object has not been transfered
+        # check the object has been transferred
         obj = self.query.get("Image", oid, all_grps)
         assert obj.id.val == oid
         assert obj.details.owner.id.val == self.user.id.val
-        with pytest.raises(omero.SecurityViolation):
-            client.sf.getQueryService().get("Image", oid, all_grps)
