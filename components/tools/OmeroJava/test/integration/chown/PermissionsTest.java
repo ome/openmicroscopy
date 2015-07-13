@@ -873,27 +873,28 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId);
 
-            /* check that the objects' ownership is all as expected */
+        /* check that the objects' ownership is all as expected */
 
-            switch (target) {
-            case DATASET:
-                assertOwnedBy(dataset, recipient);
-                assertOwnedBy(images, datasetOwner);
-                assertOwnedBy(links, datasetOwner);
-                assertOwnedBy(plate, plateOwner);
-                break;
-            case IMAGES:
-                assertOwnedBy(dataset, datasetOwner);
-                assertOwnedBy(images, recipient);
-                assertOwnedBy(links, datasetOwner);
-                assertOwnedBy(plate, plateOwner);
-                break;
-            case PLATE:
-                assertOwnedBy(dataset, datasetOwner);
-                assertOwnedBy(images, datasetOwner);
-                assertOwnedBy(links, datasetOwner);
-                assertOwnedBy(plate, recipient);
-            }
+        switch (target) {
+        case DATASET:
+            assertOwnedBy(dataset, recipient);
+            assertOwnedBy(images, datasetOwner);
+            assertOwnedBy(links, datasetOwner);
+            assertOwnedBy(plate, plateOwner);
+            break;
+        case IMAGES:
+            assertOwnedBy(dataset, datasetOwner);
+            assertOwnedBy(images, recipient);
+            assertOwnedBy(links, datasetOwner);
+            assertOwnedBy(plate, plateOwner);
+            break;
+        case PLATE:
+            assertOwnedBy(dataset, datasetOwner);
+            assertOwnedBy(images, datasetOwner);
+            assertOwnedBy(links, datasetOwner);
+            assertOwnedBy(plate, recipient);
+            break;
+        }
 
         /* delete the objects as clean-up */
 
