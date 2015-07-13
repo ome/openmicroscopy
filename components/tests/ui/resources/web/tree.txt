@@ -93,16 +93,22 @@ Create Button Should Be Disabled
 
 Create Container
     [Arguments]                 ${dType}    ${newName}=testCreateContainerRobot
+    # Check if metadata panel was loaded and get and old object
+    # This is important when two the same objects are created in a row.
+    ${status}    ${oldId}    Run Keyword And Ignore Error    Get Text                css=tr.data_heading_id strong
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
     Input Text                  name    ${newName}
     # Make sure we pick 'OK' button from visible dialog
     Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
-    Set Selenium Speed          1
-    Wait Until Page Contains Element    css=tr.data_heading_id
-    Set Selenium Speed                  ${DELAY}
+    # Wait until metadata panel reloads based on status.
+    # This is work arround as unfortunately there is no Wait Until Page NOT Contains Element
+    # This is important when two the same objects are created in a row.
+    Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element    xpath=//tr[contains(@class,'data_heading_id')]/td/strong[not(contains(text(), '${oldId}'))]  ${WAIT}
+    Wait Until Page Contains            ${dType.title()} ID:  ${WAIT}
+    Wait Until Element Is Visible       css=tr.data_heading_id  ${WAIT}
     ${newId}    Get Text                css=tr.data_heading_id strong
-    Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked
+    Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked  ${WAIT}
     [Return]                            ${newId}
 
 Key Down
