@@ -14,8 +14,7 @@
     <dependency name="common-test" rev="${omero.version}" changing="true"/>
     <dependency name="blitz-test" rev="${omero.version}" changing="true"/>
     <!-- Build dependencies for test -->
-    <dependency org="apacheds" name="apacheds-all" rev="${versions.apacheds}"/>
-    <!--dependency org="apacheds" name="shared-ldap" rev="${versions.shared-ldap}" conf="build->*"/--><!--in apacheds-all -->
-    <dependency org="apacheds" name="shared-ldap-constants" rev="${versions.shared-ldap}"/>
+    <dependency org="org.apache.directory.server" name="apacheds-all" rev="${versions.apacheds}"/>
+    <dependency org="org.apache.directory.server" name="shared-ldap-constants" rev="${versions.shared-ldap}"/>
   </dependencies>
 </ivy-module>

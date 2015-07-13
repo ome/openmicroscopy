@@ -81,14 +81,6 @@
   License:      BSD
   License File: antlr.txt
 
-
-  Artifacts:    apacheds-*.jar
-  Project:      The Apache Directory Server is an embeddable LDAP server implemented in pure Java.
-  Web Site:     http://directory.apache.org/apacheds
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    appbundler-*.jar
   Project:      Packages a Java application as a Mac app bundle.
   Web Site:     https://java.net/projects/appbundler
