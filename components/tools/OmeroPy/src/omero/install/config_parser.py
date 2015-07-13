@@ -143,8 +143,11 @@ and :doc:`Windows <windows/server-installation>` pages, as well as the
 
 .. _core_configuration:
 
-Core
-----
+Mandatory properties
+--------------------
+
+The following properties need to be correctly set for all installations of the
+OMERO.server. Depending on your set-up, default values may be sufficient.
 
 - :property:`omero.data.dir`
 - :property:`omero.db.host`
