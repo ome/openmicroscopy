@@ -316,14 +316,15 @@ class ITest(object):
             with_companion = True
 
         append = ""
-        if kwargs:
-            for k, v in kwargs.items():
-                append += "&%s=%s" % (k, v)
 
         # Only include series count if enabled; in the case of plates,
         # this will be unused
         if seriesCount >= 1:
-            append = "series%d%s" % (seriesCount, append)
+            append = "series=%d%s" % (seriesCount, append)
+
+        if kwargs:
+            for k, v in kwargs.items():
+                append += "&%s=%s" % (k, v)
 
         query = client.sf.getQueryService()
         fake = create_path(name, "&%s.fake" % append)
