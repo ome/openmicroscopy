@@ -148,6 +148,8 @@ class MetadataControl(BaseControl):
         factory = PlateAnalysisCtxFactory(client.sf)
         ctx = factory.get_analysis_ctx(args.plate.id.val)
         count = ctx.get_measurement_count()
+        if not count:
+            self.ctx.die(100, "No measurements found")
         for i in range(count):
             if args.dry_run:
                 self.ctx.out(
