@@ -164,24 +164,45 @@ public class MeasurementTableModel extends AbstractTableModel
                 Object v;
                 StringBuilder buffer = new StringBuilder();
                 int size = l.size();
+                Object s;
                 while (i.hasNext()) {
                     v = i.next();
                     if (v instanceof Length) {
                         Length n = (Length) v;
-                        Object s = convertLength(n, col);
+                        s = convertLength(n, col);
                         if (size == 1) return s;
                         if (s != null) {
                             buffer.append(s);
                             buffer.append(" ");
                         }
-                        return buffer.toString();
+                    } else if (v instanceof Number) {
+                        double d = ((Number) v).doubleValue();
+                        if (size == 1) {
+                            return UIUtilities.twoDecimalPlacesAsNumber(d);
+                        }
+                        s = UIUtilities.twoDecimalPlaces(d);
+                        if (s != null) {
+                            buffer.append(s);
+                            buffer.append(" ");
+                        }
                     }
                 }
+                return buffer.toString();
+            } else if (value instanceof Number) {
+                double d = ((Number) value).doubleValue();
+                return UIUtilities.twoDecimalPlacesAsNumber(d);
             }
         }
         return value;
     }
-    
+
+    /**
+     * Converts the length object either as a string or a numerical value.
+     *
+     * @param n The value to convert.
+     * @param col The column hosting the value.
+     * @return See above
+     */
     private Object convertLength(Length n, int col) {
         KeyDescription key = getColumnNames().get(col);
         MeasurementUnits units = getUnitsType();
