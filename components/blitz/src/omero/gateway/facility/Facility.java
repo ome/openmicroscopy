@@ -214,6 +214,11 @@ public abstract class Facility {
      * @return See above.
      */
     private ConnectionStatus getConnectionStatus(Throwable e) {
+        if (e instanceof DSOutOfServiceException) {
+            DSOutOfServiceException dso = (DSOutOfServiceException) e;
+            if (dso.getConnectionStatus() != null)
+                return dso.getConnectionStatus();
+        }
         Throwable cause = e.getCause();
         if (cause instanceof ConnectionLostException
                 || e instanceof ConnectionLostException

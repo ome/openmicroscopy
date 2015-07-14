@@ -42,6 +42,8 @@ import Ice.UnknownException;
 //Application-internal dependencies
 import ome.conditions.SessionTimeoutException;
 import omero.DatabaseBusyException;
+import omero.gateway.exception.ConnectionStatus;
+import omero.gateway.exception.DSOutOfServiceException;
 
 /**
  * Handles the connection exceptions
@@ -99,6 +101,12 @@ public class ConnectionExceptionHandler
     {
         int index = -1;
         Throwable cause = e.getCause();
+        ConnectionStatus cs = null;
+        if(e instanceof DSOutOfServiceException) {
+            DSOutOfServiceException dso = (DSOutOfServiceException)e;
+            cs = dso.getConnectionStatus();
+        }
+        
         if (cause instanceof ConnectionLostException ||
                 e instanceof ConnectionLostException ||
                 cause instanceof SessionTimeoutException ||
@@ -115,7 +123,8 @@ public class ConnectionExceptionHandler
             index = DESTROYED_CONNECTION;
         else if (cause instanceof SocketException ||
                 e instanceof SocketException ||
-                e instanceof UnknownHostException)
+                e instanceof UnknownHostException ||
+                cs == ConnectionStatus.NETWORK)
             index = NETWORK;
         else if (cause instanceof ConnectionRefusedException ||
                 e instanceof ConnectionRefusedException ||
