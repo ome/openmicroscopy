@@ -307,8 +307,7 @@ public class FileObject
                 try {
                     sw.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    IJ.log("I/O Excception:" + e.getMessage());
                 }
                 pw.close();
             }
