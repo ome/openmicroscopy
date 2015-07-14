@@ -88,6 +88,9 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     private GraphTraversal graphTraversal;
     private Set<Long> acceptableGroups;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int changedObjectCount = 0;
@@ -121,7 +124,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 3 : 5);
 
         try {
             perm1 = (Long) Utils.internalForm(Permissions.parseString(permissions));
@@ -224,10 +227,16 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                 }
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(false);
+                processor = graphTraversal.processTargets();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                unlinker = graphTraversal.unlinkTargets(false);
+                return null;
+            case 3:
+                unlinker.execute();
+                return null;
+            case 4:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);

@@ -81,6 +81,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private Helper helper;
     private GraphTraversal graphTraversal;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int movedObjectCount = 0;
@@ -114,7 +117,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 3 : 5);
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
@@ -185,10 +188,16 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(true);
+                processor = graphTraversal.processTargets();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                unlinker = graphTraversal.unlinkTargets(true);
+                return null;
+            case 3:
+                unlinker.execute();
+                return null;
+            case 4:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);

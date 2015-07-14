@@ -85,6 +85,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private Set<Long> acceptableGroupsFrom;
     private Set<Long> acceptableGroupsTo;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int givenObjectCount = 0;
@@ -118,7 +121,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 3 : 5);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
@@ -188,10 +191,16 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(false);
+                processor = graphTraversal.processTargets();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                unlinker = graphTraversal.unlinkTargets(false);
+                return null;
+            case 3:
+                unlinker.execute();
+                return null;
+            case 4:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
