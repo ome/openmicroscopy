@@ -285,7 +285,7 @@ public class GraphUtil {
             final String className = targetObjectsByClass.getKey();
             Collection<Long> ids = targetObjectsByClass.getValue();
             if (OriginalFile.class.getName().equals(className)) {
-                final Collection<List<Long>> sortedIds = ModelObjectSequencer.sortOriginalFileIds(session, ids);
+                final Collection<Collection<Long>> sortedIds = ModelObjectSequencer.sortOriginalFileIds(session, ids);
                 ids = new ArrayList<Long>(ids.size());
                 for (final Collection<Long> idBatch : sortedIds) {
                     ids.addAll(idBatch);
