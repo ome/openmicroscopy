@@ -715,6 +715,7 @@ public class CommandLineImporter {
                 }
                 break;
             }
+            case 'T':
             case 21: {
                 config.target.set(g.getOptarg());
                 break;
