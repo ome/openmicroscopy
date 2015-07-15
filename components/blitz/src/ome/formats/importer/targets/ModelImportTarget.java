@@ -91,8 +91,10 @@ public class ModelImportTarget implements ImportTarget {
                 obj = update.saveAndReturnObject(obj);
             }
             id = obj.getId().getValue();
+        } else {
+            id = Long.valueOf(rest);
         }
-        return null;
+        return query.get(type.getSimpleName(), id);
     }
 
 }

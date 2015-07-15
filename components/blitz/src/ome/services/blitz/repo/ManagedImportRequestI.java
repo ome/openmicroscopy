@@ -26,7 +26,6 @@ import java.util.Map;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
