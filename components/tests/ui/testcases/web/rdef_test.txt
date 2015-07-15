@@ -46,7 +46,8 @@ Wait For BlockUI
 Wait For Preview Load
     [Arguments]          ${status}          ${oldIdentifier}
     Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element        xpath=//button[@id='preview_open_viewer'][@rel!='${oldIdentifier}']       ${WAIT}
-    Wait Until Page Contains Element        xpath=//button[@id="wblitz-ch0-color"]
+    Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"]
+    Wait Until Element Is Visible           xpath=//button[@class="rdef clicked"]
     ${status}    ${oldId}    Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]@rel
     [Return]                                ${status}          ${oldId}
 
