@@ -36,7 +36,7 @@ Pick Color
 
 Wait For Channel Color
     [Arguments]          ${rgbColor}
-    Wait Until Page Contains Element        xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]
+    Wait Until Element Is Visible           xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]      ${WAIT}
 
 Wait For BlockUI
     # Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
