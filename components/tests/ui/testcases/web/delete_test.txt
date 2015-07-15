@@ -43,12 +43,12 @@ Test Delete Project Dataset
     Click Element                           refreshButton
     Wait Until Page Contains Element        id=project-${pid}
     Click Element                           css=#project-${pid}>a
-    Sleep                                   0.5
+    Wait Until Page Contains Element        xpath=//tr[contains(@class,'data_heading_id')]/td/strong[contains(text(), '${pid}')]  ${WAIT}
     Click Element                           id=deleteButton
     Wait Until Element Is Visible           id=delete-dialog-form
     Click Dialog Button                     Yes
     # Wait for activities to show job done, then refresh tree...
-    Wait Until Page Contains Element        xpath=//span[@id='jobstatus'][contains(text(),'1')]     20
+    Wait Until Keyword Succeeds     ${WAITINMINUTES}   ${WAITPING}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
     Click Element                           refreshButton
     Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
     Page Should Not Contain Element         id=project-${pid}
@@ -114,7 +114,7 @@ Test Delete Images in Share
     Click Element                               id=deleteButton
     Wait Until Element Is Visible               id=delete-dialog-form
     Click Dialog Button                         Yes
-    Wait Until Page Contains Element            xpath=//span[@id='jobstatus'][contains(text(),'1')]     20
+    Wait Until Keyword Succeeds     ${WAITINMINUTES}   ${WAITPING}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
     Go To                                       ${WELCOME URL}public
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
