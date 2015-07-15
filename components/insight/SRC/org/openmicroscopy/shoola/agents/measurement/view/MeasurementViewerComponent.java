@@ -1146,6 +1146,7 @@ class MeasurementViewerComponent
 	    Map<Long, StructuredDataResults> r = convertMap(result, null);
 	    StructuredDataResults sd;
 	    List<ROIShape> shapes = new ArrayList<ROIShape>();
+	    if (r == null) return;
 	    while (i.hasNext()) {
             f = i.next();
             shape = f.getROIShape().getData();
