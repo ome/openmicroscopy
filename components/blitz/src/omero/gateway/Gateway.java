@@ -1253,7 +1253,7 @@ public class Gateway {
                     throw new DSOutOfServiceException("Network down.", e, ConnectionStatus.NETWORK);
                 }
                 if (!c.keepSessionAlive()) {
-                    throw new DSOutOfServiceException("Network down.", ConnectionStatus.NETWORK);
+                    throw new DSOutOfServiceException("Network down.", ConnectionStatus.LOST_CONNECTION);
                 }
             }
         }
