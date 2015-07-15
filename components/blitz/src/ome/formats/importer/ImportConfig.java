@@ -1039,7 +1039,9 @@ public class ImportConfig {
         TargetBuilder builder = new TargetBuilder();
         if (target.get() != null)
         {
-            return builder.parse(target.get()).build();
+            ImportTarget t = builder.parse(target.get()).build();
+            log.info("Using import target: {}", target);
+            return t;
         }
         if (DATASET_CLASS.equals(targetClass.get()))
         {

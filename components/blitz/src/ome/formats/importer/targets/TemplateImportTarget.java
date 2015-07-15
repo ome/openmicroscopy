@@ -32,6 +32,9 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportContainer;
 import omero.ServerError;
 import omero.api.IQueryPrx;
+import omero.constants.namespaces.NSTARGETTEMPLATE;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.IObject;
 import omero.model.Project;
 import omero.model.ProjectI;
@@ -70,10 +73,15 @@ public class TemplateImportTarget implements ImportTarget {
 
     @Override
     // TODO: turn OMSC into an interface
-    public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) {
+    public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) throws Exception {
         this.filename = ic.getUsedFiles()[0];
         this.isSPW = ic.getIsSPW();
-        return null;
+        // Now we create an annotation for delaying parsing of the template
+        // until we can receive server-side pre-processed paths.
+        CommentAnnotation ca = new CommentAnnotationI();
+        ca.setNs(omero.rtypes.rstring(NSTARGETTEMPLATE.value));
+        ca.setTextValue(omero.rtypes.rstring(this.template));
+        return client.getServiceFactory().getUpdateService().saveAndReturnObject(ca);
     }
 
     //
@@ -321,7 +329,7 @@ public class TemplateImportTarget implements ImportTarget {
             throw new RuntimeException(e);
         }
     }
- 
+
     /**
      * Temporary helper method to parse filename.
      * THIS IS NOT YET FILE SYSTEM AGNOSTIC!

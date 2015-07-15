@@ -67,6 +67,7 @@ import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.Annotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.Dataset;
 import omero.model.Fileset;
@@ -265,10 +266,16 @@ public class ImportLibrary implements IObservable
                 ImportContainer ic = containers.get(index);
                 ImportTarget target = config.getTarget();
                 if (target != null) {
-                    // FIXME: We really should be doing this delayed on the srv.
                     try {
                         IObject obj = target.load(store, ic);
-                        ic.setTarget(obj);
+                        if (!(obj instanceof Annotation)) {
+                            ic.setTarget(obj);
+                        } else {
+                            // This is likely a "post-processing" annotation
+                            // so that we don't have to resolve the target
+                            // until later.
+                            ic.getCustomAnnotationList().add((Annotation) obj);
+                        }
                     } catch (Exception e) {
                         log.error("Could not load target: {}", target);
                         throw new RuntimeException("Failed to load target", e);
