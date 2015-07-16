@@ -192,6 +192,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                 return null;
             case 2:
                 unlinker = graphTraversal.unlinkTargets(true);
+                graphTraversal = null;
                 return null;
             case 3:
                 unlinker.execute();

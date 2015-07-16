@@ -231,6 +231,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                 return null;
             case 2:
                 unlinker = graphTraversal.unlinkTargets(false);
+                graphTraversal = null;
                 return null;
             case 3:
                 unlinker.execute();

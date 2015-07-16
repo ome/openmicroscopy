@@ -195,6 +195,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                 return null;
             case 2:
                 unlinker = graphTraversal.unlinkTargets(false);
+                graphTraversal = null;
                 return null;
             case 3:
                 unlinker.execute();

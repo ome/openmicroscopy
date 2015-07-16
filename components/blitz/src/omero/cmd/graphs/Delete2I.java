@@ -174,6 +174,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 return null;
             case 2:
                 unlinker = graphTraversal.unlinkTargets(true);
+                graphTraversal = null;
                 return null;
             case 3:
                 unlinker.execute();
