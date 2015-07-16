@@ -809,11 +809,11 @@
 
           <li class="seperator"></li>
 
-          <li><button class="copy_rdef button" title="Copy Rendering Settings">
+          <li><button id="rdef-copy-btn" class="button" title="Copy Rendering Settings">
             <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
             Copy
           </button></li>
-          <li><button class="paste_rdef button button-disabled"
+          <li><button id="rdef-paste-btn" class="button button-disabled"
              title="Paste Rendering Settings" disabled="disabled">
             <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
             Paste
@@ -924,11 +924,11 @@
 	    {% endif %}-->{% endcomment %}
             <br />
             <label>Rendering Settings</label><br />
-            <button class="btn silver btn_text copy_rdef" title="Copy Rendering Settings">
+            <button id="rdef-copy-btn" class="btn silver btn_text" title="Copy Rendering Settings">
                 <span>Copy</span>
             </button>
 
-            <button class="btn silver btn_text paste_rdef" title="Paste Rendering Settings">
+            <button id="rdef-paste-btn" class="btn silver btn_text" title="Paste Rendering Settings">
                 <span>Paste</span>
             </button>
           </div>
@@ -1048,11 +1048,11 @@
               if (channels.length != viewport.getChannels().length ||
                 data.rdef.pixel_range != viewport.loadedImg.pixel_range.join(":")) {
                   // images are not compatible
-                  $("button.paste_rdef")
+                  $("#rdef-paste-btn")
                     .attr('title', 'Copied settings are not compatible with this image');
                   return;
                 }
-                $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
+                $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
             }
         }
       );
@@ -1171,12 +1171,12 @@
     });
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    $(".copy_rdef").click(function() {
+    $("#rdef-copy-btn").click(function() {
         copyRdefs(viewport);
-        $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
+        $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
     });
 
-    $(".paste_rdef").click(function() {
+    $("#rdef-paste-btn").click(function() {
         pasteRdefs(viewport);
     });
 

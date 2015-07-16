@@ -133,11 +133,11 @@
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
-            $("button.copy_rdef").click(function() {
+            $("#rdef-copy-btn").click(function() {
                 copyRdefs(OME.preview_viewport);
-                $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
+                $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
             });
-            $("button.paste_rdef").click(function() {
+            $("#rdef-paste-btn").click(function() {
                 pasteRdefs(OME.preview_viewport);
             });
             // once image loads, check session via /getImgRDef/ to see if we can paste
@@ -149,11 +149,11 @@
                       if (channels.length != OME.preview_viewport.getChannels().length ||
                         data.rdef.pixel_range != OME.preview_viewport.loadedImg.pixel_range.join(":")) {
                           // images are not compatible
-                          $("button.paste_rdef")
+                          $("#rdef-paste-btn")
                             .attr('title', 'Copied settings are not compatible with this image');
                           return;
                         }
-                        $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
+                        $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
                     }
                 }
               );
@@ -404,11 +404,11 @@
       
       <li class="seperator"></li>
 
-      <li><button class="copy_rdef button" title="Copy Rendering Settings">
+      <li><button id="rdef-copy-btn" class="button" title="Copy Rendering Settings">
         <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
         Copy
       </button></li>
-      <li><button class="paste_rdef button button-disabled"
+      <li><button id="rdef-paste-btn" class="button button-disabled"
           title="Paste Rendering Settings" disabled="disabled">
         <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
         Paste
