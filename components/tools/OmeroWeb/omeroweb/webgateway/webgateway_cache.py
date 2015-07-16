@@ -633,7 +633,11 @@ class WebGatewayCache (object):
             if p:
                 return rv % ('%s-%s' % (p, str(t)))
             else:
-                return rv % ('%sx%s' % (str(z), str(t)))
+                logger.info('rv: {0} {1}'.format(rv, type(rv)))
+                logger.info('z: {0} {1}'.format(str(z), type(z)))
+                logger.info('t: {0} {1}'.format(str(t), type(t)))
+                zt = '%sx%s' % (str(z), str(t))
+                return rv % (zt)
         else:
             return 'img_%s/%s/%s' % (client_base, pre, str(iid))
 
