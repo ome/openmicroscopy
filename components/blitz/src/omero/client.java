@@ -319,7 +319,7 @@ public class client {
         id.properties.setProperty("Ice.Default.PreferSecure", "1");
         id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
         id.properties.setProperty("IceSSL.Protocols", "tls1");
-        id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
+        id.properties.setProperty("IceSSL.Ciphers", "ALL");
         id.properties.setProperty("IceSSL.VerifyPeer", "0");
 
         // Setting default block size

@@ -48,7 +48,7 @@
       <target name="adh">
         <property name="Ice.Default.Protocol" value="ssl"/>
         <property name="Ice.Plugin.IceSSL" value="IceSSL.PluginFactory"/>
-        <property name="IceSSL.Ciphers" value="NONE (DH_anon)"/>
+        <property name="IceSSL.Ciphers" value="ALL"/>
         <property name="IceSSL.VerifyPeer" value="0"/>
       </target>
       <target name="ssl">
