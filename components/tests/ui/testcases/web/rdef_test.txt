@@ -61,11 +61,6 @@ Wait For Toolbar Button Disabled
     Wait Until Keyword Succeeds     ${WAITINMINUTES}   ${WAITPING}      Element Should Be Disabled     id=${buttonId}
     Page Should Contain Element     xpath=//button[@id='${buttonId}'][contains(@class, 'button-disabled')]
 
-Wait For Image Panel
-    Wait Until Element Is Visible           xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]  ${WAIT}
-    ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
-    [Return]                                ${imageId}
-
 Right Click Rendering Settings
     [Arguments]            ${treeId}        ${optionText}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
@@ -80,7 +75,7 @@ Test Rdef Copy Paste Save
 
     Select Experimenter
     Select And Expand Image
-    ${imageId}=                             Wait For Image Panel
+    ${imageId}=                             Wait For General Panel And Return Id    Image
     Click Link                              Preview
     ${status}    ${oldId}                   Wait For Preview Load       FAIL      '1'
 
@@ -163,7 +158,7 @@ Test Owners Rdef
     Go To                                   ${WELCOME URL}
     Select Experimenter
     Select And Expand Image
-    ${imageId}=                             Wait For Image Panel
+    ${imageId}=                             Wait For General Panel And Return Id      Image
     Click Link                              Preview
     ${status}    ${oldId}    Wait For Preview Load      FAIL    '1'
 
@@ -183,14 +178,14 @@ Test Owners Rdef
     # Get Id for next Image by using 'Down Arrow'
     Click Link                              General
     Key Down                                40
-    ${imageId_2}=                           Wait For Image Panel
+    ${imageId_2}=                           Wait For General Panel And Return Id      Image
     Log Out
 
     # Log in as Root - go to user's Image
     User "${ROOT USERNAME}" logs in with password "${ROOT PASSWORD}"
     Maximize Browser Window
     Go To                                   ${WELCOME URL}?show=image-${imageId}
-    Wait For Image Panel
+    Wait For General Panel                  Image
     Click Link                              Preview
     ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
 
