@@ -51,6 +51,16 @@ Wait For Preview Load
     ${status}    ${oldId}    Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]@rel
     [Return]                                ${status}          ${oldId}
 
+Wait For Toolbar Button Enabled
+    [Arguments]            ${buttonId}
+    Wait Until Keyword Succeeds     ${WAITINMINUTES}   ${WAITPING}      Element Should Be Enabled      id=${buttonId}
+    Page Should Not Contain Element     xpath=//button[@id='${buttonId}'][contains(@class, 'button-disabled')]
+
+Wait For Toolbar Button Disabled
+    [Arguments]            ${buttonId}
+    Wait Until Keyword Succeeds     ${WAITINMINUTES}   ${WAITPING}      Element Should Be Disabled     id=${buttonId}
+    Page Should Contain Element     xpath=//button[@id='${buttonId}'][contains(@class, 'button-disabled')]
+
 Wait For Image Panel
     Wait Until Element Is Visible           xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]  ${WAIT}
     ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
@@ -83,13 +93,13 @@ Test Rdef Copy Paste Save
     Element Text Should Be                  id=wblitz-z-count       ${sizeZ}
     Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
     Click Element                           id=viewport-zsl-bup
-    Wait Until Page Contains Element        xpath=//button[@id='rdef-setdef-btn'][not(@disabled="disabled")]
+    Wait For Toolbar Button Enabled         rdef-setdef-btn
     Element Text Should Be                  id=wblitz-z-curr        ${currZ}
     Element Should Be Disabled              id=rdef-undo-btn
     Element Should Be Disabled              id=rdef-redo-btn
     # change back again...
     Click Element                           id=viewport-zsl-bdn
-    Wait Until Page Contains Element        xpath=//button[@id='rdef-setdef-btn'][@disabled="disabled"]
+    Wait For Toolbar Button Disabled        rdef-setdef-btn
     Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
 
     # Color-picker, Yellow then Blue.
@@ -118,8 +128,8 @@ Test Rdef Copy Paste Save
     Click Element                           id=rdef-redo-btn
     Wait For Channel Color                  rgb(0, 0, 255)
     # Copy (paste button is enabled)
-    Click Element                           xpath=//button[contains(@class, "copy_rdef")]
-    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+    Click Element                           id=rdef-copy-btn
+    Wait For Toolbar Button Enabled         rdef-paste-btn
 
     # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
     Click Element                           id=image_icon-${imageId}
@@ -128,14 +138,14 @@ Test Rdef Copy Paste Save
     Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image by using 'Down Arrow'
-    Key Down                                40
+    Click Element                           xpath=//li[@id='image_icon-${imageId}']/following-sibling::li
     ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
 
     # Images should be compatible, so 'Paste' should become enabled.
-    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+    Wait For Toolbar Button Enabled         rdef-paste-btn
 
     # Paste (Blue channel)
-    Click Element                           xpath=//button[contains(@class, "paste_rdef")]
+    Click Element                           xpath=//button[@id='rdef-paste-btn']
     Wait For Channel Color                  rgb(0, 0, 255)
 
     # Save to all (Blue channel)
@@ -173,7 +183,7 @@ Test Owners Rdef
     # Get Id for next Image by using 'Down Arrow'
     Click Link                              General
     Key Down                                40
-    ${imageId_2}=                            Wait For Image Panel
+    ${imageId_2}=                           Wait For Image Panel
     Log Out
 
     # Log in as Root - go to user's Image
@@ -217,8 +227,8 @@ Test Owners Rdef
     # Set Selenium Speed                      1
     Input Text                              id=wblitz-ch0-cw-end        200
     Pick Color                              fff         FFFFFF          rgb(255, 255, 255)
-    Click Element                           xpath=//button[contains(@class, "copy_rdef")]
-    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+    Click Element                           xpath=//button[@id='rdef-copy-btn']
+    Wait For Toolbar Button Enabled         rdef-paste-btn
     
     # Test 'Paste and Save' with right-click on different Image in tree
     # (check thumb refresh by change of src)
@@ -267,7 +277,7 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end    255
 
     # Paste to settings above
-    Click Element                           xpath=//button[contains(@class, "paste_rdef")]
+    Click Element                           xpath=//button[@id='rdef-paste-btn']
     # Save
     Click Element                           id=rdef-setdef-btn
     # Wait for response
