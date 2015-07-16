@@ -572,7 +572,12 @@ class BrowserComponent
     						TreeImageSet expNode)
     {
         if (model.getState() != LOADING_LEAVES) return;
-        if (leaves == null) throw new NullPointerException("No leaves.");
+        if (leaves == null || leaves.isEmpty())  {
+            model.setState(READY);
+            fireStateChange();
+            return;
+        }
+        
         Object ho = expNode.getUserObject();
         if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
         	throw new IllegalArgumentException("Node not valid");
