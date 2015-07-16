@@ -275,6 +275,11 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     }
 
     @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
+    }
+
+    @Override
     public GraphPolicy.Action getActionForStarting() {
         return GraphPolicy.Action.INCLUDE;
     }

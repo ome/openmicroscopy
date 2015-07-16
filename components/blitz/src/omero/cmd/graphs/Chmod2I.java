@@ -314,6 +314,11 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     }
 
     @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
+    }
+
+    @Override
     public GraphPolicy.Action getActionForStarting() {
         return GraphPolicy.Action.INCLUDE;
     }

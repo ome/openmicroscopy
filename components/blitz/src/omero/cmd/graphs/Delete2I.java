@@ -250,6 +250,11 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     }
 
     @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
+    }
+
+    @Override
     public GraphPolicy.Action getActionForStarting() {
         return GraphPolicy.Action.DELETE;
     }
