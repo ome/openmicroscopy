@@ -46,8 +46,8 @@ Wait For BlockUI
 Wait For Preview Load
     [Arguments]          ${status}          ${oldIdentifier}
     Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element        xpath=//button[@id='preview_open_viewer'][@rel!='${oldIdentifier}']       ${WAIT}
-    Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"]
-    Wait Until Element Is Visible           xpath=//button[@class="rdef clicked"]
+    Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"]      ${WAIT}
+    Wait Until Element Is Visible           xpath=//button[@class="rdef clicked"]       ${WAIT}
     ${status}    ${oldId}    Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]@rel
     [Return]                                ${status}          ${oldId}
 
@@ -127,13 +127,14 @@ Test Rdef Copy Paste Save
     Wait For Toolbar Button Enabled         rdef-paste-btn
 
     # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
-    Click Element                           id=image_icon-${imageId}
+    Click Element                           id=refreshButton
     ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    Wait For Toolbar Button Enabled         rdef-paste-btn
     # Channel should be Yellow
     Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image by using 'Down Arrow'
-    Click Element                           xpath=//li[@id='image_icon-${imageId}']/following-sibling::li
+    Click Element                           xpath=//li[@id='image-${imageId}']/following-sibling::li/a
     ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
 
     # Images should be compatible, so 'Paste' should become enabled.
