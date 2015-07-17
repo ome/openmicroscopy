@@ -1173,7 +1173,6 @@
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
     $("#rdef-copy-btn").click(function() {
         copyRdefs(viewport);
-        $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
     });
 
     $("#rdef-paste-btn").click(function() {

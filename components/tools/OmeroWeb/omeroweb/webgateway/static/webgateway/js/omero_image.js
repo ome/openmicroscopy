@@ -29,7 +29,10 @@
         // Need imageId for 'apply to all'
         rdefQry = rdefQry + "&imageId=" + viewport.loadedImg.id;
         // save to session
-        $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
+        var jqxhr = $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
+        jqxhr.complete(function() {
+            $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
+        });
     };
 
     window.pasteRdefs = function (viewport) {
