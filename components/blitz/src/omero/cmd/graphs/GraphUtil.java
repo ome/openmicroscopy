@@ -314,12 +314,12 @@ public class GraphUtil {
             }
 
             @Override
-            public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
+            public void deleteInstances(String className, Collection<Long> ids) {
                 /* disable this write action */
             }
 
             @Override
-            public void processInstances(String className, Collection<Long> ids) throws GraphException {
+            public void processInstances(String className, Collection<Long> ids) {
                 /* disable this write action */
             }
 
