@@ -151,8 +151,13 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         }
         graphPolicyAdjusters = null;
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override

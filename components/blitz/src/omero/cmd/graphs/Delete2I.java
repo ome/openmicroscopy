@@ -133,8 +133,13 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         }
         graphPolicyAdjusters = null;
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override

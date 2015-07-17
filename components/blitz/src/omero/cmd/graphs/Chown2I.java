@@ -154,8 +154,13 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         graphPolicyWithOptions.registerPredicate(new PermissionsPredicate());
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override

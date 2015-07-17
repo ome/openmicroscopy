@@ -160,8 +160,13 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         }
         graphPolicyAdjusters = null;
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override
