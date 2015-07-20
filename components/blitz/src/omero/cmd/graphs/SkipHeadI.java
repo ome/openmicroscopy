@@ -134,9 +134,24 @@ public class SkipHeadI extends SkipHead implements IRequest {
             }
         });
 
-        /* initialize the two wrapped requests */
-        ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
-        ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
+        try {
+            /* initialize the two wrapped requests */
+            ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
+            ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
+        } catch (Cancel c) {
+            /* mark own status as canceled */
+            Throwable t = c.getCause();
+            if (t == null) {
+                t = c;
+            }
+            helper.fail(new ERR(), t, "graph-fail");
+            helper.getStatus().flags.add(State.CANCELLED);
+            /* re-throw wrapped request Cancel */
+            throw c;
+        } catch (Throwable t) {
+            /* cancel because of wrapped request exception */
+            throw helper.cancel(new ERR(), t, "graph-fail");
+        }
         graphRequestSkipStatus.steps = 1 + wrappedRequest.getStepProvidingCompleteResponse();
 
         this.helper = helper;
