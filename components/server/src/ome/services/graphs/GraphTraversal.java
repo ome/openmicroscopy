@@ -639,6 +639,13 @@ public class GraphTraversal {
                 }
             }
         }
+    }
+
+    /**
+     * Check that there are no policy violations matched by {@code p:error} policy rules.
+     * @throws GraphException if the policy rules are violated
+     */
+    public void assertNoPolicyViolations() throws GraphException {
         /* review objects for error conditions */
         for (final CI object : planning.cached) {
             reviewObject(object, true);
