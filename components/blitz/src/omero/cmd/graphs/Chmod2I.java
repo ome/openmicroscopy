@@ -124,7 +124,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 3 : 5);
+        helper.setSteps(dryRun ? 4 : 6);
 
         try {
             perm1 = (Long) Utils.internalForm(Permissions.parseString(permissions));
@@ -232,16 +232,19 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                 }
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                processor = graphTraversal.processTargets();
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
                 unlinker = graphTraversal.unlinkTargets(false);
                 graphTraversal = null;
                 return null;
-            case 3:
+            case 4:
                 unlinker.execute();
                 return null;
-            case 4:
+            case 5:
                 processor.execute();
                 return null;
             default:

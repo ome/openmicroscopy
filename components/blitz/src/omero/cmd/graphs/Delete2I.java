@@ -112,7 +112,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 3 : 5);
+        helper.setSteps(dryRun ? 4 : 6);
 
         final EventContext eventContext = helper.getEventContext();
 
@@ -175,16 +175,19 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                processor = graphTraversal.processTargets();
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
                 unlinker = graphTraversal.unlinkTargets(true);
                 graphTraversal = null;
                 return null;
-            case 3:
+            case 4:
                 unlinker.execute();
                 return null;
-            case 4:
+            case 5:
                 processor.execute();
                 return null;
             default:

@@ -117,7 +117,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 3 : 5);
+        helper.setSteps(dryRun ? 4 : 6);
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
@@ -193,16 +193,19 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                processor = graphTraversal.processTargets();
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
                 unlinker = graphTraversal.unlinkTargets(true);
                 graphTraversal = null;
                 return null;
-            case 3:
+            case 4:
                 unlinker.execute();
                 return null;
-            case 4:
+            case 5:
                 processor.execute();
                 return null;
             default:
