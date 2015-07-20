@@ -22,6 +22,7 @@ package ome.services.graphs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -327,6 +328,20 @@ public class GraphTraversal {
     }
 
     /**
+     * Track the progress of method calls to ensure that the sequencing makes sense.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1.3
+     */
+    private enum Milestone {
+        /** operation planned */
+        PLANNED,
+        /** model objects unlinked */
+        UNLINKED,
+        /** model objects processed */
+        PROCESSED;
+    }
+
+    /**
      * The state of the graph traversal. Various rules apply:
      * <ol>
      *   <li>An instance may be in no more than one of {@link #included}, {@link #deleted}, {@link #outside},
@@ -443,6 +458,7 @@ public class GraphTraversal {
     private final SystemTypes systemTypes;
     private final GraphPathBean model;
     private final SetMultimap<String, String> unnullable;
+    private final Set<Milestone> progress = EnumSet.noneOf(Milestone.class);
     private final Planning planning;
     private final GraphPolicy policy;
     private final Processor processor;
@@ -482,6 +498,9 @@ public class GraphTraversal {
      */
     public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
             SetMultimap<String, Long> objects, boolean include, boolean applyRules) throws GraphException {
+        if (progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation already planned");
+        }
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
         targetSet.addAll(objectsToCIs(session, objects));
@@ -495,6 +514,7 @@ public class GraphTraversal {
                 planning.blockedBy.put(targetObject, new HashSet<CI>());
             }
         }
+        progress.add(Milestone.PLANNED);
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final SetMultimap<String, Long> included = HashMultimap.create();
         for (final CI includedObject : planning.included) {
@@ -518,6 +538,9 @@ public class GraphTraversal {
      */
     public Entry<Collection<IObject>, Collection<IObject>> planOperation(Session session,
             Collection<? extends IObject> objectInstances, boolean include, boolean applyRules) throws GraphException {
+        if (progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation already planned");
+        }
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
         final SetMultimap<String, Long> objectsToQuery = HashMultimap.create();
@@ -541,6 +564,7 @@ public class GraphTraversal {
                 planning.blockedBy.put(targetObject, new HashSet<CI>());
             }
         }
+        progress.add(Milestone.PLANNED);
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final Collection<IObject> included = new ArrayList<IObject>(planning.included.size());
         for (final CI includedObject : planning.included) {
@@ -646,6 +670,9 @@ public class GraphTraversal {
      * @throws GraphException if the policy rules are violated
      */
     public void assertNoPolicyViolations() throws GraphException {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
         /* review objects for error conditions */
         for (final CI object : planning.cached) {
             reviewObject(object, true);
@@ -1343,6 +1370,9 @@ public class GraphTraversal {
      * @throws GraphException if the user does not have permission to unlink the targets
      */
     public PlanExecutor unlinkTargets(boolean isUnlinkIncludeFromExclude) throws GraphException {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
         /* accumulate plan for unlinking included/deleted from others */
         final SetMultimap<CP, Long> toNullByCP = HashMultimap.create();
         final Map<CP, SetMultimap<Long, Entry<String, Long>>> linkerToIdToLinked =
@@ -1429,6 +1459,9 @@ public class GraphTraversal {
         return new PlanExecutor() {
             @Override
             public void execute() throws GraphException {
+                if (progress.contains(Milestone.UNLINKED)) {
+                    throw new IllegalStateException("model objects already unlinked");
+                }
                 /* actually do the noted unlinking */
                 for (final Entry<CP, Collection<Long>> nullCurr : eachToNullByCP.entrySet()) {
                     final CP linker = nullCurr.getKey();
@@ -1437,6 +1470,7 @@ public class GraphTraversal {
                         processor.nullProperties(linker.className, linker.propertyName, ids);
                     }
                 }
+                progress.add(Milestone.UNLINKED);
             }
         };
     }
@@ -1448,6 +1482,9 @@ public class GraphTraversal {
      * if a cycle is detected in the model object graph
      */
     public PlanExecutor processTargets() throws GraphException {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
         final List<Entry<Map<String, Collection<Long>>, Map<String, Collection<Long>>>> toJoinAndDelete =
                 new ArrayList<Entry<Map<String, Collection<Long>>, Map<String, Collection<Long>>>>();
         /* process the targets forward across links */
@@ -1496,6 +1533,12 @@ public class GraphTraversal {
         return new PlanExecutor() {
             @Override
             public void execute() throws GraphException {
+                if (!progress.contains(Milestone.UNLINKED)) {
+                    throw new IllegalStateException("model objects not yet unlinked");
+                }
+                if (progress.contains(Milestone.PROCESSED)) {
+                    throw new IllegalStateException("model objects already processed");
+                }
                 /* actually do the noted processing */
                 for (final Entry<Map<String, Collection<Long>>, Map<String, Collection<Long>>> next : toJoinAndDelete) {
                     final Map<String, Collection<Long>> toJoin = next.getKey();
@@ -1529,6 +1572,7 @@ public class GraphTraversal {
                         }
                     }
                 }
+                progress.add(Milestone.PROCESSED);
             }
         };
     }
