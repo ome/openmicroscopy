@@ -54,7 +54,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-import org.jhotdraw.draw.AttributeKey;
 //Third-party libraries
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
@@ -63,6 +62,7 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
+import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -674,7 +675,9 @@ class MeasurementViewerControl
 			if (!fig.isReadOnly()) {
 				if (fig.canEdit()) {
 				    AttributeKey<?> key = e.getAttribute();
-		            if (key != MeasurementAttributes.SHOWTEXT) {
+		            if (key != MeasurementAttributes.SHOWTEXT && 
+		                    key != MeasurementAttributes.SHOWMEASUREMENT &&
+		                    key != AnnotationKeys.TAG) {
 		                model.setDataChanged();
 		            }
 				}
