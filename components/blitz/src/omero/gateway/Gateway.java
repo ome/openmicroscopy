@@ -59,6 +59,7 @@ import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.gateway.cache.CacheService;
+import omero.gateway.exception.ConnectionStatus;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.Facility;
 import omero.gateway.util.NetworkChecker;
@@ -1219,7 +1220,7 @@ public class Gateway {
                                 e1));
                 return null;
             }
-            throw new DSOutOfServiceException("Network not available", e1);
+            throw new DSOutOfServiceException("Network not available", e1, ConnectionStatus.NETWORK);
         }
 
         if (!isNetworkUp(true)) {
@@ -1228,7 +1229,7 @@ public class Gateway {
                 return null;
             }
             throw new DSOutOfServiceException(
-                    "Network down. Returning null connector");
+                    "Network down. Returning null connector", ConnectionStatus.NETWORK);
         }
 
         if (ctx == null) {
@@ -1249,10 +1250,10 @@ public class Gateway {
                 try {
                     isNetworkUp(true);
                 } catch (Exception e) {
-                    throw new DSOutOfServiceException("Network down.", e);
+                    throw new DSOutOfServiceException("Network down.", e, ConnectionStatus.NETWORK);
                 }
                 if (!c.keepSessionAlive()) {
-                    throw new DSOutOfServiceException("Network down.");
+                    throw new DSOutOfServiceException("Network down.", ConnectionStatus.LOST_CONNECTION);
                 }
             }
         }

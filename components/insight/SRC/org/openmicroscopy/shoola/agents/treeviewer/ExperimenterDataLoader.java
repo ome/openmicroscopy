@@ -240,6 +240,10 @@ public class ExperimenterDataLoader
         	viewer.setExperimenterData(expNode, (Collection) result);
         else {
         	Collection nodes = (Collection) result;
+        	if(nodes.isEmpty()) {
+        	    viewer.setLeaves(null, parent, expNode);
+        	    return;
+        	}
     		Iterator i = nodes.iterator();
     		DataObject object;
     		Class klass = parent.getUserObject().getClass();

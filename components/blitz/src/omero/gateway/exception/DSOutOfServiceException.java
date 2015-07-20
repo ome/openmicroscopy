@@ -48,6 +48,8 @@ package omero.gateway.exception;
 public class DSOutOfServiceException
 	extends Exception
 {
+    /** More information about what nature the problem is */
+	private ConnectionStatus connectionStatus;
 	
 	/**
 	 * Constructs a new exception with the specified detail message.
@@ -60,14 +62,49 @@ public class DSOutOfServiceException
 	}
 	
 	/**
+     * Constructs a new exception with the specified detail message.
+     * 
+     * @param message   Short explanation of the problem.
+     * @param connectionStatus The status of the connection to the server
+     */
+    public DSOutOfServiceException(String message, ConnectionStatus connectionStatus)
+    {
+        super(message);
+        this.connectionStatus = connectionStatus;
+    }
+	
+	/**
 	 * Constructs a new exception with the specified detail message and cause.
 	 * 
 	 * @param message	Short explanation of the problem.
 	 * @param cause		The exception that caused this one to be risen.
+	 * @param connectionStatus The status of the connection to the server
 	 */
 	public DSOutOfServiceException(String message, Throwable cause) 
 	{
 		super(message, cause);
 	}
 
+	/**
+     * Constructs a new exception with the specified detail message and cause.
+     * 
+     * @param message   Short explanation of the problem.
+     * @param cause     The exception that caused this one to be risen.
+     */
+    public DSOutOfServiceException(String message, Throwable cause, ConnectionStatus connectionStatus) 
+    {
+        super(message, cause);
+        this.connectionStatus = connectionStatus;
+    }
+
+    
+	/**
+	 * Gets the {@link ConnectionStatus}
+	 * @return See above
+	 */
+    public ConnectionStatus getConnectionStatus() {
+        return connectionStatus;
+    }
+
+	
 }
