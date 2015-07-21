@@ -22,7 +22,9 @@
 import pytest
 from difflib import unified_diff
 import re
+import os
 from path import path
+import Ice
 import omero.cli
 from omero.plugins.web import WebControl
 from omeroweb import settings
@@ -157,6 +159,52 @@ class TestWeb(object):
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
+    @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
+    @pytest.mark.parametrize('server_type', [
+        "nginx-wsgi", "nginx-wsgi-development"])
+    @pytest.mark.parametrize('http', [False, 8081])
+    @pytest.mark.parametrize('prefix', [None, '/test'])
+    @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
+    @pytest.mark.parametrize('cgiport', [None, '12345'])
+    def testNginxGunicornConfig(self, server_type, http, prefix, cgihost,
+                                cgiport, max_body_size, capsys, monkeypatch):
+
+        static_prefix = self.add_prefix(prefix, monkeypatch)
+        expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
+
+        self.args += ["config"]
+        self.args += server_type.split()
+        if http:
+            self.args += ["--http", str(http)]
+        if max_body_size:
+            self.args += ["--max-body-size", max_body_size]
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        lines = self.clean_generated_file(o)
+
+        if "development" in server_type:
+            missing = self.required_lines_in([
+                "upstream omeroweb_server {",
+                "server %s fail_timeout=0;" % expected_cgi,
+                "server {",
+                "listen %s;" % (http or 8080),
+                "client_max_body_size %s;" % (max_body_size or '0'),
+                "location %s {" % static_prefix[:-1],
+                "location %s {" % (prefix or "/"),
+                ], lines)
+        else:
+            missing = self.required_lines_in([
+                "upstream omeroweb_server {",
+                "server %s fail_timeout=0;" % expected_cgi,
+                "server {",
+                "listen %s;" % (http or 80),
+                "client_max_body_size %s;" % (max_body_size or '0'),
+                "location %s {" % static_prefix[:-1],
+                "location %s {" % (prefix or "/"),
+                ], lines)
+        assert not missing, 'Line not found: ' + str(missing)
+
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
     @pytest.mark.parametrize('cgiport', [None, '12345'])
@@ -226,6 +274,53 @@ class TestWeb(object):
                 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]',
                 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
                 'ProxyPass /.fcgi/ fcgi://%s/' % expected_cgi,
+                ], lines)
+        assert not missing, 'Line not found: ' + str(missing)
+
+    @pytest.mark.parametrize('prefix', [None, '/test'])
+    @pytest.mark.parametrize('http', [False, 8081])
+    def testApacheWSGIConfig(self, prefix, http, capsys, monkeypatch):
+
+        static_prefix = self.add_prefix(prefix, monkeypatch)
+        try:
+            import pwd
+            username = pwd.getpwuid(os.getuid()).pw_name
+        except ImportError:
+            import getpass
+            username = getpass.getuser()
+        icepath = os.path.dirname(Ice.__file__)
+
+        self.args += ["config", "apache-wsgi"]
+        if http:
+            self.args += ["--http", str(http)]
+
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        lines = self.clean_generated_file(o)
+        print lines
+        if prefix:
+            missing = self.required_lines_in([
+                ("<VirtualHost _default_:%s>" % (http or 80)),
+                ('DocumentRoot ', 'lib/python/omeroweb'),
+                ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
+                 'display-name=%%{GROUP} user=%s ' % username +
+                 'python-path=%s' % icepath, 'lib/python/omeroweb'),
+                ('WSGIScriptAlias %s ' % prefix,
+                 'lib/python/omeroweb/wsgi.py'),
+                ('Alias %s ' % static_prefix[:-1],
+                 'lib/python/omeroweb/static'),
+                ], lines)
+        else:
+            missing = self.required_lines_in([
+                ("<VirtualHost _default_:%s>" % (http or 80)),
+                ('DocumentRoot ', 'lib/python/omeroweb'),
+                ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
+                 'display-name=%%{GROUP} user=%s ' % username +
+                 'python-path=%s' % icepath, 'lib/python/omeroweb'),
+                ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py'),
+                ('Alias /static ', 'lib/python/omeroweb/static'),
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
