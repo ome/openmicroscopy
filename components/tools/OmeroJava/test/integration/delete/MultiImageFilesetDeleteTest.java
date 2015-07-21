@@ -6,6 +6,7 @@
 package integration.delete;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,8 +15,6 @@ import omero.RType;
 import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Delete2;
-import omero.cmd.DoAll;
-import omero.cmd.Request;
 import omero.cmd.SkipHead;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
@@ -74,20 +73,16 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     	link.setChild((Image) i2.proxy());
     	link.setParent((Dataset) d2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	List<Request> commands = new ArrayList<Request>();
     	Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(d1.getId().getValue()));
-        commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(d2.getId().getValue()));
-        commands.add(dc);
-        DoAll all = new DoAll();
-        all.requests = commands;
-        doChange(client, factory, all, false, null);
+    	dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+    	        Dataset.class.getSimpleName(),
+    	        Arrays.asList(d1.getId().getValue(), d2.getId().getValue()));
+    	doChange(dc);
+    	assertDoesNotExist(d1);
+    	assertDoesNotExist(d2);
+    	assertDoesNotExist(fileset);
+    	assertDoesNotExist(i1);
+    	assertDoesNotExist(i2);
     }
 
     /* for anchored delete test cases */
