@@ -88,6 +88,9 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     private GraphTraversal graphTraversal;
     private Set<Long> acceptableGroups;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int changedObjectCount = 0;
@@ -121,7 +124,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 4 : 6);
 
         try {
             perm1 = (Long) Utils.internalForm(Permissions.parseString(permissions));
@@ -157,8 +160,13 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         }
         graphPolicyAdjusters = null;
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -224,10 +232,20 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                 }
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(false);
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
+                unlinker = graphTraversal.unlinkTargets(false);
+                graphTraversal = null;
+                return null;
+            case 4:
+                unlinker.execute();
+                return null;
+            case 5:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
@@ -301,6 +319,11 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         } else {
             graphPolicyAdjusters.add(adjuster);
         }
+    }
+
+    @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
     }
 
     @Override

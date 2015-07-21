@@ -88,6 +88,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
     @Override
     public void init(Helper helper) {
         final GraphPolicy.Action startAction;
+        final WrappableRequest<GraphModify2> wrappedRequest;
 
         if (request == null) {
             throw new RuntimeException(new GraphException("must pass a request argument"));
@@ -97,7 +98,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
         } else {
             /* create the two wrapped requests */
             final Class<? extends GraphModify2> requestClass = request.getClass();
-            final WrappableRequest<GraphModify2> wrappedRequest = (WrappableRequest<GraphModify2>) request;
+            wrappedRequest = (WrappableRequest<GraphModify2>) request;
             startAction = wrappedRequest.getActionForStarting();
             graphRequestSkip = graphRequestFactory.getRequest(requestClass);
             graphRequestPerform = graphRequestFactory.getRequest(requestClass);
@@ -136,6 +137,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
         /* initialize the two wrapped requests */
         ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
         ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
+        graphRequestSkipStatus.steps = 1 + wrappedRequest.getStepProvidingCompleteResponse();
 
         this.helper = helper;
         helper.setSteps(graphRequestSkipStatus.steps + graphRequestPerformStatus.steps);

@@ -85,6 +85,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private Set<Long> acceptableGroupsFrom;
     private Set<Long> acceptableGroupsTo;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int givenObjectCount = 0;
@@ -118,7 +121,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 4 : 6);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
@@ -151,8 +154,13 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         graphPolicyWithOptions.registerPredicate(new PermissionsPredicate());
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -188,10 +196,20 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(false);
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
+                unlinker = graphTraversal.unlinkTargets(false);
+                graphTraversal = null;
+                return null;
+            case 4:
+                unlinker.execute();
+                return null;
+            case 5:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
@@ -265,6 +283,11 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         } else {
             graphPolicyAdjusters.add(adjuster);
         }
+    }
+
+    @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
     }
 
     @Override
