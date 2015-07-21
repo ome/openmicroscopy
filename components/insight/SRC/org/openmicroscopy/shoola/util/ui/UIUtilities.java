@@ -1277,7 +1277,24 @@ public class UIUtilities
     	if (value.equals("0")) return null;
     	return value; 
 	}
-    
+
+    /**
+     * Formats a double to two decimal places and returns as a number.
+     *
+     * @param val The number to be formatted.
+     * @return See above.
+     */
+    public static Number twoDecimalPlacesAsNumber(double val)
+    {
+        double v = val;
+        Number value;
+        double c = v;
+        if (v < 0) return null;
+        if ((c-Math.floor(c)) > 0) value = Math.round(c*100)/100f;
+        else value = (int) c;
+        return value; 
+    }
+
     /**
      * Formats the text and displays it in a {@link JTextPane}.
      * 
@@ -2710,6 +2727,47 @@ public class UIUtilities
 		
 		return v;
 	}
+
+	/**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached and
+     * if squared flag is set, also attaches the square symbol.
+     * @param value The value to format
+     * @param squared Pass <code>true</code> to attach the square symbol
+     * @return See above. 
+     */
+    public static String formatValueNoUnit(Length value, boolean squared) {
+        Length converted = squared ? transformSquareSize(value) :
+            transformSize(value);
+        String v;
+        if (value.getUnit().equals(UnitsLength.PIXEL))
+            v = value.getValue() == 0 ? null : ""+((int) value.getValue());
+        else
+            v = UIUtilities.twoDecimalPlaces(converted.getValue());
+        
+        if (v == null)
+            return "";
+        return v;
+    }
+
+    /**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached and
+     * if squared flag is set, also attaches the square symbol.
+     * @param value The value to format
+     * @param squared Pass <code>true</code> to attach the square symbol
+     * @return See above. 
+     */
+    public static Number formatValueNoUnitAsNumber(Length value, boolean squared) {
+        Length converted = squared ? transformSquareSize(value) :
+            transformSize(value);
+        if (value.getUnit().equals(UnitsLength.PIXEL)) {
+            return value.getValue() == 0 ? null : value.getValue();
+        }
+        Number n = UIUtilities.twoDecimalPlacesAsNumber(converted.getValue());
+        if (n.doubleValue() == 0) return null;
+        return n;
+    }
     
 	/**
      * Formats the passed value in seconds.
