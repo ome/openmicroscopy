@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.dnd.DnDTree 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -39,6 +39,7 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.dnd.Autoscroll;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
@@ -87,7 +88,7 @@ import pojos.GroupData;
  */
 public class DnDTree 
 	extends JTree
-	implements DragSourceListener, DropTargetListener, DragGestureListener
+	implements DragSourceListener, DropTargetListener, DragGestureListener, Autoscroll
 {
 
 	/** Bound property indicating that the D&D is completed.*/
@@ -143,43 +144,11 @@ public class DnDTree
 	/** The location of the drop.*/
 	private int dropLocation;
 	
-	/**
-	 * Auto-scrolls when dragging nodes.
-	 * 
-	 * @param tree The component to handle.
-	 * @param p The location of the cursor.
-	 */
-	private void autoscroll(JTree tree, Point p)
-	{
-		Insets insets = getAutoscrollInsets();
-		Rectangle outer = tree.getVisibleRect();
-		Rectangle inner = new Rectangle(
-				outer.x+insets.left,
-				outer.y+insets.top,
-				outer.width-(insets.left+insets.right),
-				outer.height-(insets.top+insets.bottom));
-		if (!inner.contains(p)) {
-			Rectangle scrollRect = new Rectangle(p.x-insets.left,
-					p.y-insets.top, insets.left+insets.right,
-					insets.top+insets.bottom);
-			tree.scrollRectToVisible(scrollRect);
-		}
-	}
-
-	/**
-	 * Returns the insets when auto-scrolling.
-	 * 
-	 * @return See above.
-	 */
-	private Insets getAutoscrollInsets()
-	{
-		int margin = 12;
-		Rectangle outer = getBounds();
-		Rectangle inner = getParent().getBounds();
-		return new Insets(inner.y-outer.y+margin, inner.x-outer.x+margin,
-		outer.height-inner.height-inner.y+outer.y+margin,
-		outer.width-inner.width-inner.x+outer.x+margin);
-	}
+    /**
+     * Defines the area on the edges of the visible area which enables the
+     * autoscroll behaviour
+     */
+    private int margin = 30;
 	
 	/** 
 	 * Sets the cursor depending on the selected node.
@@ -402,6 +371,7 @@ public class DnDTree
 		dropLocation = -1;
 		reset(userID, administrator);
 		setDragEnabled(true);
+		setAutoscrolls(true);
 		dropTargetNode = null;
 		dragSource = new DragSource();
 		DropTarget target = new DropTarget(this, this);
@@ -464,10 +434,10 @@ public class DnDTree
 		// figure out which cell it's over, no drag to self
 		Point dragPoint = dtde.getLocation();
 		TreePath path = getPathForLocation(dragPoint.x, dragPoint.y);
-		if (path == null) dropTargetNode = null; 
-		else dropTargetNode = (TreeNode) path.getLastPathComponent();
-		JTree tree = (JTree) dtde.getDropTargetContext().getComponent();
-		autoscroll(tree, dragPoint);
+		if (path == null) 
+		    dropTargetNode = null; 
+		else
+		    dropTargetNode = (TreeNode) path.getLastPathComponent();
 		repaint();
 	}
 	
@@ -662,11 +632,11 @@ public class DnDTree
 	}
 
 	/**
-	 * Implemented as specified by {@link DropTargetListener} I/F but
-	 * no-operation in our case.
-	 * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
-	 */
-	public void dragEnter(DropTargetDragEvent dtde) {}
+     * Implemented as specified by {@link DropTargetListener} I/F but
+     * no-operation in our case.
+     * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
+     */
+    public void dragEnter(DropTargetDragEvent dtde) {}
 
 	/**
 	 * Implemented as specified by {@link DropTargetListener} I/F but
@@ -674,5 +644,24 @@ public class DnDTree
 	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
 	 */
 	public void dragExit(DropTargetEvent dte) {}
+
+    @Override
+    public Insets getAutoscrollInsets() {
+        Rectangle outer = getBounds();
+        Rectangle inner = getParent().getBounds();
+        return new Insets(inner.y - outer.y + margin, inner.x - outer.x
+                + margin, outer.height - inner.height - inner.y + outer.y
+                + margin, outer.width - inner.width - inner.x + outer.x
+                + margin);
+    }
+
+    @Override
+    public void autoscroll(Point p) {
+        int row = getRowForLocation(p.x, p.y);
+        Rectangle outer = getBounds();
+        row = (p.y + outer.y <= margin ? row < 1 ? 0 : row - 1
+                : row < getRowCount() - 1 ? row + 1 : row);
+        scrollRowToVisible(row);
+    }
 
 }
