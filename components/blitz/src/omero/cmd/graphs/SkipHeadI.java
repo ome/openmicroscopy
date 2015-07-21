@@ -154,6 +154,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
             /* cancel because of wrapped request exception */
             throw helper.cancel(new ERR(), t, "graph-fail");
         }
+
+        /* set step count */
         graphRequestSkipStatus.steps = 1 + wrappedRequest.getStepProvidingCompleteResponse();
         helper.setSteps(graphRequestSkipStatus.steps + graphRequestPerformStatus.steps);
     }
