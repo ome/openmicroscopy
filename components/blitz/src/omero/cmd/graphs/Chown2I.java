@@ -310,10 +310,10 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         @Override
         public void assertMayProcess(String className, long objectId, Details details) throws GraphException {
-            final Long objectOwnerId = details.getOwner().getId();
+            /* final Long objectOwnerId = details.getOwner().getId();
+               also allow userFromId.equals(objectOwnerId) for users to chown their own data */
             final Long objectGroupId = details.getGroup().getId();
-            if (!(acceptableGroupsFrom == null || acceptableGroupsFrom.contains(objectGroupId) ||
-                    userFromId.equals(objectOwnerId))) {
+            if (!(acceptableGroupsFrom == null || acceptableGroupsFrom.contains(objectGroupId))) {
                 throw new GraphException("user " + userFromId + " is not an owner of group " + objectGroupId);
             }
             if (!(acceptableGroupsTo == null || acceptableGroupsTo.contains(objectGroupId))) {

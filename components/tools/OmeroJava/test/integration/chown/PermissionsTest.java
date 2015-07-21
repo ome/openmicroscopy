@@ -216,7 +216,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext importer, chowner, recipient;
         final ExperimenterGroup dataGroup;
 
-        importer = newUserAndGroup("rw----");
+        importer = newUserAndGroup("rw----", isDataOwner && isGroupOwner);
 
         final long dataGroupId = importer.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -316,7 +316,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext importer, annotator, chowner, recipient;
         final ExperimenterGroup dataGroup;
 
-        importer = newUserAndGroup("rwra--");
+        importer = newUserAndGroup("rwra--", isDataOwner && isGroupOwner);
 
         final long dataGroupId = importer.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -411,7 +411,7 @@ public class PermissionsTest extends AbstractServerTest {
                         testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_GROUP_OWNER] = isGroupOwner;
                         testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
-                        testCase[IS_EXPECT_SUCCESS] = isAdmin || (isGroupOwner || isDataOwner) && isRecipientInGroup;
+                        testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
                         // DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
                         //            isRecipientInGroup == true)
                         testCases.add(testCase);
@@ -438,7 +438,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext datasetOwner, imageOwner, linkOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup(groupPermissions);
+        datasetOwner = newUserAndGroup(groupPermissions, true);
 
         final long dataGroupId = datasetOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -449,7 +449,7 @@ public class PermissionsTest extends AbstractServerTest {
             imageOwner = datasetOwner;
             linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
         } else {
-            imageOwner = newUserInGroup(dataGroup, false);
+            imageOwner = newUserInGroup(dataGroup, true);
             linkOwner = isLinkOwner ? datasetOwner : imageOwner;
         }
 
@@ -515,7 +515,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext datasetOwner, imageOwner, linkOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup(groupPermissions);
+        datasetOwner = newUserAndGroup(groupPermissions, true);
 
         final long dataGroupId = datasetOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -526,7 +526,7 @@ public class PermissionsTest extends AbstractServerTest {
             imageOwner = datasetOwner;
             linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
         } else {
-            imageOwner = newUserInGroup(dataGroup, false);
+            imageOwner = newUserInGroup(dataGroup, true);
             linkOwner = isLinkOwner ? datasetOwner : imageOwner;
         }
 
@@ -620,7 +620,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext imageOwner, projectionOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        imageOwner = newUserAndGroup("rwrw--");
+        imageOwner = newUserAndGroup("rwrw--", true);
 
         final long dataGroupId = imageOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -691,7 +691,7 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext imageOwner, otherImageOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        imageOwner = newUserAndGroup("rwrw--");
+        imageOwner = newUserAndGroup("rwrw--", true);
 
         final long dataGroupId = imageOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -788,13 +788,13 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext datasetOwner, plateOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup("rwrw--");
+        datasetOwner = newUserAndGroup("rwrw--", true);
 
         final long dataGroupId = datasetOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
         plateOwner = newUserInGroup(dataGroup, false);
-        recipient = newUserInGroup(dataGroup, true);
+        recipient = newUserInGroup(dataGroup, false);
 
         /* create a plate */
 
@@ -852,8 +852,6 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* perform the chown */
 
-        final boolean isExpectSuccess = target != Target.PLATE;
-
         init(datasetOwner);
         final Chown2 chown = new Chown2();
 
@@ -870,31 +868,32 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         chown.userId = recipient.userId;
-        doChange(client, factory, chown, isExpectSuccess);
+        doChange(client, factory, chown, true);
         disconnect();
 
         logRootIntoGroup(dataGroupId);
 
-        if (isExpectSuccess) {
+        /* check that the objects' ownership is all as expected */
 
-            /* check that the objects' ownership is all as expected */
-
-            switch (target) {
-            case DATASET:
-                assertOwnedBy(dataset, recipient);
-                assertOwnedBy(images, datasetOwner);
-                assertOwnedBy(links, datasetOwner);
-                assertOwnedBy(plate, plateOwner);
-                break;
-            case IMAGES:
-                assertOwnedBy(dataset, datasetOwner);
-                assertOwnedBy(images, recipient);
-                assertOwnedBy(links, datasetOwner);
-                assertOwnedBy(plate, plateOwner);
-                break;
-            case PLATE:
-                Assert.fail("cannot change plate ownership without changing that of its images");
-            }
+        switch (target) {
+        case DATASET:
+            assertOwnedBy(dataset, recipient);
+            assertOwnedBy(images, datasetOwner);
+            assertOwnedBy(links, datasetOwner);
+            assertOwnedBy(plate, plateOwner);
+            break;
+        case IMAGES:
+            assertOwnedBy(dataset, datasetOwner);
+            assertOwnedBy(images, recipient);
+            assertOwnedBy(links, datasetOwner);
+            assertOwnedBy(plate, plateOwner);
+            break;
+        case PLATE:
+            assertOwnedBy(dataset, datasetOwner);
+            assertOwnedBy(images, datasetOwner);
+            assertOwnedBy(links, datasetOwner);
+            assertOwnedBy(plate, recipient);
+            break;
         }
 
         /* delete the objects as clean-up */
