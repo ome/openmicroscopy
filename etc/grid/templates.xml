@@ -468,7 +468,7 @@
           <properties refid="CppServer"/>
           <properties refid="Profile"/>
           <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
-          <property name="IceSSL.Ciphers" value="ADH"/>
+          <property name="IceSSL.Ciphers" value="ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH"/>
           <property name="IceSSL.VerifyPeer" value="0"/>
           <property name="IceSSL.Protocols" value="tls1"/>
           <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
