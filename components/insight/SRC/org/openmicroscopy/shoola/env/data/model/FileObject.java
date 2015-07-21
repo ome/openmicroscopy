@@ -25,16 +25,30 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileInfo;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import loci.formats.codec.CompressionType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Object hosting the information about the "file" to import.
@@ -237,10 +251,69 @@ public class FileObject
                 if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
                     return true;
             }
+
+            //Get Current Dimensions
+            int SizeC_cur = img.getNChannels();
+            int SizeT_cur = img.getNFrames();
+            int SizeZ_cur = img.getNSlices();
+
+            String xmlStr = info.description;
+            Document doc = xmlParser(xmlStr);
+
+            NodeList nodeList = doc.getElementsByTagName("Pixels");
+            int size = nodeList.getLength();
+            int SizeC_org = SizeC_cur;
+            int SizeT_org = SizeT_cur;
+            int SizeZ_org = SizeZ_cur;
+            for(int x=0; x<size; x++) {
+                NamedNodeMap attributes = nodeList.item(x).getAttributes();
+                SizeC_org = Integer.valueOf(attributes.getNamedItem("SizeC").getNodeValue());
+                SizeT_org = Integer.valueOf(attributes.getNamedItem("SizeT").getNodeValue());
+                SizeZ_org = Integer.valueOf(attributes.getNamedItem("SizeZ").getNodeValue());
+            }
+            if (SizeC_cur != SizeC_org || SizeT_cur != SizeT_org || SizeZ_cur != SizeZ_org){
+                return true;
+            }
         }
         return false;
     }
-    
+
+    /**
+     * Parses Xml String
+     * @param xmlStr
+     * @return
+     */
+    public Document xmlParser(String xmlStr)
+    {
+        InputSource stream = new InputSource();
+        stream.setCharacterStream(new StringReader(xmlStr));
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        DocumentBuilder builder;
+        Document doc = null;
+            try {
+                builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                doc = builder.parse(stream);
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace(pw);
+                IJ.log(pw.toString());
+            } catch (SAXException e) {
+                e.printStackTrace(pw);
+                IJ.log(pw.toString());
+            } catch (IOException e) {
+                e.printStackTrace(pw);
+                IJ.log(pw.toString());
+            } finally {
+                try {
+                    sw.close();
+                } catch (IOException e) {
+                    IJ.log("I/O Exception:" + e.getMessage());
+                }
+                pw.close();
+            }
+        return doc;
+    }
+
     /**
      * Returns the file to import.
      *
