@@ -87,6 +87,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
 
     @Override
     public void init(Helper helper) {
+        this.helper = helper;
+
         final GraphPolicy.Action startAction;
         final WrappableRequest<GraphModify2> wrappedRequest;
 
@@ -153,8 +155,6 @@ public class SkipHeadI extends SkipHead implements IRequest {
             throw helper.cancel(new ERR(), t, "graph-fail");
         }
         graphRequestSkipStatus.steps = 1 + wrappedRequest.getStepProvidingCompleteResponse();
-
-        this.helper = helper;
         helper.setSteps(graphRequestSkipStatus.steps + graphRequestPerformStatus.steps);
     }
 
