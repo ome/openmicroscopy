@@ -390,6 +390,11 @@
       <constructor-arg value="${omero.graphs.wrap}"/>
   </bean>
 
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="ome.services.graphs.GroupPredicate.setSecuritySystem"/>
+    <property name="arguments"><list><ref bean="securitySystem"/></list></property>
+  </bean>
+
   <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"
     lazy-init="false">
       <property name="iceCommunicator" ref="Ice.Communicator"/>
