@@ -357,6 +357,7 @@
 
   <bean id="graphRequestFactory" class="omero.cmd.graphs.GraphRequestFactory">
       <constructor-arg ref="aclVoter"/>
+      <constructor-arg ref="roles"/>
       <constructor-arg ref="systemTypes"/>
       <constructor-arg ref="graphPathBean"/>
       <constructor-arg ref="ome.services.delete.Deletion"/>
@@ -388,11 +389,6 @@
         </set>
       </constructor-arg>
       <constructor-arg value="${omero.graphs.wrap}"/>
-  </bean>
-
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="ome.services.graphs.GroupPredicate.setSecuritySystem"/>
-    <property name="arguments"><list><ref bean="securitySystem"/></list></property>
   </bean>
 
   <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"

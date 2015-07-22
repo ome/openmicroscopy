@@ -20,7 +20,6 @@
 package ome.services.graphs;
 
 import ome.model.IObject;
-import ome.security.SecuritySystem;
 import ome.services.graphs.GraphPolicy.Details;
 import ome.system.Roles;
 
@@ -42,18 +41,17 @@ public class GroupPredicate implements GraphPolicyRulePredicate {
             "user",   GroupMarker.USER,
             "guest",  GroupMarker.GUEST);
 
-    private static ImmutableMap<Long, GroupMarker> groupsById;
+    private final ImmutableMap<Long, GroupMarker> groupsById;
 
     /**
-     * Set the security system with whose roles this predicate is to work.
-     * @param securitySystem the security system
+     * Construct a new group predicate.
+     * @param securityRoles the security roles
      */
-    public static void setSecuritySystem(SecuritySystem securitySystem) {
-        final Roles roles = securitySystem.getSecurityRoles();
+    public GroupPredicate(Roles securityRoles) {
         groupsById = ImmutableMap.of(
-                roles.getSystemGroupId(), GroupMarker.SYSTEM,
-                roles.getUserGroupId(),   GroupMarker.USER,
-                roles.getGuestGroupId(),  GroupMarker.GUEST);
+                securityRoles.getSystemGroupId(), GroupMarker.SYSTEM,
+                securityRoles.getUserGroupId(),   GroupMarker.USER,
+                securityRoles.getGuestGroupId(),  GroupMarker.GUEST);
     }
 
     @Override

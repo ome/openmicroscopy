@@ -50,6 +50,7 @@ import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.system.EventContext;
 import ome.system.Login;
+import ome.system.Roles;
 import omero.cmd.Chgrp2;
 import omero.cmd.Chgrp2Response;
 import omero.cmd.HandleI.Cancel;
@@ -91,6 +92,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     /**
      * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
@@ -98,8 +100,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      * @param graphPolicy the graph policy to apply for chgrp
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Chgrp2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
+    public Chgrp2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;

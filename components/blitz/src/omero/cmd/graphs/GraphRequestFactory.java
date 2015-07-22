@@ -40,6 +40,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphPolicyRule;
+import ome.system.Roles;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
 import omero.cmd.SkipHead;
@@ -54,6 +55,7 @@ public class GraphRequestFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRequestFactory.class);
 
     private final ACLVoter aclVoter;
+    private final Roles securityRoles;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Deletion deletionInstance;
@@ -66,6 +68,7 @@ public class GraphRequestFactory {
     /**
      * Construct a new graph request factory.
      * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param deletionInstance a deletion instance for deleting files
@@ -76,10 +79,12 @@ public class GraphRequestFactory {
      * @param isGraphsWrap if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
      * @throws GraphException if the graph path rules could not be parsed
      */
-    public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Map<Class<? extends Request>, List<String>> allTargets, Map<Class<? extends Request>, List<GraphPolicyRule>> allRules,
-            List<String> unnullable, Set<String> defaultExcludeNs, boolean isGraphsWrap) throws GraphException {
+    public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
+            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs,
+            boolean isGraphsWrap) throws GraphException {
         this.aclVoter = aclVoter;
+        this.securityRoles = securityRoles;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
@@ -157,11 +162,11 @@ public class GraphRequestFactory {
                 } else {
                     graphPolicy = graphPolicy.getCleanInstance();
                 }
-                final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class,
+                final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
                         GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
                 request =
-                        constructor.newInstance(aclVoter, systemTypes, graphPathBean, deletionInstance, targetClasses, graphPolicy,
-                                unnullable);
+                        constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
+                                targetClasses, graphPolicy, unnullable);
             }
         } catch (Exception e) {
             /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
