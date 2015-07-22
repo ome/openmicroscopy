@@ -28,6 +28,11 @@ import org.hibernate.Session;
 
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * A predicate that allows {@code group=system} and similar to be used in graph policy rule matches.
+ * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.1.3
+ */
 public class GroupPredicate implements GraphPolicyRulePredicate {
 
     private static enum GroupMarker { SYSTEM, USER, GUEST };
@@ -39,6 +44,10 @@ public class GroupPredicate implements GraphPolicyRulePredicate {
 
     private static ImmutableMap<Long, GroupMarker> groupsById;
 
+    /**
+     * Set the security system with whose roles this predicate is to work.
+     * @param securitySystem the security system
+     */
     public static void setSecuritySystem(SecuritySystem securitySystem) {
         final Roles roles = securitySystem.getSecurityRoles();
         groupsById = ImmutableMap.of(
