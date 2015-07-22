@@ -52,6 +52,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.graphs.GroupPredicate;
 import ome.system.EventContext;
 import ome.system.Login;
 import ome.util.Utils;
@@ -159,6 +160,8 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
             graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
         }
         graphPolicyAdjusters = null;
+
+        graphPolicyWithOptions.registerPredicate(new GroupPredicate());
 
         GraphTraversal.Processor processor = new InternalProcessor();
         if (dryRun) {
