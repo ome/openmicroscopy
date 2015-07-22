@@ -573,6 +573,7 @@ class BrowserComponent
     {
         if (model.getState() != LOADING_LEAVES) return;
         if (leaves == null || leaves.isEmpty())  {
+            view.setLeavesViews(Collections.EMPTY_SET, parent);
             model.setState(READY);
             fireStateChange();
             return;
