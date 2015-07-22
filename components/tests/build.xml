@@ -3,9 +3,7 @@
 
     <dirname property="up-one" file="${basedir}"/>
     <property name="import.dir" value="${up-one}/antlib/resources"/>
-    <import file="${import.dir}/gitversion.xml" optional="true"/>
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
 	<target name="buildlist" unless="deps.build.path">

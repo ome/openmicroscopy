@@ -25,6 +25,9 @@
 
 -->
 
+        <!-- Before global.xml -->
+        <import file="gitversion.xml" optional="true"/>
+
         <tstamp>
           <format property="now" pattern="yyyyMMddHHmmss"/>
         </tstamp>
@@ -755,5 +758,8 @@
                         This build file is intended for import only.
                 </echo>
         </target>
+
+        <!-- After global.xml -->
+        <import file="version.xml" optional="true"/>
 
 </project>

@@ -2,9 +2,7 @@
 <project name="dsl" default="install" basedir=".">
 
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
-    <import file="${import.dir}/gitversion.xml" optional="true"/>
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
 </project>
