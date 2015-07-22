@@ -31,17 +31,16 @@ import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportSize;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.targets.ServerTemplateImportTarget;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
-
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
@@ -51,6 +50,7 @@ import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
 import omero.constants.namespaces.NSAUTOCLOSE;
+import omero.constants.namespaces.NSTARGETTEMPLATE;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.model.Annotation;
@@ -66,13 +66,12 @@ import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
+import omero.util.IceMapper;
 
 import org.apache.commons.codec.binary.Hex;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
 
 import ch.qos.logback.classic.ClassicConstants;
 
@@ -218,7 +217,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 settings.doThumbnails.getValue();
             noStatsInfo = settings.noStatsInfo == null ? false :
                 settings.noStatsInfo.getValue();
-            detectAutoClose();
 
             fileName = file.getFullFsPath();
             shortName = file.getName();
@@ -235,6 +233,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 throw new NullPointerException(
                         "usedFiles must be non-null");
             }
+
+            // Process all information which has been passed in as annotations
+            detectKnownAnnotations();
 
             IFormatReader baseReader = reader.getImageReader().getReader();
             if (log.isInfoEnabled())
@@ -299,7 +300,12 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
     }
 
-    private void detectAutoClose() {
+    /**
+     * NSAUTOCLOSE causes the process to end on import completion
+     *
+     * NSTARGETTEMPLATE sets a target for the import <em>if none is set</em>
+     */
+    private void detectKnownAnnotations() throws Exception {
 
         // PythonImporter et al. may pass a null settings.
         if (settings == null || settings.userSpecifiedAnnotationList == null) {
@@ -310,23 +316,44 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (a == null) {
                 continue;
             }
+
+            ome.model.annotations.Annotation ann = null;
             String ns = null;
             if (a.isLoaded()) {
                 ns = a.getNs() == null ? null : a.getNs().getValue();
+                ann = (ome.model.annotations.Annotation) new IceMapper().reverse(a);
             } else {
                 if (a.getId() == null) {
                     // not sure what we can do with this annotation then.
                     continue;
                 }
-                ome.model.annotations.Annotation a2 =
+                ann =
                     (ome.model.annotations.Annotation) helper.getSession()
                         .get(ome.model.annotations.Annotation.class,
                             a.getId().getValue());
-                ns = a2.getNs();
+                ns = ann.getNs();
             }
             if (NSAUTOCLOSE.value.equals(ns)) {
                 autoClose = true;
-                return;
+            } else if (NSTARGETTEMPLATE.value.equals(ns)) {
+                ome.model.annotations.CommentAnnotation ca =
+                        (ome.model.annotations.CommentAnnotation) ann;
+                if (settings.userSpecifiedTarget != null) {
+                    // TODO: Exception
+                    String kls = settings.userSpecifiedTarget.getClass().getSimpleName();
+                    long id = settings.userSpecifiedTarget.getId().getValue();
+                    log.error("User-specified template target '{}' AND {}:{}",
+                            ca.getTextValue(), kls, id);
+                    continue;
+                }
+
+                CheckedPath targetPath = ((ManagedImportLocationI) location).getTarget();
+                String sharedPath = location.sharedPath;
+                sharedPath = targetPath.parent().fsFile.toString().substring(sharedPath.length());
+                // This eliminates the import template from evaluation
+                ServerTemplateImportTarget target = new ServerTemplateImportTarget(sharedPath);
+                target.init(ca.getTextValue());
+                settings.userSpecifiedTarget = target.load(store, reader.isSPWReader());
             }
         }
     }
