@@ -346,6 +346,9 @@ class TestImport(CLITest):
 
     class TargetSource(object):
 
+        def get_prefixes(self):
+            return ()
+
         def get_arg(self, client, spw=False):
             raise NotImplemented()
 
@@ -378,37 +381,82 @@ class TestImport(CLITest):
             self.obj.name = rstring("ClassTargetSource-Test")
             self.obj = update.saveAndReturnObject(self.obj)
             self.oid = self.obj.id.val
+            self.spw = spw
             return "%s:%s" % (self.kls, self.oid)
 
         def verify_containers(self, found1, found2):
-            assert (self.oid,) == tuple(found1)
-            assert (self.oid,) == tuple(found2)
+            if self.spw:
+                # Since fake files generate their own screen
+                # this is necessary.
+                assert self.oid in found1
+                assert self.oid in found2
+            else:
+                assert (self.oid,) == tuple(found1)
+                assert (self.oid,) == tuple(found2)
 
     class TemplateTargetSource(TargetSource):
-        pass
+
+        def __init__(self, template):
+            self.template = template
+
+        def get_prefixes(self):
+            return ("a", "b")
+
+        def get_arg(self, client, spw=False):
+            self.spw = spw
+            return self.template
+
+        def verify_containers(self, found1, found2):
+            if self.spw:
+                # Again, we have extra screens here!
+                pass
+            else:
+                assert found1
+                assert found2
+                assert found1 == found2
+
 
     SOURCES = (
         #ClassTargetSource(),
-        ModelTargetSource(by="id"),
+        #ModelTargetSource(by="id"),
         #ModelTargetSource(by="name"),
-        #TemplateTargetSource(),
+        TemplateTargetSource("(?<C1>.*)"),
     )
 
 
     @pytest.mark.parametrize("spw", (True, False))
     @pytest.mark.parametrize("source", SOURCES)
     def testTargetArgument(self, spw, source, tmpdir, capfd):
+
+        subdir = tmpdir
+        for x in source.get_prefixes():
+            subdir = subdir.join(x)
+            subdir.mkdir()
+
         if spw:
-            fakefile = tmpdir.join(
+            fakefile = subdir.join("spw.fake")
+            fakefile.mkdir()
+            for x in ("Plate000", "Run000", "WellA000"):
+                fakefile = fakefile.join(x)
+                fakefile.mkdir()
+            fakefile = fakefile.join("Field000.fake")
+            # Note: a fake a la:
+            #
+            #   "SPW&plates=1&plateRows=1&plateCols=1&"
+            #   "fields=1&plateAcqs=1.fake")
+            #
+            # generates its own Screen and is so not
+            # appropriate for this test.
+            fakefile = subdir.join((
                 "SPW&plates=1&plateRows=1&plateCols=1&"
-                "fields=1&plateAcqs=1.fake")
+                "fields=1&plateAcqs=1.fake"))
         else:
-            fakefile = tmpdir.join("test.fake")
+            fakefile = subdir.join("test.fake")
         fakefile.write('')
 
         target = source.get_arg(self.client, spw)
         self.args += ['-T', target]
-        self.args += [str(fakefile)]
+        self.args += [str(tmpdir)]
 
         def parse_containers():
             try:
@@ -427,7 +475,7 @@ class TestImport(CLITest):
                 containers = self.get_screens(obj.id.val)
             else:
                 obj = self.get_object(e, 'Image')
-                containers = self.get_dataset(obj.id.val)
+                containers = (self.get_dataset(obj.id.val),)
 
             assert containers
             found = [x.id.val for x in containers]
