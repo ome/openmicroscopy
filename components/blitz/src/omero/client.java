@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2008-2015 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -319,7 +319,7 @@ public class client {
         id.properties.setProperty("Ice.Default.PreferSecure", "1");
         id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
         id.properties.setProperty("IceSSL.Protocols", "tls1");
-        id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
+        id.properties.setProperty("IceSSL.Ciphers", "ALL !ADH !LOW !EXP !MD5");
         id.properties.setProperty("IceSSL.VerifyPeer", "0");
 
         // Setting default block size
