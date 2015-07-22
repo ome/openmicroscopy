@@ -269,6 +269,11 @@
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:TagAnnotation[E]{!a}, X =/!o A"
                                        p:changes="A:{a}"/>
 
+        <!-- Do not give annotations in a read-annotate group. -->
+
+        <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{r};perms=???a??" p:changes="A:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{r};perms=???w??" p:changes="A:{a}"/>
+
         <!-- Delete or give orphaned annotations that are owned by the deleted or given object's owner. -->
 
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[I], L.child = A:Annotation[E]{o}, X =/o A"
@@ -561,9 +566,10 @@
 
         <!-- ROI -->
 
-        <!-- Give the ROIs, shapes and mask images of the owner of a given image. -->
+        <!-- Give the ROIs, shapes and mask images of the owner of a given image if not in a read-annotate group. -->
 
-        <bean parent="graphPolicyRule" p:matches="Image[I].rois =/o ROI:[E]" p:changes="ROI:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Image[I].rois =/o ROI:[E];perms=???-??" p:changes="ROI:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Image[I].rois =/o ROI:[E];perms=???r??" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]" p:changes="I:[I]"/>

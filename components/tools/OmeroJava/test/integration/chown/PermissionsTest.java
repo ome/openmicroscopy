@@ -371,13 +371,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
-        for (final IObject annotation : ownerAnnotations) {
-            if (annotation instanceof Thumbnail) {
-                assertOwnedBy(annotation, importer);
-            } else {
-                assertOwnedBy(annotation, recipient);
-            }
-        }
+        assertOwnedBy(ownerAnnotations, importer);
         assertOwnedBy(otherAnnotations, annotator);
         disconnect();
     }
