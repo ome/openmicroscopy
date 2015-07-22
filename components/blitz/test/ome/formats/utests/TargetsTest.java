@@ -159,14 +159,6 @@ public class TargetsTest {
     };
 
     @Test
-    public void testTemplateParsing() {
-        TemplateImportTarget t;
-        t = new TemplateImportTarget();
-        t.init("{Project}/{Dataset}/");
-        assertEquals("D", t.getDataset());
-    }
-
-    @Test
     public void testTemplateBuilding() {
         TargetBuilder b = new TargetBuilder();
         b.parse("");
