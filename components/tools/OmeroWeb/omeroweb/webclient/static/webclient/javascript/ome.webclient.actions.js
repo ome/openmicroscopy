@@ -540,6 +540,7 @@ OME.nodeHasPermission = function(node, permission) {
     // Check if the node data has permissions data
     if (node.data.obj.hasOwnProperty('permsCss')) {
         var perms = node.data.obj.permsCss;
+        console.log('nodeHasPermission', perms);
         // Determine if this node has this permission
         if (perms.indexOf(permission) > -1) {
             return true;

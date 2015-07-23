@@ -1846,6 +1846,7 @@
                             // creating them. As the menu is created anew each time there is no reason not to never create
                             // those nodes
 
+                            console.log('canDelete', OME.nodeHasPermission(node, 'canDelete'));
                             // Disable delete if no canDelete permission
                             if (!OME.nodeHasPermission(node, 'canDelete')) {
                                 config["delete"]["_disabled"] = true;
