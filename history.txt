@@ -1,6 +1,31 @@
 OMERO version history
 =====================
 
+5.1.3 (July 2015)
+-----------------
+
+A bug-fix release. Improvements include:
+
+-  better reporting for the 'delete' and 'chgrp' functionality in the CLI
+-  tagging fixes, including for tagging ome-tiff images at import
+-  fixed display of images in plates with multiple acquisitions
+-  Support for WSGI OMERO.web deployment
+-  Group admins and owners can now change ownership of data via the CLI
+-  fixed OMERO.mail service for web errors
+
+Developer updates include:
+
+-  OMERO.web clean-up (removal of '-locked')
+-  refactoring of 'Chown2' and 'Chmod2'
+-  Bio-Formats submodule removed from OMERO; decoupling effort means OMERO now
+   consumes the Bio-Formats release build from the artifactory
+
+This release also includes the fix for the Java security issue, as discussed
+in the
+`recent blog post <http://blog.openmicroscopy.org/tech-issues/2015/07/21/java-issue/>`_. Testing
+suggests this fix should not have any performance implications. You should
+upgrade your Java version to take advantage of the security fix.
+
 5.1.2 (May 2015)
 ----------------
 
