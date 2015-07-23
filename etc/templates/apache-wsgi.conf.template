@@ -68,7 +68,7 @@
   </Directory>
 
   Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
-  <Directory "%(OMEROWEBROOT)s//static">
+  <Directory "%(OMEROWEBROOT)s/static">
       Options -Indexes FollowSymLinks
       Order allow,deny
       Allow from all
