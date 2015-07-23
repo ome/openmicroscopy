@@ -883,16 +883,23 @@ class TestPermissionProjections(lib.ITest):
         project = update.saveAndReturnObject(project)
 
         try:
-            perms = unwrap(reader.projection((
+            perms1 = unwrap(reader.projection((
                 "select new ome.util.PermDetails(p) "
                 "from Project p where p.id = :id"),
                 ParametersI().addId(project.id.val)))[0][0]
+            perms2 = unwrap(reader.projection((
+                "select new map(p.id as id, p as p_details_permissions) "
+                "from Project p where p.id = :id"),
+                ParametersI().addId(project.id.val)))[0][0]
+            perms2 = perms2["p_details_permissions"]
+            assert perms1 == perms2
             assert fixture.canRead
         except IndexError:
             # No permissions were returned.
             assert not fixture.canRead
         else:
-            self.assertPerms(perms, fixture)
+            self.assertPerms(perms1, fixture)
+            self.assertPerms(perms2, fixture)
 
     @pytest.mark.parametrize("fixture", lib.PFS,
                              ids=[x.get_name() for x in lib.PFS])
