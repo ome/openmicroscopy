@@ -990,7 +990,7 @@ def marshal_orphaned(conn, group_id=-1, experimenter_id=-1, page=1,
     # This corresponse to the user specific orphan restriction described
     # in the orphan section of marshal_images
     # q += ' and dilink.parent.details.owner.id = :id '
-    q+= '''
+    q += '''
         )
         and not exists (
                 select ws from WellSample ws
