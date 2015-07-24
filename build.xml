@@ -52,9 +52,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </description>
 
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
-    <import file="${import.dir}/gitversion.xml" optional="true"/>
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
 
     <target name="init" depends="check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
