@@ -96,6 +96,8 @@ class TestWeb(object):
         s = re.sub('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}',
                    '0000-00-00 00:00:00.000000', s)
         s = s.replace(serverdir, '/home/omero/OMERO.server')
+        s = s.replace(os.path.dirname(Ice.__file__), '/home/omero/ice/python')
+        s = s.replace('user=%s' % getpass.getuser(), 'user=omero')
         return s
 
     def compare_with_reference(self, refname, generated):
@@ -325,7 +327,8 @@ class TestWeb(object):
         assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('server_type', [
-        "nginx", "nginx-development", "apache", "apache-fcgi"])
+        "nginx", "nginx-wsgi", "nginx-development",
+        "apache", "apache-fcgi", "apache-wsgi"])
     def testFullTemplateDefaults(self, server_type, capsys, monkeypatch):
         self.args += ["config", server_type]
         self.set_templates_dir(monkeypatch)
@@ -340,7 +343,9 @@ class TestWeb(object):
     @pytest.mark.parametrize('server_type', [
         ['nginx', '--http', '1234', '--max-body-size', '2m'],
         ['nginx-development', '--http', '1234', '--max-body-size', '2m'],
+        ['nginx-wsgi', '--http', '1234', '--max-body-size', '2m'],
         ['apache'],
+        ['apache-wsgi', '--http', '1234'],
         ['apache-fcgi']])
     def testFullTemplateWithOptions(self, server_type, capsys, monkeypatch):
         prefix = '/test'
