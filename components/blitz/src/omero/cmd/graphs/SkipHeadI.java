@@ -87,6 +87,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
 
     @Override
     public void init(Helper helper) {
+        this.helper = helper;
+
         final GraphPolicy.Action startAction;
         final WrappableRequest<GraphModify2> wrappedRequest;
 
@@ -134,12 +136,27 @@ public class SkipHeadI extends SkipHead implements IRequest {
             }
         });
 
-        /* initialize the two wrapped requests */
-        ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
-        ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
-        graphRequestSkipStatus.steps = 1 + wrappedRequest.getStepProvidingCompleteResponse();
+        try {
+            /* initialize the two wrapped requests */
+            ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
+            ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
+        } catch (Cancel c) {
+            /* mark own status as canceled */
+            Throwable t = c.getCause();
+            if (t == null) {
+                t = c;
+            }
+            helper.fail(new ERR(), t, "graph-fail");
+            helper.getStatus().flags.add(State.CANCELLED);
+            /* re-throw wrapped request Cancel */
+            throw c;
+        } catch (Throwable t) {
+            /* cancel because of wrapped request exception */
+            throw helper.cancel(new ERR(), t, "graph-fail");
+        }
 
-        this.helper = helper;
+        /* set step count */
+        graphRequestSkipStatus.steps = 1 + wrappedRequest.getStepProvidingCompleteResponse();
         helper.setSteps(graphRequestSkipStatus.steps + graphRequestPerformStatus.steps);
     }
 
