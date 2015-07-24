@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2008-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2008-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 
 import omero
 
-from omero.rtypes import rlong, rlist, unwrap
+from omero.rtypes import rlong, unwrap, wrap
 from django.conf import settings
 from datetime import datetime
 from copy import deepcopy
@@ -627,7 +627,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         # Get the contents of the blob which contains the images in the share
         # TODO Figure out how to do this without the API, preferably as part
         # of the single query
-        image_rids = [image_rid.getId()
+        image_rids = [image_rid.getId().val
                       for image_rid
                       in conn.getShareService().getContents(share_id)
                       if isinstance(image_rid, omero.model.ImageI)]
@@ -636,7 +636,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if not image_rids:
             return images
 
-        params.add('iids', rlist(image_rids))
+        params.add('iids', wrap(image_rids))
         where_clause.append('image.id in (:iids)')
 
     q += """
@@ -646,22 +646,22 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                build_clause(where_clause, 'where', 'and'))
 
     for e in qs.projection(q, params, service_opts):
-        e = unwrap(e)
-        d = [e[0]["id"],
-             e[0]["name"],
-             e[0]["ownerId"],
-             e[0]["image_details_permissions"],
-             e[0]["filesetId"]]
+        e = unwrap(e)[0]
+        d = [e["id"],
+             e["name"],
+             e["ownerId"],
+             e["image_details_permissions"],
+             e["filesetId"]]
         kwargs = {'conn': conn, 'row': d[0:5]}
         if load_pixels:
-            d = [e[0]["sizeX"], e[0]["sizeY"], e[0]["sizeZ"]]
+            d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
             kwargs['row_pixels'] = d
 
         # While marshalling the images, determine if there are any
         # images mentioned in shares that are not in the results
         # because they have been deleted
-        if share_id is not None and image_rids and e[0] in image_rids:
-            image_rids.remove(e[0])
+        if share_id is not None and image_rids and e["id"] in image_rids:
+            image_rids.remove(e["id"])
 
         images.append(_marshal_image(**kwargs))
 

@@ -99,11 +99,15 @@ def get_update_service(user):
     return user[0].getSession().getUpdateService()
 
 
-def get_perms(user, obj):
+def get_perms(user, obj, dtype):
     """
     Get the permissions as a string from this list and in this order:
     'canEdit canAnnotate canLink canDelete canChgrp'
+    according to the specified user (client, user)
     """
+    qs = user[0].getSession().getQueryService()
+    # user reloads obj so that permissions apply correctly
+    obj = qs.get(dtype, obj.id.val, {'omero.group': '-1'})
     permissions = obj.details.permissions
     perms = []
     if permissions.canEdit():
@@ -114,10 +118,10 @@ def get_perms(user, obj):
         perms.append('canLink')
     if permissions.canDelete():
         perms.append('canDelete')
-    if obj.details.owner.id.val == user.id.val:
+    if obj.details.owner.id.val == user[1].id.val:
         perms.append('isOwned')
     # TODO Add chgrp permission to an admin user
-    if obj.details.owner.id.val == user.id.val:
+    if obj.details.owner.id.val == user[1].id.val:
         perms.append('canChgrp')
 
     return ' '.join(perms)
@@ -136,6 +140,7 @@ def expected_experimenter(user):
 
 
 def expected_projects(user, projects):
+    """ Marshal projects with permissions according to user """
     expected = []
     for project in projects:
         expected.append({
@@ -143,13 +148,12 @@ def expected_projects(user, projects):
             'name': project.name.val,
             'ownerId': project.details.owner.id.val,
             'childCount': len(project.linkedDatasetList()),
-            'permsCss': get_perms(user[1], project)
+            'permsCss': get_perms(user, project, "Project")
         })
     return expected
 
 
 def expected_datasets(user, datasets):
-    print "expected_datasets..."
     expected = []
     for dataset in datasets:
         expected.append({
@@ -157,9 +161,8 @@ def expected_datasets(user, datasets):
             'name': dataset.name.val,
             'ownerId': dataset.details.owner.id.val,
             'childCount': len(dataset.linkedImageList()),
-            'permsCss': get_perms(user[1], dataset)
+            'permsCss': get_perms(user, dataset, "Dataset")
         })
-    print expected
     return expected
 
 
@@ -172,7 +175,7 @@ def expected_images(user, images):
             'id': image.id.val,
             'name': image.name.val,
             'ownerId': image.details.owner.id.val,
-            'permsCss': get_perms(user[1], image),
+            'permsCss': get_perms(user, image, "Image"),
         }
         if image.fileset is not None:
             i['filesetId'] = image.fileset.id.val
@@ -188,7 +191,7 @@ def expected_screens(user, screens):
             'name': screen.name.val,
             'ownerId': screen.details.owner.id.val,
             'childCount': len(screen.linkedPlateList()),
-            'permsCss': get_perms(user[1], screen)
+            'permsCss': get_perms(user, screen, "Screen")
         })
     return expected
 
@@ -201,7 +204,7 @@ def expected_plates(user, plates):
             'name': plate.name.val,
             'ownerId': plate.details.owner.id.val,
             'childCount': len(plate.copyPlateAcquisitions()),
-            'permsCss': get_perms(user[1], plate)
+            'permsCss': get_perms(user, plate, "Plate")
         })
     return expected
 
@@ -223,7 +226,7 @@ def expected_plate_acquisitions(user, plate_acquisitions):
             'id': acq.id.val,
             'name': acq_name,
             'ownerId': acq.details.owner.id.val,
-            'permsCss': get_perms(user[1], acq)
+            'permsCss': get_perms(user, acq, "PlateAcquisition")
         })
     return expected
 
@@ -247,7 +250,8 @@ def expected_tags(user, tags):
             'value': tag.textValue.val,
             'description': description,
             'ownerId': tag.details.owner.id.val,
-            'permsCss': get_perms(user[1], tag)
+            'childCount': len(tag.linkedAnnotationList()),
+            'permsCss': get_perms(user, tag, "TagAnnotation")
         }
 
         if tag.ns is not None and tag.ns.val == \
@@ -255,8 +259,6 @@ def expected_tags(user, tags):
             t['set'] = True
         else:
             t['set'] = False
-
-        t['childCount'] = len(tag.linkedAnnotationList())
         expected.append(t)
     return expected
 
@@ -1686,6 +1688,7 @@ class TestTree(lib.ITest):
                                            projects_userB_groupA):
         """
         Test marshalling another user's projects in current group
+        Project is Owned by userB. We are testing userA's perms.
         """
         conn = get_connection(userA)
         expected = expected_projects(userA, projects_userB_groupA)
@@ -1965,7 +1968,6 @@ class TestTree(lib.ITest):
         expected = expected_images(userA, images)
         marshaled = marshal_images(conn=conn,
                                    share_id=share.id.val)
-
         assert marshaled == expected
 
     # Screens
