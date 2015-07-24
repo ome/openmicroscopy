@@ -36,7 +36,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import pojos.util.PojoMapper;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;

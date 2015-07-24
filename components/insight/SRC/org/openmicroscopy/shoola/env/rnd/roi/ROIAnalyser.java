@@ -33,12 +33,24 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
+
+
 import org.apache.commons.collections.CollectionUtils;
+
+
+
+
+import omero.gateway.Gateway;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DataSourceException;
+import omero.gateway.rnd.DataSink;
+
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+
+import pojos.PixelsData;
 
 /** 
  * Does some basic statistic analysis on a collection of {@link ROIShape} 
@@ -110,14 +122,13 @@ public class ROIAnalyser
      * @param sizeX The number of pixels along the x-axis.
      * @param sizeY The number of pixels along the y-axis.
      */
-    public ROIAnalyser(DataSink source, int sizeZ, int sizeT, int sizeC, int
-            sizeX, int sizeY)
+    public ROIAnalyser(Gateway gateway, PixelsData pixels)
     {
         //Constructor will check source and dims.
-        runner = new PointIterator(source, sizeZ, sizeT, sizeC, sizeX, sizeY);
-        this.sizeZ = sizeZ;
-        this.sizeT = sizeT;
-        this.sizeC = sizeC;
+        runner = new PointIterator(gateway, pixels);
+        this.sizeZ = pixels.getSizeZ();
+        this.sizeT = pixels.getSizeT();
+        this.sizeC = pixels.getSizeC();
     }
 
     /**

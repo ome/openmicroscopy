@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import pojos.DataObject;
 import pojos.GroupData;
 

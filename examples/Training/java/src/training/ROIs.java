@@ -26,17 +26,22 @@ package training;
 
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import ome.formats.model.UnitsFactory;
 import omero.RInt;
-import omero.api.IContainerPrx;
-import omero.api.RoiOptions;
-import omero.api.RoiResult;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.DataManagerFacility;
+import omero.gateway.facility.ROIFacility;
+import omero.gateway.model.ROIResult;
+import omero.log.SimpleLogger;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
-import omero.model.Image;
 import omero.model.Label;
 import omero.model.LabelI;
 import omero.model.LengthI;
@@ -59,8 +64,8 @@ import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.enums.UnitsLength;
-import omero.sys.ParametersI;
 import pojos.EllipseData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.LineData;
 import pojos.PointData;
@@ -93,9 +98,10 @@ public class ROIs
     //end edit
 
     private ImageData image;
-
-    /** Reference to the connector.*/
-    private Connector connector;
+    
+    private Gateway gateway;
+    
+    private SecurityContext ctx;
 
     /**
      * Loads the image.
@@ -106,14 +112,8 @@ public class ROIs
     private ImageData loadImage(long imageID)
             throws Exception
     {
-        IContainerPrx proxy = connector.getContainerService();
-        List<Image> results = proxy.getImages(Image.class.getName(),
-                Arrays.asList(imageID), new ParametersI());
-        //You can directly interact with the IObject or the Pojos object.
-        //Follow interaction with the Pojos.
-        if (results.size() == 0)
-            throw new Exception("Image does not exist. Check ID.");
-        return new ImageData(results.get(0));
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        return browse.getImage(ctx, imageID);
     }
 
     /** 
@@ -122,6 +122,9 @@ public class ROIs
     private void createROIs()
             throws Exception
     {
+        DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+        ROIFacility roifac = gateway.getFacility(ROIFacility.class);
+        
         Roi roi = new RoiI();
         roi.setImage(image.asImage());
         Rect rect = new RectI();
@@ -242,10 +245,9 @@ public class ROIs
         mask.setWidth(omero.rtypes.rdouble(100.0));
         mask.setHeight(omero.rtypes.rdouble(100.0));
         mask.setPixels(new PixelsI(image.getDefaultPixels().getId(), false));
-        roi = (Roi) connector.getUpdateService().saveAndReturnObject(roi);
+        
+        ROIData roiData = roifac.saveROIs(ctx, image.getId(), Arrays.asList(new ROIData(roi))).iterator().next();
 
-        //now check that the shape has been added.
-        ROIData roiData = new ROIData(roi);
         //Retrieve the shape on plane (0, 0)
         List<ShapeData> shapes = roiData.getShapes(0, 0);
         Iterator<ShapeData> i = shapes.iterator();
@@ -271,53 +273,56 @@ public class ROIs
         }
 
 
+        List<ROIResult> roiresults = roifac.loadROIs(ctx, image.getId());
+        
         // Retrieve the roi linked to an image
-        RoiResult r = connector.getRoiService().findByImage(
-                image.getId(), new RoiOptions());
-        if (r == null)
-            throw new Exception("No rois linked to Image:"+image.getId());
-        List<Roi> rois = r.rois;
+        ROIResult r = roiresults.iterator().next();
+        Collection<ROIData> rois = r.getROIs();
         if (rois == null)
             throw new Exception("No rois linked to Image:"+image.getId());
         List<Shape> list;
-        Iterator<Roi> j = rois.iterator();
-        while (j.hasNext()) {
-            roi = j.next();
+        Iterator<ROIData> j = rois.iterator();
+        while (j.hasNext()) { 
+            roiData = j.next();
+            roi = (Roi) roiData.asIObject();
             list = roi.copyShapes();
             //size = 2
             //remove first shape
             roi.removeShape(list.get(0));
             //update the roi
-            connector.getUpdateService().saveAndReturnObject(roi);
+            dm.saveAndReturnObject(ctx, roi);
         }
 
         //Check that the shape does not have shape.
-        r = connector.getRoiService().findByImage(
-                image.getId(), new RoiOptions());
+        roiresults = roifac.loadROIs(ctx, image.getId());
+        r = roiresults.iterator().next();
         if (r == null)
             throw new Exception("No rois linked to Image:"+image.getId());
-        rois = r.rois;
+        rois = r.getROIs();
         if (rois == null)
             throw new Exception("No rois linked to Image:"+image.getId());
         j = rois.iterator();
         while (j.hasNext()) {
-            roi = j.next();
+            roiData = j.next();
+            roi = (Roi) roiData.asIObject();
             list = roi.copyShapes();
             System.err.println(list.size());
         }
+       
         //Load rois on a plane z=1, t=0
-        r = connector.getRoiService().findByPlane(
-                image.getId(), 1, 0, new RoiOptions());
+        r = roifac.loadROIsByPlane(ctx, image.getId(), 1, 0).iterator().next();
         if (r == null)
             throw new Exception("No rois linked to image:"+image.getId());
         j = rois.iterator();
         while (j.hasNext()) {
-            roi = j.next();
+            roi = (Roi) j.next().asIObject();
             list = roi.copyShapes();
             System.err.println(list.size());
         }
-        //load a given rois
-        r = connector.getRoiService().findByRoi(roi.getId().getValue(), null);
+        
+        //load a given roi
+        r = roifac.loadROI(ctx, roi.getId().getValue());
+        System.out.println(r.getROIs().size());
     }
 
     /**
@@ -334,16 +339,26 @@ public class ROIs
             info.setUserName(userName);
             info.setImageId(imageId);
         }
-        connector = new Connector(info);
+        
+        LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
         try {
-            connector.connect();
+            ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
+            
             image = loadImage(info.getImageId());
             createROIs();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                connector.disconnect(); // Be sure to disconnect
+                gateway.disconnect(); // Be sure to disconnect
             } catch (Exception e) {
                 e.printStackTrace();
             }

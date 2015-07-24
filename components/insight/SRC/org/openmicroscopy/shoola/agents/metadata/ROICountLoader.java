@@ -31,11 +31,11 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.model.ROIResult;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.model.ROIResult;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.agents.metadata.editor.PropertiesUI;
 
 /** 

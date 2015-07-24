@@ -22,7 +22,7 @@ package org.openmicroscopy.shoola.agents.events.treeviewer;
 
 
 //Java imports
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**

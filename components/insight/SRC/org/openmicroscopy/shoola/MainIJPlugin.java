@@ -69,7 +69,7 @@ import org.openmicroscopy.shoola.env.config.PluginInfo;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
 import org.openmicroscopy.shoola.env.init.StartupException;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
