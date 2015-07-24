@@ -377,7 +377,6 @@ public class PermissionsPane
 	 * Creates a new instance. 
 	 * 
 	 * @param permissions 	The permissions level.
-	 * @param background	The background color or <code>null</code>.
 	 * @param admin
      *            Pass <code>true</code> to enable admin-only permission changes
 	 */
@@ -439,8 +438,6 @@ public class PermissionsPane
 
 	/** 
 	 * Displays the warning text.
-	 * 
-	 * @param text The warning text.
 	 */
 	public void displayWarningText()
 	{
