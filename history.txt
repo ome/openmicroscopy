@@ -4,14 +4,23 @@ OMERO version history
 5.1.3 (July 2015)
 -----------------
 
-A bug-fix release. Improvements include:
+A bug-fix release which also introduces some new functionality. Improvements
+include:
 
--  better reporting for the 'delete' and 'chgrp' functionality in the CLI
--  tagging fixes, including for tagging ome-tiff images at import
--  fixed display of images in plates with multiple acquisitions
--  support for WSGI OMERO.web deployment
+-  tagging actions extended; you can now use tag sets to tag images on import
+-  tagging ome-tiff images at import has also been fixed
+-  greatly improved workflow and bug fixes for the Share functionality in
+   OMERO.web which enables you to share images with users outside of your
+   group
 -  group admins and owners can now change ownership of data via the CLI
+-  better reporting for the 'delete' and 'chgrp' functionality in the CLI
+-  fixed display of images in plates with multiple acquisitions
+-  fixed export of results as .xls files from OMERO.insight
+-  improved workflow for ImageJ and OMERO interactions
+-  support for WSGI OMERO.web deployment
 -  fixed OMERO.mail service for web errors
+-  fixes for ROI display in OMERO.web (thanks to Luca Lianas of CRS4)
+-  fixes and workflow improvements for running scripts and script dialogs
 
 Developer updates include:
 
