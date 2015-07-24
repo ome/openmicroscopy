@@ -38,6 +38,10 @@ to view someone else's data. In read-only groups, other group members
 can see data but not annotate or modify it. In read-annotate groups,
 annotation is permitted by group members.
 
+Changing a group to private unlinks data from other users' containers and
+unlinks other users' annotations from data. The change to private will
+fail if different users' data is too closely related to be separated.
+
 More information is available at:
 http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/\
 server-permissions.html
