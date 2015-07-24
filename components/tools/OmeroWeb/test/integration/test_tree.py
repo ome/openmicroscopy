@@ -1860,6 +1860,20 @@ class TestTree(lib.ITest):
                                    experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
+    def test_marshal_images_user_pixels(self, userA, images_userA_groupA):
+        """
+        Test marshalling user's own orphaned images in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, images_userA_groupA)
+        expected['sizeX'] = 125
+        expected['sizeY'] = 125
+        expected['sizeZ'] = 1
+        marshaled = marshal_images(conn=conn,
+                                   load_pixels=True,
+                                   experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
     def test_marshal_images_another_user(self, userA, userB,
                                          images_userB_groupA):
         """
