@@ -455,7 +455,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         }
         for (int i = 0; i < size; i++) {
             Object[] x = (Object[]) rv.get(i);
-            if (x.length == 1 && x[0] instanceof Map) {
+            if (x != null && x.length == 1 && x[0] instanceof Map) {
                 Map<Object, Object> y = (Map<Object, Object>) x[0];
                 for (Map.Entry<Object, Object> z : y.entrySet()) {
                     if (z != null && z.getKey().toString().endsWith("_details_permissions")) {
