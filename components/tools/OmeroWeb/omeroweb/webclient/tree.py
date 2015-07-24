@@ -319,18 +319,21 @@ def marshal_projects(conn, group_id=-1, experimenter_id=-1, page=1, limit=settin
     qs = conn.getQueryService()
 
     q = """
-        select project.id,
-               project.name,
-               project.details.owner.id,
-               project.details.permissions,
+        select new map(project.id as id,
+               project.name as name,
+               project.details.owner.id as ownerId,
+               project as project_details_permissions,
                (select count(id) from ProjectDatasetLink pdl
-                where pdl.parent = project.id)
+                where pdl.parent = project.id) as childCount)
         from Project project
         %s
         order by lower(project.name), project.id
         """ % (where_clause)
 
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"], e[0]["name"], e[0]["ownerId"],
+             e[0]["project_details_permissions"], e[0]["childCount"]]
         projects.append(_marshal_project(conn, e[0:5]))
     return projects
 
@@ -407,12 +410,12 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
 
     qs = conn.getQueryService()
     q = """
-        select dataset.id,
-               dataset.name,
-               dataset.details.owner.id,
-               dataset.details.permissions,
+        select new map(dataset.id as id,
+               dataset.name as name,
+               dataset.details.owner.id as ownerId,
+               dataset as dataset_details_permissions,
                (select count(id) from DatasetImageLink dil
-                 where dil.parent=dataset.id)
+                 where dil.parent=dataset.id) as childCount)
                from Dataset dataset
         """
 
@@ -438,9 +441,13 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
         order by lower(dataset.name), dataset.id
         """ % build_clause(where_clause, 'where', 'and')
 
-    print "marshal_datasets..."
     for e in qs.projection(q, params, service_opts):
-        print e
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["dataset_details_permissions"],
+             e[0]["childCount"]]
         datasets.append(_marshal_dataset(conn, e[0:5]))
     return datasets
 
@@ -554,21 +561,22 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         where_clause.append('image.details.owner.id = :id')
     qs = conn.getQueryService()
 
-    q = """
-        select image.id,
-               image.name,
-               image.details.owner.id,
-               image.details.permissions,
-               image.fileset.id
-        """
-
+    pixelSizes = ""
     if load_pixels:
-        q += """
+        pixelSizes = """
              ,
-             pix.sizeX,
-             pix.sizeY,
-             pix.sizeZ
+             pix.sizeX as sizeX,
+             pix.sizeY as sizeY,
+             pix.sizeZ as sizeZ
              """
+
+    q = """
+        select new map(image.id as id,
+               image.name as name,
+               image.details.owner.id as ownerId,
+               image as image_details_permissions,
+               image.fileset.id as filesetId %s)
+        """ % pixelSizes
 
     from_clause.append('Image image')
 
@@ -638,9 +646,16 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                build_clause(where_clause, 'where', 'and'))
 
     for e in qs.projection(q, params, service_opts):
-        kwargs = {'conn': conn, 'row': e[0:5]}
+        e = unwrap(e)
+        d = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["image_details_permissions"],
+             e[0]["filesetId"]]
+        kwargs = {'conn': conn, 'row': d[0:5]}
         if load_pixels:
-            kwargs['row_pixels'] = e[5:8]
+            d = [e[0]["sizeX"], e[0]["sizeY"], e[0]["sizeZ"]]
+            kwargs['row_pixels'] = d
 
         # While marshalling the images, determine if there are any
         # images mentioned in shares that are not in the results
@@ -724,18 +739,24 @@ def marshal_screens(conn, group_id=-1, experimenter_id=-1, page=1,
         where_clause = 'where screen.details.owner.id = :id'
     qs = conn.getQueryService()
     q = """
-        select screen.id,
-               screen.name,
-               screen.details.owner.id,
-               screen.details.permissions,
+        select new map(screen.id as id,
+               screen.name as name,
+               screen.details.owner.id as ownerId,
+               screen as screen_details_permissions,
                (select count(spl.id) from ScreenPlateLink spl
-                where spl.parent=screen.id)
+                where spl.parent=screen.id) as childCount)
                from Screen screen
                %s
                order by lower(screen.name), screen.id
         """ % where_clause
 
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["screen_details_permissions"],
+             e[0]["childCount"]]
         screens.append(_marshal_screen(conn, e[0:5]))
 
     return screens
@@ -814,12 +835,12 @@ def marshal_plates(conn, screen_id=None, orphaned=False, group_id=-1,
 
     qs = conn.getQueryService()
     q = """
-        select plate.id,
-               plate.name,
-               plate.details.owner.id,
-               plate.details.permissions,
+        select new map(plate.id as id,
+               plate.name as name,
+               plate.details.owner.id as ownerId,
+               plate as plate_details_permissions,
                (select count(pa.id) from PlateAcquisition pa
-                where pa.plate.id=plate.id)
+                where pa.plate.id=plate.id) as childCount)
         from Plate plate
         """
 
@@ -845,6 +866,12 @@ def marshal_plates(conn, screen_id=None, orphaned=False, group_id=-1,
         """ % build_clause(where_clause, 'where', 'and')
 
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["plate_details_permissions"],
+             e[0]["childCount"]]
         plates.append(_marshal_plate(conn, e[0:5]))
 
     return plates
@@ -915,18 +942,25 @@ def marshal_plate_acquisitions(conn, plate_id, page=1, limit=settings.PAGE):
     params.add('pid', rlong(plate_id))
     qs = conn.getQueryService()
     q = """
-        select pa.id,
-               pa.name,
-               pa.details.owner.id,
-               pa.details.permissions,
-               pa.startTime,
-               pa.endTime
+        select new map(pa.id as id,
+               pa.name as name,
+               pa.details.owner.id as ownerId,
+               pa as pa_details_permissions,
+               pa.startTime as startTime,
+               pa.endTime as endTime)
         from PlateAcquisition pa
         where pa.plate.id = :pid
         order by pa.id
         """
 
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["pa_details_permissions"],
+             e[0]["startTime"],
+             e[0]["endTime"]]
         plate_acquisitions.append(_marshal_plate_acquisition(conn, e[0:6]))
 
     return plate_acquisitions
