@@ -53,12 +53,12 @@ Wait For Preview Load
 
 Wait For Toolbar Button Enabled
     [Arguments]            ${buttonId}
-    Wait Until Keyword Succeeds     ${WAITINMINUTES}   ${WAITPING}      Element Should Be Enabled      id=${buttonId}
+    Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}      Element Should Be Enabled      id=${buttonId}
     Page Should Not Contain Element     xpath=//button[@id='${buttonId}'][contains(@class, 'button-disabled')]
 
 Wait For Toolbar Button Disabled
     [Arguments]            ${buttonId}
-    Wait Until Keyword Succeeds     ${WAITINMINUTES}   ${WAITPING}      Element Should Be Disabled     id=${buttonId}
+    Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}      Element Should Be Disabled     id=${buttonId}
     Page Should Contain Element     xpath=//button[@id='${buttonId}'][contains(@class, 'button-disabled')]
 
 Right Click Rendering Settings
