@@ -11,7 +11,7 @@ include:
 -  tagging ome-tiff images at import has also been fixed
 -  greatly improved workflow and bug fixes for the Share functionality in
    OMERO.web which enables you to share images with users outside of your
-   group
+   group (including removal of part of the UI)
 -  group admins and owners can now change ownership of data via the CLI
 -  better reporting for the 'delete' and 'chgrp' functionality in the CLI
 -  fixed display of images in plates with multiple acquisitions
@@ -25,7 +25,12 @@ include:
 Developer updates include:
 
 -  OMERO.web clean-up (removal of '-locked')
+-  reorganization of the server bundle to move various licenses and 
+   dependencies under a new 'share' folder
 -  refactoring of 'Chown2', 'Chmod2', 'Chgrp2' and 'Delete2'
+-  addition of dynamic scripts
+-  the 'rstring' implementation is now more lenient and should better handle
+   unicode
 -  Bio-Formats submodule removed from OMERO; decoupling effort means OMERO now
    consumes the Bio-Formats release build from the artifactory
 
