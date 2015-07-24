@@ -9,14 +9,14 @@ A bug-fix release. Improvements include:
 -  better reporting for the 'delete' and 'chgrp' functionality in the CLI
 -  tagging fixes, including for tagging ome-tiff images at import
 -  fixed display of images in plates with multiple acquisitions
--  Support for WSGI OMERO.web deployment
--  Group admins and owners can now change ownership of data via the CLI
+-  support for WSGI OMERO.web deployment
+-  group admins and owners can now change ownership of data via the CLI
 -  fixed OMERO.mail service for web errors
 
 Developer updates include:
 
 -  OMERO.web clean-up (removal of '-locked')
--  refactoring of 'Chown2' and 'Chmod2'
+-  refactoring of 'Chown2', 'Chmod2', 'Chgrp2' and 'Delete2'
 -  Bio-Formats submodule removed from OMERO; decoupling effort means OMERO now
    consumes the Bio-Formats release build from the artifactory
 
