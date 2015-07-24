@@ -1120,16 +1120,16 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
         params.add('tid', rlong(tag_id))
 
         q = '''
-            select aalink.child.id,
-                   aalink.child.textValue,
-                   aalink.child.description,
-                   aalink.child.details.owner.id,
-                   aalink.child.details.permissions,
-                   aalink.child.ns,
+            select new map(aalink.child.id as id,
+                   aalink.child.textValue as textValue,
+                   aalink.child.description as description,
+                   aalink.child.details.owner.id as ownerId,
+                   aalink.child as tag_details_permissions,
+                   aalink.child.ns as ns,
                    (select count(aalink2)
                     from AnnotationAnnotationLink aalink2
                     where aalink2.child.class=TagAnnotation
-                    and aalink2.parent.id=aalink.child.id)
+                    and aalink2.parent.id=aalink.child.id) as childCount)
             from AnnotationAnnotationLink aalink
             where aalink.parent.class=TagAnnotation
             and aalink.child.class=TagAnnotation
@@ -1149,16 +1149,16 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
     # All
     else:
         q = '''
-            select tag.id,
-                   tag.textValue,
-                   tag.description,
-                   tag.details.owner.id,
-                   tag.details.permissions,
-                   tag.ns,
+            select new map(tag.id as id,
+                   tag.textValue as textValue,
+                   tag.description as description,
+                   tag.details.owner.id as ownerId,
+                   tag as tag_details_permissions,
+                   tag.ns as ns,
                    (select count(aalink2)
                     from AnnotationAnnotationLink aalink2
                     where aalink2.child.class=TagAnnotation
-                    and aalink2.parent.id=tag.id)
+                    and aalink2.parent.id=tag.id) as childCount)
             from TagAnnotation tag
             '''
 
@@ -1173,6 +1173,14 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
             '''
 
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["textValue"],
+             e[0]["description"],
+             e[0]["ownerId"],
+             e[0]["tag_details_permissions"],
+             e[0]["ns"],
+             e[0]["childCount"]]
         tags.append(_marshal_tag(conn, e[0:7]))
 
     return tags
