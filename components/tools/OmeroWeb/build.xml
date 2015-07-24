@@ -59,21 +59,6 @@
                 </touch>
             </then>
         </if>
-        <if><not><available file="${basedir}/../target/lib/python/clogging"/></not>
-            <then>
-                <untar compression="gzip" src="${lib.dir}/repository/ConcurrentLogHandler-0.9.1.tar.gz" dest="${basedir}/../target/lib/fallback">
-                    <patternset>
-                        <include name="ConcurrentLogHandler-0.9.1/src/**"/>
-                    </patternset>
-                    <mapper>
-                        <filtermapper>
-                            <replacestring from="ConcurrentLogHandler-0.9.1/src" to="clogging"/>
-                        </filtermapper>
-                    </mapper>
-                </untar>
-                <touch file="${basedir}/../target/lib/fallback/clogging/__init__.py"/>
-            </then>
-        </if>
         <if><not><available file="${basedir}/../target/lib/python/pipeline"/></not>
             <then>
                 <untar compression="gzip" src="${lib.dir}/repository/django-pipeline-1.3.20.tar.gz" dest="${basedir}/../target/lib/python">

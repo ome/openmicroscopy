@@ -81,7 +81,7 @@ STANDARD_LOGFORMAT = (
 if platform.system() in ("Windows",):
     LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
 else:
-    LOGGING_CLASS = 'clogging.cloghandler.ConcurrentRotatingFileHandler'
+    LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
 
 LOGGING = {
     'version': 1,
