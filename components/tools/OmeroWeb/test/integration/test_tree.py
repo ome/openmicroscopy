@@ -1508,6 +1508,15 @@ class TestTree(lib.ITest):
         images.sort(cmp_name_insensitive)
         return images
 
+    @pytest.fixture()
+    def image_pixels_userA(self, userA):
+        """
+        Returns a new image with pixels of fixed dimensions
+        """
+        sf = userA[0].sf
+        image = self.createTestImage(sizeX=50, sizeY=50, sizeZ=5, session=sf)
+        return image
+
     @pytest.fixture(scope='function')
     def images_userB_groupA(self, userB):
         """
@@ -1863,15 +1872,15 @@ class TestTree(lib.ITest):
                                    experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_images_user_pixels(self, userA, images_userA_groupA):
+    def test_marshal_images_user_pixels(self, userA, image_pixels_userA):
         """
-        Test marshalling user's own orphaned images in current group
+        Test marshalling image, loading pixels
         """
         conn = get_connection(userA)
-        expected = expected_images(userA, images_userA_groupA)
-        expected['sizeX'] = 125
-        expected['sizeY'] = 125
-        expected['sizeZ'] = 1
+        expected = expected_images(userA, [image_pixels_userA])
+        expected[0]['sizeX'] = 50
+        expected[0]['sizeY'] = 50
+        expected[0]['sizeZ'] = 5
         marshaled = marshal_images(conn=conn,
                                    load_pixels=True,
                                    experimenter_id=userA[1].id.val)
