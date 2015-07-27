@@ -296,69 +296,6 @@ def expected_discussions(user, discussions):
     return expected
 
 
-# @pytest.fixture(scope='function')
-# def itest(request):
-#     """
-#     Returns a new L{test.integration.library.ITest} instance.  With
-#     attached finalizer so that pytest will clean it up.
-#     """
-#     o = lib.ITest()
-#     o.setup_method(None)
-
-#     def finalizer():
-#         o.teardown_method(None)
-#     request.addfinalizer(finalizer)
-#     return o
-
-
-# # Create a read-only group
-# @pytest.fixture(scope='function')
-# def groupA(request, itest):
-#     """Returns a new read-only group."""
-#     return itest.new_group(perms='rwr---')
-
-
-# # Create a read-only group
-# @pytest.fixture(scope='function')
-# def groupB(request, itest):
-#     """Returns a new read-only group."""
-#     return itest.new_group(perms='rwr---')
-
-
-# Create a read-write group
-# @pytest.fixture(scope='function')
-# def groupC(request, itest):
-#     """Returns a new read-only group."""
-#     return itest.new_group(perms='rwrw--')
-
-
-# Create users in the read-only group
-# @pytest.fixture(scope='function')
-# def userA(request, itest, groupA, groupB):
-#     """Returns a new user in the groupA group and also add to groupB"""
-#     user = itest.new_client_and_user(group=groupA)
-#     itest.add_groups(user[1], [groupB])
-#     return user
-
-
-# @pytest.fixture(scope='function')
-# def userB(request, itest, groupA):
-#     """Returns another new user in the read-only group."""
-#     return itest.new_client_and_user(group=groupA)
-
-
-# @pytest.fixture(scope='function')
-# def userC(request, itest, groupC):
-#     """Returns a new user in the read-write group."""
-#     return itest.new_client_and_user(group=groupC)
-
-
-# @pytest.fixture(scope='function')
-# def userD(request, itest, groupC):
-#     """Returns another new user in the read-write group."""
-#     return itest.new_client_and_user(group=groupC)
-
-
 # Some names
 @pytest.fixture(scope='module')
 def names1(request):
@@ -571,53 +508,6 @@ def datasets(request, datasets_groupA,
 
 
 # ### Images ###
-# @pytest.fixture(scope='function')
-# def images_userA_groupA(request, itest, userA):
-#     """
-#     Returns new OMERO Images for userA in groupA
-#     """
-#     to_save = []
-#     for name in ['Neon', 'hydrogen', 'Helium', 'boron']:
-#         image = itest.new_image(name=name)
-#         to_save.append(image)
-
-#     images = get_update_service(userA).saveAndReturnArray(to_save)
-#     images.sort(cmp_name_insensitive)
-#     return images
-
-
-# @pytest.fixture(scope='function')
-# def images_userB_groupA(request, itest, userB):
-#     """
-#     Returns new OMERO Images for userB in groupA
-#     """
-#     to_save = []
-#     for name in ['Oxygen', 'nitrogen']:
-#         image = itest.new_image(name=name)
-#         to_save.append(image)
-
-#     images = get_update_service(userB).saveAndReturnArray(to_save)
-#     images.sort(cmp_name_insensitive)
-#     return images
-
-
-# @pytest.fixture(scope='function')
-# def images_userA_groupB(request, itest, userA, groupB):
-#     """
-#     Returns new OMERO Images for userA in groupB
-#     """
-#     to_save = []
-#     for name in ['Zinc', 'aluminium']:
-#         image = itest.new_image(name=name)
-#         to_save.append(image)
-
-#     conn = get_connection(userA, groupB.id.val)
-#     images = conn.getUpdateService().saveAndReturnArray(to_save,
-#                                                         conn.SERVICE_OPTS)
-#     images.sort(cmp_name_insensitive)
-#     return images
-
-
 @pytest.fixture(scope='function')
 def images_groupA(request, images_userA_groupA,
                   images_userB_groupA):
@@ -657,56 +547,6 @@ def images(request, images_groupA, images_groupB):
     images = images_groupA + images_groupB
     images.sort(cmp_name_insensitive)
     return images
-
-
-# @pytest.fixture(scope='function')
-# def project_hierarchy_userA_groupA_x(request, itest, userA):
-#     """
-#     Returns OMERO Projects with Dataset Children with Image Children
-
-#     Note: This returns a list of mixed objects in a specified order
-#     """
-
-#     # Create and name all the objects
-#     projectA = ProjectI()
-#     projectA.name = rstring('ProjectA')
-#     projectB = ProjectI()
-#     projectB.name = rstring('ProjectB')
-#     datasetA = DatasetI()
-#     datasetA.name = rstring('DatasetA')
-#     datasetB = DatasetI()
-#     datasetB.name = rstring('DatasetB')
-#     imageA = itest.new_image(name='ImageA')
-#     imageB = itest.new_image(name='ImageB')
-
-#     # Link them together like so:
-#     # projectA
-#     #   datasetA
-#     #       imageA
-#     #       imageB
-#     #   datasetB
-#     #       imageB
-#     # projectB
-#     #   datasetB
-#     #       imageB
-#     projectA.linkDataset(datasetA)
-#     projectA.linkDataset(datasetB)
-#     projectB.linkDataset(datasetB)
-#     datasetA.linkImage(imageA)
-#     datasetA.linkImage(imageB)
-#     datasetB.linkImage(imageB)
-
-#     to_save = [projectA, projectB]
-#     projects = get_update_service(userA).saveAndReturnArray(to_save)
-#     projects.sort(cmp_name_insensitive)
-
-#     datasets = projects[0].linkedDatasetList()
-#     datasets.sort(cmp_name_insensitive)
-
-#     images = datasets[0].linkedImageList()
-#     images.sort(cmp_name_insensitive)
-
-#     return projects + datasets + images
 
 
 # Shares
@@ -1349,49 +1189,6 @@ def tagset_hierarchy_userB_groupA(request, userA,
 
     # links is: project, dataset, image, screen, plate, acquisition
     return tagsets + tags + [link.parent for link in links]
-
-
-# # Cross-linked project hierarchy
-# @pytest.fixture(scope='function')
-# def project_hierarchy_crosslink(request, itest, groupC, userC, userD):
-#     """
-#     Returns OMERO Projects with Dataset Children with Image Children
-
-#     Note: This returns a list of mixed objects in a specified order
-#     """
-
-#     # Create and name a project as userC
-#     projectA = ProjectI()
-#     projectA.name = rstring('ProjectA')
-#     projectA = get_update_service(userC).saveAndReturnObject(projectA)
-
-#     # Create and name a dataset as userD
-#     datasetA = DatasetI()
-#     datasetA.name = rstring('DatasetA')
-#     datasetA = get_update_service(userD).saveAndReturnObject(datasetA)
-
-#     # Create and name an image as userC
-#     imageA = itest.new_image(name='ImageA')
-#     imageA = get_update_service(userC).saveAndReturnObject(imageA)
-
-#     # Link them together like so:
-#     # projectA
-#     #   (UserC's Link)
-#     #   datasetA
-#     #       (UserD's Link)
-#     #       imageA
-
-#     # Link the project with the dataset
-#     projectA.linkDataset(datasetA)
-#     projectA = get_update_service(userC).saveAndReturnObject(projectA)
-#     datasetA = projectA.linkedDatasetList()[0]
-
-#     # Link the dataset with the image
-#     datasetA.linkImage(imageA)
-#     datasetA = get_update_service(userD).saveAndReturnObject(datasetA)
-#     imageA = datasetA.linkedImageList()[0]
-
-#     return [projectA, datasetA, imageA]
 
 
 class TestTree(lib.ITest):
