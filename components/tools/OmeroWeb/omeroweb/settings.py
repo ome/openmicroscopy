@@ -29,6 +29,7 @@
 
 import os.path
 import sys
+import platform
 import logging
 import omero
 import omero.config
@@ -77,6 +78,11 @@ STANDARD_LOGFORMAT = (
     '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
     ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s')
 
+if platform.system() in ("Windows",):
+    LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
+else:
+    LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -88,20 +94,20 @@ LOGGING = {
     'handlers': {
         'default': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': LOGGING_CLASS,
             'filename': os.path.join(
                 LOGDIR, 'OMEROweb.log').replace('\\', '/'),
             'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 5,
+            'backupCount': 10,
             'formatter': 'standard',
         },
         'request_handler': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': LOGGING_CLASS,
             'filename': os.path.join(
                 LOGDIR, 'OMEROweb_request.log').replace('\\', '/'),
             'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 5,
+            'backupCount': 10,
             'formatter': 'standard',
         },
         'null': {
