@@ -19,6 +19,17 @@ import sys
 HELP = """Transfer ownership of data between users. Entire graphs of data,
 based on the ID of the top-node, are transferred.
 
+This command can only be used by OMERO administrators and group owners.
+
+Group owners can only transfer ownership between members of the owned group.
+Administrators can transfer ownership between any users regardless of their
+respective groups.
+
+Note that after transferring ownership the data will remain in their original
+group. Thus it is possible for an administrator to make the data unavailable
+to the new user. In such cases the data must be moved to one of the user's
+groups or the user must be added to the group that the data is in.
+
 Examples:
 
     # In each case transfer the ownership of an image to user 101
