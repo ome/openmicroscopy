@@ -53,7 +53,6 @@ Test Channel Rename
     ...                 whether the toolbar/right-click menu options for
     ...                 creating various containers are enabled.
 
-    Set Selenium Speed                          0.5 seconds
     Tree Should Be Visible
     Select And Expand Project
     Select And Expand Dataset
@@ -63,8 +62,8 @@ Test Channel Rename
     ${chName}=                                  Get Time    epoch
     Input Text                                  channel0    ch${chName}
     Submit Form                                 channel_names_edit
-    Wait Until Keyword Succeeds                 5 sec   1 sec   Element Should Not Be Visible     channel0
-    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]    10
+    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Element Should Not Be Visible     channel0
+    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]      ${WAIT}
 
 
 Test Share
