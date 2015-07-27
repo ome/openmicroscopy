@@ -119,11 +119,13 @@ Test Annotate
     # Tags
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    # Wait for tag panel being loded
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Wait Until Element Is Not Visible           xpath=//div[@class='progress-label']      ${WAIT}
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
     Click Element                               choose_file_anns
@@ -151,11 +153,13 @@ Test Batch Annotate
     # Tags
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    # Wait for tag panel being loded
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Wait Until Element Is Not Visible           xpath=//div[@class='progress-label']      ${WAIT}
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
     Click Element                               choose_file_anns
@@ -163,6 +167,7 @@ Test Batch Annotate
     Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
     Submit Form                                 choose_attachments_form
     Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
+
 
 
 Test Search
