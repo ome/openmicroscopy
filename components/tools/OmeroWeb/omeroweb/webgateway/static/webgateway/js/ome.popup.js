@@ -301,7 +301,7 @@ OME.openScriptWindow = function(event, width, height) {
                 var oid = li.attr('id').split('-')[1];
                 fileAnnotationIds.push(oid);
             })
-            args.push("File_Annotations=" + fileAnnotationIds.join(","));
+            args.push("File_Annotation=" + fileAnnotationIds.join(","));
         }
         script_url += "?" + args.join("&");
     }
