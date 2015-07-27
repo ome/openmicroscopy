@@ -595,7 +595,9 @@ OME.hideScriptList = function() {
 }
 
 OME.toggleFileAnnotationCheckboxes = function(event) {
-    $("#fileanns_container input[type=checkbox]").toggle();
+    var checkboxes = $("#fileanns_container input[type=checkbox]");
+    checkboxes.toggle().prop("checked", false);
+    checkboxes.parents("li").toggleClass("selected", false);
 }
 
 OME.fileAnnotationCheckboxChanged = function(event) {
