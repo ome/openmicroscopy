@@ -599,6 +599,10 @@ OME.toggleFileAnnotationCheckboxes = function(event) {
     $("#fileanns_container input[type=checkbox]").toggle();
 }
 
+OME.fileAnnotationCheckboxChanged = function(event) {
+    $(event.target).parents("li").toggleClass("selected");
+}
+
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         items: '.tooltip',
