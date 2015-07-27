@@ -180,8 +180,10 @@ Test Search
 
     # We don't care about results, just check we get *some* results in dataTable
     Location Should Be                      ${WELCOME URL}search/
-    Wait Until Page Contains Element        dataTable                   60
+    Wait Until Page Contains Element        dataTable       ${WAIT}
     # Repeat search
     Submit Form                             searching_form
     Wait Until Page Contains                Loading data...
-    Wait Until Page Contains Element        dataTable                   60
+    Wait Until Page Contains Element        dataTable       ${WAIT}
+    ${rows}=    Get Matching XPath Count    xpath=//table[@id="DataTable"]/tr
+    Wait Until Page Contains Element        xpath=//table[@id="dataTable"][@data-result-count!='${rows}']       ${WAIT}
