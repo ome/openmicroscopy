@@ -248,6 +248,8 @@
             <arg value="${output}"/>
             <arg value="-v"/>
             <arg value="browser:chrome"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
             <arg value="--loglevel"/>
             <arg value="debug"/>
             <arg value="${basedir}/testcases/${target}"/>
