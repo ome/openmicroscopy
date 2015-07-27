@@ -35,8 +35,8 @@ Group permissions come in several styles:
     * read-annotate (rwra--)   [Previously known as 'collaborative']
     * read-write    (rwrw--)
 
-In private groups, only group and system administrators will be able
-to view someone else's data. In read-only groups, other group members
+In private groups, only group owners and system administrators will be
+able to view someone else's data. In read-only groups, other group members
 can see data but not annotate or modify it. In read-annotate groups,
 annotation is permitted by group members. In read-write groups, all
 group members can behave as if they co-own all the data.
