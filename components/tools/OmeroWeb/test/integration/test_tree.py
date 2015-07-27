@@ -1205,17 +1205,6 @@ class TestTree(lib.ITest):
      * https://pytest.org/latest/fixture.html
     """
 
-    # @classmethod
-    # def setup_class(cls):
-    #     """Returns a logged in Django test client."""
-    #     super(TestTree, cls).setup_class()
-    #     cls.names = ('Apple', 'bat', 'atom', 'Butter')
-
-    # def setup_method(self, method):
-    #     self.client = self.new_client(perms='rwr---')
-    #     self.conn = BlitzGateway(client_obj=self.client)
-    #     self.update = self.client.getSession().getUpdateService()
-
     # Create a read-only group
     @pytest.fixture(scope='function')
     def groupA(self):
