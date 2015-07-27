@@ -75,34 +75,33 @@ Test Share
     Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
     Click Element                               createshareButton
-    Wait Until Page Contains Element            id_message
+    Wait Until Element Is Visible               id_message      ${WAIT}
     Input Text                                  id_message      Created via Selenium Test
     Click Element                               xpath=//div[@id='id_members_chosen']/ul[@class='chosen-choices']
     Page Should Contain Element                 xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
     Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
 
     Submit Form                                 create_share_form
-    Wait Until Page Contains Element            id=share_dialog_form
+    Wait Until Element Is Visible               id=share_dialog_form    ${WAIT}
     Page Should Contain Element                 id=deleteOthersWarning
-    Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]
+    Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]   ${WAIT}
     Click Dialog Button                         OK
 
     Go To                                       ${WELCOME URL}public/
-    Wait Until Page Contains Element            id=Public
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
+    Wait Until Element Is Visible               id=Public   ${WAIT}
+    Wait Until Element Is Visible               xpath=//div[@id='dataTree']//li[@rel='share']/a     ${WAIT}
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
     # Test Editing of Share.
-    Wait Until Page Contains Element            id=editshareButton
-    Sleep                                       0.5
+    Wait Until Element Is Visible               id=editshareButton      ${WAIT}
     Click Element                               id=editshareButton
-    Wait Until Page Contains Element            id_message
+    Wait Until Element Is Visible               id_message      ${WAIT}
     Input Text                                  id_message      Edited Share Message
     Click Dialog Button                         Accept
-    Wait Until Page Contains                    Edited Share Message
+    Wait Until Page Contains                    Edited Share Message    ${WAIT}
     # Add Comment
     Input Text                                  id_comment      New Discussion Comment
     Submit Form                                 add_share_comment_form
-    Wait Until Page Contains Element            xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]
+    Wait Until Element Is Visible               xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]    ${WAIT}
 
 
 Test Annotate
