@@ -40,7 +40,6 @@ Wait For Channel Color
 
 Wait For BlockUI
     # Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
-    Sleep                                   0.1
     Wait For Condition                      return ($("div.blockOverlay").length == 0)
 
 Wait For Preview Load
