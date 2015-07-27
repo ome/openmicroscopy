@@ -297,7 +297,7 @@ OME.openScriptWindow = function(event, width, height) {
         if (fileAnnotationCheckboxes.length > 0) {
             var fileAnnotationIds = [];
             fileAnnotationCheckboxes.each(function() {
-                var li = $(this).parent();
+                var li = $(this).parents("li").first();
                 var oid = li.attr('id').split('-')[1];
                 fileAnnotationIds.push(oid);
             })
