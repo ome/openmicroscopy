@@ -126,14 +126,14 @@ Test Rdef Copy Paste Save
     Click Element                           id=rdef-copy-btn
     Wait For Toolbar Button Enabled         rdef-paste-btn
 
-    # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
+    # Check that 'Save' has worked by refreshing right panel (click refresh)
     Click Element                           id=refreshButton
     ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
     Wait For Toolbar Button Enabled         rdef-paste-btn
     # Channel should be Yellow
     Wait For Channel Color                  rgb(255, 255, 0)
 
-    # Select Next Image by using 'Down Arrow'
+    # Select Next Image
     Click Element                           xpath=//li[@id='image-${imageId}']/following-sibling::li/a
     ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
 
