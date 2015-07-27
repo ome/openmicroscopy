@@ -339,6 +339,7 @@
                         $("#fileanns_container").prepend( $fileanns ).show();
                         $(".tooltip", $fileanns).tooltip_init();
                         OME.filterAnnotationsAddedBy();
+                        OME.fileAnnotationCheckboxDynamicallyAdded();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
