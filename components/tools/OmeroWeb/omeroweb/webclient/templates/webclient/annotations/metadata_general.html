@@ -889,12 +889,11 @@
                             <span></span>
                         </a>
                         <div class="toolbar">
-                            <input type="button" href="{% url 'list_scripts' %}" title="Run Script"
-                                class="btn silver btn_script_dark scriptButton button-disabled" disabled="disabled">
+                            <input type="button" title="Select Files for Scripts"
+                                class="btn silver btn_script_dark">
                             <!-- Class "scriptButton" also on <span> as that
                                  is actually what we're clicking on.
                             -->
-                            <span class="scriptButton"></span>
                         </div>
                         <script type="text/javascript">
                             $(".annotations_section .scriptButton").click(
@@ -913,9 +912,8 @@
                         {% endwith %}
                     </ul>
                     <script type="text/javascript">
-                        $("#fileanns_container").on(
-                            "change", "li input[type=checkbox]",
-                            OME.fileAnnotationCheckboxChanged
+                        $(".annotations_section .toolbar input[type=button]").click(
+                            OME.toggleFileAnnotationCheckboxes
                         );
                     </script>
             </div>
