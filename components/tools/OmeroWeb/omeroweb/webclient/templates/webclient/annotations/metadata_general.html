@@ -915,6 +915,10 @@
                         $(".annotations_section .toolbar input[type=button]").click(
                             OME.toggleFileAnnotationCheckboxes
                         );
+                        $("#fileanns_container").on(
+                            "change", "li input[type=checkbox]",
+                            OME.fileAnnotationCheckboxChanged
+                        );
                     </script>
             </div>
 
