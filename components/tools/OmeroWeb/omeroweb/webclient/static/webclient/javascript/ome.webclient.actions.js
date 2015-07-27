@@ -603,6 +603,15 @@ OME.fileAnnotationCheckboxChanged = function(event) {
     $(event.target).parents("li").toggleClass("selected");
 }
 
+OME.fileAnnotationCheckboxDynamicallyAdded = function() {
+    var checkboxesAreVisible = $(
+        "#fileanns_container input[type=checkbox]:visible"
+    ).length > 0;
+    if (checkboxesAreVisible) {
+        $("#fileanns_container input[type=checkbox]:not(:visible)").toggle();
+    }
+}
+
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         items: '.tooltip',

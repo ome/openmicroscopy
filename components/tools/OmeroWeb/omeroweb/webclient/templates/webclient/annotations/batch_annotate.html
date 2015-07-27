@@ -184,6 +184,7 @@
                         });
                         show_batch_msg("File Annotation(s) added to Objects");
                         OME.filterAnnotationsAddedBy();
+                        OME.fileAnnotationCheckboxDynamicallyAdded();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
