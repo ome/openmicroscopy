@@ -2,10 +2,13 @@
 Documentation     Tests Search on Web
 ...               https://www.openmicroscopy.org/private/ome-internal/testing_scenarios/Search.html
 
-# Resource          ../config.txt
 Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+
 Library           DateTime
-Library           Selenium2Library      run_on_failure=Nothing
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
 
 *** Variables ***
 
@@ -53,36 +56,6 @@ ${SEARCH URL}           ${WELCOME URL}search/
 @{SearchKeyWords1}      ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"  -  "  GFP:ABC
 
 *** Keywords ***
-
-User "${username}" logs in with password "${password}"
-    Open Browser To Login Page
-    Input username    ${username}
-    Input password    ${password}
-    Submit credentials
-    Welcome Page Should Be Open
-
-Welcome Page Should Be Open
-    Location Should Be    ${WELCOME URL}
-    Title Should Be       Webclient
-
-Open Browser To Login Page
-    Open Browser          ${LOGIN URL}    ${BROWSER}
-    Set Selenium Speed    ${DELAY}
-    Login Page Should Be Open
-
-Input Username
-    [Arguments]   ${username}
-    Input Text    username    ${username}
-
-Input Password
-    [Arguments]   ${password}
-    Input Text    password    ${password}
-
-Submit Credentials
-    Click Button    Login
-
-Login Page Should Be Open
-    Title Should Be    OMERO.web - Login
 
 Unselect All Checkboxes
     
@@ -185,12 +158,11 @@ Clear Search Text Field
 Test Default Search Check
     [Documentation]     login,search and Check that you are taken to the search ‘page’/UI with your search query entered into the search field.
     
-    User "${USERNAME}" logs in with password "${PASSWORD}"
     Omero Default Search
-    Location Should Be  ${SEARCH URL}
-    Page Should Contain Textfield  name=query
-    Textfield Value Should be  name=query   ${SEARCH_QUERY}
-    Wait Until Page Contains Element  id=dataTable  10
+    Location Should Be                  ${SEARCH URL}
+    Page Should Contain Textfield       name=query
+    Textfield Value Should be           name=query      ${SEARCH_QUERY}
+    Wait Until Page Contains Element    id=dataTable    ${WAIT}
  
 
 Test Check Search Results
