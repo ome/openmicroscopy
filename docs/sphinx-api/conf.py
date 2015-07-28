@@ -21,8 +21,8 @@ import os.path
 sys.path.insert(0, os.path.abspath(os.path.join('..','..','dist','lib','python')))
 sys.path.insert(0, os.path.abspath(os.path.join('..','..','dist','lib','python','omeroweb')))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-sys.path.insert(0, os.path.join('..', 'sphinx', 'common'))
-from conf import *
+
+author = u'The Open Microscopy Environment'
 
 # -- General configuration -----------------------------------------------------
 
