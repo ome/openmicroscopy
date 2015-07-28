@@ -36,7 +36,7 @@ $.fn.roi_display = function(options) {
 
         var roi_json = null;              // load ROI data as json when needed
         var active_rois = {};             // show only the active ROIs
-        var external_roi = null;          // ROIs specified using an external software
+        var external_rois = null;          // ROIs specified using an external software
         var original_shapes_backup = {};  // backup of the original configuration of shapes
         this.theZ = null;
         this.theT = null;
@@ -296,8 +296,8 @@ $.fn.roi_display = function(options) {
         filter_rois = function (filter) {
             var global_rois = [];
             $.merge(global_rois, roi_json);
-            if (external_roi)
-                $.merge(global_rois, external_roi);
+            if (external_rois)
+                $.merge(global_rois, external_rois);
 
             if (filter != undefined) {
                 for (var r=0; r<global_rois.length; r++) {
@@ -340,8 +340,8 @@ $.fn.roi_display = function(options) {
             // merge ROIs coming from OMERO server and external ROIs
             var global_rois = [];
             $.merge(global_rois, roi_json);
-            if (external_roi)
-                $.merge(global_rois, external_roi);
+            if (external_rois)
+                $.merge(global_rois, external_rois);
             for (var r=0; r<global_rois.length; r++) {
                 if (active_rois.hasOwnProperty(global_rois[r].id)) {
                     var roi = {"id": global_rois[r].id};
@@ -432,20 +432,20 @@ $.fn.roi_display = function(options) {
         }
 
         // return the data of external ROI as json. May be null if not loaded!
-        this.get_external_roi_json = function() {
-            return external_roi;
+        this.get_external_rois_json = function() {
+            return external_rois;
         }
 
         // get json of all ROI, OME ones and external ones, as a unique list
         this.get_full_roi_json = function() {
-            if (!roi_json && !external_roi)
+            if (!roi_json && !external_rois)
                 return null;
-            else if (roi_json && external_roi)
-                return $.merge(roi_json, external_roi);
-            else if (roi_json && !external_roi)
+            else if (roi_json && external_rois)
+                return $.merge(roi_json, external_rois);
+            else if (roi_json && !external_rois)
                 return roi_json;
-            else if (!roi_json && external_roi)
-                return external_roi;
+            else if (!roi_json && external_rois)
+                return external_rois;
         }
 
         /*
@@ -462,9 +462,9 @@ $.fn.roi_display = function(options) {
                 }
             }
             // ... if roi_id is used by an external ROI, check shape_id
-            for (var rx=0; rx<external_roi.length; rx++) {
-                if (external_roi[rx]["id"] == roi_id) {
-                    var shapes = external_roi[rx]["shapes"];
+            for (var rx=0; rx<external_rois.length; rx++) {
+                if (external_rois[rx]["id"] == roi_id) {
+                    var shapes = external_rois[rx]["shapes"];
                     for (var sx=0; sx<shapes.length; sx++) {
                         if (shapes[sx]["id"] == shape_id) {
                             console.error("Shape ID " + shape_id + " already in use for ROI " + roi_id);
@@ -478,9 +478,9 @@ $.fn.roi_display = function(options) {
 
         // Check if there is another shape with on the same Z and T planes for this ROI
         var check_ext_shape_planes = function(roi_id, shape_z, shape_t) {
-            for (var rx=0; rx<external_roi.length; rx++) {
-                if (external_roi[rx]["id"] == roi_id) {
-                    var shapes = external_roi[rx]["shapes"];
+            for (var rx=0; rx<external_rois.length; rx++) {
+                if (external_rois[rx]["id"] == roi_id) {
+                    var shapes = external_rois[rx]["shapes"];
                     for(var sx=0; sx<shapes.length; sx++) {
                         if (shapes[sx]["theZ"] == shape_z && shapes[sx]["theT"] == shape_t) {
                             console.error("Z plane " + shape_z + " and T plane " + shape_t + " already used");
@@ -538,9 +538,9 @@ $.fn.roi_display = function(options) {
             var roi_id = resolve_id(roi_id);
             var shape_id = resolve_id(shape_id);
 
-            // initialize external_roi when used for the first time
-            if (!external_roi) {
-                external_roi = [];
+            // initialize external_rois when used for the first time
+            if (!external_rois) {
+                external_rois = [];
             }
 
             var check_shape_id = check_ext_shape_id(roi_id, shape_id);
@@ -551,7 +551,7 @@ $.fn.roi_display = function(options) {
                 // add ID to the shape
                 configure_shape(shape_id, shape_config);
                 // append shape to proper ROI
-                append_shape(roi_id, shape_config, external_roi);
+                append_shape(roi_id, shape_config, external_rois);
                 this.activate_roi(roi_id);
             }
 
@@ -574,12 +574,12 @@ $.fn.roi_display = function(options) {
         If refresh is TRUE, automatically refresh viewport.
          */
         this.remove_shape = function(roi_id, shape_id, refresh) {
-            if (! external_roi) {
+            if (! external_rois) {
                 console.warn("There are no external ROIs, nothing to do");
                 return;
             }
-            for(var r=0; r<external_roi.length; r++) {
-                var roi = external_roi[r];
+            for(var r=0; r<external_rois.length; r++) {
+                var roi = external_rois[r];
                 if (roi["id"] == resolve_id(roi_id)) {
                     for(var s=0; s<roi["shapes"].length; s++) {
                         var shape = roi["shapes"][s];
@@ -611,14 +611,14 @@ $.fn.roi_display = function(options) {
         If refresh is TRUE, automatically refresh viewport.
          */
         this.remove_roi = function(roi_id, refresh) {
-            if (! external_roi) {
+            if (! external_rois) {
                 console.warn("There are no external ROIs, nothing to do");
                 return;
             }
-            for (var r=0; r<external_roi.length; r++) {
-                var roi = external_roi[r];
+            for (var r=0; r<external_rois.length; r++) {
+                var roi = external_rois[r];
                 if (roi["id"] == resolve_id(roi_id)) {
-                    external_roi.splice(external_roi.indexOf(roi), 1);
+                    external_rois.splice(external_rois.indexOf(roi), 1);
                     this.deactivate_roi(resolve_id(roi_id));
 
                     var refresh = typeof refresh !== "undefined" ? refresh : false;
@@ -782,8 +782,8 @@ $.fn.roi_display = function(options) {
                 this.refresh_rois();
             } else {
                 if (!hide_ome_rois) {
-                    for (var r = 0; r < external_roi.length; r++) {
-                        delete(active_rois[external_roi[r].id]);
+                    for (var r = 0; r < external_rois.length; r++) {
+                        delete(active_rois[external_rois[r].id]);
                     }
                 }
                 else if (!hide_external_rois) {
@@ -880,7 +880,7 @@ $.fn.roi_display = function(options) {
             // look for shape in OME ROIs and external ones
             var sh = get_shape(roi_id, shape_id, roi_json);
             if (!sh)
-                sh = get_shape(roi_id, shape_id, external_roi);
+                sh = get_shape(roi_id, shape_id, external_rois);
 
             if (sh) {
                 backup_shape(roi_id, shape_id, sh);
@@ -910,7 +910,7 @@ $.fn.roi_display = function(options) {
             // look for shape in OME ROIs and external ones
             var sh = get_shape(roi_id, shape_id, roi_json);
             if (!sh)
-                sh = get_shape(roi_id, shape_id, external_roi);
+                sh = get_shape(roi_id, shape_id, external_rois);
 
             if (sh) {
                 backup_shape(roi_id, shape_id, sh);
