@@ -57,6 +57,7 @@ class TestClientConstructors(lib.ITest):
         id = Ice.InitializationData()
         id.properties = Ice.createProperties()
         id.properties.setProperty("omero.host", self.host)
+        id.properties.setProperty("omero.port", str(self.port))
         id.properties.setProperty("omero.user", "root")
         id.properties.setProperty("omero.pass", self.rootpasswd)
         c = omero.client(id=id)
