@@ -250,30 +250,28 @@ public class FileObject
                 if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
                     return true;
             }
-
-            //Get Current Dimensions
-            int SizeC_cur = img.getNChannels();
-            int SizeT_cur = img.getNFrames();
-            int SizeZ_cur = img.getNSlices();
-
             String xmlStr = info.description;
-            if(xmlStr != null){
-                Document doc = xmlParser(xmlStr);
+            if (CommonsLangUtils.isBlank(xmlStr)) return false;
+            //Get Current Dimensions
+            int sizeC_cur = img.getNChannels();
+            int sizeT_cur = img.getNFrames();
+            int sizeZ_cur = img.getNSlices();
 
-                NodeList nodeList = doc.getElementsByTagName("Pixels");
-                int size = nodeList.getLength();
-                int SizeC_org = SizeC_cur;
-                int SizeT_org = SizeT_cur;
-                int SizeZ_org = SizeZ_cur;
-                for(int x=0; x<size; x++) {
-                    NamedNodeMap attributes = nodeList.item(x).getAttributes();
-                    SizeC_org = Integer.valueOf(attributes.getNamedItem("SizeC").getNodeValue());
-                    SizeT_org = Integer.valueOf(attributes.getNamedItem("SizeT").getNodeValue());
-                    SizeZ_org = Integer.valueOf(attributes.getNamedItem("SizeZ").getNodeValue());
-                }
-                if (SizeC_cur != SizeC_org || SizeT_cur != SizeT_org || SizeZ_cur != SizeZ_org){
-                    return true;
-                }
+            Document doc = xmlParser(xmlStr);
+
+            NodeList nodeList = doc.getElementsByTagName("Pixels");
+            int size = nodeList.getLength();
+            int sizeC_org = sizeC_cur;
+            int sizeT_org = sizeT_cur;
+            int sizeZ_org = sizeZ_cur;
+            for (int x=0; x<size; x++) {
+                NamedNodeMap attributes = nodeList.item(x).getAttributes();
+                sizeC_org = Integer.valueOf(attributes.getNamedItem("SizeC").getNodeValue());
+                sizeT_org = Integer.valueOf(attributes.getNamedItem("SizeT").getNodeValue());
+                sizeZ_org = Integer.valueOf(attributes.getNamedItem("SizeZ").getNodeValue());
+            }
+            if (sizeC_cur != sizeC_org || sizeT_cur != sizeT_org || sizeZ_cur != sizeZ_org){
+                return true;
             }
         }
         return false;
