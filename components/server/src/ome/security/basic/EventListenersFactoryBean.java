@@ -221,14 +221,14 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
     // =========================================================================
 
     /** calls override for each key */
-    private void override(String[] keys, Object object) {
+    protected void override(String[] keys, Object object) {
         for (String key : keys) {
             override(key, object);
         }
     }
 
     /** first re-initializes the list for key, and then adds object */
-    private void override(String key, Object object) {
+    protected void override(String key, Object object) {
         put(key, null);
         append(key, object);
     }
@@ -238,7 +238,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
      * found, initializes. If there are no objects, just initializes if
      * necessary.
      */
-    private void append(String key, Object... objs) {
+    protected void append(String key, Object... objs) {
         LinkedList<Object> l = map.get(key);
         if (l == null) {
             put(key, null);
@@ -257,7 +257,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
      * found, initializes. If there are no objects, just initializes if
      * necessary.
      */
-    private void prepend(String key, Object... objs) {
+    protected void prepend(String key, Object... objs) {
         LinkedList<Object> l = map.get(key);
         if (l == null) {
             put(key, null);
@@ -275,7 +275,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
      * replaces the key with the provided objects or an empty list if none
      * provided
      */
-    private void put(String key, Object[] objs) {
+    protected void put(String key, Object[] objs) {
         LinkedList<Object> list = new LinkedList<Object>();
         if (objs != null) {
             Collections.addAll(list, objs);

@@ -82,8 +82,11 @@
                 hideSystemUserX();
                 
                 $('#id_permissions_0').click(function(){
-                    OME.confirm_dialog("Changing group to Private may fail if links have been created under Read-Annotate permissions",
-                        null, "WARNING", ['OK'], null, 180);
+                    OME.confirm_dialog("Changing group to Private unlinks data from other users'" +
+                                    " containers and unlinks other users' annotations from data." +
+                                    " The change to Private will abort if different users' data" +
+                                    " is too closely related to be separated.",
+                        null, "WARNING", ['OK'], null, 200);
                 });
                 $('#id_permissions_3').click(function(){
                     OME.confirm_dialog("Read-Write groups allow members to delete other members' data. " +

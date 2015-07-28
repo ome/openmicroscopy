@@ -22,7 +22,6 @@ package ome.services.graphs;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 
 import ome.model.IObject;
