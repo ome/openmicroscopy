@@ -395,6 +395,7 @@
 
             viewport.bind('imageLoad', _imageLoad);
             viewport.bind('instant_zoom', instant_zoom);
+            viewport.bind('imageChange', refresh_rois);
 
             viewport.load(IMAGE_ID);
         });
