@@ -258,21 +258,23 @@ public class FileObject
             int SizeZ_cur = img.getNSlices();
 
             String xmlStr = info.description;
-            Document doc = xmlParser(xmlStr);
+            if(xmlStr != null){
+                Document doc = xmlParser(xmlStr);
 
-            NodeList nodeList = doc.getElementsByTagName("Pixels");
-            int size = nodeList.getLength();
-            int SizeC_org = SizeC_cur;
-            int SizeT_org = SizeT_cur;
-            int SizeZ_org = SizeZ_cur;
-            for(int x=0; x<size; x++) {
-                NamedNodeMap attributes = nodeList.item(x).getAttributes();
-                SizeC_org = Integer.valueOf(attributes.getNamedItem("SizeC").getNodeValue());
-                SizeT_org = Integer.valueOf(attributes.getNamedItem("SizeT").getNodeValue());
-                SizeZ_org = Integer.valueOf(attributes.getNamedItem("SizeZ").getNodeValue());
-            }
-            if (SizeC_cur != SizeC_org || SizeT_cur != SizeT_org || SizeZ_cur != SizeZ_org){
-                return true;
+                NodeList nodeList = doc.getElementsByTagName("Pixels");
+                int size = nodeList.getLength();
+                int SizeC_org = SizeC_cur;
+                int SizeT_org = SizeT_cur;
+                int SizeZ_org = SizeZ_cur;
+                for(int x=0; x<size; x++) {
+                    NamedNodeMap attributes = nodeList.item(x).getAttributes();
+                    SizeC_org = Integer.valueOf(attributes.getNamedItem("SizeC").getNodeValue());
+                    SizeT_org = Integer.valueOf(attributes.getNamedItem("SizeT").getNodeValue());
+                    SizeZ_org = Integer.valueOf(attributes.getNamedItem("SizeZ").getNodeValue());
+                }
+                if (SizeC_cur != SizeC_org || SizeT_cur != SizeT_org || SizeZ_cur != SizeZ_org){
+                    return true;
+                }
             }
         }
         return false;
@@ -291,26 +293,26 @@ public class FileObject
         PrintWriter pw = new PrintWriter(sw);
         DocumentBuilder builder;
         Document doc = null;
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            doc = builder.parse(stream);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } catch (SAXException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } catch (IOException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } finally {
             try {
-                builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                doc = builder.parse(stream);
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace(pw);
-                IJ.log(pw.toString());
-            } catch (SAXException e) {
-                e.printStackTrace(pw);
-                IJ.log(pw.toString());
+                sw.close();
             } catch (IOException e) {
-                e.printStackTrace(pw);
-                IJ.log(pw.toString());
-            } finally {
-                try {
-                    sw.close();
-                } catch (IOException e) {
-                    IJ.log("I/O Exception:" + e.getMessage());
-                }
-                pw.close();
+                IJ.log("I/O Exception:" + e.getMessage());
             }
+            pw.close();
+        }
         return doc;
     }
 
