@@ -274,7 +274,7 @@ $.fn.roi_display = function(options) {
                 }
                 $viewportimg.trigger("rois_loaded");
                 if (roi_id && shape_id && shape_config)
-                    $viewportimg.trigger("push_shape", [roi_id, shape_id, shape_config, refr_rois, hide_ome_rois]);
+                    $viewportimg.trigger("add_external_shape", [roi_id, shape_id, shape_config, refr_rois, hide_ome_rois]);
             });
         }
 
@@ -524,17 +524,17 @@ $.fn.roi_display = function(options) {
         If refresh_rois is TRUE, automatically refresh viewport.
         If hide_ome_rois is TRUE, hide OME ROI when refreshing viewport.
          */
-        this.push_shape = function(roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois) {
+        this.add_external_shape = function(roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois) {
             if (roi_json == null) {
                 load_rois(false, undefined, roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois);
             } else {
-                $viewportimg.trigger("push_shape", [roi_id, shape_id, shape_config, refresh_rois,
-                                                    hide_ome_rois]);
+                $viewportimg.trigger("add_external_shape", [roi_id, shape_id, shape_config, refresh_rois,
+                    hide_ome_rois]);
             }
         };
 
-        $viewportimg.on("push_shape", function (event, roi_id, shape_id, shape_config, refresh_rois,
-                                                hide_ome_rois) {
+        $viewportimg.on("add_external_shape", function (event, roi_id, shape_id, shape_config,
+                                                        refresh_rois, hide_ome_rois) {
             var roi_id = resolve_id(roi_id);
             var shape_id = resolve_id(shape_id);
 
@@ -573,7 +573,7 @@ $.fn.roi_display = function(options) {
         Remove SHAPE with ID shape_id from ROI with ID roi_id from external ROI list.
         If refresh is TRUE, automatically refresh viewport.
          */
-        this.remove_shape = function(roi_id, shape_id, refresh) {
+        this.remove_external_shape = function(roi_id, shape_id, refresh) {
             if (! external_rois) {
                 console.warn("There are no external ROIs, nothing to do");
                 return;
@@ -610,7 +610,7 @@ $.fn.roi_display = function(options) {
         Remove ROI with ID roi_id from external ROI list.
         If refresh is TRUE, automatically refresh viewport.
          */
-        this.remove_roi = function(roi_id, refresh) {
+        this.remove_external_roi = function(roi_id, refresh) {
             if (! external_rois) {
                 console.warn("There are no external ROIs, nothing to do");
                 return;

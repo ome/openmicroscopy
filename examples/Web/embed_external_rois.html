@@ -124,7 +124,7 @@
                 roi_id = "EXT_ELL_" + shapes_counter.ellipse;
             else if (shape.type == "Line")
                 roi_id = "EXT_LINE_" + shapes_counter.line;
-            viewport.viewportimg.get(0).push_shape(roi_id, 1, shape, true);
+            viewport.viewportimg.get(0).add_external_shape(roi_id, 1, shape, true);
 
             rois_list.push(roi_id);
 
@@ -139,7 +139,7 @@
         };
 
         var delete_roi = function (roi_id) {
-            viewport.viewportimg.get(0).remove_roi(roi_id, true);
+            viewport.viewportimg.get(0).remove_external_roi(roi_id, true);
 
             if (rois_list.length == 0) {
                 $("#pop-roi").attr("disabled", "disabled");
