@@ -241,7 +241,10 @@ class SessionsControl(BaseControl):
         file = parser.add(
             sub, self.file, "Print the path to the current session file")
 
-        for x in (file, logout, keepalive, list, clear, group):
+        key = parser.add(
+            sub, self.key, "Print the key of the current active session")
+
+        for x in (file, key, logout, keepalive, list, clear, group):
             self._configure_dir(x)
 
     def _configure_login(self, login):
@@ -820,10 +823,18 @@ class SessionsControl(BaseControl):
             t.event.set()
 
     def file(self, args):
+        """Return the file associated to the current active sessions"""
         store = self.store(args)
         srv, usr, uuid, port = store.get_current()
         if srv and usr and uuid:
             self.ctx.out(str(store.dir / srv / usr / uuid))
+
+    def key(self, args):
+        """Return the key associated to the current active sessions"""
+        store = self.store(args)
+        srv, usr, uuid, port = store.get_current()
+        if uuid:
+            self.ctx.out(uuid)
 
     def conn(self, properties=None, profile=None, args=None):
         """
