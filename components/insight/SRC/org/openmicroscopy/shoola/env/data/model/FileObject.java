@@ -25,7 +25,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileInfo;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
