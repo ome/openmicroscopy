@@ -220,7 +220,6 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           255
 
     # New settings (White channel, max 200) and 'Copy'
-    # Set Selenium Speed                      1
     Input Text                              id=wblitz-ch0-cw-end        200
     Pick Color                              fff         FFFFFF          rgb(255, 255, 255)
     Click Element                           xpath=//button[@id='rdef-copy-btn']
@@ -261,7 +260,6 @@ Test Owners Rdef
     # Toggle the color, then paste settings and check it has reverted
 
     # Bit more reliable with this, but try to remove it if possible...
-    Set Selenium Speed                      0.5
 
     Go To                                   ${WELCOME URL}img_detail/${imageId}
     Wait Until Page Contains Element        id=wblitz-ch0
