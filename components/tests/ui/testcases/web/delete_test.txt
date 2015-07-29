@@ -20,15 +20,16 @@ Test Delete Project
     [Documentation]     Create and Delete a Project
 
     Select Experimenter
-    ${pid}=                                 Create project      robot test delete
+    ${pid}=                                 Create project          robot test delete
     Click Element                           refreshButton
-    Wait Until Page Contains Element        id=project-${pid}
+    ${nodeId}=                              Wait For Project Node   ${pid}
     Click Element                           id=deleteButton
     Wait Until Element Is Visible           id=delete-dialog-form
     Click Dialog Button                     Yes
     # On POST success, Experimenter should be selected and project removed from tree
-    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
-    Page Should Not Contain Element         id=project-${pid}
+    User Should Be Selected
+    Page Should Not Contain Element         id=${nodeId}
+    Project Should Not Exist in Tree        ${pid}
 
 
 Test Delete Project Dataset
@@ -41,31 +42,30 @@ Test Delete Project Dataset
     ${pid}=                                 Create project      robot test delete
     ${did}=                                 Create Dataset      robot test deleteChildren
     Click Element                           refreshButton
-    Wait Until Page Contains Element        id=project-${pid}
-    Click Element                           css=#project-${pid}>a
-    Wait Until Page Contains Element        xpath=//tr[contains(@class,'data_heading_id')]/td/strong[contains(text(), '${pid}')]  ${WAIT}
+    ${projectNodeId}=                       Select Project By Id                    ${pid}
     Click Element                           id=deleteButton
     Wait Until Element Is Visible           id=delete-dialog-form
     Click Dialog Button                     Yes
     # Wait for activities to show job done, then refresh tree...
-    Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
+    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
     Click Element                           refreshButton
-    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
-    Page Should Not Contain Element         id=project-${pid}
+    User Should Be Selected
+    Project Should Not Exist in Tree        ${pid}
     # Dataset should be Deleted too
-    Page Should Not Contain Element         id=dataset-${did}
+    Dataset Should Not Exist In Tree        ${did}
 
 
 Test Delete Images in Dataset
     [Documentation]     Deletes images pre-imported into a dataset named "Delete"
 
     Select Experimenter
-    # Click on Dataset, wait for thumbnails and count them
-    Click Element                           xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
+    # Click on Dataset named "Delete", wait for thumbnails and count them
+    ${nodeId}=                              Wait For Dataset Node Text              Delete
+    Click Node                              ${nodeId}
     Wait Until Page Contains Element        id=dataIcons
     ${thumbCount}=                          Get Matching Xpath Count     ${thumbnailsXpath}
     # Click first image in Tree
-    Click Element                           xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]/a
+    Select First Image
     Click Element                           id=deleteButton
     Wait Until Element Is Visible           id=delete-dialog-form
     Click Dialog Button                     Yes
@@ -74,7 +74,7 @@ Test Delete Images in Dataset
     Wait Until Keyword Succeeds             1   0.1   Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
     # ...Need to check that centre panel doesn't reload and show image during delete: #12866
     Sleep                                   5
-    Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
+    Xpath Should Match X Times              ${thumbnailsXpath}   ${delThumbCount}
 
 
 Test Delete Images in Share
@@ -82,15 +82,14 @@ Test Delete Images in Share
 
     Select Experimenter
     # Clear any activities from earlier tests etc.
-    Click Element                           id=launch_activities
-    Click Element                           id=clear_activities
+    Click Element                               id=launch_activities
+    Click Element                               id=clear_activities
     # Add image in 'Delete' Dataset to Share
-    Click Element                               xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
+    ${nodeId}=                                  Wait For Dataset Node Text              Delete
+    Click Node                                  ${nodeId}
     Wait Until Page Contains Element            id=dataIcons
     # Click first image in Tree
-    Click Element                               xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]/a
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]/a[contains(@class, 'jstree-clicked')]
-    ${imageId}=                                 Get Element Attribute    xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]@id
+    ${imageId}=                                 Select First Image
 
     Click Element                               createshareButton
     Wait Until Page Contains Element            id_message
