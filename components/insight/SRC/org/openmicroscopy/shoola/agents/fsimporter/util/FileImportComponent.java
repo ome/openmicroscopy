@@ -927,7 +927,38 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public StatusLabel getStatus() { return statusLabel; }
-	
+
+	/**
+	 * Returns the associated file if any.
+	 *
+	 * @param series See above.
+	 * @return See above.
+	 */
+	private FileObject getAssociatedFile(int series)
+	{
+	    List<FileObject> l = getFile().getAssociatedFiles();
+	    Iterator<FileObject> i = l.iterator();
+	    FileObject f;
+	    while (i.hasNext()) {
+            f = i.next();
+            if (f.getIndex() == series) {
+                return f;
+            }
+        }
+	    return null;
+	}
+
+	/**
+	 * Returns <code>true</code> if the file has some associated files,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	private boolean hasAssociatedFiles() {
+	    List<FileObject> l = getFile().getAssociatedFiles();
+	    return CollectionUtils.isNotEmpty(l);
+	}
+
 	/**
 	 * Sets the result of the import.
 	 * @param image The image.
@@ -948,13 +979,21 @@ public class FileImportComponent
 			this.image = null;
 			Set set = (Set) image;
 			Iterator i = set.iterator();
-			IJ.debugMode = true;
+			FileObject f;
 			while (i.hasNext()) {
                 Object object = i.next();
                 if (object instanceof PixelsData) {
                     PixelsData pix = (PixelsData) object;
-                    int series = pix.getImage().getSeries();
-                    IJ.log("series:"+series);
+                    if (hasAssociatedFiles()) {
+                        int series = pix.getImage().getSeries();
+                        f = getAssociatedFile(series);
+                        if (f != null) {
+                            f.setImageID(pix.getImage().getId());
+                        }
+                    } else {
+                        f = getOriginalFile();
+                        f.setImageID(pix.getImage().getId());
+                    }
                 }
             }
 			formatResult();
