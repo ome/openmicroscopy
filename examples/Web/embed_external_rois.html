@@ -83,7 +83,7 @@
 
         var flush_colors = function () {
             var vimg = viewport.viewportimg.get(0);
-            var ext_rois = vimg.get_external_roi_json();
+            var ext_rois = vimg.get_external_rois_json();
 
             for(var r=0; r<ext_rois.length; r++) {
                 var roi_id = ext_rois[r].id;
