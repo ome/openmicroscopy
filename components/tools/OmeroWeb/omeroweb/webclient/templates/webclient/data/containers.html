@@ -1894,6 +1894,33 @@
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                             } else {
+                                console.log(node.type);
+                                // Handle other node types
+                                if (node.type === "project") {
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
+                                    // console.log(to_paste);
+                                    // if (!(to_paste && to_paste[0].id.indexOf("dataset")>=0)) {  // if we don't have a dataset
+                                    //     config["ccp"]["submenu"]["paste"]["_disabled"] = true;  // disable paste
+                                    // }
+                                } else if(node.type === "dataset") {
+                                    // if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
+                                    //     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    // }
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                    // if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
+                                    //     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    // }
+                                    // see #8879 config["create"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
+                                }
 
                                 // If there is a not a node to paste, disable paste
                                 // Otherwise disable copy/cut.
