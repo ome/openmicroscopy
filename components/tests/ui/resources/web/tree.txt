@@ -1,3 +1,10 @@
+
+*** Variables ***
+${treeRootId}                   j1_1
+${projectIcon}                  webclient/image/folder16.png
+${datasetIcon}                  webclient/image/folder_image16.png
+${imageIcon}                  webclient/image/image16.png
+
 *** Keywords ***
 
 Click Dialog Button
@@ -6,17 +13,13 @@ Click Dialog Button
     Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), '${buttonText}')]
 
 Xpath Should Have Class
-    [Arguments]         ${identifier}   ${className}
-    Page Should Contain Element    ${identifier}
-    Page Should Contain Element    ${identifier}[contains(@class, '${className}')]
+    [Arguments]                     ${identifier}       ${className}
+    Page Should Contain Element     ${identifier}[contains(@class, '${className}')]
 
 Xpath Should Not Have Class
-    [Arguments]         ${identifier}   ${className}
-    Page Should Contain Element        ${identifier}
-    Page Should Not Contain Element    ${identifier}[contains(@class, '${className}')]
+    [Arguments]                     ${identifier}       ${className}
+    Page Should Contain Element     ${identifier}[not(contains(@class, '${className}'))]
 
-
-# All these keywords should be identical in Web and Insight
 Tree Should Be Visible
     Wait Until Element Is Visible   dataTree
     Element Should Be Visible       dataTree
@@ -66,16 +69,11 @@ Select And Expand Node
     # Node identified by text value - needs to be visible
     Click Element   xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
 
-Select And Expand Dataset
-    ${firstNodeId}    Select First Node By Type    dataset
-    [Return]          ${firstNodeId}
-
 Select And Expand Image
-    Select First Node With Children in Tree    dataset
-    # Need to wait for data to load
-    Wait Until Page Contains Element           css=#dataTree li[rel='image']
-    ${firstNodeId}                             Select First Node By Type    image
-    [Return]                                   ${firstNodeId}
+    Select First Project With Children
+    Select First Dataset With Children
+    ${imageId}=                         Select First Image
+    [Return]                            ${imageId}
 
 Create Project
     [Arguments]     ${newName}=testCreateContainerRobot
@@ -135,26 +133,43 @@ Popup Menu Item Should Be Enabled
 
 Select Experimenter
     Tree Should Be Visible
-    Wait Until Element Is Visible       id=j1_1
-    Click Node                          j1_1
+    Wait Until Element Is Visible       id=${treeRootId}
+    Click Node                          ${treeRootId}
+
+Select Node By Icon
+    [Arguments]                     ${icon}
+    Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li
+    ${firstNodeId}=                 Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li@id
+    ${objId}=                       Get Element Attribute    xpath=//li[@id='${firstNodeId}']@data-id
+    Select Node By Id               ${firstNodeId}
+    [Return]                        ${objId}
+
+Select Node With Children By Icon
+    [Arguments]                     ${icon}
+    Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/following-sibling::span[contains(@class, 'children_count')]/parent::a/parent::li
+    ${firstNodeId}=                 Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/following-sibling::span[contains(@class, 'children_count')]/parent::a/parent::li@id
+    ${objId}=                       Get Element Attribute    xpath=//li[@id='${firstNodeId}']@data-id
+    Select Node By Id               ${firstNodeId}
+    [Return]                        ${objId}
 
 Select First Project
-    ${firstNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder16.png')]/parent::a/parent::li@id
-    ${projectId}=               Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder16.png')]/parent::a/parent::li@data-id
-    Select Node By Id           ${firstNodeId}
+    ${projectId}=               Select Node By Icon    ${projectIcon}
+    [Return]                    ${projectId}
+
+Select First Project With Children
+    ${projectId}=               Select Node With Children By Icon    ${projectIcon}
     [Return]                    ${projectId}
 
 Select First Dataset
-    ${firstNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder_image16.png')]/parent::a/parent::li@id
-    ${datasetId}=               Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder_image16.png')]/parent::a/parent::li@data-id
-    Select Node By Id           ${firstNodeId}
+    ${datasetId}=               Select Node By Icon    ${datasetIcon}
+    [Return]                    ${datasetId}
+
+Select First Dataset With Children
+    ${datasetId}=               Select Node With Children By Icon    ${datasetIcon}
     [Return]                    ${datasetId}
 
 Select First Image
-    ${firstNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/image16.png')]/parent::a/parent::li@id
-    Log                         ${firstNodeId}
-    ${imageId}=                 Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/image16.png')]/parent::a/parent::li@data-id
-    Select Node By Id           ${firstNodeId}
+    ${imageId}=                 Select Node By Icon    ${imageIcon}
     [Return]                    ${imageId}
 
 Select Image By Id
@@ -166,19 +181,8 @@ Select Image By Id
 
 Get Node Id For Image
     [Arguments]                 ${imageId}
-    ${imageNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/image16.png')]/parent::a/parent::li[@data-id='${imageId}']@id
+    ${imageNodeId}=             Get Element Attribute    xpath=//i[contains(@style, '${imageIcon}')]/parent::a/parent::li[@data-id='${imageId}']@id
     [Return]                    ${imageNodeId}
-
-# Select First Node By Type
-#     [Arguments]         ${nodeType}
-#     ${firstNodeId}              Get Element Attribute    css=#dataTree li[rel='${nodeType}']@id
-#     Select Node By Id           ${firstNodeId}
-#     [Return]                    ${firstNodeId}
-
-Select First Node With Children in Tree
-    [Arguments]         ${nodeType}
-    ${firstNodeId}      Execute Javascript    return $("#dataTree li[rel='${nodeType}']").filter(function(){return parseInt($(this).find(".children_count").text()) > 0}).attr('id');
-    Select Node By Id   ${firstNodeId}
 
 Select Node By Id
     [Arguments]         ${nodeId}
@@ -207,3 +211,22 @@ Wait For General Panel And Return Name
     Wait For General Panel                  ${nodeType}
     ${imageName}=                           Get Text        xpath=//div[contains(@class, 'data_heading')]//h1/span
     [Return]                                ${imageName}
+
+Click Thumbnail
+    [Arguments]    ${imageId}
+    Click Element  id=image_icon-${imageId}
+
+Click Previous Thumbnail
+    Click Element  xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/preceding-sibling::li
+
+Click Next Thumbnail
+    Click Element  xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/following-sibling::li
+
+Thumbnail Should Be Selected
+    [Arguments]     ${imageId}    ${expected}=${true}
+    Run Keyword If  ${expected}   Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and contains(@class, 'ui-selected')]
+    ...             ELSE          Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and not(contains(@class, 'ui-selected'))]
+
+Thumbnail Should Not Be Selected
+    [Arguments]                     ${imageId}
+    Thumbnail Should Be Selected    ${imageId}    ${false}

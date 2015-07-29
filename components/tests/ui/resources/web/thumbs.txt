@@ -13,21 +13,3 @@ Capture Image Element
     Capture Page Screenshot    ${thumbnailName}
     Crop Image                 ${thumbnailName}    ${thumbX}    ${thumbY}    ${thumbW}    ${thumbH}
 
-Click Thumbnail
-    [Arguments]    ${imageId}
-    Click Element  id=image_icon-${imageId}
-
-Click Previous Thumbnail
-    Click Element  xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/preceding-sibling::li
-
-Click Next Thumbnail
-    Click Element  xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/following-sibling::li
-
-Thumbnail Should Be Selected
-    [Arguments]     ${imageId}    ${expected}=${true}
-    Run Keyword If  ${expected}   Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and contains(@class, 'ui-selected')]
-    ...             ELSE          Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and not(contains(@class, 'ui-selected'))]
-
-Thumbnail Should Not Be Selected
-    [Arguments]                     ${imageId}
-    Thumbnail Should Be Selected    ${imageId}    ${false}

@@ -7,7 +7,6 @@ Documentation     Tests creation of Projects and Datasets
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
-Resource          ../../resources/web/thumbs.txt
 
 *** Test Cases ***
 
