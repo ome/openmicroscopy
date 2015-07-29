@@ -58,6 +58,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import ij.IJ;
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
 import omero.cmd.CmdCallback;
@@ -945,6 +946,17 @@ public class FileImportComponent
 		} else if (image instanceof Set) {
 			//Result from the import itself
 			this.image = null;
+			Set set = (Set) image;
+			Iterator i = set.iterator();
+			IJ.debugMode = true;
+			while (i.hasNext()) {
+                Object object = i.next();
+                if (object instanceof PixelsData) {
+                    PixelsData pix = (PixelsData) object;
+                    int series = pix.getImage().getSeries();
+                    IJ.log("series:"+series);
+                }
+            }
 			formatResult();
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
