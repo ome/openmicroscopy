@@ -45,6 +45,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -82,6 +83,81 @@ public class FileObject
 
     /** The trueFile if available.*/
     private File trueFile;
+
+
+    /**
+     * Returns the Pixels node matching the index.
+     *
+     * @param doc The document to handle.
+     * @return See above.
+     */
+    private Node getPixelsNode(Document doc)
+    {
+        
+        NodeList l = doc.getElementsByTagName("Image");
+        if (l == null || l.getLength() == 0) return null;
+        NamedNodeMap attributes;
+        String value;
+        Node node;
+        NodeList nodeList;
+        int series = getIndex();
+        for (int i = 0; i < l.getLength(); i++) {
+            node = l.item(i);
+            if (node.hasAttributes()) {
+                attributes = node.getAttributes();
+                value = attributes.getNamedItem("ID").getNodeValue();
+                if (value.equals("Image:"+series)) {
+                    nodeList = node.getChildNodes();
+                    if (nodeList != null && nodeList.getLength() > 0) {
+                        for (int j = 0; j < nodeList.getLength(); j++) {
+                            Node n = nodeList.item(j);
+                            if ("Pixels".equals(n.getNodeName())) {
+                                return n;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parses the image's description.
+     *
+     * @param xmlStr The string to parse.
+     * @return See above.
+     */
+    private Document xmlParser(String xmlStr)
+    {
+        InputSource stream = new InputSource();
+        stream.setCharacterStream(new StringReader(xmlStr));
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        DocumentBuilder builder;
+        Document doc = null;
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            doc = builder.parse(stream);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } catch (SAXException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } catch (IOException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } finally {
+            try {
+                sw.close();
+            } catch (IOException e) {
+                IJ.log("I/O Exception:" + e.getMessage());
+            }
+            pw.close();
+        }
+        return doc;
+    }
 
     /**
      * Creates a new instance.
@@ -258,60 +334,24 @@ public class FileObject
             int sizeZ_cur = img.getNSlices();
 
             Document doc = xmlParser(xmlStr);
-
-            NodeList nodeList = doc.getElementsByTagName("Pixels");
-            int size = nodeList.getLength();
+            Node node = getPixelsNode(doc);
+            if (node == null) return false;
+            NamedNodeMap nnm = node.getAttributes();
             int sizeC_org = sizeC_cur;
             int sizeT_org = sizeT_cur;
             int sizeZ_org = sizeZ_cur;
-            for (int x=0; x<size; x++) {
-                NamedNodeMap attributes = nodeList.item(x).getAttributes();
-                sizeC_org = Integer.valueOf(attributes.getNamedItem("SizeC").getNodeValue());
-                sizeT_org = Integer.valueOf(attributes.getNamedItem("SizeT").getNodeValue());
-                sizeZ_org = Integer.valueOf(attributes.getNamedItem("SizeZ").getNodeValue());
-            }
-            if (sizeC_cur != sizeC_org || sizeT_cur != sizeT_org || sizeZ_cur != sizeZ_org){
+            sizeC_org = Integer.valueOf(nnm.getNamedItem("SizeC").getNodeValue());
+            sizeT_org = Integer.valueOf(nnm.getNamedItem("SizeT").getNodeValue());
+            sizeZ_org = Integer.valueOf(nnm.getNamedItem("SizeZ").getNodeValue());
+            if (sizeC_cur != sizeC_org || sizeT_cur != sizeT_org ||
+                    sizeZ_cur != sizeZ_org) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * Parses Xml String
-     * @param xmlStr
-     * @return
-     */
-    public Document xmlParser(String xmlStr)
-    {
-        InputSource stream = new InputSource();
-        stream.setCharacterStream(new StringReader(xmlStr));
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        DocumentBuilder builder;
-        Document doc = null;
-        try {
-            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            doc = builder.parse(stream);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace(pw);
-            IJ.log(pw.toString());
-        } catch (SAXException e) {
-            e.printStackTrace(pw);
-            IJ.log(pw.toString());
-        } catch (IOException e) {
-            e.printStackTrace(pw);
-            IJ.log(pw.toString());
-        } finally {
-            try {
-                sw.close();
-            } catch (IOException e) {
-                IJ.log("I/O Exception:" + e.getMessage());
-            }
-            pw.close();
-        }
-        return doc;
-    }
+   
 
     /**
      * Returns the file to import.
