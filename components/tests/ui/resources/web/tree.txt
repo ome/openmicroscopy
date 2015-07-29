@@ -101,7 +101,7 @@ Create Container
     [Arguments]                 ${dType}    ${newName}=testCreateContainerRobot
     # Check if metadata panel was loaded and get and old object
     # This is important when two the same objects are created in a row.
-    ${status}    ${oldId}    Run Keyword And Ignore Error    Get Text                css=tr.data_heading_id strong
+    ${status}    ${oldId}       Run Keyword And Ignore Error    Get Text                css=tr.data_heading_id strong
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
     Input Text                  name    ${newName}
@@ -114,7 +114,7 @@ Create Container
     Wait Until Page Contains            ${dType.title()} ID:  ${WAIT}
     Wait Until Element Is Visible       css=tr.data_heading_id  ${WAIT}
     ${newId}    Get Text                css=tr.data_heading_id strong
-    Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked  ${WAIT}
+    Wait Until Page Contains Element    xpath=//li[@data-id='${newId}']/a[contains(@class, 'jstree-clicked')]    ${WAIT}
     [Return]                            ${newId}
 
 Key Down
@@ -135,8 +135,8 @@ Popup Menu Item Should Be Enabled
 
 Select Experimenter
     Tree Should Be Visible
-    Wait Until Element Is Visible   id=experimenter-0
-    Select Node By Id    experimenter-0
+    Wait Until Element Is Visible       id=j1_1
+    Click Node                          j1_1
 
 Select First Project
     ${firstNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder16.png')]/parent::a/parent::li@id
@@ -186,6 +186,10 @@ Select Node By Id
     ${nodeVisible}      ${r}    Run Keyword And Ignore Error    Element Should Be Visible   id=${nodeId}
     Run Keyword If      '${nodeVisible}'=='FAIL'     Click Element      xpath=//li[@id='${nodeId}']/parent::ul/parent::li/a
     Sleep               1
+    Click Node          ${nodeId}
+
+Click Node
+    [Arguments]         ${nodeId}
     Click Element       xpath=//li[@id='${nodeId}']/a
 
 Wait For General Panel
