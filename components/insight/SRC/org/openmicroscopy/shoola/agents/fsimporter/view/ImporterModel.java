@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-import ij.IJ;
 import ij.ImagePlus;
 
 import java.io.File;
@@ -631,7 +630,6 @@ class ImporterModel
                     o = j.next();
                     if (o.isImagePlus()) {
                         index = o.getIndex();
-                        IJ.log("index: "+index);
                         rois = reader.readImageJROI(-1, (ImagePlus) o.getFile());
                         indexes.put(index, rois);
                         if (index < 0) {
