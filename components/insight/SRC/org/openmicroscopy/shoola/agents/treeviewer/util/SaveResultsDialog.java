@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -179,7 +180,8 @@ public class SaveResultsDialog
         if (toImport.size() > 0) { //ask if they want to import the image
             StringBuffer buf = new StringBuffer();
             buf.append("Do you wish to import any selected images not already "
-                    + "saved in OMERO to the OMERO server?");
+                    + CommonsLangUtils.LINE_SEPARATOR+
+                    "saved in OMERO to the OMERO server?");
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
