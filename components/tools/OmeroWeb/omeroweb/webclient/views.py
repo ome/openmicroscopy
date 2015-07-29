@@ -1150,18 +1150,13 @@ def api_share_list(request, conn=None, **kwargs):
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
               o3_type=None, o3_id=None, conn=None, **kwargs):
     """
-    This loads data for the tree, via AJAX calls.
-    The template is specified by query string. E.g. icon, table, tree.
-    By default this loads Projects and Datasets.
-    E.g. /load_data?view=tree provides data for the tree as <li>.
+    This loads data for the center panel, via AJAX calls.
+    Used for Datasets, Plates & Orphaned Images.
     """
 
     # get page
     page = getIntOrDefault(request, 'page', 1)
     # limit = get_long_or_default(request, 'limit', settings.PAGE)
-
-    # get view
-    view = str(request.REQUEST.get('view', None))
 
     # get index of the plate
     index = getIntOrDefault(request, 'index', 0)
@@ -1195,100 +1190,51 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
 
     # load data & template
     template = None
+    template = "webclient/data/containers_icon.html"
     if 'orphaned' in kw:
+        load_pixels = True
         manager.listOrphanedImages(filter_user_id, page)
-        if view == 'icon':
-            template = "webclient/data/containers_icon.html"
-        else:
-            template = "webclient/data/container_subtree.html"
-    elif len(kw.keys()) > 0:
-        if 'dataset' in kw:
-            # we need the sizeX and sizeY for these
-            load_pixels = (view == 'icon')
-            filter_user_id = None   # Show images belonging to all users
-            manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
-                                        page, load_pixels=load_pixels)
-            if view == 'icon':
-                template = "webclient/data/containers_icon.html"
-            else:
-                template = "webclient/data/container_subtree.html"
-        elif 'plate' in kw or 'acquisition' in kw:
-            if view == 'tree':
-                # Only used when pasting Plate into Screen - load Acquisition
-                # in tree
-                template = "webclient/data/container_subtree.html"
-            else:
-                fields = manager.getNumberOfFields()
-                if fields is not None:
-                    form_well_index = WellIndexForm(
-                        initial={'index': index, 'range': fields})
-                    if index == 0:
-                        index = fields[0]
+    elif 'dataset' in kw:
+        # we need the sizeX and sizeY for these
+        load_pixels = True
+        filter_user_id = None   # Show images belonging to all users
+        manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
+                                    page, load_pixels=load_pixels)
+    elif 'plate' in kw or 'acquisition' in kw:
+        fields = manager.getNumberOfFields()
+        if fields is not None:
+            form_well_index = WellIndexForm(
+                initial={'index': index, 'range': fields})
+            if index == 0:
+                index = fields[0]
 
-                # We don't know what our menu is so we're setting it to None.
-                # Should only raise an exception below if we've been asked to
-                # show some tags which we don't care about anyway in this
-                # context.
-                show = Show(conn, request, None)
-                # Constructor does no loading.  Show.first_selected must be
-                # called first in order to set up our initial state correctly.
-                try:
-                    first_selected = show.first_selected
-                    if first_selected is not None:
-                        wells_to_select = list()
-                        paths = show.initially_open + show.initially_select
-                        for path in paths:
-                            m = Show.PATH_REGEX.match(path)
-                            if m is None:
-                                continue
-                            if m.group('object_type') == 'well':
-                                wells_to_select.append(m.group('value'))
-                        context['select_wells'] = ','.join(wells_to_select)
-                except IncorrectMenuError:
-                    pass
+        # We don't know what our menu is so we're setting it to None.
+        # Should only raise an exception below if we've been asked to
+        # show some tags which we don't care about anyway in this
+        # context.
+        show = Show(conn, request, None)
+        # Constructor does no loading.  Show.first_selected must be
+        # called first in order to set up our initial state correctly.
+        try:
+            first_selected = show.first_selected
+            if first_selected is not None:
+                wells_to_select = list()
+                paths = show.initially_open + show.initially_select
+                for path in paths:
+                    m = Show.PATH_REGEX.match(path)
+                    if m is None:
+                        continue
+                    if m.group('object_type') == 'well':
+                        wells_to_select.append(m.group('value'))
+                context['select_wells'] = ','.join(wells_to_select)
+        except IncorrectMenuError:
+            pass
 
-                context['baseurl'] = reverse('webgateway').rstrip('/')
-                context['form_well_index'] = form_well_index
-                context['index'] = index
-                template = "webclient/data/plate.html"
-    else:
-        if view == 'tree':
-            # Replicate the semantics of listContainerHierarchy's filtering
-            # and experimenter population.
-            if filter_user_id is not None:
-                if filter_user_id == -1:
-                    filter_user_id = None
-                else:
-                    manager.experimenter = conn.getObject(
-                        "Experimenter", filter_user_id
-                    )
-            else:
-                filter_user_id = conn.getEventContext().userId
-            # Projects
-            context['projects'] = tree.marshal_projects(
-                conn=conn,
-                experimenter_id=filter_user_id)
-            # Datasets
-            context['datasets'] = tree.marshal_datasets(
-                conn=conn,
-                experimenter_id=filter_user_id)
-            # Screens
-            context['screens'] = tree.marshal_screens(
-                conn=conn,
-                experimenter_id=filter_user_id)
-            # Plates
-            context['plates'] = tree.marshal_plates(
-                conn=conn,
-                experimenter_id=filter_user_id)
-            # Images (orphaned)
-            context['orphans'] = conn.countOrphans("Image", filter_user_id)
-            template = "webclient/data/containers_tree.html"
-        elif view == 'icon':
-            template = "webclient/data/containers_icon.html"
-        else:
-            template = "webclient/data/containers.html"
+        context['baseurl'] = reverse('webgateway').rstrip('/')
+        context['form_well_index'] = form_well_index
+        context['index'] = index
+        template = "webclient/data/plate.html"
 
-    context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context

@@ -208,17 +208,10 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 
 
 // This is called by the Pagination controls at the bottom of icon or table pages.
-OME.doPagination = function(view, page) {
+OME.doPagination = function(page) {
     var datatree = $.jstree.reference('#dataTree');
 
-    var $container;
-    if (view == "icon") {
-        $container = $("#content_details");
-    }
-    else if (view == "table") {
-        $container = $("#image_table");
-    }
-
+    var $container = $("#content_details");
     var containerId = $container.data('id');
     var containerType = $container.data('type');
     var containerPath = $container.data('path');

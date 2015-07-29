@@ -25,7 +25,7 @@
 {% if manager.paging %}
 <div class="paging" id="page" data-page="{{ manager.paging.page }}"> 
     {% if manager.paging.prev %}
-        <input onclick="OME.doPagination('{{ template_view }}',{{ manager.paging.prev }});" class="button_pagination" type="button" value="Previous" alt="Previous"/>
+        <input onclick="OME.doPagination({{ manager.paging.prev }});" class="button_pagination" type="button" value="Previous" alt="Previous"/>
     {% endif %} {% trans "Page" %}:
     
     {% for p in manager.paging.total %}
@@ -35,12 +35,12 @@
             {% ifequal p -1 %}
                 ...
             {% else %}
-                <input onclick="OME.doPagination('{{ template_view }}',{{ p }});" class="button_pagination" type="button" value="{{ p }}" alt="{{ p }}"/>
+                <input onclick="OME.doPagination({{ p }});" class="button_pagination" type="button" value="{{ p }}" alt="{{ p }}"/>
             {% endifequal %}
         {% endifequal %}
     {% endfor %}
     {% if manager.paging.next %}
-        <input onclick="OME.doPagination('{{ template_view }}',{{ manager.paging.next }});" class="button_pagination" type="button" value="Next" alt="Next"/>
+        <input onclick="OME.doPagination({{ manager.paging.next }});" class="button_pagination" type="button" value="Next" alt="Next"/>
     {% endif %}
 
 </div>
