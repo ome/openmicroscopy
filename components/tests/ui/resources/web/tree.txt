@@ -31,10 +31,19 @@ Wait For Node To Be Visible
     # Node identified by text value
     Wait Until Page Contains Element    xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
 
+Image Should Be Selected
+    [Arguments]                 ${imageId}                  ${expected}=${true}
+    ${nodeId}=                  Get Node Id For Image       ${imageId}
+    Node Should Be Selected     ${nodeId}                   ${expected}
+
+Image Should Not Be Selected
+    [Arguments]                 ${imageId}                  ${expected}=${true}
+    Image Should Be Selected    ${imageId}                  ${false}
+
 Node Should Be Selected
-    [Arguments]       ${imageId}    ${expected}=${true}
-    Run Keyword If    ${expected}   Wait Until Page Contains Element    xpath=//li[@id='${imageId}']/a[contains(@class, 'jstree-clicked')]
-    ...               ELSE          Wait Until Page Contains Element    xpath=//li[@id='${imageId}']/a[not(contains(@class, 'jstree-clicked'))]
+    [Arguments]       ${nodeId}     ${expected}=${true}
+    Run Keyword If    ${expected}   Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[contains(@class, 'jstree-clicked')]
+    ...               ELSE          Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[not(contains(@class, 'jstree-clicked'))]
 
 Node Should Not Be Selected
     [Arguments]                ${imageId}
@@ -56,10 +65,6 @@ Select And Expand Node
     [Arguments]     ${nodeText}
     # Node identified by text value - needs to be visible
     Click Element   xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
-
-Select And Expand Project
-    ${firstNodeId}    Select First Node By Type    project
-    [Return]          ${firstNodeId}
 
 Select And Expand Dataset
     ${firstNodeId}    Select First Node By Type    dataset
@@ -122,9 +127,9 @@ Popup Menu Item Should Be Enabled
     [Arguments]                         ${menuItem}    ${enabled}
     # Right Click on the currently selected tree node ('tree-clicked')
     Open Context Menu                   xpath=//a[contains(@class, 'tree-clicked')]
-    Wait Until Page Contains Element    vakata-contextmenu
-    Run Keyword If                      ${enabled}     Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
-    ...                                 ELSE           Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
+    Wait Until Element Is Visible       xpath=//ul[contains(@class, 'jstree-contextmenu')]
+    Run Keyword If                      ${enabled}     Xpath Should Match X Times    //li[contains(@class, 'vakata-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
+    ...                                 ELSE           Xpath Should Match X Times    //li[contains(@class, 'vakata-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
     # Click elsewhere to hide the context menu
     Click Element                       content
 
@@ -133,11 +138,42 @@ Select Experimenter
     Wait Until Element Is Visible   id=experimenter-0
     Select Node By Id    experimenter-0
 
-Select First Node By Type
-    [Arguments]         ${nodeType}
-    ${firstNodeId}              Get Element Attribute    css=#dataTree li[rel='${nodeType}']@id
+Select First Project
+    ${firstNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder16.png')]/parent::a/parent::li@id
+    ${projectId}=               Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder16.png')]/parent::a/parent::li@data-id
     Select Node By Id           ${firstNodeId}
-    [Return]                    ${firstNodeId}
+    [Return]                    ${projectId}
+
+Select First Dataset
+    ${firstNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder_image16.png')]/parent::a/parent::li@id
+    ${datasetId}=               Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/folder_image16.png')]/parent::a/parent::li@data-id
+    Select Node By Id           ${firstNodeId}
+    [Return]                    ${datasetId}
+
+Select First Image
+    ${firstNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/image16.png')]/parent::a/parent::li@id
+    Log                         ${firstNodeId}
+    ${imageId}=                 Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/image16.png')]/parent::a/parent::li@data-id
+    Select Node By Id           ${firstNodeId}
+    [Return]                    ${imageId}
+
+Select Image By Id
+    [Arguments]                 ${imageId}
+    ${imageNodeId}=             Get Node Id For Image    ${imageId}
+    Log                         ${imageNodeId}
+    Select Node By Id           ${imageNodeId}
+    [Return]                    ${imageNodeId}
+
+Get Node Id For Image
+    [Arguments]                 ${imageId}
+    ${imageNodeId}=             Get Element Attribute    xpath=//i[contains(@style, 'webclient/image/image16.png')]/parent::a/parent::li[@data-id='${imageId}']@id
+    [Return]                    ${imageNodeId}
+
+# Select First Node By Type
+#     [Arguments]         ${nodeType}
+#     ${firstNodeId}              Get Element Attribute    css=#dataTree li[rel='${nodeType}']@id
+#     Select Node By Id           ${firstNodeId}
+#     [Return]                    ${firstNodeId}
 
 Select First Node With Children in Tree
     [Arguments]         ${nodeType}

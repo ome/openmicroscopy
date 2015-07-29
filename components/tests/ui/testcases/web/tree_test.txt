@@ -20,7 +20,7 @@ Test Container Creation Enabled
 
     Tree Should Be Visible
     Wait For Node To Be Visible                 ${FULL NAME}
-    Node Should Be Visible                      Orphaned images
+    Node Should Be Visible                      Orphaned Images
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
@@ -28,7 +28,7 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Dataset    ${FULL NAME}
     Node Popup Menu Item Should Be Enabled      Screen     ${FULL NAME}
     Node Popup Menu Item Should Be Disabled     Delete     ${FULL NAME}
-    Select And Expand Project
+    Select First Project
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
@@ -36,7 +36,7 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Dataset
     Node Popup Menu Item Should Be Disabled     Screen
     Node Popup Menu Item Should Be Enabled      Delete
-    Select And Expand Dataset
+    Select First Dataset
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
@@ -44,7 +44,7 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Disabled     Dataset
     Node Popup Menu Item Should Be Disabled     Screen
     Node Popup Menu Item Should Be Enabled      Delete
-    ${imageId}=                                 Select And Expand Image
+    ${imageId}=                                 Select First Image
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
@@ -54,12 +54,17 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Delete
 
     Thumbnail Should Be Selected                ${imageId}
-    Key Down                                    40    # '40' is 'down' key    # Press Key    dataTree    /40
+    ${imageNodeId}=                             Select Image By Id            ${imageId}
+    # Using hot-key fails on jsTree 3 (worked OK previously)...
+    # Focus                                       ${imageNodeId}
+    # Key Down                                    40    # '40' is 'down' key    # Press Key    dataTree    /40
+    # ... Use 'Click Next Thumbnail' instead
+    Click Next Thumbnail
     Thumbnail Should Not Be Selected            ${imageId}
-    Node Should Not Be Selected                 ${imageId}
+    Image Should Not Be Selected                ${imageId}
     Click Thumbnail                             ${imageId}
     Thumbnail Should Be Selected                ${imageId}
-    Node Should Be Selected                     ${imageId}
+    Image Should Be Selected                    ${imageId}
 
 Test Create Project Dataset
     [Documentation]     Test Creation of Project & Dataset, wait for right panel to load
