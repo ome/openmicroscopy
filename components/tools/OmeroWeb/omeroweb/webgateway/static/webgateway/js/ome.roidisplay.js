@@ -261,7 +261,7 @@ $.fn.roi_display = function(options) {
         }
 
         // load the ROIs from json call and display
-        load_rois = function(display_rois, filter, roi_id, shape_id, shape_config, refr_rois, hide_ome_rois) {
+        load_rois = function(display_rois, filter, callback) {
             if (json_url == undefined) return;
 
             $.getJSON(json_url+'?callback=?', function(data) {
@@ -273,8 +273,10 @@ $.fn.roi_display = function(options) {
                   refresh_rois(undefined, undefined, filter);
                 }
                 $viewportimg.trigger("rois_loaded");
-                if (roi_id && shape_id && shape_config)
-                    $viewportimg.trigger("add_external_shape", [roi_id, shape_id, shape_config, refr_rois, hide_ome_rois]);
+
+                if (callback) {
+                    callback();
+                }
             });
         }
 
@@ -526,7 +528,10 @@ $.fn.roi_display = function(options) {
          */
         this.add_external_shape = function(roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois) {
             if (roi_json == null) {
-                load_rois(false, undefined, roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois);
+                load_rois(false, undefined, function() {
+                    $viewportimg.trigger("add_external_shape",
+                        [roi_id, shape_id, shape_config, refresh_rois, hide_ome_rois]);
+                });
             } else {
                 $viewportimg.trigger("add_external_shape", [roi_id, shape_id, shape_config, refresh_rois,
                     hide_ome_rois]);
