@@ -16,11 +16,7 @@ Test Script Run
     # Clear any activities from earlier tests etc.
     Click Element                               id=launch_activities
     Click Element                               id=clear_activities
-    Select And Expand Project
-    Select And Expand Dataset
-    Select And Expand Image
-    Wait Until Page Contains Element            xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
-    ${imageId}=                                 Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+    ${imageId}=                                 Select And Expand Image
 
     # First Test 'custom' script forms
     # Tricky to handle popup window. Just go to script dialog URL instead
@@ -55,8 +51,6 @@ Test Channel Rename
 
     Set Selenium Speed                          0.5 seconds
     Tree Should Be Visible
-    Select And Expand Project
-    Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
     Wait Until Page Contains Element            id=editChannelNames
     Click Element                               id=editChannelNames
@@ -71,8 +65,6 @@ Test Share
     [Documentation]     Tests creating and editing share
 
     # Go To                                       ${WELCOME URL}
-    Select And Expand Project
-    Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
     Click Element                               createshareButton
     Wait Until Page Contains Element            id_message
@@ -82,15 +74,19 @@ Test Share
     Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
 
     Submit Form                                 create_share_form
-    Wait Until Page Contains Element            id=share_dialog_form
-    Page Should Contain Element                 id=deleteOthersWarning
+    Wait Until Element Is Visible               id=share_dialog_form
+    ${shareId}=                                 Get Text                    id=shareCreatedId
     Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]
     Click Dialog Button                         OK
 
+    # Check Share has been created
     Go To                                       ${WELCOME URL}public/
     Wait Until Page Contains Element            id=Public
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
-    Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
+    ${shareNodeId}=                             Wait For Share Node         ${shareId}
+    # Created share should be first in tree
+    ${firstShareId}=                            Select First Share
+    Should Be Equal                             ${shareId}                  ${firstShareId}
+
     # Test Editing of Share.
     Wait Until Page Contains Element            id=editshareButton
     Sleep                                       0.5
@@ -109,7 +105,6 @@ Test Annotate
     [Documentation]     Test Annotation of a Project that we create
 
     Go To                                       ${WELCOME URL}
-    Wait Until Page Contains Element            id=experimenter-0
     Select Experimenter
     ${pid}=                                     Create Project      robot test annotate
 

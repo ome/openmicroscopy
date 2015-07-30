@@ -104,14 +104,6 @@ Test Delete Images in Share
     Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]
     Click Dialog Button                         OK
 
-    # Check Share has been created
-    Go To                                       ${WELCOME URL}public/
-    Wait Until Page Contains Element            id=Public
-    ${shareNodeId}=                             Wait For Share Node         ${shareId}
-    # Created share should be first in tree
-    ${firstShareId}=                            Select First Share
-    Should Be Equal                             ${shareId}                  ${firstShareId}
-
     # Delete Image in share
     Go To                                       ${WELCOME URL}?show=image-${imageId}
     Wait Until Page Contains Element            id=dataIcons
