@@ -17,6 +17,7 @@
 
 package ome.services.blitz.repo;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -347,11 +348,17 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                     continue;
                 }
 
-                CheckedPath targetPath = ((ManagedImportLocationI) location).getTarget();
-                String sharedPath = location.sharedPath;
-                sharedPath = targetPath.parent().fsFile.toString().substring(sharedPath.length());
-                // This eliminates the import template from evaluation
-                ServerTemplateImportTarget target = new ServerTemplateImportTarget(sharedPath);
+                // Path converted to unix slashes.
+                String path = ca.getDescription();
+                File file = new File(path);
+                for (int i = 0; i < location.omittedLevels; i++) {
+                    file = file.getParentFile();
+                }
+                path = file.toString();
+                // Here we use the client-side (but unix-separated) path, since
+                // for simple imports, we don't have any context about the directory
+                // from the client.
+                ServerTemplateImportTarget target = new ServerTemplateImportTarget(path);
                 target.init(ca.getTextValue());
                 settings.userSpecifiedTarget = target.load(store, reader.isSPWReader());
             }
