@@ -259,7 +259,10 @@ $(document).ready(function() {
             }
 
             // Load the thumbnails for this container with the appropriate page/field
-            loadThumbnailsPanel(containerNode, inst.get_page(containerNode), inst.get_field(containerNode));
+            // E.g. public.html tree doesn't support pages/fields
+            var nodePage = inst.get_page ? inst.get_page(containerNode) : 1;
+            var nodeField = inst.get_field ? inst.get_field(containerNode) : 0;
+            loadThumbnailsPanel(containerNode, nodePage, nodeField);
             return;
 
         } else if (event.type === 'move_node') {
