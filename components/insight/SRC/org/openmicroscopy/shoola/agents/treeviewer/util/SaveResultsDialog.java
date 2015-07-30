@@ -21,12 +21,10 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
-import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -146,7 +144,6 @@ public class SaveResultsDialog
             plus = WindowManager.getCurrentImage();
             if (plus != null) {
                 img = new FileObject(plus);
-                IJ.log(""+img.getOMEROID());
                 if (img.getOMEROID() < 0 || img.isNewImage()) {
                     toImport.add(img);
                   //check if there are associated files
