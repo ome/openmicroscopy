@@ -20,6 +20,8 @@
 
 package ome.formats.importer.targets;
 
+import java.io.File;
+
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportContainer;
 import omero.api.IUpdatePrx;
@@ -28,6 +30,7 @@ import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.IObject;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +57,14 @@ public class TemplateImportTarget implements ImportTarget {
         CommentAnnotation ca = new CommentAnnotationI();
         ca.setNs(omero.rtypes.rstring(NSTARGETTEMPLATE.value));
         ca.setTextValue(omero.rtypes.rstring(this.template));
+
+        // Here we save the unix-styled path to the directory that the target
+        // file was stored in. Server-side, further directories should be
+        // stripped from this based on the pattern and *that* will be
+        // run against the regex "template".
+        File dir = ic.getFile().getParentFile();
+        String desc = FilenameUtils.separatorsToUnix(dir.toString());
+        ca.setDescription(omero.rtypes.rstring(desc));
         ca = (CommentAnnotation) update.saveAndReturnObject(ca);
         log.debug("Created annotation {}", ca.getId().getValue());
         return ca;
