@@ -58,6 +58,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import ij.IJ;
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
 import omero.cmd.CmdCallback;
@@ -1000,11 +1001,6 @@ public class FileImportComponent
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
 			ThumbnailData data = list.get(0);
-			long iid = data.getImageID();
-			if (data.getImage() != null) {
-			    iid = data.getImage().getId();
-			}
-			getFile().setImageID(iid);
 			imageLabel.setData(data);
 			list.remove(0);
 			if (list.size() > 0) {
