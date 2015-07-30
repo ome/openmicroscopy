@@ -353,7 +353,7 @@
                                         if (value.hasOwnProperty('deleted')){
                                             var node = {
                                                 'data': {'id': value.id, 'obj': value},
-                                                'text': 'Object Deleted',
+                                                'text': 'Object deleted',
                                                 'children': false,
                                                 'type': 'deleted',
                                                 'li_attr': {
@@ -415,38 +415,12 @@
                     }
 
                 },
-                // TODO Performance of sort may not be realistic. The tree is mostly ordered correctly
-                // already, only insertions need to be corrected manually.
                 'sort': function(nodeId1, nodeId2) {
                     var inst = this;
                     var node1 = inst.get_node(nodeId1);
                     var node2 = inst.get_node(nodeId2);
-                    // If the nodes are the same type then just compare lexicographically
-                    if (node1.type === node2.type && node1.text != undefined && node2.text != undefined) {
-                        // Unless they are experimenters and one of them is the current user.
-                        if(node1.type === 'experimenter') {
-                            if (node1.data.obj.id === {{ ome.user_id }}) {
-                                return -1;
-                            } else if (node2.data.obj.id === {{ ome.user_id}}) {
-                                return 1;
-                            }
-                        }
-                        return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
-                    // Otherwise explicitly order the type that might be siblings
-                    } else {
-
-                        function getRanking(node) {
-                            if (node.type === 'tagset') {
-                                return 1;
-                            } else if (node.type === 'tag') {
-                                return 2;
-                            }
-                        }
-
-                        var ranking1 = getRanking(node1);
-                        var ranking2 = getRanking(node2);
-                        return ranking1 <= ranking2 ? -1 : 1;
-                    }
+                    // Nodes are 2 types, "Shares" and "Discussions", but we sort by IDs
+                    return parseInt(node2.data.obj.id) <= parseInt(node1.data.obj.id) ? -1 : 1;
                 },
                 'locate' : {
                     // Returns a key for this node
