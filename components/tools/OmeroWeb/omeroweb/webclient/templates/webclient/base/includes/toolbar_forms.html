@@ -48,9 +48,10 @@ if (typeof OME === "undefined") { OME={}; }
         // AJAX handling of create-discussion form
         $("#create_share_form").ajaxForm({
             success: function(html) {
-                if (html == "success") {
+                if (html.indexOf("shareId") > -1) {
+                    var shareId = html.replace("shareId:", "");
                     $("#create_share_form").dialog( "close" );
-                    //document.location.href = "{% url 'load_template' 'public' %}";
+                    $("#shareCreatedId").text(shareId);
                     $("#share_dialog_form").dialog("open").show();
                 } else {
                     $("#create_share_form").html(html);
@@ -100,6 +101,6 @@ if (typeof OME === "undefined") { OME={}; }
 
 <form id="share_dialog_form" action="#" title="Create Share" style="display:none">
     <p id="deleteOthersWarning" style="font-size: 120%; font-weight: bold">
-        Share was created successfully.
+        Share <span id="shareCreatedId"></span> was created successfully.
     </p>
 </form>

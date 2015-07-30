@@ -2843,9 +2843,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     host = "%s?server=%i" % (request.build_absolute_uri(
                         reverse("load_template", args=["public"])),
                         int(conn.server_id))
-                    manager.createShare(
+                    shareId = manager.createShare(
                         host, images, message, members, enable, expiration)
-                    return HttpResponse("success")
+                    return HttpResponse("shareId:%s" % shareId)
             else:
                 initial = {
                     'experimenters': experimenters,
