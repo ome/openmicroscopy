@@ -1108,7 +1108,10 @@
                         var inst = data.instance;
 
                         // Gather data for request
-                        var paramSplit = param.split('-');
+                        // Might have multiple objects separated by |
+                        // We just use the first
+                        var nodeIds = param.split('|');
+                        var paramSplit = nodeIds[0].split('-');
 
                         var payload = {};
                         payload[paramSplit[0]] = paramSplit[1];
@@ -1123,6 +1126,7 @@
                                 data = json.paths;
                                 // Use the open_node callback mechanism to facilitate loading the tree to the
                                 // point indicated by the path, starting from the top, 'experimenter'.
+                                if (data.length == 0) return;
                                 var path = data[0];
                                 var lastIndex = path.length - 1;
 
@@ -1148,7 +1152,13 @@
                                     // Otherwise select it
                                      } else {
                                         // TODO Centre view on this selection
-                                        inst.select_node(node);
+                                        // if multiple objects, select them all
+                                        for(var n=0; n<nodeIds.length; n++) {
+                                            node = inst.locate_node(nodeIds[n], parentNode)[0];
+                                            if(node) {
+                                                inst.select_node(node);
+                                            }
+                                        }
                                      }
                                 };
 
