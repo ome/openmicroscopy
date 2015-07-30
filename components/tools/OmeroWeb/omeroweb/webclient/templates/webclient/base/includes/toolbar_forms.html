@@ -24,14 +24,19 @@
 <script type="text/javascript">
 if (typeof OME === "undefined") { OME={}; }
 
-    OME.createShare = function(data) {
+    OME.createShare = function() {
 
-        var productListQuery = new Array();
-        for (var i=0; i<data.length; i++) {
-            productListQuery[i] = data[i]["id"].replace("-","=");
-        }
+        var productListQuery = [];
+
+        // we do inst.get_selected() here, since we then get objects
+        // instead of ids for some reason?
+        var inst = $.jstree.reference('#dataTree');
+        data = inst.get_selected(true);
+        data.forEach(function(node){
+            productListQuery.push(node.type + "=" + node.data.id);
+        });
+
         var query = '{% url 'manage_action_containers' "add" "share" %}' + "?"+productListQuery.join("&");
-
         $("#create_share_form").dialog("open");
         $("#create_share_form").attr("action", query)
         $("#create_share_form").load(query);

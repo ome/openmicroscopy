@@ -503,7 +503,7 @@
                 'cut':false,
                 'paste': false,
                 'delete':false,
-                'basket':false
+                'createshare':false
             };
 
             // We 'canCreate' top level items, E.g. Project, Dataset, Screen, if the current userId is self or 'All Members'
@@ -558,10 +558,10 @@
                 }
 
                 // Only images can be added to a basket and only if they all are
-                toolbar_config['basket'] = true;
+                toolbar_config['createshare'] = true;
                 $.each(selected, function(index, node) {
                     if (node.type != 'image') {
-                        toolbar_config['basket'] = false;
+                        toolbar_config['createshare'] = false;
                         // Break out of $.each
                         return false;
                     }
@@ -1795,8 +1795,8 @@
                                 "label" : "Create share",
                                 "icon"  : '{% static "webclient/image/icon_toolbar_share2.png" %}',
                                 "action": function(){
-                                    // TODO - make sure this works with new jsTree
-                                    OME.createShare(this.get_selected());
+                                    // We get_selected() within createShare()
+                                    OME.createShare();
                                 }
                             };
 
@@ -1846,7 +1846,6 @@
                             // creating them. As the menu is created anew each time there is no reason not to never create
                             // those nodes
 
-                            console.log('canDelete', OME.nodeHasPermission(node, 'canDelete'));
                             // Disable delete if no canDelete permission
                             if (!OME.nodeHasPermission(node, 'canDelete')) {
                                 config["delete"]["_disabled"] = true;
