@@ -183,6 +183,11 @@ module omero {
         const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
 
         //
+        // omero.grid.JobParam.namespaces in Scripts.ice
+        //
+        const string NSDYNAMIC = "openmicroscopy.org/omero/scripts/job/dynamic";
+
+        //
         // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
         //
         const string NSMODULO = "openmicroscopy.org/omero/dimension/modulo";

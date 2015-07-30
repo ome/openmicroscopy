@@ -226,11 +226,9 @@ module omero {
             graphs::ChildOptions childOptions;
 
             /**
-             * If this request should skip the phases in which model
-             * objects are operated upon.
+             * If this request should skip the actual model object updates.
              * The response is still as if the operation actually occurred,
-             * indicating what would have been done to which objects, except
-             * for that various permissions checks are omitted.
+             * indicating what would have been done to which objects.
              **/
             bool dryRun;
         };
@@ -298,9 +296,8 @@ module omero {
 
         /**
          * Change the ownership of model objects.
-         * The user must be an administrator, or
-         * they must be the owner of the objects
-         * or an owner of the objects' group, with
+         * The user must be an administrator, or they
+         * must be an owner of the objects' group, with
          * the target user a member of the objects' group.
          **/
         class Chown2 extends GraphModify2 {

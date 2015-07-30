@@ -18,7 +18,8 @@ Xpath Should Not Have Class
 
 # All these keywords should be identical in Web and Insight
 Tree Should Be Visible
-    Element Should Be Visible    dataTree
+    Wait Until Element Is Visible   dataTree
+    Element Should Be Visible       dataTree
 
 Node Should Be Visible
     [Arguments]                 ${nodeText}
@@ -101,16 +102,22 @@ Create Button Should Be Disabled
 
 Create Container
     [Arguments]                 ${dType}    ${newName}=testCreateContainerRobot
+    # Check if metadata panel was loaded and get and old object
+    # This is important when two the same objects are created in a row.
+    ${status}    ${oldId}    Run Keyword And Ignore Error    Get Text                css=tr.data_heading_id strong
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
     Input Text                  name    ${newName}
     # Make sure we pick 'OK' button from visible dialog
     Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
-    Set Selenium Speed          1
-    Wait Until Page Contains Element    css=tr.data_heading_id
-    Set Selenium Speed                  ${DELAY}
+    # Wait until metadata panel reloads based on status.
+    # This is work arround as unfortunately there is no Wait Until Page NOT Contains Element
+    # This is important when two the same objects are created in a row.
+    Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element    xpath=//tr[contains(@class,'data_heading_id')]/td/strong[not(contains(text(), '${oldId}'))]  ${WAIT}
+    Wait Until Page Contains            ${dType.title()} ID:  ${WAIT}
+    Wait Until Element Is Visible       css=tr.data_heading_id  ${WAIT}
     ${newId}    Get Text                css=tr.data_heading_id strong
-    Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked
+    Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked  ${WAIT}
     [Return]                            ${newId}
 
 Key Down
@@ -130,13 +137,15 @@ Popup Menu Item Should Be Enabled
     Click Element                       content
 
 Select Experimenter
+    Tree Should Be Visible
+    Wait Until Element Is Visible   id=experimenter-0
     Select Node By Id    experimenter-0
 
 Select First Node By Type
     [Arguments]         ${nodeType}
-    ${firstNodeId}      Get Element Attribute    css=#dataTree li[rel='${nodeType}']@id
-    Select Node By Id   ${firstNodeId}
-    [Return]            ${firstNodeId}
+    ${firstNodeId}              Get Element Attribute    css=#dataTree li[rel='${nodeType}']@id
+    Select Node By Id           ${firstNodeId}
+    [Return]                    ${firstNodeId}
 
 Select First Node With Children in Tree
     [Arguments]         ${nodeType}
@@ -146,6 +155,23 @@ Select First Node With Children in Tree
 Select Node By Id
     [Arguments]         ${nodeId}
     # Make sure node is visible (by clicking parent node)
-    Execute Javascript  if(!$("#${nodeId}").is(":visible")){$("#${nodeId}").parent().parent().children("a").click()}
+    ${nodeVisible}      ${r}    Run Keyword And Ignore Error    Element Should Be Visible   id=${nodeId}
+    Run Keyword If      '${nodeVisible}'=='FAIL'     Click Element      xpath=//li[@id='${nodeId}']/parent::ul/parent::li/a
     Sleep               1
-    Click Element       css=#${nodeId}>a
+    Click Element       xpath=//li[@id='${nodeId}']/a
+
+Wait For General Panel
+    [Arguments]         ${nodeType}
+    Wait Until Element Is Visible           xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), '${nodeType}')]  ${WAIT}
+
+Wait For General Panel And Return Id
+    [Arguments]         ${nodeType}
+    Wait For General Panel                  ${nodeType}
+    ${imageId}=                             Get Text        xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+    [Return]                                ${imageId}
+
+Wait For General Panel And Return Name
+    [Arguments]         ${nodeType}
+    Wait For General Panel                  ${nodeType}
+    ${imageName}=                           Get Text        xpath=//div[contains(@class, 'data_heading')]//h1/span
+    [Return]                                ${imageName}
