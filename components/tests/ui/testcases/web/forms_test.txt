@@ -118,10 +118,11 @@ Test Annotate
 
     # Tags
     Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
     # Wait for tag panel being loded
     Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
     Wait Until Element Is Not Visible           xpath=//div[@class='progress-label']      ${WAIT}
+    Page Should Contains Element                id_tag
+
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
