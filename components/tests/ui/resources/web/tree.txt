@@ -4,7 +4,8 @@ ${treeRootId}                   j1_1
 ${userIcon}                     webclient/image/icon_user.png
 ${projectIcon}                  webclient/image/folder16.png
 ${datasetIcon}                  webclient/image/folder_image16.png
-${imageIcon}                  webclient/image/image16.png
+${imageIcon}                    webclient/image/image16.png
+${shareIcon}                    webclient/image/left_sidebar_icon_public.png
 
 *** Keywords ***
 
@@ -165,6 +166,10 @@ Select First Image
     ${imageId}=                 Select Node By Icon    ${imageIcon}
     [Return]                    ${imageId}
 
+Select First Share
+    ${shareId}=                 Select Node By Icon    ${shareIcon}
+    [Return]                    ${shareId}
+
 
 # Methods for querying nodes by TEXT
 
@@ -211,6 +216,11 @@ Wait For Dataset Node
 Wait For Image Node
     [Arguments]                     ${imageId}
     ${nodeId}=                      Get NodeId By Icon And Id       ${imageIcon}        ${imageId}
+    [Return]                        ${nodeId}
+
+Wait For Share Node
+    [Arguments]                     ${shareId}
+    ${nodeId}=                      Get NodeId By Icon And Id       ${shareIcon}        ${shareId}
     [Return]                        ${nodeId}
 
 # Or checking Nodes don't exist by ID (only checks what's loaded in jsTree)
