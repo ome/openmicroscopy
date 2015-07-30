@@ -19,9 +19,9 @@
 
 package ome.formats.importer.targets;
 
-import java.lang.reflect.Method;
-
 import static omero.rtypes.rstring;
+
+import java.lang.reflect.Method;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportContainer;
@@ -35,7 +35,15 @@ import omero.model.IObject;
  */
 public class ModelImportTarget implements ImportTarget {
 
+    /**
+     * omero.model class which can be used for instantiation.
+     */
     private Class<? extends IObject> type;
+
+    /**
+     * String used for querying the database; must be ome.model based.
+     */
+    private String typeName;
 
     private String prefix; 
 
@@ -44,6 +52,7 @@ public class ModelImportTarget implements ImportTarget {
     private Long id;
 
 
+    @SuppressWarnings("unchecked")
     @Override
     public void init(String target) {
         // Builder is responsible for only passing valid files.
@@ -51,6 +60,10 @@ public class ModelImportTarget implements ImportTarget {
         prefix = target.substring(0, idx);
         rest = target.substring(idx + 1);
         type = tryClass(prefix);
+        Class<?> k = omero.util.IceMap.OMEROtoOME.get(type);
+        typeName = k.getName();
+        // Reversing will take us from an abstract type to one constructible.
+        type = omero.util.IceMap.OMEtoOMERO.get(k);
     }
 
     @SuppressWarnings("unchecked")
@@ -82,8 +95,7 @@ public class ModelImportTarget implements ImportTarget {
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
         if (rest.startsWith("name:")) {
             String name = rest.substring(5);
-            IObject obj = query.findByString(type.getClass().getSimpleName(),
-                "name", name);
+            IObject obj = query.findByString(typeName, "name", name);
             if (obj == null) {
                 obj = type.newInstance();
                 Method m = type.getMethod("setName", omero.RString.class);
@@ -96,5 +108,4 @@ public class ModelImportTarget implements ImportTarget {
         }
         return query.get(type.getSimpleName(), id);
     }
-
 }

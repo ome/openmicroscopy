@@ -362,13 +362,7 @@ class TestImport(CLITest):
             pass
 
 
-    class ModelTargetSource(TargetSource):
-
-        def __init__(self, by="name"):
-            if by == "id":
-                pass
-            else:
-                raise NotImplemented(by)
+    class IdModelTargetSource(TargetSource):
 
         def get_arg(self, client, spw=False):
             update = client.sf.getUpdateService()
@@ -378,7 +372,7 @@ class TestImport(CLITest):
             else:
                 self.kls = "Dataset"
                 self.obj = omero.model.DatasetI()
-            self.obj.name = rstring("ClassTargetSource-Test")
+            self.obj.name = rstring("IdModelTargetSource-Test")
             self.obj = update.saveAndReturnObject(self.obj)
             self.oid = self.obj.id.val
             self.spw = spw
@@ -393,6 +387,39 @@ class TestImport(CLITest):
             else:
                 assert (self.oid,) == tuple(found1)
                 assert (self.oid,) == tuple(found2)
+
+
+    class NameModelTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            # For later
+            self.query = client.sf.getQueryService()
+            update = client.sf.getUpdateService()
+            if spw:
+                self.kls = "Screen"
+            else:
+                self.kls = "Dataset"
+            self.name = "NameModelTargetSource-Test"
+            self.spw = spw
+            return "%s:name:%s" % (self.kls, self.name)
+
+        def verify_containers(self, found1, found2):
+            if self.spw:
+                # Since fake files generate their own screen
+                # this is necessary.
+                for attempt in (found1, found2):
+                    found = 0
+                    for a in attempt:
+                        if self.name == \
+                                self.query.get("Screen", a).name.val:
+                            found += 1
+                    assert found
+            else:
+                for attempt in (found1, found2):
+                    assert len(attempt) == 1
+                    assert self.name == \
+                        self.query.get("Dataset", attempt[0]).name.val
+
 
     class TemplateTargetSource(TargetSource):
 
@@ -418,8 +445,8 @@ class TestImport(CLITest):
 
     SOURCES = (
         #ClassTargetSource(),
-        ModelTargetSource(by="id"),
-        #ModelTargetSource(by="name"),
+        IdModelTargetSource(),
+        NameModelTargetSource(),
         TemplateTargetSource("(?<C1>.*)"),
     )
 
