@@ -163,11 +163,23 @@ public class SaveResultsDialog
         } else {
             int[] values = WindowManager.getIDList();
             if (values != null) {
+                List<String> paths = new ArrayList<String>();
                 for (int i = 0; i < values.length; i++) {
                     plus = WindowManager.getImage(values[i]);
                     img = new FileObject(plus);
                     if (img.getOMEROID() < 0 || img.isNewImage()) {
-                        toImport.add(img);
+                        String path = img.getAbsolutePath();
+                        if (!paths.contains(path)) {
+                            paths.add(path);
+                            toImport.add(img);
+                            for (int j = 0; j < values.length; j++) {
+                                FileObject ff = new FileObject(
+                                        WindowManager.getImage(values[j]));
+                                if (path.equals(ff.getAbsolutePath())) {
+                                    img.addAssociatedFile(ff);
+                                }
+                            }
+                        }
                     } else {
                         images.add(img);
                     }
