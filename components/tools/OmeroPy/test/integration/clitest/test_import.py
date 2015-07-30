@@ -711,15 +711,11 @@ class TestImport(CLITest):
          "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake",
          "-r")]
 
+
+    @pytest.mark.broken(reason="needs omero.group setting")
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
     def testTargetInDifferentGroup(self, container, filename, arg,
                                    tmpdir, capfd):
-        """
-        The workflow this test exercises is currently broken. Until
-        it is investigated and fixed the error is trapped early and
-        an exception is raised. The test is modified to test for this
-        fail case. See ticket 12781 (and 11539).
-        """
         new_group = self.new_group(experimenters=[self.user])
         self.sf.getAdminService().getEventContext()  # Refresh
         target = eval("omero.model."+container+"I")()
@@ -734,13 +730,10 @@ class TestImport(CLITest):
         self.args += [arg, '%s' % target.id.val]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
-
-        # o, e = capfd.readouterr()
-        # obj = self.get_object(e, 'Image')
-
-        # assert obj.details.id.val == new_group.id.val
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+        assert obj.details.group.id.val == new_group.id.val
 
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
     def testUnknownTarget(self, container, filename, arg, tmpdir):
