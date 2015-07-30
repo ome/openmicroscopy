@@ -545,7 +545,7 @@
             </li>
             {% else %}
                 <li id="image_icon-{{ c.id }}" title="Object deleted">
-                    <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="Object deleted" href="{% url 'web_image_viewer' share.share.id c.id %}"/>
+                    <img id="{{ c.id }}" src="{% static 'webclient/image/image_deleted_thumbnail.png' %}" alt="image" title="Object deleted" href="{% url 'web_image_viewer' share.share.id c.id %}"/>
                 </li>
             {% endif%}
         {% endfor %}

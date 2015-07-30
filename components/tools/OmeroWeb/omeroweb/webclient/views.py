@@ -4390,7 +4390,6 @@ def chgrp(request, conn=None, **kwargs):
     Handles submission of chgrp form: all data in POST.
     Adds the callback handle to the request.session['callback']['jobId']
     """
-    print('chgrp request mode', request.method)
     # Get the target group_id
     group_id = request.REQUEST.get('group_id', None)
     if group_id is None:
