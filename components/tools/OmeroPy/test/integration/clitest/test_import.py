@@ -355,12 +355,10 @@ class TestImport(CLITest):
         def verify_containers(self, found1, found2):
             raise NotImplemented()
 
-
     class ClassTargetSource(TargetSource):
 
         def get_arg(self, client, spw=False):
             pass
-
 
     class IdModelTargetSource(TargetSource):
 
@@ -388,13 +386,11 @@ class TestImport(CLITest):
                 assert (self.oid,) == tuple(found1)
                 assert (self.oid,) == tuple(found2)
 
-
     class NameModelTargetSource(TargetSource):
 
         def get_arg(self, client, spw=False):
             # For later
             self.query = client.sf.getQueryService()
-            update = client.sf.getUpdateService()
             if spw:
                 self.kls = "Screen"
             else:
@@ -420,7 +416,6 @@ class TestImport(CLITest):
                     assert self.name == \
                         self.query.get("Dataset", attempt[0]).name.val
 
-
     class TemplateTargetSource(TargetSource):
 
         def __init__(self, template):
@@ -442,14 +437,12 @@ class TestImport(CLITest):
                 assert found2
                 assert found1 == found2
 
-
     SOURCES = (
-        #ClassTargetSource(),
         IdModelTargetSource(),
         NameModelTargetSource(),
         TemplateTargetSource("(?<C1>.*)"),
+        # ClassTargetSource(),
     )
-
 
     @pytest.mark.parametrize("spw", (True, False))
     @pytest.mark.parametrize("source", SOURCES)
@@ -737,7 +730,6 @@ class TestImport(CLITest):
         ("Screen",
          "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake",
          "-r")]
-
 
     @pytest.mark.broken(reason="needs omero.group setting")
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
