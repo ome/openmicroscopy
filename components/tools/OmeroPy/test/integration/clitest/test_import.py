@@ -418,7 +418,7 @@ class TestImport(CLITest):
 
     SOURCES = (
         #ClassTargetSource(),
-        #ModelTargetSource(by="id"),
+        ModelTargetSource(by="id"),
         #ModelTargetSource(by="name"),
         TemplateTargetSource("(?<C1>.*)"),
     )

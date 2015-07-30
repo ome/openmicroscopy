@@ -207,18 +207,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             store.setCurrentLogFile(logFilename, token);
             store.initialize(sf);
 
-            userSpecifiedTarget = settings.userSpecifiedTarget;
-            userSpecifiedName = settings.userSpecifiedName == null ? null :
-                settings.userSpecifiedName.getValue();
-            userSpecifiedDescription = settings.userSpecifiedDescription == null ? null :
-                settings.userSpecifiedDescription.getValue();
-            userPixels = settings.userSpecifiedPixels;
-            annotationList = settings.userSpecifiedAnnotationList;
-            doThumbnails = settings.doThumbnails == null ? true :
-                settings.doThumbnails.getValue();
-            noStatsInfo = settings.noStatsInfo == null ? false :
-                settings.noStatsInfo.getValue();
-
             fileName = file.getFullFsPath();
             shortName = file.getName();
             format = null;
@@ -237,6 +225,20 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
             // Process all information which has been passed in as annotations
             detectKnownAnnotations();
+
+            // Now that we've possibly updated the settings object, copy out
+            // all the values needed by import.
+            userSpecifiedTarget = settings.userSpecifiedTarget;
+            userSpecifiedName = settings.userSpecifiedName == null ? null :
+                settings.userSpecifiedName.getValue();
+            userSpecifiedDescription = settings.userSpecifiedDescription == null ? null :
+                settings.userSpecifiedDescription.getValue();
+            userPixels = settings.userSpecifiedPixels;
+            annotationList = settings.userSpecifiedAnnotationList;
+            doThumbnails = settings.doThumbnails == null ? true :
+                settings.doThumbnails.getValue();
+            noStatsInfo = settings.noStatsInfo == null ? false :
+                settings.noStatsInfo.getValue();
 
             IFormatReader baseReader = reader.getImageReader().getReader();
             if (log.isInfoEnabled())
