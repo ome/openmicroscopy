@@ -54,10 +54,14 @@ Select And Expand Node
     # Node identified by text value - needs to be visible
     Click Element   xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
 
-Select And Expand Image
-    Select First Project With Children
-    Select First Dataset With Children
+Select And Expand Project Dataset Image
+    ${projectId}=                       Select First Project With Children
+    ${datasetId}=                       Select First Dataset With Children
     ${imageId}=                         Select First Image
+    [Return]                            ${projectId}    ${datasetId}    ${imageId}
+
+Select And Expand Image
+    ${pid}    ${did}    ${imageId}      Select And Expand Project Dataset Image
     [Return]                            ${imageId}
 
 Create Project
