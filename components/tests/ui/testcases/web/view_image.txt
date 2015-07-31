@@ -14,17 +14,15 @@ Test Open Viewer
     [Documentation]     Tests double-click to open image viewer
 
     Tree Should Be Visible
-    Select And Expand Project
-    Select And Expand Dataset
-    Select And Expand Image
+    ${imageId}=                         Select And Expand Image
+    ${nodeId}=                          Wait For Image Node         ${imageId}
     ${imageName}=                       Wait For General Panel And Return Name      Image
-    ${imageId}=                         Wait For General Panel And Return Id        Image
     # Open Image Viewer 3 different ways and check
     Click Element                       xpath=//button[@title='Open full image viewer in new window']
     Check Image Viewer                  ${imageName}    2
     Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
     Check Image Viewer                  ${imageName}    3
-    Double Click Element                css=#image-${imageId}>a
+    Double Click Element                css=#${nodeId}>a
     Check Image Viewer                  ${imageName}    4
 
 

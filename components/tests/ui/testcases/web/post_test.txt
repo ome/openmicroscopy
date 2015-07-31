@@ -36,52 +36,62 @@ Test Copy Paste Dataset
     [Documentation]     Create 2 Projects and a Dataset. Copy and Paste the Dataset.
 
     Select Experimenter
-    ${p1id}=                                Create project      robot test paste1
-    ${p2id}=                                Create project      robot test paste2
+    ${p1id}=                                Create project      test copy-paste TO here
+    ${p2id}=                                Create project      test copy-paste FROM here
     ${did}=                                 Create Dataset
     Click Element                           refreshButton
-    Wait Until Page Contains Element        id=dataset-${did}
+    Select Project By Id                    ${p2id}
+    Wait Until Page Contains Element        xpath=//li[@data-id='${p2id}']//li[@data-id='${did}']
+    Select Dataset By Id                    ${did}
     Click Element                           id=copyButton
-    Click Element                           xpath=//li[@id='project-${p1id}']/a
+    Select Project By Id                    ${p1id}
     Click Element                           id=pasteButton
-    Click Element                           refreshButton
-    # Check for expected Project / Dataset hierarchy
-    Wait Until Page Contains Element        xpath=//li[@id='project-${p1id}']//li[@id='dataset-${did}']
+    # Dataset should now be in BOTH Projects
+    # Need to expand the Paste-To Project to reveal Dataset
+    Select Project By Id                    ${p1id}
+    Wait Until Page Contains Element        xpath=//li[@data-id='${p1id}']//li[@data-id='${did}']
+    Wait Until Page Contains Element        xpath=//li[@data-id='${p2id}']//li[@data-id='${did}']
 
 
 Test Cut Paste Dataset
     [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
 
     Select Experimenter
-    ${p1id}=                                Create project      robot test paste1
+    ${p1id}=                                Create project      test Cut-Paste TO here
+    ${p2id}=                                Create project      test Cut-Paste FROM here
     ${did}=                                 Create Dataset
     Click Element                           refreshButton
     # Check hierarchy
-    Wait Until Element Is Visible           xpath=//li[@rel='experimenter']/ul/li[@id='project-${p1id}']/ul/li[@id='dataset-${did}']  ${WAIT}
-    Click Element                           xpath=//li[@id='dataset-${did}']/a
+    Select Project By Id                    ${p2id}
+    Wait Until Element Is Visible           xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']     ${WAIT}
+    Select Dataset By Id                    ${did}
     # Wait until metadata panel loads
-    Wait Until Page Contains                Dataset ID:  30
-    Wait Until Page Contains Element        id=dataset-${did}
+    Wait Until Page Contains                Dataset ID:          30
     Click Element                           id=cutButton
     # POST a /move/ action - wait for Orphaned Dataset
-    Wait Until Element Is Visible           xpath=//li[@rel='experimenter']/ul/li[@id='dataset-${did}']  ${WAIT}
-    # Another /move/ to different Project
-    Click Element                           xpath=//li[@id='project-${p1id}']/a
+    Wait Until Element Is Visible           xpath=//div[@id='dataTree']/ul/li/ul/li[@data-id='${did}']  ${WAIT}
+    Wait Until Element Is Visible           xpath=//li[@id='${treeRootId}']/ul/li[@data-id='${did}']    ${WAIT}
+    Select Project By Id                    ${p1id}
     Click Element                           id=pasteButton
-    Wait Until Element Is Visible           xpath=//li[@rel='experimenter']/ul/li[@id='project-${p1id}']/ul/li[@id='dataset-${did}']  ${WAIT}
+    # Another /move/ to different Project - Dataset should NOT be in first Project
+    # Need to expand the Paste-To Project to reveal Dataset
+    Select Project By Id                    ${p1id}
+    Wait Until Element Is Visible           xpath=//li[@data-id='${p1id}']/ul/li[@data-id='${did}']     ${WAIT}
+    Page Should Not Contain Element         xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']
 
 
 Test Cut Paste Image
     [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
 
     Select Experimenter
-    ${iid}=                                 Select And Expand Image
-    Click Element                           id=cutButton
+    ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
+    Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
+    Click Element                               id=cutButton
+    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
     # Dataset should be selected, paste back
-    Wait Until Page Contains Element        xpath=//li[@rel='dataset']/a[@class='jstree-clicked']
-    ${did}=                                 Get Element Attribute   xpath=//li[a/@class='jstree-clicked']@id
-    Click Element                           id=pasteButton
-    Wait Until Page Contains Element        xpath=//li[@id='${did}']//li[@id='${iid}']
+    Dataset Should Be Selected By Id            ${datasetId}
+    Click Element                               id=pasteButton
+    Wait Until Page Contains Element            xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
 
 
 Test Chgrp
@@ -93,12 +103,11 @@ Test Chgrp
     Select Experimenter
     ${pid}=                                 Create project      robot test chgrp
     Click Element                           refreshButton
-    Wait Until Page Contains Element        id=project-${pid}
-    Open Context Menu                       xpath=//li[@id='project-${pid}']/a
-    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='chgrp']
-    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[4]/a[contains(text(), 'Move to Group')]
-    Wait Until Page Contains Element        id=group_chooser
-    Wait Until Page Contains Element        xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
+    ${nodeId}=                              Select Project By Id            ${pid}
+    Open Context Menu                       xpath=//li[@id='${nodeId}']/a
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Move to Group...')]
+    Wait Until Element Is Visible           id=group_chooser
+    Wait Until Element Is Visible           xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
     # Simply click first target group option
     Click Element                           xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
     Submit Form                             id=chgrp-form

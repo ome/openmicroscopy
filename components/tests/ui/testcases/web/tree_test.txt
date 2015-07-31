@@ -63,7 +63,7 @@ Test Container Creation Enabled
     Image Should Not Be Selected                ${imageId}
     Click Thumbnail                             ${imageId}
     Thumbnail Should Be Selected                ${imageId}
-    Image Should Be Selected                    ${imageId}
+    Image Should Be Selected By Id              ${imageId}
 
 Test Create Project Dataset
     [Documentation]     Test Creation of Project & Dataset, wait for right panel to load
