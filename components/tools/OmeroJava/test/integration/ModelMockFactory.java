@@ -20,8 +20,12 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+
 import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
+import omero.ServerError;
 import omero.api.IPixelsPrx;
 import omero.model.*;
 import omero.model.enums.UnitsLength;
@@ -98,6 +102,9 @@ public class ModelMockFactory {
     /** Helper reference to the <code>IPixels</code> service. */
     private IPixelsPrx pixelsService;
 
+    /** all {@link ExperimentType}s */
+    private ImmutableList<ExperimentType> experimentTypes;
+
     private static Frequency hz(double d) {
         return new FrequencyI(d, UNITS.HZ);
     }
@@ -114,9 +121,23 @@ public class ModelMockFactory {
      * Creates a new instance.
      *
      * @param pixelsService
+     * @throws ServerError unexpected
      */
-    ModelMockFactory(IPixelsPrx pixelsService) {
+    ModelMockFactory(IPixelsPrx pixelsService) throws ServerError {
         this.pixelsService = pixelsService;
+        getExperimentTypes();
+    }
+
+    /**
+     * Note the experiment types from the pixels service.
+     * @throws ServerError unexpected
+     */
+    public void getExperimentTypes() throws ServerError {
+        final Builder<ExperimentType> builder = ImmutableList.builder();
+        for (final IObject experimentType : pixelsService.getAllEnumerations(ExperimentType.class.getName())) {
+            builder.add((ExperimentType) experimentType);
+        }
+        experimentTypes = builder.build();
     }
 
     // POJO
@@ -200,6 +221,9 @@ public class ModelMockFactory {
         img.setName(rstring(uniqueName));
         img.setDescription(rstring(uniqueDesc));
         img.setSeries(rint(0));
+        Format f = new FormatI();
+        f.setValue(rstring("JPEG"));
+        img.setFormat(f);
         return img;
     }
 
@@ -210,6 +234,37 @@ public class ModelMockFactory {
         Fileset fs = new FilesetI();
         fs.setTemplatePrefix(omero.rtypes.rstring("fileset-" + System.nanoTime() + "/"));
         return fs;
+    }
+
+    /**
+     * Creates a default dataset and returns it.
+     *
+     * @return See above.
+     */
+    public Dataset simpleDataset() {
+        // prepare data
+        final Dataset dataset = new DatasetI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-dataset:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        dataset.setName(rstring(uniqueName));
+        dataset.setDescription(rstring(uniqueDesc));
+        return dataset;
+    }
+
+    /**
+     * Creates a default experiment and returns it.
+     *
+     * @return See above.
+     */
+    public Experiment simpleExperiment() throws ServerError {
+        // prepare data
+        final Experiment experiment = new ExperimentI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueDesc = String.format("test-exp:%s", uuidAsString);
+        experiment.setDescription(rstring(uniqueDesc));
+        experiment.setType(experimentTypes.get(0));
+        return experiment;
     }
 
     /**
@@ -479,11 +534,7 @@ public class ModelMockFactory {
         settings.setAttenuation(omero.rtypes.rdouble(1));
         MicrobeamManipulation mm = new MicrobeamManipulationI();
         mm.setType((MicrobeamManipulationType) types.get(0));
-        Experiment exp = new ExperimentI();
-        types = pixelsService
-                .getAllEnumerations(ExperimentType.class.getName());
-        exp.setType((ExperimentType) types.get(0));
-        mm.setExperiment(exp);
+        mm.setExperiment(simpleExperiment());
         // settings.setMicrobeamManipulation(mm);
         settings.setWavelength(new LengthI(500.1, UnitsFactory.LightSourceSettings_Wavelength));
         return settings;

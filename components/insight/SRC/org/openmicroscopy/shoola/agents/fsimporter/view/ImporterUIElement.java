@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.RotationIcon;
@@ -139,8 +140,8 @@ class ImporterUIElement
 	
 	/** The message to display in the header.*/
 	private static final String MESSAGE = 
-			"When upload is complete, the import\n" +
-			"window and OMERO session can be closed.\n" +
+			"When upload is complete, the import" +CommonsLangUtils.LINE_SEPARATOR+
+			"window and OMERO session can be closed." +CommonsLangUtils.LINE_SEPARATOR+
 			"Reading will continue on the server.";
 	
 	/** The object hosting information about files to import. */

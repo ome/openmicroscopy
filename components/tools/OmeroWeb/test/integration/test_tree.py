@@ -364,11 +364,9 @@ class TestTree(lib.ITest):
             'id': project_id,
             'childCount': 1L,
             'name': project_dataset.name.val,
-            'isOwned': True,
             'datasets': [{
                 'childCount': 0L,
                 'id': dataset.id.val,
-                'isOwned': True,
                 'name': dataset.name.val,
                 'permsCss': perms_css
             }],
@@ -387,7 +385,6 @@ class TestTree(lib.ITest):
         for project in sorted(projects_datasets, cmp_name_insensitive):
             expected.append({
                 'id': project.id.val,
-                'isOwned': True,
                 'name': project.name.val,
                 'childCount': 4,
                 'permsCss': perms_css
@@ -401,7 +398,6 @@ class TestTree(lib.ITest):
                 datasets.append({
                     'childCount': 0L,
                     'id': dataset.id.val,
-                    'isOwned': True,
                     'name': dataset.name.val,
                     'permsCss': perms_css
                 })
@@ -432,7 +428,6 @@ class TestTree(lib.ITest):
         for project in sorted(projects_different_users, cmp_name_insensitive):
             expected.append({
                 'id': project.id.val,
-                'isOwned': False,
                 'name': project.name.val,
                 'childCount': 0,
                 'permsCss': perms_css,
@@ -452,25 +447,21 @@ class TestTree(lib.ITest):
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': dataset_a.id.val,
-            'isOwned': True,
             'name': 'Apple',
             'childCount': 0L,
             'permsCss': perms_css
         }, {
             'id': dataset_c.id.val,
-            'isOwned': True,
             'name': 'atom',
             'childCount': 0L,
             'permsCss': perms_css
         }, {
             'id': dataset_b.id.val,
-            'isOwned': True,
             'name': 'bat',
             'childCount': 0L,
             'permsCss': perms_css
         }, {
             'id': dataset_d.id.val,
-            'isOwned': True,
             'name': 'Butter',
             'childCount': 0L,
             'permsCss': perms_css
@@ -489,7 +480,6 @@ class TestTree(lib.ITest):
         for dataset in sorted(datasets_different_users, cmp_name_insensitive):
             expected.append({
                 'id': dataset.id.val,
-                'isOwned': False,
                 'name': dataset.name.val,
                 'childCount': 0L,
                 'permsCss': perms_css,
@@ -510,17 +500,14 @@ class TestTree(lib.ITest):
         expected = [{
             'id': screen_id,
             'childCount': 1,
-            'isOwned': True,
             'name': screen_plate_run.name.val,
             'permsCss': perms_css,
             'plates': [{
                 'id': plate.id.val,
-                'isOwned': True,
                 'name': plate.name.val,
                 'plateAcquisitions': [{
                     'id': plate_acquisition.id.val,
                     'name': 'Run %d' % plate_acquisition.id.val,
-                    'isOwned': True,
                     'permsCss': perms_css
                     }],
                 'plateAcquisitionCount': 1,
@@ -539,7 +526,6 @@ class TestTree(lib.ITest):
             expected_screen = {
                 'id': screen.id.val,
                 'name': screen.name.val,
-                'isOwned': True,
                 'permsCss': perms_css,
                 'childCount': 2,
                 'plates': list()
@@ -549,7 +535,6 @@ class TestTree(lib.ITest):
                 expected_plates = expected_screen['plates']
                 expected_plates.append({
                     'id': plate.id.val,
-                    'isOwned': True,
                     'name': plate.name.val,
                     'plateAcquisitions': list(),
                     'plateAcquisitionCount': 2,
@@ -563,7 +548,6 @@ class TestTree(lib.ITest):
                     expected_plates[-1]['plateAcquisitions'].append({
                         'id': plate_acquisition.id.val,
                         'name': 'Run %d' % plate_acquisition.id.val,
-                        'isOwned': True,
                         'permsCss': perms_css
                     })
             expected.append(expected_screen)
@@ -580,12 +564,10 @@ class TestTree(lib.ITest):
             {
                 'id': screen_plate.id.val,
                 'name': screen_plate.name.val,
-                'isOwned': True,
                 'permsCss': perms_css,
                 'childCount': 1,
                 'plates': [{
                     'id': plate.id.val,
-                    'isOwned': True,
                     'name': plate.name.val,
                     'plateAcquisitions': list(),
                     'plateAcquisitionCount': 0,
@@ -603,12 +585,10 @@ class TestTree(lib.ITest):
         perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': plate_id,
-            'isOwned': True,
             'name': plate_run.name.val,
             'plateAcquisitions': [{
                 'id': plate_acquisition.id.val,
                 'name': 'Run %d' % plate_acquisition.id.val,
-                'isOwned': True,
                 'permsCss': perms_css
             }],
             'plateAcquisitionCount': 1,
@@ -627,7 +607,6 @@ class TestTree(lib.ITest):
             plate_id = plate.id.val
             expected.append({
                 'id': plate_id,
-                'isOwned': True,
                 'name': plate.name.val,
                 'plateAcquisitions': list(),
                 'plateAcquisitionCount': 2,
@@ -641,7 +620,6 @@ class TestTree(lib.ITest):
                 expected[-1]['plateAcquisitions'].append({
                     'id': plate_acquisition.id.val,
                     'name': 'Run %d' % plate_acquisition.id.val,
-                    'isOwned': True,
                     'permsCss': perms_css
                 })
 
@@ -658,7 +636,6 @@ class TestTree(lib.ITest):
         for plate in sorted(plates_different_users, cmp_name_insensitive):
             expected.append({
                 'id': plate.id.val,
-                'isOwned': False,
                 'name': plate.name.val,
                 'plateAcquisitions': list(),
                 'plateAcquisitionCount': 0,
@@ -677,7 +654,6 @@ class TestTree(lib.ITest):
         perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': plate_id,
-            'isOwned': True,
             'name': plate.name.val,
             'plateAcquisitions': list(),
             'plateAcquisitionCount': 0,
@@ -693,12 +669,10 @@ class TestTree(lib.ITest):
         perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
         expected = [{
             'id': project_id,
-            'isOwned': True,
             'name': project_dataset_image.name.val,
             'datasets': [{
                 'childCount': 1L,
                 'id': dataset.id.val,
-                'isOwned': True,
                 'name': dataset.name.val,
                 'permsCss': perms_css
             }],
@@ -715,28 +689,24 @@ class TestTree(lib.ITest):
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': project_a.id.val,
-            'isOwned': True,
             'name': 'Apple',
             'datasets': list(),
             'childCount': 0,
             'permsCss': perms_css
         }, {
             'id': project_c.id.val,
-            'isOwned': True,
             'name': 'atom',
             'datasets': list(),
             'childCount': 0,
             'permsCss': perms_css
         }, {
             'id': project_b.id.val,
-            'isOwned': True,
             'name': 'bat',
             'datasets': list(),
             'childCount': 0,
             'permsCss': perms_css
         }, {
             'id': project_d.id.val,
-            'isOwned': True,
             'name': 'Butter',
             'datasets': list(),
             'childCount': 0,
@@ -753,28 +723,24 @@ class TestTree(lib.ITest):
         # Order is important to test desired HQL sorting semantics.
         expected = [{
             'id': screen_a.id.val,
-            'isOwned': True,
             'name': 'Apple',
             'plates': list(),
             'childCount': 0,
             'permsCss': perms_css
         }, {
             'id': screen_c.id.val,
-            'isOwned': True,
             'name': 'atom',
             'plates': list(),
             'childCount': 0,
             'permsCss': perms_css
         }, {
             'id': screen_b.id.val,
-            'isOwned': True,
             'name': 'bat',
             'plates': list(),
             'childCount': 0,
             'permsCss': perms_css
         }, {
             'id': screen_d.id.val,
-            'isOwned': True,
             'name': 'Butter',
             'plates': list(),
             'childCount': 0,
@@ -793,7 +759,6 @@ class TestTree(lib.ITest):
         for screen in sorted(screens_plates, cmp_name_insensitive):
             expected.append({
                 'id': screen.id.val,
-                'isOwned': True,
                 'name': screen.name.val,
                 'childCount': 4,
                 'permsCss': perms_css
@@ -806,7 +771,6 @@ class TestTree(lib.ITest):
             for plate in source:
                 plates.append({
                     'id': plate.id.val,
-                    'isOwned': True,
                     'name': plate.name.val,
                     'permsCss': perms_css,
                     'plateAcquisitions': list(),
@@ -827,7 +791,6 @@ class TestTree(lib.ITest):
         for screen in sorted(screens_different_users, cmp_name_insensitive):
             expected.append({
                 'id': screen.id.val,
-                'isOwned': False,
                 'name': screen.name.val,
                 'childCount': 0,
                 'permsCss': perms_css,

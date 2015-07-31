@@ -51,7 +51,8 @@ class LoginForm(NonASCIIForm):
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
 
     username = forms.CharField(
-        max_length=50, widget=forms.TextInput(attrs={'size': 22}))
+        max_length=50, widget=forms.TextInput(attrs={
+            'size': 22, 'autofocus': 'autofocus'}))
     password = forms.CharField(
         max_length=50,
         widget=forms.PasswordInput(attrs={'size': 22, 'autocomplete': 'off'}))
@@ -62,6 +63,11 @@ class LoginForm(NonASCIIForm):
         ' checking the box, but it will slow down the data access. Turning'
         ' it off does not affect the connection to the server which is always'
         ' secure." alt="SSL"/>' % settings.STATIC_URL)
+
+    def clean_username(self):
+        if (self.cleaned_data['username'] in ('guest')):
+            raise forms.ValidationError("Guest account is not supported.")
+        return self.cleaned_data['username']
 
 
 class ForgottonPasswordForm(NonASCIIForm):

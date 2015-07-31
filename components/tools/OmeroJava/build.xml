@@ -26,7 +26,6 @@
     <property name="integration.suite" value="integration.testng.xml"/>
 
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <defineVariables/>

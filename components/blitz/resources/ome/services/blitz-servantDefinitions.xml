@@ -65,6 +65,7 @@
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="scriptRepoHelper"/>
             <constructor-arg ref="checksumProviderFactory"/>
+            <constructor-arg ref="paramsCache"/>
         </bean>
     </constructor-arg>
   </bean>
@@ -118,6 +119,7 @@
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="TopicManager"/>
             <constructor-arg ref="Registry"/>
+            <constructor-arg ref="paramsCache"/>
             <constructor-arg ref="scriptRepoHelper"/>
             <constructor-arg value="${omero.grid.registry_timeout}"/>
             <constructor-arg value="${omero.scripts.timeout}"/>
@@ -355,9 +357,18 @@
 
   <bean id="graphRequestFactory" class="omero.cmd.graphs.GraphRequestFactory">
       <constructor-arg ref="aclVoter"/>
+      <constructor-arg ref="roles"/>
       <constructor-arg ref="systemTypes"/>
       <constructor-arg ref="graphPathBean"/>
       <constructor-arg ref="ome.services.delete.Deletion"/>
+      <constructor-arg>
+        <map>
+          <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpTargets"/>
+          <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodTargets"/>
+          <entry key="omero.cmd.graphs.Chown2I" value-ref="chownTargets"/>
+          <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteTargets"/>
+        </map>
+      </constructor-arg>
       <constructor-arg>
         <map>
           <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpRules"/>
@@ -367,10 +378,7 @@
         </map>
       </constructor-arg>
       <constructor-arg>
-        <list>
-          <value>Image.fileset</value>
-          <value>Image.instrument</value>
-        </list>
+        <list/>  <!-- unnullable not presently required -->
       </constructor-arg>
       <constructor-arg>
         <set>

@@ -1599,6 +1599,9 @@ public class PropertiesUI
 			List<ChannelData> channels = (List<ChannelData>) evt.getNewValue();
 			model.fireChannelSaving(channels, true);
 			cancelChannelsEdit();
+		} else if (OMEWikiComponent.TEXT_UPDATE_PROPERTY.equals(name)) {
+		    firePropertyChange(EditorControl.SAVE_PROPERTY,
+                    Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
 	

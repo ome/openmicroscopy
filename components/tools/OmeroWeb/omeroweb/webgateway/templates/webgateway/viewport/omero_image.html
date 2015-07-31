@@ -373,6 +373,26 @@
 
       // Show postit. Table will be built on callback from loading
       $("#roi_table_postit").show();
+      // Check all ROI visibility buttons
+      $('#toggle_roi_visibility').prop("checked", true);
+      $('[class^="shape_visibility"]').each(function(index, checkbox) {
+        checkbox.checked = true;
+      });
+      // if roi_table_postit is closed using close button, hide ROIs
+      $(".postit-close-btn").on("click", function() {hide_rois(); return false;});
+
+      var $show_rois_a = $("#show-rois-a");
+      // Disable the "Show ROIs" button ...
+      if ($show_rois_a.attr("onclick") != undefined)
+        $show_rois_a.removeAttr("onclick");
+      else
+        $show_rois_a.off("click");
+      $show_rois_a.removeAttr("href");
+      $show_rois_a.css("color", "gray");
+      // ... and enable the "Hide ROIs" button
+      $("#hide-rois-a").on("click", function(){hide_rois(); return false;})
+              .attr("href", "#")
+              .css("color", "");
 
       // loads ROIs (if needed) and shows.
       viewport.viewportimg.get(0).show_rois(theZ, theT, filter);
@@ -384,7 +404,18 @@
       if (viewport.viewportimg.get(0).hide_rois) {
           viewport.viewportimg.get(0).hide_rois();
       }
+
+      // Disable the "Hide ROIs" button ...
+      $("#hide-rois-a").off("click")
+              .removeAttr("href")
+              .css("color", "gray");
+      // ... and enable the "Show ROIs" button
+      $("#show-rois-a").on("click", function () { show_rois(); return false; })
+              .attr("href", "#")
+              .css("color", "");
+
       $("#roi_table_postit").hide();
+      $(".postit-close-btn").off("click");
   }
 
   var NOZT = "";
@@ -778,11 +809,11 @@
 
           <li class="seperator"></li>
 
-          <li><button class="copy_rdef button" title="Copy Rendering Settings">
+          <li><button id="rdef-copy-btn" class="button" title="Copy Rendering Settings">
             <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
             Copy
           </button></li>
-          <li><button class="paste_rdef button button-disabled"
+          <li><button id="rdef-paste-btn" class="button button-disabled"
              title="Paste Rendering Settings" disabled="disabled">
             <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
             Paste
@@ -893,11 +924,11 @@
 	    {% endif %}-->{% endcomment %}
             <br />
             <label>Rendering Settings</label><br />
-            <button class="btn silver btn_text copy_rdef" title="Copy Rendering Settings">
+            <button id="rdef-copy-btn" class="btn silver btn_text" title="Copy Rendering Settings">
                 <span>Copy</span>
             </button>
 
-            <button class="btn silver btn_text paste_rdef" title="Paste Rendering Settings">
+            <button id="rdef-paste-btn" class="btn silver btn_text" title="Paste Rendering Settings">
                 <span>Paste</span>
             </button>
           </div>
@@ -933,8 +964,8 @@
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
                 {% ifnotequal roiCount 0 %}
-                    <a href="#" onclick="show_rois(); return false;">Show ROIs</a> |
-                    <a href="#" onclick="hide_rois(); return false;">Hide</a>
+                    <a id="show-rois-a" href="#" onclick="show_rois(); return false;">Show ROIs</a> |
+                    <a id="hide-rois-a" style="color:gray">Hide</a>
                 {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
@@ -1017,11 +1048,11 @@
               if (channels.length != viewport.getChannels().length ||
                 data.rdef.pixel_range != viewport.loadedImg.pixel_range.join(":")) {
                   // images are not compatible
-                  $("button.paste_rdef")
+                  $("#rdef-paste-btn")
                     .attr('title', 'Copied settings are not compatible with this image');
                   return;
                 }
-                $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
+                $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
             }
         }
       );
@@ -1140,12 +1171,11 @@
     });
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    $(".copy_rdef").click(function() {
+    $("#rdef-copy-btn").click(function() {
         copyRdefs(viewport);
-        $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
     });
 
-    $(".paste_rdef").click(function() {
+    $("#rdef-paste-btn").click(function() {
         pasteRdefs(viewport);
     });
 

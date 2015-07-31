@@ -10,6 +10,7 @@
 """
 
 import os
+import time
 import pytest
 import library as lib
 import omero
@@ -19,7 +20,7 @@ import omero.processor
 import omero.scripts
 import omero.cli
 
-from omero.rtypes import rstring, wrap
+from omero.rtypes import rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
 PUBLIC = omero.model.PermissionsI("rwrwrw")
@@ -520,3 +521,133 @@ client.closeSession()
             assert gid == results["gid"].val
         finally:
             impl.cleanup()
+
+    def testDynamicTime(self):
+        DYNAMIC = """if True:
+        import omero.all  # For constants
+        import omero.constants.namespaces as OCN
+        import omero.grid as OG
+        import omero.scripts as OS
+        job = OG.JobParams(name="testDynamic",
+                           namespaces=[OCN.NSDYNAMIC])
+        c = OS.client(job)
+        """
+        CACHED = """if True:
+        import omero.scripts as OS
+        c = OS.client("testDynamic")
+        """
+        svc = self.root.sf.getScriptService()
+        dynamicID = svc.uploadOfficialScript(
+            "/test/dynamic/dyn%s.py" % self.uuid(), DYNAMIC)
+        cachedID = svc.uploadOfficialScript(
+            "/test/dynamic/cached%s.py" % self.uuid(), CACHED)
+        # Prep each of the params
+        svc.getParams(dynamicID)
+        svc.getParams(cachedID)
+
+        dynamic_times = []
+        cached_times = []
+
+        for x in range(3):
+            d_start = time.time()
+            svc.getParams(dynamicID)
+            d_stop = time.time()
+
+            c_start = time.time()
+            svc.getParams(cachedID)
+            c_stop = time.time()
+
+            dynamic_times.append(d_stop-d_start)
+            cached_times.append(c_stop-c_start)
+
+        d_time = min(dynamic_times)
+        c_time = min(cached_times)
+        assert d_time > 10 * c_time
+
+    def testDynamicUpdate(self):
+        SCRIPT = """#!/usr/bin/env python
+
+import omero
+import omero.gateway
+from omero import scripts
+from omero.rtypes import rstring, unwrap
+from datetime import datetime
+
+
+def get_params():
+    try:
+        client = omero.client()
+        client.createSession()
+        conn = omero.gateway.BlitzGateway(client_obj=client)
+        conn.SERVICE_OPTS.setOmeroGroup(-1)
+        objparams = [rstring(d.getName()) for d in conn.getObjects('Dataset')]
+        if not objparams:
+            objparams = [rstring('<No objects found>')]
+        return objparams
+    except Exception as e:
+        return ['Exception: %s' % e]
+    finally:
+        client.closeSession()
+
+
+def runScript():
+    "The main entry point of the script"
+
+    objparams = get_params()
+
+    client = scripts.client(
+        'Dynamic_Test.py',
+        'Test dynamic parameters',
+
+        scripts.String(
+            'Object', optional=False, grouping='1',
+            description='Select an object',
+            values=objparams),
+
+        namespaces=[omero.constants.namespaces.NSDYNAMIC],
+    )
+
+    paramsTime = datetime.now()
+
+    try:
+        scriptParams = client.getInputs(unwrap=True)
+        message = 'Params: %s\\n' % scriptParams
+        client.setOutput('Message', rstring(str(message)))
+
+    finally:
+        client.closeSession()
+
+if __name__ == '__main__':
+    runScript()"""
+        uuid1 = self.uuid()
+        uuid2 = self.uuid()
+        svc = self.client.sf.getScriptService()
+        rsvc = self.root.sf.getScriptService()
+        script = rsvc.uploadOfficialScript(
+            "/test/dynamic/dyn%s.py" % self.uuid(), SCRIPT)
+        update = self.client.sf.getUpdateService()
+
+        def contains_uuids(u1, u2):
+            params = svc.getParams(script)
+            datasets = unwrap(params.inputs["Object"].values)
+            assert u1 == (uuid1 in datasets)
+            assert u2 == (uuid2 in datasets)
+
+        def run_with_param(param):
+            process = svc.runScript(script, {'Object': wrap(param)}, None)
+            cb = omero.scripts.ProcessCallbackI(self.client, process)
+            while cb.block(500) is None:
+                pass
+            cb.close()
+
+        contains_uuids(False, False)
+        with pytest.raises(omero.ValidationException):
+            run_with_param(uuid1)
+
+        update.saveObject(self.new_dataset(name=uuid1))
+        contains_uuids(True, False)
+        run_with_param(uuid1)
+
+        update.saveObject(self.new_dataset(name=uuid2))
+        contains_uuids(True, True)
+        run_with_param(uuid2)

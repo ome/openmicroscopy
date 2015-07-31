@@ -15,6 +15,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,8 @@ import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
+import omero.RLong;
+import omero.RType;
 import omero.ServerError;
 import omero.rtypes;
 import omero.api.IAdminPrx;
@@ -128,13 +131,13 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.lang.StringUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
-import spec.AbstractTest;
 
 /**
  * Base test for integration tests.
@@ -162,7 +165,7 @@ public class AbstractServerTest extends AbstractTest {
     public String GUEST_GROUP = "guest";
 
     /** Scaling factor used for CmdCallbackI loop timings. */
-    protected long scalingFactor = 500;
+    protected long scalingFactor;
 
     /** The client object, this is the entry point to the Server. */
     protected omero.client client;
@@ -246,6 +249,16 @@ public class AbstractServerTest extends AbstractTest {
         root = newRootOmeroClient();
         tmp.__del__();
 
+        scalingFactor = 500;
+        final String timeoutString = System.getProperty("omero.test.timeout");
+        if (StringUtils.isNotBlank(timeoutString)) {
+            try {
+                scalingFactor = Long.valueOf(timeoutString);
+            } catch (NumberFormatException e) {
+                log.warn("Problem setting 'omero.test.timeout' to: {}. " +
+                         "Defaulting to {}.", timeoutString, scalingFactor);
+            }
+        }
         final EventContext ctx = newUserAndGroup("rw----");
         this.userFsDir = ctx.userName + "_" + ctx.userId + FsFile.separatorChar;
         SimpleBackOff backOff = new SimpleBackOff();
@@ -924,6 +937,23 @@ public class AbstractServerTest extends AbstractTest {
         }
     }
 
+    protected void assertAllExist(Iterable<? extends IObject> obj) throws Exception {
+        for (IObject iObject : obj) {
+            assertExists(iObject);
+        }
+    }
+
+    protected void assertExists(String className, Long id) throws ServerError {
+        assertAllExist(className, Collections.singletonList(id));
+    }
+
+    protected void assertAllExist(String className, Collection<Long> ids) throws ServerError {
+        final String hql = "SELECT COUNT(*) FROM " + className + " WHERE id IN (:ids)";
+        final List<List<RType>> results = iQuery.projection(hql, new ParametersI().addIds(ids));
+        final long count = ((RLong) results.get(0).get(0)).getValue();
+        Assert.assertEquals(count, ids.size());
+    }
+
     /**
      * Makes sure that the passed object does not exist.
      *
@@ -945,6 +975,23 @@ public class AbstractServerTest extends AbstractTest {
         for (IObject iObject : obj) {
             assertDoesNotExist(iObject);
         }
+    }
+
+    protected void assertNoneExist(Iterable<? extends IObject> obj) throws Exception {
+        for (IObject iObject : obj) {
+            assertDoesNotExist(iObject);
+        }
+    }
+
+    protected void assertDoesNotExist(String className, Long id) throws ServerError {
+        assertNoneExist(className, Collections.singletonList(id));
+    }
+
+    protected void assertNoneExist(String className, Collection<Long> ids) throws ServerError {
+        final String hql = "SELECT COUNT(*) FROM " + className + " WHERE id IN (:ids)";
+        final List<List<RType>> results = iQuery.projection(hql, new ParametersI().addIds(ids));
+        final long count = ((RLong) results.get(0).get(0)).getValue();
+        Assert.assertEquals(count, 0);
     }
 
     /**

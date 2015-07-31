@@ -28,8 +28,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
+
+import omero.model.Length;
+import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /**
@@ -49,7 +55,13 @@ public class MeasurementTableModel extends AbstractTableModel
     
     /** Collection of <code>Object</code>s hosted by this model. */
     private List<MeasurementObject> values;
-    
+
+    /** Flag indicating to display the units.*/
+    private boolean showUnits;
+
+    /** Keep track of the columns to show the units for.*/
+    private List<Boolean> unitsDisplay;
+
     /**
      * Creates a new instance.
      * 
@@ -66,7 +78,15 @@ public class MeasurementTableModel extends AbstractTableModel
         this.columnNames = colNames;
         this.values = new ArrayList<MeasurementObject>();
         this.unitsType = units;
+        unitsDisplay = new ArrayList<Boolean>();
     }
+
+    /**
+     * Sets the flag indicating to show the units.
+     *
+     * @param showUnits See above.
+     */
+    void setShowUnits(boolean showUnits) { this.showUnits = showUnits; }
 
     public List<KeyDescription> getColumnNames() { return  columnNames; }
 
@@ -111,7 +131,7 @@ public class MeasurementTableModel extends AbstractTableModel
         if (row < 0 || row > values.size()) return null;
         MeasurementObject rowData = values.get(row);
         Object value = rowData.getElement(col);
-        if (value instanceof List) {
+        if (value instanceof List && !showUnits) {
             List<Object> l = (List<Object>) value;
             
             if (l.size() == 1) 
@@ -134,18 +154,82 @@ public class MeasurementTableModel extends AbstractTableModel
             }
             return buffer.toString();
         }
-        return rowData.getElement(col);
+        if (showUnits) {
+            if (value instanceof Length) {
+                Length n = (Length) value;
+                return convertLength(n, col);
+            } else if (value instanceof List) {
+                List l = (List) value;
+                Iterator<Object> i = l.iterator();
+                Object v;
+                StringBuilder buffer = new StringBuilder();
+                int size = l.size();
+                Object s;
+                while (i.hasNext()) {
+                    v = i.next();
+                    if (v instanceof Length) {
+                        Length n = (Length) v;
+                        s = convertLength(n, col);
+                        if (size == 1) return s;
+                        if (s != null) {
+                            buffer.append(s);
+                            buffer.append(" ");
+                        }
+                    } else if (v instanceof Number) {
+                        double d = ((Number) v).doubleValue();
+                        if (size == 1) {
+                            return UIUtilities.twoDecimalPlacesAsNumber(d);
+                        }
+                        s = UIUtilities.twoDecimalPlaces(d);
+                        if (s != null) {
+                            buffer.append(s);
+                            buffer.append(" ");
+                        }
+                    }
+                }
+                return buffer.toString();
+            } else if (value instanceof Number) {
+                double d = ((Number) value).doubleValue();
+                return UIUtilities.twoDecimalPlacesAsNumber(d);
+            }
+        }
+        return value;
     }
-    
+
+    /**
+     * Converts the length object either as a string or a numerical value.
+     *
+     * @param n The value to convert.
+     * @param col The column hosting the value.
+     * @return See above
+     */
+    private Object convertLength(Length n, int col) {
+        KeyDescription key = getColumnNames().get(col);
+        MeasurementUnits units = getUnitsType();
+        String k = key.getKey();
+        String s = null;
+        if (!units.getUnit().equals(UnitsLength.PIXEL)) {
+            if (unitsDisplay.size() > col && unitsDisplay.get(col)) {
+                s = UIUtilities.formatValue(n,
+                        AnnotationKeys.AREA.getKey().equals(k));
+            } else {
+                return UIUtilities.formatValueNoUnitAsNumber(n,
+                        AnnotationKeys.AREA.getKey().equals(k));
+            }
+            if (CommonsLangUtils.isNotBlank(s))
+               return s;
+        }
+        Number value = UIUtilities.twoDecimalPlacesAsNumber(n.getValue());
+        if (value.doubleValue() == 0) return null;
+        return value;
+    }
+
     /**
      * Sets the specified value.
      * @see AbstractTableModel#setValueAt(Object, int, int)
      */
-    public void setValueAt(Object value, int row, int col) 
-    {
+    public void setValueAt(Object value, int row, int col) {}
 
-    }
-    
     /**
      * Overridden to return the name of the specified column.
      * @see AbstractTableModel#getColumnName(int)
@@ -176,5 +260,68 @@ public class MeasurementTableModel extends AbstractTableModel
     public boolean isCellEditable(int row, int col) 
     { 
         return false;
+    }
+
+    /**
+     * Creates a copy of the model.
+     *
+     * @return See above.
+     */
+    MeasurementTableModel copy()
+    {
+        //check column name
+        KeyDescription key;
+        List<KeyDescription> list = new ArrayList<KeyDescription>(
+                this.columnNames.size());
+        Iterator<KeyDescription> kk = this.columnNames.iterator();
+        while (kk.hasNext()) {
+            key = kk.next();
+            list.add(new KeyDescription(key.getKey(), key.getDescription()));
+        }
+        MeasurementTableModel model = new MeasurementTableModel(
+                list, this.unitsType);
+        model.values.addAll(this.values);
+        //Add the units to the column names.
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            List<String> symbols = new ArrayList<String>();
+            key = model.getColumnNames().get(i);
+            String k = key.getKey();
+            for (int j = 0; j < getRowCount(); j++) {
+                Object v = getValueAt(j, i);
+                if (v instanceof Length) {
+                    Length l = (Length) v;
+                    if (AnnotationKeys.AREA.getKey().equals(k)) {
+                        l = UIUtilities.transformSquareSize(l);
+                    } else {
+                        l = UIUtilities.transformSize(l);
+                    }
+                    
+                    String s = l.getSymbol();
+                    if (!symbols.contains(s) &&
+                            !l.getUnit().equals(UnitsLength.PIXEL)) {
+                        symbols.add(s);
+                    }
+                } else if (v instanceof Number) {
+                    if (k.equals(AnnotationKeys.ANGLE.getKey())) {
+                        String s = UIUtilities.DEGREE_SYMBOL;
+                        if (!symbols.contains(s)) {
+                            symbols.add(s);
+                        }
+                    }
+                }
+            }
+            if (symbols.size() == 1) {
+                String value = key.getDescription()+" ("+symbols.get(0);
+                if (AnnotationKeys.AREA.getKey().equals(k)) {
+                    value += UIUtilities.SQUARED_SYMBOL;
+                }
+                value += ")";
+                key.setDescription(value);
+                model.unitsDisplay.add(false);
+            } else {
+                model.unitsDisplay.add(true);
+            }
+        }
+        return model;
     }
 }

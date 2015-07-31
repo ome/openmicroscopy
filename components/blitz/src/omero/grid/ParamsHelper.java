@@ -21,9 +21,9 @@ import omero.model.OriginalFileI;
 import omero.model.ParseJob;
 import omero.model.ParseJobI;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -54,6 +54,10 @@ public class ParamsHelper {
         this.secSys = // FIXME REFACTOR
             (SecuritySystem) ex.getContext().getBean("securitySystem");
     }
+
+    //
+    // HELPER
+    //
 
     /**
      * Build a job for the script with id.
@@ -128,6 +132,16 @@ public class ParamsHelper {
 
     JobParams generateScriptParams(long id, Ice.Current __current)
             throws ServerError {
+       return generateScriptParams(id, true, __current);
+    }
+
+    /**
+     * Acquires an {@link InteractiveProcessorPrx} and runs a {@link ParseJob}.
+     * If the "save" argument is true, then the {@link JobParams} instance will
+     * be saved to the database; otherwise, the {@link ParseJob} will be deleted.
+     */
+    public JobParams generateScriptParams(long id, boolean save, Ice.Current __current)
+            throws ServerError {
 
         ParseJob job = buildParseJob(id);
         InteractiveProcessorPrx proc = acq.acquireProcessor(job, 10, __current);
@@ -137,8 +151,12 @@ public class ParamsHelper {
 
         job = (ParseJob) proc.getJob(__current.ctx);
         final JobParams rv = proc.params(__current.ctx);
-        // Guaranteed non-null for a parse job
-        saveScriptParams(rv, job, __current);
+        if (save) {
+            // Guaranteed non-null for a parse job
+            saveScriptParams(rv, job, __current);
+        } else {
+            deleteScriptParams(job, __current);
+        }
         return rv;
     }
 
@@ -155,6 +173,24 @@ public class ParamsHelper {
                 parseJob.setParams(data);
                 secSys.runAsAdmin(new AdminAction(){
                     public void runAsAdmin() {
+                        session.flush();
+                    }});
+                return null;
+            }
+        });
+    }
+
+    void deleteScriptParams(final ParseJob job, Ice.Current __current)
+            throws ServerError {
+
+        ex.execute(__current.ctx, p, new Executor.SimpleWork(this, "deleteScriptParams", job.getId().getValue()) {
+            @Transactional(readOnly = false)
+            public Object doWork(final Session session, final ServiceFactory sf) {
+                final ome.model.jobs.ParseJob parseJob = sf.getQueryService().get(
+                        ome.model.jobs.ParseJob.class, job.getId().getValue());
+                secSys.runAsAdmin(new AdminAction(){
+                    public void runAsAdmin() {
+                        session.delete(parseJob);
                         session.flush();
                     }});
                 return null;

@@ -22,8 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-
-//Java imports
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
@@ -43,13 +42,11 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -90,9 +87,9 @@ public class DeleteBox
 			"deleted only if you own them and if they are not used by others.";
 		
 	/** Text display if the user is a group owner. */
-	private static final String		WARNING_GROUP_OWNER = "Some data " +
-			"might be used by other users,\nthey will no longer be able to " +
-			"use or see them.";
+	private static final String		WARNING_GROUP_OWNER = "<html>Some data " +
+			"might be used by other users<br/>"+
+			"they will no longer be able to use or see them.</html>";
 	
     /**
      * Text display if other user's data is going to be deleted 
@@ -202,19 +199,10 @@ public class DeleteBox
 	private void layoutComponents(boolean groupLeader)
 	{
 		Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
-		TableLayout layout = new TableLayout();
-		double[] columns = {130, TableLayout.PREFERRED};
-		layout.setColumn(columns);
-		//typesPane.setLayout(layout);
 		typesPane.setLayout(new BoxLayout(typesPane, BoxLayout.Y_AXIS));
 		typesPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-		int index = 0;
 		while (i.hasNext()) {
-			layout.insertRow(index, TableLayout.PREFERRED);
-			//typesPane.add(Box.createHorizontalStrut(5), "0, "+index);
-			//typesPane.add(i.next(), "1, "+index);
 			typesPane.add(i.next());
-			index++;
 		}
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -243,6 +231,7 @@ public class DeleteBox
 					Font.BOLD);
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			body.add(UIUtilities.buildComponentPanel(label));
+			body.add(Box.createVerticalStrut(5));
 		} else body = p;
 		if (add)
 			addBodyComponent(UIUtilities.buildComponentPanel(body));

@@ -38,6 +38,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.PrintWriter;
@@ -54,6 +56,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -83,12 +86,15 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -930,8 +936,8 @@ public class UIUtilities
 	}
 	
     /**
-     * Displays the specified string into a {@link JLabel} and sets 
-     * the font to <code>bold</code>.
+     * Displays the specified string into a {@link JLabel} and sets
+     * the font style to <code>bold</code>.
      * 
      * @param s The string to display.
      * @return See above.
@@ -940,32 +946,78 @@ public class UIUtilities
     {
     	return UIUtilities.setTextFont(s, Font.BOLD);
     }
-    
+
     /**
-     * Displays the specified string into a {@link JLabel} and sets 
-     * the font to <code>bold</code>.
-     * 
-     * @param s 		The string to display.
+     * Displays the specified string into a {@link JXLabel} and sets 
+     * the font style to <code>bold</code>.
+     *
+     * @param s The string to display.
+     * @return See above.
+     */
+    public static JLabel setTextFontX(String s)
+    {
+        return UIUtilities.setTextFontX(s, Font.BOLD);
+    }
+
+    /**
+     * Displays the specified string into a {@link JLabel}.
+     *
+     * @param s The string to display.
      * @param fontStyle The style of the font.
      * @return See above.
      */
     public static JLabel setTextFont(String s, int fontStyle)
     {
-    	if (s == null) s = "";
+        if (s == null) s = "";
         JLabel label = new JLabel(s);
         Font font = label.getFont();
         Font newFont = font.deriveFont(fontStyle);
         label.setFont(newFont);
         return label;
     }
-    
+
     /**
-     * Displays the specified string into a {@link JLabel} and sets 
-     * the font to <code>bold</code>.
-     * 
-     * @param s 		The string to display.
+     * Displays the specified string into a {@link JXLabel}.
+     *
+     * @param s The string to display.
+     * @param fontStyle The style of the font.
+     * @return See above.
+     */
+    public static JLabel setTextFontX(String s, int fontStyle)
+    {
+        if (s == null) s = "";
+        JXLabel label = new JXLabel(s);
+        label.setLineWrap(true);
+        Font font = label.getFont();
+        Font newFont = font.deriveFont(fontStyle);
+        label.setFont(newFont);
+        return label;
+    }
+
+    /**
+     * Displays the specified string into a {@link JXLabel}.
+     *
+     * @param s The string to display.
      * @param fontStyle The style of font.
-     * @param fontSize	The size of the font.
+     * @param fontSize The size of the font.
+     * @return See above.
+     */
+    public static JLabel setTextFontX(String s, int fontStyle, int fontSize)
+    {
+        if (s == null) s = "";
+        JXLabel label = new JXLabel(s);
+        label.setLineWrap(true);
+        Font font = label.getFont();
+        label.setFont(font.deriveFont(fontStyle, fontSize));
+        return label;
+    }
+
+    /**
+     * Displays the specified string into a {@link JLabel}.
+     * 
+     * @param s The string to display.
+     * @param fontStyle The style of font.
+     * @param fontSize The size of the font.
      * @return See above.
      */
     public static JLabel setTextFont(String s, int fontStyle, int fontSize)
@@ -976,7 +1028,7 @@ public class UIUtilities
         label.setFont(font.deriveFont(fontStyle, fontSize));
         return label;
     }
-    
+
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
      * with a left flow layout.
@@ -1225,7 +1277,24 @@ public class UIUtilities
     	if (value.equals("0")) return null;
     	return value; 
 	}
-    
+
+    /**
+     * Formats a double to two decimal places and returns as a number.
+     *
+     * @param val The number to be formatted.
+     * @return See above.
+     */
+    public static Number twoDecimalPlacesAsNumber(double val)
+    {
+        double v = val;
+        Number value;
+        double c = v;
+        if (v < 0) return null;
+        if ((c-Math.floor(c)) > 0) value = Math.round(c*100)/100f;
+        else value = (int) c;
+        return value; 
+    }
+
     /**
      * Formats the text and displays it in a {@link JTextPane}.
      * 
@@ -1896,7 +1965,7 @@ public class UIUtilities
 	public static JXTaskPane createTaskPane(String title, Color background)
 	{
 		JXTaskPane taskPane = new JXTaskPane();
-		if (isLinuxOS()) taskPane.setAnimated(false);
+		taskPane.setAnimated(false);
 		
 		Container c = taskPane.getContentPane();
 		if (background != null) {
@@ -2658,6 +2727,47 @@ public class UIUtilities
 		
 		return v;
 	}
+
+	/**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached and
+     * if squared flag is set, also attaches the square symbol.
+     * @param value The value to format
+     * @param squared Pass <code>true</code> to attach the square symbol
+     * @return See above. 
+     */
+    public static String formatValueNoUnit(Length value, boolean squared) {
+        Length converted = squared ? transformSquareSize(value) :
+            transformSize(value);
+        String v;
+        if (value.getUnit().equals(UnitsLength.PIXEL))
+            v = value.getValue() == 0 ? null : ""+((int) value.getValue());
+        else
+            v = UIUtilities.twoDecimalPlaces(converted.getValue());
+        
+        if (v == null)
+            return "";
+        return v;
+    }
+
+    /**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached and
+     * if squared flag is set, also attaches the square symbol.
+     * @param value The value to format
+     * @param squared Pass <code>true</code> to attach the square symbol
+     * @return See above. 
+     */
+    public static Number formatValueNoUnitAsNumber(Length value, boolean squared) {
+        Length converted = squared ? transformSquareSize(value) :
+            transformSize(value);
+        if (value.getUnit().equals(UnitsLength.PIXEL)) {
+            return value.getValue() == 0 ? null : value.getValue();
+        }
+        Number n = UIUtilities.twoDecimalPlacesAsNumber(converted.getValue());
+        if (n.doubleValue() == 0) return null;
+        return n;
+    }
     
 	/**
      * Formats the passed value in seconds.
@@ -2798,5 +2908,17 @@ public class UIUtilities
             return findParent(parent, c);
         }
         return null;
+    }
+
+    /**
+     * Copies the passed value to the System clipboard
+     * @param value
+     */
+    public static void copyToClipboard(String value)
+    {
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Clipboard clipboard = toolkit.getSystemClipboard();
+        StringSelection strSel = new StringSelection(value);
+        clipboard.setContents(strSel, null);
     }
 }

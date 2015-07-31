@@ -24,7 +24,7 @@
 {% if manager.containers.orphaned %}
     {% if manager.containers.images %}
     {% for d in manager.containers.images %}
-        <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}" data-fileset="{{ d.fileset.id.val }}">
+        <li id='image-{{ d.id }}' rel="image" class="{{ d.getPermsCss }}" data-fileset="{{ d.fileset.id.val }}">
           <a href="#" data-name="{{ d.name|escape }}" >
             {{ d.name|default:"Image"|escape }}
           </a>
@@ -34,7 +34,7 @@
 {% else %}
     {% if manager.containers.images %}
     {% for d in manager.containers.images %}
-        <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}" data-fileset="{{ d.fileset.id.val }}" {% if share and not share.share.isOwned %}data-share="{{ share.obj_id }}"{% endif %}>
+        <li id='image-{{ d.id }}' rel="image" class="{{ d.getPermsCss }}" data-fileset="{{ d.fileset.id.val }}" {% if share and not share.share.isOwned %}data-share="{{ share.obj_id }}"{% endif %}>
           {% if d.loaded %}
               <a href="#" data-name="{{ d.name|escape }}" >
                 {{ d.name|default:"Image"|escape }}
@@ -48,7 +48,7 @@
 {% if manager.plate %}
     {% if manager.plate.countPlateAcquisitions %}
         {% for e in manager.plate.listPlateAcquisitions %}
-            <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.getPermsCss }}">
+            <li id='acquisition-{{ e.id }}' rel="acquisition" class="{{ e.getPermsCss }}">
                 <a href="#">{{ e.name|default:"Run"|escape|truncatebefor:"35" }}</a>
             </li>
         {% endfor %}

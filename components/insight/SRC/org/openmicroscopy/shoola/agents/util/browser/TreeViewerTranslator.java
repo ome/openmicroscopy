@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerTranslator
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -244,6 +244,7 @@ public class TreeViewerTranslator
             DataObject tmp;
             ProjectData p;
             ScreenData screen;
+            PlateData plate;
             while (i.hasNext()) {
                 tmp = (DataObject) i.next();
                 if (EditorUtil.isReadable(tmp)) {
@@ -260,6 +261,11 @@ public class TreeViewerTranslator
                         screen = (ScreenData) tmp;
                         tag.addChildDisplay(
                                 transformScreen(screen, screen.getPlates()));
+                    }
+                    else if (tmp instanceof PlateData) {
+                        plate = (PlateData) tmp;
+                        tag.addChildDisplay(
+                                transformPlate(plate, null));
                     }
                 }
             }

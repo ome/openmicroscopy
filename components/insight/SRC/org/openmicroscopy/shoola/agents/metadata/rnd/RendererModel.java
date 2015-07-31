@@ -1401,7 +1401,7 @@ class RendererModel
         */
 	boolean isModified() {
 	    if(rndControl!=null) {
-	        return !rndControl.isSameSettings(rndDef, false);
+	        return !rndControl.isSameSettings(rndDef, true);
 	    }
 	    return false;
 	}

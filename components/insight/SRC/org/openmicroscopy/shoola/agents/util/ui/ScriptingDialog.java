@@ -322,6 +322,10 @@ public class ScriptingDialog
             param = inputs.get(entry.getKey());
             param.setValueToPass(c.getValue());
         }
+        if (CollectionUtils.isNotEmpty(refObjects)) {
+            DataObject node = refObjects.get(0);
+            script.setGroupID(node.getGroupId());
+        }
         firePropertyChange(RUN_SELECTED_SCRIPT_PROPERTY, null, script);
         close();
     }
