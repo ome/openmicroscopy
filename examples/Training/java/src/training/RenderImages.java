@@ -2,7 +2,7 @@
  * training.RenderImages
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -30,21 +30,24 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.imageio.ImageIO;
 
 
 //Third-party libraries
 
-import omero.api.IContainerPrx;
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.model.Image;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.gateway.facility.BrowseFacility;
+import omero.log.SimpleLogger;
 import omero.romio.PlaneDef;
-import omero.sys.ParametersI;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -76,8 +79,9 @@ public class RenderImages
 	
 	private ImageData image;
 	
-	/** Reference to the connector.*/
-	private Connector connector;
+	private Gateway gateway;
+    
+    private SecurityContext ctx;
 	
 	/**
 	 * Loads the image.
@@ -88,14 +92,8 @@ public class RenderImages
 	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		IContainerPrx proxy = connector.getContainerService();
-		List<Image> results = proxy.getImages(Image.class.getName(),
-				Arrays.asList(imageID), new ParametersI());
-		//You can directly interact with the IObject or the Pojos object.
-		//Follow interaction with the Pojos.
-		if (results.size() == 0)
-			throw new Exception("Image does not exist. Check ID.");
-		return new ImageData(results.get(0));
+	    BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+    	return browse.getImage(ctx, imageID);
 	}
 	
 	/**
@@ -108,7 +106,7 @@ public class RenderImages
 		long pixelsId = pixels.getId();
 		RenderingEnginePrx proxy = null;
 		try {
-			proxy = connector.getRenderingEngine();
+			proxy = gateway.getRenderingService(ctx, pixelsId);
 			proxy.lookupPixels(pixelsId);
 			if (!(proxy.lookupRenderingDef(pixelsId))) {
 				proxy.resetDefaultSettings(true);
@@ -145,7 +143,7 @@ public class RenderImages
 	{
 		ThumbnailStorePrx store = null;
 		try {
-			store = connector.getThumbnailStore();
+			store = gateway.getThumbnailService(ctx);
 			PixelsData pixels = image.getDefaultPixels();
 			Map<Long, byte[]> map = store.getThumbnailByLongestSideSet(
 					omero.rtypes.rint(96), Arrays.asList(pixels.getId()));
@@ -181,9 +179,18 @@ public class RenderImages
 			info.setUserName(userName);
 			info.setImageId(imageId);
 		}
-		connector = new Connector(info);
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
 		try {
-			connector.connect();
+		    ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
 			image = loadImage(info.getImageId());
 			createRenderingEngine();
 			retrieveThumbnails();
@@ -191,7 +198,7 @@ public class RenderImages
 			e.printStackTrace();
 		} finally {
 			try {
-				connector.disconnect(); // Be sure to disconnect
+			    gateway.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

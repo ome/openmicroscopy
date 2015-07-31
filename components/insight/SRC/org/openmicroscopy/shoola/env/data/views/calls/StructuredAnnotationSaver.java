@@ -23,19 +23,18 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
+import java.util.Map;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 
@@ -158,7 +157,30 @@ public class StructuredAnnotationSaver
             }
         };
     }
-    
+
+    /**
+     * Creates a {@link BatchCall} to save the annotations.
+     *
+     * @param toAdd The annotations to add.
+     * @param toRemove The annotations to remove.
+     * @param userID The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadBatchCall(
+            final Map<DataObject, List<AnnotationData>> toAdd,
+            final Map<DataObject, List<AnnotationData>> toRemove,
+            final long userID)
+    {
+        return new BatchCall("Saving") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService os = context.getMetadataService();
+                os.saveAnnotationData(ctx, toAdd, toRemove, userID);
+                result = Boolean.TRUE;
+            }
+        };
+    }
+
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -215,5 +237,20 @@ public class StructuredAnnotationSaver
     	this.ctx = ctx;
     	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, null, userID);
     }
-    
+
+    /**
+     * Creates a new instance.
+     *
+     * @param ctx The security context.
+     * @param toAdd The annotations to add to the specified objects.
+     * @param toRemove The annotations to remove from the specified objects.
+     * @param userID The id of the user.
+     */
+    public StructuredAnnotationSaver(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID)
+    {
+        this.ctx = ctx;
+        loadCall = loadBatchCall(toAdd, toRemove, userID);
+    }
 }

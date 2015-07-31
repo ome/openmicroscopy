@@ -78,9 +78,9 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import com.google.common.collect.Sets;
@@ -572,7 +572,12 @@ class BrowserComponent
     						TreeImageSet expNode)
     {
         if (model.getState() != LOADING_LEAVES) return;
-        if (leaves == null) throw new NullPointerException("No leaves.");
+        if (leaves == null || leaves.isEmpty())  {
+            model.setState(READY);
+            fireStateChange();
+            return;
+        }
+        
         Object ho = expNode.getUserObject();
         if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
         	throw new IllegalArgumentException("Node not valid");

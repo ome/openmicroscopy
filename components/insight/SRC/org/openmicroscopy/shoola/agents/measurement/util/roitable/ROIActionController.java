@@ -51,7 +51,8 @@ public interface ROIActionController
 		MERGE,
 		SPLIT,
 		PROPAGATE,
-		DELETE
+		DELETE,
+		TAG
 	};
 	
 	/** List of statistical actions possible. */
@@ -78,5 +79,7 @@ public interface ROIActionController
 	
 	/** Calculates the statistics.*/
 	public void calculateStats();
-	
+
+	/** Load the tags.*/
+    public void loadTags();
 }

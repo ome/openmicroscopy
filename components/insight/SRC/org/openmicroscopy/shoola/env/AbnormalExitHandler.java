@@ -30,8 +30,8 @@ import javax.swing.JOptionPane;
 
 import org.openmicroscopy.shoola.env.init.StartupException;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.LogMessage;
+import omero.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 

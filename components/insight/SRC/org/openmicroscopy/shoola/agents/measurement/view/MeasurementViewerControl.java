@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -53,7 +54,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-import org.jhotdraw.draw.AttributeKey;
 //Third-party libraries
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
@@ -62,6 +62,7 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
+import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
@@ -76,6 +77,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -84,11 +86,15 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+
+import pojos.AnnotationData;
+import pojos.TagAnnotationData;
 
 /** 
  * The MeasurementViewer's Controller.
@@ -492,7 +498,13 @@ class MeasurementViewerControl
 		}
 		if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 	}
-	
+
+	/** Loads the tags.*/
+    void loadTags()
+    {
+        model.loadTags();
+    }
+    
     /**
      * Reacts to property change.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -506,6 +518,23 @@ class MeasurementViewerControl
             model.discard();
 		else if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(name)) {
 			model.deleteAllROIs((Integer) evt.getNewValue());
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+		    Map m = (Map) evt.getNewValue();
+            if (m == null || m.size() != 1)
+                return;
+            Set set = m.entrySet();
+            Entry entry;
+            Iterator i = set.iterator();
+            Class type;
+            while (i.hasNext()) {
+                entry = (Entry) i.next();
+                type = (Class) entry.getKey();
+                if (TagAnnotationData.class.getName().equals(type.getName())) {
+                    List<AnnotationData> tags =
+                            (List<AnnotationData>) entry.getValue();
+                    model.tagSelectedFigures(tags);
+                }
+            }
 		}
 	}
 
@@ -646,7 +675,9 @@ class MeasurementViewerControl
 			if (!fig.isReadOnly()) {
 				if (fig.canEdit()) {
 				    AttributeKey<?> key = e.getAttribute();
-		            if (key != MeasurementAttributes.SHOWTEXT) {
+		            if (key != MeasurementAttributes.SHOWTEXT && 
+		                    key != MeasurementAttributes.SHOWMEASUREMENT &&
+		                    key != AnnotationKeys.TAG) {
 		                model.setDataChanged();
 		            }
 				}

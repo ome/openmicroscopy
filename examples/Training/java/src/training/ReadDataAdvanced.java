@@ -2,7 +2,7 @@
  * training.ReadDataAdvanced
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -38,17 +38,22 @@ import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
+import omero.gateway.facility.DataManagerFacility;
+import omero.log.SimpleLogger;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.IObject;
 import omero.model.Project;
 import omero.model.TagAnnotation;
-import omero.model.TagAnnotationI;
 import omero.sys.Filter;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /**
  * More advanced code for how to load data from an OMERO server.
@@ -77,8 +82,9 @@ public class ReadDataAdvanced
 	/** The name of a Tag.*/
 	private String tagName = "MyTag";
 
-	/** Reference to the connector.*/
-	private Connector connector;
+	private Gateway gateway;
+    
+    private SecurityContext ctx;
 	
 	/**
 	 * Creates 3 Datasets with the name defined by {@link #datasetName}.
@@ -86,14 +92,14 @@ public class ReadDataAdvanced
 	private void createDatasets()
 		throws Exception
 	{
-		List<IObject> datasets = new ArrayList<IObject>();
+	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+	    
 		for (int i = 0; i < 3; i ++)
 		{
-			Dataset d = new DatasetI();
-			d.setName(rstring(datasetName));
-			datasets.add(d);
+			DatasetData d = new DatasetData();
+			d.setName(datasetName);
+			dm.saveAndReturnObject(ctx, d);
 		}
-		connector.getUpdateService().saveArray(datasets);
 	}
 
 	/**
@@ -102,15 +108,14 @@ public class ReadDataAdvanced
 	private void createTags()
 		throws Exception
 	{
-		List<IObject> tags = new ArrayList<IObject>();
+	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
 		for (int i = 0; i < 3; i ++)
 		{
-			TagAnnotation t = new TagAnnotationI();
-			t.setNs(rstring(ConfigurationInfo.TRAINING_NS));
-			t.setDescription(rstring(String.format("%s %s", tagName, i)));
-			tags.add(t);
+			TagAnnotationData t = new TagAnnotationData(tagName);
+			((TagAnnotation)t.asIObject()).setNs(rstring(ConfigurationInfo.TRAINING_NS));
+			t.setDescription(String.format("%s %s", tagName, i));
+			dm.saveAndReturnObject(ctx, t);
 		}
-		connector.getUpdateService().saveArray(tags);
 	}
 
 
@@ -126,7 +131,7 @@ public class ReadDataAdvanced
 		filter.limit = rint(10);
 		filter.offset = rint(0);
 
-		IQueryPrx proxy = connector.getQueryService();
+		IQueryPrx proxy = gateway.getQueryService(ctx);
 		List<IObject> datasets = (List<IObject>)
 		proxy.findAllByString("Dataset", "name", datasetName, caseSensitive,
 				filter);
@@ -152,7 +157,7 @@ public class ReadDataAdvanced
 		filter.limit = rint(10);
 		filter.offset = rint(0);
 
-		IQueryPrx proxy = connector.getQueryService();
+		IQueryPrx proxy = gateway.getQueryService(ctx);
 		List<IObject> tags = (List<IObject>)
 		proxy.findAllByString("TagAnnotation", "ns",
 				ConfigurationInfo.TRAINING_NS, caseSensitive, filter);
@@ -174,9 +179,9 @@ public class ReadDataAdvanced
 	private void loadProjectsAndOrphanedDatasets()
 		throws Exception
 	{
-		IContainerPrx proxy = connector.getContainerService();
+		IContainerPrx proxy = gateway.getPojosService(ctx);
 		ParametersI param = new ParametersI();
-		long userId = connector.getAdminService().getEventContext().userId;
+		long userId = gateway.getLoggedInUser().getId();
 		param.exp(omero.rtypes.rlong(userId));
 		
 		//Load the orphaned datasets.
@@ -243,9 +248,20 @@ public class ReadDataAdvanced
 			info.setPassword(password);
 			info.setUserName(userName);
 		}
-		connector = new Connector(info);
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
 		try {
-			connector.connect(); // First connect.
+			// First connect.
+		    ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
+            
 			createDatasets();
 			createTags();
 			loadDatasetsByName();
@@ -255,7 +271,7 @@ public class ReadDataAdvanced
 			e.printStackTrace();
 		} finally {
 			try {
-				connector.disconnect(); // Be sure to disconnect
+			    gateway.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

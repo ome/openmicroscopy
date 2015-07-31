@@ -37,6 +37,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+
+
+
+
+
+
+
 //Application-internal dependencies
 import omero.cmd.Request;
 import omero.cmd.graphs.ChildOption;
@@ -70,15 +77,20 @@ import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 
+import pojos.util.PojoMapper;
+
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.SearchResult;
+import omero.gateway.model.SearchResultCollection;
+import omero.gateway.model.SearchParameters;
+import omero.gateway.util.Requests;
+import omero.log.LogMessage;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -155,7 +167,7 @@ class OmeroDataServiceImpl
 	private List<DataObject> deleteTagSet(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		List l = gateway.findAnnotationLinks(ctx, Annotation.class.getName(),
+		List l = gateway.findAnnotationLinks(ctx, Annotation.class,
 				id, null);
 
 		List<Long> tagIds = new ArrayList<Long>();
@@ -594,7 +606,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
 	 */
-	public AdvancedSearchResultCollection search(SecurityContext ctx,
+	public SearchResultCollection search(SecurityContext ctx,
 	        SearchParameters context)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -605,7 +617,7 @@ class OmeroDataServiceImpl
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
 		
-		AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
+		SearchResultCollection results = new SearchResultCollection();
 		
 		// If terms contain ids only, just add them as potential result to the results, 
 		// findByIds() will remove them if they can't be found
@@ -624,7 +636,7 @@ class OmeroDataServiceImpl
 		            types = context.getTypes();
 		        }
 		        for(Class<? extends DataObject> type : types) {
-		            AdvancedSearchResult res = new AdvancedSearchResult();
+		            SearchResult res = new SearchResult();
 		            res.setObjectId(id);
 		            res.setType(type);
 		            res.setIdMatch(true);
@@ -638,7 +650,7 @@ class OmeroDataServiceImpl
 		    findByIds(ctx, results, true);
 		
 		// search by text:
-		AdvancedSearchResultCollection searchResults = gateway.search(ctx, context);
+		SearchResultCollection searchResults = gateway.search(ctx, context);
 		results.addAll(searchResults);
 		if (searchResults.isError()) 
 		    results.setError(searchResults.getError());
@@ -656,10 +668,10 @@ class OmeroDataServiceImpl
 	 * @param results
 	 * @param allGroups
 	 */
-        private void findByIds(SecurityContext ctx, AdvancedSearchResultCollection results, boolean allGroups) throws DSOutOfServiceException{
-            Iterator<AdvancedSearchResult> it = results.iterator();
+        private void findByIds(SecurityContext ctx, SearchResultCollection results, boolean allGroups) throws DSOutOfServiceException{
+            Iterator<SearchResult> it = results.iterator();
             while (it.hasNext()) {
-                AdvancedSearchResult r = it.next();
+                SearchResult r = it.next();
                 IObject obj = null;
                     try {
                         String type = PojoMapper.convertTypeForSearchByQuery(r.getType());
@@ -682,13 +694,13 @@ class OmeroDataServiceImpl
          * This is necessary to load the image's PixelsData.
          * @param results
          */
-        private void initializeImages(AdvancedSearchResultCollection results) {
-            Map<Long, List<AdvancedSearchResult>> byGroup = results
+        private void initializeImages(SearchResultCollection results) {
+            Map<Long, List<SearchResult>> byGroup = results
                     .getByGroup(ImageData.class);
     
             for (long groupId : byGroup.keySet()) {
                 List<Long> ids = new ArrayList<Long>();
-                for (AdvancedSearchResult r : byGroup.get(groupId)) {
+                for (SearchResult r : byGroup.get(groupId)) {
                     ids.add(r.getObjectId());
                 }
     
@@ -700,7 +712,7 @@ class OmeroDataServiceImpl
                     
                     for(Object obj : tmp) {
                         ImageData img = (ImageData) obj;
-                        for(AdvancedSearchResult r : byGroup.get(groupId)) {
+                        for(SearchResult r : byGroup.get(groupId)) {
                             if(r.getObjectId()==img.getId()) {
                                 r.setObject(img);
                                 break;
@@ -742,7 +754,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			Class parentClass = gateway.convertPojos(type);
+			Class parentClass = PojoMapper.getModelType(type);
 			if (DatasetData.class.equals(type))
 				parentClass = Project.class;
 			else if (ImageData.class.equals(type))

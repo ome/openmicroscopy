@@ -29,7 +29,7 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ImageData;
 import pojos.XMLAnnotationData;
