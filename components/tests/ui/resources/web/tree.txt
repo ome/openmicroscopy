@@ -151,28 +151,30 @@ Select Node With Children By Icon
     [Return]                        ${objId}
 
 Select First Project
-    ${projectId}=               Select Node By Icon    ${projectIcon}
-    [Return]                    ${projectId}
+    ${projectId}=                   Select Node By Icon    ${projectIcon}
+    [Return]                        ${projectId}
 
 Select First Project With Children
-    ${projectId}=               Select Node With Children By Icon    ${projectIcon}
-    [Return]                    ${projectId}
+    ${projectId}=                   Select Node With Children By Icon    ${projectIcon}
+    Wait Until Element Is Visible   xpath=//li[@data-id='${projectId}']/ul/li
+    [Return]                        ${projectId}
 
 Select First Dataset
-    ${datasetId}=               Select Node By Icon    ${datasetIcon}
-    [Return]                    ${datasetId}
+    ${datasetId}=                   Select Node By Icon    ${datasetIcon}
+    [Return]                        ${datasetId}
 
 Select First Dataset With Children
-    ${datasetId}=               Select Node With Children By Icon    ${datasetIcon}
-    [Return]                    ${datasetId}
+    ${datasetId}=                   Select Node With Children By Icon    ${datasetIcon}
+    Wait Until Element Is Visible   xpath=//li[@data-id='${datasetId}']/ul/li
+    [Return]                        ${datasetId}
 
 Select First Image
-    ${imageId}=                 Select Node By Icon    ${imageIcon}
-    [Return]                    ${imageId}
+    ${imageId}=                     Select Node By Icon    ${imageIcon}
+    [Return]                        ${imageId}
 
 Select First Share
-    ${shareId}=                 Select Node By Icon    ${shareIcon}
-    [Return]                    ${shareId}
+    ${shareId}=                     Select Node By Icon    ${shareIcon}
+    [Return]                        ${shareId}
 
 
 # Methods for querying nodes by TEXT
@@ -269,27 +271,45 @@ Select Image By Id
 
 # Checking selected state of Nodes by ID
 
-Node Should Be Selected
+Node Should Be Selected By Id
     [Arguments]       ${nodeId}     ${expected}=${true}
     Run Keyword If    ${expected}   Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[contains(@class, 'jstree-clicked')]
     ...               ELSE          Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[not(contains(@class, 'jstree-clicked'))]
 
-Image Should Be Selected
-    [Arguments]                 ${imageId}                  ${expected}=${true}
-    ${nodeId}=                  Wait For Image Node         ${imageId}
-    Node Should Be Selected     ${nodeId}                   ${expected}
+Image Should Be Selected By Id
+    [Arguments]                         ${imageId}                  ${expected}=${true}
+    ${nodeId}=                          Wait For Image Node         ${imageId}
+    Node Should Be Selected By Id       ${nodeId}                   ${expected}
 
-Image Should Not Be Selected
-    [Arguments]                 ${imageId}                  ${expected}=${true}
-    Image Should Be Selected    ${imageId}                  ${false}
+Image Should Not Be Selected By Id
+    [Arguments]                         ${imageId}                  ${expected}=${true}
+    Image Should Be Selected By Id      ${imageId}                  ${false}
+
+Dataset Should Be Selected By Id
+    [Arguments]                         ${datasetId}                ${expected}=${true}
+    ${nodeId}=                          Wait For Dataset Node       ${datasetId}
+    Node Should Be Selected By Id       ${nodeId}                   ${expected}
 
 User Should Be Selected
-    [Arguments]                 ${expected}=${true}
-    ${nodeId}=                  Get NodeId By Icon          ${userIcon}
-    Node Should Be Selected     ${nodeId}                   ${expected}
+    [Arguments]                         ${expected}=${true}
+    ${nodeId}=                          Get NodeId By Icon          ${userIcon}
+    Node Should Be Selected By Id       ${nodeId}                   ${expected}
 
 User Should Not Be Selected
     User Should Be Selected     ${false}
+
+
+# Methods for querying nodes by SELECTED
+
+Node Should Be Selected By Icon
+    [Arguments]                         ${icon}
+    Wait Until Page Contains Element    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(@class, 'jstree-clicked')]/parent::li
+    ${nodeId}=                          Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(@class, 'jstree-clicked')]/parent::li@id
+    [Return]                            ${nodeId}
+
+Dataset Should Be Selected
+    ${nodeId}=                  Node Should Be Selected By Icon     ${datasetIcon}
+    [Return]                    ${nodeId}
 
 
 # TODO: Not needed with jsTree 3? Since we don't initially have hidden nodes.
