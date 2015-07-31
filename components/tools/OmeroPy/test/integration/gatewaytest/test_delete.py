@@ -4,7 +4,7 @@
 """
    gateway tests - Delete methods
 
-   Copyright 2012-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2012-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -47,12 +47,9 @@ class TestDelete (object):
         # This is the same as BlitzGateway.deleteObjects(), just unrolled here
         # for verbosity and to make sure the more generalistic code there
         # isn't to blame for any issue
-        dcs = list()
-        op = dict()
-        for oid in ids:
-            dcs.append(omero.cmd.Delete('/Annotation', long(oid), op))
+        command = omero.cmd.Delete2(targetObjects={'Annotation': ids})
         doall = omero.cmd.DoAll()
-        doall.requests = dcs
+        doall.requests = [command]
         handle = gatewaywrapper.gateway.c.sf.submit(
             doall, gatewaywrapper.gateway.SERVICE_OPTS)
         gatewaywrapper.gateway._waitOnCmd(handle)

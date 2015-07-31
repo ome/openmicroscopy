@@ -88,6 +88,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -333,19 +334,26 @@ class ImViewerModel
      */
     private int getDefaultResolutionLevel()
     {
-    	//Determine the level according to the window size.
-    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	int w = 9*(screenSize.width/10);
-    	int h = 8*(screenSize.height/10);
-    	ResolutionLevel level;
-    	Dimension d;
-    	for (int i = resolutions.size() - 1; i >= 0; i--) {
-    		level = resolutions.get(i);
-    		d = level.getImageSize();
-    		if (d.width < w || d.height < h)
-    			return level.getLevel();
-    	}
-    	return 0;
+        String zoomLevel = (String) ImViewerAgent.getRegistry().lookup(
+                LookupNames.BIGIMAGE_INITIAL_ZOOM);
+        if (isBigImage() && CommonsLangUtils.isNotBlank(zoomLevel)) {
+            //Use the default zoom level from the properties
+            return Integer.parseInt(zoomLevel);
+        }
+        
+        // Determine the level according to the window size.
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int w = 9 * (screenSize.width / 10);
+        int h = 8 * (screenSize.height / 10);
+        ResolutionLevel level;
+        Dimension d;
+        for (int i = resolutions.size() - 1; i >= 0; i--) {
+            level = resolutions.get(i);
+            d = level.getImageSize();
+            if (d.width < w || d.height < h)
+                return level.getLevel();
+        }
+        return 0;
     }
     
 	/**

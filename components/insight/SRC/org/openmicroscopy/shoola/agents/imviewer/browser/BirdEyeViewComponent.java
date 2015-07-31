@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BirdEyeView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -442,8 +443,11 @@ class BirdEyeViewComponent
 	void installListeners(boolean add)
 	{
 		if (add) {
-			addMouseListener(this);
-			addMouseMotionListener(this);
+            // prevent adding the listeners multiple times
+            if (!Arrays.asList(getMouseListeners()).contains(this)) {
+                addMouseListener(this);
+                addMouseMotionListener(this);
+            }
 		} else {
 			removeMouseListener(this);
 			removeMouseMotionListener(this);

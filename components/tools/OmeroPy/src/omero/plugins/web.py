@@ -57,13 +57,24 @@ class WebControl(BaseControl):
         sub = parser.sub()
 
         parser.add(sub, self.help, "Extended help")
-        parser.add(sub, self.start, "Primary start for the OMERO.web server")
+        start = parser.add(
+            sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
-        parser.add(sub, self.restart, "Restart the OMERO.web server")
+        restart = parser.add(
+            sub, self.restart, "Restart the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
 
         iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
         iis.add_argument("--remove", action="store_true", default=False)
+
+        for x in (start, restart, iis):
+            group = x.add_mutually_exclusive_group()
+            group.add_argument(
+                "--keep-sessions", action="store_true",
+                help="Skip clean-up of expired sessions at startup")
+            group.add_argument(
+                "--no-wait", action="store_true",
+                help="Do not wait on expired sessions clean-up")
 
         #
         # Advanced
@@ -95,12 +106,15 @@ class WebControl(BaseControl):
             "Advanced use: Creates needed symlinks for static"
             " media files (Performed automatically by 'start')")
 
-        parser.add(
+        clearsessions = parser.add(
             sub, self.clearsessions,
             "Advanced use: Can be run as a cron job or directly to clean "
             "out expired sessions.\n See "
             "https://docs.djangoproject.com/en/1.6/topics/http/sessions/"
             "#clearing-the-session-store for more information.")
+        clearsessions.add_argument(
+            "--no-wait", action="store_true",
+            help="Do not wait on expired sessions clean-up")
 
         #
         # Developer
@@ -306,15 +320,21 @@ class WebControl(BaseControl):
 
     def clearsessions(self, args):
         """Clean out expired sessions."""
+        self.ctx.out("Clearing expired sessions. This may take some time... ")
         location = self._get_python_dir() / "omeroweb"
-        args = [sys.executable, "manage.py", "clearsessions"]
-        rv = self.ctx.call(args, cwd=location)
-        if rv != 0:
-            self.ctx.die(607, "Failed to clear sessions.\n")
+        cmd = [sys.executable, "manage.py", "clearsessions"]
+        if not args.no_wait:
+            rv = self.ctx.call(cmd, cwd=location)
+            if rv != 0:
+                self.ctx.die(607, "Failed to clear sessions.\n")
+            self.ctx.out("[OK]")
+        else:
+            self.ctx.popen(cmd, cwd=location)
 
     def start(self, args):
         self.collectstatic()
-        self.clearsessions(args)
+        if not args.keep_sessions:
+            self.clearsessions(args)
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -471,7 +491,8 @@ using bin\omero web start on Windows with FastCGI.
             self.ctx.die(2, "'iis' command is for Windows only")
 
         self.collectstatic()
-        self.clearsessions(args)
+        if not args.keep_sessions:
+            self.clearsessions(args)
 
         web_iis = self._get_python_dir() / "omero_web_iis.py"
         cmd = [sys.executable, str(web_iis)]

@@ -14,10 +14,11 @@ FOR TRAINING PURPOSES ONLY!
 import omero
 from omero.rtypes import rint, rlong
 from omero.gateway import BlitzGateway
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 
 # Create a connection
 # =================================================================
-conn = BlitzGateway("username", "password", host="localhost")
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 

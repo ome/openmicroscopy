@@ -33,6 +33,9 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
+
 //Application-internal dependencies
 import omero.RLong;
 import omero.api.IContainerPrx;
@@ -44,7 +47,9 @@ import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.LengthI;
 import omero.model.PixelsType;
+import ome.model.enums.UnitsLength;
 import omero.sys.ParametersI;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -133,6 +138,12 @@ public class CreateImage
 		int sizeX = pixels.getSizeX();
 		int sizeY = pixels.getSizeY();
 		long pixelsId = pixels.getId();
+
+		//Sets the pixel size using units (new in 5.1.0)
+		LengthI units = new LengthI(9.8, UnitsLength.ANGSTROM);
+		pixels.setPixelSizeX(units);
+		pixels.setPixelSizeY(units);
+
 		if (sizeC <= 1)
 			throw new Exception("The image must have at least 2 channels.");
 		RawPixelsStorePrx store = null;

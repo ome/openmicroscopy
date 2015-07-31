@@ -34,6 +34,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
 import ome.model.internal.Permissions;
@@ -165,7 +166,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                         targetObjectCount++;
                     }
                 }
-                return graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
+                final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
+                return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets();
                 return null;

@@ -168,8 +168,7 @@ class TestCsrf(IWebTest):
         _csrf_post_response(self.django_client, request_url, data)
 
         # Remove comment, see remove tag,
-        # http://trout.openmicroscopy.org/merge/webclient/action/remove/
-        # [comment|tag|file]/ID/
+        # http://localhost/webclient/action/remove/[comment|tag|file]/ID/
 
     def test_add_edit_and_remove_tag(self):
 
@@ -194,10 +193,8 @@ class TestCsrf(IWebTest):
         _csrf_post_response(self.django_client, request_url, data)
 
         # Edit tag, see save container name and description
-        # http://trout.openmicroscopy.org/merge/webclient/action/
-        # savename/tag/ID/
-        # http://trout.openmicroscopy.org/merge/webclient/action
-        # /savedescription/tag/ID/
+        # http://localhost/webclient/action/savename/tag/ID/
+        # http://localhost/webclient/action/savedescription/tag/ID/
 
         # Remove tag
         request_url = reverse("manage_action_containers",
@@ -254,8 +251,7 @@ class TestCsrf(IWebTest):
         # link existing annotation is handled by the same request.
 
         # Remove file, see remove tag,
-        # http://trout.openmicroscopy.org/merge/webclient/action/
-        # remove/[comment|tag|file]/ID/
+        # http://localhost/webclient/action/remove/[comment|tag|file]/ID/
 
     def test_paste_move_remove_deletamany_image(self):
 

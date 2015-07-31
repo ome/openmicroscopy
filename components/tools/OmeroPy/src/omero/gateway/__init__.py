@@ -1530,6 +1530,13 @@ class _BlitzGateway (object):
                 int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
+    def getInitialZoomLevel(self):
+        """
+        Returns default initial zoom level set on the server.
+        """
+        return (self.getConfigService().getConfigValue(
+                "omero.client.viewer.initial_zoom_level") or 0)
+
     def isAnonymous(self):
         """
         Returns the anonymous flag
@@ -1727,8 +1734,6 @@ class _BlitzGateway (object):
                 self, 'getConfigService')
             self._proxies['container'] = ProxyObjectWrapper(
                 self, 'getContainerService')
-            self._proxies['delete'] = ProxyObjectWrapper(
-                self, 'getDeleteService')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['metadata'] = ProxyObjectWrapper(
                 self, 'getMetadataService')
@@ -2435,14 +2440,6 @@ class _BlitzGateway (object):
         """
         return self._proxies['update']
 
-    def getDeleteService(self):
-        """
-        Gets reference to the delete service from ProxyObjectWrapper.
-
-        :return:    omero.gateway.ProxyObjectWrapper
-        """
-        return self._proxies['delete']
-
     def getSessionService(self):
         """
         Gets reference to the session service from ProxyObjectWrapper.
@@ -2818,33 +2815,46 @@ class _BlitzGateway (object):
         :param imageIds:    Image IDs list
         :return:            Dict of files 'count' and 'size'
         """
-
         params = omero.sys.ParametersI()
         params.addIds(imageIds)
-
-        query = "select distinct(fse) from FilesetEntry as fse "\
-                "left outer join fetch fse.fileset as fs "\
-                "left outer join fetch fs.annotationLinks as link "\
-                "left outer join fetch link.child as a "\
-                "left outer join fetch fse.originalFile as f "\
-                "left outer join fs.images as image where image.id in (:ids)"
+        query = 'select count(fse), sum(fse.originalFile.size) '\
+                'from FilesetEntry as fse where fse.id in ('\
+                '   select distinct(i_fse.id) from FilesetEntry as i_fse '\
+                '   join i_fse.fileset as i_fileset'\
+                '   join i_fileset.images as i_image '\
+                '   where i_image.id in (:ids)'\
+                ')'
         queryService = self.getQueryService()
-        fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
-        fsCount = len(fsinfo)
-        anns = []
-        for fse in fsinfo:
-            for l in fse.fileset.copyAnnotationLinks():
-                a = {'ns': unwrap(l.child.ns),
-                     'id': l.child.id.val}
-                if (hasattr(l.child, 'textValue')):
-                    a['value'] = unwrap(l.child.textValue)
-                anns.append(a)
-        fsSize = sum([f.originalFile.getSize().val for f in fsinfo])
-        filesetFileInfo = {'fileset': True,
-                           'count': fsCount,
-                           'size': fsSize,
-                           'annotations': anns}
-        return filesetFileInfo
+        count, size = queryService.projection(
+            query, params, self.SERVICE_OPTS
+        )[0]
+        if size is None:
+            size = 0
+
+        query = 'select ann.id, ann.ns, ann.textValue '\
+                'from Fileset as fileset '\
+                'join fileset.annotationLinks as a_link '\
+                'join a_link.child as ann '\
+                'where fileset.id in ('\
+                '   select distinct(i_fileset.id) from Fileset as i_fileset '\
+                '   join i_fileset.images as i_image '\
+                '   where i_image.id in (:ids)'\
+                ')'
+        queryService = self.getQueryService()
+        annotations = list()
+        rows = queryService.projection(query, params, self.SERVICE_OPTS)
+        for row in rows:
+            annotation_id, ns, text_value = row
+            annotation = {
+                'id': unwrap(annotation_id), 'ns': unwrap(ns)
+            }
+            if text_value is not None:
+                annotation['value'] = unwrap(text_value)
+            annotations.append(annotation)
+        return {
+            'fileset': True, 'count': unwrap(count), 'size': unwrap(size),
+            'annotations': annotations
+        }
 
     def getArchivedFilesInfo(self, imageIds):
         """
@@ -2854,21 +2864,22 @@ class _BlitzGateway (object):
         :param imageIds:    Image IDs list
         :return:            Dict of files 'count' and 'size'
         """
-
         params = omero.sys.ParametersI()
         params.addIds(imageIds)
-        query = "select distinct(link) from PixelsOriginalFileMap as link "\
-                "left outer join fetch link.parent as f "\
-                "left outer join link.child as pixels "\
-                "where pixels.image.id in (:ids)"
+        query = 'select count(link), sum(link.parent.size) '\
+                'from PixelsOriginalFileMap as link '\
+                'where link.id in ('\
+                '    select distinct(i_link.id) '\
+                '        from PixelsOriginalFileMap as i_link '\
+                '    where i_link.child.image.id in (:ids)'\
+                ')'
         queryService = self.getQueryService()
-        fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
-        fsCount = len(fsinfo)
-        fsSize = sum([f.parent.getSize().val for f in fsinfo])
-        filesetFileInfo = {'fileset': False,
-                           'count': fsCount,
-                           'size': fsSize}
-        return filesetFileInfo
+        count, size = queryService.projection(
+            query, params, self.SERVICE_OPTS
+        )[0]
+        if size is None:
+            size = 0
+        return {'fileset': False, 'count': unwrap(count), 'size': unwrap(size)}
 
     ############################
     # Timeline service getters #
@@ -3806,16 +3817,6 @@ class _BlitzGateway (object):
 
         u = self.getUpdateService()
         u.deleteObject(obj, self.SERVICE_OPTS)
-
-    def getAvailableDeleteCommands(self):
-        """
-        Retrieves the current set of delete commands with type (graph spec)
-        and options filled.
-
-        :return:    Exhaustive list of available delete commands.
-        :rtype:     :class:`omero.api.delete.DeleteCommand`
-        """
-        return self.getDeleteService().availableCommands()
 
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
                       deleteChildren=False):
@@ -6593,6 +6594,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         :rtype:     double
         """
 
+        if self._re is None:
+            return None
         return self._re.getChannelWindowStart(
             self._idx, self._conn.SERVICE_OPTS)
 
@@ -6607,6 +6610,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         :rtype:     double
         """
 
+        if self._re is None:
+            return None
         return self._re.getChannelWindowEnd(
             self._idx, self._conn.SERVICE_OPTS)
 
@@ -6982,7 +6987,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     rv['tiled'] = ((rv['size']['height'] * rv['size']['width'])
                                    > (maxplanesize[0] * maxplanesize[1]))
                 else:
-                    rv['tiles'] = False
+                    rv['tiled'] = False
 
         return rv
 
@@ -7431,31 +7436,44 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             return max(tvs)
         return None
 
-    @assert_re(ignoreExceptions=(omero.ConcurrencyException))
-    def getChannels(self):
+    def getChannels(self, noRE=False):
         """
-        Returns a list of Channels, each initialised with rendering engine
+        Returns a list of Channels, each initialised with rendering engine.
+        If noRE is True, Channels will not have rendering engine enabled.
+        In this case, calling channel.getColor() or getWindowStart() etc
+        will return None.
 
         :return:    Channels
         :rtype:     List of :class:`ChannelWrapper`
         """
-        if self._re is not None:
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
-                    for n, c in enumerate(
-                        self._re.getPixels(
-                            self._conn.SERVICE_OPTS).iterateChannels())]
-        # E.g. ConcurrencyException (no rendering engine): load channels by
-        # hand, use pixels to order channels
-        else:
-            pid = self.getPixelsId()
-            params = omero.sys.Parameters()
-            params.map = {"pid": rlong(pid)}
-            query = ("select p from Pixels p join fetch p.channels as c "
-                     "join fetch c.logicalChannel as lc where p.id=:pid")
-            pixels = self._conn.getQueryService().findByQuery(
-                query, params, self._conn.SERVICE_OPTS)
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
-                    for n, c in enumerate(pixels.iterateChannels())]
+        if not noRE:
+            try:
+                if not self._prepareRenderingEngine():
+                    return None
+            except omero.ConcurrencyException:
+                logger.debug('Ignoring exception thrown during '
+                             '_prepareRenderingEngine '
+                             'for getChannels()', exc_info=True)
+
+            if self._re is not None:
+                return [ChannelWrapper(self._conn, c, idx=n,
+                                       re=self._re, img=self)
+                        for n, c in enumerate(
+                            self._re.getPixels(
+                                self._conn.SERVICE_OPTS).iterateChannels())]
+
+        # If we have silently failed to load rendering engine
+        # E.g. ConcurrencyException OR noRE is True,
+        # load channels by hand, use pixels to order channels
+        pid = self.getPixelsId()
+        params = omero.sys.Parameters()
+        params.map = {"pid": rlong(pid)}
+        query = ("select p from Pixels p join fetch p.channels as c "
+                 "join fetch c.logicalChannel as lc where p.id=:pid")
+        pixels = self._conn.getQueryService().findByQuery(
+            query, params, self._conn.SERVICE_OPTS)
+        return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
+                for n, c in enumerate(pixels.iterateChannels())]
 
     @assert_re()
     def getZoomLevelScaling(self):
@@ -7741,16 +7759,19 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
-    @assert_re()
+    @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):
         """
         Returns the ID of the current rendering def on the image.
-        Loads and initialises the rendering engine if needed
+        Loads and initialises the rendering engine if needed.
+        If rendering engine fails (E.g. MissingPyramidException)
+        then returns None.
 
         :return:    current rendering def ID
         :rtype:     Long
         """
-        return self._re.getRenderingDefId()
+        if self._re is not None:
+            return self._re.getRenderingDefId()
 
     def getAllRenderingDefs(self, eid=-1):
         """
@@ -7761,10 +7782,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     Dict
         """
 
+        rv = []
+        pixelsId = self.getPixelsId()
+        if pixelsId is None:
+            return rv
         pixelsService = self._conn.getPixelsService()
         rdefs = pixelsService.retrieveAllRndSettings(
-            self.getPixelsId(), eid, self._conn.SERVICE_OPTS)
-        rv = []
+            pixelsId, eid, self._conn.SERVICE_OPTS)
         for rdef in rdefs:
             d = {}
             owner = rdef.getDetails().owner
@@ -8687,10 +8711,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
     @assert_re()
     def resetDefaults(self, save=True):
-        if not self.canAnnotate():
-            return False
         ns = self._conn.CONFIG.IMG_ROPTSNS
-        if ns:
+        if ns and self.canAnnotate():
             opts = self._collectRenderOptions()
             self.removeAnnotations(ns)
             ann = omero.gateway.CommentAnnotationWrapper()
@@ -8700,6 +8722,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             self.linkAnnotation(ann)
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
+        if not self.canAnnotate():
+            save = False
         self._re.resetDefaultSettings(save, ctx)
         return True
 
@@ -8765,22 +8789,76 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Returns a generator of :class:`OriginalFileWrapper` corresponding to
         the Imported image files that created this image, if available.
         """
-        # If we have an FS image, return Fileset files.
-        fs = self.getFileset()
-        if fs is not None:
-            for usedfile in fs.copyUsedFiles():
-                yield OriginalFileWrapper(self._conn, usedfile.originalFile)
+        query_service = self._conn.getQueryService()
 
-        # Otherwise, return Original Archived Files
-        pid = self.getPixelsId()
-        params = omero.sys.Parameters()
-        params.map = {"pid": rlong(pid)}
-        query = ("select link from PixelsOriginalFileMap link "
-                 "join fetch link.parent as p where link.child.id=:pid")
-        links = self._conn.getQueryService().findAllByQuery(
-            query, params, self._conn.SERVICE_OPTS)
-        for l in links:
-            yield OriginalFileWrapper(self._conn, l.parent)
+        # If we have an FS image, return Fileset files.
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query = 'select ofile from FilesetEntry as fse '\
+                'join fse.fileset as fileset '\
+                'join fse.originalFile as ofile '\
+                'join fileset.images as image '\
+                'where image.id in (:id)'
+        original_files = query_service.findAllByQuery(
+            query, params, self._conn.SERVICE_OPTS
+        )
+
+        if len(original_files) == 0:
+            # Otherwise, return Original Archived Files
+            params = omero.sys.ParametersI()
+            params.addId(self.getPixelsId())
+            query = 'select ofile from PixelsOriginalFileMap as link '\
+                    'join link.parent as ofile ' \
+                    'where link.child.id = :id'
+            original_files = query_service.findAllByQuery(
+                query, params, self._conn.SERVICE_OPTS
+            )
+
+        for original_file in original_files:
+            yield OriginalFileWrapper(self._conn, original_file)
+
+    def getImportedImageFilePaths(self):
+        """
+        Returns a generator of path strings corresponding to the Imported
+        image files that created this image, if available.
+        """
+        query_service = self._conn.getQueryService()
+        server_paths = list()
+        client_paths = list()
+
+        # If we have an FS image, return Fileset files.
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query = 'select ofile.path, ofile.name, fse.clientPath '\
+                'from FilesetEntry as fse '\
+                'join fse.fileset as fileset '\
+                'join fse.originalFile as ofile '\
+                'join fileset.images as image '\
+                'where image.id in (:id)'
+        rows = query_service.projection(
+            query, params, self._conn.SERVICE_OPTS
+        )
+        for row in rows:
+            path, name, clientPath = row
+            server_paths.append('%s%s' % (unwrap(path), unwrap(name)))
+            client_paths.append(unwrap(clientPath))
+
+        if len(rows) == 0:
+            # Otherwise, return Original Archived Files
+            params = omero.sys.ParametersI()
+            params.addId(self.getPixelsId())
+            query = 'select ofile.path, ofile.name '\
+                    '    from PixelsOriginalFileMap as link '\
+                    'join link.parent as ofile ' \
+                    'where link.child.id = :id'
+            rows = query_service.projection(
+                query, params, self._conn.SERVICE_OPTS
+            )
+            for row in rows:
+                path, name = row
+                server_paths.append('%s%s' % (unwrap(path), unwrap(name)))
+
+        return {'server_paths': server_paths, 'client_paths': client_paths}
 
     def getFileset(self):
         """

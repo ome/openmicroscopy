@@ -31,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -158,7 +160,7 @@ public class PropertiesUI
     /** Maximum number of characters shown per line in the
      *  channel names component
      */
-    private static final int MAX_CHANNELNAMES_LENGTH_IN_CHARS = 100;
+    private static final int MAX_CHANNELNAMES_LENGTH_IN_CHARS = 40;
     
     /** Button to edit the name. */
 	private JToggleButton				editName;
@@ -748,7 +750,7 @@ public class PropertiesUI
 		c.fill = GridBagConstraints.NONE;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = new Insets(0, 2, 2, 2);
+		c.insets = new Insets(0, 0, 2, 2);
 		c.gridy = 0;
 		c.gridx = 0;
     	JLabel l = new JLabel();
@@ -780,8 +782,8 @@ public class PropertiesUI
         	content.add(value, c);
         	c.gridy++; 
 		} catch (Exception e) {
-			
 		}
+    	
     	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION+":", Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
@@ -869,9 +871,7 @@ public class PropertiesUI
         content.add(roiCountLabel, c);
         loadROICount(image);
         
-    	JPanel p = UIUtilities.buildComponentPanel(content);
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        return p;
+        return content;
     }
     
     /** 
@@ -1058,22 +1058,31 @@ public class PropertiesUI
 		} else if (refObject instanceof DatasetData
 				|| refObject instanceof ProjectData
 				|| refObject instanceof PlateData
+				|| refObject instanceof PlateAcquisitionData
 				|| refObject instanceof ScreenData) {
 			DataObject dob = (DataObject) refObject;
 			
 			Timestamp crDate = dob.getCreated();
 			if (crDate != null) {
-				JLabel createDateLabel = new JLabel();
-				createDateLabel.setFont((new JLabel()).getFont().deriveFont(
-						Font.BOLD));
-				createDateLabel.setText(CREATIONDATE_TEXT
-						+ UIUtilities.formatDefaultDate(crDate));
+                JLabel createDateLabel = new JLabel();
+                Font font = createDateLabel.getFont();
+                int size = font.getSize() - 2;
+                createDateLabel.setFont((new JLabel()).getFont().deriveFont(
+                        Font.BOLD, size));
+                createDateLabel.setText(CREATIONDATE_TEXT);
 
-				JPanel p = UIUtilities.buildComponentPanel(createDateLabel, 0,
-						0);
-				p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-				p.setBackground(UIUtilities.BACKGROUND_COLOR);
-				add(p);
+                JLabel createDateValue = new JLabel();
+                createDateValue.setFont((new JLabel()).getFont().deriveFont(
+                        Font.PLAIN, size));
+                createDateValue.setText(UIUtilities.formatDefaultDate(crDate));
+
+                JPanel p = new JPanel();
+                p.setLayout(new GridLayout(1, 2));
+                p.add(createDateLabel);
+                p.add(createDateValue);
+                p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+                p.setBackground(UIUtilities.BACKGROUND_COLOR);
+                add(p);
 			}
 		}
     }

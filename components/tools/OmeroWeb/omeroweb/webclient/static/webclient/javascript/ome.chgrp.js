@@ -59,7 +59,8 @@ $(function() {
             data_owners = data.owners;  // save for later
             var ownernames = [];
             for (var o=0; o<data.owners.length; o++) {ownernames.push(data.owners[o][1]);}
-            var headerTxt = "<p>Move data owned by " + ownernames.join(", ") + " to Group...</p>";
+            var headerTxt = "<p>Move data owned by " + ownernames.join(", ") + ".</p>" +
+                            "<h1>Please choose target group below:</h1>";
             $group_chooser.append(headerTxt);
 
             // List the target groups...
@@ -233,7 +234,10 @@ $(function() {
     $chgrpform.ajaxForm({
         beforeSubmit: function(data, $form){
             // Don't submit if we haven't populated the form with group etc.
-            if (data.length === 0) return false;
+            if (data.length === 0) {
+                OME.alert_dialog("Please choose target group.");
+                return false;
+            }
             if ($("input[name='group_id']", $form).length === 0) return false;
             $chgrpform.dialog("close");
             var chgrp_target = $("#move_group_tree a.jstree-clicked");

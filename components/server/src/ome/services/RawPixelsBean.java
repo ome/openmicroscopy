@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -16,7 +16,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
@@ -41,6 +40,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.MapMaker;
 
 /**
  * Implementation of the RawPixelsStore stateful service.
@@ -298,7 +299,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public synchronized void prepare(Set<Long> pixelsIds)
     {
-	pixelsCache = new ConcurrentHashMap<Long, Pixels>(pixelsIds.size());
+    	pixelsCache = new MapMaker().makeMap();
     	List<Pixels> pixelsList = iQuery.findAllByQuery(
     			"select p from Pixels as p join fetch p.pixelsType " +
         		"where p.id in (:ids)", new Parameters().addIds(pixelsIds));

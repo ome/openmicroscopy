@@ -31,6 +31,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
@@ -147,7 +148,9 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                         targetObjectCount++;
                     }
                 }
-                return graphTraversal.planOperation(helper.getSession(), targetMultimap, false);
+                final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false);
+                return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
                 graphTraversal.unlinkTargets();
                 return null;

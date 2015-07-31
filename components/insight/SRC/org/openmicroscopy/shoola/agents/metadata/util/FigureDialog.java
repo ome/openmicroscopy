@@ -65,6 +65,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
@@ -477,26 +478,23 @@ public class FigureDialog
 	{
 		if (optionMenu != null) return optionMenu;
 		optionMenu = new JPopupMenu();
-		optionMenu.add(createButton("Download", DOWNLOAD));
-		optionMenu.add(createButton("View", VIEW));
+		optionMenu.add(createMenuItem("Download", DOWNLOAD));
+		optionMenu.add(createMenuItem("View", VIEW));
 		return optionMenu;
 	}
 	
 	/**
-	 * Creates a button.
+	 * Creates a menu item.
 	 * 
 	 * @param text The text of the button.
 	 * @param actionID The action command id.
-	 * @param l The action listener.
 	 * @return See above.
 	 */
-	private JButton createButton(String text, int actionID)
+	private JMenuItem createMenuItem(String text, int actionID)
     {
-    	JButton b = new JButton(text);
+	    JMenuItem b = new JMenuItem(text);
 		b.setActionCommand(""+actionID);
 		b.addActionListener(this);
-		b.setOpaque(false);
-		UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
     }
 	

@@ -746,7 +746,7 @@ class ToolBar
         void displayFileset() {
             SwingUtilities.convertPointToScreen(location, component);
             FilesetInfoDialog d = new FilesetInfoDialog();
-            d.setData(model.getFileset(), model.isInplaceImport());
+            d.setData(model.getFileset(), model.getImportType());
             d.pack();
             if (location != null) {
                 location = new Point(location.x - d.getSize().width,

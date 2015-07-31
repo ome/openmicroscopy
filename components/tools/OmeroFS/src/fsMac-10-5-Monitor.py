@@ -20,7 +20,7 @@ import path as pathModule
 
 __import__("omero.all")
 import omero.grid.monitors as monitors
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 import fsDirectory

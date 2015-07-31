@@ -87,12 +87,9 @@ class TestMail(lib.ITest):
 
         group = self.new_group(perms="rwra--")  # TODO: fixture
         user = self.new_client(group=group)
-        update = user.sf.getUpdateService()
         admin = user.sf.getAdminService()
 
-        image = omero.model.ImageI()
-        image.name = omero.rtypes.rstring("testOwnComments")
-        image = update.saveAndReturnObject(image)
+        image = self.make_image(name="testOwnComments", client=user)
         ctx = admin.getEventContext()
 
         # Set own email
@@ -102,11 +99,8 @@ class TestMail(lib.ITest):
 
         commenter = self.new_client(group=group,
                                     email="commenter@localhost")
-        link = omero.model.ImageAnnotationLinkI()
         comment = omero.model.CommentAnnotationI()
-        link.parent = image.proxy()
-        link.child = comment
-        update = commenter.sf.getUpdateService()
-        comment = update.saveAndReturnObject(link).child
+        link = self.link(image, comment, client=commenter)
+        comment = link.child
 
         self.assertMail("CommentAnnotation:%s -" % comment.id.val)

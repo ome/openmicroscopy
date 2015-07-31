@@ -12,7 +12,7 @@
 import os
 import pytest
 import Glacier2
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from path import path
 from omero.cli import CLI, NonZeroReturnCode
@@ -180,7 +180,7 @@ class TestStore(object):
             props["omero.port"] = port
         s.add("srv", "usr", "uuid", props, sudo=sudo)
         assert 1 == len(s.available("srv", "usr"))
-        session_dir = tmpdir / "omero" / "sessions"
+        session_dir = tmpdir
         session_file = session_dir / "srv" / "usr" / "uuid"
         session_file_content = session_file.read()
         assert "omero.sess=uuid\n" in session_file_content
@@ -197,15 +197,15 @@ class TestStore(object):
         assert "4064" == s.last_port()
 
     @pytest.mark.parametrize('name', [None, 'usr'])
-    @pytest.mark.parametrize('uuid', [None, 'uuid'])
+    @pytest.mark.parametrize('key', [None, 'uuid'])
     @pytest.mark.parametrize('port', [None, '4064', '14064'])
-    def testSetCurrent(self, name, uuid, port, tmpdir):
+    def testSetCurrent(self, name, key, port, tmpdir):
         s = self.store(tmpdir)
         props = {}
         if port:
             props["omero.port"] = port
-        s.set_current("srv", name=name, uuid=uuid, props=props)
-        session_dir = tmpdir / "omero" / "sessions"
+        s.set_current("srv", name=name, uuid=key, props=props)
+        session_dir = tmpdir
 
         # Using last_* methods
         assert (session_dir / "._LASTHOST_").exists()
@@ -217,18 +217,18 @@ class TestStore(object):
         assert "srv" == s.host_file().text().strip()
         if name:
             assert name == s.user_file("srv").text().strip()
-        if uuid and name:
-            assert uuid == s.sess_file("srv", "usr").text().strip()
+        if key and name:
+            assert key == s.sess_file("srv", "usr").text().strip()
 
         # Using get_current
-        lasthost, lastname, lastuuid, lastport = s.get_current()
+        lasthost, lastname, lastkey, lastport = s.get_current()
         assert lasthost == "srv"
         assert lastport == (port or '4064')
         assert lastname == name
         if name:
-            assert lastuuid == uuid
+            assert lastkey == key
         else:
-            assert lastuuid is None
+            assert lastkey is None
 
     def testContents(self):
         s = self.store()
@@ -262,23 +262,51 @@ class TestStore(object):
             "omero.sess": "c"}
         assert expect == rv
 
-    def testConflicts(self):
+    @pytest.mark.parametrize("ignore_nulls", [True, False])
+    def testGroupConflicts(self, ignore_nulls):
         s = self.store()
         s.add("a", "b", "c", {"omero.group": "1"})
-        conflicts = s.conflicts("a", "b", "c", {})
-        assert conflicts == 'omero.group:1!=None;'
-        conflicts = s.conflicts("a", "b", "c", {}, ignore_nulls=True)
-        assert conflicts == ''
-        conflicts = s.conflicts("a", "b", "c", {"omero.group": "2"})
-        assert conflicts == 'omero.group:1!=2;'
+        conflicts = s.conflicts("a", "b", "c", {}, ignore_nulls=ignore_nulls)
+        if ignore_nulls:
+            assert conflicts == ''
+        else:
+            assert conflicts == 'omero.group: 1!=None'
+
+        conflicts = s.conflicts(
+            "a", "b", "c", {"omero.group": "2"}, ignore_nulls=ignore_nulls)
+        assert conflicts == 'omero.group: 1!=2'
+
+    @pytest.mark.parametrize("ignore_nulls", [True, False])
+    def testMultiConflicts(self, ignore_nulls):
+        s = self.store()
+        s.add("a", "b", "c", {"omero.group": "1"})
+        conflicts = s.conflicts("a", "b", "c", {
+            "omero.group": "2", "omero.port": "14064"},
+            ignore_nulls=ignore_nulls)
+        assert conflicts == 'omero.port: None!=14064; omero.group: 1!=2'
 
 
 class TestSessions(object):
 
     CONNECTION_TYPES = ["string", "prefixed_string", "options"]
+    ALL_PORTS = [None, 4064, 14064]
+    ALL_GROUPS = [None, "mygroup", "mygroup2"]
+    # The following attributes define list of tuples for testing session
+    # re-attachment.
+    # The first element of each tuple correspond to the value stored in the
+    # session file (where None means the property is not stored). The second
+    # element corresponds to the value passed via the connection arguments.
+    MATCHING_PORTS = [(None, 4064), (4064, None)]
+    CONFLICTING_PORTS = [(None, 14064), (14064, None), (4064, 14064)]
+    DIFFERENT_GROUPS = [
+        (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")]
+
+    def get_conflict_message(self):
+        return "Skipped session %s due to property conflicts: "
 
     def get_conn_args(self, conn_type, host="testhost", name="testuser",
-                      port=None):
+                      port=None, group=None):
+        """Generated various forms of connection arguments"""
 
         if name:
             if conn_type == "string":
@@ -302,6 +330,10 @@ class TestSessions(object):
                 args += " -p %s" % port
             else:
                 args += ":%s" % port
+
+        # Add group login argument
+        if group:
+            args += " -g %s" % group
 
         return args.split()
 
@@ -341,55 +373,78 @@ class TestSessions(object):
         assert 0 == cli.rv
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseWorks(self, connection):
+    @pytest.mark.parametrize('port', ALL_PORTS)
+    @pytest.mark.parametrize('group', ALL_GROUPS)
+    def testReuseWorks(self, connection, port, group):
+        """
+        Test session reuse with the same port/group works
+        """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid", {})
-        cli.creates_client(new=False)
-        conn_args = self.get_conn_args(connection)
+        props = {}
+        if port:
+            props["omero.port"] = port
+        if group:
+            props["omero.group"] = group
+
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
+        cli.creates_client(port=str(port), group=group, new=False)
+        conn_args = self.get_conn_args(connection, port=port, group=group)
         cli.invoke(["s", "login"] + conn_args)
         assert cli.get_client() is not None
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromDifferentGroupDoesntWork(self, connection):
+    @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
+    def testReuseFromDifferentGroupDoesntWork(self, connection, group, capsys):
+        """
+        Test session reuse with different groups fails
+        """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid", {})
+        props = {}
+        if group[0]:
+            props["omero.group"] = group[0]
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
         cli.requests_pass()
         cli.assertReqSize(self, 1)
-        cli.creates_client(group="mygroup2")
-        conn_args = self.get_conn_args(connection)
-        cli.invoke(["s", "login", "-g", "mygroup2"] + conn_args)
+        cli.creates_client(group=group[1])
+        conn_args = self.get_conn_args(connection, group=group[1])
+        cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
+        out, err = capsys.readouterr()
+        msg = (self.get_conflict_message() + 'omero.group: %s!=%s')
+        assert err.splitlines()[-2] == msg % ('testsessid', group[0], group[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromSameGroupDoesWork(self, connection):
+    @pytest.mark.parametrize('port', MATCHING_PORTS)
+    def testReuseMatchingPorts(self, connection, port):
+        """
+        Test session reuse with matching ports works
+        """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid",
-                      {"omero.group": "mygroup"})
+        props = {}
+        if port[0]:
+            props["omero.port"] = port[0]
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
         cli.assertReqSize(self, 0)
-        cli.creates_client(group="mygroup", new=False)
-        conn_args = self.get_conn_args(connection)
-        cli.invoke(["s", "login", "-g", "mygroup"] + conn_args)
-        cli.assertReqSize(self, 0)
-
-    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromDifferentPortDoesntWork(self, connection):
-        cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid", {})
-        cli.requests_pass()
-        cli.assertReqSize(self, 1)
-        cli.creates_client(port="4444")
-        conn_args = self.get_conn_args(connection, port="4444")
+        cli.creates_client(port=str(port[1]), new=False)
+        conn_args = self.get_conn_args(connection, port=port[1])
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromSamePortDoesWork(self, connection):
+    @pytest.mark.parametrize('port', CONFLICTING_PORTS)
+    def testReuseFromDifferentPortDoesntWork(self, connection, port):
+        """
+        Test session reuse with mismatching ports fails
+        """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid",
-                      {"omero.port": "4444"})
-        cli.assertReqSize(self, 0)
-        cli.creates_client(port="4444", new=False)
-        conn_args = self.get_conn_args(connection, port="4444")
+        props = {}
+        if port[0]:
+            props["omero.port"] = port[0]
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
+        cli.requests_pass()
+        cli.assertReqSize(self, 1)
+        cli.creates_client(port=str(port[1]))
+        conn_args = self.get_conn_args(connection, port=port[1])
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
@@ -465,7 +520,181 @@ class TestSessions(object):
 
         del cli
 
-    @pytest.mark.parametrize('port', [None, 4064])
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('name', [None, 'testuser'])
+    @pytest.mark.parametrize('password', [None, 'password'])
+    @pytest.mark.parametrize('group', [None, 'group'])
+    def testSessionReattachWarning(
+            self, connection, name, password, group, capsys):
+        """
+        Test session re-attachment by key throws warnings for extra arguments
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY)
+        key_conn_args = self.get_conn_args(connection, name=None)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(connection, name=name, group=group)
+        if password:
+            key_conn_args += ["-w", password]
+        cli.invoke(
+            ["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        out, err = capsys.readouterr()
+        err = err.splitlines()
+        if name:
+            assert "Overriding name since session key set" in err
+        if group:
+            assert "Ignoring group since session key set" in err
+        if password:
+            assert "Ignoring password since session key set" in err
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', ALL_PORTS)
+    @pytest.mark.parametrize('group', ALL_GROUPS)
+    def testSessionReattachSameArguments(self, connection, port, group):
+        """
+        Test session re-attachment by key with the same group/port works
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port, group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', MATCHING_PORTS)
+    @pytest.mark.parametrize('group', ALL_GROUPS)
+    def testSessionReattachDefaultPort(self, connection, port, group):
+        """
+        Test session re-attachment by key with matching ports
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port[0], group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[0], group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[1], group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', ALL_PORTS)
+    @pytest.mark.parametrize('group', ALL_GROUPS)
+    def testSessionReattachServerMismatch(self, connection, port, group):
+        """
+        Test session re-attachment by key with mismatching hostnames fails
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port, group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, host="wrongserver",  name=None, port=port, group=group)
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', CONFLICTING_PORTS)
+    @pytest.mark.parametrize('group', ALL_GROUPS)
+    def testSessionReattachConflictingPort(self, connection, port, group):
+        """
+        Test session re-attachment fails with mismatching ports fails
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port[0], group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[0], group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[1], group=group)
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', ALL_PORTS)
+    @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
+    def testSessionReattachDifferentGroup(self, connection, port, group):
+        """
+        Test session re-attachment by key with different groups works
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port, group=group[0])
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group[0])
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group[1])
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', CONFLICTING_PORTS)
+    @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
+    def testSessionReattachFailsPortGroup(self, connection, port, group):
+        """
+        Test session re-attachment by key with mismatching ports and different
+        groups fails
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port[0], group=group[0])
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[0], group=group[0])
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[1], group=group[1])
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     def testCopiedSessionWorks(self, connection, port):
         """
@@ -476,18 +705,14 @@ class TestSessions(object):
         MOCKKEY = "MOCKKEY%s" % uuid.uuid4()
 
         # Try with session when it's still available
-        cli.creates_client(sess=MOCKKEY, new=True)
+        cli.creates_client(sess=MOCKKEY, new=True, port=port)
 
-        conn_args = self.get_conn_args(connection, name=None, port=None)
+        conn_args = self.get_conn_args(connection, name=None, port=port)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
         cli.set_client(None)  # Forcing new instance
         cli.creates_client(sess=MOCKKEY, new=False)
         conn_args = self.get_conn_args(connection, port=port)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
-
-    def assert5975(self, key, cli):
-        host, name, uuid, port = cli.STORE.get_current()
-        assert key != name
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     def test5975(self, connection):
@@ -496,14 +721,63 @@ class TestSessions(object):
         to be a session uuid (which should never happen)
         """
         cli = MyCLI()
-        key = str(uuid.uuid4())
+        key = "%s" % uuid.uuid4()
         cli.creates_client(sess=key, new=True)
         conn_args = self.get_conn_args(connection, name=None)
         cli.invoke(["s", "login", "-k", "%s" % key] + conn_args)
-        self.assert5975(key, cli)
+        current = cli.STORE.get_current()
+        assert key != current[1]
 
         cli.invoke("s logout")
-        self.assert5975(key, cli)
+        current = cli.STORE.get_current()
+        assert key != current[1]
+
+    def testList(self, capsys):
+        """
+        Test the output of sessions list
+        """
+        cli = MyCLI()
+        cli.STORE.add("srv", "usr", "uuid", {})
+        cli.creates_client(new=False)
+        cli.invoke(["s", "list"])
+        o, e = capsys.readouterr()
+        assert o.endswith("(1 row)\n")
+        assert "srv" in o
+        assert "usr" in o
+        assert "uuid" in o
+
+    @pytest.mark.parametrize("purge", [True, False])
+    def testListOptions(self, capsys, purge):
+        """
+        Test purge options of bin/omero sessions list
+        """
+        cli = MyCLI()
+        # Create 2 sessions in store
+        cli.STORE.add("srv", "usr", "uuid", {})
+        cli.STORE.add("srv", "usr2", "uuid2", {})
+
+        if purge:
+            cmd = ["s", "list"]
+        else:
+            cmd = ["s", "list", "--no-purge"]
+
+        # Keep one session active
+        cli.creates_client(new=False)
+        cli.invoke(cmd)
+        o, e = capsys.readouterr()
+        if purge:
+            assert o.endswith("(1 row)\n")
+        else:
+            assert o.endswith("(2 rows)\n")
+
+        # Keep one session active
+        cli.creates_client(new=False)
+        cli.invoke(cmd)
+        o2, e2 = capsys.readouterr()
+        if purge:
+            assert o2.endswith("(1 row)\n")
+        else:
+            assert o2.endswith("(2 rows)\n")
 
 
 class TestParseConn(object):

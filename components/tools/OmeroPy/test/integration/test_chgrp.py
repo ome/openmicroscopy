@@ -28,8 +28,10 @@ import omero
 import omero.gateway
 import library as lib
 import pytest
+from omero.cmd import Chgrp2
+from omero.cmd.graphs import ChildOption
 from omero.model import DatasetI, DatasetImageLinkI, ExperimenterGroupI, ImageI
-from omero.model import FileAnnotationI, ImageAnnotationLinkI, TagAnnotationI
+from omero.model import TagAnnotationI
 from omero.model import ProjectDatasetLinkI, ProjectI, PlateI, ScreenI
 from omero.model import ExperimenterI
 from omero.rtypes import rstring, unwrap
@@ -58,9 +60,8 @@ class TestChgrp(lib.ITest):
             name="testChgrpImportedImage", client=client)
 
         # Chgrp
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=image.id.val, options=None, grp=gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(targetObjects={'Image': [image.id.val]}, groupId=gid)
+        self.doSubmit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -85,9 +86,7 @@ class TestChgrp(lib.ITest):
         first_gid = admin.getEventContext().groupId
 
         # Create a dataset in the 'first group'
-        ds = DatasetI()
-        ds.name = rstring("testChgrpImage_target")
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name="testChgrpImage_target", client=client)
         ds_id = ds.id.val
 
         # Change our context to new group and create image
@@ -98,8 +97,8 @@ class TestChgrp(lib.ITest):
         img = update.saveAndReturnObject(img)
 
         # Move image to new group
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=img.id.val, options=None, grp=first_gid)
+        chgrp = Chgrp2(
+            targetObjects={'Image': [img.id.val]}, groupId=first_gid)
 
         # Link to Save
         link = DatasetImageLinkI()
@@ -114,7 +113,7 @@ class TestChgrp(lib.ITest):
         self.set_context(client, first_gid)
 
         # We have to be in destination group for link Save to work
-        self.doAllSubmit(requests, client)
+        self.doSubmit(requests, client)
 
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
@@ -136,32 +135,18 @@ class TestChgrp(lib.ITest):
         grp = self.new_group([exp])
         gid = grp.id.val
         client.sf.getAdminService().getEventContext()  # Reset session
-        update = client.sf.getUpdateService()
 
         # Data Setup (image in the P/D hierarchy)
-        img = self.new_image()
-        img = update.saveAndReturnObject(img)
-        project = ProjectI()
-        project.setName(rstring("chgrp-test"))
-        project = update.saveAndReturnObject(project)
-        dataset = DatasetI()
-        dataset.setName(rstring("chgrp-test"))
-        dataset = update.saveAndReturnObject(dataset)
-        links = []
-        link = DatasetImageLinkI()
-        link.setChild(img)
-        link.setParent(dataset)
-        links.append(link)
-        l = ProjectDatasetLinkI()
-        l.setChild(dataset.proxy())
-        l.setParent(project.proxy())
-        links.append(l)
-        update.saveAndReturnArray(links)
+        img = self.make_image(client=client)
+        project = self.make_project(name="chgrp-test", client=client)
+        dataset = self.make_dataset(name="chgrp-test", client=client)
+        self.link(dataset, img, client=client)
+        self.link(project, dataset, client=client)
 
         # Move Project to new group
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=project.id.val, options=None, grp=gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={'Project': [project.id.val]}, groupId=gid)
+        self.doSubmit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -204,8 +189,9 @@ class TestChgrp(lib.ITest):
         render(member_g)
 
         # Now chgrp and try to delete
-        chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], owner)
+        chgrp = Chgrp2(
+            targetObjects={'Image': [image.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, owner)
 
         # Shouldn't be necessary to change group, but we're gonna
         owner_g.SERVICE_OPTS.setOmeroGroup("-1")
@@ -227,9 +213,9 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
 
         # Now chgrp
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client, test_should_pass=False)
+        chgrp = Chgrp2(
+            targetObjects={'Image': [images[0].id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client, test_should_pass=False)
 
     def testChgrpAllImagesFilesetOK(self):
         """
@@ -245,11 +231,9 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
 
         # chgrp should succeed
-        chgrp1 = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=target_gid)
-        chgrp2 = omero.cmd.Chgrp(
-            type="/Image", id=images[1].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp1, chgrp2], client)
+        ids = [images[0].id.val, images[1].id.val]
+        chgrp = Chgrp2(targetObjects={'Image': ids}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check both Images moved
         queryService = client.sf.getQueryService()
@@ -272,20 +256,17 @@ class TestChgrp(lib.ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        update = client.sf.getUpdateService()
         datasets = self.createDatasets(
             2, "testChgrpOneDatasetFilesetErr", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = DatasetImageLinkI()
-            link.setParent(datasets[i].proxy())
-            link.setChild(images[i].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(datasets[i], images[i], client=client)
 
         # chgrp should succeed with the first Dataset only
-        chgrp = omero.cmd.Chgrp(
-            type="/Dataset", id=datasets[0].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [datasets[0].id.val]},
+            groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         queryService = client.sf.getQueryService()
 
@@ -318,22 +299,16 @@ class TestChgrp(lib.ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        update = client.sf.getUpdateService()
         datasets = self.createDatasets(
             2, "testChgrpAllDatasetsFilesetOK", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = DatasetImageLinkI()
-            link.setParent(datasets[i].proxy())
-            link.setChild(images[i].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(datasets[i], images[i], client=client)
 
         # Now chgrp, should succeed
-        chgrp1 = omero.cmd.Chgrp(
-            type="/Dataset", id=datasets[0].id.val, grp=target_gid)
-        chgrp2 = omero.cmd.Chgrp(
-            type="/Dataset", id=datasets[1].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp1, chgrp2], client)
+        ids = [datasets[0].id.val, datasets[1].id.val]
+        chgrp = Chgrp2(targetObjects={"Dataset": ids}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check both Datasets and Images moved
         queryService = client.sf.getQueryService()
@@ -357,20 +332,16 @@ class TestChgrp(lib.ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        update = client.sf.getUpdateService()
-        ds = DatasetI()
-        ds.name = rstring("testChgrpOneDatasetFilesetOK")
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name="testChgrpOneDatasetFilesetOK",
+                               client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(images[i].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(ds, images[i], client=client)
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check Dataset and both Images moved
         queryService = client.sf.getQueryService()
@@ -398,11 +369,9 @@ class TestChgrp(lib.ITest):
         imagesFsTwo = self.importMIF(2, client=client)
 
         # chgrp should fail...
-        chgrp1 = omero.cmd.Chgrp(
-            type="/Image", id=imagesFsOne[0].id.val, grp=target_gid)
-        chgrp2 = omero.cmd.Chgrp(
-            type="/Image", id=imagesFsTwo[0].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp1, chgrp2], client, test_should_pass=False)
+        ids = [imagesFsOne[0].id.val, imagesFsTwo[0].id.val]
+        chgrp = Chgrp2(targetObjects={"Image": ids}, groupId=target_gid)
+        self.doSubmit(chgrp, client, test_should_pass=False)
 
     def testChgrpDatasetTwoFilesetsErr(self):
         """
@@ -417,20 +386,16 @@ class TestChgrp(lib.ITest):
         imagesFsOne = self.importMIF(2, client=client)
         imagesFsTwo = self.importMIF(2, client=client)
 
-        update = client.sf.getUpdateService()
-        ds = DatasetI()
-        ds.name = rstring("testChgrpDatasetTwoFilesetsErr")
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name="testChgrpDatasetTwoFilesetsErr",
+                               client=client)
         self.importMIF(2, client=client)
         for i in (imagesFsOne, imagesFsTwo):
-            link = DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(i[0].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(ds, i[0], client=client)
 
         # chgrp should succeed with the Dataset only
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         queryService = client.sf.getQueryService()
 
@@ -459,20 +424,16 @@ class TestChgrp(lib.ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        update = client.sf.getUpdateService()
-        ds = DatasetI()
-        ds.name = rstring("testChgrpDatasetCheckFsGroup")
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name="testChgrpDatasetCheckFsGroup",
+                               client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(images[i].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(ds, images[i], client=client)
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check the group of the fileset is in sync with image.
         ctx = {'omero.group': '-1'}
@@ -500,8 +461,8 @@ class TestChgrp(lib.ITest):
         fsId = query.get("Image", images[0].id.val).fileset.id.val
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(type="/Fileset", id=fsId, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(targetObjects={"Fileset": [fsId]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check Fileset and both Images moved and
         # thus the Fileset is in sync with Images.
@@ -523,17 +484,10 @@ class TestChgrp(lib.ITest):
         """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
-
-        update = client.sf.getUpdateService()
-        ds = DatasetI()
-        ds.name = rstring("testChgrp11000")
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name="testChgrp11000", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(images[i].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(ds, images[i], client=client)
 
         # Perform the extra companion file logic
         fs = client.sf.getQueryService().findByQuery("""
@@ -546,12 +500,9 @@ class TestChgrp(lib.ITest):
         entry1 = fs.getFilesetEntry(0)
         ofile = entry1.getOriginalFile()
         for i in range(2):
-            link = ImageAnnotationLinkI()
-            ann = FileAnnotationI()
+            ann = omero.model.FileAnnotationI()
             ann.file = ofile.proxy()
-            link.setParent(images[i].proxy())
-            link.setChild(ann)
-            link = update.saveAndReturnObject(link)
+            self.link(images[i], ann, client=client)
 
     def testChgrp11109(self):
         """
@@ -573,9 +524,9 @@ class TestChgrp(lib.ITest):
         link = update.saveAndReturnObject(link)
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(
-            type="/Plate", id=link.child.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Plate": [link.child.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check that the links have been destroyed
         query = client.sf.getQueryService()
@@ -596,12 +547,10 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         d = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(d, i, client)
+        i = self.make_image(client=client)
+        self.link(d, i, client=client)
         self.change_group([d], target_gid, client)
 
         ctx = {'omero.group': '-1'}
@@ -624,15 +573,13 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         p = self.make_project(client=client)
         d = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(p, d, client)
-        self.link(d, i, client)
-        self.change_group([p], target_gid, client)
+        i = self.make_image(client=client)
+        self.link(p, d, client=client)
+        self.link(d, i, client=client)
+        self.change_group([p], target_gid, client=client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Project",
@@ -657,15 +604,13 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         d1 = self.make_dataset(client=client)
         d2 = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(d1, i, client)
-        self.link(d2, i, client)
-        self.change_group([d1], target_gid, client)
+        i = self.make_image(client=client)
+        self.link(d1, i, client=client)
+        self.link(d2, i, client=client)
+        self.change_group([d1], target_gid, client=client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Dataset",
@@ -690,18 +635,17 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         d1 = self.make_dataset(client=client)
         d2 = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(d1, i, client)
-        self.link(d2, i, client)
+        i = self.make_image(client=client)
+        self.link(d1, i, client=client)
+        self.link(d2, i, client=client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Dataset", id=d1.id.val, grp=target_gid,
-            options={"/Image": "HARD"})
+        hard = ChildOption(includeType=["Image"])
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [d1.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -727,16 +671,14 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         p = self.make_project(client=client)
         d1 = self.make_dataset(client=client)
         d2 = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(d1, i, client)
-        self.link(d2, i, client)
-        self.link(p, d1, client)
+        i = self.make_image(client=client)
+        self.link(d1, i, client=client)
+        self.link(d2, i, client=client)
+        self.link(p, d1, client=client)
         self.change_group([p], target_gid, client)
 
         ctx = {'omero.group': '-1'}
@@ -762,20 +704,19 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         p = self.make_project(client=client)
         d1 = self.make_dataset(client=client)
         d2 = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(d1, i, client)
-        self.link(d2, i, client)
-        self.link(p, d1, client)
+        i = self.make_image(client=client)
+        self.link(d1, i, client=client)
+        self.link(d2, i, client=client)
+        self.link(p, d1, client=client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=p.id.val, grp=target_gid,
-            options={"/Image": "HARD"})
+        hard = ChildOption(includeType=["Image"])
+        chgrp = Chgrp2(
+            targetObjects={"Project": [p.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -803,16 +744,14 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         p1 = self.make_project(client=client)
         p2 = self.make_project(client=client)
         d = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(p1, d, client)
-        self.link(p2, d, client)
-        self.link(d, i, client)
+        i = self.make_image(client=client)
+        self.link(p1, d, client=client)
+        self.link(p2, d, client=client)
+        self.link(d, i, client=client)
         self.change_group([d], target_gid, client)
 
         ctx = {'omero.group': '-1'}
@@ -841,16 +780,14 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         p1 = self.make_project(client=client)
         p2 = self.make_project(client=client)
         d = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(p1, d, client)
-        self.link(p2, d, client)
-        self.link(d, i, client)
+        i = self.make_image(client=client)
+        self.link(p1, d, client=client)
+        self.link(p2, d, client=client)
+        self.link(d, i, client=client)
         self.change_group([p1], target_gid, client)
 
         ctx = {'omero.group': '-1'}
@@ -876,20 +813,19 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         p1 = self.make_project(client=client)
         p2 = self.make_project(client=client)
         d = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(p1, d, client)
-        self.link(p2, d, client)
-        self.link(d, i, client)
+        i = self.make_image(client=client)
+        self.link(p1, d, client=client)
+        self.link(p2, d, client=client)
+        self.link(d, i, client=client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=p1.id.val, grp=target_gid,
-            options={"/Dataset": "HARD"})
+        hard = ChildOption(includeType=["Dataset"])
+        chgrp = Chgrp2(
+            targetObjects={"Project": [p1.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -921,8 +857,8 @@ class TestChgrp(lib.ITest):
         p1 = self.make_project(client=client)
         p2 = self.make_project(client=client)
         d = self.make_dataset(client=client)
-        self.link(p1, d, client)
-        self.link(p2, d, client)
+        self.link(p1, d, client=client)
+        self.link(p2, d, client=client)
         self.change_group([p1], target_gid, client)
 
         ctx = {'omero.group': '-1'}
@@ -950,12 +886,13 @@ class TestChgrp(lib.ITest):
         p1 = self.make_project(client=client)
         p2 = self.make_project(client=client)
         d = self.make_dataset(client=client)
-        self.link(p1, d, client)
-        self.link(p2, d, client)
+        self.link(p1, d, client=client)
+        self.link(p2, d, client=client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=p1.id.val, grp=target_gid,
-            options={"/Dataset": "HARD"})
+        hard = ChildOption(includeType=["Dataset"])
+        chgrp = Chgrp2(
+            targetObjects={"Project": [p1.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -981,17 +918,15 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         query = client.sf.getQueryService()
-        update = client.sf.getUpdateService()
 
         p = self.make_project(client=client)
         d1 = self.make_dataset(client=client)
         d2 = self.make_dataset(client=client)
-        i = self.new_image()
-        i = update.saveAndReturnObject(i)
-        self.link(p, d1, client)
-        self.link(p, d2, client)
-        self.link(d1, i, client)
-        self.link(d2, i, client)
+        i = self.make_image(client=client)
+        self.link(p, d1, client=client)
+        self.link(p, d2, client=client)
+        self.link(d1, i, client=client)
+        self.link(d2, i, client=client)
         self.change_group([p], target_gid, client)
 
         ctx = {'omero.group': '-1'}
@@ -1034,22 +969,17 @@ class TestChgrp(lib.ITest):
 
         # switch user to tag-owner
         # tag both image-owner's images with the same new tag
-        tag = TagAnnotationI()
-        tag.textValue = rstring("tag from user %s" %
-                                tag_owner.getOmeName().val)
+        tag = self.new_object(
+            TagAnnotationI, name="tag from user %s" % tag_owner.omeName.val)
         tag = to_client.sf.getUpdateService().saveAndReturnObject(tag)
         assert tag_owner.id.val == tag.details.owner.id.val
         links = []
         for image in images:
-            link = ImageAnnotationLinkI()
-            link.setParent(image)
-            link.setChild(tag)
-            links.append(to_client.sf.getUpdateService()
-                         .saveAndReturnObject(link))
+            links.append(self.link(image, tag, client=to_client))
 
         # (shell) as root
         # run bin/omero hql --all 'select parent.details.group.id,
-        # child.details.group.id from ImageAnnotationLink'
+        # child.details.group.id from ImageIink'
         # and observe that for each row
         # the group ID in Col1 matches that in Col2
         for link in links:
@@ -1084,8 +1014,7 @@ class TestChgrpTarget(lib.ITest):
             client = self.client
         ctx = {'omero.group': str(gid)}
         update = client.sf.getUpdateService()
-        ds = DatasetI()
-        ds.name = rstring(name)
+        ds = self.new_dataset(name)
         return update.saveAndReturnObject(ds, ctx)
 
     def chgrpImagesToTargetDataset(self, imgCount):
@@ -1102,20 +1031,21 @@ class TestChgrpTarget(lib.ITest):
         ds = self.createDSInGroup(target_gid, client=client)
 
         # each chgrp includes a 'save' link to target dataset
-        requests = []
         saves = []
+        ids = []
         for i in images:
-            chgrp = omero.cmd.Chgrp(type="/Image", id=i.id.val, grp=target_gid)
-            requests.append(chgrp)
+            ids.append(i.id.val)
             link = DatasetImageLinkI()
             link.child = ImageI(i.id.val, False)
             link.parent = DatasetI(ds.id.val, False)
             save = Save()
             save.obj = link
             saves.append(save)
-
+        chgrp = Chgrp2(
+            targetObjects={"Image": ids}, groupId=target_gid)
+        requests = [chgrp]
         requests.extend(saves)
-        self.doAllSubmit(requests, client, omero_group=target_gid)
+        self.doSubmit(requests, client, omero_group=target_gid)
 
         # Check Images moved to correct group
         queryService = client.sf.getQueryService()
@@ -1150,9 +1080,9 @@ class TestChgrpTarget(lib.ITest):
         """
         ds, images, client, user, old_gid, new_gid =\
             self.chgrpImagesToTargetDataset(1)
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=old_gid)
-        self.doAllSubmit([chgrp], client, omero_group=old_gid)
+        chgrp = Chgrp2(
+            targetObjects={"Image": [images[0].id.val]}, groupId=old_gid)
+        self.doSubmit(chgrp, client, omero_group=old_gid)
 
     def testChgrpImageToTargetDatasetAndBackDS(self):
         """
@@ -1168,10 +1098,10 @@ class TestChgrpTarget(lib.ITest):
         link.parent = old_ds.proxy()
         link.child = images[0].proxy()
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=old_gid)
+        chgrp = Chgrp2(
+            targetObjects={"Image": [images[0].id.val]}, groupId=old_gid)
         save = Save(link)
-        self.doAllSubmit([chgrp, save], client, omero_group=old_gid)
+        self.doSubmit([chgrp, save], client, omero_group=old_gid)
 
         dils = client.sf.getQueryService().findAllByQuery(
             "select dil from DatasetImageLink dil where dil.child.id = :id",
@@ -1196,18 +1126,16 @@ class TestChgrpTarget(lib.ITest):
 
         # User creates Dataset in current group...
         update = client.sf.getUpdateService()
-        ds = DatasetI()
-        ds.name = rstring(self.uuid())
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(client=client)
         # ...and Project in target group
         ctx = {'omero.group': str(target_gid)}
-        pr = ProjectI()
-        pr.name = rstring(self.uuid())
+        pr = self.new_project()
         pr = update.saveAndReturnObject(pr, ctx)
 
         requests = []
         saves = []
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
         requests.append(chgrp)
         link = ProjectDatasetLinkI()
         link.details.owner = ExperimenterI(userId, False)
@@ -1222,7 +1150,7 @@ class TestChgrpTarget(lib.ITest):
             c = client
         else:
             c = self.root
-        self.doAllSubmit(requests, c, omero_group=target_gid)
+        self.doSubmit(requests, c, omero_group=target_gid)
 
         queryService = client.sf.getQueryService()
         ctx = {'omero.group': '-1'}  # query across groups

@@ -103,9 +103,6 @@ import org.testng.annotations.Test;
  */
 public class ImporterTest extends AbstractServerTest {
 
-    /** The collection of files that have to be deleted. */
-    private List<File> files;
-
     /** {@link EventContext} that is set on {@link #loginMethod()} */
     private EventContext ownerEc;
 
@@ -597,7 +594,6 @@ public class ImporterTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        files = new ArrayList<File>();
     }
 
     /**
@@ -608,11 +604,6 @@ public class ImporterTest extends AbstractServerTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-        Iterator<File> i = files.iterator();
-        while (i.hasNext()) {
-            i.next().delete();
-        }
-        files.clear();
     }
 
     /**
@@ -630,7 +621,7 @@ public class ImporterTest extends AbstractServerTest {
                     + ModelMockFactory.FORMATS[i], "."
                     + ModelMockFactory.FORMATS[i]);
             mmFactory.createImageFile(f, ModelMockFactory.FORMATS[i]);
-            files.add(f);
+            f.deleteOnExit();
             try {
                 importFile(f, ModelMockFactory.FORMATS[i]);
             } catch (Throwable e) {
@@ -658,7 +649,7 @@ public class ImporterTest extends AbstractServerTest {
     @Test
     public void testImportSimpleImage() throws Exception {
         File f = File.createTempFile("testImportSimpleImage", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -718,7 +709,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportSimpleImageMetadataOnly() throws Exception {
         File f = File.createTempFile("testImportSimpleImageMetadataOnly", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -742,7 +733,7 @@ public class ImporterTest extends AbstractServerTest {
         File f = File.createTempFile(
                 "testImportSimpleImageMetadataOnlyNoBinaryInFile", "."
                         + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), false);
@@ -764,7 +755,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportAnnotatedImage() throws Exception {
         File f = File.createTempFile("testImportAnnotatedImage", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createAnnotatedImage(), true);
@@ -816,7 +807,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportImageWithAcquisitionData() throws Exception {
         File f = File.createTempFile("testImportImageWithAcquisitionData", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createImageWithAcquisitionData();
@@ -1014,7 +1005,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportImageWithROI() throws Exception {
         File f = File
                 .createTempFile("testImportImageWithROI", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithROI(), true);
@@ -1070,7 +1061,7 @@ public class ImporterTest extends AbstractServerTest {
     @Test
     public void testImportPlate() throws Exception {
         File f = File.createTempFile("testImportPlate", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createPopulatedPlate(0);
@@ -1104,7 +1095,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportScreenWithOnePlate() throws Exception {
         File f = File.createTempFile("testImportScreenWithOnePlate", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         int rows = 2;
@@ -1204,7 +1195,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportScreenWithTwoPlates() throws Exception {
         File f = File.createTempFile("testImportScreenWithTwoPlates", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         int rows = 2;
@@ -1299,7 +1290,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportPlateOnePlateAcquisition() throws Exception {
         File f = File.createTempFile("testImportPlateOnePlateAcquisition", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createPopulatedPlate(1);
@@ -1340,7 +1331,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportPlateMultiplePlateAcquisitions() throws Exception {
         File f = File.createTempFile(
                 "testImportPlateMultiplePlateAcquisitions", "." + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         int n = 3;
         int fields = 3;
         XMLMockObjects xml = new XMLMockObjects();
@@ -1405,7 +1396,7 @@ public class ImporterTest extends AbstractServerTest {
     public void testImportPlateWithReagent() throws Exception {
         File f = File.createTempFile("testImportPlateWithReagent", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createBasicPlateWithReagent();
@@ -1470,7 +1461,7 @@ public class ImporterTest extends AbstractServerTest {
 
         File f = File.createTempFile("testImportImageIntoDataset", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -1514,7 +1505,7 @@ public class ImporterTest extends AbstractServerTest {
 
         File f = File.createTempFile("testImportImageIntoDataset", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -1557,7 +1548,7 @@ public class ImporterTest extends AbstractServerTest {
 
         File f = File.createTempFile("testImportImageIntoDataset", "."
                 + OME_FORMAT);
-        files.add(f);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);

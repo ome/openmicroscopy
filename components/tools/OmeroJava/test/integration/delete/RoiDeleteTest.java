@@ -12,12 +12,13 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
@@ -41,8 +42,10 @@ import omero.model.Well;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
+import com.google.common.collect.ImmutableMap;
+
+import static org.testng.AssertJUnit.*;
 import pojos.FileAnnotationData;
 
 /**
@@ -73,8 +76,11 @@ public class RoiDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, i1.getId()
-                .getValue(), null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(i1.getId().getValue()));
+        callback(true, client, dc);
 
         assertDoesNotExist(i1);
         assertDoesNotExist(roi);
@@ -146,7 +152,11 @@ public class RoiDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         // Now delete the rois.
-        delete(client, new Delete(DeleteServiceTest.REF_ROI, roiID, null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Roi.class.getSimpleName(),
+                Collections.singletonList(roiID));
+        callback(true, client, dc);
         assertDoesNotExist(roi);
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
         assertEquals(l.size(), 0);
@@ -217,9 +227,13 @@ public class RoiDeleteTest extends AbstractServerTest {
         links.add(il);
         iUpdate.saveAndReturnArray(links);
 
-        // Now delete the rois.
-        delete(client, new Delete(DeleteServiceTest.REF_PLATE, p.getId()
-                .getValue(), null));
+        // Now delete the plate
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Plate.class.getSimpleName(),
+                Collections.singletonList(p.getId()
+                        .getValue()));
+        callback(true, client, dc);
         assertDoesNotExist(p);
         assertDoesNotExist(roi);
         l = svc.getRoiMeasurements(image.getId().getValue(), options);

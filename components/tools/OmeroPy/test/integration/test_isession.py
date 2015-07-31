@@ -93,24 +93,17 @@ class TestISession(lib.ITest):
         finally:
             c1.__del__()
 
-# Removing test for 'guest' user.
-# This currently fails but there is some question
-# as to whether we should have a guest user.
-#
-#     def testCreateSessionForGuest(self):
-#         p = omero.sys.Principal()
-#         p.name  = "guest"
-#         p.group = "guest"
-#         p.eventType = "guest"
-#         sess  = self.root.sf.getSessionService().createSessionWithTimeout(
-#             p, 10000) # 10 secs
-#
-#        guest_client = omero.client()
-#        guest_sess = guest_client.createSession("guest",sess.uuid)
-#        guest_client.closeSession()
+    def testCreateSessionForGuest(self):
+        p = omero.sys.Principal()
+        p.name = "guest"
+        p.group = "guest"
+        p.eventType = "User"
+        sess = self.root.sf.getSessionService().createSessionWithTimeout(
+            p, 10000)  # 10 secs
+        guest_client = omero.client()
+        guest_client.joinSession(sess.uuid.val)
+        guest_client.closeSession()
 
-    @pytest.mark.broken(reason="See tickets #11494 and #11542",
-                        ticket="11494,11542")
     def test1018CreationDestructionClosing(self):
         c1, c2, c3, c4 = None, None, None, None
         try:
@@ -136,7 +129,9 @@ class TestISession(lib.ITest):
             s3 = c3.createSession(uuid, uuid)
             s3.closeOnDestroy()
             s3.getAdminService().getEventContext()
-            c3.closeSession()
+
+            # Guarantee that the session is closed.
+            c3.killSession()
 
             # Now a connection should not be possible
             c4 = omero.client()  # ok rather than new_client since has __del__

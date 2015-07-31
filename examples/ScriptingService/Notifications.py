@@ -9,7 +9,7 @@ SCRIPT = """if True:
 import omero
 import omero.scripts
 import time
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 launched = time.time()
 client = omero.client()

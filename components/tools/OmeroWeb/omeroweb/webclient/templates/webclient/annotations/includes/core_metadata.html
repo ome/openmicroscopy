@@ -58,13 +58,14 @@
         <th>Channels:</th>
         <td id='channel_names'>
             <div>
-                {% if image.getChannels %}
+                {% with channels=manager.channel_metadata %}
+                {% if channels %}
                     <div id="channel_names_display">
-                    {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel|escape }}</span>{% endfor %}
+                    {% for c in channels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel|escape }}</span>{% endfor %}
                     </div>
                     <!-- form for editing channel names (initially hidden)-->
                     <form action="{% url 'edit_channel_names' image.id %}" method="POST" id="channel_names_edit" style="display:none">
-                        {% for c in image.getChannels %}
+                        {% for c in channels %}
                             <input type="text" name="channel{{ forloop.counter0 }}" value="{{ c.getLabel }}" size=20/><br/>
                         {% endfor %}
                         <!-- hidden input for 'apply to dataset' options -->
@@ -90,6 +91,7 @@
                 {% else %}
                     <span class="error">No channel specified</span>
                 {% endif %}
+                {% endwith %}
             </div>
         </td>
     </tr>

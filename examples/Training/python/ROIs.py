@@ -69,6 +69,26 @@ ellipse.theT = rint(theT)
 ellipse.textValue = rstring("test-Ellipse")
 roi.addShape(ellipse)
 
+# create a line shape and add to ROI
+line = omero.model.LineI()
+line.x1 = rdouble(x)
+line.x2 = rdouble(x+width)
+line.y1 = rdouble(y)
+line.y2 = rdouble(y+height)
+line.theZ = rint(theZ)
+line.theT = rint(theT)
+line.textValue = rstring("test-Line")
+roi.addShape(line)
+
+# create a point shape and add to ROI
+point = omero.model.PointI()
+point.x = rdouble(x)
+point.y = rdouble(y)
+point.theZ = rint(theZ)
+point.theT = rint(theT)
+point.textValue = rstring("test-Point")
+
+
 # Save the ROI (saves any linked shapes too)
 r = updateService.saveAndReturnObject(roi)
 

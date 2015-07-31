@@ -45,8 +45,8 @@ import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
-import omero.cmd.Delete;
-import omero.cmd.DeleteRsp;
+import omero.cmd.Delete2;
+import omero.cmd.Delete2Response;
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
@@ -56,6 +56,8 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
@@ -884,6 +886,21 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
+     * @return a repository rooted at a directory named <q>ManagedRepository</q>
+     * @throws ServerError if the repository map could not be retrieved
+     */
+    protected RepositoryPrx getManagedRepository() throws ServerError {
+        final RepositoryMap repos = factory.sharedResources().repositories();
+        int index = repos.descriptions.size();
+        while (--index >= 0) {
+            if ("ManagedRepository".equals(repos.descriptions.get(index).getName().getValue())) {
+                return repos.proxies.get(index);
+            }
+        }
+        throw new RuntimeException("no managed repository");
+    }
+
+    /**
      * Makes sure that the passed object exists.
      *
      * @param obj
@@ -1086,7 +1103,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected String delete(omero.client c, Delete... dc)
+    protected String delete(omero.client c, Delete2... dc)
             throws ApiUsageException, ServerError, InterruptedException {
         return delete(true, c, dc);
     }
@@ -1106,7 +1123,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected String delete(boolean passes, omero.client c, Delete... dc)
+    protected String delete(boolean passes, omero.client c, Delete2... dc)
             throws ApiUsageException, ServerError, InterruptedException {
 
         callback(passes, c, dc);
@@ -1136,7 +1153,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected DeleteRsp singleDeleteWithReport(omero.client c, Delete dc)
+    protected Delete2Response singleDeleteWithReport(omero.client c, Delete2 dc)
             throws ApiUsageException, ServerError, InterruptedException {
         return deleteWithReports(c, dc)[0];
     }
@@ -1150,14 +1167,14 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    private DeleteRsp[] deleteWithReports(omero.client c, Delete... dc)
+    private Delete2Response[] deleteWithReports(omero.client c, Delete2... dc)
             throws ApiUsageException, ServerError, InterruptedException {
         CmdCallbackI cb = callback(true, c, dc);
         // If the above passes, then we know it's not an ERR
         DoAllRsp all = (DoAllRsp) cb.getResponse();
-        DeleteRsp[] reports = new DeleteRsp[all.responses.size()];
+        Delete2Response[] reports = new Delete2Response[all.responses.size()];
         for (int i = 0; i < reports.length; i++) {
-            reports[i] = (DeleteRsp) all.responses.get(i);
+            reports[i] = (Delete2Response) all.responses.get(i);
         }
         return reports;
     }

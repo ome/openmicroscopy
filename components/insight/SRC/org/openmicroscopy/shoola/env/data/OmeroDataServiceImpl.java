@@ -28,9 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,8 +38,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 //Application-internal dependencies
-import omero.cmd.Delete;
 import omero.cmd.Request;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Dataset;
@@ -81,11 +79,11 @@ import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
@@ -593,88 +591,6 @@ class OmeroDataServiceImpl
 	}
 
 	/**
-         * Implemented as specified by {@link OmeroDataService}.
-         * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
-         */
-        public Object advancedSearchFor(SecurityContext ctx,
-                        SearchDataContext context)
-                throws DSOutOfServiceException, DSAccessException
-        {
-                if (ctx == null)
-                        throw new IllegalArgumentException("No security context defined.");
-                if (context == null)
-                        throw new IllegalArgumentException("No search context defined.");
-                if (!context.isValid())
-                        throw new IllegalArgumentException("Search context not valid.");
-                Map<Integer, Object> results = new HashMap<Integer, Object>();
-
-                if (!context.hasTextToSearch()) {
-                        results.put(SearchDataContext.TIME,
-                                        gateway.searchByTime(ctx, context));
-                        return results;
-                }
-                Object result = gateway.performSearch(ctx, context);
-                //Should returns a search context for the moment.
-                //collection of images only.
-                Map m = (Map) result;
-
-                Integer key;
-                List value;
-                Iterator k;
-                Set<Long> imageIDs = new HashSet<Long>();
-                Set images;
-                DataObject img;
-                List owners = context.getOwners();
-                Set<Long> ownerIDs = new HashSet<Long>();
-                if (owners != null) {
-                        k = owners.iterator();
-                        while (k.hasNext()) {
-                                ownerIDs.add(((DataObject) k.next()).getId());
-                        }
-                }
-                if (m == null) return results;
-
-                Set<DataObject> nodes;
-                Object v;
-                Iterator i = m.entrySet().iterator();
-                Entry entry;
-                while (i.hasNext()) {
-                        entry = (Entry) i.next();
-                        key = (Integer) entry.getKey();
-                        v =  entry.getValue();
-                        if (v instanceof Integer) {
-                                results.put(key, v);
-                        } else {
-                                value = (List) v;
-                                nodes = new HashSet<DataObject>();
-                                results.put(key, nodes);
-                                if (value.size() > 0) {
-                                        switch (key) {
-                                                case SearchDataContext.NAME:
-                                                case SearchDataContext.DESCRIPTION:
-                                                case SearchDataContext.TAGS:
-                                                case SearchDataContext.TEXT_ANNOTATION:
-                                                case SearchDataContext.FILE_ANNOTATION:
-                                                case SearchDataContext.URL_ANNOTATION:
-                                                case SearchDataContext.CUSTOMIZED:
-                                                        images = gateway.getContainerImages(ctx,
-                                                                        ImageData.class, value, new Parameters());
-                                                        k = images.iterator();
-                                                        while (k.hasNext()) {
-                                                                img = (DataObject) k.next();
-                                                                if (!imageIDs.contains(img.getId())) {
-                                                                        imageIDs.add(img.getId());
-                                                                        nodes.add(img);
-                                                                }
-                                                        }
-                                        }
-                                }
-                        }
-                }
-                return results;
-        }
-
-	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
 	 */
@@ -929,140 +845,95 @@ class OmeroDataServiceImpl
 		return gateway.loadPlateWells(ctx, plateID, acquisitionID);
 	}
 
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#delete(SecurityContext, Collection)
-	 */
-	public RequestCallback delete(SecurityContext ctx,
-			Collection<DeletableObject> objects)
-		throws DSOutOfServiceException, DSAccessException, ProcessException
-	{
-		if (CollectionUtils.isEmpty(objects) || ctx == null) return null;
-		Iterator<DeletableObject> i = objects.iterator();
-		DeletableObject object;
-		List<DeletableObject> l = new ArrayList<DeletableObject>();
-		while (i.hasNext()) {
-			object = i.next();
-			if (object.getGroupId() == ctx.getGroupID()) {
-				l.add(object);
-			}
-		}
-		if (l.size() == 0) return null;
-		i = l.iterator();
-		List<Request> commands = new ArrayList<Request>();
-		Delete cmd;
-		Map<String, String> options;
-		DataObject data;
-		List<Class> annotations;
-		Iterator<Class> j;
-		List<DataObject> contents;
-		String ns;
-		Iterator<DataObject> k;
-		Map<Long, Map<String, String>>
-		images = new HashMap<Long, Map<String, String>>();
-		while (i.hasNext()) {
-			contents = null;
-			object = i.next();
-			data = object.getObjectToDelete();
-			annotations = object.getAnnotations();
-			options = null;
-			if (!CollectionUtils.isEmpty(annotations)) {
-				options = new HashMap<String, String>();
-				j = annotations.iterator();
-				while (j.hasNext()) {
-					options.put(gateway.createDeleteOption(j.next().getName()),
-							OMEROGateway.KEEP);
-				}
-			}
-			if (!object.deleteContent()) {
-				if (options == null)
-					options = new HashMap<String, String>();
-				if (data instanceof DatasetData) {
-					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()),
-							OMEROGateway.KEEP);
-				} else if (data instanceof ProjectData) {
-					options.put(gateway.createDeleteCommand(
-							DatasetData.class.getName()),
-							OMEROGateway.KEEP);
-					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()),
-							OMEROGateway.KEEP);
-				} else if (data instanceof ScreenData) {
-					options.put(gateway.createDeleteCommand(
-							PlateData.class.getName()),
-							OMEROGateway.KEEP);
-					options.put(gateway.createDeleteCommand(
-							WellData.class.getName()),
-							OMEROGateway.KEEP);
-					options.put(gateway.createDeleteCommand(
-							PlateAcquisitionData.class.getName()),
-							OMEROGateway.KEEP);
-					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()),
-							OMEROGateway.KEEP);
-				} else if (data instanceof TagAnnotationData) {
-					options = null;
-					ns = ((TagAnnotationData) data).getNameSpace();
-					if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-						contents = deleteTagSet(ctx, data.getId());
-					}
-				}
-			}
-			if (data instanceof ImageData) {
-				images.put(data.getId(), options);
-			} else {
-				cmd = new Delete(gateway.createDeleteCommand(
-						data.getClass().getName()), data.getId(), options);
-				commands.add(cmd);
-				if (contents != null && contents.size() > 0) {
-					k = contents.iterator();
-					DataObject d;
-					while (k.hasNext()) {
-						d = k.next();
-						cmd = new Delete(gateway.createDeleteCommand(
-								d.getClass().getName()), d.getId(), options);
-						commands.add(cmd);
-					}
-				}
-			}
-		}
-		if (images.size() > 0) {
-			Set<DataObject> fsList = gateway.getFileSet(ctx, images.keySet());
-			List<Long> all = new ArrayList<Long>();
-			Iterator<DataObject> kk = fsList.iterator();
-			FilesetData fs;
-			long imageId;
-			List<Long> imageIds;
-			while (kk.hasNext()) {
-				fs = (FilesetData) kk.next();
-				imageIds = fs.getImageIds();
-				if (imageIds.size() > 0) {
-					imageId = imageIds.get(0);
-					cmd = new Delete(gateway.createDeleteCommand(
-							FilesetData.class.getName()), fs.getId(),
-							images.get(imageId));
-					commands.add(cmd);
-					all.addAll(imageIds);
-				}
-			}
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * 
+     * @see OmeroDataService#delete(SecurityContext, Collection)
+     */
+    public RequestCallback delete(SecurityContext ctx,
+            Collection<DeletableObject> objects)
+            throws DSOutOfServiceException, DSAccessException, ProcessException {
+        if (CollectionUtils.isEmpty(objects) || ctx == null)
+            return null;
 
-			//Now check that all the ids are covered.
-			Entry<Long, Map<String, String>> entry;
-			Iterator<Entry<Long, Map<String, String>>> e =
-				images.entrySet().iterator();
-			while (e.hasNext()) {
-				entry = e.next();
-				if (!all.contains(entry.getKey())) { //pre-fs data.
-					cmd = new Delete(gateway.createDeleteCommand(
-							ImageData.class.getName()), entry.getKey(),
-							entry.getValue());
-					commands.add(cmd);
-				}
-			}
-		}
-		return gateway.submit(commands, ctx);
-	}
+        Iterator<DeletableObject> it = objects.iterator();
+        DeletableObject object;
+        while (it.hasNext()) {
+            object = it.next();
+            if (object.getGroupId() != ctx.getGroupID()) {
+                it.remove();
+            }
+        }
+        if (objects.size() == 0)
+            return null;
+
+        Map<String, List<Long>> toDelete = new HashMap<String, List<Long>>();
+        Map<String, List<ChildOption>> options = new HashMap<String, List<ChildOption>>();
+
+        for (DeletableObject delo : objects) {
+            List<ChildOption> opts = new ArrayList<ChildOption>();
+            DataObject data = delo.getObjectToDelete();
+
+            if (!CollectionUtils.isEmpty(delo.getAnnotations())) {
+                opts.add(Requests.option(null,
+                        PojoMapper.getGraphType(AnnotationData.class)));
+            }
+
+            if (!delo.deleteContent()) {
+                if (data instanceof DatasetData) {
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(ImageData.class)));
+                } else if (data instanceof ProjectData) {
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(DatasetData.class)));
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(ImageData.class)));
+                } else if (data instanceof ScreenData) {
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(PlateData.class)));
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(WellData.class)));
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(PlateAcquisitionData.class)));
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(ImageData.class)));
+                } else if (data instanceof PlateData) {
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(PlateAcquisitionData.class)));
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(ImageData.class)));
+                } else if (data instanceof PlateAcquisitionData) {
+                    opts.add(Requests.option(null,
+                            PojoMapper.getGraphType(ImageData.class)));
+                }
+
+                else if (data instanceof TagAnnotationData) {
+                    String ns = ((TagAnnotationData) data).getNameSpace();
+                    if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+                        deleteTagSet(ctx, data.getId());
+                    }
+                }
+            }
+
+            String type = PojoMapper.getGraphType(data.getClass());
+            List<Long> ids = toDelete.get(type);
+            if (ids == null) {
+                ids = new ArrayList<Long>();
+                toDelete.put(type, ids);
+            }
+            ids.add(delo.getObjectToDelete().getId());
+
+            options.put(type, opts);
+        }
+
+        List<Request> cmds = new ArrayList<Request>();
+        for (String type : toDelete.keySet()) {
+            cmds.add(Requests.delete(type, toDelete.get(type),
+                    options.get(type)));
+        }
+
+        return gateway.submit(cmds, ctx);
+    }
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

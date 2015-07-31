@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2012-2015 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -62,10 +62,9 @@ class BaseChmodTest(lib.ITest):
         self.start = time.time()
         try:
             admin = client.sf.getAdminService()
-            perms = omero.model.PermissionsI(self.to_perms)
             old_ctx = admin.getEventContext()
             old_grp = admin.getGroup(self.group.id.val)
-            admin.changePermissions(self.group, perms)
+            self.change_permissions(self.group.id.val, self.to_perms, client)
             new_ctx = admin.getEventContext()  # Refresh
             new_grp = admin.getGroup(self.group.id.val)
         finally:

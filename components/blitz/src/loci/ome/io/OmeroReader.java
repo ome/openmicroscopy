@@ -53,6 +53,7 @@ import ome.units.UNITS;
 import ome.xml.model.enums.FontStyle;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.Timestamp;
+import omero.RInt;
 import omero.RString;
 import omero.RTime;
 import omero.ServerError;
@@ -92,9 +93,6 @@ import Glacier2.PermissionDeniedException;
  * Implementation of {@link loci.formats.IFormatReader}
  * for use in export from an OMERO Beta 4.2.x database.
  *
- * <dl><dt><b>Source code:</b></dt>
- * <dd><a href="http://trac.openmicroscopy.org.uk/ome/browser/bioformats.git/components/ome-io/src/loci/ome/io/OmeroReader.java">Trac</a>,
- * <a href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/ome-io/src/loci/ome/io/OmeroReader.java;hb=HEAD">Gitweb</a></dd></dl>
  */
 public class OmeroReader extends FormatReader {
 
@@ -279,11 +277,11 @@ public class OmeroReader extends FormatReader {
                 client = client.createClient(false);
                 serviceFactory = client.getSession();
             }
-            
+
             IAdminPrx iAdmin = serviceFactory.getAdminService();
             IQueryPrx iQuery = serviceFactory.getQueryService();
             EventContext eventContext = iAdmin.getEventContext();
-            
+
             if (group != null || groupID != null) {
 
                 ExperimenterGroup defaultGroup =
@@ -560,6 +558,10 @@ public class OmeroReader extends FormatReader {
         }
         store.setLabelX(shape1.getX().getValue(), roiNum, shapeNum);
         store.setLabelY(shape1.getY().getValue(), roiNum, shapeNum);
+        
+        store.setLabelTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+        store.setLabelTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+        store.setLabelTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
 
         if (shape1.getStrokeWidth() != null) {
             store.setLabelStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
@@ -577,6 +579,15 @@ public class OmeroReader extends FormatReader {
         }
 
     }
+
+    private static NonNegativeInteger unwrap(RInt r) {
+
+        if (r == null) {
+            return null;
+        }
+        return new NonNegativeInteger(r.getValue()+1);
+    }
+
     /** Converts omero.model.Shape (omero.model.RectI in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroRect(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
@@ -594,6 +605,10 @@ public class OmeroReader extends FormatReader {
         store.setRectangleY(y1, roiNum, shapeNum);
         store.setRectangleWidth(width, roiNum, shapeNum);
         store.setRectangleHeight(height, roiNum, shapeNum);
+        store.setRectangleTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+        store.setRectangleTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+        store.setRectangleTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
+
         if (shape1.getTextValue() != null){
             store.setRectangleText(shape1.getTextValue().getValue(), roiNum, shapeNum);
         }
@@ -625,6 +640,9 @@ public class OmeroReader extends FormatReader {
         store.setEllipseY(y1, roiNum, shapeNum);
         store.setEllipseRadiusX(width, roiNum, shapeNum);
         store.setEllipseRadiusY(height, roiNum, shapeNum);
+        store.setEllipseTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+        store.setEllipseTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+        store.setEllipseTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
 
         if (shape1.getTextValue() != null){
             store.setEllipseText(shape1.getTextValue().getValue(), roiNum, shapeNum);
@@ -652,6 +670,9 @@ public class OmeroReader extends FormatReader {
         store.setPointID(polylineID, roiNum, shapeNum);
         store.setPointX(ox1, roiNum, shapeNum);
         store.setPointY(oy1, roiNum, shapeNum);
+        store.setPointTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+        store.setPointTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+        store.setPointTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
 
         if (shape1.getTextValue() != null){
             store.setPointText(shape1.getTextValue().getValue(), roiNum, shapeNum);
@@ -684,6 +705,9 @@ public class OmeroReader extends FormatReader {
         store.setLineX2(new Double(x2), roiNum, shapeNum);
         store.setLineY1(new Double(y1), roiNum, shapeNum);
         store.setLineY2(new Double(y2), roiNum, shapeNum);
+        store.setLineTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+        store.setLineTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+        store.setLineTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
 
         if (shape1.getTextValue() != null){
             store.setLineText(shape1.getTextValue().getValue(), roiNum, shapeNum);
@@ -715,6 +739,7 @@ public class OmeroReader extends FormatReader {
 
             store.setPolygonID(polylineID, roiNum, shapeNum);
             store.setPolygonPoints(points2d, roiNum, shapeNum);
+
             if (shape1.getTextValue() != null){
                 store.setPolygonText(shape1.getTextValue().getValue(), roiNum, shapeNum);
             }
@@ -727,6 +752,10 @@ public class OmeroReader extends FormatReader {
             if (shape1.getFillColor() != null){
                 store.setPolygonFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
             }
+
+            store.setPolygonTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+            store.setPolygonTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+            store.setPolygonTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
         }else{
             PolylineI shape1 = (PolylineI) shape;
             points = shape1.getPoints().getValue();
@@ -747,6 +776,9 @@ public class OmeroReader extends FormatReader {
             if (shape1.getFillColor() != null){
                 store.setPolylineFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
             }
+            store.setPolylineTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+            store.setPolylineTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+            store.setPolylineTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
         }
 
     }

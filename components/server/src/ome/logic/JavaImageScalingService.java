@@ -44,13 +44,17 @@ public class JavaImageScalingService implements IScale {
             float yScale) {
         int thumbHeight = (int) (image.getHeight() * yScale);
         int thumbWidth = (int) (image.getWidth() * xScale);
+        if (thumbHeight < 3)
+            thumbHeight = 3;
+        if (thumbWidth < 3)
+            thumbWidth = 3;
+        
         log.info("Scaling to: " + thumbHeight + "x" + thumbWidth);
-
+        
         StopWatch s1 = new Slf4JStopWatch("java-image-scaling.resampleOp");
         BufferedImage toReturn;
-        if (thumbWidth >= 3 && thumbHeight >= 3) {
+        if (image.getHeight() >= 3 && image.getWidth() >= 3) {
             ResampleOp resampleOp = new ResampleOp(thumbWidth, thumbHeight);
-            // resampleOp.setNumberOfThreads(4);
             toReturn = resampleOp.filter(image, null);
         } else {
             toReturn = new BufferedImage(thumbWidth, thumbHeight,

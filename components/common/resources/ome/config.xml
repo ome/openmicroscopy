@@ -209,6 +209,11 @@
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>
     </bean>
+    <bean class="ome.system.Preference" id="omero.client.viewer.initial_zoom_level">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
     <!-- End preference list -->
             </list>
         </property>

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -20,6 +20,11 @@ import omero.api._StatefulServiceInterfaceOperations;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.MapMaker;
 
 /**
  * Manager for all active servants in a single session.
@@ -39,19 +44,25 @@ public class ServantHolder {
      * Note: servants are stored by String since {@link Ice.Identity} does not
      * behave properly as a key.
      */
-    private final Map<String, Ice.Object> servants = new ConcurrentHashMap<String, Ice.Object>();
+    private final Map<String, Ice.Object> servants;
 
     /**
-     * Write-once map which contains a {@link Lock} for each given name.
+     * A lock cache that returns a {@link Lock} for each given name, constructing it only if necessary.
      */
-    private final ConcurrentHashMap<String, Lock> locks = new ConcurrentHashMap<String, Lock>();
+    private final LoadingCache<String, Lock> locks = CacheBuilder.newBuilder().build(
+            new CacheLoader<String, Lock>() {
+                @Override
+                public Lock load(String key) {
+                    return new ReentrantLock();
+                }
+            });
 
     /**
      * An internal mapping to all client ids from {@link omero.cmd.SessionI} for a given
      * DB session since there is no method on {@link Ice.ObjectAdapter} to retrieve
      * all servants.
      */
-    protected final ConcurrentHashMap<String, Object> clientIds = new ConcurrentHashMap<String, Object>();
+    protected final Map<String, Object> clientIds;
 
     /**
      * Storing session for debugging purposes.
@@ -69,6 +80,9 @@ public class ServantHolder {
     }
 
     public ServantHolder(String session, int servantsPerSession) {
+        final MapMaker mapMaker = new MapMaker();
+        this.servants = mapMaker.makeMap();
+        this.clientIds = mapMaker.makeMap();
         this.session = session;
         this.servantsPerSession = servantsPerSession;
     }
@@ -116,14 +130,11 @@ public class ServantHolder {
      * @param key
      */
     public void acquireLock(String key) {
-        Lock lock = new ReentrantLock();
-        Lock oldLock = locks.putIfAbsent(key, lock);
-        // If there was already a lock,
-        // then the new lock can be gc'd
-        if (oldLock != null) {
-            lock = oldLock;
+        try {
+            locks.get(key).lock();
+        } catch (ExecutionException e) {
+            /* cannot occur unless loading thread is interrupted */
         }
-        lock.lock();
     }
 
     /**
@@ -131,7 +142,7 @@ public class ServantHolder {
      * {@link ome.conditions.InternalException}
      */
     public void releaseLock(String key) {
-        Lock lock = locks.get(key);
+        final Lock lock = locks.getIfPresent(key);
         if (lock == null) {
             throw new ome.conditions.InternalException("No lock found: " + key);
         }

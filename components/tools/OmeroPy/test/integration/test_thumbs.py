@@ -10,7 +10,11 @@
 """
 
 import library as lib
+import pytest
 
+from omero import MissingPyramidException
+from omero.sys import ParametersI
+from omero.util.concurrency import get_event
 from omero.rtypes import rint, unwrap
 
 
@@ -68,6 +72,77 @@ class TestThumbs(lib.ITest):
             assert not tb.thumbnailExists(rint(64), rint(64))
         finally:
             tb.close()
+
+    @pytest.mark.parametrize("meth", ("one", "set",))
+    def testThumbnailVersion(self, meth):
+
+        assert meth in ("one", "set")
+        i64 = rint(64)
+
+        pix = self.missing_pyramid()
+        q = ("select tb from Thumbnail tb "
+             "where tb.pixels.id = %s "
+             "order by tb.id desc ")
+        q = q % pix
+        p = ParametersI().page(0, 1)
+        get = lambda: self.query.findByQuery(q, p)
+
+        # Before anything has been called, there
+        # should be no thumbnail
+        assert not get()
+
+        # At this stage, there should still be no
+        # thumbnail
+        tb = self.client.sf.createThumbnailStore()
+        if meth == "one":
+            tb.setPixelsId(long(pix))
+            tb.resetDefaults()
+            assert not tb.thumbnailExists(i64, i64)
+            assert tb.isInProgress()
+
+        # As soon as it's requested, it should have a -1
+        # version to mark pyramid creation as ongoing.
+        if meth == "one":
+            before = tb.getThumbnail(i64, i64)
+            assert not tb.thumbnailExists(i64, i64)
+            assert tb.isInProgress()
+        elif meth == "set":
+            before = tb.getThumbnailSet(i64, i64, [long(pix)])
+            before = before[long(pix)]
+        assert get().version.val == -1
+
+        # Now we wait until the pyramid has been created
+        # and test that a proper version has been set.
+        event = get_event("test_thumbs")
+        secs = 20
+        rps = self.client.sf.createRawPixelsStore()
+        for x in range(secs):
+            try:
+                rps.setPixelsId(long(pix), True)
+                event = None
+                break
+            except MissingPyramidException:
+                event.wait(1)
+        if event:
+            assert "Pyramid was not generated %ss" % secs
+
+        if meth == "one":
+            # Re-load the thumbnail store now that
+            # the pyramid is generated.
+            tb.close()
+            tb = self.client.sf.createThumbnailStore()
+            if not tb.setPixelsId(long(pix)):
+                tb.resetDefaults()
+                tb.close()
+                tb = self.client.sf.createThumbnailStore()
+                assert tb.setPixelsId(long(pix))
+            after = tb.getThumbnail(i64, i64)
+            assert before != after
+            assert tb.thumbnailExists(i64, i64)
+            assert not tb.isInProgress()
+        elif meth == "set":
+            tb.getThumbnailSet(i64, i64, [long(pix)])
+        assert get().version.val >= 0
 
 
 def assign(f, method, *args):

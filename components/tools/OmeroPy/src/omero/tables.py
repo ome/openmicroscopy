@@ -21,6 +21,7 @@ import omero.clients
 import omero.callbacks
 
 # For ease of use
+from omero import LockTimeout
 from omero.columns import columns2definition
 from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
 from omero.util.decorators import remoted, locked, perf
@@ -846,24 +847,31 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def delete(self, current=None):
         self.assert_write()
         self.close()
-        prx = self.factory.getDeleteService()
-        dc = omero.api.delete.DeleteCommand(
-            "/OriginalFile", self.file_obj.id.val, None)
-        handle = prx.queueDelete([dc])
+        dc = omero.cmd.Delete2(
+            targetObjects={"OriginalFile": [self.file_obj.id.val]}
+        )
+        handle = self.factory.submit(dc)
+        # Copied from clients.py since none is available
+        try:
+            callback = omero.callbacks.CmdCallbackI(
+                current.adapter, handle, "Fake")
+        except:
+            # Since the callback won't escape this method,
+            # close the handle if requested.
+            handle.close()
+            raise
+
+        try:
+            callback.loop(20, 500)
+        except LockTimeout:
+            callback.close(True)
+            raise omero.InternalException(None, None, "delete timed-out")
+
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            raise omero.InternalException(None, None, str(rsp))
+
         self.file_obj = None
-        # TODO: possible just return handle?
-        cb = omero.callbacks.DeleteCallbackI(current.adapter, handle)
-        count = 10
-        while count:
-            count -= 1
-            rv = cb.block(500)
-            if rv is not None:
-                report = handle.report()[0]
-                if rv > 0:
-                    raise omero.InternalException(None, None, report.error)
-                else:
-                    return
-        raise omero.InternalException(None, None, "delete timed-out")
 
     # TABLES METADATA API ===========================
 

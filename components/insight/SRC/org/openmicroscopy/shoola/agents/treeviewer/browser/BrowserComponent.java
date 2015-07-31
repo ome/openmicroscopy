@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -88,6 +88,7 @@ import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -399,7 +400,7 @@ class BrowserComponent
     	else model.setSelectedDisplay(display, single);
     	if (oldDisplay != null && oldDisplay.equals(display)) {
     		ho = oldDisplay.getUserObject();
-    		if (ho instanceof PlateData)
+    		if (ho instanceof PlateData || ho instanceof PlateAcquisitionData)
     			firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, null, 
             			display);
     	} else {
@@ -1833,7 +1834,12 @@ class BrowserComponent
 					model.addFoundNode(i.next());
 				view.setFoundNode(model.getSelectedDisplays());
 			}
-		}
+        } else if (selected instanceof String) {
+            // this is the case if the 'orphaned images' folder
+            // is selected
+            model.setSelectedDisplay(null, true);
+            view.setFoundNode(null);
+        }
 	}
 	
 	/**

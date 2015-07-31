@@ -24,6 +24,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ import omero.RString;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
@@ -383,16 +384,16 @@ public class PermissionsTestAll extends AbstractServerTest {
 
                     for (int k = 0; k < n; k++) {
                         Long targetGroup = groupIds.get(k);
-                        Chgrp chgrp = new Chgrp();
-
                         if (!isSecuritySystemGroup(targetGroup)
                                 && targetGroup != sourceGroup) {
                             img = images.get(k);
                             long imageId = img.getId().getValue();
-                            chgrp.id = imageId;
-                            chgrp.type = "/Image";
-                            chgrp.grp = targetGroup;
-                            testParams.add(new TestParam(chgrp, testUserNames[i],
+                            final Chgrp2 dc = new Chgrp2();
+                            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                                    Image.class.getSimpleName(),
+                                    Collections.singletonList(imageId));
+                            dc.groupId = targetGroup;
+                            testParams.add(new TestParam(dc, testUserNames[i],
                                     PASSWORD, sourceGroup));
                         }
                     }
@@ -441,8 +442,10 @@ public class PermissionsTestAll extends AbstractServerTest {
         cb.loop(10 * all.requests.size(), timeoutMove);
         Response response = cb.getResponse();
         Long userId = session.getAdminService().getEventContext().userId;
-        long targetGroup = param.getChgrp().grp;
-        long imageId = param.getChgrp().id;
+        long targetGroup = param.getChgrp().groupId;
+        List<Long> targets = param.getChgrp().targetObjects.get(
+                Image.class.getSimpleName());
+        long imageId = targets.get(0);
 
         if (response == null) {
             String sourceGroupPerms = permissionsAsString(session
@@ -525,7 +528,7 @@ public class PermissionsTestAll extends AbstractServerTest {
     class TestParam {
 
         /** Hold information about the object to move.*/
-        private Chgrp chgrp;
+        private Chgrp2 chgrp;
 
         /** The user to log as.*/
         private String user;
@@ -544,7 +547,7 @@ public class PermissionsTestAll extends AbstractServerTest {
          * @param password The user's password.
          * @param srcID The identifier of the group to move the data from.
          */
-        TestParam(Chgrp chgrp, String user, String password, Long srcID) {
+        TestParam(Chgrp2 chgrp, String user, String password, Long srcID) {
             this.chgrp = chgrp;
             this.user = user;
             this.password = password;
@@ -556,7 +559,7 @@ public class PermissionsTestAll extends AbstractServerTest {
          *
          * @return See above.
          */
-        Chgrp getChgrp() {
+        Chgrp2 getChgrp() {
             return chgrp;
         }
 

@@ -50,6 +50,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import ome.model.IObject;
+import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -1410,8 +1411,18 @@ public class GraphTraversal {
                     final String className = oneClassToDelete.getKey();
                     final Collection<Long> allIds = oneClassToDelete.getValue();
                     assertMayBeDeleted(className, allIds);
-                    for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
-                        processor.deleteInstances(className, ids);
+                    final Collection<List<Long>> idGroups;
+                    if (OriginalFile.class.getName().equals(className)) {
+                        idGroups = ModelObjectSequencer.sortOriginalFileIds(session, allIds);
+                        for (final List<Long> idGroup : idGroups) {
+                            for (final List<Long> ids : Iterables.partition(idGroup, BATCH_SIZE)) {
+                                processor.deleteInstances(className, ids);
+                            }
+                        }
+                    } else {
+                        for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
+                            processor.deleteInstances(className, ids);
+                        }
                     }
                 }
             }

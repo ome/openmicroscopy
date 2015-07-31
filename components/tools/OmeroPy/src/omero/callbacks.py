@@ -12,11 +12,11 @@
 
 import Ice
 import logging
+import uuid
 
 import omero
 import omero.all
 import omero.util.concurrency
-import omero_ext.uuid as uuid  # see ticket:3774
 
 
 PROC_LOG = logging.getLogger("omero.scripts.ProcessCallback")

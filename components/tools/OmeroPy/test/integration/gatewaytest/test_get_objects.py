@@ -15,7 +15,7 @@
 """
 
 import omero
-import omero_ext.uuid as uuid
+import uuid
 import pytest
 
 from omero.gateway.scripts import dbhelpers

@@ -1651,12 +1651,14 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
-            try:
-                obj = omero.gateway.ImageWrapper(self, e)
-            except:
-                obj = omero.gateway.BlitzObjectWrapper(self, None)
-                obj._obj = e
-            yield obj
+            if isinstance(e, omero.model.ImageI):
+                try:
+                    obj = omero.gateway.ImageWrapper(self, e)
+                except omero.ValidationException:
+                    # If Object deleted, simply return placeholder
+                    # ID used to generate placeholder thumbnail
+                    obj = {'id': e.id.val}
+                yield obj
 
     def getComments(self, share_id):
         """
@@ -2422,9 +2424,9 @@ class ImageWrapper (OmeroWebObjectWrapper,
             return 0
         return size.getValue()
 
-    def getChannels(self):
+    def getChannels(self, *args, **kwargs):
         try:
-            return super(ImageWrapper, self).getChannels()
+            return super(ImageWrapper, self).getChannels(*args, **kwargs)
         except Exception:
             logger.error('Failed to load channels:', exc_info=True)
             return None

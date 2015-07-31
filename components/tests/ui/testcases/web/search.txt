@@ -48,9 +48,9 @@ ${FailureMessage}       Search should Not Contain an Alert Window.
 
 ${SEARCH URL}           ${WELCOME URL}search/
 
-@{SearchKeyWords}       *  \  *:  "  -  :  
+@{SearchKeyWords}       *  \  *:  :  :abc
 
-@{SearchKeyWords1}      ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"         
+@{SearchKeyWords1}      ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"  -  "  GFP:ABC
 
 *** Keywords ***
 
@@ -131,11 +131,12 @@ For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
     \   ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
     \   Run Keyword If    '${status}' == 'False'     Wait Until Keyword Succeeds     10     0.2    Page Should Not Contain Element   ${SearchInProgress} 
 
-    \   ${status1}  Run Keyword And Return Status   Element Should Be Visible   ${QueryError}
-    \   Run Keyword If    '${status1}' == 'True'    Sleep           ${ImplicitDelay}
-    \   Run Keyword If   '${status}' == 'False'       Should Be True     ${status1}
-    \   Run Keyword If   '${status1}' == 'False'       Should Be True     ${status}
-    \   Run Keyword If    '${status1}' == 'True'    Omero Default Search   
+    \   ${status1}  Run Keyword And Return Status       Element Should Be Visible   ${QueryError}
+    \   Run Keyword If    '${status1}' == 'True'        Sleep               ${ImplicitDelay}
+    \   Run Keyword If   '${status}' == 'False'         Should Be True      ${status1}
+    \   Run Keyword If   '${status}' == 'False'         Element Text Should Be   id=searchResultCount   0 results
+    \   Run Keyword If   '${status1}' == 'False'        Should Be True      ${status}
+    \   Run Keyword If    '${status1}' == 'True'        Omero Default Search
 
 
 For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
@@ -153,6 +154,7 @@ For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
     \   ${status3}   Run Keyword And Return status   Element Should Be Visible  ${NoResultsFound}   10
     \   Run Keyword If   '${status2}' == 'False'       Should Be True     ${status3}
     \   Run Keyword If   '${status3}' == 'False'       Should Be True     ${status2}
+    \   Run Keyword If   '${status3}' == 'True'        Element Text Should Be   id=searchResultCount   0 results
 
 
 Condition Check Imported Date

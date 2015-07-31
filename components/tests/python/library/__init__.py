@@ -30,12 +30,13 @@ import weakref
 import logging
 import subprocess
 import pytest
+import uuid
 
 import Ice
 import Glacier2
 import omero
 import omero.gateway
-from omero.cmd import DoAll, State, ERR, OK, Chgrp, Delete
+from omero.cmd import DoAll, State, ERR, OK, Chmod, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
 from omero.model import Annotation, FileAnnotationI, OriginalFileI
@@ -106,6 +107,12 @@ class ITest(object):
         cls.query = cls.sf.getQueryService()
 
     @classmethod
+    def teardown_class(cls):
+        cls.root.killSession()
+        cls.root = None
+        cls.__clients.__del__()
+
+    @classmethod
     def omeropydir(self):
         count = 10
         searched = []
@@ -137,8 +144,7 @@ class ITest(object):
 
     @classmethod
     def uuid(self):
-        import omero_ext.uuid as _uuid  # see ticket:3774
-        return str(_uuid.uuid4())
+        return str(uuid.uuid4())
 
     @classmethod
     def login_args(self, client=None):
@@ -162,6 +168,7 @@ class ITest(object):
     def tmpfile(self):
         return str(create_path())
 
+    # Administrative methods
     @classmethod
     def new_group(self, experimenters=None, perms=None,
                   config=None, gname=None):
@@ -208,12 +215,7 @@ class ITest(object):
             prx.close()
         client.sf.setSecurityContext(ExperimenterGroupI(gid, False))
 
-    def new_image(self, name=""):
-        img = ImageI()
-        img.name = rstring(name)
-        img.acquisitionDate = rtime(0)
-        return img
-
+    # Import methods
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
         if filename is None:
@@ -319,25 +321,6 @@ class ITest(object):
             pixels = query.get("Pixels", long(pixIdStr))
             images.append(pixels.getImage())
         return images
-
-    """
-    Creates a list of the given number of Dataset instances with
-    names of the form "name [1]", "name [2]", etc. and
-    returns them in a list.
-    """
-
-    def createDatasets(self, count, baseName, client=None):
-        if client is None:
-            client = self.client
-
-        update = client.sf.getUpdateService()
-        dsets = []
-        for i in range(count):
-            ds = DatasetI()
-            suffix = " [" + str(i + 1) + "]"
-            ds.name = rstring(baseName + suffix)
-            dsets.append(ds)
-        return update.saveAndReturnArray(dsets)
 
     def createTestImage(self, sizeX=16, sizeY=16, sizeZ=1, sizeC=1, sizeT=1,
                         session=None):
@@ -741,9 +724,14 @@ class ITest(object):
     def doSubmit(self, request, client, test_should_pass=True,
                  omero_group=None):
         """
-        Performs the request waits on completion and checks that the
-        result is not an error.
+        Performs the request(s), waits on completion and checks that the
+        result is not an error. The request can either be a single command
+        or a list of commands. If the latter then the request list will be
+        wrapped in a DoAll.
         """
+        if isinstance(request, list):
+            request = DoAll(request)
+
         sf = client.sf
         if omero_group is not None:
             prx = sf.submit(request, {'omero.group': str(omero_group)})
@@ -773,53 +761,98 @@ class ITest(object):
 
         return rsp
 
-    def doAllSubmit(self, requests, client, test_should_pass=True,
-                    omero_group=None):
-        da = DoAll()
-        da.requests = requests
-        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass,
-                            omero_group=omero_group)
-        return rsp
+    # Object methods
+    def new_object(self, classname, name=None, description=None):
+        obj = classname()
+        if not name:
+            name = self.uuid()
+        obj.setName(rstring(name))
+        obj.setDescription(rstring(description))
+        return obj
 
-    @classmethod
-    def teardown_class(cls):
-        cls.root.killSession()
-        cls.root = None
-        cls.__clients.__del__()
-
-    def make_project(self, name=None, client=None):
+    def new_image(self, name=None, description=None, date=0):
         """
-        Creates a new ProjectI instance and returns the persisted object.
+        Creates a new image object.
         If no name has been provided, a UUID string shall be used.
+        :param name: The image name. If None, a UUID string will be used
+        :param description: The image description
+        :param date: The image acquisition date
+        """
+        img = self.new_object(ImageI, name=name, description=description)
+        img.acquisitionDate = rtime(date)
+        return img
 
-        :param name: the name of the project
-        :param client: user context
+    def new_project(self, name=None, description=None):
+        """
+        Creates a new project object.
+        :param name: The project name. If None, a UUID string will be used
+        :param description: The project description
+        """
+        return self.new_object(ProjectI, name=name, description=description)
+
+    def new_dataset(self, name=None, description=None):
+        """
+        Creates a new dataset object.
+        :param name: The dataset name. If None, a UUID string will be used
+        :param description: The dataset description
+        """
+        return self.new_object(DatasetI, name=name, description=description)
+
+    def make_image(self, name=None, description=None, date=0, client=None):
+        """
+        Creates a new image instance and returns the persisted object.
+        :param name: The image name. If None, a UUID string will be used
+        :param description: The image description
+        :param date: The image acquisition date
+        :param client: The client to use to create the object
         """
         if client is None:
             client = self.client
-        project = ProjectI()
-        if name:
-            project.name = rstring(name)
-        else:
-            project.name = rstring(self.uuid())
+        image = self.new_image(name=name, description=description, date=date)
+        return client.sf.getUpdateService().saveAndReturnObject(image)
+
+    def make_project(self, name=None, description=None, client=None):
+        """
+        Creates a new project instance and returns the persisted object.
+        :param name: The project name. If None, a UUID string will be used
+        :param description: The project description
+        :param client: The client to use to create the object
+        """
+        if client is None:
+            client = self.client
+        project = self.new_project(name=name, description=description)
         return client.sf.getUpdateService().saveAndReturnObject(project)
 
-    def make_dataset(self, name=None, client=None):
+    def make_dataset(self, name=None, description=None, client=None):
         """
-        Creates a new DatasetI instance and returns the persisted object.
-        If no name has been provided, a UUID string shall be used.
-
-        :param name: the name of the project
-        :param client: user context
+        Creates a new dataset instance and returns the persisted object.
+        :param name: The dataset name. If None, a UUID string will be used
+        :param description: The dataset description
+        :param client: The client to use to create the object
         """
         if client is None:
             client = self.client
-        dataset = DatasetI()
-        if name:
-            dataset.name = rstring(name)
-        else:
-            dataset.name = rstring(self.uuid())
+        dataset = self.new_dataset(name=name, description=description)
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
+
+    def createDatasets(self, count, baseName, client=None):
+        """
+        Creates a list of the given number of Dataset instances with names of
+        the form "name [1]", "name [2]" etc and returns them in a list.
+        :param count: The number of datasets to create
+        :param description: The base name of the dataset
+        :param client: The client to use to create the object
+        """
+
+        if client is None:
+            client = self.client
+
+        update = client.sf.getUpdateService()
+        dsets = []
+        for i in range(count):
+            name = baseName + " [" + str(i + 1) + "]"
+            dsets.append(self.new_dataset(name=name))
+        return update.saveAndReturnArray(dsets)
 
     def make_file_annotation(self, name=None, binary=None, format=None,
                              client=None):
@@ -828,7 +861,7 @@ class ITest(object):
         If no name has been provided, a UUID string shall be used.
 
         :param name: the name of the project
-        :param client: user context
+        :param client: The client to use to create the object
         """
 
         if client is None:
@@ -863,15 +896,17 @@ class ITest(object):
 
     def link(self, obj1, obj2, client=None):
         """
-        Links two linkable model entities together by creating an instance
-        of the correct link entity (e.g. ProjectDatasetLinkI) and persisting
-        it in the DB. Accepts client instance to allow calls to happen
-        in correct user contexts. Limited to ProjectI-DatasetI
-        and DatasetI-ImageI links.
+        Links two linkable model entities together by creating an instance of
+        the correct link entity (e.g. ProjectDatasetLinkI) and persisting it
+        in the DB. Accepts client instance to allow calls to happen in correct
+        user contexts. Currently support links are:
+          * project/dataset
+          * dataset/image
+          * image/annotation
 
         :param obj1: parent object
         :param obj2: child object
-        :param client: user context
+        :param client: The client to use to create the link
         """
         if client is None:
             client = self.client
@@ -887,39 +922,45 @@ class ITest(object):
         else:
             assert False, "Object type not supported."
 
-        link.setParent(obj1.proxy())
-        link.setChild(obj2.proxy())
-        client.sf.getUpdateService().saveAndReturnObject(link)
+        """check if object exist or not"""
+        if obj1.id is None:
+            link.setParent(obj1)
+        else:
+            link.setParent(obj1.proxy())
+        if obj2.id is None:
+            link.setChild(obj2)
+        else:
+            link.setChild(obj2.proxy())
+        return client.sf.getUpdateService().saveAndReturnObject(link)
 
     def delete(self, obj):
         """
         Deletes a list of model entities (ProjectI, DatasetI or ImageI)
-        by creating Delete commands and calling
-        :func:`~test.ITest.doAllSubmit`.
+        by creating Delete2 commands and calling
+        :func:`~test.ITest.doSubmit`.
 
         :param obj: a list of objects to be deleted
         """
         if isinstance(obj[0], ProjectI):
-            t = "/Project"
+            t = "Project"
         elif isinstance(obj[0], DatasetI):
-            t = "/Dataset"
+            t = "Dataset"
         elif isinstance(obj[0], ImageI):
-            t = "/Image"
+            t = "Image"
         else:
             assert False, "Object type not supported."
 
-        commands = list()
-        for i in obj:
-            commands.append(Delete(t, i.id.val, None))
+        ids = [i.id.val for i in obj]
+        command = Delete2(targetObjects={t: ids})
 
-        self.doAllSubmit(commands, self.client)
+        self.doSubmit(command, self.client)
 
     def change_group(self, obj, target, client=None):
         """
         Moves a list of model entities (ProjectI, DatasetI or ImageI)
         to the target group. Accepts a client instance to guarantee calls
-        in correct user contexts. Creates Chgrp commands and calls
-        :func:`~test.ITest.doAllSubmit`.
+        in correct user contexts. Creates Chgrp2 commands and calls
+        :func:`~test.ITest.doSubmit`.
 
         :param obj: a list of objects to be moved
         :param target: the ID of the target group
@@ -928,19 +969,54 @@ class ITest(object):
         if client is None:
             client = self.client
         if isinstance(obj[0], ProjectI):
-            t = "/Project"
+            t = "Project"
         elif isinstance(obj[0], DatasetI):
-            t = "/Dataset"
+            t = "Dataset"
         elif isinstance(obj[0], ImageI):
-            t = "/Image"
+            t = "Image"
         else:
             assert False, "Object type not supported."
 
-        commands = list()
-        for i in obj:
-            commands.append(Chgrp(t, id=i.id.val, grp=target))
+        ids = [i.id.val for i in obj]
+        command = Chgrp2(targetObjects={t: ids}, groupId=target)
 
-        self.doAllSubmit(commands, client)
+        self.doSubmit(command, client)
+
+    def change_permissions(self, gid, perms, client=None):
+        """
+        Changes the permissions of an ExperimenterGroup object.
+        Accepts a client instance to guarantee calls in correct user contexts.
+        Creates Chmod commands and calls :func:`~test.ITest.doSubmit`.
+
+        :param gid: id of an ExperimenterGroup
+        :param perms: permissions string
+        :param client: user context
+        """
+        if client is None:
+            client = self.client
+
+        command = Chmod(
+            type="/ExperimenterGroup", id=gid, permissions=perms)
+
+        self.doSubmit(command, client)
+
+    def create_share(self, description="", timeout=None,
+                     objects=[], experimenters=[], guests=[],
+                     enabled=True, client=None):
+        """
+        Create share object
+
+        :param objects: a list of objects to include in the share
+        :param description: a string containing the description of the share
+        :param timeout: the timeout of the share
+        :param experimenters: a list of users associated with the share
+        :param client: The client to use to create the share
+        """
+        if client is None:
+            client = self.client
+        share = client.sf.getShareService()
+        return share.createShare(description, timeout, objects,
+                                 experimenters, guests, enabled)
 
 
 class ProjectionFixture(object):

@@ -299,7 +299,7 @@
   <entry name="SoftwareName">OMERO.importer</entry>
   <entry name="AboutFile">about.xml</entry>
   <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
-  <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
+  <entry name="Forum">http://www.openmicroscopy.org/community/</entry>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating if the binary data are available. This should only

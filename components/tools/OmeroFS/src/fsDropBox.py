@@ -16,6 +16,7 @@ import sys
 import string
 import threading
 import shutil
+import uuid
 
 # Third party path package. It provides much of the
 # functionality of os.path but without the complexity.
@@ -26,7 +27,6 @@ import omero.all
 import omero.grid.monitors as monitors
 
 import omero.rtypes
-import omero_ext.uuid as uuid  # see ticket:3774
 import Ice
 
 from omero.util import configure_server_logging

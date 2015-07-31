@@ -8,20 +8,27 @@ package integration;
 
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import omero.ApiUsageException;
 import omero.ServerError;
+import omero.cmd.Delete2;
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.LongColumn;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
+import omero.model.ImageAnnotationLink;
+import omero.model.OriginalFile;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Collections of tests for the <code>IUpdate</code> service.
@@ -101,9 +108,14 @@ public class TableTest extends AbstractServerTest {
      */
     @SuppressWarnings("unused")
     @AfterMethod
-    private void deleteTable() throws ServerError {
+    private void deleteTable() throws Exception {
         if (myTable != null) {
-            iUpdate.deleteObject(myTable.getOriginalFile());
+            OriginalFile f = myTable.getOriginalFile();
+            final Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    OriginalFile.class.getSimpleName(),
+                    Collections.singletonList(f.getId().getValue()));
+            callback(true, client, dc);
             myTable = null;
         }
     }

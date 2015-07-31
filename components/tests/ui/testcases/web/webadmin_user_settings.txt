@@ -58,7 +58,7 @@ Owner Group Edit
     Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
 
     # Edit permissions
-    Radio Button Should Be Set To   permissions     0       # we should start off as 'private'
+    Radio Button Should Be Set To   permissions     2       # we should start off as 'read-annotate'
     Select Radio Button             permissions     1
     Submit Form                     css=form.settings_form
 
@@ -67,6 +67,6 @@ Owner Group Edit
     Click Element               css=#group_settings_tab a
     Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
     Radio Button Should Be Set To   permissions     1
-    Select Radio Button             permissions     0
+    Select Radio Button             permissions     2
     Submit Form                     css=form.settings_form
 

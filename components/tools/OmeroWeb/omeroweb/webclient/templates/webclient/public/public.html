@@ -33,13 +33,17 @@
         $(document).ready(function() 
         {
 
-            // Disable the groups/users dropdown menu.
+            // Disable the groups/users dropdown menu and scripts menu.
             $("#groupsUsersButton")
                 .css('background-image', 'url()')
                 .attr('title', 'Use "Scope" in form below to search within specific Groups / Users');
+            $("#scriptButton")
+                .css('opacity', 0.5)
+                .attr('title', 'Scripts are disabled for data in shares');
             setTimeout(function(){
                 // make sure we remove click handler AFTER it's been added
                 $("#groupsUsersButton").off('click');
+                $("#scriptButton").off('click');
             },500);
         });
 
@@ -246,8 +250,21 @@
                     }
                 })
                 .delegate("a", "dblclick", function(e) {
-                    if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
+                    var $this = $(this),
+                        obj_rel = $this.parent().attr('rel'),
+                        ob_id = $this.parent().attr('id'),
+                        share_id = $this.parent().attr('data-share'),
+                        popup_url = "{% url 'webindex' %}",
+                        iid;
+                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                        iid = ob_id.split("-")[1];
+                        // Share-id will only be there if share is not owned.
+                        if (share_id) {
+                            popup_url += share_id + "/img_detail/" + iid;
+                        } else {
+                            popup_url += "img_detail/" + iid;
+                        }
+                        OME.openPopup(popup_url);
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {

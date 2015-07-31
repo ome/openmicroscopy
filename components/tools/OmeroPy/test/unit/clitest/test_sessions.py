@@ -41,8 +41,7 @@ class TestSessions(object):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
-    def testStoreSessionDir(self, tmpdir, monkeypatch):
-        from argparse import Namespace
+    def testDefaultSessionsDir(self):
         from omero.util import get_user_dir
         from path import path
 
@@ -50,17 +49,34 @@ class TestSessions(object):
         store = self.cli.controls['sessions'].store(None)
         assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
 
+    @pytest.mark.parametrize('environment', (
+        [], ["OMERO_SESSIONS_DIR"], ["OMERO_SESSIONDIR"],
+        ["OMERO_SESSIONS_DIR", "OMERO_SESSIONDIR"]))
+    @pytest.mark.parametrize('session_args', [None, 'session_dir'])
+    def testCustomSessionsDir(
+            self, tmpdir, monkeypatch, environment,
+            session_args):
+        from argparse import Namespace
+        from omero.util import get_user_dir
+        from path import path
+
+        for envvar in environment:
+            monkeypatch.setenv(envvar, tmpdir / envvar)
+
         # args.session_dir sets the sessions dir
         args = Namespace()
-        args.session_dir = tmpdir / 'session_dir'
-        store = self.cli.controls['sessions'].store(args)
-        assert store.dir == path(args.session_dir) / 'omero' / 'sessions'
+        if session_args:
+            setattr(args, session_args, tmpdir / session_args)
 
-        # OMERO_SESSION_DIR with no args.session_dir sets the sessions dir
-        monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'envvar')
-        store = self.cli.controls['sessions'].store(None)
-        assert store.dir == path(tmpdir) / 'envvar' / 'omero' / 'sessions'
-
-        # args.session_dir overrides OMERO_SESSION_DIR
         store = self.cli.controls['sessions'].store(args)
-        assert store.dir == path(args.session_dir) / 'omero' / 'sessions'
+        # By order of precedence
+        if 'OMERO_SESSIONDIR' in environment:
+            assert store.dir == path(tmpdir) / 'OMERO_SESSIONDIR'
+        elif 'OMERO_SESSION_DIR' in environment:
+            assert store.dir == (
+                path(tmpdir) / 'OMERO_SESSIONS_DIR' / 'omero' / 'sessions')
+        elif session_args:
+            assert store.dir == (
+                path(getattr(args, session_args) / 'omero' / 'sessions'))
+        else:
+            assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'

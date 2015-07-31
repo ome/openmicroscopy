@@ -1582,10 +1582,10 @@ public class EditorUtil
         LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>(4);
         List<String> notSet = new ArrayList<String>();
-        details.put(TEMPERATURE, new Double(0));
-        details.put(AIR_PRESSURE, new Double(0));
-        details.put(HUMIDITY, new Double(0));
-        details.put(CO2_PERCENT, new Double(0));
+        details.put(TEMPERATURE, Double.valueOf(0));
+        details.put(AIR_PRESSURE, Double.valueOf(0));
+        details.put(HUMIDITY, Double.valueOf(0));
+        details.put(CO2_PERCENT, Double.valueOf(0));
 
         if (data == null) {
             notSet.add(TEMPERATURE);
@@ -1654,9 +1654,9 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(4);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(POSITION_X, new Double(0));
-        details.put(POSITION_Y, new Double(0));
-        details.put(POSITION_Z, new Double(0));
+        details.put(POSITION_X, Double.valueOf(0));
+        details.put(POSITION_Y, Double.valueOf(0));
+        details.put(POSITION_Z, Double.valueOf(0));
 
         if (data == null) {
             notSet.add(NAME);
@@ -1899,7 +1899,7 @@ public class EditorUtil
         List<String> notSet = (List) m.get(NOT_SET);
         m.remove(NOT_SET);
         details.putAll(m);
-        details.put(ATTENUATION, new Double(0));
+        details.put(ATTENUATION, Double.valueOf(0));
         if (data == null) {
             details.put(WAVELENGTH, Float.valueOf(0));
             notSet.add(ATTENUATION);
@@ -1955,7 +1955,7 @@ public class EditorUtil
         details.put(SERIAL_NUMBER, "");
         details.put(LOT_NUMBER, "");
         details.put(LIGHT_TYPE, "");
-        details.put(POWER, new Double(0));
+        details.put(POWER, Double.valueOf(0));
         details.put(TYPE, "");
         if (data == null) {
             notSet.add(MODEL);
@@ -2101,10 +2101,10 @@ public class EditorUtil
         details.put(SERIAL_NUMBER, "");
         details.put(LOT_NUMBER, "");
         details.put(TYPE, "");
-        details.put(GAIN, new Double(0));
-        details.put(VOLTAGE, new Double(0));
-        details.put(OFFSET, new Double(0));
-        details.put(ZOOM, new Double(0));
+        details.put(GAIN, Double.valueOf(0));
+        details.put(VOLTAGE, Double.valueOf(0));
+        details.put(OFFSET, Double.valueOf(0));
+        details.put(ZOOM, Double.valueOf(0));
         details.put(AMPLIFICATION, "");
         List<String> notSet = new ArrayList<String>();
         if (data == null) {
@@ -2207,7 +2207,7 @@ public class EditorUtil
         List<String> notSet = (List) m.get(NOT_SET);
         m.remove(NOT_SET);
         details.putAll(m);
-        details.put(READ_OUT_RATE, new Double(0));
+        details.put(READ_OUT_RATE, Double.valueOf(0));
         details.put(BINNING, "");
         if (data == null) {
             notSet.add(READ_OUT_RATE);
@@ -2284,12 +2284,12 @@ public class EditorUtil
     {
         LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>(4);
-        details.put(DELTA_T, new Double(0));
-        details.put(EXPOSURE_TIME, new Double(0));
-        details.put(POSITION_X, new Double(0));
-        details.put(POSITION_Y, new Double(0));
-        details.put(POSITION_Z, new Double(0));
-        List<String> notSet = new ArrayList<String>();
+        details.put(DELTA_T, Double.valueOf(0));
+        details.put(EXPOSURE_TIME, Double.valueOf(0));
+        details.put(POSITION_X, Double.valueOf(0));
+        details.put(POSITION_Y, Double.valueOf(0));
+        details.put(POSITION_Z, Double.valueOf(0));
+        final List<String> notSet = new ArrayList<String>(5);
         notSet.add(DELTA_T);
         notSet.add(EXPOSURE_TIME);
         notSet.add(POSITION_X);
@@ -2465,13 +2465,19 @@ public class EditorUtil
     {
         String date = "";
         Timestamp time = null;
-        if (object == null) return date;
+        if (object == null) 
+            return date;
+        
         if (object instanceof AnnotationData)
             time = ((AnnotationData) object).getLastModified();
         else if (object instanceof ImageData)
             time = getAcquisitionTime((ImageData) object);
-        else time = object.getCreated();
-        if (time != null) date = UIUtilities.formatDefaultDate(time);
+        else 
+            time = object.getCreated();
+        
+        if (time != null && time.getTime()>0) 
+            date = UIUtilities.formatDefaultDate(time);
+        
         return date;
     }
 

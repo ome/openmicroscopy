@@ -71,6 +71,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import info.clearthought.layout.TableLayout;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
@@ -78,6 +79,7 @@ import ome.model.units.BigResult;
 import omero.model.PlaneInfo;
 import omero.model.Length;
 import omero.model.LengthI;
+
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -105,6 +107,7 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.GroupData;
@@ -307,24 +310,6 @@ class ImViewerUI
 	
 	/** Item used to show or hide the unit bar. */
 	private JMenu scaleBarMenu;
-	
-	/**
-	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
-	 * hierarchy.
-	 * 
-	 * @param x A component.
-	 * @return The parent {@link HistoryItem} or <code>null</code> if none
-	 *         was found.
-	 */
-	private HistoryItem findParentDisplay(Object x)
-	{
-		while (true) {
-			if (x instanceof HistoryItem) return (HistoryItem) x;
-			if (x instanceof JComponent) x = ((JComponent) x).getParent();
-			else break;
-		}
-		return null;
-	}
 	
 	/**
 	 * Initializes and returns a split pane, either vertical or horizontal 
@@ -1069,6 +1054,7 @@ class ImViewerUI
 		boolean reset = false;
 		if (w > width) {
 			reset = true;
+			w = width;
 		}
 		if (h > height) {
 			reset = true;

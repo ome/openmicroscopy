@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.ImageCanvasListener 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Arrays;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -129,9 +130,12 @@ class ImageCanvasListener
     void installListeners(boolean add)
     {
     	if (add) {
-    		canvas.addMouseListener(this);
-    		canvas.addMouseMotionListener(this);
-    		canvas.addMouseWheelListener(this);
+            // prevent adding the listeners multiple times
+            if (!Arrays.asList(canvas.getMouseListeners()).contains(this)) {
+                canvas.addMouseListener(this);
+                canvas.addMouseMotionListener(this);
+                canvas.addMouseWheelListener(this);
+            }
     	} else {
     		canvas.removeMouseListener(this);
     		canvas.removeMouseMotionListener(this);
@@ -162,50 +166,15 @@ class ImageCanvasListener
     }
 
     /**
-	 * Zooms in and out the image if the <code>Shift</code> key is down,
-	 * pans if the <code>Alt</code> key is down.
-	 * Selects a new z-section and time-point otherwise.
-	 * @see MouseMotionListener#mouseDragged(MouseEvent)
-	 */
-	public void mouseDragged(MouseEvent e)
-	{
-		Point p = e.getPoint();
-		if (handleKeyDown) {
-			if (e.isShiftDown()) {
-				if (model.isBigImage()) {
-					pan(p, false);
-					return;
-				}
-				if (p.y < pressedPoint.y) model.zoom(true);
-				else if (p.y > pressedPoint.y) model.zoom(false);
-				pressedPoint = p;
-				return;
-			} else if (e.isAltDown()) {
-				pan(p, false);
-				return;
-			}
-		}
-		if (model.isBigImage()) { //panning
-			dragged = true;
-			pan(p, false);
-			return;
-		}
-		int maxZ = model.getMaxZ();
-		int maxT = model.getMaxT();
-		if (maxZ <= 0 && maxT <= 0) return;
-		int pressedZ = -1;
-		int pressedT = -1;
-		pressedZ = (p.y*maxZ)/area.height;
-		if (pressedZ < 0) return;
-		pressedZ = maxZ-pressedZ;
-		if (pressedZ > maxZ) pressedZ = -1;
-		pressedT = (p.x*maxT)/area.width;
-		if (pressedT < 0) return;
-		if (pressedT > maxT)  return;
-		model.setSelectedXYPlane(pressedZ, pressedT);
-		if (canvas instanceof BrowserBICanvas)
-			((BrowserBICanvas) canvas).setPaintedString(pressedZ, pressedT);
-	}
+     * Pans the image
+     * 
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
+     */
+    public void mouseDragged(MouseEvent e) {
+        Point p = e.getPoint();
+        dragged = true;
+        pan(p, false);
+    }
 
 	/**
 	 * Displays on the image the currently selected z-section and time-point.

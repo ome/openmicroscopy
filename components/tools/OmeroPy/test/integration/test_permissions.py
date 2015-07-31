@@ -28,12 +28,9 @@ import pytest
 import library as lib
 import omero
 from omero_model_PermissionsI import PermissionsI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import rbool, rstring, unwrap
 
@@ -139,20 +136,10 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         group = self.new_group(perms="rw----")
         client, user = self.new_client_and_user(group=group, owner=True)
-        update = client.sf.getUpdateService()
 
-        project = ProjectI()
-        project.setName(rstring("project1_%s" % uuid))
-        project = update.saveAndReturnObject(project)
-        dataset = DatasetI()
-        dataset.setName(rstring("dataset1_%s" % uuid))
-        dataset = update.saveAndReturnObject(dataset)
-        links = []
-        l = ProjectDatasetLinkI()
-        l.setChild(dataset)
-        l.setParent(project)
-        links.append(l)
-        update.saveAndReturnArray(links)
+        project = self.make_project(name="project1_%s" % uuid)
+        dataset = self.make_dataset(name="dataset1_%s" % uuid)
+        self.link(project, dataset, client=self.client)
 
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
@@ -299,7 +286,6 @@ class TestPermissions(lib.ITest):
         g1_id = admin.createGroup(new_gr1)
 
         # increase permissions of group1 to rwr---
-        gr1 = admin.getGroup(g1_id)
         p1 = PermissionsI()
         p1.setUserRead(True)
         p1.setUserWrite(True)
@@ -309,7 +295,7 @@ class TestPermissions(lib.ITest):
         p1.setWorldRead(False)
         p1.setWorldAnnotate(False)
         p1.setWorldWrite(False)
-        admin.changePermissions(gr1, p1)
+        self.change_permissions(g1_id, str(p1), self.root)
         gr2 = admin.getGroup(g1_id)
         assert 'rwr---' == str(gr2.details.permissions)
 
@@ -324,7 +310,7 @@ class TestPermissions(lib.ITest):
         p2.setWorldRead(False)
         p2.setWorldAnnotate(False)
         p2.setWorldWrite(False)
-        admin.changePermissions(gr2, p2)
+        self.change_permissions(g1_id, str(p2), self.root)
         gr3 = admin.getGroup(g1_id)
         assert 'rwra--' == str(gr3.details.permissions)
 
@@ -338,7 +324,7 @@ class TestPermissions(lib.ITest):
         p3.setWorldRead(False)
         p3.setWorldAnnotate(False)
         p3.setWorldWrite(False)
-        admin.changePermissions(gr3, p3)
+        self.change_permissions(g1_id, str(p3), self.root)
         gr4 = admin.getGroup(g1_id)
         assert 'rwrw--' == str(gr4.details.permissions)
 
@@ -853,8 +839,7 @@ class TestPermissionProjections(lib.ITest):
     _cache = dict()
 
     def writer(self, fixture):
-        client = self._new_client(fixture.reader, fixture.perms)
-        return client.sf.getUpdateService()
+        return self._new_client(fixture.reader, fixture.perms)
 
     def reader(self, fixture):
         client = self._new_client(fixture.reader, fixture.perms)
@@ -892,8 +877,8 @@ class TestPermissionProjections(lib.ITest):
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
-        project = ProjectI()
-        project.name = rstring("testProjectPermissions")
+        project = self.make_project(name="testProjectPermissions",
+                                    client=writer)
         project = writer.saveAndReturnObject(project)
         try:
             perms = unwrap(reader.projection(
@@ -911,9 +896,8 @@ class TestPermissionProjections(lib.ITest):
     def testProjectionPermissionsWorkaround(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
-        project = ProjectI()
-        project.name = rstring("testProjectPermissions")
-        project = writer.saveAndReturnObject(project)
+        project = self.make_project(name="testProjectPermissions",
+                                    client=writer)
 
         group = project.details.group.id.val
         owner = project.details.owner.id.val

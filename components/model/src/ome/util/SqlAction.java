@@ -39,6 +39,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 /**
  * Single wrapper for all JDBC activities.
@@ -566,6 +567,8 @@ public interface SqlAction {
      */
     public static abstract class Impl implements SqlAction {
 
+        protected final static int MAX_IN_SIZE = 1000;
+
         protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
         protected abstract SimpleJdbcOperations _jdbc();
@@ -592,7 +595,7 @@ public interface SqlAction {
             if (value instanceof Collection) {
                 @SuppressWarnings({ "rawtypes" })
                 Collection l = (Collection) value;
-                if (l.size() > 1000) {
+                if (l.size() > MAX_IN_SIZE) {
                     for (Object o : l) {
                         if (!(o instanceof Long)) {
                             log.debug("Not replacing query; non-long");
@@ -722,26 +725,39 @@ public interface SqlAction {
                 return null;
             }
 
+            final List<List<String>> batches = Lists.partition(basenames, MAX_IN_SIZE);
+            final Map<String, Object> params = new HashMap<String, Object>();
             String findRepoFileSql = _lookup("find_repo_files_by_name"); //$NON-NLS-1$
-            Map<String, Object> params = new HashMap<String, Object>();
             params.put("repo", uuid);
             params.put("path", dirname);
-            params.put("names", basenames);
             findRepoFileSql += addMimetypes(mimetypes, params);
-            try {
-                final Map<String, Long> rv = new HashMap<String, Long>();
-                _jdbc().query(findRepoFileSql,
-                        new RowMapper<Object>(){
-                            @Override
-                            public Object mapRow(ResultSet arg0, int arg1)
-                                    throws SQLException {
-                                rv.put(arg0.getString(1),  arg0.getLong(2));
-                                return null;
-                            }}, params);
-                return rv;
-            } catch (EmptyResultDataAccessException e) {
-                return null;
+            Map<String, Long> rv = null;
+
+            for (List<String> batch : batches) {
+                params.put("names", batch);
+                try {
+                    final Map<String, Long> tmp = new HashMap<String, Long>();
+                    _jdbc().query(findRepoFileSql,
+                            new RowMapper<Object>(){
+                                @Override
+                                public Object mapRow(ResultSet arg0, int arg1)
+                                        throws SQLException {
+                                    tmp.put(arg0.getString(1),  arg0.getLong(2));
+                                    return null;
+                                }}, params);
+                    if (rv == null) {
+                        rv = tmp;
+                    } else {
+                        rv.putAll(tmp);
+                    }
+                } catch (EmptyResultDataAccessException e) {
+                    // Do nothing. If there is only one batch, it will
+                    // return a null value as expected. If it's only one
+                    // batch that throws an ERDAE, then the rest should
+                    // be processed.
+                }
             }
+            return rv;
         }
 
         public int repoScriptCount(String uuid, Set<String> mimetypes) {

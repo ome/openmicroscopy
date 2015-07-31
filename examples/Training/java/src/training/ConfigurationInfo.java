@@ -71,13 +71,37 @@ public class ConfigurationInfo
 	
 	/** The id of a project.*/
 	private long projectId;
-	
+
+	/** The id of a project.*/
+    private long screenId;
+
+    /** The group to use when logging in.*/
+    private String group;
+
 	/** Creates a new instance.*/
 	public ConfigurationInfo()
 	{
 		setPort(DEFAULT_PORT);
+		group = null;
 	}
-	
+
+	/**
+	 * Returns the group.
+	 *
+	 * @return See above.
+	 */
+	public String getGroup() { return group; }
+
+	/**
+	 * Sets the group.
+	 *
+	 * @param groupId The value to set.
+	 */
+	public void setGroup(String group)
+	{
+	    this.group = group;
+	}
+
 	/**
 	 * Returns the hostname.
 	 * 
@@ -206,5 +230,19 @@ public class ConfigurationInfo
 	 * @param projectId The value to set.
 	 */
 	public void setProjectId(long projectId) { this.projectId = projectId; }
+
+	   /**
+     * Returns the screen's identifier.
+     * 
+     * @return See above.
+     */
+    public long getScreenId() { return screenId; }
+    
+    /**
+     * Sets the screen's identifier.
+     * 
+     * @param screenId The value to set.
+     */
+    public void setScreenId(long screenId) { this.screenId = screenId; }
 
 }

@@ -27,15 +27,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.Session;
 
+import ome.model.core.OriginalFile;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts.Op;
+import ome.services.graphs.ModelObjectSequencer;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
 import omero.cmd.graphs.ChildOption;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 
 /**
@@ -132,12 +135,13 @@ public class GraphUtil {
     }
 
     /**
-     * Make a copy of a multimap with the full class names in the keys replaced by the simple class names.
+     * Make a copy of a multimap with the full class names in the keys replaced by the simple class names
+     * and the ordering of the values preserved.
      * @param entriesByFullName a multimap
      * @return a new multimap with the same contents, except for the package name having been trimmed off each key
      */
     static <X> SetMultimap<String, X> trimPackageNames(SetMultimap<String, X> entriesByFullName) {
-        final SetMultimap<String, X> entriesBySimpleName = HashMultimap.create();
+        final SetMultimap<String, X> entriesBySimpleName = LinkedHashMultimap.create();
         for (final Map.Entry<String, Collection<X>> entriesForOneClass : entriesByFullName.asMap().entrySet()) {
             final String fullClassName = entriesForOneClass.getKey();
             final String simpleClassName = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
@@ -265,5 +269,32 @@ public class GraphUtil {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Rearrange the deletion targets such that original files are listed before their containing directories.
+     * @param session the Hibernate session
+     * @param targetObjects the objects that are to be deleted
+     * @return the given target objects with any original files suitably ordered for deletion
+     */
+    static SetMultimap<String, Long> arrangeDeletionTargets(Session session, SetMultimap<String, Long> targetObjects) {
+        if (targetObjects.get(OriginalFile.class.getName()).size() < 2) {
+            /* no need to rearrange anything, as there are not multiple original files */
+            return targetObjects;
+        }
+        final SetMultimap<String, Long> orderedIds = LinkedHashMultimap.create();
+        for (final Map.Entry<String, Collection<Long>> targetObjectsByClass : targetObjects.asMap().entrySet()) {
+            final String className = targetObjectsByClass.getKey();
+            Collection<Long> ids = targetObjectsByClass.getValue();
+            if (OriginalFile.class.getName().equals(className)) {
+                final Collection<List<Long>> sortedIds = ModelObjectSequencer.sortOriginalFileIds(session, ids);
+                ids = new ArrayList<Long>(ids.size());
+                for (final Collection<Long> idBatch : sortedIds) {
+                    ids.addAll(idBatch);
+                }
+            }
+            orderedIds.putAll(className, ids);
+        }
+        return orderedIds;
     }
 }

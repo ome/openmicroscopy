@@ -23,8 +23,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.metadata.editor.ImportType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -66,10 +65,10 @@ public class FilesetInfoDialog extends TinyDialog {
      * 
      * @param set
      *            The fileset which paths should be shown
-     * @param inPlaceImport
-     *            Flag if this is an inplace import
+     * @param importType
+     *            The import type
      */
-    public void setData(Set<FilesetData> set, boolean inPlaceImport) {
+    public void setData(Set<FilesetData> set, ImportType importType) {
         if (set == null)
             return;
 
@@ -100,24 +99,26 @@ public class FilesetInfoDialog extends TinyDialog {
             content.add(sep, c);
             c.gridy++;
 
-            String header = inPlaceImport ? "Imported with <b>--transfer=ln</b> from:" : "Imported from:";
+            String header = (importType == ImportType.HARDLINK || importType == ImportType.SOFTLINK) ? "Imported with <b>--transfer="
+                    + importType.getSymbol() + "</b> from:"
+                    : "Imported from:";
+            
             ExpandableTextPane t1 = new ExpandableTextPane();
             t1.setBackground(UIUtilities.BACKGROUND_COLOR);
-            t1.setText(header+"<br/>"+getOriginPaths(set));
+            t1.setText(header + "<br/>" + getOriginPaths(set));
             content.add(t1, c);
             c.gridy++;
 
-            if (!inPlaceImport) {
-                JSeparator sep2 = new JSeparator(JSeparator.HORIZONTAL);
-                sep2.setBackground(UIUtilities.BACKGROUND_COLOR);
-                content.add(sep2, c);
-                c.gridy++;
+            JSeparator sep2 = new JSeparator(JSeparator.HORIZONTAL);
+            sep2.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(sep2, c);
+            c.gridy++;
 
-                ExpandableTextPane t2 = new ExpandableTextPane();
-                t2.setBackground(UIUtilities.BACKGROUND_COLOR);
-                t2.setText("Path on server:<br/>"+getServerPaths(set));
-                content.add(t2, c);
-            }
+            ExpandableTextPane t2 = new ExpandableTextPane();
+            t2.setBackground(UIUtilities.BACKGROUND_COLOR);
+            t2.setText("Path on server:<br/>" + getServerPaths(set));
+            content.add(t2, c);
+            
         }
 
         setCanvas(new JScrollPane(content));
@@ -187,27 +188,6 @@ public class FilesetInfoDialog extends TinyDialog {
      *            See above
      */
     public void open(Point location) {
-        addWindowFocusListener(new WindowFocusListener() {
-
-            /**
-             * Closes the dialog when the window loses focus.
-             * 
-             * @see WindowFocusListener#windowLostFocus(WindowEvent)
-             */
-            public void windowLostFocus(WindowEvent evt) {
-                TinyDialog d = (TinyDialog) evt.getSource();
-                d.setClosed(true);
-                d.closeWindow();
-            }
-
-            /**
-             * Required by the I/F but no-operation in our case.
-             * 
-             * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-             */
-            public void windowGainedFocus(WindowEvent evt) {
-            }
-        });
         setResizable(true);
         getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
         pack();

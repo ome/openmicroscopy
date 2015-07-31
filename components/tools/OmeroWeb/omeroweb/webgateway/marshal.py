@@ -26,7 +26,6 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-from django.conf import settings
 from omero.rtypes import unwrap
 
 # OMERO.insight point list regular expression
@@ -54,7 +53,7 @@ def channelMarshal(channel):
             'active': channel.isActive()}
 
 
-def imageMarshal(image, key=None):
+def imageMarshal(image, key=None, request=None):
     """
     return a dict with pretty much everything we know and care about an image,
     all wrapped in a pretty structure.
@@ -150,11 +149,12 @@ def imageMarshal(image, key=None):
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
 
-    init_zoom = None
-    if hasattr(settings, 'VIEWER_INITIAL_ZOOM_LEVEL'):
-        init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
+    try:
+        init_zoom = request.session['server_settings']['initial_zoom_level']
         if init_zoom < 0:
             init_zoom = levels + init_zoom
+    except:
+        init_zoom = 0
 
     try:
         rv.update({

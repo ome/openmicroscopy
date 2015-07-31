@@ -36,9 +36,8 @@ try
     image = getImages(session, imageId);
     assert(~isempty(image), 'OMERO:ROIs', 'Image id not valid');
     
-    %Create ROI. In this example, we create an ROI with a rectangular shape and
-    %attach it to an image.
-    % First create a rectangular shape.
+    %% Shapes creation
+    % Create a rectangle
     disp('Create rectangular shape');
     rectangle = createRectangle(0, 0, 10, 20);
     rectangle.setFillColor(rint(hex2dec('7DFF0000')));    % 'aRGB' - 50% red
@@ -47,21 +46,55 @@ try
     % indicate on which plane to attach the shape
     rectangle = setShapeCoordinates(rectangle, 0, 0, 0);
 
-    
-    % Create an ellipse shape.
+    % Create an ellipse
     disp('Create ellipsoidal shape');
     ellipse = createEllipse(10, 10, 10, 10);
     ellipse.setFillColor(rint(hex2dec('7D0000FF')));    % 'aRGB' - 50% blue
     ellipse.setStrokeColor(rint(hex2dec('FF000000')));  % 'aRGB' - 100% black
     ellipse.setTextValue(rstring('Ellipse'));
     % indicate on which plane to attach the shape
-    ellipse = setShapeCoordinates(ellipse, 0, 1, 0);
+    ellipse = setShapeCoordinates(ellipse, 0, 0, 1);
+    
+    % Create a point
+    disp('Create point shape');
+    point = createPoint(5, 4);
+    point.setTextValue(rstring('Point'));
+    % indicate on which plane to attach the shape
+    point = setShapeCoordinates(point, 0, 0, 2);
+    
+    % Create a line
+    disp('Create line shape');
+    line = createLine([10 15], [10 20]);
+    line.setStrokeColor(rint(hex2dec('FF000000')));  % 'aRGB' - 100% black
+    line.setTextValue(rstring('Line'));
+    % indicate on which plane to attach the shape
+    line = setShapeCoordinates(line, 0, 0, 3);
+    
+    % Create a polyline
+    disp('Create polyline shape');
+    polyline = createPolyline([1 5 10 8], [1 5 5 10]);
+    polyline.setStrokeColor(rint(hex2dec('FF000000')));  % 'aRGB' - 100% black
+    polyline.setTextValue(rstring('Polyline'));
+    % indicate on which plane to attach the shape
+    polyline = setShapeCoordinates(polyline, 0, 0, 4);
+    
+    % Create a polygon
+    disp('Create polygon shape');
+    polygon = createPolygon([1 5 10 8], [1 5 5 10]);
+    polygon.setStrokeColor(rint(hex2dec('FF000000')));  % 'aRGB' - 100% black
+    polygon.setTextValue(rstring('Polygon'));
+    % indicate on which plane to attach the shape
+    polygon = setShapeCoordinates(polygon, 0, 0, 5);
     
     % Create the roi.
     roi = omero.model.RoiI;
     % Attach the shape to the roi, several shapes can be added.
     roi.addShape(rectangle);
     roi.addShape(ellipse);
+    roi.addShape(point);
+    roi.addShape(line);
+    roi.addShape(polyline);
+    roi.addShape(polygon);
     % Link the roi and the image
     roi.setImage(omero.model.ImageI(imageId, false));
     % Save the ROI
@@ -81,8 +114,7 @@ try
             width = shape.getWidth().getValue();
             height = shape.getHeight().getValue();
             fprintf(1, '  Rectangle x: %g, y: %g, width: %g, height: %g\n',...
-                x, y, width, height);
-            
+                x, y, width, height);      
         elseif (isa(shape, 'omero.model.Ellipse'))
             cx = shape.getCx().getValue();
             cy = shape.getCy().getValue();
@@ -90,27 +122,23 @@ try
             ry = shape.getRy().getValue();
             fprintf(1, '  Ellipse x: %g, y: %g, rx: %g, ry: %g\n',...
                 cx, cy, rx, ry);
-        end
-    end
-    
-    % Retrieve the roi linked to an image.
-    fprintf(1, 'Reading ROIs attached to image %g\n', imageId);
-    roiResult =  session.getRoiService().findByImage(imageId, []);
-    rois = roiResult.rois;
-    nRois = rois.size;
-    fprintf(1, 'Found %g ROI(s)\n', nRois);
-    for i = 1 : nRois
-        roi = rois.get(i-1);
-        fprintf(1, '  ROI %g\n', roi.getId().getValue());
-        shapes = roi.copyShapes();
-        
-        % Remove the first shape
-        if (shapes.size > 0)
-            fprintf(1, '  Removing %g shapes\n', shapes.size);
-            for j = 1 : shapes.size
-                roi.removeShape(shapes.get(j-1));
-            end
-            roi = session.getUpdateService().saveAndReturnObject(roi);
+        elseif (isa(shape, 'omero.model.Point'))
+            cx = shape.getCx().getValue();
+            cy = shape.getCy().getValue();
+            fprintf(1, '  Point x: %g, y: %g\n', cx, cy);
+        elseif (isa(shape, 'omero.model.Line'))
+            x1 = shape.getX1().getValue();
+            x2 = shape.getX2().getValue();
+            y1 = shape.getY1().getValue();
+            y2 = shape.getY2().getValue();
+            fprintf(1, '  Line (x1, y1): (%g, %g), (x2, y2): (%g, %g)\n',...
+                x1, y1, x2, y2);
+        elseif isa(shape, 'omero.model.Polyline')
+            points = shape.getPoints().getValue();
+            fprintf(1, '  Poyline: %s\n', char(points));
+        elseif (isa(shape, 'omero.model.Polygon'))
+            points = shape.getPoints().getValue();
+            fprintf(1, '  Polygon: %s\n', char(points));
         end
     end
 
@@ -129,7 +157,7 @@ try
     fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
     
     % Create a mask shape at a position different from (0, 0)
-    m = true(sizeY/8 - 3, sizeX/8 - 5);
+    m = true(sizeY/8 - 4, sizeX/8 - 4);
     m(end/4 : 3 * end/4, end/4 : 3 * end/4) = false;
     mask = createMask(5 * sizeY / 8, 5 * sizeX/8, m);
     setShapeCoordinates(mask, 0, 0, 0);

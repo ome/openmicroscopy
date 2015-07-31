@@ -18,11 +18,6 @@
 
   <resolvers>
 
-    <ssh name="hudson-ssh-resolver" user="${user.home}" host="cvs.openmicroscopy.org.uk">
-      <ivy pattern="/home/hudson/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
-      <artifact pattern="/home/hudson/.hudson/repository/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
-    </ssh>
-
     <chain name="local-resolver" returnFirst="true">
       <filesystem name="insight-resolver">
         <artifact pattern="${base.lib.dir}/[artifact]-[revision].[type]" />

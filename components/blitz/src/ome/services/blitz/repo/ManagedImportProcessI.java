@@ -21,11 +21,15 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.Advised;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import Ice.Current;
 
@@ -126,8 +130,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
      * invoked with the integer lookup to this map, in which case the instance
      * will be purged.
      */
-    private ConcurrentHashMap<Integer, UploadState> uploaders
-        = new ConcurrentHashMap<Integer, UploadState>();
+    private final Cache<Integer, UploadState> uploaders = CacheBuilder.newBuilder().build();
 
     /**
      * Handle which is the initial first step of import.
@@ -202,7 +205,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     // ICE INTERFACE METHODS
     //
 
-    public RawFileStorePrx getUploader(int i, Current current)
+    public RawFileStorePrx getUploader(final int i, Current current)
             throws ServerError {
 
         String mode = null;
@@ -213,35 +216,34 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
             }
         }
 
-        UploadState state = uploaders.get(i);
-        if (state != null) {
-            return state.prx; // EARLY EXIT!
-        }
-
-        final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-
-        boolean success = false;
-        RawFileStorePrx prx = repo.file(path, mode, this.current);
-        registerCallback(prx, i);
+        final String applicableMode = mode;
+        final Callable<UploadState> rfsOpener = new Callable<UploadState>() {
+            @Override
+            public UploadState call() throws ServerError {
+                final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+                final RawFileStorePrx prx = repo.file(path, applicableMode, ManagedImportProcessI.this.current);
+                try {
+                    registerCallback(prx, i);
+                } catch (RuntimeException re) {
+                    try {
+                        prx.close();  // close if anything happens
+                    } catch (Exception e) {
+                        log.error("Failed to close RawFileStorePrx", e);
+                    }
+                    throw re;
+                }
+                return new UploadState(prx);
+            }
+        };
 
         try {
-            state = new UploadState(prx); // Overwrite
-            if (uploaders.putIfAbsent(i, state) != null) {
-                // The new object wasn't used.
-                // Close it.
-                prx.close();
-                prx = null;
+            return uploaders.get(i, rfsOpener).prx;
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
             } else {
-                success = true;
-            }
-            return prx;
-        } finally {
-            if (!success && prx != null) {
-                try {
-                    prx.close(); // Close if anything happens.
-                } catch (Exception e) {
-                    log.error("Failed to close RawFileStorePrx", e);
-                }
+                /* there are no checked exceptions to worry about, so this cannot happen */
+                return null;
             }
         }
     }
@@ -339,8 +341,8 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     // GETTERS
     //
 
-    public long getUploadOffset(int i, Current ignore) throws ServerError {
-        UploadState state = uploaders.get(i);
+    public long getUploadOffset(int idx, Current ignore) throws ServerError {
+        final UploadState state = uploaders.getIfPresent(idx);
         if (state == null) {
             return 0;
         }
@@ -356,7 +358,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     //
 
     public void setOffset(int idx, long offset) {
-        UploadState state = uploaders.get(idx);
+        final UploadState state = uploaders.getIfPresent(idx);
         if (state == null) {
             log.warn(String.format("setOffset(%s, %s) - no such object", idx, offset));
         } else {
@@ -366,10 +368,11 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     }
 
     public void closeCalled(int idx) {
-        UploadState state = uploaders.remove(idx);
+        final UploadState state = uploaders.getIfPresent(idx);
         if (state == null) {
             log.warn(String.format("closeCalled(%s) - no such object", idx));
         } else {
+            uploaders.invalidate(idx);
             log.debug(String.format("closeCalled(%s) successfully", idx));
         }
     }

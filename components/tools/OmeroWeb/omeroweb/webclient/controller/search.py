@@ -26,9 +26,12 @@
 import datetime
 import time
 import omero
+import logging
 
 from omero.rtypes import rtime
 from webclient.controller import BaseController
+
+logger = logging.getLogger(__name__)
 
 
 class BaseSearch(BaseController):
@@ -110,17 +113,17 @@ class BaseSearch(BaseController):
                         self.moreResults = True
                     resultCount += len(self.containers[dt])
         except Exception, x:
+            logger.info("Search Exception: %s" % x.message)
             if isinstance(x, omero.ServerError):
+                # Only show message to user if we can be helpful
                 if "TooManyClauses" in x.message:
                     self.searchError = (
                         "Please try to narrow down your query. The wildcard"
                         " matched too many terms.")
-                else:
+                elif ":" in query:
                     self.searchError = (
-                        "Your query for '%s' caused an error: %s."
-                        % (query, x.message))
-            else:
-                self.searchError = (
-                    "Your query for '%s' caused an error: %s."
-                    % (query, str(x)))
+                        "There was an error parsing your query."
+                        " Colons ':' are reserved for searches of"
+                        " key-value annotations in the form: 'key:value'.")
+
         self.c_size = resultCount

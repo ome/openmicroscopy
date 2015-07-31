@@ -18,7 +18,7 @@ import traceback
 from omero.rtypes import rstring
 from omero.cmd import State, ERR, OK
 from omero.gateway.scripts import dbhelpers
-import omero_ext.uuid as _uuid  # see ticket:3774
+import uuid
 import pytest
 
 PRIVATE = 'rw----'
@@ -72,7 +72,7 @@ class ChmodBase (object):
         gid = blitzObject.details.group.id.val
         gateway.SERVICE_OPTS.setOmeroGroup(gid)
         try:
-            blitzObject.setName("new name: %s" % _uuid.uuid4())
+            blitzObject.setName("new name: %s" % uuid.uuid4())
             blitzObject.save()
             nameEdited = True
         except omero.ReadOnlyGroupSecurityViolation:

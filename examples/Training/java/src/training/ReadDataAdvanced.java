@@ -217,14 +217,14 @@ public class ReadDataAdvanced
 		results = proxy.loadContainerHierarchy(
 				Dataset.class.getName(), Arrays.asList(datasetId), param);
 		i = results.iterator();
-		Iterator<ImageData> j;
+		Iterator j;
 		while (i.hasNext()) {
 			dataset = new DatasetData((Dataset) i.next());
-			Set<ImageData> images = dataset.getImages();
+			Set images = dataset.getImages();
 			j = images.iterator();
 			System.err.println("Size:"+images.size());
 			while (j.hasNext()) {
-				ImageData image = j.next();
+				ImageData image = (ImageData) j.next();
 				System.err.println("Image:"+image.getId()+" "+image.getName());
 			}
 		}

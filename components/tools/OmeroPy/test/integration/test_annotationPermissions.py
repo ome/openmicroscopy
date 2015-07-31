@@ -28,7 +28,6 @@
 import library as lib
 import pytest
 import omero
-from omero_model_ProjectI import ProjectI
 from omero_model_ProjectAnnotationLinkI import ProjectAnnotationLinkI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero.rtypes import rstring
@@ -36,7 +35,9 @@ from omero.rtypes import rstring
 
 class AnnotationPermissions(lib.ITest):
 
-    def setup_method(self, method, perms):
+    @classmethod
+    def setup_class(self):
+        super(AnnotationPermissions, self).setup_class()
 
         # Tag names and namespaces
         uuid = self.uuid()
@@ -46,7 +47,6 @@ class AnnotationPermissions(lib.ITest):
 
         self.users = set(["member1", "member2", "owner", "admin"])
         # create group and users
-        self.group = self.new_group(perms=perms)
         self.exps = {}
         self.exps["owner"] = self.new_user(group=self.group, owner=True)
         self.exps["member1"] = self.new_user(group=self.group)
@@ -58,6 +58,8 @@ class AnnotationPermissions(lib.ITest):
         self.updateServices = {}
         self.queryServices = {}
         self.project = {}
+
+    def setup_method(self, method):
         for user in self.users:
             self.clients[user] = self.new_client(
                 user=self.exps[user], group=self.group)
@@ -70,18 +72,17 @@ class AnnotationPermissions(lib.ITest):
         for user in self.users:
             self.clients[user].closeSession()
 
-    def chmodGroupAs(self, user, perms):
+    def chmodGroupAs(self, user, perms, succeed=True):
         client = self.clients[user]
-        # Using the deprecated method since
-        # it was using a specific group context.
-        client.sf.getAdminService().changePermissions(
-            self.group, omero.model.PermissionsI(perms))
+        chmod = omero.cmd.Chmod(
+            type="/ExperimenterGroup", id=self.group.id.val,
+            permissions=perms)
+        self.doSubmit(chmod, client, test_should_pass=succeed)
 
     def createProjectAs(self, user):
         """ Adds a Project. """
-        project = ProjectI()
-        project.name = rstring(user + "_" + self.proj_name)
-        project = self.updateServices[user].saveAndReturnObject(project)
+        project = self.make_project(name=user + "_" + self.proj_name,
+                                    client=self.clients[user])
         return project
 
     def makeTag(self):
@@ -145,9 +146,10 @@ class AnnotationPermissions(lib.ITest):
 
 class TestPrivateGroup(AnnotationPermissions):
 
-    def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rw----')
+    DEFAULT_PERMS = 'rw----'
 
+    def setup_method(self, method):
+        AnnotationPermissions.setup_method(self, method)
         self.canAdd = {"member1": set(["member1"]),
                        "member2": set(["member2"]),
                        "owner":  set(["owner"]),
@@ -218,8 +220,10 @@ class TestPrivateGroup(AnnotationPermissions):
 
 class TestReadOnlyGroup(AnnotationPermissions):
 
+    DEFAULT_PERMS = 'rwr---'
+
     def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rwr---')
+        AnnotationPermissions.setup_method(self, method)
 
         self.canAdd = {"member1": set(["member1", "owner", "admin"]),
                        "member2": set(["member2", "owner", "admin"]),
@@ -291,8 +295,10 @@ class TestReadOnlyGroup(AnnotationPermissions):
 
 class TestReadAnnotateGroup(AnnotationPermissions):
 
+    DEFAULT_PERMS = 'rwra--'
+
     def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rwra--')
+        AnnotationPermissions.setup_method(self, method)
 
         self.canAdd = {"member1": self.users,
                        "member2": self.users,
@@ -363,8 +369,7 @@ class TestReadAnnotateGroup(AnnotationPermissions):
 
 class TestMovePrivatePermissions(AnnotationPermissions):
 
-    def setup_method(self, method):
-        AnnotationPermissions.setup_method(self, method, 'rwra--')
+    DEFAULT_PERMS = 'rwra--'
 
     @pytest.mark.parametrize("admin_type", ("root", "admin"))
     def testAddTagMakePrivate(self, admin_type):
@@ -372,8 +377,8 @@ class TestMovePrivatePermissions(AnnotationPermissions):
         project = self.createProjectAs("member1")
         tag = self.createTagAs("member2")
         self.linkTagAs("member1", project, tag)
-        with pytest.raises(omero.SecurityViolation):
-            self.chmodGroupAs(admin_type, "rw----")
+        # This chmod should not succeed
+        self.chmodGroupAs(admin_type, "rw----", succeed=False)
 
         for x in ("member1", "member2"):
             # Check reading

@@ -272,7 +272,7 @@
 	                {% for c in basket.imageInBasket %}
 	                    <tr id="image-{{ c.id }}">
 	                        <td class="image">
-	                            <img src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_none }}"
+	                            <img src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_minus_one }}"
                                     id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
 	                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
 	                        </td>

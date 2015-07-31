@@ -62,8 +62,9 @@ class SessionsStore(object):
         """
         self.logger = logging.getLogger(make_logname(self))
         if dir is None:
-            dir = get_user_dir()
-        self.dir = path(dir) / "omero" / "sessions"
+            self.dir = path(get_user_dir()) / "omero" / "sessions"
+        else:
+            self.dir = path(dir)
         if not self.dir.exists():
             self.dir.makedirs()
         try:
@@ -108,7 +109,8 @@ class SessionsStore(object):
 
         (dhn / id).write_lines(lines)
 
-    def conflicts(self, host, name, id, new_props, ignore_nulls=False):
+    def conflicts(self, host, name, id, new_props, ignore_nulls=False,
+                  check_group=True):
         """
         Compares if the passed properties are compatible with
         with those for the host, name, id tuple
@@ -118,16 +120,23 @@ class SessionsStore(object):
         """
         conflicts = ""
         old_props = self.get(host, name, id)
-        for key in ("omero.group", "omero.port"):
+        default_port = str(omero.constants.GLACIER2PORT)
+        keys = ["omero.port"]
+        if check_group:
+            keys.append("omero.group")
+
+        for key in keys:
             old = old_props.get(key, None)
             new = new_props.get(key, None)
             if ignore_nulls and new is None:
                 continue
-            elif (key == "omero.port" and old is None and
-                    new == str(omero.constants.GLACIER2PORT)):
+            elif (key == "omero.port" and
+                  set((old, new)) == set((None, default_port))):
                 continue
             elif old != new:
-                conflicts += (key + (":%s!=%s;" % (old, new)))
+                if conflicts != "":
+                    conflicts += "; "
+                conflicts += "%s: %s!=%s" % (key, old, new)
         return conflicts
 
     def remove(self, host, name, uuid):

@@ -332,16 +332,18 @@ class BaseContainer(BaseController):
                             omero.constants.annotation.file.ORIGINALMETADATA):
                         self.companion_files.append(ann)
 
-    def channelMetadata(self):
+    def channelMetadata(self, noRE=False):
         self.channel_metadata = None
-        try:
-            if self.image is not None:
-                self.channel_metadata = self.image.getChannels()
-            elif self.well is not None:
-                self.channel_metadata = \
-                    self.well.getWellSample().image().getChannels()
-        except:
-            pass
+
+        if self.image is None and self.well is None:
+            return
+
+        img = self.image
+        if img is None:
+            img = self.well.getWellSample().image()
+
+        # Exceptions handled by webclient_gateway ImageWrapper.getChannels()
+        self.channel_metadata = img.getChannels(noRE=noRE)
 
         if self.channel_metadata is None:
             self.channel_metadata = list()
