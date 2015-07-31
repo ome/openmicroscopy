@@ -21,6 +21,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 
@@ -201,6 +202,7 @@ public class SaveResultsDialog
             result = new ResultsObject(images);
             result.setROI(roi.isSelected());
             result.setTable(table.isSelected());
+            result.setTableName(nameField.getText());
             ExperimenterData exp = TreeViewerAgent.getUserDetails();
             SecurityContext ctx = new SecurityContext(exp.getGroupId());
             ctx.setExperimenter(exp);
