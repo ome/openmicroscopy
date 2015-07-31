@@ -192,17 +192,6 @@ class DownloadsDialog
 				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
 			index++;
 		}
-		/*
-		while (i.hasNext()) {
-			layout.insertRow(index, TableLayout.PREFERRED);
-			c = (JComponent) i.next();
-			entries.add(c, "0, "+index+", FULL, CENTER");
-			if (index%2 == 0)
-				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-			else 
-				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-			index++;
-		}*/
 		entries.revalidate();
 		repaint();
 	}
@@ -233,9 +222,9 @@ class DownloadsDialog
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner	The owner of the dialog.
-	 * @param icons	Reference to the icons manager.
-	 * @param index	One of the constants defined by this class.
+	 * @param owner The owner of the dialog.
+	 * @param icons Reference to the icons manager.
+	 * @param index One of the constants defined by this class.
 	 */
 	DownloadsDialog(JFrame owner, IconManager icons, int index)
 	{
@@ -253,8 +242,8 @@ class DownloadsDialog
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner	The owner of the dialog.
-	 * @param icons	Reference to the icons manager.
+	 * @param owner The owner of the dialog.
+	 * @param icons Reference to the icons manager.
 	 */
 	DownloadsDialog(JFrame owner, IconManager icons)
 	{
@@ -264,13 +253,13 @@ class DownloadsDialog
 	/**
 	 * Sets the loading status.
 	 * 
-	 * @param name		The name of the entry.
-	 * @param percent 	The value to set.
-	 * @param fileID	The id of the file corresponding to the status.
+	 * @param name The name of the entry.
+	 * @param percent The value to set.
+	 * @param fileID The id of the file corresponding to the status.
 	 */
 	void setLoadingStatus(int percent, String name, long fileID)
 	{
-		Iterator i = components.iterator();
+		Iterator<JComponent> i = components.iterator();
 		FileLoadingComponent c;
 		Object obj;
 		while (i.hasNext()) {
@@ -286,9 +275,9 @@ class DownloadsDialog
 	/**
 	 * Adds a new activity entry.
 	 * 
-	 * @param directory		The directory where to download the file.
-	 * @param fileName 		The name of the file.
-	 * @param fileID		The id of the file.
+	 * @param directory The directory where to download the file.
+	 * @param fileName The name of the file.
+	 * @param fileID The id of the file.
 	 */
 	void addActivityEntry(String directory, String fileName, long fileID)
 	{
@@ -326,7 +315,7 @@ class DownloadsDialog
 			String path = (String) evt.getNewValue();
 			
 			FileLoadingComponent c;
-			Iterator i = components.iterator();
+			Iterator<JComponent> i = components.iterator();
 			FileLoadingComponent toRemove = null;
 			Object obj;
 			while (i.hasNext()) {

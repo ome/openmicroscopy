@@ -44,6 +44,8 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -181,6 +183,9 @@ class ImViewerUI
 	/** Reference to the Control. */
 	private ImViewerControl 					controller;
 
+	/** Two decimal places number format */
+	private static final NumberFormat NUMBERFORMAT = new DecimalFormat("#.##");
+	
 	/** Reference to the Model. */
 	private ImViewerModel   					model;
 
@@ -1176,6 +1181,16 @@ class ImViewerUI
 	}
 
 	/**
+	 * Set the magnification status (basically refreshes the status bar)  
+	 */
+	void setMagnificationStatus() {
+        int index = ZoomAction.getIndex(model.getZoomFactor());
+        if (model.isBigImage())
+            index = model.getSelectedResolutionLevel();
+        setMagnificationStatus(model.getZoomFactor(), index);
+	}
+	
+	/**
 	 * Sets the magnification value in the status bar depending on the
 	 * selected tabbedPane.
 	 * 
@@ -1186,14 +1201,21 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
-			statusBar.setRigthStatus(
+			statusBar.setRightStatus(
 					Math.round(factor*model.getOriginalRatio()*100)+"%");
-		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
+		else statusBar.setRightStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
-			ResolutionLevel level = model.getResolutionDescription();
-			double f = UIUtilities.roundTwoDecimals(level.getRatio()*100);
-			bigImageMagnification = level.getRatio();
-			statusBar.setRigthStatus(f+"%");
+            ResolutionLevel level = model.getResolutionDescription();
+            double mag = model.getNominalMagnification();
+            bigImageMagnification = level.getRatio();
+            if (mag > 0) {
+                statusBar.setRightStatus(NUMBERFORMAT.format(level.getRatio()
+                        * mag)
+                        + "x");
+            } else {
+                double f = UIUtilities.roundTwoDecimals(level.getRatio() * 100);
+                statusBar.setRightStatus(f + "%");
+            }
 		}
 	}
 	

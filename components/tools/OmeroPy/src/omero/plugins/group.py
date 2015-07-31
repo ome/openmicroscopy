@@ -3,7 +3,7 @@
 """
    Group administration plugin
 
-   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -172,7 +172,6 @@ server-permissions.html
     def perms(self, args):
 
         import omero
-        from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
 
         perms = self.parse_perms(args)
         c = self.ctx.conn(args)
@@ -186,7 +185,9 @@ server-permissions.html
                          % (g.name.val, gid, perms))
         else:
             try:
-                a.changePermissions(Grp(gid, False), perms)
+                chmod = omero.cmd.Chmod(
+                    type="/ExperimenterGroup", id=gid, permissions=str(perms))
+                c.submit(chmod)
                 self.ctx.out("Changed permissions for group %s (id=%s) to %s"
                              % (g.name.val, gid, perms))
             except omero.GroupSecurityViolation:

@@ -51,6 +51,7 @@ import omero.romio.PlaneDef;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.imviewer.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
@@ -98,6 +99,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.ObjectiveData;
 import pojos.PixelsData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -2642,6 +2644,31 @@ class ImViewerModel
 		return getResolutionDescription(getSelectedResolutionLevel());
 	}
 	
+    /**
+     * Get the nominal magnification of the objective
+     * 
+     * @return See above
+     */
+    double getNominalMagnification() {
+        if (component.getImageAcquisitionData() != null) {
+            ObjectiveData objective = component.getImageAcquisitionData()
+                    .getObjective();
+            return objective != null ? objective.getNominalMagnification() : -1;
+        } else {
+            fireImagAcquisitionDataLoading();
+            return -1;
+        }
+    }
+
+    /** Loads the image acquisition data. */
+    void fireImagAcquisitionDataLoading() {
+        if (component.getImageAcquisitionData() == null) {
+            AcquisitionDataLoader loader = new AcquisitionDataLoader(component,
+                    ctx, image);
+            loader.load();
+        }
+    }
+    
 	/**
 	 * Returns the resolution level corresponding to the selected level.
 	 * 

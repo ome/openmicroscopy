@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,9 +50,11 @@ public class ChildOptionsPolicy {
      * Adjust an existing graph traversal policy so that child objects may be included or excluded
      * regardless of if they are truly orphans.
      * @param graphPolicyToAdjust the graph policy to adjust
+     * @param childOptions the child options that the policy adjustments are to effect
+     * @param requiredPermissions the abilities that the user must have to operate upon an object for it to be included
      * @return the adjusted graph policy
      */
-    public static GraphPolicy getChildOptionsPolicy(final GraphPolicy graphPolicyToAdjust, final GraphPathBean graphPathBean,
+    public static GraphPolicy getChildOptionsPolicy(final GraphPolicy graphPolicyToAdjust,
             final Collection<ChildOptionI> childOptions, final Set<GraphPolicy.Ability> requiredPermissions) {
 
         if (CollectionUtils.isEmpty(childOptions)) {

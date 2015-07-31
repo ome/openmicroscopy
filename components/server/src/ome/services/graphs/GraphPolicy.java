@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,9 @@
 
 package ome.services.graphs;
 
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,6 +88,12 @@ public abstract class GraphPolicy {
         DELETE,
 
         /**
+         * the user's ability to change permissions on the object, as judged by
+         * {@link ome.security.ACLVoter#allowChmod(IObject, ome.model.internal.Details)}
+         */
+        CHMOD,
+
+        /**
          * the user actually owns the object
          */
         OWN;
@@ -138,11 +146,12 @@ public abstract class GraphPolicy {
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
+         * @param mayChmod if the object may have its permissions changed
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         Details(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean isOwner, boolean isCheckPermissions) {
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
             this.subject = subject;
             this.ownerId = ownerId;
             this.groupId = groupId;
@@ -155,6 +164,9 @@ public abstract class GraphPolicy {
             }
             if (mayDelete) {
                 permissions.add(Ability.DELETE);
+            }
+            if (mayChmod) {
+                permissions.add(Ability.CHMOD);
             }
             if (isOwner) {
                 permissions.add(Ability.OWN);
@@ -190,12 +202,32 @@ public abstract class GraphPolicy {
      * {@link #review(Map, Details, Map, Set)}. Each object is passed only once.
      * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
      * @param session the Hibernate session, for obtaining more information about the object
-     * @param object a model object about which policy may be asked
+     * @param object an unloaded model object about which policy may be asked
      * @param realClass the real class name of the object
      * @param id the ID of the object
      */
     public void noteDetails(Session session, IObject object, String realClass, long id) {
         /* This method is a no-op that subclasses may override. */
+    }
+
+    /**
+     * Utility method to return all the objects for review as a single set of objects.
+     * @param linkedFrom details of the objects linking to the root object
+     * @param rootObject details of the root objects
+     * @param linkedTo details of the objects linked by the root object
+     * @return details of all the objects passed as arguments
+     */
+    public static Set<Details> allObjects(Collection<Set<Details>> linkedFrom, Details rootObject,
+            Collection<Set<Details>> linkedTo) {
+        final Set<Details> allTerms = new HashSet<Details>();
+        allTerms.add(rootObject);
+        for (final Set<Details> terms : linkedFrom) {
+            allTerms.addAll(terms);
+        }
+        for (final Set<Details> terms : linkedTo) {
+            allTerms.addAll(terms);
+        }
+        return allTerms;
     }
 
     /**

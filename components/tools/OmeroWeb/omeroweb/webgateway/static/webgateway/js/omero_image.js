@@ -158,6 +158,8 @@
         if (viewport.hasLinePlot() || $('#wblitz-lp-enable').prop('checked')) {
             viewport.refreshPlot();
         }
+        // Z/T change update Save button
+        updateUndoRedo(viewport);
     };
 
     window.syncChannelsActive = function(viewport) {

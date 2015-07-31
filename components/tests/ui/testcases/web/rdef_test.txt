@@ -12,6 +12,9 @@ Suite Teardown      Close all browsers
 
 ${importedChColor}                  rgb(128, 128, 128)
 ${importedMax}                      255
+${sizeZ}                            3
+${defaultZ}                         2
+${currZ}                            3
 
 *** Keywords ***
 
@@ -50,16 +53,12 @@ Wait For Image Panel
     ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
     [Return]                                ${imageId}
 
-Click Dialog OK
-    # Confirm dialog (make sure we pick the currently visible dialog)
-    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
-
 Right Click Rendering Settings
     [Arguments]            ${treeId}        ${optionText}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
     Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
     Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "${optionText}")]
-    Click Dialog OK
+    Click Dialog Button                     OK
 
 *** Test Cases ***
 
@@ -76,6 +75,19 @@ Test Rdef Copy Paste Save
     Element Should Be Disabled              id=rdef-undo-btn
     Element Should Be Disabled              id=rdef-redo-btn
     Element Should Be Disabled              id=rdef-setdef-btn
+
+    # Change Z-index: on callback, Save is enabled but not Undo/Redo
+    Element Text Should Be                  id=wblitz-z-count       ${sizeZ}
+    Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
+    Click Element                           id=viewport-zsl-bup
+    Wait Until Page Contains Element        xpath=//button[@id='rdef-setdef-btn'][not(@disabled="disabled")]
+    Element Text Should Be                  id=wblitz-z-curr        ${currZ}
+    Element Should Be Disabled              id=rdef-undo-btn
+    Element Should Be Disabled              id=rdef-redo-btn
+    # change back again...
+    Click Element                           id=viewport-zsl-bdn
+    Wait Until Page Contains Element        xpath=//button[@id='rdef-setdef-btn'][@disabled="disabled"]
+    Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
 
     # Color-picker, Yellow then Blue.
     Pick Color          ff0       FFFF00        rgb(255, 255, 0)

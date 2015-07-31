@@ -133,8 +133,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         GraphPolicy graphPolicyWithOptions = graphPolicy;
 
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, graphPathBean, childOptions,
-                REQUIRED_ABILITIES);
+        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
 
         for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
             graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
@@ -167,7 +166,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets();
+                graphTraversal.unlinkTargets(false);
                 return null;
             case 2:
                 graphTraversal.processTargets();
@@ -285,7 +284,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         }
 
         @Override
-        public void assertMayProcess(Details details) throws GraphException {
+        public void assertMayProcess(String className, long objectId, Details details) throws GraphException {
             final Long objectGroupId = details.getGroup().getId();
             if (!(acceptableGroups == null || acceptableGroups.contains(objectGroupId))) {
                 throw new GraphException("user " + userId + " is not a member of group " + objectGroupId);

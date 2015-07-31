@@ -28,5 +28,6 @@ public interface Unit extends Primitive {
 
     public double getValue();
     public void setValue(double d);
+    public UnitEnum getUnit();
 
 }

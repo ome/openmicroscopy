@@ -6,6 +6,7 @@
  */
 package integration;
 
+import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import static org.testng.AssertJUnit.assertEquals;
@@ -15,6 +16,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -82,12 +84,17 @@ import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Roi;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
 import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
+import omero.model.Shape;
+import omero.model.ShapeAnnotationLink;
+import omero.model.ShapeAnnotationLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
@@ -542,6 +549,60 @@ public class UpdateServiceTest extends AbstractServerTest {
         ppl = (PlateAnnotationLink) o1;
         assertEquals(ppl.getChild().getId().getValue(), data.getId().getValue());
         assertEquals(ppl.getParent().getId().getValue(), pp.getId().getValue());
+
+        // Plate acquisition
+        pp = (Plate) iUpdate.saveAndReturnObject(
+                mmFactory.createPlate(1, 1, 1, 1, false));
+        long self = factory.getAdminService().getEventContext().userId;
+        ParametersI param = new ParametersI();
+        param.exp(rlong(self));
+        //method tested in PojosServiceTest
+        List results = factory.getContainerService().loadContainerHierarchy(
+                Plate.class.getName(),
+                Arrays.asList(pp.getId().getValue()), param);
+        pp = (Plate) results.get(0);
+        List<PlateAcquisition> list = pp.copyPlateAcquisitions();
+        assertEquals(1, list.size());
+        PlateAcquisition pa = list.get(0);
+        PlateAcquisitionAnnotationLink pal = new PlateAcquisitionAnnotationLinkI();
+        pal.setParent((PlateAcquisition) pa.proxy());
+        pal.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(pal);
+        assertNotNull(o1);
+        pal = (PlateAcquisitionAnnotationLink) o1;
+        assertEquals(pal.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
+
+        //Create a roi
+        ROIData roiData = new ROIData();
+        roiData.setImage((Image) i.proxy());
+        //Add shape
+        RectangleData r = new RectangleData(0, 0, 1, 1);
+        roiData.addShapeData(r);
+        Roi roi = (Roi) iUpdate.saveAndReturnObject(roiData.asIObject());
+        //annotate both roi and the shape.
+        RoiAnnotationLink ral = new RoiAnnotationLinkI();
+        ral.setParent((Roi) roi.proxy());
+        ral.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(ral);
+        assertNotNull(o1);
+        ral = (RoiAnnotationLink) o1;
+        assertEquals(ral.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(ral.getParent().getId().getValue(), roi.getId().getValue());
+        List<Shape> shapes = roi.copyShapes();
+        assertEquals(1, shapes.size());
+        Iterator<Shape> k = shapes.iterator();
+        while (k.hasNext()) {
+            Shape shape = k.next();
+            ShapeAnnotationLink sal = new ShapeAnnotationLinkI();
+            sal.setParent((Shape) shape.proxy());
+            sal.setChild((Annotation) data.proxy());
+            o1 = iUpdate.saveAndReturnObject(sal);
+            assertNotNull(o1);
+            sal = (ShapeAnnotationLink) o1;
+            assertEquals(sal.getChild().getId().getValue(), data.getId().getValue());
+            assertEquals(sal.getParent().getId().getValue(), shape.getId().getValue());
+        }
     }
 
     /**

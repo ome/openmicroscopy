@@ -7,9 +7,6 @@
 
 package ome.security.basic;
 
-// Java imports
-
-// Third-party libraries
 import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;

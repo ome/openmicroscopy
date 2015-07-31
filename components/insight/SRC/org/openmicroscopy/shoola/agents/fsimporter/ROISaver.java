@@ -21,11 +21,10 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 
-//Java imports
-import ij.IJ;
 
 import java.util.List;
 
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -34,7 +33,7 @@ import pojos.ROIData;
 
 
 /**
- * 
+ * Saved the roi after import.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -43,6 +42,16 @@ import pojos.ROIData;
 public class ROISaver
     extends DataImporterLoader
 {
+
+    /** Indicates that the rois are being saved.*/
+    private static final String SAVING_MESSAGE = "Saving ROIs";
+
+    /** Indicates that the rois have been saved.*/
+    private static final String SAVED_MESSAGE = "ROIs Saved";
+
+    /** Indicates that an error occurred while saving rois.*/
+    private static final String ERROR_MESSAGE =
+            "Error occurred while saving ROIs";
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
@@ -56,6 +65,9 @@ public class ROISaver
     /** The ROI data to save. */
     private List<ROIData> rois;
 
+    /** The component to use to notify of saving progress.*/
+    private FileImportComponent c;
+
     /**
      * Creates a new instance.
      * 
@@ -65,9 +77,11 @@ public class ROISaver
      * @param rois The ROI to save.
      * @param imageID The image to link the roi to.
      * @param userID The owner of the rois.
+     * @param c The component to update when saving rois.
      */
     public ROISaver(Importer viewer, SecurityContext ctx,
-            List<ROIData> rois, long imageID, long userID)
+            List<ROIData> rois, long imageID, long userID,
+            FileImportComponent c)
     {
         super(viewer, ctx);
         if (imageID < 0) 
@@ -75,6 +89,7 @@ public class ROISaver
         this.imageID = imageID;
         this.userID = userID;
         this.rois = rois;
+        this.c = c;
     }
 
     /** 
@@ -84,6 +99,9 @@ public class ROISaver
     public void load()
     {
         handle = ivView.saveROI(ctx, imageID, userID, rois , this);
+        if (c != null) {
+            c.onResultsSaving(SAVING_MESSAGE, true);
+        }
     }
  
     /** 
@@ -98,6 +116,20 @@ public class ROISaver
      */
     public void handleResult(Object result) 
     {
+        if (c != null) {
+            c.onResultsSaving(SAVED_MESSAGE, false);
+        }
     }
 
+    /**
+     * Displays message if an error occurred.
+     * @see DataImporterLoader#handleException(Throwable)
+     */
+    public void handleException(Throwable exc)
+    {
+        super.handleException(exc);
+        if (c != null) {
+            c.onResultsSaving(ERROR_MESSAGE, false);
+        }
+    }
 }

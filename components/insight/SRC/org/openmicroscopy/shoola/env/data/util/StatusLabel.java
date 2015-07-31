@@ -415,6 +415,23 @@ public class StatusLabel
         } else generalLabel.setText(text);
     }
 
+    /**
+     * Displays message when saving rois.
+     *
+     * @param text The text displayed
+     * @param completed Update progress bar.
+     */
+    public void updatePostProcessing(String text, boolean completed)
+    {
+        if (!completed) {
+            processingBar.setMaximum(processingBar.getMaximum()+1);
+            processingBar.setValue(processingBar.getValue()+1);
+        } else {
+            processingBar.setValue(processingBar.getMaximum());
+        }
+        processingBar.setString(text);
+    }
+
     /** Marks the import has cancelled. */
     public void markedAsCancel()
     {

@@ -28,6 +28,7 @@ from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
+from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
 
@@ -372,8 +373,8 @@ def render_roi_thumbnail(request, roiId, w=None, h=None, conn=None, **kwargs):
         for s in roi.copyShapes():
             if s is None:   # seems possible in some situations
                 continue
-            t = s.getTheT().getValue()
-            z = s.getTheZ().getValue()
+            t = unwrap(s.getTheT())
+            z = unwrap(s.getTheZ())
             shapes[(z, t)] = s
             if minT is None:
                 minT = t
@@ -862,11 +863,13 @@ def render_image(request, iid, z=None, t=None, conn=None, **kwargs):
         # don't seem to need to do this for tiff
         elif format == 'tif':
             rsp = HttpResponse(jpeg_data, content_type='image/tif')
+        fileName = img.getName().decode('utf8').replace(" ", "_")
+        fileName = fileName.replace(",", ".")
         rsp['Content-Type'] = 'application/force-download'
         rsp['Content-Length'] = len(jpeg_data)
         rsp['Content-Disposition'] = (
             'attachment; filename=%s.%s'
-            % (img.getName().replace(" ", "_"), format))
+            % (fileName, format))
     return rsp
 
 
@@ -1328,43 +1331,27 @@ def wellData_json(request, conn=None, _internal=False, **kwargs):
 def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     """
     """
-    plate = conn.getObject('plate', long(pid))
     try:
         field = long(field or 0)
     except ValueError:
         field = 0
-    if plate is None:
-        return HttpJavascriptResponseServerError('""')
-    grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = int(request.REQUEST.get('size', 64))
     logger.debug(thumbsize)
+    server_id = kwargs['server_id']
 
     def urlprefix(iid):
         return reverse(prefix, args=(iid, thumbsize))
-    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    server_id = kwargs['server_id']
+    plateGrid = PlateGrid(conn, pid, field,
+                          kwargs.get('urlprefix', urlprefix))
+    plate = plateGrid.plate
+    if plate is None:
+        return Http404
 
     rv = webgateway_cache.getJson(request, server_id, plate,
                                   'plategrid-%d-%d' % (field, thumbsize))
     if rv is None:
-        plate.setGridSizeConstraints(8, 12)
-        for row in plate.getWellGrid(field):
-            tr = []
-            for e in row:
-                if e:
-                    i = e.getImage()
-                    if i:
-                        t = i.simpleMarshal(xtra=xtra)
-                        t['wellId'] = e.getId()
-                        t['field'] = field
-                        tr.append(t)
-                        continue
-                tr.append(None)
-            grid.append(tr)
-        rv = {'grid': grid,
-              'collabels': plate.getColumnLabels(),
-              'rowlabels': plate.getRowLabels()}
+        rv = plateGrid.metadata
         webgateway_cache.setJson(request, server_id, plate, json.dumps(rv),
                                  'plategrid-%d-%d' % (field, thumbsize))
     else:

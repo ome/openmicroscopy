@@ -237,7 +237,7 @@ implements PlugIn
         String home = "";
         String configFile = null;
         int index = LookupNames.IMAGE_J;
-        boolean save = false;
+        int save = -1;
         if (args != null) {
             String[] values = args.split(" ");
             List<String> l = new ArrayList<String>();
@@ -248,8 +248,10 @@ implements PlugIn
                     if (k.length == 2) {
                         if (k[1].equals("import")) {
                             index = LookupNames.IMAGE_J_IMPORT;
-                        } else if (k[1].equals("save")) {
-                            save = true;
+                        } else if (k[1].equals("saveRoi")) {
+                            save = SaveEvent.ROIS;
+                        } else if (k[1].equals("saveResult")) {
+                            save = SaveEvent.RESULTS;
                         }
                     }
                 } else l.add(v);
@@ -268,9 +270,9 @@ implements PlugIn
         }
         try {
             container = Container.startupInPluginMode(home, configFile, index);
-            if (save) {
+            if (save >=0) {
                 container.getRegistry().getEventBus().post(
-                        new SaveEvent(LookupNames.IMAGE_J));
+                        new SaveEvent(LookupNames.IMAGE_J, save));
             }
             attachListeners();
         } catch (StartupException e) {

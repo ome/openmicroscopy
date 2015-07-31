@@ -14,6 +14,7 @@
 """
 
 import sys
+import traceback
 
 from path import path
 from omero.cli import CLI
@@ -21,7 +22,7 @@ from omero.cli import BaseControl
 from omero.cli import ExistingFile
 from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
-from omero.util import edit_path, get_user_dir
+from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
 from omero_ext import portalocker
 
@@ -227,8 +228,7 @@ class PrefsControl(WriteableConfigControl):
             if grid_dir.exists():
                 cfg_xml = grid_dir / "config.xml"
             else:
-                userdir = path(get_user_dir())
-                usr_xml = userdir / "omero" / "config.xml"
+                usr_xml = get_omero_userdir() / "config.xml"
                 self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
                 cfg_xml = usr_xml
         try:
@@ -378,8 +378,19 @@ class PrefsControl(WriteableConfigControl):
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
         pp.parse_file(str(cfg.abspath()))
+
+        # Parse PSQL profile file
+        for p in pp:
+            if p.key == "omero.db.profile":
+                psql_file = self.dir / "etc" / "profiles" / p.val
+                pp.parse_file(str(psql_file.abspath()))
+                break
+
+        # Parse OMERO.web configuration properties
         if not args.no_web:
             pp.parse_module('omeroweb.settings')
+
+        # Display options
         if args.headers:
             pp.print_headers()
         elif args.keys:
@@ -426,6 +437,7 @@ class PrefsControl(WriteableConfigControl):
         try:
             edit_path(temp_file, start_text)
         except RuntimeError, re:
+            self.ctx.dbg(traceback.format_exc())
             self.ctx.die(954, "%s: Failed to edit %s"
                          % (getattr(re, "pid", "Unknown"), temp_file))
         args.NAME = config.default()

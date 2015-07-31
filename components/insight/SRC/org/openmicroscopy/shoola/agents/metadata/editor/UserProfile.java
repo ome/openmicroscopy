@@ -383,7 +383,7 @@ class UserProfile
 			}
 		});
         permissionsPane = new PermissionsPane(defaultGroup.getPermissions(),
-                UIUtilities.BACKGROUND_COLOR);
+                UIUtilities.BACKGROUND_COLOR, model.isAdministrator());
         permissionsPane.disablePermissions();
 
         ExperimenterData logUser = model.getCurrentUser();

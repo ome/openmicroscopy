@@ -23,16 +23,14 @@
 
 package org.openmicroscopy.shoola.env;
 
-import ij.IJ;
-
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
@@ -45,7 +43,6 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -126,7 +123,7 @@ public final class Container
 			initManager.configure();
 			initManager.doInit();
 			initManager.notifyEnd();
-			
+
 			//startService() called by Initializer at end of doInit().
 		} catch (StartupException se) {
 			if (initManager != null) initManager.rollback();

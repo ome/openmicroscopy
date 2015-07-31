@@ -60,5 +60,5 @@ public class NullGraphTraversalProcessor implements GraphTraversal.Processor {
     }
 
     @Override
-    public void assertMayProcess(Details details) throws GraphException { }
+    public void assertMayProcess(String className, long id, Details details) throws GraphException { }
 }

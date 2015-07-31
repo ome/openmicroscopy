@@ -43,6 +43,7 @@ import omero.model.PermissionsI;
  * @see http://www.openmicroscopy.org/site/community/minutes/minigroup/2012.03.12-groupperms
  */
 @Test(groups = { "integration", "chmod" })
+@SuppressWarnings("deprecation")
 public class ChmodITest extends AbstractGraphTest {
 
     ManagedContextFixture user; // Overrides super class

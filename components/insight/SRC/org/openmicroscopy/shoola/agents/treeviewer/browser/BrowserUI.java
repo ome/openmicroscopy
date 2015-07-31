@@ -325,7 +325,7 @@ class BrowserUI
         partialButton = new JToggleButton(
         				controller.getAction(BrowserControl.PARTIAL_NAME));
         partialButton.setBorderPainted(true);
-        rightMenuBar.add(partialButton);
+        //rightMenuBar.add(partialButton);
         rightMenuBar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);

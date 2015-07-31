@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Range;
 
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
@@ -213,7 +212,6 @@ public class Quantization_32_bit extends QuantumStrategy {
     public Quantization_32_bit(QuantumDef qd, Pixels pixels) {
         super(qd, pixels);
         values = CacheBuilder.newBuilder()
-                .maximumSize(MAX-MIN+1)
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build(new CacheLoader<Double, Integer>() {
                     public Integer load(Double key) throws Exception {
@@ -230,8 +228,7 @@ public class Quantization_32_bit extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         try {
-            Range<Double> r = getRange(value);
-            double v = (r.upperEndpoint()+r.lowerEndpoint())/2;
+            double v = getMiddleRange(value);
             return values.get(v);
         } catch (ExecutionException e) {
             throw new QuantizationException(e);

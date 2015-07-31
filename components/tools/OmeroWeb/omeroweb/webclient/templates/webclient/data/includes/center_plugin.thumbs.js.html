@@ -36,7 +36,10 @@ $(document).ready(function() {
         var datatree = $.jstree._focused();
         if (!datatree) return;
 
-        // See if the tree was asked to have a Well shown
+        // we use the tree to access selected objects, since we can traverse to check parents etc...
+        var selected = datatree.data.ui.selected;
+
+        // See if the tree was asked to have a Well shown...
         var showWell = false;
         var initiallySelect = datatree.get_settings().ui.initially_select;
         for (var i = 0; i < initiallySelect.length; i++) {
@@ -44,9 +47,10 @@ $(document).ready(function() {
                 showWell = initiallySelect[i];
             }
         }
-        
-        // we use the tree to access selected objects, since we can traverse to check parents etc...
-        var selected = datatree.data.ui.selected;
+        // ...OR, a well was set on changeField() in plate.html
+        if (selected.data('well_id')) {
+            showWell = "well-" + selected.data('well_id');
+        }
 
         // if nothing selected, simply update selection
         var sel_objs = $("body").data("selected_objects.ome");

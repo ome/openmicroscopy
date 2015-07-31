@@ -39,6 +39,9 @@ public interface RoleProvider {
 
     void setDefaultGroup(final Experimenter user, final ExperimenterGroup group);
 
+    void setGroupOwner(final Experimenter user, final ExperimenterGroup group,
+            final boolean value);
+
     void addGroups(final Experimenter user, final ExperimenterGroup... groups);
 
     void removeGroups(final Experimenter user,

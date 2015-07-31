@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.PermissionsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,6 +38,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -46,6 +48,7 @@ import javax.swing.JRadioButton;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -81,6 +84,10 @@ public class PermissionsPane
 	private static final String WARNING = " Changing group to Private may fail if links"
 	        + " have been\n created under Read-Annotate permissions. Make the change?";
 	
+	/** ReadWrite warning message */
+    private static final String RW_WARNING = "Read-Write groups allow members to delete other"
+            + " members' data.\nSee documentation about 'OMERO permissions' for full details.";
+
 	/** Indicate that the group has <code>RWRA--</code>. */
     //private JRadioButton		collaborativeGroupBox;
     
@@ -114,11 +121,17 @@ public class PermissionsPane
      */
     private boolean allowDowngrade;
     
+    /** Flag indicating if the current user is an admin */
+    private boolean admin;
+    
     /** The original permissions level.*/
     private int originalPermissions;
     
     /** The current permissions level.*/
     private int currentPermissions;
+    
+    /** Internal flag making sure the RW warning message is only shown once */
+    private boolean warningMessageShown = false;
     
     /**
      * Sets the controls depending on the specified permissions.
@@ -176,6 +189,24 @@ public class PermissionsPane
     	readWriteGroupBox.setToolTipText(
     			GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT);
     	
+        readWriteGroupBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (readWriteGroupBox.isSelected() && !warningMessageShown) {
+                    // for some reason can't use NotificationDialog here, just shows
+                    // a black panel instead of the text, using JOptionPane therefore
+                    JOptionPane.showMessageDialog(
+                            PermissionsPane.this,
+                            RW_WARNING,
+                            "Warning",
+                            JOptionPane.WARNING_MESSAGE,
+                            IconManager.getInstance().getIcon(
+                                    IconManager.INFO_32));
+                    warningMessageShown = true;
+                }
+            }
+        });
+    	
     	readOnlyGroupBox.setSelected(true);//default
     	readOnlyPublicBox = new JCheckBox(
     			GroupData.PERMISSIONS_GROUP_READ_SHORT_TEXT);
@@ -216,11 +247,11 @@ public class PermissionsPane
      */
     private JPanel buildCollaborative()
     {
-    	JPanel p = new JPanel();
+    	JPanel p = new JPanel(new GridLayout(2, 2));
     	p.setBackground(getBackground());
     	p.add(readOnlyGroupBox);
     	p.add(readAnnotateGroupBox);
-    	//p.add(readWriteGroupBox);
+    	p.add(readWriteGroupBox);
     	return p;
     }
     
@@ -281,38 +312,49 @@ public class PermissionsPane
      * 
      * @param permissions The permissions level.
      * @param background The background color or <code>null</code>.
+     * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
      */
-    private void initialize(int permissions, Color background)
+    private void initialize(int permissions, Color background, boolean admin)
     {
-    	if (background != null) setBackground(background);
+    	if (background != null) 
+    	    setBackground(background);
+    	this.admin = admin;
 		initComponents(permissions);
 		buildGUI();
     }
     
-	/** Creates a new instance. */
-	public PermissionsPane()
+	/** Creates a new instance.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
+     */
+	public PermissionsPane(boolean admin)
 	{
-		this(GroupData.PERMISSIONS_PRIVATE);
+		this(GroupData.PERMISSIONS_PRIVATE, admin);
 	}
 	
 	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(Color background)
+	public PermissionsPane(Color background, boolean admin)
 	{
-		this(GroupData.PERMISSIONS_PRIVATE, background);
+		this(GroupData.PERMISSIONS_PRIVATE, background, admin);
 	}
 	
 	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param permissions The permissions level.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(int permissions)
+	public PermissionsPane(int permissions, boolean admin)
 	{
-		this(permissions, null);
+		this(permissions, null, admin);
 	}
 	
 	/** 
@@ -320,10 +362,12 @@ public class PermissionsPane
 	 * 
 	 * @param permissions 	The permissions level.
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(int permissions, Color background)
+	public PermissionsPane(int permissions, Color background, boolean admin)
 	{
-		initialize(permissions, background);
+		initialize(permissions, background, admin);
 	}
 
 	/** 
@@ -331,10 +375,12 @@ public class PermissionsPane
 	 * 
 	 * @param permissions 	The permissions level.
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(PermissionData permissions)
+	public PermissionsPane(PermissionData permissions, boolean admin)
 	{
-		this(permissions, null);
+		this(permissions, null, admin);
 	}
 	
 	/** 
@@ -342,13 +388,15 @@ public class PermissionsPane
 	 * 
 	 * @param permissions 	The permissions level.
 	 * @param background	The background color or <code>null</code>.
+	 * @param admin
+     *            Pass <code>true</code> to enable admin-only permission changes
 	 */
-	public PermissionsPane(PermissionData permissions, Color background)
+	public PermissionsPane(PermissionData permissions, Color background, boolean admin)
 	{
 		int level = GroupData.PERMISSIONS_PRIVATE;
 		if (permissions != null)
 			level = permissions.getPermissionsLevel();
-		initialize(level, background);
+		initialize(level, background, admin);
 	}
 	
 	/**
@@ -360,7 +408,7 @@ public class PermissionsPane
 	{
 	    if (permissions == null) return;
 	    removeAll();
-	    initialize(permissions.getPermissionsLevel(), getBackground());
+	    initialize(permissions.getPermissionsLevel(), getBackground(), admin);
 	    revalidate();
 	    repaint();
 	}
@@ -373,14 +421,17 @@ public class PermissionsPane
 	 */
 	public int getPermissions()
 	{
-		if (privateBox.isSelected()) return GroupData.PERMISSIONS_PRIVATE;
+		if (privateBox.isSelected())
+		    return GroupData.PERMISSIONS_PRIVATE;
 		if (readAnnotateGroupBox.isSelected())
 			return GroupData.PERMISSIONS_GROUP_READ_LINK;
 		if (readOnlyGroupBox.isSelected())
 			return GroupData.PERMISSIONS_GROUP_READ;
 		if (readOnlyPublicBox.isSelected())
 			return GroupData.PERMISSIONS_PUBLIC_READ;
-		return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+		if (readWriteGroupBox.isSelected())
+            return GroupData.PERMISSIONS_GROUP_READ_WRITE;
+		return -1;
 	}
 
 	/** 
@@ -464,7 +515,7 @@ public class PermissionsPane
 		if (readOnlyGroupBox != null) readOnlyGroupBox.setEnabled(enabled);
 		if (readOnlyPublicBox != null) readOnlyPublicBox.setEnabled(enabled);
 		if (readWriteGroupBox != null)
-			readWriteGroupBox.setEnabled(enabled);
+			readWriteGroupBox.setEnabled(admin);
 		if (readAnnotateGroupBox != null)
 			readAnnotateGroupBox.setEnabled(enabled);
 		publicBox.addActionListener(this);
@@ -497,7 +548,7 @@ public class PermissionsPane
 		}
 		currentPermissions = getPermissions();
  		if (readOnlyGroupBox == src || readAnnotateGroupBox == src ||
-				privateBox == src) {
+				privateBox == src || readWriteGroupBox == src) {
 			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1,
 					getPermissions());
 			return;

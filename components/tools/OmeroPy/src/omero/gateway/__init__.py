@@ -16,6 +16,7 @@ import os
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 import warnings
+from collections import defaultdict
 from types import IntType, LongType, UnicodeType, ListType
 from types import BooleanType, TupleType, StringType, StringTypes
 from datetime import datetime
@@ -25,7 +26,8 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit
-from omero.cmd import DoAll
+from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
+from omero.cmd.graphs import ChildOption
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig
 import omero.scripts as scripts
@@ -865,24 +867,20 @@ class BlitzObjectWrapper (object):
 
     def unlinkAnnotations(self, ns):
         """
-        Uses updateService to unlink annotations, with specified ns
+        Submits request to unlink annotations, with specified ns
 
         :param ns:      Namespace
         :type ns:       String
         """
-        dcs = []
+        links = defaultdict(list)
         for al in self._getAnnotationLinks(ns=ns):
-            dcs.append(omero.cmd.Delete(
-                # This could be refactored
-                "/%s" % al.ice_id().split("::")[-1],
-                al.id.val, None))
+            links[al.ice_id().split("::")[-1]].append(al.id.val)
 
-        # Using omero.cmd.Delete rather than deleteObjects since we need
+        # Using omero.cmd.Delete2 rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
-        if len(dcs):
-            doall = omero.cmd.DoAll()
-            doall.requests = dcs
-            handle = self._conn.c.sf.submit(doall, self._conn.SERVICE_OPTS)
+        if len(links):
+            delete = omero.cmd.Delete2(targetObjects=links)
+            handle = self._conn.c.sf.submit(delete, self._conn.SERVICE_OPTS)
             try:
                 self._conn._waitOnCmd(handle)
             finally:
@@ -904,7 +902,7 @@ class BlitzObjectWrapper (object):
             a = al.child
             ids.append(a.id.val)
         if len(ids):
-            handle = self._conn.deleteObjects('/Annotation', ids)
+            handle = self._conn.deleteObjects('Annotation', ids)
             try:
                 self._conn._waitOnCmd(handle)
             finally:
@@ -1536,6 +1534,12 @@ class _BlitzGateway (object):
         """
         return (self.getConfigService().getConfigValue(
                 "omero.client.viewer.initial_zoom_level") or 0)
+
+    def getWebclientHost(self):
+        """
+        Returns default initial zoom level set on the server.
+        """
+        return self.getConfigService().getConfigValue("omero.client.web.host")
 
     def isAnonymous(self):
         """
@@ -2171,12 +2175,6 @@ class _BlitzGateway (object):
             self._session = ss.getSession(self._sessionUuid)
         return self._session
 
-#    def setDefaultPermissionsForSession (self, permissions):
-#        self.getSession()
-#        self._session.setDefaultPermissions(rstring(permissions))
-#        self._session.setTimeToIdle(None)
-#        self.getSessionService().updateSession(self._session)
-
     def setGroupNameForSession(self, group):
         """
         Looks up the group by name, then delegates to
@@ -2207,36 +2205,12 @@ class _BlitzGateway (object):
             return False
         self._lastGroupId = self._ctx.groupId
         self._ctx = None
-        if hasattr(self.c.sf, 'setSecurityContext'):
-            # Beta4.2
-            for s in self.c.getStatefulServices():
-                s.close()
-            self.c.sf.setSecurityContext(
-                omero.model.ExperimenterGroupI(groupid, False))
-        else:
-            self.getSession()
-            self._session.getDetails().setGroup(
-                omero.model.ExperimenterGroupI(groupid, False))
-            self._session.setTimeToIdle(None)
-            self.getSessionService().updateSession(self._session)
+        for s in self.c.getStatefulServices():
+            s.close()
+        self.c.sf.setSecurityContext(
+            omero.model.ExperimenterGroupI(groupid, False))
         return True
 
-
-#    def setGroupForSession (self, group):
-#        self.getSession()
-#        if self._session.getDetails().getGroup().getId().val == group.getId():
-#            # Already correct
-#            return
-#        a = self.getAdminService()
-#        if (group.name not in
-#                [x.name.val for x in a.containedGroups(self._userid)]):
-#            # User not in this group
-#            return
-#        self._lastGroup = self._session.getDetails().getGroup()
-#        self._session.getDetails().setGroup(group._obj)
-#        self._session.setTimeToIdle(None)
-#        self.getSessionService().updateSession(self._session)
-#
     def revertGroupForSession(self):
         """ Switches the group to the previous group """
         if self._lastGroupId is not None:
@@ -3815,8 +3789,9 @@ class _BlitzGateway (object):
         :param obj:     Object to delete
         :type obj:      IObject"""
 
-        u = self.getUpdateService()
-        u.deleteObject(obj, self.SERVICE_OPTS)
+        type = obj.__class__.__name__.rstrip('I')
+        delete = Delete2(targetObjects={type: [obj.getId().val]})
+        self.c.submit(delete, self.SERVICE_OPTS)
 
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
                       deleteChildren=False):
@@ -3835,9 +3810,8 @@ class _BlitzGateway (object):
                                 * 'Plate'
                                 * 'Well'
                                 * 'Annotation'
-                                * '/OriginalFile'
-                                * '/Image+Only'
-                                * '/Image/Pixels/Channel'
+                                * 'OriginalFile'
+                                * 'Image/Pixels/Channel'
 
                                 As of OMERO 4.4.0 the correct case is now
                                 explicitly required, the use of 'project'
@@ -3851,44 +3825,55 @@ class _BlitzGateway (object):
         :rtype:                 :class:`omero.api.delete.DeleteHandle`
         """
 
-        if not isinstance(obj_ids, list) and len(obj_ids) < 1:
+        if '+' in graph_spec:
+            raise AttributeError(
+                "Graph specs containing '+'' no longer supported: '%s'"
+                % graph_spec)
+        if not isinstance(obj_ids, list) or len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
-        if not graph_spec.startswith('/'):
-            graph_spec = '/%s' % graph_spec
-            logger.debug('Received object type, using "%s"' % graph_spec)
+        graph = graph_spec.lstrip('/').split('/')
+        obj_ids = map(long, obj_ids)
+        delete = Delete2(targetObjects={graph[0]: obj_ids})
 
-        op = dict()
-        if not deleteAnns and graph_spec not in ["/Annotation",
-                                                 "/TagAnnotation"]:
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
+        exc = list()
+        if not deleteAnns and graph[0] not in ["Annotation",
+                                               "TagAnnotation"]:
+            exc.extend(
+                ["TagAnnotation", "TermAnnotation", "FileAnnotation"])
 
-        childTypes = {'/Project': ['/Dataset', '/Image'],
-                      '/Dataset': ['/Image'],
-                      '/Image': [],
-                      '/Screen': ['/Plate'],
-                      '/Plate': ['/Image'],
-                      '/Well': [],
-                      '/Annotation': []}
+        childTypes = {'Project': ['Dataset', 'Image'],
+                      'Dataset': ['Image'],
+                      'Image': [],
+                      'Screen': ['Plate'],
+                      'Plate': ['Image'],
+                      'Well': [],
+                      'Annotation': []}
 
         if not deleteChildren:
             try:
-                for c in childTypes[graph_spec]:
-                    op[c] = "KEEP"
+                for c in childTypes[graph[0]]:
+                    exc.append(c)
             except KeyError:
                 pass
 
-        dcs = list()
+        if len(exc) > 1:
+            delete.childOptions = [ChildOption(excludeType=exc)]
+
+        if len(graph) > 1:
+            skiphead = SkipHead()
+            skiphead.request = delete
+            skiphead.targetObjects = delete.targetObjects
+            skiphead.childOptions = delete.childOptions
+            skiphead.startFrom = [graph[-1]]
+            delete = skiphead
+
         logger.debug('Deleting %s [%s]. Options: %s' %
-                     (graph_spec, str(obj_ids), op))
-        for oid in obj_ids:
-            dcs.append(omero.cmd.Delete(
-                graph_spec, long(oid), op))
-        doall = omero.cmd.DoAll()
-        doall.requests = dcs
-        handle = self.c.sf.submit(doall, self.SERVICE_OPTS)
+                     (graph_spec, str(obj_ids), exc))
+
+        logger.debug('Delete2: \n%s' % str(delete))
+
+        handle = self.c.sf.submit(delete, self.SERVICE_OPTS)
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500,
@@ -3921,40 +3906,51 @@ class _BlitzGateway (object):
         :param graph_spec:      String to indicate the object type or graph
                                 specification. Examples include:
 
-                                * '/Image'
-                                * '/Project'   # will move contents too.
-                                * NB: Also supports 'Image' etc for convenience
+                                * 'Image'
+                                * 'Project'   # will move contents too.
+                                * NB: Also supports '/Image' etc for backwards
+                                  compatibility.
         :param obj_ids:         IDs for the objects to move.
         :param group_id:        The group to move the data to.
         """
 
-        if not graph_spec.startswith('/'):
-            graph_spec = '/%s' % graph_spec
-            logger.debug('chgrp Received object type, using "%s"' % graph_spec)
+        if '+' in graph_spec:
+            raise AttributeError(
+                "Graph specs containing '+'' no longer supported: '%s'"
+                % graph_spec)
+        if not isinstance(obj_ids, list) or len(obj_ids) < 1:
+            raise AttributeError('Must be a list of object IDs')
+
+        graph = graph_spec.lstrip('/').split('/')
+        obj_ids = map(long, obj_ids)
+        chgrp = Chgrp2(targetObjects={graph[0]: obj_ids}, groupId=group_id)
+
+        if len(graph) > 1:
+            skiphead = SkipHead()
+            skiphead.request = chgrp
+            skiphead.targetObjects = chgrp.targetObjects
+            skiphead.startFrom = [graph[-1]]
+            chgrp = skiphead
+
+        requests = [chgrp]
 
         # (link, child, parent)
         parentLinkClasses = {
-            "/Image": (omero.model.DatasetImageLinkI,
-                       omero.model.ImageI,
-                       omero.model.DatasetI),
-            "/Dataset": (omero.model.ProjectDatasetLinkI,
-                         omero.model.DatasetI,
-                         omero.model.ProjectI),
-            "/Plate": (omero.model.ScreenPlateLinkI,
-                       omero.model.PlateI,
-                       omero.model.ScreenI)}
+            "Image": (omero.model.DatasetImageLinkI,
+                      omero.model.ImageI,
+                      omero.model.DatasetI),
+            "Dataset": (omero.model.ProjectDatasetLinkI,
+                        omero.model.DatasetI,
+                        omero.model.ProjectI),
+            "Plate": (omero.model.ScreenPlateLinkI,
+                      omero.model.PlateI,
+                      omero.model.ScreenI)}
         da = DoAll()
-        requests = []
         saves = []
 
         ownerId = self.SERVICE_OPTS.getOmeroUser() or self.getUserId()
         for obj_id in obj_ids:
             obj_id = long(obj_id)
-            logger.debug('DoAll Chgrp: type: %s, id: %s, grp: %s' %
-                         (graph_spec, obj_id, group_id))
-            chgrp = omero.cmd.Chgrp(
-                type=graph_spec, id=obj_id, options=None, grp=group_id)
-            requests.append(chgrp)
             if container_id is not None and graph_spec in parentLinkClasses:
                 # get link class for graph_spec objects
                 link_klass = parentLinkClasses[graph_spec][0]
@@ -3969,6 +3965,12 @@ class _BlitzGateway (object):
 
         requests.extend(saves)
         da.requests = requests
+
+        logger.debug('DoAll Chgrp2: type: %s, ids: %s, grp: %s' %
+                     (graph_spec, obj_ids, group_id))
+
+        logger.debug('Chgrp2: \n%s' % str(da))
+
         ctx = self.SERVICE_OPTS.copy()
         # NB: For Save to work, we need to be in target group
         ctx.setOmeroGroup(group_id)
@@ -5367,7 +5369,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
                 else:
                     colleagues.append(ExperimenterWrapper(self._conn, d.child))
         else:
-            if self._conn.isLeader():
+            if self._conn.isLeader(self.id):
                 leaders = [self._conn.getUser()]
             else:
                 colleagues = [self._conn.getUser()]
@@ -5603,10 +5605,14 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     dict of {'rows': rSize, 'columns':cSize}
         """
         if self._gridSize is None:
-            r, c = 0, 0
-            for child in self._listChildren():
-                r, c = max(child.row.val, r), max(child.column.val, c)
-            self._gridSize = {'rows': r+1, 'columns': c+1}
+            q = self._conn.getQueryService()
+            params = omero.sys.ParametersI()
+            params.addId(self.getId())
+            query = "select max(row), max(column) from Well "\
+                    "where plate.id = :id"
+            res = q.projection(query, params, self._conn.SERVICE_OPTS)
+            (row, col) = res[0]
+            self._gridSize = {'rows': row.val+1, 'columns': col.val+1}
         return self._gridSize
 
     def getWellGrid(self, index=0):
@@ -7475,6 +7481,36 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
                 for n, c in enumerate(pixels.iterateChannels())]
 
+    def getChannelLabels(self):
+        """
+        Returns a list of the labels for the Channels for this image
+        """
+        q = self._conn.getQueryService()
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query = "select lc.name, lc.emissionWave.value, index(chan) "\
+                "from Pixels p "\
+                "join p.image as img "\
+                "join p.channels as chan "\
+                "join chan.logicalChannel as lc "\
+                "where img.id = :id order by index(chan)"
+        res = q.projection(query, params, self._conn.SERVICE_OPTS)
+        ret = []
+        for name, emissionWave, idx in res:
+            if name is not None and len(name.val.strip()) > 0:
+                ret.append(name.val)
+            elif emissionWave is not None and\
+                    len(unicode(emissionWave.val).strip()) > 0:
+                # FIXME: units ignored for wavelength
+                rv = emissionWave.getValue()
+                # Don't show as double if it's really an int
+                if int(rv) == rv:
+                    rv = int(rv)
+                ret.append(unicode(rv))
+            else:
+                ret.append(unicode(idx.val))
+        return ret
+
     @assert_re()
     def getZoomLevelScaling(self):
         """
@@ -8179,7 +8215,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         for chunk in ofw.getFileInChunks():
             outfile.write(chunk)
         outfile.close()
-        handle = self._conn.deleteObjects('/OriginalFile', todel)
+        handle = self._conn.deleteObjects('OriginalFile', todel)
         try:
             self._conn._waitOnCmd(handle)
         finally:
@@ -8635,8 +8671,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return True
 
     def _deleteSettings(self):
-        handle = self._conn.deleteObjects(
-            "/Image/Pixels/RenderingDef", [self.getId()])
+        handle = self._conn.deleteObjects("Image/RenderingDef", [self.getId()])
         try:
             self._conn._waitOnCmd(handle)
         finally:

@@ -25,6 +25,7 @@ import ij.ImagePlus;
 import ij.WindowManager;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,12 +43,15 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.event.SaveEvent;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -68,6 +72,9 @@ public class SaveResultsDialog
     /** Select to save or not the ROI.*/
     private JCheckBox roi;
 
+    /** Select to save or not the results table.*/
+    private JCheckBox table;
+    
     /** Flag indicating to select the image from the active window.*/
     private boolean activeWindow;
 
@@ -77,8 +84,11 @@ public class SaveResultsDialog
     /** Close the dialog.*/
     private JButton saveButton;
 
-    /** Initializes the components.*/
-    private void initialize()
+    /** Initializes the components.
+     * 
+     * @param index The index indicating what to save.
+     */
+    private void initialize(int index)
     {
         activeWindow = true;
         cancelButton = new JButton("Cancel");
@@ -97,9 +107,23 @@ public class SaveResultsDialog
                 save();
             }
         });
+        ChangeListener l = new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                saveButton.setEnabled(roi.isSelected() || table.isSelected());
+              }
+            };
         roi = new JCheckBox("ROI");
-        roi.setSelected(true);
-        roi.setEnabled(false);
+        roi.addChangeListener(l);
+        table = new JCheckBox("Measurements");
+        table.addChangeListener(l);
+        if (index == SaveEvent.ALL) {
+            roi.setSelected(true);
+            table.setSelected(true);
+        } else if (index == SaveEvent.ROIS) {
+            roi.setSelected(true);
+        } else if (index == SaveEvent.RESULTS) {
+            table.setSelected(true);
+        }
     }
 
     /** Closes the dialog.*/
@@ -120,7 +144,7 @@ public class SaveResultsDialog
             plus = WindowManager.getCurrentImage();
             if (plus != null) {
                 img = new FileObject(plus);
-                if (img.getOMEROID() < 0 || plus.changes) {
+                if (img.getOMEROID() < 0 || img.isNewImage()) {
                     toImport.add(img);
                   //check if there are associated files
                     int[] values = WindowManager.getIDList();
@@ -142,7 +166,7 @@ public class SaveResultsDialog
                 for (int i = 0; i < values.length; i++) {
                     plus = WindowManager.getImage(values[i]);
                     img = new FileObject(plus);
-                    if (img.getOMEROID() < 0 || plus.changes) {
+                    if (img.getOMEROID() < 0 || img.isNewImage()) {
                         toImport.add(img);
                     } else {
                         images.add(img);
@@ -160,6 +184,7 @@ public class SaveResultsDialog
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
                  result.setROI(roi.isSelected());
+                 result.setTable(table.isSelected());
                  TreeViewerAgent.getRegistry().getEventBus().post(
                          new SaveResultsEvent(result, true));
             }
@@ -167,6 +192,7 @@ public class SaveResultsDialog
         if (images.size() > 0) {
             result = new ResultsObject(images);
             result.setROI(roi.isSelected());
+            result.setTable(table.isSelected());
             ExperimenterData exp = TreeViewerAgent.getUserDetails();
             SecurityContext ctx = new SecurityContext(exp.getGroupId());
             ctx.setExperimenter(exp);
@@ -220,6 +246,7 @@ public class SaveResultsDialog
         buttons.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
         buttons.add(UIUtilities.setTextFont("Save"));
         buttons.add(roi);
+        buttons.add(table);
         return UIUtilities.buildComponentPanel(buttons);
     }
 
@@ -237,13 +264,14 @@ public class SaveResultsDialog
     /**
      * Creates a new instance.
      *
-     * @param parent The owner of the frame
+     * @param parent The owner of the frame.
+     * @param index The save index.
      */
-    public SaveResultsDialog(JFrame parent)
+    public SaveResultsDialog(JFrame parent, int index)
     {
         super(parent);
         setTitle("Save ImageJ results");
-        initialize();
+        initialize(index);
         buildGUI();
         pack();
     }

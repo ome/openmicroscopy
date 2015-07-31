@@ -261,9 +261,7 @@ public class GraphUtil {
      */
     private static boolean isCombined(DeleteFacadeI delete1, DeleteFacadeI delete2) {
         /* in deleting original files, order is significant */
-        if (!delete1.type.endsWith("/OriginalFile") &&
-            !delete2.type.endsWith("/OriginalFile") &&
-            isEqualMaps(delete1.options, delete2.options)) {
+        if (isEqualMaps(delete1.options, delete2.options)) {
             delete1.addToTargets(delete2.type, delete2.id);
             return true;
         } else {

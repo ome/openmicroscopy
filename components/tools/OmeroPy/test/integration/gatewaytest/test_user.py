@@ -4,7 +4,7 @@
 """
    gateway tests - Users
 
-   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -79,12 +79,15 @@ class TestUser (object):
         d = gatewaywrapper.getTestDataset()
         did = d.getId()
         g = d.getDetails().getGroup()
+        gid = g.getId()
+        chmod = omero.cmd.Chmod2(targetObjects={'ExperimenterGroup': [gid]})
         admin = gatewaywrapper.gateway.getAdminService()
         admin.addGroups(omero.model.ExperimenterI(uid, False), [g._obj])
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         # make sure the group is groupwrite enabled
         perms = str(d.getDetails().getGroup().getDetails().permissions)
-        admin.changePermissions(g._obj, omero.model.PermissionsI('rwrw--'))
+        chmod.permissions = 'rwrw--'
+        gatewaywrapper.gateway.c.submit(chmod)
         d = gatewaywrapper.getTestDataset()
         g = d.getDetails().getGroup()
         assert g.getDetails().permissions.isGroupWrite()
@@ -107,10 +110,10 @@ class TestUser (object):
             d = gatewaywrapper.gateway.getObject('dataset', did)
             assert d.getName() == n
         finally:
+            # Revert group permissions
             gatewaywrapper.loginAsAdmin()
-            admin = gatewaywrapper.gateway.getAdminService()
-            # Revert group permissions and remove user from group
-            admin.changePermissions(g._obj, omero.model.PermissionsI(perms))
+            chmod.permissions = perms
+            gatewaywrapper.gateway.c.submit(chmod)
 
     @pytest.mark.broken(ticket="11545")
     def testCrossGroupRead(self, gatewaywrapper):
@@ -139,9 +142,11 @@ class TestUser (object):
         except dbhelpers.BadGroupPermissionsException:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
-            admin.changePermissions(
-                admin.lookupGroup('testAnnotationPermissions'),
-                omero.model.PermissionsI('rw----'))
+            group = admin.lookupGroup('testAnnotationPermissions')
+            group_as_target = {'ExperimenterGroup': [group.id.val]}
+            chmod = omero.cmd.Chmod2(targetObjects=group_as_target,
+                                     permissions='rw----')
+            gatewaywrapper.gateway.c.submit(chmod)
             gatewaywrapper.loginAsAuthor()
             p = p.create(gatewaywrapper.gateway)
         pid = p.getId()
@@ -162,8 +167,10 @@ class TestUser (object):
             # Admin
             # Chmod project to rwrw--
             gatewaywrapper.loginAsAdmin()
-            admin = gatewaywrapper.gateway.getAdminService()
-            admin.changePermissions(g, omero.model.PermissionsI('rwrw--'))
+            group_as_target = {'ExperimenterGroup': [g.id.val]}
+            chmod = omero.cmd.Chmod2(targetObjects=group_as_target,
+                                     permissions='rwrw--')
+            gatewaywrapper.gateway.c.submit(chmod)
             # Author
             # check project has proper permissions
             gatewaywrapper.loginAsAuthor()

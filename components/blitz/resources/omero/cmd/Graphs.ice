@@ -75,6 +75,7 @@ module omero {
          * At the moment, the only supported type is "/ExperimenterGroup".
          *
          **/
+        ["deprecated:use omero::cmd::Chmod2 instead"]
         class Chmod extends GraphModify {
 
             /**
@@ -84,6 +85,7 @@ module omero {
             string permissions;
         };
 
+        ["deprecated:use omero::cmd::Chmod2Response instead"]
         class ChmodRsp extends Response {
         };
 
@@ -255,6 +257,36 @@ module omero {
 
             /**
              * The model objects that were moved.
+             **/
+            omero::api::StringLongListMap includedObjects;
+
+            /**
+             * The model objects that were deleted.
+             **/
+            omero::api::StringLongListMap deletedObjects;
+        };
+
+        /**
+         * Change the permissions on model objects.
+         * The user must be an administrator, the owner of the objects,
+         * or an owner of the objects' group.
+         * The only permitted target object type is ExperimenterGroup.
+         **/
+        class Chmod2 extends GraphModify2 {
+
+            /**
+             * The permissions to set on the model objects.
+             **/
+            string permissions;
+        };
+
+        /**
+         * Result of changing the permissions on model objects.
+         **/
+        class Chmod2Response extends OK {
+
+            /**
+             * The model objects with changed permissions.
              **/
             omero::api::StringLongListMap includedObjects;
 

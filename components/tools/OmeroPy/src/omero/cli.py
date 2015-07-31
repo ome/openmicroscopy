@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2014, Glencoe Software, Inc.
+Copyright (c) 2007-2015, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
@@ -189,9 +189,7 @@ class Parser(ArgumentParser):
 
     def add_login_arguments(self):
         group = self.add_argument_group(
-            'Login arguments', """Environment variables:
-    OMERO_SESSIONDIR - Set the sessions directory (Default:
- $HOME/omero/sessions)
+            'Login arguments', ENV_HELP + """
 
 Optional session arguments:
 """)
@@ -389,6 +387,16 @@ Examples:
     bin/omero -d0 admin start
 """
 
+ENV_HELP = """Environment variables:
+
+  OMERO_USERDIR     Set the base directory containing the user's files.
+                    Default: $HOME/omero
+  OMERO_SESSIONDIR  Set the base directory containing local sessions.
+                    Default: $OMERO_USERDIR/sessions
+  OMERO_TMPDIR      Set the base directory containing temporary files.
+                    Default: $OMERO_USERDIR/tmp
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -414,7 +422,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": DEBUG_HELP}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
@@ -1102,12 +1110,13 @@ class CLI(cmd.Cmd, Context):
                 tracer = trace.Trace()
                 tracer.runfunc(args.func, args)
             elif "p" in debug_opts or "profile" in debug_opts:
-                import hotshot
-                from hotshot import stats
-                prof = hotshot.Profile("hotshot_edi_stats")
+                from hotshot import stats, Profile
+                from omero.util import get_omero_userdir
+                profile_file = get_omero_userdir() / "hotshot_edi_stats"
+                prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
-                s = stats.load("hotshot_edi_stats")
+                s = stats.load(profile_file)
                 s.sort_stats("time").print_stats()
             else:
                 self.die(10, "Unknown debug action: %s" % debug_opts)
@@ -1466,15 +1475,24 @@ class GraphArg(object):
         self.cmd_type = cmd_type
 
     def __call__(self, arg):
+        cmd = self.cmd_type()
+        targetObjects = dict()
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
-            type = parts[0]
-            id = long(parts[1])
-
-            return self.cmd_type(type=type,
-                                 id=id,
-                                 options={})
+            assert '+' not in parts[0]
+            parts[0] = parts[0].lstrip("/")
+            graph = parts[0].split("/")
+            ids = [long(id) for id in parts[1].split(",")]
+            targetObjects[graph[0]] = ids
+            cmd.targetObjects = targetObjects
+            if len(graph) > 1:
+                skiphead = omero.cmd.SkipHead()
+                skiphead.request = cmd
+                skiphead.targetObjects = targetObjects
+                skiphead.startFrom = [graph[-1]]
+                cmd = skiphead
+            return cmd
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1614,12 +1632,15 @@ class GraphControl(CmdControl):
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=-1)
         parser.add_argument(
-            "--edit", action="store_true",
-            help="Configure options in a text editor")
+            "--include",
+            help="Modifies the given option by including a list of objects")
         parser.add_argument(
-            "--opt", action="append",
-            help="Modifies the given option (e.g. /Image:KEEP). Applied "
-            "*after* 'edit' ")
+            "--exclude",
+            help="Modifies the given option by excluding a list of objects")
+        parser.add_argument(
+            "--ordered", action="store_true",
+            help=("Pass multiple objects to commands strictly in the order "
+                  "given, otherwise group into as few commands as possible."))
         parser.add_argument(
             "--list", action="store_true",
             help="Print a list of all available graph specs")
@@ -1630,10 +1651,14 @@ class GraphControl(CmdControl):
         parser.add_argument(
             "--report", action="store_true",
             help="Print more detailed report of each action")
+        parser.add_argument(
+            "--dry-run", action="store_true",
+            help=("Do a dry run of the command, providing a "
+                  "report of what would have been done"))
         self._pre_objects(parser)
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
-            help="""Objects to be processedd in the form "<Class>:<Id>""")
+            help="Objects to be processed in the form <Class>:<Id>")
 
     def _pre_objects(self, parser):
         """
@@ -1646,95 +1671,170 @@ class GraphControl(CmdControl):
             req_or_doall = omero.cmd.DoAll([req_or_doall])
         return req_or_doall
 
+    def default_exclude(self):
+        """
+        Return a list of types to exclude by default.
+        """
+        return []
+
     def main_method(self, args):
 
-        import omero
         client = self.ctx.conn(args)
-        cb = None
-        req = omero.cmd.GraphSpecList()
-        try:
+        if args.list_details or args.list:
+            cb = None
+            req = omero.cmd.GraphSpecList()
             try:
-                speclist, status, cb = self.response(client, req)
-            except omero.LockTimeout, lt:
-                self.ctx.die(446, "LockTimeout: %s" % lt.message)
-        finally:
-            if cb is not None:
-                cb.close(True)  # Close handle
+                try:
+                    speclist, status, cb = self.response(client, req)
+                except omero.LockTimeout, lt:
+                    self.ctx.die(446, "LockTimeout: %s" % lt.message)
+            finally:
+                if cb is not None:
+                    cb.close(True)  # Close handle
 
-        # Could be put in positive_response helper
-        err = self.get_error(speclist)
-        if err:
-            self.ctx.die(367, err)
+            # Could be put in positive_response helper
+            err = self.get_error(speclist)
+            if err:
+                self.ctx.die(367, err)
 
-        specs = speclist.list
-        specmap = dict()
-        for s in specs:
-            specmap[s.type] = s
-        keys = sorted(specmap)
+            specs = speclist.list
+            specmap = dict()
+            for s in specs:
+                specmap[s.type] = s
+            keys = sorted(specmap)
 
-        if args.list_details:
-            for key in keys:
-                spec = specmap[key]
-                self.ctx.out("=== %s ===" % key)
-                for k, v in spec.options.items():
-                    self.ctx.out("%s" % (k,))
-            return  # Early exit.
-        elif args.list:
-            self.ctx.out("\n".join(keys))
-            return  # Early exit.
+            if args.list_details:
+                for key in keys:
+                    spec = specmap[key]
+                    self.ctx.out("=== %s ===" % key)
+                    for k, v in spec.options.items():
+                        self.ctx.out("%s" % (k,))
+                return  # Early exit.
+            elif args.list:
+                self.ctx.out("\n".join(keys))
+                return  # Early exit.
 
-        if len(args.obj) == 1 and isinstance(args.obj[0], omero.cmd.DoAll):
-            doall = args.obj[0]
+        inc = []
+        if args.include:
+            inc = args.include.split(",")
+        exc = self.default_exclude()
+        if args.exclude:
+            exc = exc.extend(args.exclude.split(","))
+
+        if len(inc) > 0 or len(exc) > 0:
+            opt = omero.cmd.graphs.ChildOption()
+            if len(inc) > 0:
+                opt.includeType = inc
+            if len(exc) > 0:
+                opt.excludeType = exc
+
+        commands = args.obj
+        for req in commands:
+            req.dryRun = args.dry_run
+            if len(inc) > 0 or len(exc) > 0:
+                req.childOptions = [opt]
+            if isinstance(req, omero.cmd.SkipHead):
+                req.request.childOptions = req.childOptions
+                req.request.dryRun = req.dryRun
+
+        if not args.ordered and len(commands) > 1:
+            commands = self.combine_commands(commands)
+
+        for command_check in commands:
+            self._check_command(command_check)
+
+        if len(commands) == 1:
+            cmd = args.obj[0]
         else:
-            doall = omero.cmd.DoAll(args.obj)
+            cmd = omero.cmd.DoAll(commands)
 
-        for req in doall.requests:
-            if args.edit:
-                req.options = self.edit_options(req, specmap)
-            if args.opt:
-                for opt in args.opt:
-                    self.line_to_opts(opt, req.options)
+        self._process_request(cmd, args, client)
 
-        self._process_request(doall, args, client)
+    def _check_command(self, command_check):
+        query = self.ctx.get_client().sf.getQueryService()
+        ec = self.ctx.get_event_context()
+        own_id = ec.userId
+        if not command_check or not command_check.targetObjects:
+            return
+        for k, v in command_check.targetObjects.items():
+            query_str = (
+                "select "
+                "x.details.owner.id, "
+                "x.details.group.details.permissions "
+                "from %s x "
+                "where x.id = :id") % k
+            if not v:
+                return
+            for w in v:
+                try:
+                    uid, perms = omero.rtypes.unwrap(
+                        query.projection(
+                            query_str,
+                            omero.sys.ParametersI().addId(w),
+                            {"omero.group": "-1"})[0])
+                    perms = perms["perm"]
+                    perms = omero.model.PermissionsI(perms)
+                    if perms.isGroupWrite() and uid != own_id:
+                        self.ctx.err(
+                            "WARNING: %s:%s belongs to user %s" % (
+                                k, w, uid))
+                except:
+                    self.ctx.dbg(traceback.format_exc())
+                    # Doing nothing since this is a best effort
 
-    def edit_options(self, req, specmap):
+    def combine_commands(self, commands):
+        """
+        Combine several commands into as few as possible.
+        For simple commands a single combined command is possible,
+        for a skiphead it is more complicated. Here skipheads are
+        combined using their startFrom object type.
+        """
+        from omero.cmd import SkipHead
+        skipheads = [req for req in commands if isinstance(req, SkipHead)]
+        others = [req for req in commands if not isinstance(req, SkipHead)]
 
-        from omero.util import edit_path
-        from omero.util.temp_files import create_path
+        rv = []
+        # Combine all simple commands
+        if len(others) == 1:
+            rv.extend(others)
+        elif len(others) > 1:
+            for req in others[1:]:
+                type, ids = req.targetObjects.items()[0]
+                if type in others[0].targetObjects:
+                    others[0].targetObjects[type].extend(ids)
+                else:
+                    others[0].targetObjects[type] = ids
+            rv.append(others[0])
 
-        start_text = """# Edit options for your operation below.\n"""
-        start_text += ("# === %s ===\n" % req.type)
-        if req.type not in specmap:
-            self.ctx.die(162, "Unknown type: %s" % req.type)
-        start_text += self.append_options(req.type, dict(specmap))
+        # Group skipheads by their startFrom attribute.
+        if len(skipheads) == 1:
+            rv.extend(skipheads)
+        elif len(skipheads) > 1:
+            shmap = {skipheads[0].startFrom[0]: skipheads[0]}
+            for req in skipheads[1:]:
+                if req.startFrom[0] in shmap:
+                    type, ids = req.targetObjects.items()[0]
+                    if type in shmap[req.startFrom[0]].targetObjects:
+                        shmap[req.startFrom[0]].targetObjects[type].extend(ids)
+                    else:
+                        shmap[req.startFrom[0]].targetObjects[type] = ids
+                else:
+                    shmap[req.startFrom[0]] = req
+            for req in shmap.values():
+                rv.append(req)
 
-        temp_file = create_path()
-        try:
-            edit_path(temp_file, start_text)
-            txt = temp_file.text()
-            print txt
-            rv = dict()
-            for line in txt.split("\n"):
-                self.line_to_opts(line, rv)
-            return rv
-        except RuntimeError, re:
-            self.ctx.die(954, "%s: Failed to edit %s"
-                         % (getattr(re, "pid", "Unknown"), temp_file))
-
-    def append_options(self, key, specmap, indent=0):
-        spec = specmap.pop(key)
-        start_text = ""
-        for optkey in sorted(spec.options):
-            optval = spec.options[optkey]
-            start_text += ("%s%s=%s\n" % ("  " * indent, optkey, optval))
-            if optkey in specmap:
-                start_text += self.append_options(optkey, specmap, indent+1)
-        return start_text
+        return rv
 
     def print_request_description(self, request):
         doall = self.as_doall(request)
         cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
-        objects = ['%s %s' % (req.type, req.id) for req in doall.requests]
+        objects = []
+        for req in doall.requests:
+            for type in req.targetObjects.keys():
+                ids = ",".join(map(str, req.targetObjects[type]))
+                if isinstance(req, omero.cmd.SkipHead):
+                    type += ("/" + req.startFrom[0])
+                objects.append('%s %s' % (type, ids))
         return "%s %s... " % (cmd_type, ', '.join(objects))
 
 

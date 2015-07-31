@@ -616,7 +616,7 @@
       link = location.href.split(location.search)[0];   // handle trailing #
     }
     link = link.replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)#?$/,'$1');
-    link = link + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true);
+    link = link + viewport.getCurrentImgUrlPath() + '?' + viewport.getQuery(true, true, true);
     $('#curr-link input').attr('value', link);
     return false;
   }
@@ -901,6 +901,10 @@
                 <span>Paste</span>
             </button>
           </div>
+          <div class="odd row">
+            <label for="wblitz-interpolate">Interpolate</label>
+            <input id="wblitz-interpolate" type="checkbox" checked/>
+          </div>
             <h1>Current Image</h1>
           <div class="even row">
             <span style="font-size: 0.9em">
@@ -1101,10 +1105,7 @@
     $("#rdef-postit").bind('closed',
       function () {
                     hidePicker();
-                    /* viewport.back_to_bookmarked_channels();*/
-                    //syncRDCW(viewport);
-                  })
-      .bind('opening', function () { syncRDCW(viewport); viewport.bookmark_channels()});
+                  });
 
     $('.can-collapse').click(function () {
       $(this).toggleClass('closed').next().slideToggle();
@@ -1146,6 +1147,13 @@
 
     $(".paste_rdef").click(function() {
         pasteRdefs(viewport);
+    });
+
+    $("#wblitz-interpolate").click(function(event){
+      var interpolate = $(this).is(":checked");
+      if (viewport) {
+        viewport.setPixelated(!interpolate);
+      }
     });
 
     // Reset defaults without saving

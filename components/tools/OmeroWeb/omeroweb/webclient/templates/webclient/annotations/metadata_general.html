@@ -652,8 +652,9 @@
             {% endif %}
             
             {% if manager.well %}            
+            {% with image=manager.well.getWellSample.image %}
 
-            {% with image=manager.well.getWellSample.image canDownload=manager.well.canDownload omeTiffDisabled=True %}
+            {% with canDownload=manager.well.canDownload omeTiffDisabled=True %}
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 
@@ -669,21 +670,21 @@
             </div>
 
             <!-- Image (in WellSample) Name, ID, Owner -->
-            {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name wellImageId=manager.well.getWellSample.image.id %}
+            {% with obj=image nameText=image.name wellImageId=image.id %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
             <hr/>
             
-                        <!-- Image (in WellSample) Description -->
-            {% with obj=manager.well.getWellSample.image %}
+            <!-- Image (in WellSample) Description -->
+            {% with obj=image %}
                 {% include "webclient/annotations/includes/description.html" %}
             {% endwith %}
 
             <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
-            {% with image=manager.well.getWellSample.image %}
-                {% include "webclient/annotations/includes/core_metadata.html" %}
-            {% endwith %}
+            {% include "webclient/annotations/includes/core_metadata.html" %}
+
+            {% endwith %}{# "image=manager.well.getWellSample.image" #}
 
             {% else %}
                 {% if manager.acquisition %}

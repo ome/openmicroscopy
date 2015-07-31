@@ -48,10 +48,7 @@ def _formatReport(callback):
         warn = rsp.parameters.get("Warning", "")
         logger.error('Format report: %r' % {'error': err, 'warning': warn})
         return "Operation could not be completed successfully"
-    else:
-        for rsp in rsp.responses:
-            if rsp.warning:
-                logger.warning("Delete warning: %s" % rsp.warning)
+    # Delete2Response, etc include no warnings
     # Might want to take advantage of other feedback here
 
 

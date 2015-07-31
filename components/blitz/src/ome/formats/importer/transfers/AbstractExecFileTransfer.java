@@ -60,7 +60,8 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             final long length = state.getLength();
             final ChecksumProvider cp = state.getChecksumProvider();
             state.uploadStarted();
-            checkLocation(location, rawFileStore);
+            checkLocation(location, rawFileStore); // closes rawFileStore
+            state.closeUploader();
             exec(file, location);
             checkTarget(location, state);
             cp.putFile(file.getAbsolutePath());
@@ -68,7 +69,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             state.uploadBytes(length);
             return finish(state, length);
         } finally {
-            cleanupUpload(rawFileStore, null);
+            state.closeUploader();
         }
     }
 

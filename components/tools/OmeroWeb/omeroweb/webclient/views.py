@@ -1078,8 +1078,6 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
             manager.annotationList()
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
-        # Load channel metadata if appropriate
-        manager.channelMetadata(noRE=True)
     context['manager'] = manager
 
     if c_type in ("tag", "tagset"):
@@ -1284,10 +1282,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
                                 lstypes = filamenttypes
                             channel['form_light_source'] = \
                                 MetadataLightSourceForm(initial={
-                                    'lightSource':
-                                        lightSrc,
-                                    'lightSourceSettings':
-                                        lightSourceSettings,
+                                    'lightSource': lightSrc,
+                                    'lightSourceSettings': lightSourceSettings,
                                     'lstypes': lstypes,
                                     'mediums': list(
                                         conn.getEnumerationEntries(
@@ -1861,8 +1857,10 @@ def annotate_map(request, conn=None, **kwargs):
         ann.setValue(data)
         ann.setNs(omero.constants.metadata.NSCLIENTMAPANNOTATION)
         ann.save()
-        for objs in oids.values():
+        for k, objs in oids.items():
             for obj in objs:
+                if k == "well":
+                    obj = obj.getWellSample(obj.index).image()
                 obj.linkAnnotation(ann)
         annId = ann.getId()
     # Or update existing annotation
@@ -2425,6 +2423,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             'Image': request.REQUEST.getlist('image'),
             'Dataset': request.REQUEST.getlist('dataset'),
             'Project': request.REQUEST.getlist('project'),
+            'Annotation': request.REQUEST.getlist('tag'),
             'Screen': request.REQUEST.getlist('screen'),
             'Plate': request.REQUEST.getlist('plate'),
             'Well': request.REQUEST.getlist('well'),
@@ -2438,6 +2437,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             for key, ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
+                    if key == "PlateAcquisition":
+                        key = "Plate Run"      # for nicer user message
                     dMap = {
                         'job_type': 'delete',
                         'start_time': datetime.datetime.now(),
@@ -2466,7 +2467,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
 
 
 @login_required(doConnectionCleanup=False)
-def get_original_file(request, fileId, conn=None, **kwargs):
+def get_original_file(request, fileId, download=False, conn=None, **kwargs):
     """
     Returns the specified original file as an http response. Used for
     displaying text or png/jpeg etc files in browser
@@ -2487,8 +2488,11 @@ def get_original_file(request, fileId, conn=None, **kwargs):
         mimetype = "text/plain"  # allows display in browser
     rsp['Content-Type'] = mimetype
     rsp['Content-Length'] = orig_file.getSize()
-    # rsp['Content-Disposition'] = ('attachment; filename=%s'
-    #                               % (orig_file.name.replace(" ", "_")))
+
+    if download:
+        downloadName = orig_file.name.replace(" ", "_")
+        downloadName = downloadName.replace(",", ".")
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
     return rsp
 
 
@@ -2623,8 +2627,9 @@ def download_orig_metadata(request, imageId, conn=None, **kwargs):
     return rsp
 
 
+@login_required()
 @render_response()
-def download_placeholder(request):
+def download_placeholder(request, conn=None, **kwargs):
     """
     Page displays a simple "Preparing download..." message and redirects to
     the 'url'.
@@ -2634,7 +2639,7 @@ def download_placeholder(request):
     format = request.REQUEST.get('format', None)
     if format is not None:
         download_url = reverse('download_as')
-        zipName = 'SaveAs_%s' % format
+        zipName = 'Export_as_%s' % format
     else:
         download_url = reverse('archived_files')
         zipName = 'OriginalFileDownload'
@@ -2642,7 +2647,67 @@ def download_placeholder(request):
     defaultName = request.REQUEST.get('name', zipName)  # default zip name
     defaultName = os.path.basename(defaultName)         # remove path
 
-    query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])
+    if targetIds is None:
+        raise Http404("No IDs specified. E.g. ?ids=image-1|image-2")
+
+    ids = targetIds.split("|")
+
+    fileLists = []
+    fileCount = 0
+    # If we're downloading originals, list original files so user can
+    # download individual files.
+    if format is None:
+        imgIds = []
+        wellIds = []
+        for i in ids:
+            if i.split("-")[0] == "image":
+                imgIds.append(i.split("-")[1])
+            elif i.split("-")[0] == "well":
+                wellIds.append(i.split("-")[1])
+
+        images = []
+        # Get images...
+        if imgIds:
+            images = list(conn.getObjects("Image", imgIds))
+        elif wellIds:
+            try:
+                index = int(request.REQUEST.get("index", 0))
+            except ValueError:
+                index = 0
+            wells = conn.getObjects("Well", wellIds)
+            for w in wells:
+                images.append(w.getWellSample(index).image())
+
+        if len(images) == 0:
+            raise Http404("No images found.")
+
+        # Have a list of files per fileset (or per image without fileset)
+        fsIds = set()
+        fileIds = set()
+        for image in images:
+            fs = image.getFileset()
+            if fs is not None:
+                # Make sure we've not processed this fileset before.
+                if fs.id in fsIds:
+                    continue
+                fsIds.add(fs.id)
+            files = list(image.getImportedImageFiles())
+            fList = []
+            for f in files:
+                if f.id in fileIds:
+                    continue
+                fileIds.add(f.id)
+                fList.append({'id': f.id,
+                              'name': f.name,
+                              'size': f.getSize()})
+            if len(fList) > 0:
+                fileLists.append(fList)
+        fileCount = sum([len(l) for l in fileLists])
+    else:
+        # E.g. JPEG/PNG - 1 file per image
+        fileCount = len(ids)
+
+    query = "&".join([i.replace("-", "=") for i in ids])
     download_url = download_url + "?" + query
     if format is not None:
         download_url = (download_url + "&format=%s"
@@ -2654,7 +2719,9 @@ def download_placeholder(request):
     context = {
         'template': "webclient/annotations/download_placeholder.html",
         'url': download_url,
-        'defaultName': defaultName
+        'defaultName': defaultName,
+        'fileLists': fileLists,
+        'fileCount': fileCount
         }
     return context
 
@@ -3024,7 +3091,8 @@ def activities(request, conn=None, **kwargs):
                 try:
                     prx = omero.cmd.HandlePrx.checkedCast(
                         conn.c.ic.stringToProxy(cbString))
-                    callback = omero.callbacks.CmdCallbackI(conn.c, prx)
+                    callback = omero.callbacks.CmdCallbackI(
+                        conn.c, prx, foreground_poll=True)
                     rsp = callback.getResponse()
                     close_handle = False
                     try:
@@ -3081,10 +3149,12 @@ def activities(request, conn=None, **kwargs):
                 try:
                     handle = omero.cmd.HandlePrx.checkedCast(
                         conn.c.ic.stringToProxy(cbString))
-                    cb = omero.callbacks.CmdCallbackI(conn.c, handle)
+                    cb = omero.callbacks.CmdCallbackI(
+                        conn.c, handle, foreground_poll=True)
+                    rsp = cb.getResponse()
                     close_handle = False
                     try:
-                        if not cb.block(0):  # Response not available
+                        if not rsp:  # Response not available
                             update_callback(
                                 request, cbString,
                                 error=0,
@@ -3409,12 +3479,12 @@ def script_ui(request, scriptId, conn=None, **kwargs):
             i["list"] = True
             if "default" in i:
                 i["default"] = i["default"][0]
-        elif isinstance(pt.__class__, bool):
+        elif isinstance(pt, bool):
             i["boolean"] = True
-        elif isinstance(pt.__class__, int) or isinstance(pt.__class__, long):
+        elif isinstance(pt, int) or isinstance(pt, long):
             # will stop the user entering anything other than numbers.
             i["number"] = "number"
-        elif isinstance(pt.__class__, float):
+        elif isinstance(pt, float):
             i["number"] = "float"
 
         # if we got a value for this key in the page request, use this as
@@ -3780,9 +3850,9 @@ def script_run(request, scriptId, conn=None, **kwargs):
                 # the key and value don't have any data-type defined by
                 # scripts - just use string
                 k = str(request.POST[keyName])
-                v = str(request.POST[valueName])
+                v = request.POST[valueName]
                 if len(k) > 0 and len(v) > 0:
-                    paramMap[str(k)] = str(v)
+                    paramMap[str(k)] = v.encode('utf8')
                 row += 1
                 keyName = "%s_key%d" % (key, row)
                 valueName = "%s_value%d" % (key, row)
@@ -3801,7 +3871,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
                     values = values[0].split(",")
 
                 # try to determine 'type' of values in our list
-                listClass = omero.rtypes.rstring
+                listClass = omero.rtypes.RStringI
                 l = prototype.val     # list
                 # check if a value type has been set (first item of prototype
                 # list)
@@ -3816,8 +3886,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
                 valueList = []
                 for v in values:
                     try:
-                        # convert unicode -> string
-                        obj = listClass(str(v.strip()))
+                        # RStringI() will encode any unicode
+                        obj = listClass(v.strip())
                     except:
                         logger.debug("Invalid entry for '%s' : %s" % (key, v))
                         continue
@@ -3853,7 +3923,12 @@ def script_run(request, scriptId, conn=None, **kwargs):
             # if inputMap values not as expected or firstObj is None
             conn.SERVICE_OPTS.setOmeroGroup(gid)
 
-    logger.debug("Running script %s with params %s" % (scriptName, inputMap))
+    try:
+        # Try/except in case inputs are not serializable, e.g. unicode
+        logger.debug("Running script %s with "
+                     "params %s" % (scriptName, inputMap))
+    except:
+        pass
     rsp = run_script(request, conn, sId, inputMap, scriptName)
     return HttpJsonResponse(rsp)
 

@@ -305,16 +305,19 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             throw new Exception("Unknown class: " + klass);
         }
 
+        final Formatter formatter = new Formatter();
+
         while (remaining > 999) {
             remaining /= 1000;
 
             if (remaining > 0) {
-                Formatter formatter = new Formatter();
                 dirno = remaining % 1000;
                 suffix = formatter.format("Dir-%03d", dirno).out().toString()
                         + File.separator + suffix;
             }
         }
+
+        formatter.close();
 
         String path = FilenameUtils.concat(prefix, suffix + id);
         return path;
@@ -1072,7 +1075,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         String pathName = ((RString) results.get(0).get(0)).getValue();
 
         /* create a deeply nested directory hierarchy with files at every level */
-        final int count = 32;
+        final int count = 12;
         final RepositoryPrx mrepo = getManagedRepository();
         final String directoryName = "bar";
         final String fileName = "baz";
@@ -1109,7 +1112,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         request.targetObjects.put("OriginalFile", fileIds);
 
         /* perform the deletion and confirm that it successfully deletes all the files */
-        final Delete2Response deletions = (Delete2Response) doChange(root, root.getSession(), request, true);
+        final Delete2Response deletions = (Delete2Response) doChange(request);
         assertEquals(fileCount, deletions.deletedObjects.get(ome.model.core.OriginalFile.class.getName()).size());
     }
 }

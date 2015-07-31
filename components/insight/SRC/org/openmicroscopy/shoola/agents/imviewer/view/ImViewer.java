@@ -1,7 +1,7 @@
 /* * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
 /** 
@@ -1321,4 +1322,16 @@ public interface ImViewer
      * @param interpolation
      */
     public void setInterpolation(boolean interpolation);
+    
+    /**
+     * Set the {@link ImageAcquisitionData}
+     * @param data The {@link ImageAcquisitionData}
+     */
+    public void setImageAcquisitionData(ImageAcquisitionData data);
+    
+    /**
+     * Get the {@link ImageAcquisitionData}
+     * @return See above
+     */
+    public ImageAcquisitionData getImageAcquisitionData();
 }

@@ -170,7 +170,7 @@ class MetadataViewerModel
      */
     private SecurityContext retrieveContext(DataObject ho)
     {
-        if (ctx != null) return ctx;
+        if (ho == null && ctx != null) return ctx;
         return new SecurityContext(ho.getGroupId());
     }
 

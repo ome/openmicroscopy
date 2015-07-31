@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -347,7 +347,7 @@ implements ActionListener, PropertyChangeListener
             }
             body = new ExperimenterPane(true, groups, selected);
         } else if (GroupData.class.equals(type)) {
-            body = new GroupPane();
+            body = new GroupPane(TreeViewerAgent.isAdministrator());
         }
         body.addPropertyChangeListener(this);
         initComponents();

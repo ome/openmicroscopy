@@ -849,14 +849,7 @@ public class GraphPolicyRule {
         final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
         if (!policyRule.termMatchers.isEmpty()) {
             /* apply the term matchers */
-            final Set<Details> allTerms = new HashSet<Details>();
-            allTerms.add(rootObject);
-            for (final Set<Details> terms : linkedFrom.values()) {
-                allTerms.addAll(terms);
-            }
-            for (final Set<Details> terms : linkedTo.values()) {
-                allTerms.addAll(terms);
-            }
+            final Set<Details> allTerms = GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
             for (final TermMatch matcher : policyRule.termMatchers) {
                 for (final Details object : allTerms) {
                     if (matcher.isMatch(namedTerms, isCheckAllPermissions, object)) {
@@ -913,20 +906,11 @@ public class GraphPolicyRule {
             Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
             ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
         final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
-        final Set<Details> allTerms = new HashSet<Details>();
         final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
         final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
+        final Set<Details> allTerms = unmatchedTerms.isEmpty() ? Collections.<Details>emptySet()
+                : GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
         final Set<RelationshipMatch> unmatchedRelationships = new HashSet<RelationshipMatch>(policyRule.relationshipMatchers);
-        if (!unmatchedTerms.isEmpty()) {
-            /* note all terms to which to apply term matchers */
-            allTerms.add(rootObject);
-            for (final Set<Details> terms : linkedFrom.values()) {
-                allTerms.addAll(terms);
-            }
-            for (final Set<Details> terms : linkedTo.values()) {
-                allTerms.addAll(terms);
-            }
-        }
         /* try all the matchers against all the terms */
         do {
             final int namedTermCount = namedTerms.size();

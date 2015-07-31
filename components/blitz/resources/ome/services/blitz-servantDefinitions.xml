@@ -38,7 +38,7 @@
         <bean class="ome.services.blitz.impl.RoiI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="geomTool"/>
-		<constructor-arg ref="simpleSqlAction"/>
+            <constructor-arg ref="simpleSqlAction"/>
         </bean>
     </constructor-arg>
   </bean>
@@ -127,7 +127,7 @@
 
   <!-- Stateless ome.api service-based
   ==============================================================================
-  See documentation at http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/package-summary.html
+  See documentation at http://downloads.openmicroscopy.org/latest/omero5.1/api/package-summary.html
   -->
 
 
@@ -361,6 +361,7 @@
       <constructor-arg>
         <map>
           <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpRules"/>
+          <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodRules"/>
           <entry key="omero.cmd.graphs.Chown2I" value-ref="chownRules"/>
           <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteRules"/>
         </map>
@@ -394,6 +395,21 @@
      <constructor-arg ref="repositoryDao"/>
      <constructor-arg ref="ring"/>
      <constructor-arg ref="/OMERO/Pixels"/>
+     <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
+  <!-- "Self"-factories -->
+
+  <bean class="omero.cmd.admin.UpdateSessionTimeoutRequestI$Factory" lazy-init="false">
+      <constructor-arg ref="currentDetails"/>
+      <constructor-arg ref="sessionManager"/>
+      <constructor-arg ref="securitySystem"/>
+     <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
+  <bean class="omero.cmd.admin.CurrentSessionsRequestI$Factory" lazy-init="false">
+      <constructor-arg ref="currentDetails"/>
+      <constructor-arg ref="sessionManager"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

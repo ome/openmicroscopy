@@ -33,17 +33,31 @@ public class SaveEvent
     extends RequestEvent
 {
 
+    /** Indicates to save the rois.*/
+    public static final Integer ROIS = new Integer(0);
+
+    /** Indicates to save the results.*/
+    public static final Integer RESULTS = new Integer(1);
+
+    /** Indicates to save the results.*/
+    public static final Integer ALL = new Integer(2);
+
     /** The plugin this event is related to.*/
     private int plugin;
+
+    /** Indicates what to save e.g. rois.*/
+    private int saveIndex;
 
     /**
      * Creates a new instance.
      *
      * @param plugin The plugin the event is for.
+     * @param saveIndex The object to save.
      */
-    public SaveEvent(int plugin)
+    public SaveEvent(int plugin, int saveIndex)
     {
         this.plugin = plugin;
+        this.saveIndex = saveIndex;
     }
 
     /**
@@ -52,5 +66,12 @@ public class SaveEvent
      * @return See above.
      */
     public int getPlugin() { return plugin; }
+
+    /**
+     * Returns the index indicating the object to save.
+     *
+     * @return See above.
+     */
+    public int getSaveIndex() { return saveIndex; }
 
 }

@@ -39,8 +39,9 @@ import omero.scripts
 
 from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
+from omero.cmd import Chmod
 
-from omero.gateway import TagAnnotationWrapper, AnnotationWrapper
+from omero.gateway import AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
 from omero.gateway import CommentAnnotationWrapper
 
@@ -372,7 +373,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         q = self.getQueryService()
         for ann in q.findAllByQuery(sql, params, self.SERVICE_OPTS):
-            yield TagAnnotationWrapper(self, ann)
+            yield omero.gateway.TagAnnotationWrapper(self, ann)
 
     def listTagsRecursive(self, eid=None, offset=None, limit=1000):
         """
@@ -648,7 +649,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         sql += " and tg.ns is null order by tg.textValue"
         res = query_serv.findAllByQuery(sql, p, self.SERVICE_OPTS)
         if len(res) > 0:
-            return TagAnnotationWrapper(self, res[0])
+            return omero.gateway.TagAnnotationWrapper(self, res[0])
         return None
 
     # AVATAR #
@@ -1382,8 +1383,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(up_gr)
         if permissions is not None:
-            logger.warning("WARNING: changePermissions was called!!!")
-            admin_serv.changePermissions(up_gr, permissions)
+            self.updatePermissions(group, permissions)
         admin_serv.addGroupOwners(up_gr, add_exps)
         admin_serv.removeGroupOwners(up_gr, rm_exps)
 
@@ -1423,10 +1423,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         admin_serv = self.getAdminService()
         admin_serv.updateSelf(up_exp)
-        defultGroup = self.getObject(
+        defaultGroup = self.getObject(
             "ExperimenterGroup", long(defaultGroupId))._obj
-        admin_serv.setDefaultGroup(up_exp, defultGroup)
-        self.changeActiveGroup(defultGroup.id)
+        admin_serv.setDefaultGroup(up_exp, defaultGroup)
+        self.changeActiveGroup(defaultGroup.id)
 
     def setDefaultGroup(self, group_id, exp_id=None):
         """
@@ -1440,21 +1440,24 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         admin_serv.setDefaultGroup(
             ExperimenterI(exp_id, False), ExperimenterGroupI(group_id, False))
 
-    def updatePermissions(self, obj, permissions):
+    def updatePermissions(self, group, permissions):
         """
-        Allow to change the permission on the object.
+        Allow to change the permission of the group.
 
-        @param obj      A wrapped entity or an unloaded reference to an
+        @param group      A wrapped entity or an unloaded reference to an
                         entity. Not null.
-        @type obj       BlitzObjectWrapper
+        @type group       BlitzObjectWrapper
         @param perm     The permissions value for this entity. Not null.
         @type perm      PermissionsI
         """
 
-        admin_serv = self.getAdminService()
-        if permissions is not None:
-            logger.warning("WARNING: changePermissions was called!!!")
-            admin_serv.changePermissions(obj._obj, permissions)
+        perms = str(permissions)
+        logger.debug("Chmod of group ID: %s to %s" % (group.id, perms))
+        command = Chmod(type="/ExperimenterGroup",
+                        id=group.id,
+                        permissions=perms)
+        cb = self.c.submit(command, loops=120)
+        cb.close(True)
 
     def saveObject(self, obj):
         """
@@ -2157,6 +2160,8 @@ class OmeroWebObjectWrapper (object):
             flags.append("canLink")
         if self.canDelete():
             flags.append("canDelete")
+        if self.isOwned():
+            flags.append("isOwned")
         if self.canChgrp():
             flags.append("canChgrp")
         return " ".join(flags)
@@ -2502,6 +2507,15 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
             self.link = 'link' in kwargs and kwargs['link'] or None
 
 omero.gateway.WellWrapper = WellWrapper
+
+
+class TagWrapper(OmeroWebObjectWrapper, omero.gateway.TagAnnotationWrapper):
+    """
+    omero_model_TagAnnotationI class wrapper overwrite
+    omero.gateway.TagAnnotationWrapper and extends OmeroWebObjectWrapper.
+    """
+
+omero.gateway.TagAnnotationWrapper = TagWrapper
 
 
 class PlateAcquisitionWrapper(OmeroWebObjectWrapper,

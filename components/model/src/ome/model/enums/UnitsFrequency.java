@@ -20,10 +20,12 @@
 
 package ome.model.enums;
 
+import ome.model.units.UnitEnum;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public enum UnitsFrequency {
+public enum UnitsFrequency implements UnitEnum {
 
     YOTTAHERTZ("YHz"),
     ZETTAHERTZ("ZHz"),

@@ -18,17 +18,36 @@
 
 package ome.formats.utests;
 
+import junit.framework.TestCase;
 import ome.model.units.BigResult;
 import ome.units.UNITS;
 import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 import org.testng.annotations.Test;
 
-public class UnitsTest {
+public class UnitsTest extends TestCase {
 
+    /**
+     * Creates a new length instance of the default units.
+     *
+     * @param d The value.
+     * @return See above.
+     */
     protected omero.model.Length mm(double d) {
+        return mm(d, UnitsLength.MILLIMETER);
+    }
+
+    /**
+     * Creates a new length instance of the specified units.
+     *
+     * @param d The value.
+     * @param units The units.
+     * @return See above.
+     */
+    protected omero.model.Length mm(double d, UnitsLength units) {
         omero.model.Length l = new omero.model.LengthI();
-        l.setUnit(omero.model.enums.UnitsLength.MILLIMETER);
+        l.setUnit(units);
         l.setValue(d);
         return l;
     }
@@ -48,4 +67,28 @@ public class UnitsTest {
         new LengthI(mm(1), UNITS.MM);
     }
 
+    @Test
+    public void testLengthMappingFromCentimeterToMicrometer() throws BigResult {
+        new LengthI(mm(1, UnitsLength.CENTIMETER), UnitsLength.MICROMETER);
+    }
+
+    @Test
+    public void testLengthMappingFromMeterToMicrometer() throws BigResult {
+        new LengthI(mm(1, UnitsLength.METER), UnitsLength.MICROMETER);
+    }
+
+    @Test
+    public void testLengthMappingFromMicrometerToMicrometer() throws BigResult {
+        new LengthI(mm(1, UnitsLength.MICROMETER), UnitsLength.MICROMETER);
+    }
+
+    @Test
+    public void testLengthMappingFromMeterToCentimeter() throws BigResult {
+        new LengthI(mm(1, UnitsLength.METER), UnitsLength.CENTIMETER);
+    }
+
+    @Test
+    public void testLengthMappingFromCentimeterToMeter() throws BigResult {
+        new LengthI(mm(1, UnitsLength.CENTIMETER), UnitsLength.METER);
+    }
 }

@@ -43,11 +43,10 @@
                 var highlightCurrent = function() {
                     var userId = {{ userId }};
                     var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if (parseInt(item.value) === userId) {
-                            $("#id_owners_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                        }
+                        return item.value == userId;
                     });
+                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
+                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
                 }
                 
                 $("#id_owners").chosen({placeholder_text:'Type owners names to add...'});
@@ -70,6 +69,15 @@
                     OME.confirm_dialog("Changing group to Private may fail if links have been created under Read-Annotate permissions",
                         null, "WARNING", ['OK'], null, 180);
                 });
+
+                // Disable the "Read-Write" permissions option for group owners (if it's not checked)
+                var $readWriteCheckbox = $('#id_permissions_3');
+                if (!$readWriteCheckbox.is(':checked')) {
+                    $readWriteCheckbox.prop('disabled', 'disabled');
+                }
+                $('label[for="id_permissions_3"]')
+                    .css('opacity',0.5)
+                    .prop('title', 'Group owners cannot upgrade to Read-Write permissions. Please contact your sysadmin.');
 
         })
     </script>

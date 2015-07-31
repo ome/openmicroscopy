@@ -74,7 +74,7 @@ public class ImageBorder
     /** The image used for the left side of the border. */
     private Image	left_center;
     
-    /** The image used for the rigth side of the border. */
+    /** The image used for the right side of the border. */
     private Image	right_center;
     
 	/** The Image displayed in the centre of the bottom border. */

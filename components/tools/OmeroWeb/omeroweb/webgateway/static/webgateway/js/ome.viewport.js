@@ -55,7 +55,9 @@ var Metadata = function () {
         this[i][j] = cached[i][j];
       }
     }
+    this.defaultZ = this.rdefs.defaultZ;
     this.current.z = this.rdefs.defaultZ;
+    this.defaultT = this.rdefs.defaultT;
     this.current.t = this.rdefs.defaultT;
       if (this.rdefs.invertAxis) {
         var t = this.size.t;
@@ -847,6 +849,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     return _this.getPos().z + 1;
   };
 
+  this.setPixelated = function (pixelated) {
+    _this.viewportimg.get(0).setPixelated(pixelated);
+  };
+
   this.setZoom = function (z) {
     var size = getSizeDict();
     _this.viewportimg.get(0).setZoom(z, size.width, size.height);
@@ -938,10 +944,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
   // When we Save settings to the server, we can remember the point we saved.
   this.setSaved = function() {
     saved_undo_stack_ptr = channels_undo_stack_ptr;
+    _this.loadedImg.defaultZ = this.getZPos()-1;
+    _this.loadedImg.defaultT = this.getTPos()-1;
   };
   // Do we have any unsaved changes? (undo/redo since we last saved)
   this.getSaved = function() {
-    return saved_undo_stack_ptr === channels_undo_stack_ptr;
+    var zSaved = _this.loadedImg.defaultZ === this.getZPos()-1;
+    var tSaved = _this.loadedImg.defaultT === this.getTPos()-1;
+    return (zSaved && tSaved && saved_undo_stack_ptr === channels_undo_stack_ptr);
   };
 
   this.doload = function(){
@@ -971,6 +981,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
   };
 
+  // bookmarks were previously set and used when rdef dialog
+  // was hidden and show. Not used currently.
   this.bookmark_channels = function () {
     channels_bookmark = channels_undo_stack_ptr+1;
   };
@@ -990,7 +1002,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   /**
    * @return {String} The current query with state information.
    */
-  this.getQuery = function (include_slider_pos) {
+  this.getQuery = function (include_slider_pos, include_xy_pos, include_zoom) {
       
     var query = [];
     /* Channels (verbose as IE7 does not support Array.filter */
@@ -1014,29 +1026,33 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.loadedImg.current.quality) {
       query.push('q=' + this.loadedImg.current.quality);
     }
-    /* Zoom - getZoom() also handles big images */
-    query.push('zm=' + this.getZoom());
     /* Slider positions */
     if (include_slider_pos) {
       query.push('t=' + (this.loadedImg.current.t+1));
       query.push('z=' + (this.loadedImg.current.z+1));
     }
+    if (include_zoom) {
+        /* Zoom - getZoom() also handles big images */
+        query.push('zm=' + this.getZoom());
+    }
     /* Image offset */
-    if ((_this.loadedImg.tiles) && (_this.viewportimg.get(0).getBigImageContainer() )) {
-        // if this is a 'big image', calculate the current center of the viewport
-        var big_viewer = _this.viewportimg.get(0).getBigImageContainer();
-        var big_x = big_viewer.x * -1;
-        var big_y = big_viewer.y * -1;
-        var big_w = big_viewer.width / 2;
-        var big_h = big_viewer.height / 2;
-        var big_scale = big_viewer.currentScale();
-        var big_center_x = (big_x + big_w) / big_scale;
-        var big_center_y = (big_y + big_h) / big_scale;
-        query.push('x=' + big_center_x);
-        query.push('y=' + big_center_y);
-    } else {
-        query.push('x=' + this.viewportimg.get(0).getXOffset());
-        query.push('y=' + this.viewportimg.get(0).getYOffset());
+    if (include_xy_pos) {
+        if ((_this.loadedImg.tiles) && (_this.viewportimg.get(0).getBigImageContainer() )) {
+            // if this is a 'big image', calculate the current center of the viewport
+            var big_viewer = _this.viewportimg.get(0).getBigImageContainer();
+            var big_x = big_viewer.x * -1;
+            var big_y = big_viewer.y * -1;
+            var big_w = big_viewer.width / 2;
+            var big_h = big_viewer.height / 2;
+            var big_scale = big_viewer.currentScale();
+            var big_center_x = (big_x + big_w) / big_scale;
+            var big_center_y = (big_y + big_h) / big_scale;
+            query.push('x=' + big_center_x);
+            query.push('y=' + big_center_y);
+        } else {
+            query.push('x=' + this.viewportimg.get(0).getXOffset());
+            query.push('y=' + this.viewportimg.get(0).getYOffset());
+        }
     }
     /* Line plot */
     if (this.hasLinePlot()) {

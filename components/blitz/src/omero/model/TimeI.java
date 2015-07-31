@@ -933,7 +933,7 @@ public class TimeI extends Time implements ModelBased {
            setUnit(value.getUnit());
         } else {
             UnitsTime targetUnit = UnitsTime.valueOf(target);
-            Conversion conversion = conversions.get(value.getUnit()).get(target);
+            Conversion conversion = conversions.get(value.getUnit()).get(targetUnit);
             if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",

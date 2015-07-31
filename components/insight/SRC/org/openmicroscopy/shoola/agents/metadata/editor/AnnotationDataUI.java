@@ -906,13 +906,13 @@ class AnnotationDataUI
 			layoutAttachments(l);
 			selectedValue = model.getUserRating();
 			int n = model.getRatingCount(EditorModel.ALL);
-			if (n > 1) {
+			if (n > 0) {
 				buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
 						" | "+n+" vote");
 				if (n > 1) buffer.append("s");
 				buffer.append(")");
 			}
-			otherRating.setVisible(n > 1);
+			otherRating.setVisible(n > 0);
 			l = model.getOtherAnnotations();
 			if (l != null) count += l.size();
 			layoutOthers(l);
