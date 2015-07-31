@@ -121,7 +121,7 @@ Test Annotate
     # Wait for tag panel being loded
     Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
     Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
-    Page Should Contains Element                id_tag
+    Page Should Contain Element                 id_tag
 
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
