@@ -35,6 +35,7 @@ autodoc_default_flags = ['members', 'undoc-members', 'private-members']
 project = u'OMERO.py API'
 targetname = 'OmeroPyAPI'
 title = project + u' Documentation'
+master_doc = 'index'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
