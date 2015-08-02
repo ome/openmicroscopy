@@ -7,6 +7,7 @@
 
 package ome.services.fulltext;
 
+import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
@@ -75,4 +76,19 @@ public class SimpleLuceneOptions implements LuceneOptions {
         return delegate.getTermVector();
     }
 
+    public String indexNullAs() {
+        return delegate.indexNullAs();
+    }
+
+    public boolean isCompressed() {
+        return delegate.isCompressed();
+    }
+
+    public void addFieldToDocument(String fieldName, String indexedString, Document document) {
+        delegate.addFieldToDocument(fieldName, indexedString, document);
+    }
+
+    public void addNumericFieldToDocument(String fieldName, Object numericValue, Document document) {
+        delegate.addNumericFieldToDocument(fieldName, numericValue, document);
+    }
 }

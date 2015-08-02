@@ -35,7 +35,7 @@ Examples (admin-only):
 
 See also:
 
-  https://lucene.apache.org/java/2_9_1/queryparsersyntax.html
+  http://lucene.apache.org/core/4_9_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html
 
 """
 

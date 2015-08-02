@@ -684,7 +684,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <link href="http://www.springframework.org/docs/api/"/>
                 <link href="http://www.hibernate.org/hib_docs/v3/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>
-                <link href="http://lucene.apache.org/java/2_2_0/api"/>
+                <link href="http://lucene.apache.org/java/3_1_0/api"/>
 
             </javadoc>
         </presetdef>

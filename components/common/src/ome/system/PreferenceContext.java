@@ -32,14 +32,14 @@ import com.google.common.collect.MapMaker;
  * <li>Java {@link System#getProperties()}</li>
  * <li>Any configured property files</li>
  * </ul>
- * 
+ *
  * As of OMERO 4.2, server configurations are not stored in Java's
  * Preferences API but in an IceGrid xml file under etc/grid of the server
  * installation. The properties are set in the config file on node startup, for
  * example in var/master/servers/Blitz-0/config/config. When the Java process
  * starts, {@link ome.services.blitz.Entry} places the values in
  * {#link {@link System#getProperties()}.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/800">#800</a>
@@ -78,7 +78,9 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
             while (names.hasMoreElements()) {
                 String key = names.nextElement().toString();
                 String value = properties.getProperty(key);
-                if (System.getProperty(key) == null) {
+                if (key == null || key.trim().length() == 0) {
+                    // ignore
+                } else if (System.getProperty(key) == null) {
                     System.setProperty(key, value);
                     log.debug("Set property: {}={}", key, value);
                 }
@@ -181,7 +183,7 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
         }
         return preference;
     }
-    
+
     // Copied from PropertyPlaceholderConfigurer
     private class PropertyPlaceholderConfigurerResolver implements PlaceholderResolver {
 

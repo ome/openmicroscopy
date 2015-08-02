@@ -2,8 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
-# Copyright 2006-2014 University of Dundee. All rights reserved.
+# Copyright 2006-2015 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,7 +19,7 @@
   <description>
     Configuration for Hibernate data access. The beans in this configuration file
     should NOT be generally accessed. In general, this entire file should be
-    considered to have a "private" scope. 
+    considered to have a "private" scope.
   </description>
 
   <bean id="extendedMetadata" class="ome.tools.hibernate.ExtendedMetadata$Impl">
@@ -29,7 +28,7 @@
     metamodel to fill the cache during creation. On ContextRefreshedEvent,
     the ExtendedMetadata instance will acquire the SessionFactory from the
     ApplicationContext and assemble its metadata. The SessionFactory cannot
-    be injected directly because several security objects depend on the 
+    be injected directly because several security objects depend on the
     metadata, but they themselves must be injected into the SessionFactory
     for proper functioning. To prevent this circular dependency, we do a
     form of lazy loading.
@@ -51,12 +50,6 @@
     </description>
     <property name="properties">
       <props>
-        <!-- JTA properties
-        <prop key="hibernate.connection.datasource">OmeroDs</prop>
-        <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</prop>
-        <prop key="hibernate.transaction.manager_lookup_class">ome.tools.hibernate.JBossTsTransactionManagerLookup</prop>
-        <prop key="hibernate.current_session_context_class">ome.tools.hibernate.CurrentSessionContext</prop>
-        -->
         <prop key="hibernate.transaction.factory_class">org.springframework.orm.hibernate3.SpringTransactionFactory</prop>
         <!-- current_session_context causes transaction aware data source to be used -->
         <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate3.SpringSessionContext</prop>
@@ -90,7 +83,7 @@
     <property name="key" value="fieldBridges"/>
     <property name="object" ref="fullTextIndexer"/>
   </bean>
-  
+
   <bean id="proxyHandler" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor">
     <description>
     Scope: private
@@ -99,16 +92,16 @@
     <constructor-arg ref="aclVoter"/>
     <constructor-arg ref="currentDetails"/>
   </bean>
-  
+
   <bean id="sessionHandler" class="ome.tools.hibernate.SessionHandler">
     <description>
     Scope: private
-    
+
     The session handler is used to handle sessions for stateful beans. A single
     session is opened for any new stateful session invocation, and will be closed
     once "close()" is invoked.
     </description>
-    <constructor-arg ref="sessionFactory"/>    
+    <constructor-arg ref="sessionFactory"/>
   </bean>
 
   <bean id="hibernateHandler" class="org.springframework.orm.hibernate3.HibernateInterceptor">
@@ -126,7 +119,7 @@
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
     <description>
     Scope: private
-    Note:  many of the references for the sessionFactory are defined in 
+    Note:  many of the references for the sessionFactory are defined in
            security.xml
     </description>
     <property name="dataSource" ref="dataSource"/>
