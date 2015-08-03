@@ -77,6 +77,8 @@ class Metadata(object):
         return self.wrap(self.obj_wrapper.listAnnotations())
 
     def wrap(self, obj):
+        if obj is None:
+            return None
         try:
             return [self.__class__(o) for o in obj]
         except TypeError:
@@ -178,22 +180,31 @@ class MetadataControl(BaseControl):
         line = "-" * len(name)
         self.ctx.out(name)
         self.ctx.out(line)
-        self.ctx.out("Name: %s" % md.name)
+        try:
+            self.ctx.out("Name: %s" % md.name)
+        except AttributeError:
+            pass
         try:
             self.ctx.out("Roi count: %s" % md.get_roi_count())
         except AttributeError:
             pass
         self.ctx.out("Bulk annotations: %s" % len(md.get_bulkanns()))
-        parent = md.get_parent().get_name()
-        otherparents = [p.get_name() for p in md.get_parents()]
-        otherparents = [p for p in otherparents if p != parent]
-        self.ctx.out("Parent: %s" % parent)
-        if otherparents:
-            self.ctx.out("Other Parents: %s" % ",".join(otherparents))
-        source, global_om, series_om = md.get_original()
-        self.ctx.out("Source metadata: %s" % bool(source))
-        self.ctx.out("Global metadata: %s" % bool(global_om))
-        self.ctx.out("Series metadata: %s" % bool(series_om))
+        try:
+            parent = md.get_parent().get_name()
+            self.ctx.out("Parent: %s" % parent)
+            otherparents = [p.get_name() for p in md.get_parents()]
+            otherparents = [p for p in otherparents if p != parent]
+            if otherparents:
+                self.ctx.out("Other Parents: %s" % ",".join(otherparents))
+        except AttributeError:
+            pass
+        try:
+            source, global_om, series_om = md.get_original()
+            self.ctx.out("Source metadata: %s" % bool(source))
+            self.ctx.out("Global metadata: %s" % bool(global_om))
+            self.ctx.out("Series metadata: %s" % bool(series_om))
+        except AttributeError:
+            pass
 
         counts = {}
         anns = md.get_allanns()
@@ -204,7 +215,7 @@ class MetadataControl(BaseControl):
                 counts[a.get_type()] = 1
         for t in sorted(ANNOTATION_TYPES):
             if counts.get(t):
-                self.ctx.out("%s: %s" % (t, counts[t]))
+                self.ctx.out("%ss: %s" % (t, counts[t]))
 
     def original(self, args):
         "Print the original metadata in ini format"
