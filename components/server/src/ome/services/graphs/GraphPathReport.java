@@ -193,7 +193,7 @@ public class GraphPathReport {
         sb.append(' ');
         sb.append('<');
         sb.append(className.replace('.', '/'));
-        sb.append(".java");
+        sb.append(".html");
         sb.append('>');
         sb.append('`');
         return sb.toString();
