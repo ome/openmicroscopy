@@ -8,8 +8,10 @@
 
 """
 
+import re
 import sys
 
+import omero
 from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
@@ -24,6 +26,10 @@ Provides access to and editing of the metadata which
 is typically shown in the right handle panel of the
 GUI clients.
 """
+
+
+ANNOTATION_TYPES = [t for t in dir(omero.model)
+                    if re.match('[A-Za-z0-9]+Annotation$', t)]
 
 
 class Metadata(object):
@@ -139,16 +145,16 @@ class MetadataControl(BaseControl):
         else:
             s = "%s%s" % ("  " * indent, obj.get_name())
             pre = "\n%s" % ("  " * (indent + 1))
-            s += "%sns:%s" % (pre, obj.getNs())
-            s += "%sdescription:%s" % (pre, obj.getDescription())
-            s += "%sdate:%s" % (pre, obj.getDate().isoformat())
+            s += "%sns: %s" % (pre, obj.getNs())
+            s += "%sdescription: %s" % (pre, obj.getDescription())
+            s += "%sdate: %s" % (pre, obj.getDate().isoformat())
 
             if obj.get_type() == 'FileAnnotation':
                 f = md.wrap(obj.getFile())
-                s += "%s%s" % (pre, f.get_name())
+                s += "%sfile: %s" % (pre, f.get_name())
                 pre = "\n%s" % ("  " * (indent + 2))
-                s += "%sname:%s" % (pre, f.getName())
-                s += "%ssize:%s" % (pre, f.getSize())
+                s += "%sname: %s" % (pre, f.getName())
+                s += "%ssize: %s" % (pre, f.getSize())
 
             elif obj.get_type() == 'MapAnnotation':
                 ma = obj.getValue()
@@ -159,7 +165,7 @@ class MetadataControl(BaseControl):
 
             else:
                 v = obj.getValue()
-                s += "%svalue:%s" % (pre, v)
+                s += "%svalue: %s" % (pre, v)
 
         return s
 
@@ -188,6 +194,17 @@ class MetadataControl(BaseControl):
         self.ctx.out("Source metadata: %s" % bool(source))
         self.ctx.out("Global metadata: %s" % bool(global_om))
         self.ctx.out("Series metadata: %s" % bool(series_om))
+
+        counts = {}
+        anns = md.get_allanns()
+        for a in anns:
+            try:
+                counts[a.get_type()] += 1
+            except KeyError:
+                counts[a.get_type()] = 1
+        for t in sorted(ANNOTATION_TYPES):
+            if counts.get(t):
+                self.ctx.out("%s: %s" % (t, counts[t]))
 
     def original(self, args):
         "Print the original metadata in ini format"
