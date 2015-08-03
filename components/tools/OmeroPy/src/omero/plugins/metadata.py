@@ -51,13 +51,22 @@ class Metadata(object):
         return "%s:%s" % (otype, oid)
 
     def get_parent(self):
-        return self.__class__(self.obj_wrapper.getParent())
+        return self.wrap(self.obj_wrapper.getParent())
+
+    def get_parents(self):
+        return self.wrap(self.obj_wrapper.listParents())
 
     def get_roi_count(self):
         return self.obj_wrapper.getROICount()
 
     def get_original(self):
         return self.obj_wrapper.loadOriginalMetadata()
+
+    def wrap(self, obj):
+        try:
+            return [self.__class__(o) for o in obj]
+        except TypeError:
+            return self.__class__(obj)
 
     def __getattr__(self, name):
         return getattr(self.obj_wrapper, name)
