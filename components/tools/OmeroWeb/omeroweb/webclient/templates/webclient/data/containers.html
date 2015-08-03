@@ -1866,9 +1866,6 @@
                                 config["chgrp"]["_disabled"] = true;
                             }
 
-                            // For next section:
-                            // Basically, permission: canCreate == isOwned
-
                             // Disable all the menus except createNew if an experimenter is the node
                             // Also disable createNew if that permission is not present
                             if (node.type === 'experimenter' || node.type === 'orphaned') {
@@ -1903,57 +1900,79 @@
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                             } else {
-                                console.log(node.type);
-                                // Handle other node types
+                                var to_paste = false,
+                                    buffer = this.get_buffer();
+                                var parent_id = node.parent;
+
+                                if(this.can_paste() && buffer.node) {
+                                    to_paste = buffer.node[0].type;
+                                }
+                                // If canLink, handle other node types...
                                 if (node.type === "project") {
-                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["share"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["share"]["_disabled"] = true;
-                                    // console.log(to_paste);
-                                    // if (!(to_paste && to_paste[0].id.indexOf("dataset")>=0)) {  // if we don't have a dataset
-                                    //     config["ccp"]["submenu"]["paste"]["_disabled"] = true;  // disable paste
-                                    // }
+                                    if (!(to_paste === "dataset")) {  // if we don't have a dataset
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;  // disable paste
+                                    }
                                 } else if(node.type === "dataset") {
-                                    // if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
-                                    //     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    // }
+                                    // If it's a dataset with no project parent, disable copy.
+                                    if (this.get_node(parent_id).type !== 'project') {
+                                        config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    }
+                                    config["share"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
-                                    // if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
-                                    //     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    // }
-                                    // see #8879 config["create"]["_disabled"] = true;
+                                    if (!(to_paste === "image")) {  // we don't have an image
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    }
+                                } else if (node.type === "image") {
+                                    // For images, disable create & paste and copy (unless in dataset)
+                                    if (this.get_node(parent_id).type !== 'dataset') {
+                                        config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    }
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                } else if (node.type === "screen") {
+                                    // If it's a screen disable copy/cut, create and share
                                     config["share"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    if (!(to_paste === "plate")) {  // we don't have a plate
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    }
+                                } else if (node.type === "plate") {
+                                    // If it's a plate disable paste, create and share
+                                    config["share"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                } else if (node.type === "acquisition") {
+                                    // If it's a plate 'run', disable all except Delete
+                                    config["share"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                    config["ccp"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 }
 
-                                // If there is a not a node to paste, disable paste
-                                // Otherwise disable copy/cut.
-                                // This is very bad behaviour, it should be possibly to copy/paste
-                                // even if there is already something in the paste buffer. The
-                                // originally cut item should just be restored to its previous position?
-
-                                // If it's a dataset with no project parent, disable copy. WHY?
-
-                                // If it's an orphaned image, disable copy. Ok, makes sense, but will also have
-                                // to be done for d'n'd.
-
-                                // If it's a screen disable copy/cut, create and basked
-                                // Also, if there is something other than a plate to paste
-                                // disable paste.
-
-                                // If it's a plate
-                                // Disable cut if the parent is experimenter, WHY?
-                                // Disable Create
-                                // Disable Paste
-                                // Disable Basket
-
-                                // If it's acquisition
-                                // Disable ccp, create, basket, chgrp
                             }
 
                             // Disable setting of rendering settings if the node is not a dataset,
