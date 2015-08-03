@@ -13,6 +13,7 @@ import sys
 from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
+from omero.constants import namespaces
 from omero.gateway import BlitzGateway
 from omero.util.populate_roi import PlateAnalysisCtxFactory
 
@@ -62,6 +63,10 @@ class Metadata(object):
     def get_original(self):
         return self.obj_wrapper.loadOriginalMetadata()
 
+    def get_bulkanns(self):
+        return self.wrap(self.obj_wrapper.listAnnotations(
+            namespaces.NSBULKANNOTATIONS))
+
     def wrap(self, obj):
         try:
             return [self.__class__(o) for o in obj]
@@ -79,6 +84,7 @@ class MetadataControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_login_arguments()
+
         sub = parser.sub()
         summary = parser.add(sub, self.summary)
         original = parser.add(sub, self.original)
@@ -89,6 +95,15 @@ class MetadataControl(BaseControl):
             x.add_argument("obj",
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
+
+        bulkanns.add_argument(
+            "--pretty", action="store_true", help=(
+                "Format output for human readability, "
+                "show additional information"))
+
+        bulkanns.add_argument(
+            "--parents", action="store_true",
+            help="Also search parents for bulk annotations")
 
         populate = parser.add(sub, self.populate)
         dry_or_not = populate.add_mutually_exclusive_group()
@@ -141,8 +156,24 @@ class MetadataControl(BaseControl):
     def bulkanns(self, args):
         ("Provide a list of the NSBULKANNOTATION tables linked "
          "to the given object")
+
+        def output_bulkann(mdobj, indent=0):
+            ofiles = mdobj.get_bulkanns()
+            indentstr = ''
+            if args.pretty:
+                self.ctx.out("%s%s" % (
+                    '  ' * indent, mdobj.get_name()))
+                indent += 1
+                indentstr = '  ' * indent
+            for f in ofiles:
+                self.ctx.out("%s%s" % (
+                    indentstr, f.get_name()))
+            if args.parents:
+                for p in mdobj.get_parents():
+                    output_bulkann(p, indent)
+
         md = self._load(args)
-        print md
+        output_bulkann(md)
 
     def measures(self, args):
         ("Provide a list of the NSMEASUREMENT tables linked "
