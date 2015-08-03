@@ -1245,7 +1245,7 @@ class TestTree(lib.ITest):
     def userD(self, groupC):
         """Returns another new user in the read-write group."""
         return self.new_client_and_user(group=groupC)
-    ### Projects ###
+
     # @pytest.fixture()
     # def projects_userA_groupA(self, names1, userA,
     #                           project_hierarchy_userA_groupA):
@@ -1279,7 +1279,7 @@ class TestTree(lib.ITest):
     #     projects.sort(cmp_name_insensitive)
     #     return projects
 
-    ### Images ###
+    # Images ###
     @pytest.fixture()
     def images_userA_groupA(self, userA):
         """
@@ -1433,7 +1433,7 @@ class TestTree(lib.ITest):
 
         return [projectA, datasetA, imageA]
 
-    ### TESTS ###
+    # TESTS ###
     def test_marshal_experimenter(self, userA):
         """
         Test marshalling experimenter

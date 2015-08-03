@@ -281,7 +281,8 @@ def _marshal_project(conn, row):
     return project
 
 
-def marshal_projects(conn, group_id=-1, experimenter_id=-1, page=1, limit=settings.PAGE):
+def marshal_projects(conn, group_id=-1, experimenter_id=-1,
+                     page=1, limit=settings.PAGE):
     ''' Marshals projects
 
         @param conn OMERO gateway.
@@ -478,7 +479,8 @@ def _marshal_image(conn, row, row_pixels=None):
     image['id'] = unwrap(image_id)
     image['name'] = unwrap(name)
     image['ownerId'] = unwrap(owner_id)
-    image['permsCss'] = parse_permissions_css(permissions, unwrap(owner_id), conn)
+    image['permsCss'] = parse_permissions_css(permissions,
+                                              unwrap(owner_id), conn)
     fileset_id_val = unwrap(fileset_id)
     if fileset_id_val is not None:
         image['filesetId'] = fileset_id_val
@@ -1065,7 +1067,8 @@ def _marshal_tag(conn, row):
     # TODO What about None descriptions? Should it simply be not present?
     tag['description'] = unwrap(description)
     tag['ownerId'] = unwrap(owner_id)
-    tag['permsCss'] = parse_permissions_css(permissions, unwrap(owner_id), conn)
+    tag['permsCss'] = parse_permissions_css(permissions,
+                                            unwrap(owner_id), conn)
 
     if namespace and unwrap(namespace) == \
             'openmicroscopy.org/omero/insight/tagset':
@@ -1368,7 +1371,8 @@ def _marshal_share(conn, row):
     return share
 
 
-def marshal_shares(conn, member_id=-1, owner_id=-1, page=1, limit=settings.PAGE):
+def marshal_shares(conn, member_id=-1, owner_id=-1,
+                   page=1, limit=settings.PAGE):
     ''' Marshal shares for a given user.
 
         @param conn OMERO gateway.
@@ -1435,7 +1439,8 @@ def _marshal_discussion(conn, row):
     return discussion
 
 
-def marshal_discussions(conn, member_id=-1, owner_id=-1, page=1, limit=settings.PAGE):
+def marshal_discussions(conn, member_id=-1, owner_id=-1,
+                        page=1, limit=settings.PAGE):
     ''' Marshal discussion for a given user.
 
         @param conn OMERO gateway.

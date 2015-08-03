@@ -869,7 +869,7 @@ def get_object_link(conn, parent_type, parent_id, child_type, child_id):
         return None
 
 
-#TODO Think carefully about the request json for this interface
+# TODO Think carefully about the request json for this interface
 # Maybe it should jsut be 1-M?
 # Maybe it should take a list of pairs of things to link?
 # Maybe it should be PUT for move?
@@ -953,8 +953,8 @@ def api_link_list(request, conn=None, **kwargs):
                                               json_data['child_type'],
                                               json_data['child_id']))
         try:
-        # TODO It isn't possible to delete an object without having its
-        # ID so need to query that first.
+            # TODO It isn't possible to delete an object without having its
+            # ID so need to query that first.
             link = get_object_link(conn,
                                    json_data['parent_type'],
                                    long(json_data['parent_id']),
@@ -1123,7 +1123,7 @@ def api_share_list(request, conn=None, **kwargs):
     # size
 
     try:
-    # Get the shares
+        # Get the shares
         shares = tree.marshal_shares(conn=conn,
                                      member_id=member_id,
                                      owner_id=owner_id,
@@ -4207,7 +4207,7 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
     Given a list of containers and images, calculate all the descendants
     and necessary siblings (for any filesets)
     """
-    #TODO Handle None inputs, maybe add defaults
+    # TODO Handle None inputs, maybe add defaults
     params = omero.sys.ParametersI()
     qs = conn.getQueryService()
 
@@ -4257,9 +4257,9 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
             fileset_ids.add(e[1].val)
 
     # Get any images for plates
-    # TODO Seemed no need to add the filesets for plates as it isn't possible to
-    # link it from outside of its plate. This may be true for the client, but it
-    # certainly isn't true for the model so maybe allow this to also get
+    # TODO Seemed no need to add the filesets for plates as it isn't possible
+    # to link it from outside of its plate. This may be true for the client,
+    # but it certainly isn't true for the model so maybe allow this to also get
     # filesets
     if plate_ids:
         params.map = {}
@@ -4332,7 +4332,7 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
                 extra_orphaned = True
 
     # Get any additional projects that may need updating as their children have
-    # been snatched.  There is no need to check for orphans because if a dataset
+    # been snatched. There is no need to check for orphans because if a dataset
     # is being removed from somewhere else, it can not exist as an orphan.
     extra_project_ids = set([])
     if dataset_ids:
@@ -4482,8 +4482,9 @@ def chgrp(request, conn=None, **kwargs):
 
     # Create a list of objects that have been changed by this operation. This
     # can be used by the client to visually update.
-    update = getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
-                           plate_ids, request.session.get('user_id'))
+    update = getAllObjects(conn, project_ids, dataset_ids, image_ids,
+                           screen_ids, plate_ids,
+                           request.session.get('user_id'))
 
     # return HttpResponse("OK")
     return HttpJsonResponse({'update': update})

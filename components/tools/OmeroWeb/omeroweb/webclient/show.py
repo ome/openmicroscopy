@@ -404,6 +404,7 @@ class Show(object):
         """
         return self._initially_open_owner
 
+
 def paths_to_object(conn, experimenter_id=None, project_id=None,
                     dataset_id=None, image_id=None, screen_id=None,
                     plate_id=None, acquisition_id=None, well_id=None,
@@ -488,7 +489,8 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
         if project_id is not None:
             where_clause.append('pdlink.parent.id = :pid')
         if experimenter_id is not None:
-            where_clause.append('coalesce(powner.id, downer.id, iowner.id) = :eid')
+            where_clause.append(
+                'coalesce(powner.id, downer.id, iowner.id) = :eid')
         if len(where_clause) > 0:
             q += ' and ' + ' and '.join(where_clause)
         print q
@@ -696,7 +698,8 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
         if screen_id is not None:
             where_clause.append('slink.parent.id = :sid')
         if experimenter_id is not None:
-            where_clause.append('coalesce(sowner.id, plowner.id, aowner.id) = :eid')
+            where_clause.append(
+                'coalesce(sowner.id, plowner.id, aowner.id) = :eid')
         if len(where_clause) > 0:
             q += ' and ' + ' and '.join(where_clause)
 
