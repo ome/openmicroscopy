@@ -67,6 +67,9 @@ class Metadata(object):
         return self.wrap(self.obj_wrapper.listAnnotations(
             namespaces.NSBULKANNOTATIONS))
 
+    def get_allanns(self):
+        return self.wrap(self.obj_wrapper.listAnnotations())
+
     def wrap(self, obj):
         try:
             return [self.__class__(o) for o in obj]
@@ -90,14 +93,15 @@ class MetadataControl(BaseControl):
         original = parser.add(sub, self.original)
         measures = parser.add(sub, self.measures)
         bulkanns = parser.add(sub, self.bulkanns)
+        allanns = parser.add(sub, self.allanns)
 
-        for x in (summary, original, bulkanns, measures):
+        for x in (summary, original, bulkanns, measures, allanns):
             x.add_argument("obj",
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
 
-        bulkanns.add_argument(
-            "--pretty", action="store_true", help=(
+        for x in (bulkanns, allanns):
+            x.add_argument("--pretty", action="store_true", help=(
                 "Format output for human readability, "
                 "show additional information"))
 
@@ -137,8 +141,21 @@ class MetadataControl(BaseControl):
         self.ctx.out(name)
         self.ctx.out(line)
         self.ctx.out("Name: %s" % md.name)
-        self.ctx.out("Roi count: %s" % md.get_roi_count())
-        self.ctx.out("Parent: %s" % md.get_parent().get_name())
+        try:
+            self.ctx.out("Roi count: %s" % md.get_roi_count())
+        except AttributeError:
+            pass
+        self.ctx.out("Bulk annotations: %s" % len(md.get_bulkanns()))
+        parent = md.get_parent().get_name()
+        otherparents = [p.get_name() for p in md.get_parents()]
+        otherparents = [p for p in otherparents if p != parent]
+        self.ctx.out("Parent: %s" % parent)
+        if otherparents:
+            self.ctx.out("Other Parents: %s" % ",".join(otherparents))
+        source, global_om, series_om = md.get_original()
+        self.ctx.out("Source metadata: %s" % bool(source))
+        self.ctx.out("Global metadata: %s" % bool(global_om))
+        self.ctx.out("Series metadata: %s" % bool(series_om))
 
     def original(self, args):
         "Print the original metadata in ini format"
@@ -158,16 +175,16 @@ class MetadataControl(BaseControl):
          "to the given object")
 
         def output_bulkann(mdobj, indent=0):
-            ofiles = mdobj.get_bulkanns()
+            anns = mdobj.get_bulkanns()
             indentstr = ''
             if args.pretty:
                 self.ctx.out("%s%s" % (
                     '  ' * indent, mdobj.get_name()))
                 indent += 1
                 indentstr = '  ' * indent
-            for f in ofiles:
+            for a in anns:
                 self.ctx.out("%s%s" % (
-                    indentstr, f.get_name()))
+                    indentstr, a.get_name()))
             if args.parents:
                 for p in mdobj.get_parents():
                     output_bulkann(p, indent)
@@ -182,6 +199,24 @@ class MetadataControl(BaseControl):
         print md
 
     # WRITE
+
+    def allanns(self, args):
+        "Provide a list of all annotations linked to the given object"
+        md = self._load(args)
+        anns = md.get_allanns()
+
+        for a in anns:
+            s = "%s" % a.get_name()
+
+            if args.pretty:
+                s += "\n  ns:%s" % a.getNs()
+                if a.get_type() == 'FileAnnotation':
+                    f = md.wrap(a.getFile())
+                    s += "\n  %s" % f.get_name()
+                    s += "\n    name:%s" % f.getName()
+                    s += "\n    size:%s" % f.getSize()
+
+            self.ctx.out(s)
 
     def populate(self, args):
         client = self.ctx.conn(args)
