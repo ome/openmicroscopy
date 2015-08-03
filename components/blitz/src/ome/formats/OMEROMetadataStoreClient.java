@@ -75,7 +75,6 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
-import ome.services.blitz.repo.ManagedImportRequestI;
 import ome.units.quantity.ElectricPotential;
 import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
@@ -221,7 +220,6 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1037,10 +1035,7 @@ public class OMEROMetadataStoreClient
      */
     public RInt toRType(Color value)
     {
-        java.awt.Color javaColor = new java.awt.Color(
-                value.getRed(), value.getGreen(), value.getBlue(),
-                value.getAlpha());
-        return toRType(javaColor.getRGB());
+        return toRType(value.getValue());
     }
 
     //
