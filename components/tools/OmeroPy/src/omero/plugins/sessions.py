@@ -823,14 +823,14 @@ class SessionsControl(BaseControl):
             t.event.set()
 
     def file(self, args):
-        """Return the file associated to the current active sessions"""
+        """Return the file associated with the current active session"""
         store = self.store(args)
         srv, usr, uuid, port = store.get_current()
         if srv and usr and uuid:
             self.ctx.out(str(store.dir / srv / usr / uuid))
 
     def key(self, args):
-        """Return the key associated to the current active sessions"""
+        """Return the key associated with the current active session"""
         store = self.store(args)
         srv, usr, uuid, port = store.get_current()
         if uuid:
