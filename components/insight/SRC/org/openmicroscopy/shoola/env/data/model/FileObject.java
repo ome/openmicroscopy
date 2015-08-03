@@ -26,15 +26,29 @@ import ij.ImagePlus;
 import ij.io.FileInfo;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import loci.formats.codec.CompressionType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Object hosting the information about the "file" to import.
@@ -69,6 +83,81 @@ public class FileObject
 
     /** The trueFile if available.*/
     private File trueFile;
+
+
+    /**
+     * Returns the Pixels node matching the index.
+     *
+     * @param doc The document to handle.
+     * @return See above.
+     */
+    private Node getPixelsNode(Document doc)
+    {
+        
+        NodeList l = doc.getElementsByTagName("Image");
+        if (l == null || l.getLength() == 0) return null;
+        NamedNodeMap attributes;
+        String value;
+        Node node;
+        NodeList nodeList;
+        int series = getIndex();
+        for (int i = 0; i < l.getLength(); i++) {
+            node = l.item(i);
+            if (node.hasAttributes()) {
+                attributes = node.getAttributes();
+                value = attributes.getNamedItem("ID").getNodeValue();
+                if (value.equals("Image:"+series)) {
+                    nodeList = node.getChildNodes();
+                    if (nodeList != null && nodeList.getLength() > 0) {
+                        for (int j = 0; j < nodeList.getLength(); j++) {
+                            Node n = nodeList.item(j);
+                            if ("Pixels".equals(n.getNodeName())) {
+                                return n;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parses the image's description.
+     *
+     * @param xmlStr The string to parse.
+     * @return See above.
+     */
+    private Document xmlParser(String xmlStr)
+    {
+        InputSource stream = new InputSource();
+        stream.setCharacterStream(new StringReader(xmlStr));
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        DocumentBuilder builder;
+        Document doc = null;
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            doc = builder.parse(stream);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } catch (SAXException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } catch (IOException e) {
+            e.printStackTrace(pw);
+            IJ.log(pw.toString());
+        } finally {
+            try {
+                sw.close();
+            } catch (IOException e) {
+                IJ.log("I/O Exception:" + e.getMessage());
+            }
+            pw.close();
+        }
+        return doc;
+    }
 
     /**
      * Creates a new instance.
@@ -237,10 +326,33 @@ public class FileObject
                 if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
                     return true;
             }
+            String xmlStr = info.description;
+            if (CommonsLangUtils.isBlank(xmlStr)) return false;
+            //Get Current Dimensions
+            int sizeC_cur = img.getNChannels();
+            int sizeT_cur = img.getNFrames();
+            int sizeZ_cur = img.getNSlices();
+
+            Document doc = xmlParser(xmlStr);
+            Node node = getPixelsNode(doc);
+            if (node == null) return false;
+            NamedNodeMap nnm = node.getAttributes();
+            int sizeC_org = sizeC_cur;
+            int sizeT_org = sizeT_cur;
+            int sizeZ_org = sizeZ_cur;
+            sizeC_org = Integer.valueOf(nnm.getNamedItem("SizeC").getNodeValue());
+            sizeT_org = Integer.valueOf(nnm.getNamedItem("SizeT").getNodeValue());
+            sizeZ_org = Integer.valueOf(nnm.getNamedItem("SizeZ").getNodeValue());
+            if (sizeC_cur != sizeC_org || sizeT_cur != sizeT_org ||
+                    sizeZ_cur != sizeZ_org) {
+                return true;
+            }
         }
         return false;
     }
-    
+
+   
+
     /**
      * Returns the file to import.
      *

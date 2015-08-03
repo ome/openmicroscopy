@@ -122,7 +122,7 @@ Create Edit User
     # find row which contains user name, and click 'btn_edit' of that row
     Click Element           xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${user_name}')]]//a[contains(@class, "btn_edit")]
 
-    Wait Until Page Contains Element    id=id_first_name
+    Wait Until Page Contains Element    id=id_first_name    ${WAIT}
     ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_first_name']@value
     Should Be Equal                     "${user_name}"    "${createdName}"
 

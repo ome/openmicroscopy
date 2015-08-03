@@ -40,6 +40,16 @@ using namespace std;
 
 namespace omero {
 
+    void client::optionallySetProperty(const Ice::InitializationData& id,
+            const std::string& key, const std::string& def) {
+        std::string val(id.properties->getProperty(key));
+        if (val.empty()) {
+            id.properties->setProperty(key, def);
+        } else {
+            id.properties->setProperty(key, val);
+        }
+    }
+
     void client::init(const Ice::InitializationData& data) {
 
         // Not possible for id to be null since its a struct
@@ -52,23 +62,21 @@ namespace omero {
         }
 
         // Strictly necessary for this class to work
-        id.properties->setProperty("Ice.ImplicitContext", "Shared");
-        id.properties->setProperty("Ice.ACM.Client", "0");
-        id.properties->setProperty("Ice.CacheMessageBuffers", "0");
-        id.properties->setProperty("Ice.RetryIntervals", "-1");
-        id.properties->setProperty("Ice.Default.EndpointSelection", "Ordered");
-        id.properties->setProperty("Ice.Default.PreferSecure", "1");
-        id.properties->setProperty("Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
-        id.properties->setProperty("IceSSL.Ciphers" , "ADH");
-        id.properties->setProperty("IceSSL.Protocols" , "tls1");
-        id.properties->setProperty("IceSSL.VerifyPeer" , "0");
+        optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
+        optionallySetProperty(id, "Ice.ACM.Client", "0");
+        optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
+        optionallySetProperty(id, "Ice.RetryIntervals", "-1");
+        optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
+        optionallySetProperty(id, "Ice.Default.PreferSecure", "1");
+        optionallySetProperty(id, "Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
+        optionallySetProperty(id, "IceSSL.Ciphers" , "ADH");
+        optionallySetProperty(id, "IceSSL.Protocols" , "tls1");
+        optionallySetProperty(id, "IceSSL.VerifyPeer" , "0");
 
         // Set the default encoding if this is Ice 3.5 or later
         // and none is set.
 #if ICE_INT_VERSION / 100 >= 305
-        if (id.properties->getProperty("Ice.Default.EncodingVersion").empty()) {
-            id.properties->setProperty("Ice.Default.EncodingVersion", "1.0");
-        }
+        optionallySetProperty(id, "Ice.Default.EncodingVersion", "1.0");
 #endif
 
         // C++ only
@@ -100,10 +108,7 @@ namespace omero {
             omero::constants::CONNECTTIMEOUT);
 
         // Endpoints set to tcp if not present
-        std::string endpoints = id.properties->getProperty("omero.ClientCallback.Endpoints");
-        if ( endpoints.length() == 0 ) {
-            id.properties->setProperty("omero.ClientCallback.Endpoints", "tcp");
-        }
+        optionallySetProperty(id, "omero.ClientCallback.Endpoints", "tcp");
 
         // Set large thread pool max values for all communicators
         std::string xs[] = {"Client", "Server"};

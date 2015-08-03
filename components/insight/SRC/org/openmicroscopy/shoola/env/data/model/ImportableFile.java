@@ -142,7 +142,10 @@ public class ImportableFile
 	 * 
 	 * @return See above.
 	 */
-    public FileObject getOriginalFile() { return originalFile; }
+    public FileObject getOriginalFile()
+    {
+        if (originalFile == null) return file;
+        return originalFile; }
     
 	/**
 	 * Returns <code>true</code> to make the folder a container e.g. a dataset, 

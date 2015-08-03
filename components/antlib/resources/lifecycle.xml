@@ -67,6 +67,12 @@
             haltonfailure="${package-extra}"/>
     </target>
 
+    <target name="report" depends="prepare">
+        <mkdir dir="${target.dir}/build.deps"/>
+        <ivy:report todir="${target.dir}/build.deps" graph="false"
+            settingsRef="ivy.${ant.project.name}"/>
+    </target>
+
     <target name="dependencytree"
         description="Generate a tree of dependencies">
         <installIvy/>
