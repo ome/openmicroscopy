@@ -1279,21 +1279,10 @@
 	
 	/* Center Panel Toolbar */  
 	
-	#center_panel_header .toolbar{
-		display:inline-block;
-		border:none;
-		background:none;
-		-webkit-box-shadow:none;
-		
-		-webkit-box-shadow:none; /* Saf3.0+, Chrome */
-		   -moz-box-shadow:none; /* FF3.5+ */
-		        box-shadow:none; /* Opera 10.5, IE 9.0 */
-		
-		position:absolute;
-		right:10px;
-		top:0;
-		background:none;
-		overflow:hidden !important;
+	#content_details .toolbar{
+		border-bottom: solid 1px hsl(210,10%,90%);
+		overflow: hidden;
+		background: none repeat scroll 0 0 #EFF1F4;
 	}
 
 
