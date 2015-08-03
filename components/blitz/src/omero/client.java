@@ -120,7 +120,7 @@ public class client {
      * See {@link #setAgent(String)}
      */
     private volatile String __agent = "OMERO.java";
-    
+
     /**
      * See {@link #setIP(String)}
      */
@@ -294,6 +294,14 @@ public class client {
         init(id);
     }
 
+    private void optionallySetProperty(Ice.InitializationData id, String key, String def) {
+        String val = id.properties.getProperty(key);
+        if (val == null || val.length() == 0) {
+            val = def;
+        }
+        id.properties.setProperty(key, val);
+    }
+
     /**
      * Initializes the current client via an {@link Ice.InitializationData}
      * instance. This is called by all of the constructors, but may also be
@@ -311,39 +319,28 @@ public class client {
         }
 
         // Strictly necessary for this class to work
-        id.properties.setProperty("Ice.ImplicitContext", "Shared");
-        id.properties.setProperty("Ice.ACM.Client", "0");
-        id.properties.setProperty("Ice.CacheMessageBuffers", "0");
-        id.properties.setProperty("Ice.RetryIntervals", "-1");
-        id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered");
-        id.properties.setProperty("Ice.Default.PreferSecure", "1");
-        id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
-        id.properties.setProperty("IceSSL.Protocols", "tls1");
-        id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
-        id.properties.setProperty("IceSSL.VerifyPeer", "0");
-
-        // Setting default block size
-        String blockSize = id.properties.getProperty("omero.block_size");
-        if (blockSize == null || blockSize.length() == 0) {
-            id.properties.setProperty("omero.block_size", Integer
-                    .toString(omero.constants.DEFAULTBLOCKSIZE.value));
-        }
+        optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
+        optionallySetProperty(id, "Ice.ACM.Client", "0");
+        optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
+        optionallySetProperty(id, "Ice.RetryIntervals", "-1");
+        optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
+        optionallySetProperty(id, "Ice.Default.PreferSecure", "1");
+        optionallySetProperty(id, "Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+        optionallySetProperty(id, "IceSSL.Protocols", "tls1");
+        optionallySetProperty(id, "IceSSL.Ciphers", "NONE (DH_anon)");
+        optionallySetProperty(id, "IceSSL.VerifyPeer", "0");
+        optionallySetProperty(id, "omero.block_size", Integer
+            .toString(omero.constants.DEFAULTBLOCKSIZE.value));
 
         // Set the default encoding if this is Ice 3.5 or later
         // and none is set.
         if (Ice.Util.intVersion() >= 30500) {
-            String encoding = id.properties.getProperty("Ice.Default.EncodingVersion");
-            if (encoding == null || encoding.length() == 0) {
-                id.properties.setProperty("Ice.Default.EncodingVersion", "1.0");
-            }
+            optionallySetProperty(id, "Ice.Default.EncodingVersion", "1.0");
         }
 
         // Setting MessageSizeMax
-        String messageSize = id.properties.getProperty("Ice.MessageSizeMax");
-        if (messageSize == null || messageSize.length() == 0) {
-            id.properties.setProperty("Ice.MessageSizeMax", Integer
-                    .toString(omero.constants.MESSAGESIZEMAX.value));
-        }
+        optionallySetProperty(id, "Ice.MessageSizeMax", Integer
+            .toString(omero.constants.MESSAGESIZEMAX.value));
 
         // Setting ConnectTimeout
         parseAndSetInt(id, "Ice.Override.ConnectTimeout",
@@ -439,7 +436,7 @@ public class client {
     public void setAgent(String agent) {
         __agent = agent;
     }
-    
+
     /**
      * Sets the {@link omero.model.Session#getUserIP() user ip} string for
      * this client. Every session creation will be passed this argument. Finding

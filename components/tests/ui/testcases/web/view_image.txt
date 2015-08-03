@@ -13,12 +13,12 @@ Suite Teardown      Close all browsers
 Test Open Viewer
     [Documentation]     Tests double-click to open image viewer
 
+    Tree Should Be Visible
     Select And Expand Project
     Select And Expand Dataset
     Select And Expand Image
-    Wait Until Page Contains Element    xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
-    ${imageName}=                       Get Text         xpath=//div[contains(@class, 'data_heading')]//h1/span
-    ${imageId}=                         Get Text         xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+    ${imageName}=                       Wait For General Panel And Return Name      Image
+    ${imageId}=                         Wait For General Panel And Return Id        Image
     # Open Image Viewer 3 different ways and check
     Click Element                       xpath=//button[@title='Open full image viewer in new window']
     Check Image Viewer                  ${imageName}    2

@@ -28,6 +28,8 @@ IceImport.load("omero_RTypes_ice")
 IceImport.load("omero_Scripts_ice")
 IceImport.load("omero_model_RTypes_ice")
 
+from types import StringTypes
+
 
 def rtype(val):
     """
@@ -54,7 +56,7 @@ def rtype(val):
         return rlong(val)
     elif isinstance(val, float):
         return rfloat(val)
-    elif isinstance(val, str):
+    elif isinstance(val, StringTypes):
         return rstring(val)
     elif isinstance(val, omero.model.IObject):
         return robject(val)
@@ -294,12 +296,15 @@ def rstring(val):
         return remptystr
     elif isinstance(val, omero.RString):
         return val
-    elif isinstance(val, str):
+    elif isinstance(val, StringTypes):
         if len(val) == 0:
             return remptystr
         else:
+            if isinstance(val, unicode):
+                val = val.encode("utf-8")
             return RStringI(val)
-    raise ValueError("Not string type: %s" % type(val))
+    else:
+        return rstring(unicode(val))
 
 # Static factory methods (collections)
 # =========================================================================

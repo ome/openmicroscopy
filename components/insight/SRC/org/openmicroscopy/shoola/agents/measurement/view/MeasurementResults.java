@@ -520,10 +520,13 @@ class MeasurementResults
 			file = new File(fileName);
 		}
 		String filename = file.getAbsolutePath();
+		MeasurementTableModel tm = (MeasurementTableModel) results.getModel();
+		tm = tm.copy();
+		tm.setShowUnits(true);
 		ExcelWriter writer = new ExcelWriter(filename);
 		writer.openFile();
 		writer.createSheet("Measurement Results");
-		writer.writeTableToSheet(0, 0, results.getModel());
+		writer.writeTableToSheet(0, 0, tm);
 		BufferedImage originalImage = model.getRenderedImage();
 		if(originalImage != null)
 		{

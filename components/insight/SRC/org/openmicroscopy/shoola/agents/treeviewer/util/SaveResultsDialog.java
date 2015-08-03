@@ -25,7 +25,6 @@ import ij.ImagePlus;
 import ij.WindowManager;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,7 +50,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
+
 import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -163,11 +165,23 @@ public class SaveResultsDialog
         } else {
             int[] values = WindowManager.getIDList();
             if (values != null) {
+                List<String> paths = new ArrayList<String>();
                 for (int i = 0; i < values.length; i++) {
                     plus = WindowManager.getImage(values[i]);
                     img = new FileObject(plus);
                     if (img.getOMEROID() < 0 || img.isNewImage()) {
-                        toImport.add(img);
+                        String path = img.getAbsolutePath();
+                        if (!paths.contains(path)) {
+                            paths.add(path);
+                            toImport.add(img);
+                            for (int j = 0; j < values.length; j++) {
+                                FileObject ff = new FileObject(
+                                        WindowManager.getImage(values[j]));
+                                if (path.equals(ff.getAbsolutePath())) {
+                                    img.addAssociatedFile(ff);
+                                }
+                            }
+                        }
                     } else {
                         images.add(img);
                     }
@@ -179,7 +193,8 @@ public class SaveResultsDialog
         if (toImport.size() > 0) { //ask if they want to import the image
             StringBuffer buf = new StringBuffer();
             buf.append("Do you wish to import any selected images not already "
-                    + "saved in OMERO to the OMERO server?");
+                    + CommonsLangUtils.LINE_SEPARATOR+
+                    "saved in OMERO to the OMERO server?");
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);

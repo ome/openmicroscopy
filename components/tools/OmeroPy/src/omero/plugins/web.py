@@ -8,6 +8,7 @@
 
 """
 
+import traceback
 from datetime import datetime
 from omero.cli import BaseControl, CLI
 import platform
@@ -85,10 +86,15 @@ class WebControl(BaseControl):
             "Output a config template for web server\n"
             "  nginx: Nginx system configuration for inclusion\n"
             "  nginx-development: Standalone user-run Nginx server\n"
+            "  nginx-wsgi: Standalone user-run Nginx server\n"
+            "  nginx-wsgi-development: Standalone user-run Nginx server\n"
             "  apache: Apache 2.2 with mod_fastcgi\n"
-            "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
+            "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n"
+            "  apache-wsgi: Apache 2.2+ with mod_wsgi\n")
         config.add_argument("type", choices=(
-            "nginx", "nginx-development", "apache", "apache-fcgi"))
+            "nginx", "nginx-development",
+            "nginx-wsgi", "nginx-wsgi-development",
+            "apache", "apache-fcgi", "apache-wsgi"))
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
         nginx_group.add_argument(
@@ -161,6 +167,9 @@ class WebControl(BaseControl):
     def _get_python_dir(self):
         return self.ctx.dir / "lib" / "python"
 
+    def _get_fallback_dir(self):
+        return self.ctx.dir / "lib" / "fallback"
+
     def _get_templates_dir(self):
         return self.ctx.dir / "etc" / "templates"
 
@@ -183,13 +192,33 @@ class WebControl(BaseControl):
         # path component containing a dot.
         d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
+    def _set_apache_wsgi(self, d, settings):
+        # WSGIDaemonProcess requires python-path and user
+        try:
+            import pwd
+            d["OMEROUSER"] = pwd.getpwuid(os.getuid()).pw_name
+        except ImportError:
+            import getpass
+            d["OMEROUSER"] = getpass.getuser()
+        try:
+            import Ice
+            d["ICEPYTHONROOT"] = os.path.dirname(Ice.__file__)
+        except:
+            print traceback.print_exc()
+            self.ctx.err(
+                "Cannot import Ice.")
+        d["OMEROPYTHONROOT"] = self._get_python_dir()
+        d["OMEROFALLBACKROOT"] = self._get_fallback_dir()
+
     def config(self, args):
         """Generate a configuration file from a template"""
         from omeroweb import settings
         if not args.type:
             self.ctx.die(
                 "Available configuration helpers:\n"
-                " - nginx, nginx-development, apache, apache-fcgi\n")
+                " - nginx-wsgi, nginx-wsgi-development\n"
+                " nginx, nginx-development,"
+                " apache, apache-fcgi, apache-wsgi\n")
 
         if args.system:
             self.ctx.err(
@@ -198,12 +227,13 @@ class WebControl(BaseControl):
         server = args.type
         if args.http:
             port = args.http
-        elif server == 'nginx-development':
+        elif server in ('nginx-development', 'nginx-wsgi-development'):
             port = 8080
         else:
             port = 80
 
-        if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+        if settings.APPLICATION_SERVER in (settings.FASTCGITCP,
+                                           settings.WSGITCP):
             if settings.APPLICATION_SERVER_PORT == port:
                 self.ctx.die(
                     678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
@@ -215,7 +245,9 @@ class WebControl(BaseControl):
             "STATIC_URL": settings.STATIC_URL.rstrip("/"),
             "NOW": str(datetime.now())}
 
-        if server in ("nginx", "nginx-development"):
+        if server in ("nginx", "nginx-development",
+                      "nginx-wsgi", "nginx-wsgi-development",
+                      "apache-wsgi"):
             d["HTTPPORT"] = port
             d["MAX_BODY_SIZE"] = args.max_body_size
 
@@ -228,15 +260,21 @@ class WebControl(BaseControl):
         except:
             d["FORCE_SCRIPT_NAME"] = "/"
 
-        if server in ("apache", "apache-fcgi"):
+        if server in ("apache", "apache-fcgi", "apache-wsgi"):
             try:
                 d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             except:
-                d["WEB_PREFIX"] = ""
+                if server == "apache-wsgi":
+                    d["WEB_PREFIX"] = "/"
+                else:
+                    d["WEB_PREFIX"] = ""
 
-        if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+        if settings.APPLICATION_SERVER not in (settings.FASTCGI_TYPES +
+                                               settings.WSGI_TYPES):
             self.ctx.die(
-                679, "Web template configuration requires fastcgi-tcp")
+                679,
+                "Web template configuration requires"
+                " fastcgi-tcp or wsgi/wsgi-tcp.")
 
         d["FASTCGI_EXTERNAL"] = '%s:%s' % (
             settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
@@ -246,6 +284,9 @@ class WebControl(BaseControl):
 
         if server == "apache-fcgi":
             self._set_apache_fcgi_fastcgi(d, settings)
+
+        if server == "apache-wsgi":
+            self._set_apache_wsgi(d, settings)
 
         template_file = "%s.conf.template" % server
         c = file(self._get_templates_dir() / template_file).read()
@@ -307,7 +348,6 @@ class WebControl(BaseControl):
             self.set_environ()
             self.ctx.call(cargs, cwd=location)
         except:
-            import traceback
             print traceback.print_exc()
 
     def collectstatic(self):
@@ -339,7 +379,14 @@ class WebControl(BaseControl):
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
         location = self._get_python_dir() / "omeroweb"
-        self.ctx.out("Starting OMERO.web... ", newline=False)
+        deploy = getattr(settings, 'APPLICATION_SERVER')
+        if deploy == settings.WSGI:
+            self.ctx.out("You are deploying OMERO.web using apache and"
+                         " mod_wsgi.")
+            return 1
+        else:
+            self.ctx.out("Starting OMERO.web... ", newline=False)
+
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None and cache_backend.startswith("file:///"):
             cache_backend = cache_backend[7:]
@@ -349,10 +396,9 @@ class WebControl(BaseControl):
                 self.ctx.out("CACHE_BACKEND '%s' not writable or missing." %
                              getattr(settings, 'CACHE_BACKEND'))
                 return 1
-        deploy = getattr(settings, 'APPLICATION_SERVER')
 
         # 3216
-        if deploy in (settings.FASTCGI_TYPES):
+        if deploy in (settings.FASTCGI_TYPES + (settings.WSGI,)):
             if "Windows" == platform.system():
                 self.ctx.out("""
 WARNING: Unless you **really** know what you are doing you should NOT be
@@ -379,17 +425,7 @@ using bin\omero web start on Windows with FastCGI.
                     pid_path.remove()
                     self.ctx.err("Removed stale %s" % pid_path)
 
-        if deploy == settings.FASTCGI:
-            cmd = "python manage.py runfcgi workdir=./"
-            cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
-            cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
-            cmd += " maxchildren=5 minspare=1 maxspare=5"
-            cmd += " maxrequests=%(maxrequests)d"
-            django = (cmd % {
-                'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
-                'base': self.ctx.dir}).split()
-            rv = self.ctx.popen(args=django, cwd=location)  # popen
-        elif deploy == settings.FASTCGITCP:
+        if deploy == settings.FASTCGITCP:
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork host=%(host)s port=%(port)s"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
@@ -397,6 +433,19 @@ using bin\omero web start on Windows with FastCGI.
             cmd += " maxrequests=%(maxrequests)d"
             django = (cmd % {
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
+                'base': self.ctx.dir,
+                'host': settings.APPLICATION_SERVER_HOST,
+                'port': settings.APPLICATION_SERVER_PORT}).split()
+            rv = self.ctx.popen(args=django, cwd=location)  # popen
+        elif deploy == settings.WSGITCP:
+            try:
+                os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
+            except:
+                pass
+            cmd = "gunicorn -D -p %(base)s/var/django.pid"
+            cmd += " -b %(host)s:%(port)s -w 5"
+            cmd += " omeroweb.wsgi:application"
+            django = (cmd % {
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT}).split()
@@ -418,7 +467,7 @@ using bin\omero web start on Windows with FastCGI.
         else:
             cache_backend = ''
         rv = 0
-        if deploy in settings.FASTCGI_TYPES:
+        if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
             try:
                 f = open(self.ctx.dir / "var" / "django.pid", 'r')
                 pid = int(f.read())
@@ -440,7 +489,7 @@ using bin\omero web start on Windows with FastCGI.
         self.ctx.out("Stopping OMERO.web... ", newline=False)
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER')
-        if deploy in settings.FASTCGI_TYPES:
+        if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
             if "Windows" == platform.system():
                 self.ctx.out("""
 WARNING: Unless you **really** know what you are doing you should NOT be
