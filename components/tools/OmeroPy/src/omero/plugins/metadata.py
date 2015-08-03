@@ -93,14 +93,15 @@ class MetadataControl(BaseControl):
         original = parser.add(sub, self.original)
         measures = parser.add(sub, self.measures)
         bulkanns = parser.add(sub, self.bulkanns)
+        mapanns = parser.add(sub, self.mapanns)
         allanns = parser.add(sub, self.allanns)
 
-        for x in (summary, original, bulkanns, measures, allanns):
+        for x in (summary, original, bulkanns, measures, mapanns, allanns):
             x.add_argument("obj",
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
 
-        for x in (bulkanns, allanns):
+        for x in (bulkanns, mapanns, allanns):
             x.add_argument("--pretty", action="store_true", help=(
                 "Format output for human readability, "
                 "show additional information"))
@@ -130,6 +131,37 @@ class MetadataControl(BaseControl):
         oid = args.obj.id.val
         wrapper = conn.getObject(klass, oid)
         return Metadata(wrapper)
+
+    def _format_ann(self, md, obj, indent=None):
+        "Format an annotation as a string, optionally pretty-printed"
+        if indent is None:
+            s = obj.get_name()
+        else:
+            s = "%s%s" % ("  " * indent, obj.get_name())
+            pre = "\n%s" % ("  " * (indent + 1))
+            s += "%sns:%s" % (pre, obj.getNs())
+            s += "%sdescription:%s" % (pre, obj.getDescription())
+            s += "%sdate:%s" % (pre, obj.getDate().isoformat())
+
+            if obj.get_type() == 'FileAnnotation':
+                f = md.wrap(obj.getFile())
+                s += "%s%s" % (pre, f.get_name())
+                pre = "\n%s" % ("  " * (indent + 2))
+                s += "%sname:%s" % (pre, f.getName())
+                s += "%ssize:%s" % (pre, f.getSize())
+
+            elif obj.get_type() == 'MapAnnotation':
+                ma = obj.getValue()
+                s += "%svalue:" % pre
+                pre = "\n%s" % ("  " * (indent + 2))
+                for k, v in ma:
+                    s += "%s%s=%s" % (pre, k, v)
+
+            else:
+                v = obj.getValue()
+                s += "%svalue:%s" % (pre, v)
+
+        return s
 
     # READ METHODS
 
@@ -174,23 +206,23 @@ class MetadataControl(BaseControl):
         ("Provide a list of the NSBULKANNOTATION tables linked "
          "to the given object")
 
-        def output_bulkann(mdobj, indent=0):
+        def output_bulkann(mdobj, indent=None):
             anns = mdobj.get_bulkanns()
-            indentstr = ''
-            if args.pretty:
+            if indent is not None:
                 self.ctx.out("%s%s" % (
                     '  ' * indent, mdobj.get_name()))
                 indent += 1
-                indentstr = '  ' * indent
             for a in anns:
-                self.ctx.out("%s%s" % (
-                    indentstr, a.get_name()))
+                self.ctx.out(self._format_ann(md, a, indent))
             if args.parents:
                 for p in mdobj.get_parents():
                     output_bulkann(p, indent)
 
         md = self._load(args)
-        output_bulkann(md)
+        if args.pretty:
+            output_bulkann(md, 0)
+        else:
+            output_bulkann(md)
 
     def measures(self, args):
         ("Provide a list of the NSMEASUREMENT tables linked "
@@ -198,25 +230,27 @@ class MetadataControl(BaseControl):
         md = self._load(args)
         print md
 
-    # WRITE
+    def mapanns(self, args):
+        "Provide a list of all MapAnnotations linked to the given object"
+        md = self._load(args)
+        mas = md.get_allanns()
+        for ma in mas:
+            if ma.get_type() == 'MapAnnotation':
+                if args.pretty:
+                    self.ctx.out(self._format_ann(md, ma, 0))
+                else:
+                    self.ctx.out(self._format_ann(md, ma))
 
     def allanns(self, args):
         "Provide a list of all annotations linked to the given object"
         md = self._load(args)
-        anns = md.get_allanns()
-
-        for a in anns:
-            s = "%s" % a.get_name()
-
+        for a in md.get_allanns():
             if args.pretty:
-                s += "\n  ns:%s" % a.getNs()
-                if a.get_type() == 'FileAnnotation':
-                    f = md.wrap(a.getFile())
-                    s += "\n  %s" % f.get_name()
-                    s += "\n    name:%s" % f.getName()
-                    s += "\n    size:%s" % f.getSize()
+                self.ctx.out(self._format_ann(md, a, 0))
+            else:
+                self.ctx.out(self._format_ann(md, a))
 
-            self.ctx.out(s)
+    # WRITE
 
     def populate(self, args):
         client = self.ctx.conn(args)
