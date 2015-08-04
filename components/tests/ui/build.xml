@@ -91,7 +91,6 @@
     <property name="google.log" value="${basedir}/libpeerconnection.log"/>
 
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <!-- set up the directory for insight reports. -->
@@ -249,6 +248,8 @@
             <arg value="${output}"/>
             <arg value="-v"/>
             <arg value="browser:chrome"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
             <arg value="--loglevel"/>
             <arg value="debug"/>
             <arg value="${basedir}/testcases/${target}"/>

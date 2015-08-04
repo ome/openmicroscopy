@@ -46,6 +46,7 @@ import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.system.EventContext;
 import ome.system.Login;
+import ome.system.Roles;
 import omero.cmd.Delete2;
 import omero.cmd.Delete2Response;
 import omero.cmd.HandleI.Cancel;
@@ -77,12 +78,16 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private Helper helper;
     private GraphTraversal graphTraversal;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
 
     /**
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
@@ -90,8 +95,9 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * @param graphPolicy the graph policy to apply for delete
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
+    public Delete2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
@@ -109,7 +115,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 4 : 6);
 
         final EventContext eventContext = helper.getEventContext();
 
@@ -130,8 +136,13 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         }
         graphPolicyAdjusters = null;
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -167,10 +178,20 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(true);
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
+                unlinker = graphTraversal.unlinkTargets(true);
+                graphTraversal = null;
+                return null;
+            case 4:
+                unlinker.execute();
+                return null;
+            case 5:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
@@ -237,6 +258,11 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         } else {
             graphPolicyAdjusters.add(adjuster);
         }
+    }
+
+    @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
     }
 
     @Override

@@ -720,13 +720,11 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 context = getEditFormContext()
                 context['ome'] = {}
 
-                permissions_error = False
                 try:
-                    conn.updateGroup(group, name, perm, listOfOwners,
-                                     description)
+                    msgs = conn.updateGroup(group, name, perm, listOfOwners,
+                                            description)
                 except omero.SecurityViolation, ex:
                     if ex.message.startswith('Cannot change permissions'):
-                        permissions_error = True
                         msgs.append("Downgrade to private group not currently"
                                     " possible")
                     else:
@@ -735,7 +733,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 new_members = getSelectedExperimenters(
                     conn, mergeLists(members, owners))
                 removalFails = conn.setMembersOfGroup(group, new_members)
-                if len(removalFails) == 0 and not permissions_error:
+                if len(removalFails) == 0 and len(msgs) == 0:
                     return HttpResponseRedirect(reverse("wagroups"))
                 # If we've failed to remove user...
 
@@ -816,20 +814,20 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                 removalFails = conn.setMembersOfGroup(group, new_members)
 
                 permissions = int(permissions)
-                permissions_error = False
                 if getActualPermissions(group) != permissions:
                     perm = setActualPermissions(permissions)
                     try:
-                        conn.updatePermissions(group, perm)
+                        msg = conn.updatePermissions(group, perm)
+                        if msg is not None:
+                            msgs.append(msg)
                     except omero.SecurityViolation, ex:
-                        permissions_error = True
                         if ex.message.startswith('Cannot change permissions'):
                             msgs.append("Downgrade to private group not"
                                         " currently possible")
                         else:
                             msgs.append(ex.message)
 
-                if len(removalFails) == 0 and not permissions_error:
+                if len(removalFails) == 0 and len(msgs) == 0:
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 # If we've failed to remove user...
                 # prepare error messages

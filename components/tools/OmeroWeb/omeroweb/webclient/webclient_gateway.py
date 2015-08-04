@@ -3,7 +3,7 @@
 #
 # webclient_gateway
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2015 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -1379,13 +1379,17 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             if not flag:
                 add_exps.append(nex._obj)
 
+        msgs = []
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(up_gr)
         if permissions is not None:
-            self.updatePermissions(group, permissions)
+            err = self.updatePermissions(group, permissions)
+            if err is not None:
+                msgs.append(err)
         admin_serv.addGroupOwners(up_gr, add_exps)
         admin_serv.removeGroupOwners(up_gr, rm_exps)
+        return msgs
 
     def updateMyAccount(self, experimenter, firstName, lastName, email,
                         defaultGroupId, middleName=None, institution=None):
@@ -1456,8 +1460,16 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         command = Chmod(type="/ExperimenterGroup",
                         id=group.id,
                         permissions=perms)
-        cb = self.c.submit(command, loops=120)
-        cb.close(True)
+        cb = None
+        message = None
+        try:
+            cb = self.c.submit(command, loops=120)
+        except omero.CmdError, ex:
+            message = ex.err.message
+        finally:
+            if cb:
+                cb.close(True)
+        return message
 
     def saveObject(self, obj):
         """

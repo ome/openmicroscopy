@@ -1,6 +1,45 @@
 OMERO version history
 =====================
 
+5.1.3 (July 2015)
+-----------------
+
+A bug-fix release which also introduces some new functionality. Improvements
+include:
+
+-  tagging actions extended; you can now use tag sets to tag images on import
+-  tagging ome-tiff images at import has also been fixed
+-  greatly improved workflow and bug fixes for the Share functionality in
+   OMERO.web which enables you to share images with users outside of your
+   group (including removal of part of the UI)
+-  group admins and owners can now change ownership of data via the CLI
+-  better reporting for the 'delete' and 'chgrp' functionality in the CLI
+-  fixed display of images in plates with multiple acquisitions
+-  fixed export of results as .xls files from OMERO.insight
+-  improved workflow for ImageJ and OMERO interactions
+-  support for WSGI OMERO.web deployment
+-  fixed OMERO.mail service for web errors
+-  fixes for ROI display in OMERO.web (thanks to Luca Lianas of CRS4)
+-  fixes and workflow improvements for running scripts and script dialogs
+
+Developer updates include:
+
+-  OMERO.web clean-up (removal of '-locked')
+-  reorganization of the server bundle to move various licenses and 
+   dependencies under a new 'share' folder
+-  refactoring of 'Chown2', 'Chmod2', 'Chgrp2' and 'Delete2'
+-  addition of dynamic scripts
+-  the 'rstring' implementation is now more lenient and should better handle
+   unicode
+-  Bio-Formats submodule removed from OMERO; decoupling effort means OMERO now
+   consumes the Bio-Formats release build from the artifactory
+
+This release also includes the fix for the Java security issue, as discussed
+in the
+`recent blog post <http://blog.openmicroscopy.org/tech-issues/2015/07/21/java-issue/>`_. Testing
+suggests this fix should not have any performance implications. You should
+upgrade your Java version to take advantage of the security fix.
+
 5.1.2 (May 2015)
 ----------------
 

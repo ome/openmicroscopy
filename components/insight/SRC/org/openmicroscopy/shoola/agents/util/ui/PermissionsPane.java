@@ -79,11 +79,14 @@ public class PermissionsPane
 	
 	/** Warning message. */
 	private static final String WARNING_TITLE = "Permissions Downgrade";
-		
+
 	/** Warning message. */
-	private static final String WARNING = " Changing group to Private may fail if links"
-	        + " have been\n created under Read-Annotate permissions. Make the change?";
-	
+	private static final String WARNING =
+	        " Changing group to Private unlinks data from other users'\n" +
+	        " containers and unlinks other users' annotations from data.\n" +
+	        " The change to Private will abort if different users' data\n" +
+	        " is too closely related to be separated. Make the change?";
+
 	/** ReadWrite warning message */
     private static final String RW_WARNING = "Read-Write groups allow members to delete other"
             + " members' data.\nSee documentation about 'OMERO permissions' for full details.";
@@ -374,7 +377,6 @@ public class PermissionsPane
 	 * Creates a new instance. 
 	 * 
 	 * @param permissions 	The permissions level.
-	 * @param background	The background color or <code>null</code>.
 	 * @param admin
      *            Pass <code>true</code> to enable admin-only permission changes
 	 */
@@ -436,8 +438,6 @@ public class PermissionsPane
 
 	/** 
 	 * Displays the warning text.
-	 * 
-	 * @param text The warning text.
 	 */
 	public void displayWarningText()
 	{

@@ -25,202 +25,204 @@
 
 -->
 
+        <!-- Before global.xml -->
+        <import file="gitversion.xml" optional="true"/>
+
         <tstamp>
           <format property="now" pattern="yyyyMMddHHmmss"/>
         </tstamp>
 
-	<!-- Patterns -->
+        <!-- Patterns -->
         <property name="dsl.pat" value="**/*.ome.xml"/>
         <property name="hbm.pat" value="**/*.hbm.xml"/>
         <property name="api.pat" value="**/*.java"/>
         <property name="ice.pat" value="**/*.ice"/>
 
-	<!-- Setup: needed calculations for other paths -->
-	<!-- import.dir is set in global.xml -->
-	<dirname property="antlib.dir"     file="${import.dir}"/>
-	<dirname property="components.dir" file="${antlib.dir}"/>
-	<dirname property="root.dir"       file="${components.dir}"/>
+        <!-- Setup: needed calculations for other paths -->
+        <!-- import.dir is set in global.xml -->
+        <dirname property="antlib.dir"     file="${import.dir}"/>
+        <dirname property="components.dir" file="${antlib.dir}"/>
+        <dirname property="root.dir"       file="${components.dir}"/>
 
         <!-- Reading local.properties here to allow overwriting
         dist.dir since this is no longer possible with insight.
         See other property files below. -->
         <property file="${root.dir}/etc/local.properties" />
 
-	<!-- Absolute paths: same for all components -->
-	<property name="omero.home"    value="${root.dir}"/>
-	<property name="etc.dir"       value="${root.dir}/etc" />
-	<property name="lib.dir"       value="${root.dir}/lib" />
-	<property name="tools.dir"     value="${root.dir}/lib/tools" />
-	<property name="dist.dir"      value="${root.dir}/dist" />
-	<property name="sphinx.dir"    value="${root.dir}/docs/sphinx/omero" />
+        <!-- Absolute paths: same for all components -->
+        <property name="omero.home"    value="${root.dir}"/>
+        <property name="etc.dir"       value="${root.dir}/etc" />
+        <property name="lib.dir"       value="${root.dir}/lib" />
+        <property name="tools.dir"     value="${root.dir}/lib/tools" />
+        <property name="dist.dir"      value="${root.dir}/dist" />
 
-	<!-- Components -->
-	<property name="dsl.comp"       value="${components.dir}/dsl"/>
-	<property name="model.comp"     value="${components.dir}/model"/>
-	<property name="common.comp"    value="${components.dir}/common"/>
-	<property name="server.comp"    value="${components.dir}/server"/>
-	<property name="nio.comp"       value="${components.dir}/romio"/>
-	<property name="romio.comp"     value="${components.dir}/romio"/>
-	<property name="render.comp"    value="${components.dir}/rendering"/>
-	<property name="import.comp"    value="${components.dir}/importer"/>
-	<property name="blitz.comp"     value="${components.dir}/blitz"/>
-	<property name="tools.comp"     value="${components.dir}/tools"/>
-	<property name="insight.comp"   value="${components.dir}/insight"/>
-	<property name="OmeroCpp.comp"     value="${tools.comp}/OmeroCpp"/>
-	<property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
-	<property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
-	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
-	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
-	<property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
-	<property name="uiLibrary.comp"     value="${tests.comp}/ui/library/java"/>
-	<property name="tests.comp"     value="${components.dir}/tests"/>
+        <!-- Components -->
+        <property name="dsl.comp"       value="${components.dir}/dsl"/>
+        <property name="model.comp"     value="${components.dir}/model"/>
+        <property name="common.comp"    value="${components.dir}/common"/>
+        <property name="server.comp"    value="${components.dir}/server"/>
+        <property name="nio.comp"       value="${components.dir}/romio"/>
+        <property name="romio.comp"     value="${components.dir}/romio"/>
+        <property name="render.comp"    value="${components.dir}/rendering"/>
+        <property name="import.comp"    value="${components.dir}/importer"/>
+        <property name="blitz.comp"     value="${components.dir}/blitz"/>
+        <property name="tools.comp"     value="${components.dir}/tools"/>
+        <property name="insight.comp"   value="${components.dir}/insight"/>
+        <property name="OmeroCpp.comp"     value="${tools.comp}/OmeroCpp"/>
+        <property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
+        <property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
+        <property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
+        <property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
+        <property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
+        <property name="uiLibrary.comp"     value="${tests.comp}/ui/library/java"/>
+        <property name="tests.comp"     value="${components.dir}/tests"/>
 
 
-	<!-- Build Path References -->
-	<path id="blitz.buildpath">
-	  <pathelement location="${blitz.comp}/build.xml"/>
-	</path>
-	<path id="dsl.buildpath">
-	  <pathelement location="${dsl.comp}/build.xml"/>
-	</path>
-	<path id="common.buildpath">
-	  <pathelement location="${common.comp}/build.xml"/>
-	</path>
-	<path id="model.buildpath">
-	  <pathelement location="${model.comp}/build.xml"/>
-	</path>
-	<path id="server.buildpath">
-	  <pathelement location="${server.comp}/build.xml"/>
-	</path>
-	<path id="insight.buildpath">
-	  <pathelement location="${insight.comp}/build.xml"/>
-	</path>
-	<path id="OmeroWeb.buildpath">
-	  <pathelement location="${OmeroWeb.comp}/build.xml"/>
-	</path>
-	<path id="OmeroCpp.buildpath">
-	  <pathelement location="${OmeroCpp.comp}/build.xml"/>
-	</path>
-	<path id="OmeroJava.buildpath">
-	  <pathelement location="${OmeroJava.comp}/build.xml"/>
-	</path>
-	<path id="OmeroMatlab.buildpath">
-	  <pathelement location="${OmeroMatlab.comp}/build.xml"/>
-	</path>
-	<path id="OmeroPy.buildpath">
-	  <pathelement location="${OmeroPy.comp}/build.xml"/>
-	</path>
-	<path id="OmeroFs.buildpath">
-	  <pathelement location="${OmeroFs.comp}/build.xml"/>
-	</path>
-	<path id="tools.buildpath">
-	  <pathelement location="${tools.comp}/build.xml"/>
-	</path>
+        <!-- Build Path References -->
+        <path id="blitz.buildpath">
+            <pathelement location="${blitz.comp}/build.xml"/>
+        </path>
+        <path id="dsl.buildpath">
+            <pathelement location="${dsl.comp}/build.xml"/>
+        </path>
+        <path id="common.buildpath">
+            <pathelement location="${common.comp}/build.xml"/>
+        </path>
+        <path id="model.buildpath">
+            <pathelement location="${model.comp}/build.xml"/>
+        </path>
+        <path id="server.buildpath">
+            <pathelement location="${server.comp}/build.xml"/>
+        </path>
+        <path id="insight.buildpath">
+            <pathelement location="${insight.comp}/build.xml"/>
+        </path>
+        <path id="OmeroWeb.buildpath">
+            <pathelement location="${OmeroWeb.comp}/build.xml"/>
+        </path>
+        <path id="OmeroCpp.buildpath">
+            <pathelement location="${OmeroCpp.comp}/build.xml"/>
+        </path>
+        <path id="OmeroJava.buildpath">
+            <pathelement location="${OmeroJava.comp}/build.xml"/>
+        </path>
+        <path id="OmeroMatlab.buildpath">
+            <pathelement location="${OmeroMatlab.comp}/build.xml"/>
+        </path>
+        <path id="OmeroPy.buildpath">
+            <pathelement location="${OmeroPy.comp}/build.xml"/>
+        </path>
+        <path id="OmeroFs.buildpath">
+            <pathelement location="${OmeroFs.comp}/build.xml"/>
+        </path>
+        <path id="tools.buildpath">
+            <pathelement location="${tools.comp}/build.xml"/>
+        </path>
 
-	<path id="tests.buildpath">
-	  <pathelement location="${tests.comp}/build.xml"/>
-	</path>
+        <path id="tests.buildpath">
+        <pathelement location="${tests.comp}/build.xml"/>
+        </path>
 
-	<path id="uiLibrary.buildpath">
-	  <pathelement location="${uiLibrary.comp}/build.xml"/>
-	</path>
+        <path id="uiLibrary.buildpath">
+        <pathelement location="${uiLibrary.comp}/build.xml"/>
+        </path>
 
-	<!-- Tools -->
-	<property name="tools.comp"    value="${components.dir}/tools"/>
-	<property name="tools.dest"    value="${components.dir}/tools/target"/>
-	<property name="tools.jars"    value="${components.dir}/tools/target/jars"/>
-	<property name="tools.classes" value="${components.dir}/tools/target/service-classes"/>
+        <!-- Tools -->
+        <property name="tools.comp"    value="${components.dir}/tools"/>
+        <property name="tools.dest"    value="${components.dir}/tools/target"/>
+        <property name="tools.jars"    value="${components.dir}/tools/target/jars"/>
+        <property name="tools.classes" value="${components.dir}/tools/target/service-classes"/>
 
-    <!-- Tests -->
-	<property name="tests.dest"    value="${components.dir}/tests/target"/>
-	<property name="tests.jars"    value="${components.dir}/tests/target/jars"/>
-	<property name="tests.classes" value="${components.dir}/tests/target/service-classes"/>
+        <!-- Tests -->
+        <property name="tests.dest"    value="${components.dir}/tests/target"/>
+        <property name="tests.jars"    value="${components.dir}/tests/target/jars"/>
+        <property name="tests.classes" value="${components.dir}/tests/target/service-classes"/>
 
-	<!-- Relative paths -->
-	<property name="target.rel"    value="target"/>
-	<property name="classes.rel"   value="${target.rel}/classes"/>
-	<property name="generated.rel" value="${target.rel}/generated"/>
-	<property name="testclasses.rel" value="${target.rel}/test-classes"/>
-	<property name="testreports.rel" value="${target.rel}/reports"/>
+        <!-- Relative paths -->
+        <property name="target.rel"    value="target"/>
+        <property name="classes.rel"   value="${target.rel}/classes"/>
+        <property name="generated.rel" value="${target.rel}/generated"/>
+        <property name="testclasses.rel" value="${target.rel}/test-classes"/>
+        <property name="testreports.rel" value="${target.rel}/reports"/>
 
-	<!-- Directories relative to basedir: different for each component -->
-	<property name="src.dir"         value="${basedir}/src" />
-	<property name="resrc.dir"       value="${basedir}/resources"/>
-	<property name="test.dir"        value="${basedir}/test"/>
+        <!-- Directories relative to basedir: different for each component -->
+        <property name="src.dir"         value="${basedir}/src" />
+        <property name="resrc.dir"       value="${basedir}/resources"/>
+        <property name="test.dir"        value="${basedir}/test"/>
 
-	<!-- Target destinations for generated code-->
-	<property name="target.dir"      value="${basedir}/${target.rel}" />
-	<property name="generated.dir"   value="${basedir}/${generated.rel}"/>
-	<property name="classes.dir"     value="${basedir}/${classes.rel}"/>
-	<property name="testclasses.dir" value="${basedir}/${testclasses.rel}"/>
-	<property name="testreports.dir" value="${basedir}/${testreports.rel}"/>
-	<property name="src.dest"        value="${generated.dir}/src" />
-	<property name="resrc.dest"      value="${generated.dir}/resources"/>
-	<property name="done.dir"        value="${generated.dir}/.done"/>
+        <!-- Target destinations for generated code-->
+        <property name="target.dir"      value="${basedir}/${target.rel}" />
+        <property name="generated.dir"   value="${basedir}/${generated.rel}"/>
+        <property name="classes.dir"     value="${basedir}/${classes.rel}"/>
+        <property name="testclasses.dir" value="${basedir}/${testclasses.rel}"/>
+        <property name="testreports.dir" value="${basedir}/${testreports.rel}"/>
+        <property name="src.dest"        value="${generated.dir}/src" />
+        <property name="resrc.dest"      value="${generated.dir}/resources"/>
+        <property name="done.dir"        value="${generated.dir}/.done"/>
 
-	<!-- OS name/version/architecture for embedding in release zips -->
+        <!-- OS name/version/architecture for embedding in release zips -->
         <property name="platform" value="${os.name}-${os.version}-${os.arch}"/>
 
-	<path id="source.path">
-		<fileset dir="${src.dir}">
-			<include name="**/*.java"/>
-			<exclude name="**/.svn"/>
-		</fileset>
-		<fileset dir="${src.dest}">
-			<include name="**/*.java"/>
-		</fileset>
-	</path>
+        <path id="source.path">
+            <fileset dir="${src.dir}">
+                <include name="**/*.java"/>
+                <exclude name="**/.svn"/>
+            </fileset>
+            <fileset dir="${src.dest}">
+                <include name="**/*.java"/>
+            </fileset>
+        </path>
 
-	<macrodef name="copyResourceDir">
-		<attribute name="todir"/>
-		<attribute name="fromdir"/>
-		<sequential>
-		<copy todir="@{todir}">
-		<fileset dir="@{fromdir}">
-			<include name="**/*.properties"/>
-			<include name="**/*.vm"/>
-			<include name="**/*.dv"/>
-			<include name="**/*.bmp"/>
-			<include name="**/*.jpg"/>
-			<include name="**/*.png"/>
-			<include name="**/*.txt"/>
-			<include name="**/*.xml"/>
-			<include name="**/*.ldif"/>
-			<exclude name="**/.svn"/>
-		</fileset>
-		</copy>
-		</sequential>
-	</macrodef>
+        <macrodef name="copyResourceDir">
+            <attribute name="todir"/>
+            <attribute name="fromdir"/>
+            <sequential>
+            <copy todir="@{todir}">
+            <fileset dir="@{fromdir}">
+                <include name="**/*.properties"/>
+                <include name="**/*.vm"/>
+                <include name="**/*.dv"/>
+                <include name="**/*.bmp"/>
+                <include name="**/*.jpg"/>
+                <include name="**/*.png"/>
+                <include name="**/*.txt"/>
+                <include name="**/*.xml"/>
+                <include name="**/*.ldif"/>
+                <exclude name="**/.svn"/>
+            </fileset>
+            </copy>
+            </sequential>
+        </macrodef>
 
-	<macrodef name="copyResources">
-		<sequential>
-		<!-- Ignoring missing resources directories -->
-		<if><available file="${resrc.dir}"></available><then>
-			<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dir}"/>
-		</then></if>
-		<if><available file="${resrc.dest}"></available><then>
-			<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dest}"/>
-		</then></if>
-		</sequential>
-	</macrodef>
+        <macrodef name="copyResources">
+            <sequential>
+            <!-- Ignoring missing resources directories -->
+            <if><available file="${resrc.dir}"></available><then>
+                <copyResourceDir todir="${classes.dir}" fromdir="${resrc.dir}"/>
+            </then></if>
+            <if><available file="${resrc.dest}"></available><then>
+                <copyResourceDir todir="${classes.dir}" fromdir="${resrc.dest}"/>
+            </then></if>
+            </sequential>
+        </macrodef>
 
-	<macrodef name="copyTestResources">
-		<sequential>
-		<copyResourceDir todir="${testclasses.dir}" fromdir="${test.dir}"/>
-		</sequential>
-	</macrodef>
+        <macrodef name="copyTestResources">
+            <sequential>
+            <copyResourceDir todir="${testclasses.dir}" fromdir="${test.dir}"/>
+            </sequential>
+        </macrodef>
 
-	<macrodef name="makeDirectories">
-		<sequential>
-		<mkdir dir="${target.dir}" />
-		<mkdir dir="${done.dir}" />
-		<mkdir dir="${src.dest}" />
-		<mkdir dir="${resrc.dest}" />
-		<mkdir dir="${classes.dir}" />
-		<mkdir dir="${testclasses.dir}" />
-		<mkdir dir="${testreports.dir}" />
-		</sequential>
-	</macrodef>
+        <macrodef name="makeDirectories">
+            <sequential>
+            <mkdir dir="${target.dir}" />
+            <mkdir dir="${done.dir}" />
+            <mkdir dir="${src.dest}" />
+            <mkdir dir="${resrc.dest}" />
+            <mkdir dir="${classes.dir}" />
+            <mkdir dir="${testclasses.dir}" />
+            <mkdir dir="${testreports.dir}" />
+            </sequential>
+        </macrodef>
 
         <taskdef resource="net/sf/antcontrib/antcontrib.properties"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
@@ -318,31 +320,31 @@
         <!-- Post-import properties -->
         <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.db.version}__${omero.db.patch}"/>
 
-	<!-- Fall back to unset if not set in environment explicitly -->
-	<condition property="ice.home" value="/usr/share/Ice">
-	    <available file="/usr/share/Ice" type="dir"/>
+        <!-- Fall back to unset if not set in environment explicitly -->
+        <condition property="ice.home" value="/usr/share/Ice">
+            <available file="/usr/share/Ice" type="dir"/>
         </condition>
-	<property name="ice.home" value=""/>
+        <property name="ice.home" value=""/>
 
-	<condition property="ice.slice2java" value="${ice.home}/bin/slice2java">
-	    <available file="${ice.home}/bin/slice2java"/>
+        <condition property="ice.slice2java" value="${ice.home}/bin/slice2java">
+            <available file="${ice.home}/bin/slice2java"/>
         </condition>
-	<property name="ice.slice2java" value="slice2java"/>
+        <property name="ice.slice2java" value="slice2java"/>
 
-	<condition property="ice.slice2py" value="${ice.home}/bin/slice2py">
-	    <available file="${ice.home}/bin/slice2py"/>
+        <condition property="ice.slice2py" value="${ice.home}/bin/slice2py">
+            <available file="${ice.home}/bin/slice2py"/>
         </condition>
-	<property name="ice.slice2py" value="slice2py"/>
+        <property name="ice.slice2py" value="slice2py"/>
 
-	<condition property="ice.slice2cpp" value="${ice.home}/bin/slice2cpp">
-	    <available file="${ice.home}/bin/slice2cpp"/>
+        <condition property="ice.slice2cpp" value="${ice.home}/bin/slice2cpp">
+            <available file="${ice.home}/bin/slice2cpp"/>
         </condition>
-	<property name="ice.slice2cpp" value="slice2cpp"/>
+        <property name="ice.slice2cpp" value="slice2cpp"/>
 
-	<condition property="ice.slice2html" value="${ice.home}/bin/slice2html">
-	    <available file="${ice.home}/bin/slice2html"/>
+        <condition property="ice.slice2html" value="${ice.home}/bin/slice2html">
+            <available file="${ice.home}/bin/slice2html"/>
         </condition>
-	<property name="ice.slice2html" value="slice2html"/>
+        <property name="ice.slice2html" value="slice2html"/>
 
         <!-- Checking the slice2* version before continuing. See #1185 -->
         <exec outputproperty="executable.ice.version" executable="${ice.slice2java}"
@@ -405,34 +407,34 @@
             </else>
         </if>
 
-	<condition property="ice.slicepath" value="${ice.home}/slice">
-	    <available file="${ice.home}/slice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.version}/slice">
-	    <available file="/usr/local/share/Ice-${executable.ice.version}/slice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.version}/slice">
-	    <available file="/usr/share/Ice-${executable.ice.version}/slice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.shortversion}/slice">
-	    <available file="/usr/local/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.shortversion}/slice">
-	    <available file="/usr/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/local/share/Ice/slice">
-	    <available file="/usr/local/share/Ice/slice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/share/Ice/slice">
-	    <available file="/usr/share/Ice/slice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/local/share/Ice">
-	    <available file="/usr/local/share/Ice" type="dir"/>
-	</condition>
-	<condition property="ice.slicepath" value="/usr/share/Ice">
-	    <available file="/usr/share/Ice" type="dir"/>
-	</condition>
-	<property name="ice.slicepath" value="/ice_home_is_unset_or_invalid"/>
+        <condition property="ice.slicepath" value="${ice.home}/slice">
+            <available file="${ice.home}/slice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.version}/slice">
+            <available file="/usr/local/share/Ice-${executable.ice.version}/slice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.version}/slice">
+            <available file="/usr/share/Ice-${executable.ice.version}/slice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.shortversion}/slice">
+            <available file="/usr/local/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.shortversion}/slice">
+            <available file="/usr/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/local/share/Ice/slice">
+            <available file="/usr/local/share/Ice/slice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/share/Ice/slice">
+            <available file="/usr/share/Ice/slice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/local/share/Ice">
+            <available file="/usr/local/share/Ice" type="dir"/>
+        </condition>
+        <condition property="ice.slicepath" value="/usr/share/Ice">
+            <available file="/usr/share/Ice" type="dir"/>
+        </condition>
+        <property name="ice.slicepath" value="/ice_home_is_unset_or_invalid"/>
 
         <!--
           The idea for this macro is taken from maven2. Use deps-buildlist
@@ -640,7 +642,7 @@
             <attribute name="token" default="@REPLACE@"/>
             <attribute name="value" default="${omero.hard-wired.interceptors}"/>
             <sequential>
-		<mkdir dir="${target.dir}/hard-wiring"/>
+                <mkdir dir="${target.dir}/hard-wiring"/>
                 <copy todir="${target.dir}">
                     <fileset dir="@{fromdir}">
                         <include name="@{file}"/>
@@ -649,11 +651,11 @@
                 <replace file="${target.dir}/@{file}">
                     <replacefilter token="@{token}" value="@{value}"/>
                 </replace>
-		<move todir="@{todir}">
-		    <fileset dir="${target.dir}" includes="@{file}">
-		        <different targetdir="@{todir}"/>
-		    </fileset>
-		</move>
+                <move todir="@{todir}">
+                    <fileset dir="${target.dir}" includes="@{file}">
+                        <different targetdir="@{todir}"/>
+                    </fileset>
+                </move>
             </sequential>
         </macrodef>
 
@@ -755,5 +757,8 @@
                         This build file is intended for import only.
                 </echo>
         </target>
+
+        <!-- After global.xml -->
+        <import file="version.xml" optional="true"/>
 
 </project>
