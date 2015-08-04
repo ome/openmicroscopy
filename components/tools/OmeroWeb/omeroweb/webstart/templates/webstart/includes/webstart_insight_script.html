@@ -21,12 +21,7 @@
 {% endcomment %}
 
 {% if insight_url %}
-<script src="//www.java.com/js/deployJava.js"></script>
-<script>
-    deployJava.launchButtonPNG='{% static "webstart/img/icon-omero-insight.png" %}';
-    var url = "{{ insight_url }}";
-    deployJava.createWebStartLaunchButton(url, '1.7.0');
-</script>
+    <a href="{{ insight_url }}"><img src="{% static "webstart/img/icon-omero-insight.png" %}"/></a>
 {% else %}
     <h1 class="error">Webstart is not available</h1>
 {% endif %}

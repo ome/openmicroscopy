@@ -55,7 +55,6 @@
         <property name="lib.dir"       value="${root.dir}/lib" />
         <property name="tools.dir"     value="${root.dir}/lib/tools" />
         <property name="dist.dir"      value="${root.dir}/dist" />
-        <property name="sphinx.dir"    value="${root.dir}/docs/sphinx/omero" />
 
         <!-- Components -->
         <property name="dsl.comp"       value="${components.dir}/dsl"/>
