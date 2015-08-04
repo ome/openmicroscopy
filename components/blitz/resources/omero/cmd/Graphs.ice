@@ -47,10 +47,10 @@ module omero {
         /**
          *
          **/
-        ["deprecated:GraphSpecs in general are deprecated"]
+        ["deprecated:use LegalGraphTargets"]
         class GraphSpecList extends Request {};
 
-        ["deprecated:GraphSpecs in general are deprecated"]
+        ["deprecated:use LegalGraphTargetsResponse"]
         class GraphSpecListRsp extends Response {
             GraphModifyList list;
         };
