@@ -62,6 +62,7 @@ Options:
   -k    OMERO session key to use
   -i    Dump measurement information and exit (no population)
   -d    Print debug statements
+  -c    Use an alternative context (for expert users only)
 
 Examples:
   %s -s localhost -p 14064 -u bob Plate:6 metadata.csv
@@ -586,9 +587,17 @@ class ParsingContext(object):
 
 
 class BulkToMapAnnotationContext(object):
-    """Processor for creating MapAnnotations from BulkAnnotations."""
+    """
+    Processor for creating MapAnnotations from BulkAnnotations.
+    """
 
     def __init__(self, client, target_object, ofileid):
+        """
+        :param client: OMERO client object
+        :param target_object: The object to be annotated
+        :param ofileid: The OriginalFile ID of the bulk-annotations table
+        Todo: Automatically find the table by searching annotations
+        """
         self.client = client
         self.target_object = target_object
         self.ofileid = ofileid
@@ -673,7 +682,7 @@ def parse_target_object(target_object):
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "s:p:u:w:k:id")
+        options, args = getopt(sys.argv[1:], "s:p:u:w:k:c:id")
     except GetoptError, (msg, opt):
         usage(msg)
 
@@ -691,6 +700,7 @@ if __name__ == "__main__":
     session_key = None
     logging_level = logging.INFO
     thread_count = 1
+    context_class = ParsingContext
     for option, argument in options:
         if option == "-u":
             username = argument
@@ -708,6 +718,11 @@ if __name__ == "__main__":
             logging_level = logging.DEBUG
         if option == "-t":
             thread_count = int(argument)
+        if option == "-c":
+            try:
+                context_class = globals()[argument]
+            except KeyError:
+                usage("Invalid context class")
     if session_key is None and username is None:
         usage("Username must be specified!")
     if session_key is None and hostname is None:
@@ -728,7 +743,7 @@ if __name__ == "__main__":
 
         log.debug('Creating pool of %d threads' % thread_count)
         thread_pool = ThreadPool(thread_count)
-        ctx = ParsingContext(client, target_object, file)
+        ctx = context_class(client, target_object, file)
         ctx.parse()
         if not info:
             ctx.write_to_omero()
