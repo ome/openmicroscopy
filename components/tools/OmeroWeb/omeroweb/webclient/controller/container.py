@@ -518,6 +518,7 @@ class BaseContainer(BaseController):
             aList = list(self.acquisition.listAnnotations())
         elif self.well is not None:
             aList = list(self.well.getWellSample().image().listAnnotations())
+            aList.extend(self.well.listAnnotations())
 
         for ann in aList:
             annClass = ann._obj.__class__
