@@ -13,7 +13,7 @@ package ome.io.nio;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3.1
- * @see ticket:5192
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5192">ticket 5192</a>
  */
 public interface TileSizes {
 

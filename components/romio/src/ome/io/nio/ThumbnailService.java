@@ -58,7 +58,6 @@ public class ThumbnailService extends AbstractFileSystemService {
 	 * Returns length of Thumbnail on disk
 	 * 
 	 * @param thumbnail
-	 * @return
 	 */
 	public long getThumbnailLength(Thumbnail thumbnail) {
 		File f = new File(getThumbnailPath(thumbnail.getId()));
@@ -69,7 +68,6 @@ public class ThumbnailService extends AbstractFileSystemService {
 	 * Return byte array of Thumbnail
 	 * 
 	 * @param thumbnail
-	 * @return
 	 * @throws IOException
 	 */
 	public byte[] getThumbnail(Thumbnail thumbnail) throws IOException {
@@ -82,7 +80,6 @@ public class ThumbnailService extends AbstractFileSystemService {
 	 * 
 	 * @param thumbnail
 	 * @param buf
-	 * @return
 	 * @throws IOException
 	 */
 	public byte[] getThumbnail(Thumbnail thumbnail, byte[] buf)
@@ -101,7 +98,6 @@ public class ThumbnailService extends AbstractFileSystemService {
 	 * Return FileOutputStream of Thumbnail
 	 * 
 	 * @param thumbnail
-	 * @return
 	 * @throws IOException
 	 */
 	public FileOutputStream getThumbnailOutputStream(Thumbnail thumbnail)

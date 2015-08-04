@@ -438,7 +438,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     /**
      * Implemented as specified by {@link PixelBuffer} I/F.
-     * @see PixelBuffer#getHypercube(List<Integer>, IList<Integer>, List<Integer>)
+     * @see PixelBuffer#getHypercube(List, List, List)
 	 */
     public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
             List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
@@ -451,7 +451,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
                 
     /**
      * Implemented as specified by {@link PixelBuffer} I/F.
-     * @see PixelBuffer#getHypercubeDirect(List<Integer>, IList<Integer>, List<Integer>, byte[])
+     * @see PixelBuffer#getHypercubeDirect(List, List, List, byte[])
 	 */
     public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
             List<Integer> step, byte[] buffer) 
@@ -504,7 +504,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     }
     
     /**
-     * Implemented as specified by {@link PixelBuffer} I/F.
+     * Implemented as specified by {@link ByteBuffer} I/F.
      * @see PixelBuffer#getPlaneRegion(Integer, Integer, Integer, Integer, 
      * Integer, Integer, Integer, Integer)
 	 */
