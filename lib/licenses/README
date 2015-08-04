@@ -113,15 +113,6 @@
   License File: apache-v1.1.txt
 
 
-  Artifacts:    backport-util-concurrent-*.jar
-  Project:      The Backport-util-concurrent library. A concurrency library
-                that works with uncompromised performance on all Java platforms currently in
-                use, allowing development of fully portable concurrent applications.
-                We don't use this software directly but required by ehCache.
-  Web Site:     http://backport-jsr166.sourceforge.net/
-  License:      This software is released to the public domain
-
-
   Artifacts:    btm-*.jar
   Project:      Bitronix, JTA transaction manager
   Web Site:     http://bitronix.be
@@ -171,14 +162,6 @@
   Web Site:     http://dom4j.org
   License:      BSD
   License File: dom4j.txt
-
-
-  Artifacts:    ehcache-*.jar
-  Project:      ehCache. A Java distributed cache for general purpose caching,
-                Java EE and light-weight containers.
-  Web Site:     http://ehcache.sourceforge.net/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
 
 
   Artifacts:    findbugs-*.jar
@@ -234,13 +217,6 @@
   Web Site:     http://zeroc.com
   License:      General Public License (GPL), Version 2
   License File: gpl.txt
-
-
-  Artifacts:    ini4j-*.jar
-  Project:      ini4j - Java API for handling Windows ini file format
-  Web Site:     http://ini4j.sourceforge.net/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
 
 
   Artifacts:    jai_imageio-*.jar
@@ -337,13 +313,6 @@
   License File: jtidy.txt
 
 
-  Artifacts:    jts-*.jar
-  Project:      Java Topology Suite
-  Web Site:     http://sourceforge.net/projects/jts-topo-suite/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
-
   Artifacts:    junit-*.jar
   Project:      The JUnit Testing Framework. A framework for unit-testing.  All our
                 regression tests make use of this framework in a way or another.
@@ -407,13 +376,6 @@
   Webpage:      http://www.randelshofer.ch/quaqua
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
-
-
-  Artifacts:    quartz-*.jar
-  Project:      Quartz Enterprise Job-Scheduler
-  Website:      http://opensymphony.org/quartz
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
 
 
   Artifacts:    reportng-*.jar
