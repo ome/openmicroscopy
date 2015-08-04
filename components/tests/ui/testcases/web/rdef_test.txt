@@ -40,7 +40,6 @@ Wait For Channel Color
 
 Wait For BlockUI
     # Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
-    Sleep                                   0.1
     Wait For Condition                      return ($("div.blockOverlay").length == 0)
 
 Wait For Preview Load
@@ -48,7 +47,7 @@ Wait For Preview Load
     Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element        xpath=//button[@id='preview_open_viewer'][@rel!='${oldIdentifier}']       ${WAIT}
     Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"]      ${WAIT}
     Wait Until Element Is Visible           xpath=//button[@class="rdef clicked"]       ${WAIT}
-    ${status}    ${oldId}    Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]@rel
+    ${status}    ${oldId}                   Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]@rel
     [Return]                                ${status}          ${oldId}
 
 Wait For Toolbar Button Enabled
@@ -128,14 +127,14 @@ Test Rdef Copy Paste Save
 
     # Check that 'Save' has worked by refreshing right panel (click refresh)
     Click Element                           id=refreshButton
-    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Toolbar Button Enabled         rdef-paste-btn
     # Channel should be Yellow
     Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image
     Click Element                           xpath=//li[@id='image-${imageId}']/following-sibling::li/a
-    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
 
     # Images should be compatible, so 'Paste' should become enabled.
     Wait For Toolbar Button Enabled         rdef-paste-btn
@@ -149,7 +148,7 @@ Test Rdef Copy Paste Save
 
     # Return to Previous Image (now Blue)
     Click Element                           id=image_icon-${imageId}
-    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(0, 0, 255)
 
 
@@ -161,7 +160,7 @@ Test Owners Rdef
     Select And Expand Image
     ${imageId}=                             Wait For General Panel And Return Id      Image
     Click Link                              Preview
-    ${status}    ${oldId}    Wait For Preview Load      FAIL    '1'
+    ${status}    ${oldId}                   Wait For Preview Load       FAIL      '1'
 
     # Set to "Imported"
     Click Element                           id=rdef-reset-btn
@@ -176,9 +175,10 @@ Test Owners Rdef
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
 
-    # Get Id for next Image by using 'Down Arrow'
+    # Get Id for next Image
+    Click Element                           xpath=//li[@id='image-${imageId}']/following-sibling::li/a
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Click Link                              General
-    Key Down                                40
     ${imageId_2}=                           Wait For General Panel And Return Id      Image
     Log Out
 
@@ -188,7 +188,7 @@ Test Owners Rdef
     Go To                                   ${WELCOME URL}?show=image-${imageId}
     Wait For General Panel                  Image
     Click Link                              Preview
-    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
 
     # Set to "Imported"
     Click Element                           id=rdef-reset-btn
@@ -220,7 +220,6 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           255
 
     # New settings (White channel, max 200) and 'Copy'
-    # Set Selenium Speed                      1
     Input Text                              id=wblitz-ch0-cw-end        200
     Pick Color                              fff         FFFFFF          rgb(255, 255, 255)
     Click Element                           xpath=//button[@id='rdef-copy-btn']
@@ -233,7 +232,7 @@ Test Owners Rdef
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId_2}
-    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(255, 255, 255)
     Textfield Value Should Be               wblitz-ch0-cw-end           200
 
@@ -243,7 +242,7 @@ Test Owners Rdef
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
-    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(0, 255, 0)
     Textfield Value Should Be               wblitz-ch0-cw-end           100
 
@@ -253,7 +252,7 @@ Test Owners Rdef
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
-    ${status}    ${oldId}    Wait For Preview Load   ${status}   ${oldId}
+    ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  ${importedChColor}
     Textfield Value Should Be               wblitz-ch0-cw-end           ${importedMax}
 
@@ -261,7 +260,6 @@ Test Owners Rdef
     # Toggle the color, then paste settings and check it has reverted
 
     # Bit more reliable with this, but try to remove it if possible...
-    Set Selenium Speed                      0.5
 
     Go To                                   ${WELCOME URL}img_detail/${imageId}
     Wait Until Page Contains Element        id=wblitz-ch0
