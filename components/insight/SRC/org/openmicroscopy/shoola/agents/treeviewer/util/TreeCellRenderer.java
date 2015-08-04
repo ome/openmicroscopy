@@ -38,6 +38,7 @@ import javax.swing.JViewport;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
@@ -697,10 +698,6 @@ public class TreeCellRenderer
         FontMetrics fm = getFontMetrics(getFont());
         Object ho = node.getUserObject();
         if (node.getLevel() == 0) {
-            String text = node.getNodeName();
-            if (numberChildrenVisible) 
-                text = node.getNodeText();
-            
         	if (ho instanceof ExperimenterData) 
         	    setIcon(OWNER_ICON);
         	else 
@@ -709,7 +706,7 @@ public class TreeCellRenderer
             if (getIcon() != null)
                 w += getIcon().getIconWidth();
             w += getIconTextGap();
-            w += fm.stringWidth(text);
+            w += fm.stringWidth(getText());
             setPreferredSize(new Dimension(w, fm.getHeight()));
             
             Color c = node.getHighLight();
@@ -780,7 +777,8 @@ public class TreeCellRenderer
 
     @Override
     public String getText() {
-        if (ref != null) {
+        if (ref != null && !super.getText().equals(Browser.LOADING_MSG)
+                && !super.getText().equals(Browser.EMPTY_MSG)) {
             // trim the text so that it fits into the given space
             JViewport vp = ref.getViewport();
             int w = vp.getSize().width;

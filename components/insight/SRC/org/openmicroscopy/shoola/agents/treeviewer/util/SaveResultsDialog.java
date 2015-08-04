@@ -21,12 +21,13 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -41,8 +42,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -52,6 +55,9 @@ import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
 import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -83,6 +89,9 @@ public class SaveResultsDialog
 
     /** Close the dialog.*/
     private JButton saveButton;
+
+    /** The field displayed the name to use of the measurement.*/
+    private JTextField nameField;
 
     /** Initializes the components.
      * 
@@ -116,6 +125,7 @@ public class SaveResultsDialog
         roi.addChangeListener(l);
         table = new JCheckBox("Measurements");
         table.addChangeListener(l);
+        nameField = new JTextField(15);
         if (index == SaveEvent.ALL) {
             roi.setSelected(true);
             table.setSelected(true);
@@ -163,11 +173,23 @@ public class SaveResultsDialog
         } else {
             int[] values = WindowManager.getIDList();
             if (values != null) {
+                List<String> paths = new ArrayList<String>();
                 for (int i = 0; i < values.length; i++) {
                     plus = WindowManager.getImage(values[i]);
                     img = new FileObject(plus);
                     if (img.getOMEROID() < 0 || img.isNewImage()) {
-                        toImport.add(img);
+                        String path = img.getAbsolutePath();
+                        if (!paths.contains(path)) {
+                            paths.add(path);
+                            toImport.add(img);
+                            for (int j = 0; j < values.length; j++) {
+                                FileObject ff = new FileObject(
+                                        WindowManager.getImage(values[j]));
+                                if (path.equals(ff.getAbsolutePath())) {
+                                    img.addAssociatedFile(ff);
+                                }
+                            }
+                        }
                     } else {
                         images.add(img);
                     }
@@ -179,12 +201,14 @@ public class SaveResultsDialog
         if (toImport.size() > 0) { //ask if they want to import the image
             StringBuffer buf = new StringBuffer();
             buf.append("Do you wish to import any selected images not already "
-                    + "saved in OMERO to the OMERO server?");
+                    + CommonsLangUtils.LINE_SEPARATOR+
+                    "saved in OMERO to the OMERO server?");
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
                  result.setROI(roi.isSelected());
                  result.setTable(table.isSelected());
+                 result.setTableName(nameField.getText());
                  TreeViewerAgent.getRegistry().getEventBus().post(
                          new SaveResultsEvent(result, true));
             }
@@ -193,6 +217,7 @@ public class SaveResultsDialog
             result = new ResultsObject(images);
             result.setROI(roi.isSelected());
             result.setTable(table.isSelected());
+            result.setTableName(nameField.getText());
             ExperimenterData exp = TreeViewerAgent.getUserDetails();
             SecurityContext ctx = new SecurityContext(exp.getGroupId());
             ctx.setExperimenter(exp);
@@ -247,7 +272,17 @@ public class SaveResultsDialog
         buttons.add(UIUtilities.setTextFont("Save"));
         buttons.add(roi);
         buttons.add(table);
-        return UIUtilities.buildComponentPanel(buttons);
+        JPanel row = new JPanel();
+        row.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JLabel l = new JLabel();
+        l.setText("Measurements File Name: ");
+        row.add(l);
+        row.add(nameField);
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(UIUtilities.buildComponentPanel(buttons));
+        p.add(row);
+        return p;
     }
 
     /**

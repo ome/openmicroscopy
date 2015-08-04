@@ -52,6 +52,7 @@ import ome.services.graphs.GraphTraversal;
 import ome.services.graphs.PermissionsPredicate;
 import ome.system.EventContext;
 import ome.system.Login;
+import ome.system.Roles;
 import omero.cmd.Chown2;
 import omero.cmd.Chown2Response;
 import omero.cmd.HandleI.Cancel;
@@ -85,6 +86,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private Set<Long> acceptableGroupsFrom;
     private Set<Long> acceptableGroupsTo;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int givenObjectCount = 0;
@@ -92,6 +96,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     /**
      * Construct a new <q>chown</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
@@ -99,8 +104,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param graphPolicy the graph policy to apply for chown
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Chown2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
+    public Chown2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
@@ -118,7 +124,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 4 : 6);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
@@ -151,8 +157,13 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         graphPolicyWithOptions.registerPredicate(new PermissionsPredicate());
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -188,10 +199,20 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(false);
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
+                unlinker = graphTraversal.unlinkTargets(false);
+                graphTraversal = null;
+                return null;
+            case 4:
+                unlinker.execute();
+                return null;
+            case 5:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
@@ -268,6 +289,11 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     }
 
     @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
+    }
+
+    @Override
     public GraphPolicy.Action getActionForStarting() {
         return GraphPolicy.Action.INCLUDE;
     }
@@ -310,10 +336,10 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         @Override
         public void assertMayProcess(String className, long objectId, Details details) throws GraphException {
-            final Long objectOwnerId = details.getOwner().getId();
+            /* final Long objectOwnerId = details.getOwner().getId();
+               also allow userFromId.equals(objectOwnerId) for users to chown their own data */
             final Long objectGroupId = details.getGroup().getId();
-            if (!(acceptableGroupsFrom == null || acceptableGroupsFrom.contains(objectGroupId) ||
-                    userFromId.equals(objectOwnerId))) {
+            if (!(acceptableGroupsFrom == null || acceptableGroupsFrom.contains(objectGroupId))) {
                 throw new GraphException("user " + userFromId + " is not an owner of group " + objectGroupId);
             }
             if (!(acceptableGroupsTo == null || acceptableGroupsTo.contains(objectGroupId))) {

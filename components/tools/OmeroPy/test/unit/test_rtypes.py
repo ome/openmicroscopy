@@ -316,7 +316,7 @@ class TestModel(object):
         # String
         assert rstring("") == rstring(None)
         assert rstring("a") == rstring(rstring("a"))
-        pytest.raises(ValueError, lambda: rstring(0))
+        assert rstring("0") == rstring(0)
         # Class
         assert rclass("") == rclass(None)
         assert rclass("c") == rclass(rclass("c"))
@@ -445,3 +445,30 @@ class TestModel(object):
         ctor1 = myLong.__class__(5)
         ctor2 = myLongFromString.__class__("5")
         assert ctor1.val == ctor2.val
+
+    u = unicode("u")
+    cn = '中國'
+    cnu = u'中國'
+
+    class UStr(object):
+
+        def __init__(self, rv):
+            self.rv = rv
+
+        def __str__(self):
+            return self.rv
+
+    @pytest.mark.parametrize("data", (
+        (rstring, 1, "1"),
+        (rstring, u, "u"),
+        (rstring, u.encode("utf-8"), "u"),
+        (rstring, UStr(u), "u"),
+        (rstring, cn, cn),
+        (rstring, cnu, cn),
+    ))
+    def testMoreConversions(self, data):
+        # Some useful conversions were not supported in 5.1.2 and
+        # earlier. This tests each of those which should no longer
+        # be an error condition.
+        meth, arg, expected = data
+        assert meth(arg).val == expected

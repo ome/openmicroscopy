@@ -220,6 +220,15 @@ public interface Browser
      */
     public static final String     ADMIN_TITLE = "Administration";
     
+    /** The text of the dummy default node. */
+    public static final String     LOADING_MSG = "Loading...";
+    
+    /** 
+     * The text of the node added to a {@link TreeImageSet} node
+     * containing no element.
+     */
+    public static final String     EMPTY_MSG = "Empty";
+    
     /**
      * Sets the selected {@link TreeImageDisplay node}.
      * 

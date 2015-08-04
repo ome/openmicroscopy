@@ -186,35 +186,30 @@ class BaseClient(object):
             raise omero.ClientError("No initialization data provided.")
 
         # Strictly necessary for this class to work
-        id.properties.setProperty("Ice.ImplicitContext", "Shared")
-        id.properties.setProperty("Ice.ACM.Client", "0")
-        id.properties.setProperty("Ice.CacheMessageBuffers", "0")
-        id.properties.setProperty("Ice.RetryIntervals", "-1")
-        id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered")
-        id.properties.setProperty("Ice.Default.PreferSecure", "1")
-        id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
-        id.properties.setProperty("IceSSL.Ciphers", "ADH")
-        id.properties.setProperty("IceSSL.VerifyPeer", "0")
-        id.properties.setProperty("IceSSL.Protocols", "tls1")
+        self._optSetProp(id, "Ice.ImplicitContext", "Shared")
+        self._optSetProp(id, "Ice.ACM.Client", "0")
+        self._optSetProp(id, "Ice.CacheMessageBuffers", "0")
+        self._optSetProp(id, "Ice.RetryIntervals", "-1")
+        self._optSetProp(id, "Ice.Default.EndpointSelection", "Ordered")
+        self._optSetProp(id, "Ice.Default.PreferSecure", "1")
+        self._optSetProp(id, "Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
+        self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+        self._optSetProp(id, "IceSSL.VerifyPeer", "0")
+        self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
         # Setting block size
-        blockSize = id.properties.getProperty("omero.block_size")
-        if not blockSize or len(blockSize) == 0:
-            id.properties.setProperty(
-                "omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
+        self._optSetProp(
+            id, "omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
 
         # Set the default encoding if this is Ice 3.5 or later
         # and none is set.
         if Ice.intVersion() >= 30500:
-            if not id.properties.getProperty("Ice.Default.EncodingVersion"):
-                id.properties.setProperty(
-                    "Ice.Default.EncodingVersion", "1.0")
+            self._optSetProp(
+                id, "Ice.Default.EncodingVersion", "1.0")
 
         # Setting MessageSizeMax
-        messageSize = id.properties.getProperty("Ice.MessageSizeMax")
-        if not messageSize or len(messageSize) == 0:
-            id.properties.setProperty(
-                "Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
+        self._optSetProp(
+            id, "Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
 
         # Setting ConnectTimeout
         self.parseAndSetInt(id, "Ice.Override.ConnectTimeout",
@@ -1108,6 +1103,12 @@ class BaseClient(object):
     #
     # Misc.
     #
+
+    def _optSetProp(self, id, key, default=""):
+        val = id.properties.getProperty(key)
+        if not val:
+            val = default
+        id.properties.setProperty(key, val)
 
     def parseAndSetInt(self, data, key, newValue):
         currentValue = data.properties.getProperty(key)

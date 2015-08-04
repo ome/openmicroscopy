@@ -50,6 +50,7 @@ import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.system.EventContext;
 import ome.system.Login;
+import ome.system.Roles;
 import omero.cmd.Chgrp2;
 import omero.cmd.Chgrp2Response;
 import omero.cmd.HandleI.Cancel;
@@ -81,6 +82,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private Helper helper;
     private GraphTraversal graphTraversal;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int movedObjectCount = 0;
@@ -88,6 +92,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     /**
      * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
@@ -95,8 +100,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      * @param graphPolicy the graph policy to apply for chgrp
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Chgrp2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
+    public Chgrp2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
@@ -114,7 +120,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 4 : 6);
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
@@ -148,8 +154,13 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         }
         graphPolicyAdjusters = null;
 
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -185,10 +196,20 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(true);
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
+                unlinker = graphTraversal.unlinkTargets(true);
+                graphTraversal = null;
+                return null;
+            case 4:
+                unlinker.execute();
+                return null;
+            case 5:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
@@ -262,6 +283,11 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         } else {
             graphPolicyAdjusters.add(adjuster);
         }
+    }
+
+    @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
     }
 
     @Override

@@ -54,18 +54,21 @@ Test Cut Paste Dataset
 
     Select Experimenter
     ${p1id}=                                Create project      robot test paste1
-    ${p2id}=                                Create project      robot test paste2
     ${did}=                                 Create Dataset
     Click Element                           refreshButton
+    # Check hierarchy
+    Wait Until Element Is Visible           xpath=//li[@rel='experimenter']/ul/li[@id='project-${p1id}']/ul/li[@id='dataset-${did}']  ${WAIT}
+    Click Element                           xpath=//li[@id='dataset-${did}']/a
+    # Wait until metadata panel loads
+    Wait Until Page Contains                Dataset ID:  30
     Wait Until Page Contains Element        id=dataset-${did}
     Click Element                           id=cutButton
     # POST a /move/ action - wait for Orphaned Dataset
-    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/ul/li[@id='dataset-${did}']
+    Wait Until Element Is Visible           xpath=//li[@rel='experimenter']/ul/li[@id='dataset-${did}']  ${WAIT}
     # Another /move/ to different Project
     Click Element                           xpath=//li[@id='project-${p1id}']/a
     Click Element                           id=pasteButton
-    Click Element                           refreshButton
-    Wait Until Page Contains Element        xpath=//li[@id='project-${p1id}']//li[@id='dataset-${did}']
+    Wait Until Element Is Visible           xpath=//li[@rel='experimenter']/ul/li[@id='project-${p1id}']/ul/li[@id='dataset-${did}']  ${WAIT}
 
 
 Test Cut Paste Image

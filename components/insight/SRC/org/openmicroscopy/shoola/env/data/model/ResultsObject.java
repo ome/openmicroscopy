@@ -41,6 +41,9 @@ public class ResultsObject {
     /** Indicates to save the table if any.*/
     private boolean table;
 
+    /** The name of the measurement result file.*/
+    private String name;
+
     /**
      * Creates a new instance.
      *
@@ -88,4 +91,18 @@ public class ResultsObject {
      * @return See above.
      */
     public boolean isTable() { return table; }
+
+    /**
+     * Sets the name of the table when saved as a csv file.
+     *
+     * @param name The value to set.
+     */
+    public void setTableName(String name) { this.name = name; }
+
+    /**
+     * Returns the name of the table.
+     *
+     * @return See above.
+     */
+    public String getTableName() { return name; }
 }
