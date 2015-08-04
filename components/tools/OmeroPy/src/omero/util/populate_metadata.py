@@ -30,12 +30,14 @@ import re
 import json
 from getpass import getpass
 from getopt import getopt, GetoptError
+from itertools import izip
 
 import omero.clients
 from omero.rtypes import rstring
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
 from omero.model import ScreenAnnotationLinkI
+from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn
 from omero.grid import StringColumn, WellColumn
 from omero import client
@@ -581,6 +583,82 @@ class ParsingContext(object):
         link.parent = self.target_object
         link.child = file_annotation
         update_service.saveObject(link, {'omero.group': group})
+
+
+class BulkToMapAnnotationContext(object):
+    """Processor for creating MapAnnotations from BulkAnnotations."""
+
+    def __init__(self, client, target_object, ofileid):
+        self.client = client
+        self.target_object = target_object
+        self.ofileid = ofileid
+        self.file = file
+        self.value_resolver = ValueResolver(self.client, self.target_object)
+
+    def create_map_annotation(self, target, keys, values):
+        ma = MapAnnotationI()
+        ma.setNs(rstring(omero.constants.namespaces.NSBULKANNOTATIONS))
+        mv = [NamedValue(k, str(v)) for k, v in izip(keys, values)]
+        ma.setMapValue(mv)
+        otype = target.ice_staticId().split('::')[-1]
+        link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
+        link.setParent(target)
+        link.setChild(ma)
+        return link
+
+    def parse(self):
+        tableid = self.file
+        sr = self.client.getSession().sharedResources()
+        table = sr.openTable(omero.model.OriginalFileI(tableid, False))
+        assert table
+
+        try:
+            return self.populate(table)
+        finally:
+            table.close()
+
+    def populate(self, table):
+        def idcolumn_to_omeroclass(col):
+            clsname = re.search('::(\w+)Column$', col.ice_staticId()).group(1)
+            return getattr(omero.model, '%sI' % clsname)
+
+        nrows = table.getNumberOfRows()
+        data = table.readCoordinates(range(nrows))
+
+        idcoltypes = set(HeaderResolver.screen_keys.values())
+        idcols = []
+        for n in xrange(len(data.columns)):
+            col = data.columns[n]
+            if col.__class__ in idcoltypes:
+                omeroclass = idcolumn_to_omeroclass(col)
+                idcols.append((omeroclass, n))
+
+        headers = [c.name for c in data.columns]
+        rows = izip(*(c.values for c in data.columns))
+
+        mas = []
+
+        for row in rows:
+            values = row
+            for omerotype, n in idcols:
+                target = omerotype(values[n], False)
+                ma = self.create_map_annotation(target, headers, values)
+                log.debug('\n\t'.join("%s=%s" % (v.name, v.value)
+                          for v in ma.getChild().getMapValue()))
+                mas.append(ma)
+
+        self.mapannotations = mas
+
+    def post_process(self):
+        return
+
+    def write_to_omero(self):
+        sf = self.client.getSession()
+        group = str(self.value_resolver.target_object.details.group.id.val)
+        update_service = sf.getUpdateService()
+        ids = update_service.saveAndReturnIds(
+            self.mapannotations, {'omero.group': group})
+        log.info('Created %d MapAnnotations', len(ids))
 
 
 def parse_target_object(target_object):
