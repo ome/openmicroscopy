@@ -634,7 +634,9 @@ class BulkToMapAnnotationContext(object):
         nrows = table.getNumberOfRows()
         data = table.readCoordinates(range(nrows))
 
-        idcoltypes = set(HeaderResolver.screen_keys.values())
+        # Don't create annotations on higher-level objects
+        # idcoltypes = set(HeaderResolver.screen_keys.values())
+        idcoltypes = set((ImageColumn, WellColumn))
         idcols = []
         for n in xrange(len(data.columns)):
             col = data.columns[n]
