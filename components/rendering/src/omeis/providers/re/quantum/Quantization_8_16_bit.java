@@ -284,7 +284,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * 
      * @param qd
      *            Quantum definition object, contained mapping data.
-     * @param type
+     * @param pixels
      *            The pixels
      */
     public Quantization_8_16_bit(QuantumDef qd, Pixels pixels) {

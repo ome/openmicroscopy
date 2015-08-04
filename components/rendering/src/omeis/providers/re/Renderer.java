@@ -385,7 +385,6 @@ public class Renderer {
      * @param z
      *            The stack index.
      * @see #setDefaultT(int)
-     * @see #getDefaultPlaneDef()
      */
     public void setDefaultZ(int z)
     {
@@ -399,7 +398,6 @@ public class Renderer {
      * @param t
      *            The timepoint index.
      * @see #setDefaultZ(int)
-     * @see #getDefaultPlaneDef()
      */
     public void setDefaultT(int t) {
         rndDef.setDefaultT(Integer.valueOf(t));
@@ -826,7 +824,7 @@ public class Renderer {
      * Returns an array  whose ascending indices represent the color
      * components Red, Green and Blue.
      * 
-     * @param color the color to decompose into an array.
+     * @param channel  the color to decompose into an array.
      * @return See above.
      */
     public static int[] getColorArray(ChannelBinding channel)

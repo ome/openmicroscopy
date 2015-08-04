@@ -154,8 +154,6 @@ public class PlanePoint {
      * This method returns <nobr><i>f(t, p)</i></nobr>, where <i>t</i> is
      * this point and <i>p</i> is the specified argument.
      * 
-     * @param p
-     *            The other point. Mustn't be a <code>null</code> reference.
      * @return The vector associated to this point and <i>p</i>.
      */
     public PlanePoint vec(double x1, double x2) {

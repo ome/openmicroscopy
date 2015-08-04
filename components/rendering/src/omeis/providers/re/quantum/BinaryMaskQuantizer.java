@@ -28,7 +28,7 @@ public class BinaryMaskQuantizer extends QuantumStrategy
      * Creates a new strategy.
      * 
      * @param qd Quantum definition object, contained mapping data.
-     * @param type The pixels. Must be of type <code>bit</code>.
+     * @param pixels The pixels
      */
     public BinaryMaskQuantizer(QuantumDef qd, Pixels pixels)
     {
