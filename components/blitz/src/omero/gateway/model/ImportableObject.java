@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.model.ImportableObject 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -21,8 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package omero.gateway.model;
-
-
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -55,7 +53,7 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
-/** 
+/**
  * Helper class where parameters required for the imports are stored.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -67,7 +65,8 @@ import pojos.TagAnnotationData;
  */
 public class ImportableObject
 {
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");;
+    public static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat("dd-MM-yyyy");;
 
     /** The default name for the dataset. */
     public static final String DEFAULT_DATASET_NAME;
@@ -85,17 +84,17 @@ public class ImportableObject
     private static final List<String> ARBITRARY_FILES_EXTENSION;
 
     /** 
-     * The collection of HCS format. 
+     * The collection of HCS format.
      */
     public static final List<String> HCS_DOMAIN;
 
     /** 
-     * The collection of OME suffices. 
+     * The collection of OME suffices.
      */
     public static final List<String> OME_SUFFIXES;
 
     /** The filter used to exclude extensions.*/
-    public static final TIFFFilter	FILTER;
+    public static final TIFFFilter FILTER;
 
     /** The <code>dat</code> extension.*/
     public static final String DAT_EXTENSION = "dat";
@@ -138,6 +137,10 @@ public class ImportableObject
         ARBITRARY_FILES_EXTENSION.add("dat");
         ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIFF);
         ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIF);
+        try {
+            reader.close();
+        } catch (Exception e) {//do not record
+        }
     }
 
     /**
@@ -157,12 +160,11 @@ public class ImportableObject
         }
     }
 
-
     /**
      * Returns <code>true</code> if the extension of the specified file
      * is arbitrary and so requires to use the import candidates,
      * <code>false</code> otherwise.
-     * 
+     *
      * @param f The file to handle.
      * @return See above.
      */
@@ -184,7 +186,7 @@ public class ImportableObject
     /** The depth used when scanning a folder. */
     private int scanningDepth;
 
-    /** 
+    /**
      * Flag indicating to override the name set by B-F when importing the data. 
      */
     private boolean overrideName;
@@ -211,27 +213,8 @@ public class ImportableObject
     private Map<Long, List<DatasetData>> projectDatasetMap;
 
     /**
-     * Returns the object corresponding to the passed file.
-     * 
-     * @param f The file to handle.
-     * @return See above.
-     */
-    private ImportableFile getImportableFile(File f)
-    {
-        Iterator<ImportableFile> i = files.iterator();
-        String path = f.getAbsolutePath();
-        ImportableFile iFile;
-        while (i.hasNext()) {
-            iFile = i.next();
-            if (path.equals(iFile.getFile().getAbsolutePath()))
-                return iFile;
-        }
-        return null;
-    }
-
-    /**
      * Returns the name of the object.
-     * 
+     *
      * @param object The object to handle.
      * @return See above.
      */
@@ -251,8 +234,8 @@ public class ImportableObject
 
     /**
      * Creates a new instance.
-     * 
-     * @param files 	The collection of files to import.
+     *
+     * @param files The collection of files to import.
      * @param overrideName Pass <code>true</code> to override the name of the 
      *                     file set while importing the data,
      *                     <code>false</code> otherwise.
@@ -271,9 +254,9 @@ public class ImportableObject
     /**
      * Sets to <code>true</code> if the thumbnail has to be loaded when 
      * the image is imported, <code>false</code> otherwise.
-     * 
-     * @param loadThumbnail  Pass <code>true</code> to load the thumbnail when 
-     * 						 the image is imported, <code>false</code> otherwise.
+     *
+     * @param loadThumbnail Pass <code>true</code> to load the thumbnail when 
+     *                      the image is imported, <code>false</code> otherwise.
      */
     public void setLoadThumbnail(boolean loadThumbnail)
     {
@@ -283,20 +266,20 @@ public class ImportableObject
     /**
      * Returns <code>true</code> if the thumbnail has to be loaded when 
      * the image is imported, <code>false</code> otherwise.
-     * @return
+     * @return See above.
      */
     public boolean isLoadThumbnail() { return loadThumbnail; }
 
     /**
      * Sets the type to use when creating a folder as container.
-     * 
+     *
      * @param type The type to use.
      */
     public void setType(Class type) { this.type = type; }
 
     /**
      * Sets the default size of the pixels if the value is not found.
-     * 
+     *
      * @param pixelsSize The value to set.
      */
     public void setPixelsSize(double[] pixelsSize)
@@ -306,7 +289,7 @@ public class ImportableObject
 
     /** 
      * Sets the collection of tags.
-     * 
+     *
      * @param tags The tags to use.
      */
     public void setTags(Collection<TagAnnotationData> tags)
@@ -317,7 +300,7 @@ public class ImportableObject
     /**
      * Sets the depth used scanning a folder.
      * 
-     * @param depth The value to set.
+     * @param scanningDepth The value to set.
      */
     public void setScanningDepth(int scanningDepth)
     {
@@ -326,15 +309,15 @@ public class ImportableObject
 
     /**
      * Returns the depth used scanning a folder.
-     * 
+     *
      * @return See above.
      */
     public int getScanningDepth() { return scanningDepth; }
 
     /**
      * Sets the depth used when the name is overridden.
-     * 
-     * @param depth The value to set.
+     *
+     * @param depthForName The value to set.
      */
     public void setDepthForName(int depthForName)
     {
@@ -343,14 +326,14 @@ public class ImportableObject
 
     /**
      * Returns the depth used when the name is overridden.
-     * 
+     *
      * @return See above.
      */
     public int getDepthForName() { return depthForName; }
 
     /**
      * Returns the collection of files to import.
-     * 
+     *
      * @return See above.
      */
     public List<ImportableFile> getFiles() { return files; }
@@ -358,7 +341,7 @@ public class ImportableObject
     /**
      * Returns the <code>DataObject</code> corresponding to the folder 
      * be saved as a container.
-     * 
+     *
      * @param file The file to handle.
      * @return See above.
      */
@@ -370,7 +353,7 @@ public class ImportableObject
     /**
      * Returns the <code>DataObject</code> corresponding to the folder 
      * be saved as a container.
-     * 
+     *
      * @param file The file to handle.
      * @param hcs Pass <code>true</code> to indicate that the folder 
      * to create is for HCS data, <code>false</code> otherwise.
@@ -400,7 +383,7 @@ public class ImportableObject
 
     /**
      * Returns the root type used when creating the object.
-     * 
+     *
      * @return See above.
      */
     public Class getRootType()
@@ -413,7 +396,7 @@ public class ImportableObject
     /** 
      * Returns <code>true</code> if the name set while importing the data
      * has to be overridden, <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isOverrideName() { return overrideName; }
@@ -421,7 +404,7 @@ public class ImportableObject
     /** 
      * Returns the pixels size to use of the value is not found in the 
      * file.
-     * 
+     *
      * @return See above.
      */
     public Double[] getPixelsSize()
@@ -437,7 +420,7 @@ public class ImportableObject
 
     /**
      * Returns the collection of tags.
-     * 
+     *
      * @return See above.
      */
     public Collection<TagAnnotationData> getTags() { return tags; }
@@ -445,12 +428,14 @@ public class ImportableObject
     /**
      * Returns <code>true</code> if new tags were created, <code>false</code>
      * otherwise.
-     * 
+     *s
      * @return See above.
      */
     public boolean hasNewTags()
     {
-        if (tags == null || tags.size() == 0) return false;
+        if (CollectionUtils.isEmpty(tags)) {
+            return false;
+        }
         Iterator<TagAnnotationData> i = tags.iterator();
         TagAnnotationData tag;
         while (i.hasNext()) {
@@ -462,14 +447,14 @@ public class ImportableObject
 
     /**
      * Returns the nodes of reference.
-     * 
+     *
      * @return See above.
      */
     public List<Object> getRefNodes() { return refNodes; }
 
     /**
      * Returns the nodes of reference.
-     * 
+     *
      * @param refNodes The value to set.
      */
     public void setRefNodes(List<Object> refNodes) { this.refNodes = refNodes; }
@@ -477,7 +462,7 @@ public class ImportableObject
     /**
      * Returns <code>true</code> if the extension of the specified file
      * is a HCS files, <code>false</code> otherwise.
-     * 
+     *
      * @param f The file to handle.
      * @return See above.
      */
@@ -513,7 +498,7 @@ public class ImportableObject
     /**
      * Returns code <code>true</code> if the specified file is an
      * <code>OME</code> file, <code>false</code> otherwise.
-     * 
+     *
      * @param file The file to handle.
      * @return See above.
      */
@@ -536,7 +521,7 @@ public class ImportableObject
     /**
      * Returns <code>true</code> if new objects have to be created,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean hasNewObjects()
@@ -548,7 +533,7 @@ public class ImportableObject
 
     /**
      * Adds a new object.
-     * 
+     *
      * @param object The object to add.
      */
     public void addNewDataObject(DataObject object)
@@ -559,11 +544,12 @@ public class ImportableObject
     /**
      * Returns the object if it has already been created in the specified
      * context, <code>null</code> otherwise.
-     * 
+     *
      * @param object The object to check.
+     * @param ctx The security context.
      * @return See above.
      */
-    public DataObject hasObjectBeenCreated(DataObject object, 
+    public DataObject hasObjectBeenCreated(DataObject object,
             SecurityContext ctx)
     {
         if (object == null) return null;
@@ -584,7 +570,7 @@ public class ImportableObject
 
     /**
      * Returns the dataset if already created.
-     * 
+     *
      * @param projectID The id of the project.
      * @param dataset The dataset to register.
      * @return See above.s
@@ -592,7 +578,7 @@ public class ImportableObject
     public DatasetData isDatasetCreated(long projectID, DatasetData dataset)
     {
         List<DatasetData> datasets = projectDatasetMap.get(projectID);
-        if (datasets == null || datasets.size() == 0) return null;
+        if (CollectionUtils.isEmpty(datasets)) return null;
         Iterator<DatasetData> i = datasets.iterator();
         DatasetData data;
         String name = dataset.getName();
@@ -642,7 +628,7 @@ public class ImportableObject
 
     /**
      * Resets the files to re-upload
-     * 
+     *
      * @param files The files to reupload.
      */
     public void reUpload(List<ImportableFile> files)
