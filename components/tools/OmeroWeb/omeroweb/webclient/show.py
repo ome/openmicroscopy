@@ -450,7 +450,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
         params.add('iid', rlong(image_id))
         lowest_type = 'image'
     # If none of these parameters are set then there is nothing to find
-    # TODO Perhaps should throw exception?
     if lowest_type is None:
         return []
 
@@ -493,7 +492,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                 'coalesce(powner.id, downer.id, iowner.id) = :eid')
         if len(where_clause) > 0:
             q += ' and ' + ' and '.join(where_clause)
-        print q
 
         q += '''
              order by coalesce(powner.id, downer.id, iowner.id),
@@ -538,7 +536,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                 'type': 'image',
                 'id': e[3].val
             })
-            print path
             paths.append(path)
 
     elif lowest_type == 'dataset':
@@ -610,18 +607,20 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
     # This is basically the same as WellSample except that it is not
     # restricted by a particular WellSample id
+    # May not have acquisition (load plate from well)
+    # We don't need to load the wellsample (not in tree)
     elif lowest_type == 'well':
         q = '''
             select coalesce(sowner.id, plowner.id, aowner.id, wsowner.id),
                    slink.parent.id,
                    plate.id,
-                   acquisition.id,
-                   wellsample.id
+                   acquisition.id
             from WellSample wellsample
             left outer join wellsample.details.owner wsowner
             left outer join wellsample.plateAcquisition acquisition
             left outer join wellsample.details.owner aowner
-            left outer join acquisition.plate plate
+            join wellsample.well well
+            left outer join well.plate plate
             left outer join plate.details.owner plowner
             left outer join plate.screenLinks slink
             left outer join slink.parent.details.owner sowner
@@ -656,25 +655,18 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                     'id': e[1].val
                 })
 
-            # If it is experimenter->plate->acquisition->wellsample or
-            # experimenter->screen->plate->acquisition->wellsample
-            if e[2] is not None:
+            # Plate should always present
+            path.append({
+                'type': 'plate',
+                'id': e[2].val
+            })
+
+            # Acquisition not present if plate created via API (not imported)
+            if e[3] is not None:
                 path.append({
-                    'type': 'plate',
-                    'id': e[2].val
+                    'type': 'acquisition',
+                    'id': e[3].val
                 })
-
-            # Acquisition always present
-            path.append({
-                'type': 'acquisition',
-                'id': e[3].val
-            })
-
-            # WellSample always present
-            path.append({
-                'type': 'wellsample',
-                'id': e[4].val
-            })
 
             paths.append(path)
 
