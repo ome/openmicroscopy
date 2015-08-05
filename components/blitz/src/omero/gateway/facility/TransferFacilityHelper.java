@@ -107,7 +107,15 @@ public class TransferFacilityHelper {
 
     private DataManagerFacility datamanager;
 
-    public TransferFacilityHelper(Gateway gateway,
+    /**
+     * Creates a new instance.
+     *
+     * @param gateway Reference to the gateway.
+     * @param datamanager Reference to the manager facility.
+     * @param parent Reference to the parent.
+     * @throws ExecutionException
+     */
+    TransferFacilityHelper(Gateway gateway,
             DataManagerFacility datamanager, TransferFacility parent)
             throws ExecutionException {
         this.gateway = gateway;
@@ -925,7 +933,20 @@ public class TransferFacilityHelper {
         return browse.findIObject(ctx, ioContainer);
     }
 
-    public List<File> downloadImage(SecurityContext context, String targetPath,
+    /**
+     * Downloads the original file of an image from the server.
+     *
+     * @param context The security context.
+     * @param targetPath Path to the file.
+     * @param imageId The identifier of the image.
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
+     */
+    List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {
         List<File> files = new ArrayList<File>();
 
