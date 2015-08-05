@@ -22,11 +22,16 @@ package omero.gateway.util;
 
 import java.io.File;
 
-import javax.swing.filechooser.FileFilter;
+/**
+ * Methods to check if an image is a <code>TIFF</code> image.
+ *
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @since 5.1
+ *
+ */
+public class TIFFFilter {
 
-//Java imports
-
-public class TIFFFilter extends FileFilter {
     /** The MIMEType associated to this type of file. */
     public static final String MIMETYPE = "image/tiff";
 
@@ -71,36 +76,37 @@ public class TIFFFilter extends FileFilter {
     }
 
     /**
-     * Overridden to return the MIME type.
-     * 
-     * @see CustomizedFileFilter#getMIMEType()
+     * Returns the MIME type.
+     *
+     * @return See above.
      */
     public String getMIMEType() {
         return MIMETYPE;
     }
 
     /**
-     * Overridden to return the extension of the filter.
-     * 
-     * @see CustomizedFileFilter#getExtension()
+     * Returns the extension of the filter.
+     *
+     * @return See above.
      */
     public String getExtension() {
         return TIFF;
     }
 
     /**
-     * Overridden to return the description of the filter.
-     * 
-     * @see FileFilter#getDescription()
+     * Returns the description of the filter.
+     *
+     * @return See above.
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * Overridden to accept file with the declared file extensions.
+     * Accepts or not the file with the declared file extensions.
      * 
-     * @see FileFilter#accept(File)
+     * @param file The file to handle.
+     * @return See above.
      */
     public boolean accept(File f) {
         if (f == null)
@@ -111,9 +117,10 @@ public class TIFFFilter extends FileFilter {
     }
 
     /**
-     * Overridden to accept the file identified by its name.
-     * 
-     * @see CustomizedFileFilter#accept(String)
+     * Accepts or not the file identified by its name.
+     *
+     * @param fileName The name of the file.
+     * @return See above.
      */
     public boolean accept(String fileName) {
         return isSupported(fileName, extensions);
