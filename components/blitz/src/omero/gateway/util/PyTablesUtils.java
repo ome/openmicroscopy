@@ -38,6 +38,7 @@ import omero.grid.WellColumn;
 
 
 /**
+ * Collection of utility classes to convert OMERO tables.
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
