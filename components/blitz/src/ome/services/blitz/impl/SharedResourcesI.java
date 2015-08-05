@@ -9,8 +9,10 @@ package ome.services.blitz.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,7 +37,6 @@ import omero.ValidationException;
 import omero.constants.categories.PROCESSCALLBACK;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
-import omero.grid.AMI_Tables_getTable;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
@@ -69,7 +70,7 @@ import Ice.UserException;
 
 /**
  * Implementation of the SharedResources interface.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.1
  * @see ome.grid.SharedResources
@@ -174,7 +175,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
     // Acquisition framework
     // =========================================================================
-    
+
     private void register(TablePrx prx) {
         if (prx != null) {
             synchronized(tableIds) {
@@ -183,7 +184,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
             }
         }
     }
-    
+
     private void checkAcquisitionWait(int seconds) throws ApiUsageException {
         if (seconds > (3 * 60)) {
             ApiUsageException aue = new ApiUsageException();
@@ -195,7 +196,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
     /**
      * A task that gets applied to various proxies to test their validity.
      * Usually defined inline as anonymous classes.
-     * 
+     *
      * @see {@link ProcessorCheck}
      */
     private interface RepeatTask<U extends Ice.ObjectPrx> {
@@ -342,7 +343,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
             }
 
         });
-        
+
         OriginalFile saved = (OriginalFile) new IceMapper().map(obj);
         if (saved == null) {
             throw new InternalException(null, null, "Failed to save file");
@@ -386,30 +387,25 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
                 Arrays.<Ice.ObjectPrx> asList(tables),
                 new RepeatTask<TablePrx>() {
                     public void requestService(Ice.ObjectPrx prx,
-                            final ResultHolder holder) {
-                        final TablesPrx server = TablesPrxHelper
-                                .uncheckedCast(prx);
-                        server.getTable_async(new AMI_Tables_getTable() {
+                            final ResultHolder holder) throws ServerError {
+                       final TablesPrx server = TablesPrxHelper
+                          .uncheckedCast(prx);
 
-                            @Override
-                            public void ice_exception(LocalException ex) {
-                                holder.set(null);
-                            }
+                       Map<String, String> ctx = new HashMap<String, String>();
+                       ctx.put("omero.group", "-1");
+                       server.begin_getTable(file, sf.proxy(), ctx,
+                           new Ice.Callback() {
+                               public void completed(Ice.AsyncResult r) {
+                                   try {
+                                       holder.set(server.end_getTable(r));
+                                   } catch (Exception e) {
+                                       holder.set(null);
+                                   }
+                               }});
+                       }
+                    });
 
-                            @Override
-                            public void ice_response(TablePrx __ret) {
-                                holder.set(__ret);
-                            }
-
-                            @Override
-                            public void ice_exception(UserException ex) {
-                                holder.set(null);
-                            }
-                        }, file, sf.proxy(), __current.ctx);
-                    }
-                });
-
-        sf. allow(tablePrx);
+        sf.allow(tablePrx);
         register(tablePrx);
         return tablePrx;
 

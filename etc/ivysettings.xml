@@ -127,6 +127,7 @@
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="spring-resolver"/>
     <module organisation="ome" name="appbundler" resolver="ome-resolver"/>
+    <module organisation="zeroc" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
   </modules>
 

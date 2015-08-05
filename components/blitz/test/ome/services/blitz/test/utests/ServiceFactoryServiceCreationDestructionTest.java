@@ -117,8 +117,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
     @Test
     public void testDoStatelessAddsServantToServantListCacheAndAdapter()
             throws Exception {
-        IAdminPrxHelper admin = new IAdminPrxHelper();
-        admin.setup(new Ref());
+        IAdminPrxHelper admin = IAdminPrxHelperFactory.create();
 
         callsActiveServices(Collections.singletonList(adminServiceId));
         map.put(adminServiceId, new _IAdminTie());

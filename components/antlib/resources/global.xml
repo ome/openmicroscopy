@@ -382,6 +382,12 @@
                         <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
                     </then>
                 </if>
+                <if><matches string="${executable.ice.version}" pattern="^3[.]6"/>
+                    <then>
+                        <property name="versions.ice" value="${versions.ice36}"/>
+                        <property name="versions.ice_lib" value="${versions.ice36_lib}"/>
+                    </then>
+                </if>
             </then>
             <elseif>
                 <equals arg1="3.4" arg2="${ice.compatibility}"/>
@@ -395,6 +401,13 @@
                 <then>
                     <property name="versions.ice" value="${versions.ice35}"/>
                     <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
+                </then>
+            </elseif>
+            <elseif>
+                <equals arg1="3.6" arg2="${ice.compatibility}"/>
+                <then>
+                    <property name="versions.ice" value="${versions.ice36}"/>
+                    <property name="versions.ice_lib" value="${versions.ice36_lib}"/>
                 </then>
             </elseif>
             <else>
