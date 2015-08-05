@@ -74,17 +74,38 @@ public class BrowseFacility extends Facility {
         super(gateway);
     }
 
-    // TODO: Comment
+    /**
+     * Retrieves hierarchy trees rooted by a given node.
+     * i.e. the requested node as root and all of its descendants.
+     *
+     * @param ctx The security context.
+     * @param rootType The type of node to handle.
+     * @param userId The user's to retrieve the data to handle.
+     * @return See above.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged in.
+     */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(userId));
+        if (userId >= 0) {
+            param.exp(omero.rtypes.rlong(userId));
+        }
         param.orphan();
         param.leaves();
         return loadHierarchy(ctx, rootType, null, param);
     }
 
-    // TODO: Comment
+    /**
+     * Retrieves hierarchy trees rooted by a given node.
+     * i.e. the requested node as root and all of its descendants.
+     *
+     * @param ctx The security context.
+     * @param rootType The type of node to handle.
+     * @param rootIDs The node's id.
+     * @param options The retrieval options.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException {
