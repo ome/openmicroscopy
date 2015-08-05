@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.RenderingServiceException
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,14 +23,8 @@
 
 package omero.gateway.exception;
 
-
-//Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Reports an error occurred while trying to render a plane.
@@ -66,21 +60,21 @@ public class RenderingServiceException
 
     /**
      * Constructs a new exception with the specified detail message.
-     * 
+     *
      * @param message Short explanation of the problem.
      */
     public RenderingServiceException(String message) { super(message); }
 
     /**
      * Constructs a new exception with the specified cause.
-     * 
+     *
      * @param cause The exception that caused this one to be risen.
      */
     public RenderingServiceException(Throwable cause) { super(cause); }
 
     /**
      * Constructs a new exception with the specified detail message and cause.
-     * 
+     *
      * @param message Short explanation of the problem.
      * @param cause The exception that caused this one to be risen.
      */
@@ -91,7 +85,7 @@ public class RenderingServiceException
 
     /**
      * Prints the stack trace and returns it as a string.
-     * 
+     *
      * @return See above.
      */
     public String getExtendedMessage()
@@ -105,14 +99,14 @@ public class RenderingServiceException
     /**
      * Sets the index indicating if the error occurred due to a network 
      * failure.
-     * 
+     *
      * @param index The value to set.
      */
     public void setIndex(int index) { this.index = index; }
 
     /**
      * Returns the index.
-     * 
+     *
      * @return See above.
      */
     public int getIndex() { return index; }
