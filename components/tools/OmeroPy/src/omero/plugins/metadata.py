@@ -8,6 +8,7 @@
 
 """
 
+import logging
 import re
 import sys
 
@@ -17,8 +18,8 @@ from omero.cli import CLI
 from omero.cli import ProxyStringType
 from omero.constants import namespaces
 from omero.gateway import BlitzGateway
-from omero.util.populate_roi import PlateAnalysisCtxFactory
-
+# from omero.util.populate_roi import PlateAnalysisCtxFactory
+from omero.util import populate_metadata
 
 HELP = """metadata methods
 
@@ -93,6 +94,12 @@ class Metadata(object):
 
 class MetadataControl(BaseControl):
 
+    POPULATE_CONTEXTS = (
+        ("csv", populate_metadata.ParsingContext),
+        ("bulkmap", populate_metadata.BulkToMapAnnotationContext),
+        ("deletemap", populate_metadata.DeleteMapAnnotationContext),
+    )
+
     def _configure(self, parser):
         parser.add_login_arguments()
 
@@ -103,13 +110,15 @@ class MetadataControl(BaseControl):
         bulkanns = parser.add(sub, self.bulkanns)
         mapanns = parser.add(sub, self.mapanns)
         allanns = parser.add(sub, self.allanns)
+        populate = parser.add(sub, self.populate)
 
-        for x in (summary, original, bulkanns, measures, mapanns, allanns):
+        for x in (summary, original, bulkanns, measures, mapanns, allanns,
+                  populate):
             x.add_argument("obj",
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
 
-        for x in (bulkanns, mapanns, allanns):
+        for x in (bulkanns, mapanns, allanns, populate):
             x.add_argument("--pretty", action="store_true", help=(
                 "Format output for human readability, "
                 "show additional information"))
@@ -118,13 +127,14 @@ class MetadataControl(BaseControl):
             "--parents", action="store_true",
             help="Also search parents for bulk annotations")
 
-        populate = parser.add(sub, self.populate)
+        populate.add_argument(
+            "--context", default=self.POPULATE_CONTEXTS[0][0],
+            choices=[a[0] for a in self.POPULATE_CONTEXTS])
         dry_or_not = populate.add_mutually_exclusive_group()
         dry_or_not.add_argument("-n", "--dry-run", action="store_true")
         dry_or_not.add_argument("-f", "--force", action="store_false",
                                 dest="dry_run")
-        populate.add_argument(
-            "plate", type=ProxyStringType("Plate"))
+        populate.add_argument("--file", help="Input file")
         populate.add_argument(
             "--measurement", type=int,
             default=None, help=(
@@ -282,22 +292,34 @@ class MetadataControl(BaseControl):
 
     def populate(self, args):
         client = self.ctx.conn(args)
-        factory = PlateAnalysisCtxFactory(client.sf)
-        ctx = factory.get_analysis_ctx(args.plate.id.val)
-        count = ctx.get_measurement_count()
-        if not count:
-            self.ctx.die(100, "No measurements found")
-        for i in range(count):
-            if args.dry_run:
-                self.ctx.out(
-                    "Measurement %d has %s result files." % (
-                        i, ctx.get_result_file_count(i)))
-            else:
-                if args.measurement is not None:
-                    if args.measurement != i:
-                        continue
-                meas = ctx.get_measurement_ctx(i)
-                meas.parse_and_populate()
+        # TODO: Configure logging properly
+        print args.pretty
+        if args.pretty:
+            populate_metadata.log.setLevel(logging.DEBUG)
+        else:
+            populate_metadata.log.setLevel(logging.INFO)
+        context_class = dict(self.POPULATE_CONTEXTS)[args.context]
+        ctx = context_class(client, args.obj, args.file)
+        ctx.parse()
+        if not args.dry_run:
+            ctx.write_to_omero()
+
+    #    factory = PlateAnalysisCtxFactory(client.sf)
+    #    ctx = factory.get_analysis_ctx(args.plate.id.val)
+    #    count = ctx.get_measurement_count()
+    #    if not count:
+    #        self.ctx.die(100, "No measurements found")
+    #    for i in range(count):
+    #        if args.dry_run:
+    #            self.ctx.out(
+    #                "Measurement %d has %s result files." % (
+    #                    i, ctx.get_result_file_count(i)))
+    #        else:
+    #            if args.measurement is not None:
+    #                if args.measurement != i:
+    #                    continue
+    #            meas = ctx.get_measurement_ctx(i)
+    #            meas.parse_and_populate()
 
 try:
     register("metadata", MetadataControl, HELP)
