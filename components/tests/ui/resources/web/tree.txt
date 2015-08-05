@@ -312,15 +312,6 @@ Dataset Should Be Selected
     [Return]                    ${nodeId}
 
 
-# TODO: Not needed with jsTree 3? Since we don't initially have hidden nodes.
-# Select Node By Id
-#     [Arguments]         ${nodeId}
-#     # Make sure node is visible (by clicking parent node)
-#     ${nodeVisible}      ${r}    Run Keyword And Ignore Error    Element Should Be Visible   id=${nodeId}
-#     Run Keyword If      '${nodeVisible}'=='FAIL'     Click Element      xpath=//li[@id='${nodeId}']/parent::ul/parent::li/a
-#     Sleep               1
-#     Click Node          ${nodeId}
-
 Click Node
     [Arguments]         ${nodeId}
     Click Element       xpath=//li[@id='${nodeId}']/a
