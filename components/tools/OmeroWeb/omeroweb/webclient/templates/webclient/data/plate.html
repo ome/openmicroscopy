@@ -123,7 +123,7 @@
             {% if select_wells %}
                 wpv.self.bind('_resetLoaded', function(){
                     var sel_well_ids = [{{ select_wells }}],
-                        well_id,
+                        well_id, $well
                         selected_wells = $("");
                     for (var s=0;s<sel_well_ids.length;s++){
                         well_id = sel_well_ids[s];

@@ -66,6 +66,7 @@ $(document).ready(function() {
             node = inst.get_node(node);
             var nodeType = node.type;
             var nodeId = node.data.obj.id;
+            var show = OME.getURLParameter('show');
 
             switch(nodeType) {
                 case 'dataset':
@@ -77,13 +78,19 @@ $(document).ready(function() {
                 case 'plate':
                     // Only load plates if it does not have child acquisitions
                     if (!inst.is_parent(node)) {
-                        url += 'load_data/' + nodeType + '/' + nodeId;
+                        url += 'load_data/' + nodeType + '/' + nodeId + '/';
+                        if (show) {
+                            url += "?show=" + show;
+                        }
                     } else {
                         url = undefined;
                     }
                     break;
                 case 'acquisition':
                     url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
+                    if (show) {
+                        url += "&show=" + show;
+                    }
                     break;
                 case 'tag':
                     url += 'load_tags/?view=icon&o_type=tag&o_id=' + nodeId;

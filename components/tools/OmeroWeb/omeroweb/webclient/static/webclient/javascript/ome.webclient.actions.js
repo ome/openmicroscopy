@@ -34,6 +34,32 @@ OME.multi_key = function() {
     }
 };
 
+OME.getURLParameter = function(key) {
+    /* Return single value for parameter with specified key
+     * Does not handle multi-value parameters
+     * Returns false if there are no parameters or it is not present
+    */
+
+    // If there are no parameters, just return false
+    if (window.location.search.length === 0) {
+        return false;
+    }
+
+    // Remove the leading '?'
+    var search = window.location.search.substring(1);
+
+    // Break them up
+    var searchParams = search.split('&');
+
+    for (var i = 0; i < searchParams.length; i++) {
+        var paramSplit = searchParams[i].split('=');
+        if (paramSplit[0] === key) {
+            return paramSplit[1];
+        }
+    }
+    return false;
+};
+
 jQuery.fn.hide_if_empty = function() {
     if ($(this).children().length === 0) {
         $(this).hide();
@@ -533,7 +559,6 @@ OME.nodeHasPermission = function(node, permission) {
     // Check if the node data has permissions data
     if (node.data.obj.hasOwnProperty('permsCss')) {
         var perms = node.data.obj.permsCss;
-        console.log('nodeHasPermission', perms);
         // Determine if this node has this permission
         if (perms.indexOf(permission) > -1) {
             return true;

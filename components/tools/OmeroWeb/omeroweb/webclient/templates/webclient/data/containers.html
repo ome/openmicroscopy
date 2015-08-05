@@ -70,32 +70,6 @@
     //     }, 200);
     // }
 
-    var getURLParameter = function(key) {
-        /* Return single value for parameter with specified key
-         * Does not handle multi-value parameters
-         * Returns false if there are no parameters or it is not present
-        */
-
-        // If there are no parameters, just return false
-        if (window.location.search.length == 0) {
-            return false;
-        }
-
-        // Remove the leading '?'
-        var search = window.location.search.substring(1);
-
-        // Break them up
-        var searchParams = search.split('&');
-
-        for (var i = 0; i < searchParams.length; i++) {
-            var paramSplit = searchParams[i].split('=');
-            if (paramSplit[0] === key) {
-                return paramSplit[1]
-            }
-        }
-        return false;
-    }
-
     var updateParentRemoveNode = function(inst, node, parent) {
         /* Update any other instances of the parent of this node to remove it
          * Also Based on if the parent of this node has any children
@@ -1102,7 +1076,7 @@
                     }
 
                     // Introspect the URL to get the show parameter
-                    var param = getURLParameter('show');
+                    var param = OME.getURLParameter('show');
 
                     if (param) {
                         var inst = data.instance;
@@ -1142,24 +1116,21 @@
                                         return;
                                     }
 
-                                    // If this is not the final path component, open it and
-                                    // traverse in the callback
-                                     if (index < lastIndex) {
+                                    if (index < lastIndex) {
                                         inst.open_node(node, function() {
                                             traverse(index += 1, node);
-                                        })
-
+                                        });
                                     // Otherwise select it
-                                     } else {
-                                        // TODO Centre view on this selection
-                                        // if multiple objects, select them all
-                                        for(var n=0; n<nodeIds.length; n++) {
+                                    } else {
+                                        inst.select_node(node);
+                                        // Handle multiple selection. E.g. extra images in same dataset
+                                        for(var n=1; n<nodeIds.length; n++) {
                                             node = inst.locate_node(nodeIds[n], parentNode)[0];
                                             if(node) {
                                                 inst.select_node(node);
                                             }
                                         }
-                                     }
+                                    }
                                 };
 
                                 // Start traversing at the start of the path with no parent node
