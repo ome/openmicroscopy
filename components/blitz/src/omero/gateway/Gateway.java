@@ -1083,7 +1083,7 @@ public class Gateway {
     }
 
     /**
-     * Get a conenctor for a certain {@link SecurityContext}
+     * Get a connector for a certain {@link SecurityContext}
      * 
      * @param ctx
      *            The {@link SecurityContext}
