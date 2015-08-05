@@ -71,9 +71,9 @@ public class AdminFacility extends Facility {
      * @param owner The owner of the group.
      * @param permissions The group's permissions.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to 
-     * retrieve data from OMERO service
+     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
      */
     public GroupData createGroup(SecurityContext ctx, GroupData groupData,
             ExperimenterData owner, int permissions)
@@ -118,9 +118,9 @@ public class AdminFacility extends Facility {
      * @param isGroupOwner Pass <code>true</code> if the user is a group owner,
      *                <code>false</code> otherwise.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to 
-     * retrieve data from OMERO service
+     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
      */
     public ExperimenterData createExperimenter(SecurityContext ctx,
             ExperimenterData exp, String username, String password,

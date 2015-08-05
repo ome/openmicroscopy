@@ -35,10 +35,9 @@ import pojos.ChannelData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
-//Java imports
 
 /**
- *
+ * Methods to access the metadata.
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -48,6 +47,12 @@ public class MetadataFacility extends Facility {
 
     private BrowseFacility browse;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param gateway Reference to the gateway.
+     * @throws ExecutionException
+     */
     MetadataFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.browse = gateway.getFacility(BrowseFacility.class);
