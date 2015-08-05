@@ -178,7 +178,9 @@ public class Gateway {
             try {
                 i.next().close(online);
             } catch (Throwable e) {
-                log.warn(this, new LogMessage("Cannot close connector", e));
+                if (log != null) {
+                    log.warn(this, new LogMessage("Cannot close connector", e));
+                }
             }
         }
         Facility.clear();
@@ -203,7 +205,9 @@ public class Gateway {
         boolean networkup = isNetworkUp(false);
         connected = false;
         if (!networkup) {
-            log.warn(this, "Network is down");
+            if (log != null) {
+                log.warn(this, "Network is down");
+            }
             return false;
         }
         List<Connector> connectors = removeAllConnectors();
@@ -213,18 +217,21 @@ public class Gateway {
         while (i.hasNext()) {
             c = i.next();
             try {
-                log.debug(this, "joining the session ");
+                if (log != null)
+                    log.debug(this, "joining the session ");
                 c.joinSession();
                 groupConnectorMap.put(c.getGroupID(), c);
             } catch (Throwable t) {
-                log.error(this,
+                if (log != null)
+                    log.error(this,
                         new LogMessage("Failed to join the session ", t));
                 // failed to join so we create a new one, first we shut down
                 try {
                     c.shutDownServices(true);
                     c.close(networkup);
                 } catch (Throwable e) {
-                    log.error(this, new LogMessage(
+                    if (log != null)
+                        log.error(this, new LogMessage(
                             "Failed to close the session ", t));
                 }
                 if (!groupConnectorMap.containsKey(c.getGroupID())) {
@@ -232,7 +239,8 @@ public class Gateway {
                         createConnector(new SecurityContext(c.getGroupID()),
                                 false);
                     } catch (Exception e) {
-                        log.error(this, new LogMessage(
+                        if (log != null)
+                            log.error(this, new LogMessage(
                                 "Failed to create connector ", e));
                         index++;
                     }
@@ -301,7 +309,7 @@ public class Gateway {
 
     /**
      * Executes the commands.
-     * 
+     *
      * @param commands
      *            The commands to execute.
      * @param target
@@ -318,7 +326,7 @@ public class Gateway {
 
     /**
      * Directly submit a {@link Request} to the server
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param cmd
@@ -339,7 +347,7 @@ public class Gateway {
 
     /**
      * Close Import for a certain user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param userName
@@ -354,13 +362,14 @@ public class Gateway {
                 c.closeImport();
             }
         } catch (Throwable e) {
-            log.warn(this, "Failed to close import: " + e);
+            if (log != null)
+                log.warn(this, "Failed to close import: " + e);
         }
     }
 
     /**
      * Run a script on the server
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param scriptID
@@ -421,7 +430,7 @@ public class Gateway {
 
     /**
      * Returns the {@link IRenderingSettingsPrx} service.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
@@ -438,7 +447,7 @@ public class Gateway {
 
     /**
      * Returns the {@link IRepositoryInfoPrx} service.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
@@ -455,7 +464,7 @@ public class Gateway {
 
     /**
      * Returns the {@link IScriptPrx} service.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
@@ -472,7 +481,7 @@ public class Gateway {
 
     /**
      * Returns the {@link IContainerPrx} service.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
@@ -865,7 +874,8 @@ public class Gateway {
                             c.getServer().getHostname()).getHostAddress();
                     networkChecker = new NetworkChecker(ip, log);
                 } catch (Exception e) {
-                    log.warn(this, new LogMessage(
+                    if (log != null)
+                        log.warn(this, new LogMessage(
                             "Failed to get inet address: "
                                     + c.getServer().getHostname(), e));
                 }
@@ -876,7 +886,8 @@ public class Gateway {
                     try {
                         keepSessionAlive();
                     } catch (Throwable t) {
-                        log.warn(
+                        if (log != null)
+                            log.warn(
                                 this,
                                 new LogMessage(
                                         "Exception while keeping the services alive",
@@ -944,7 +955,8 @@ public class Gateway {
                     LogMessage msg = new LogMessage();
                     msg.print("Error while changing group.");
                     msg.print(e);
-                    log.debug(this, msg);
+                    if (log != null)
+                        log.debug(this, msg);
                 }
             }
             // Connector now controls the secureClient for closing.
@@ -1066,7 +1078,8 @@ public class Gateway {
                 return networkChecker.isNetworkup(useCachedValue);
             return true;
         } catch (Throwable t) {
-            log.warn(this, new LogMessage("Error on isNetworkUp check", t));
+            if (log != null)
+                log.warn(this, new LogMessage("Error on isNetworkUp check", t));
         }
         return false;
     }
@@ -1134,7 +1147,8 @@ public class Gateway {
                 svc.close(); // Last ditch effort to close.
             }
         } catch (Exception e) {
-            log.warn(this, String.format("Failed to close %s: %s", svc, e));
+            if (log != null)
+                log.warn(this, String.format("Failed to close %s: %s", svc, e));
         }
     }
 
@@ -1214,7 +1228,8 @@ public class Gateway {
             isNetworkUp(true); // Need safe version?
         } catch (Exception e1) {
             if (permitNull) {
-                log.warn(
+                if (log != null)
+                    log.warn(
                         this,
                         new LogMessage(
                                 "Failed to check network. Returning null connector",
@@ -1226,7 +1241,8 @@ public class Gateway {
 
         if (!isNetworkUp(true)) {
             if (permitNull) {
-                log.warn(this, "Network down. Returning null connector");
+                if (log != null)
+                    log.warn(this, "Network down. Returning null connector");
                 return null;
             }
             throw new DSOutOfServiceException(
@@ -1235,7 +1251,8 @@ public class Gateway {
 
         if (ctx == null) {
             if (permitNull) {
-                log.warn(this, "Null SecurityContext");
+                if (log != null)
+                    log.warn(this, "Null SecurityContext");
                 return null;
             }
             throw new DSOutOfServiceException("Null SecurityContext");
@@ -1265,7 +1282,8 @@ public class Gateway {
                 c = createConnector(ctx, permitNull);
             else {
                 if (permitNull) {
-                    log.warn(this, "Cannot re-create. Returning null connector");
+                    if (log != null)
+                        log.warn(this, "Cannot re-create. Returning null connector");
                     return null;
                 }
                 throw new DSOutOfServiceException("Not allowed to recreate");
