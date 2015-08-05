@@ -23,9 +23,8 @@ package omero.gateway.util;
 import java.io.File;
 import java.util.regex.Pattern;
 
-//Java imports
-
 /**
+ * Collection of methods used to set the name of files to import.
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
