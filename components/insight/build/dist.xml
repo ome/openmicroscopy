@@ -450,19 +450,19 @@
     <property name="dist.zip.prefix.osx"
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
 
-    <property name="dist.zip.prefix.osx.107"
+    <property name="dist.zip.prefix.osx"
               value="${dist.zip.prefix.osx}"/>
-    <zip destfile="${dist.dir}/${dist.zip.prefix.osx.107}.zip">
-      <zipfileset prefix="${dist.zip.prefix.osx.107}" dir="${dist.dir}"
+    <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
+      <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
                includes="OMERO.insight.app/**"
                excludes="**/${distInsight.name}"/>
       <zipfileset file="${dist.dir}/OMERO.insight.app/Contents/MacOS/${distInsight.name}"
-                  fullpath="${dist.zip.prefix.osx.107}/OMERO.insight.app/Contents/MacOS/${distInsight.name}"
+                  fullpath="${dist.zip.prefix.osx}/OMERO.insight.app/Contents/MacOS/${distInsight.name}"
                   filemode="775"/>
-      <zipfileset prefix="${dist.zip.prefix.osx.107}"
+      <zipfileset prefix="${dist.zip.prefix.osx}"
                   file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
-                  fullpath="${dist.zip.prefix.osx.107}/LICENSE"/>
+                  fullpath="${dist.zip.prefix.osx}/LICENSE"/>
     </zip>
 
     <delete dir="${dist.dir}/OMERO.insight.app"/>
@@ -534,19 +534,19 @@
 	  <property name="dist.zip.prefix.importer.osx"
 	            value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
 	
-	  <property name="dist.zip.prefix.importer.osx.107"
+	  <property name="dist.zip.prefix.importer.osx"
 		        value="${dist.zip.prefix.importer.osx}"/>
-	   <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx.107}.zip">
-	      <zipfileset prefix="${dist.zip.prefix.importer.osx.107}" dir="${dist.dir}"
+	   <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx}.zip">
+	      <zipfileset prefix="${dist.zip.prefix.importer.osx}" dir="${dist.dir}"
 	                includes="OMERO.importer.app/**"
 	                excludes="**/${dist.osx.stub.name},**/${distImporter.name}"/>
 	      <zipfileset file="${dist.dir}/OMERO.importer.app/Contents/MacOS/${distImporter.name}"
-	                  fullpath="${dist.zip.prefix.importer.osx.107}/OMERO.importer.app/Contents/MacOS/${distImporter.name}"
+	                  fullpath="${dist.zip.prefix.importer.osx}/OMERO.importer.app/Contents/MacOS/${distImporter.name}"
 	                  filemode="775"/>
-	      <zipfileset prefix="${dist.zip.prefix.importer.osx.107}"
+	      <zipfileset prefix="${dist.zip.prefix.importer.osx}"
 	                  file="${dist.osx.installfile}"/>
 	      <zipfileset file="${base.licensefile}"
-	                  fullpath="${dist.zip.prefix.importer.osx.107}/LICENSE"/>
+	                  fullpath="${dist.zip.prefix.importer.osx}/LICENSE"/>
 	   </zip>
 
 	  <delete dir="${dist.dir}/OMERO.importer.app"/>
