@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.UintConverter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *

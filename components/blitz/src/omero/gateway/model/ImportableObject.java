@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ImportableObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *

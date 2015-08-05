@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.cache.CacheService 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *

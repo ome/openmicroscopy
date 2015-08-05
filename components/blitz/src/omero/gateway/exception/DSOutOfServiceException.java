@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.DSOutOfServiceException
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *

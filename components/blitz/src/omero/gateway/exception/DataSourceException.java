@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.DataSourceException
- *
  *------------------------------------------------------------------------------
  *
  *  Copyright (C) 2004 Open Microscopy Environment

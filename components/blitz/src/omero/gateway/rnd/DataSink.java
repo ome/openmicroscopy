@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.DataSink 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *

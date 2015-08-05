@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.SecurityContext 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.

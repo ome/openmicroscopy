@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.NetworkChecker
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
