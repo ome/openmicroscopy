@@ -33,6 +33,7 @@ from getopt import getopt, GetoptError
 from itertools import izip
 
 import omero.clients
+from omero.callbacks import CmdCallbackI
 from omero.rtypes import rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
@@ -771,13 +772,28 @@ class DeleteMapAnnotationContext(object):
         self.mapannids = mapannids
 
     def write_to_omero(self):
-        conn = omero.gateway.BlitzGateway(client_obj=client)
-        h = conn.deleteObjects("MapAnnotation", self.mapannids)
-        conn._waitOnCmd(h, len(self.mappannids) / 10)
-        r = h.getResponse()
-        log.info("Deleted %d MapAnnotations",
-                 r.deletedObjects.get(
-                     "ome.model.annotations.MapAnnotation", 0))
+        to_delete = {"MapAnnotation": self.mapannids}
+        delCmd = omero.cmd.Delete2(targetObjects=to_delete)
+        handle = self.client.getSession().submit(delCmd)
+
+        callback = None
+        try:
+            callback = CmdCallbackI(self.client, handle)
+            loops = max(10, len(self.mapannids) / 10)
+            delay = 500
+            callback.loop(loops, delay)
+            rsp = callback.getResponse()
+            if isinstance(rsp, omero.cmd.OK):
+                deleted = rsp.deletedObjects.get(
+                    "ome.model.annotations.MapAnnotation", [])
+                log.info("Deleted %d MapAnnotations", len(deleted))
+            else:
+                log.error("Delete failed: %s", rsp)
+        finally:
+            if callback:
+                callback.close(True)
+            else:
+                handle.close()
 
 
 def parse_target_object(target_object):
