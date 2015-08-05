@@ -19,21 +19,21 @@
         this.change_page = function(node, page) {
             this._set_page(node, page);
             this.refresh_node(node);
-        }
+        };
 
         this.get_page = function(node) {
             if (node.id in page_map) {
                 return page_map[node.id];
             }
             return 1;
-        }
+        };
 
         this._set_page = function(node, page) {
             /* Set the page for a node
              *
             */
             page_map[node.id] = page;
-        }
+        };
 
         this._remove_page = function(node) {
             // Update the mapping
@@ -49,13 +49,13 @@
             if (node.id in page_map) {
                 delete page_map[node.id];
             }
-            return node; // TODO What to return if anything?
+            return node; // What to return if anything?
 
         };
 
         this._clear_pages = function() {
             page_map = Object.create(null);
-        }
+        };
 
         // bind events if needed
         this.bind = function () {
@@ -72,7 +72,7 @@
                                 traverse(inst.get_node(child));
                             });
                         }
-                    };
+                    }
 
                     traverse(data.node);
 

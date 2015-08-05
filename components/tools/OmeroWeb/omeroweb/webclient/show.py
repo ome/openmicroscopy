@@ -465,9 +465,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     # of special casing each type, but it will be less readable and
     # maintainable than these
 
-    # TODO Image might actually be a WellSample instead of an orphan if it
-    # is not found in a dataset. Either ignore these or return the appropriate
-    # Well.
     if lowest_type == 'image':
         q = '''
             select coalesce(powner.id, downer.id, iowner.id),

@@ -595,7 +595,6 @@ OME.writeSelectedObjs = function(selected_tree_nodes, selected_icons) {
         selected_icons.each(function(index, el) {
             var $el = $(el);
             var oid = $el.data('type') + '-' + $el.data('id');
-            //TODO Fill in class
             var selected_obj = {
                 'id': oid,
                 'rel': $el.data('type'),

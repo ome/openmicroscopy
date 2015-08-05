@@ -25,14 +25,14 @@
                 return field_map[node.id];
             }
             return 0;
-        }
+        };
 
         this.set_field = function(node, field) {
             /* Set the field for a node
              *
             */
             field_map[node.id] = field;
-        }
+        };
 
         this._remove_field = function(node) {
             // Update the mapping
@@ -48,13 +48,13 @@
             if (node.id in field_map) {
                 delete field_map[node.id];
             }
-            return node; // TODO What to return if anything?
+            return node;
 
         };
 
         this._clear_fields = function() {
             field_map = Object.create(null);
-        }
+        };
 
         // bind events if needed
         this.bind = function () {
@@ -71,7 +71,7 @@
                                 traverse(inst.get_node(child));
                             });
                         }
-                    };
+                    }
 
                     traverse(data.node);
 

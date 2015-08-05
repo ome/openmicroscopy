@@ -25,11 +25,11 @@
              *
             */
             var lf = this.settings.locate.locate_function;
-            if (lf != undefined && $.isFunction(lf)) {
+            if (lf !== undefined && $.isFunction(lf)) {
                 return lf.call(this, node);
             }
             return false;
-        }
+        };
 
         this.locate_node = function (key, ancestor) {
             /* Return the nodes that match this id converted from
@@ -51,12 +51,12 @@
                 locatedArray.push(located[property]);
             }
 
-            // TODO Is there a way to make this more efficient?
             // Remove nodes that are not descended from ancestor node
             if (ancestor) {
                 var inst = this;
 
                 var traverse = function(state) {
+                    if (!state) return false;
                     var parentNode = inst.get_node(inst.get_parent(state));
                     if (parentNode === ancestor) {
                         // Found, bail out
@@ -107,7 +107,7 @@
             locate_map[key][node.id] = node;
 
             inst.trigger('locate_update.jstree', node);
-            return node; // TODO What to return if anything?
+            return node; // What to return if anything?
         };
 
         this._locate_remove = function(node) {
@@ -135,13 +135,13 @@
                     delete locate_map[key];
                 }
             }
-            return node; // TODO What to return if anything?
+            return node; // What to return if anything?
 
         };
 
         this._locate_clear = function() {
             locate_map = Object.create(null);
-        }
+        };
 
         // // *SPECIAL* FUNCTIONS
         // this.init = function (el, options) {
@@ -197,7 +197,7 @@
                     var inst = this;
                     $.each(data.nodes, function(index, nodeId) {
                         inst._locate_add(nodeId);
-                    })
+                    });
                 }, this))
 
                 .on("create_node.jstree", $.proxy(function (event, data) {
@@ -216,7 +216,7 @@
                                 traverse(child);
                             });
                         }
-                    };
+                    }
 
                     traverse(data.node.id);
 
@@ -300,11 +300,11 @@
                         // so remove here
                     });
                 }
-            };
+            }
 
             traverse(obj);
             return parent.refresh_node.call(this, obj);
-        }
+        };
     };
 
     // you can include the plugin in all instances by default
