@@ -601,7 +601,6 @@ class BulkToMapAnnotationContext(object):
         self.client = client
         self.target_object = target_object
         self.ofileid = ofileid
-        self.file = file
         self.value_resolver = ValueResolver(self.client, self.target_object)
 
     def create_map_annotation(self, target, keys, values):
@@ -616,7 +615,7 @@ class BulkToMapAnnotationContext(object):
         return link
 
     def parse(self):
-        tableid = self.file
+        tableid = self.ofileid
         sr = self.client.getSession().sharedResources()
         table = sr.openTable(omero.model.OriginalFileI(tableid, False))
         assert table
