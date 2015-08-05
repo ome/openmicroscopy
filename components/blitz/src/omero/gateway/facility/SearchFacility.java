@@ -51,8 +51,6 @@ import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.util.PojoMapper;
 
-//Java imports
-
 /**
  * A {@link Facility} for performing searches
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
