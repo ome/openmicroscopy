@@ -36,6 +36,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -101,7 +102,7 @@ import omero.log.Logger;
 import omero.model.ExperimenterGroup;
 import omero.model.Session;
 import omero.sys.Principal;
-import omero.util.CommonsLangUtils;
+
 
 
 /** 
@@ -828,7 +829,7 @@ class Connector
      Connector getConnector(final String userName)
             throws Throwable
     {
-        if (CommonsLangUtils.isBlank(userName)) 
+        if (StringUtils.isBlank(userName)) 
             return this;
 
         return derived.get(userName, new Callable<Connector>() {

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
+
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -101,7 +103,6 @@ import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
-import omero.util.CommonsLangUtils;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -493,7 +494,7 @@ public class ModelMapper
     		annotation.setDescription(omero.rtypes.rstring(
     				((TagAnnotationData) data).getTagDescription()));
     		String ns = data.getNameSpace();
-    		if (CommonsLangUtils.isNotEmpty(ns)) {
+    		if (StringUtils.isNotEmpty(ns)) {
     			annotation.setNs(omero.rtypes.rstring(ns));
     		}
     	} else if (data instanceof BooleanAnnotationData) {
@@ -523,7 +524,7 @@ public class ModelMapper
 		} else if (data instanceof MapAnnotationData) {
 			annotation = new MapAnnotationI();
 			String ns = data.getNameSpace();
-			if (CommonsLangUtils.isNotEmpty(ns)) {
+			if (StringUtils.isNotEmpty(ns)) {
 				annotation.setNs(omero.rtypes.rstring(ns));
 			}
 			((MapAnnotation) annotation).setMapValue((List<NamedValue>) data
