@@ -232,10 +232,6 @@
         <available property="jdk1.7+" classname="java.util.Objects"/>
         <available property="jdk1.8+" classname="java.util.stream.IntStream"/>
 
-        <property name="javac.maxmem.default" value="750M"/>
-        <property name="javadoc.maxmem.default" value="750M"/>
-        <property name="maxmem.set" value="true"/>
-
         <if>
             <isset property="jdk1.8+"/>
             <then>
