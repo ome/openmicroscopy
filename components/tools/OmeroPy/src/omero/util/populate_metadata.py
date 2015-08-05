@@ -33,9 +33,10 @@ from getopt import getopt, GetoptError
 from itertools import izip
 
 import omero.clients
-from omero.rtypes import rstring
+from omero.rtypes import rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
+from omero.model import PlateAcquisitionI, WellI, WellSampleI, ImageI
 from omero.model import ScreenAnnotationLinkI
 from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn
@@ -659,9 +660,6 @@ class BulkToMapAnnotationContext(object):
 
         self.mapannotations = mas
 
-    def post_process(self):
-        return
-
     def write_to_omero(self):
         sf = self.client.getSession()
         group = str(self.value_resolver.target_object.details.group.id.val)
@@ -669,6 +667,117 @@ class BulkToMapAnnotationContext(object):
         ids = update_service.saveAndReturnIds(
             self.mapannotations, {'omero.group': group})
         log.info('Created %d MapAnnotations', len(ids))
+
+
+class DeleteMapAnnotationContext(object):
+    """
+    Processor for deleting MapAnnotations in the BulkAnnotations namespace
+    on these types: Image WellSample Well PlateAcquisition Plate Screen
+    """
+
+    def __init__(self, client, target_object, dummy=None):
+        """
+        :param client: OMERO client object
+        :param target_object: The object to be processed
+        """
+        self.client = client
+        self.target_object = target_object
+
+    def parse(self):
+        return self.populate()
+
+    def populate(self):
+        def projection(q, ids, ns=None):
+            qs = self.client.getSession().getQueryService()
+            params = omero.sys.ParametersI()
+            params.addIds(ids)
+            if ns:
+                params.addString("ns", ns)
+            log.debug("Query: %s len(IDs): %d", q, len(ids))
+            rss = unwrap(qs.projection(q, params))
+            return [r for rs in rss for r in rs]
+
+        # Hierarchy: Screen, Plate, {PlateAcquistion, Well}, WellSample, Image
+        parentids = {
+            "Screen": None,
+            "Plate":  None,
+            "PlateAcquisition": None,
+            "Well": None,
+            "WellSample": None,
+            "Image": None,
+        }
+
+        target = self.target_object
+        ids = [unwrap(target.getId())]
+
+        if isinstance(target, ScreenI):
+            q = ("SELECT child.id FROM ScreenPlateLink "
+                 "WHERE parent.id in (:ids)")
+            parentids["Screen"] = ids
+        if parentids["Screen"]:
+            parentids["Plate"] = projection(q, parentids["Screen"])
+
+        if isinstance(target, PlateI):
+            parentids["Plate"] = ids
+        if parentids["Plate"]:
+            q = "SELECT id FROM PlateAcquisition WHERE plate.id IN (:ids)"
+            parentids["PlateAcquisition"] = projection(q, parentids["Plate"])
+            q = "SELECT id FROM Well WHERE plate.id IN (:ids)"
+            parentids["Well"] = projection(q, parentids["Plate"])
+
+        if isinstance(target, PlateAcquisitionI):
+            parentids["PlateAcquisition"] = ids
+        if parentids["PlateAcquisition"] and not isinstance(target, PlateI):
+            # WellSamples are linked to PlateAcqs and Plates, so only get
+            # if they ahven't been obtained via a Plate
+            # Also note that we do not get Wells if the parent is a
+            # PlateAcquisition since this only refers to the fields in
+            # the well
+            q = "SELECT id FROM WellSample WHERE plateAcquisition.id IN (:ids)"
+            parentids["WellSample"] = projection(
+                q, parentids["PlateAcquisition"])
+
+        if isinstance(target, WellI):
+            parentids["Well"] = ids
+        if parentids["Well"]:
+            q = "SELECT id FROM WellSample WHERE well.id IN (:ids)"
+            parentids["WellSample"] = projection(q, parentids["Well"])
+
+        if isinstance(target, WellSampleI):
+            parentids["WellSample"] = ids
+        if parentids["WellSample"]:
+            q = "SELECT image.id FROM WellSample WHERE id IN (:ids)"
+            parentids["Image"] = projection(q, parentids["WellSample"])
+
+        if isinstance(target, ImageI):
+            parentids["Image"] = ids
+
+        log.debug("Parent IDs: %s", parentids)
+
+        mapannids = []
+        not_annotatable = ('WellSample',)
+        ns = omero.constants.namespaces.NSBULKANNOTATIONS
+        for objtype, objids in parentids.iteritems():
+            r = []
+            if objids and objtype not in not_annotatable:
+                q = ("SELECT child.id FROM %sAnnotationLink WHERE "
+                     "child.class=MapAnnotation AND parent.id in (:ids) "
+                     "AND child.ns=:ns")
+                r = projection(q % objtype, objids, ns)
+                mapannids.extend(r)
+            log.debug("%s: %d MapAnnotations", objtype, len(set(r)))
+
+        log.info("Total: %d MapAnnotations in %s", len(set(mapannids)), ns)
+        self.mapannids = mapannids
+
+    def write_to_omero(self):
+        conn = omero.gateway.BlitzGateway(client_obj=client)
+        h = conn.deleteObjects("MapAnnotation", self.mapannids)
+        conn._waitOnCmd(h, len(self.mappannids) / 10)
+        r = h.getResponse()
+        log.info("Deleted %d MapAnnotations",
+                 r.deletedObjects.get(
+                     "ome.model.annotations.MapAnnotation", 0))
 
 
 def parse_target_object(target_object):
