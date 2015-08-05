@@ -29,57 +29,46 @@
 
 package omero.gateway.exception;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Reports an error occurred while trying to pull out data from the pixels data
  * repository.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 724 $ $Date: 2004-04-16 15:23:39 +0000 (Fri, 16 Apr 2004) $)
- * </small>
+ *  <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @since OME2.2
  */
 public class DataSourceException
-	extends Exception
+    extends Exception
 {
 
-	/** Creates a new exception. */
-	public DataSourceException() { super(); }
+    /** Creates a new exception. */
+    public DataSourceException() { super(); }
 
-	/**
-	 * Constructs a new exception with the specified detail message.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 */
-	public DataSourceException(String message) { super(message); }
+    /**
+     * Constructs a new exception with the specified detail message.
+     * 
+     * @param message Short explanation of the problem.
+     */
+    public DataSourceException(String message) { super(message); }
 
-	/**
-	 * Constructs a new exception with the specified cause.
-	 * 
-	 * @param cause		The exception that caused this one to be risen.
-	 */
-	public DataSourceException(Throwable cause) { super(cause); }
+    /**
+     * Constructs a new exception with the specified cause.
+     * 
+     * @param cause The exception that caused this one to be risen.
+     */
+    public DataSourceException(Throwable cause) { super(cause); }
 
-	/**
-	 * Constructs a new exception with the specified detail message and cause.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
-	 */
-	public DataSourceException(String message, Throwable cause)
-	{
-		super(message, cause);
-	}
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param message Short explanation of the problem.
+     * @param cause The exception that caused this one to be risen.
+     */
+    public DataSourceException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 
 }
