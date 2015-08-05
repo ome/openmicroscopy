@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import omero.ServerError;
 import omero.api.IRoiPrx;
 import omero.api.IUpdatePrx;
@@ -52,10 +54,10 @@ import pojos.ROIData;
 import pojos.ShapeData;
 import pojos.util.PojoMapper;
 
-//Java imports
 
 /**
- *
+ * A {@link Facility} for ROI.
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -65,6 +67,11 @@ public class ROIFacility extends Facility {
 
     private DataManagerFacility dm;
 
+    /**
+     * Creates a new instance
+     * @param gateway Reference to the {@link Gateway}
+     * @throws ExecutionException
+     */
     ROIFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.dm = gateway.getFacility(DataManagerFacility.class);
@@ -106,6 +113,10 @@ public class ROIFacility extends Facility {
      *            The security context.
      * @param imageID
      *            The image's ID.
+     * @param z
+     *          The selection z-section.
+     * @param t
+     *          The selection timepoint.
      * @return See above.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or logged in.
@@ -115,19 +126,17 @@ public class ROIFacility extends Facility {
      */
     public List<ROIResult> loadROIsByPlane(SecurityContext ctx, long imageID, int z, int t)
             throws DSOutOfServiceException, DSAccessException {
+        List<ROIResult> results = new ArrayList<ROIResult>();
         try {
-            List<ROIResult> results = new ArrayList<ROIResult>();
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
             RoiResult r = svc.findByPlane(imageID, z, t, options);
-            
             ROIResult result = new ROIResult(PojoMapper.<ROIData>asCastedDataObjects(r.rois));
             results.add(result);
-            return results;
         } catch (ServerError e) {
             handleException(this, e, "Couldn't get ROIs by plane.");
         }
-        return Collections.EMPTY_LIST;
+        return results;
     }
 
     
@@ -157,6 +166,7 @@ public class ROIFacility extends Facility {
      *            The security context.
      * @param imageID
      *            The image's ID.
+     * @param measurements The measurements IDs linked to the image if any.
      * @return See above.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or logged in.
@@ -177,6 +187,7 @@ public class ROIFacility extends Facility {
      *            The security context.
      * @param imageID
      *            The image's ID.
+     * @param measurements The measurements IDs linked to the image if any.
      * @param userID
      *            The user's ID.
      * @return See above.
@@ -194,11 +205,11 @@ public class ROIFacility extends Facility {
         try {
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
-            if(userID>=0)
+            if (userID >= 0)
                 options.userId = omero.rtypes.rlong(userID);
             RoiResult r;
             ROIResult result;
-            if (measurements == null || measurements.size() == 0) {
+            if (CollectionUtils.isEmpty(measurements)) {
                 options = new RoiOptions();
                 r = svc.findByImage(imageID, options);
                 if (r == null)
@@ -279,7 +290,7 @@ public class ROIFacility extends Facility {
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
-            if(userID>=0)
+            if (userID >= 0)
                 options.userId = omero.rtypes.rlong(userID);
             RoiResult serverReturn;
             serverReturn = svc.findByImage(imageID, new RoiOptions());

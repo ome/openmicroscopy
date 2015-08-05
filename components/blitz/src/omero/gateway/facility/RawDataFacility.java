@@ -33,10 +33,8 @@ import pojos.PixelsData;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-//Java imports
-
 /**
- *  A {@link Facility}  for accessing raw data
+ *  A {@link Facility} for accessing raw data
  *  
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -193,6 +191,14 @@ public class RawDataFacility extends Facility {
         return data;
     }
 
+    /**
+     * Retrieves a data sink corresponding the pixels.
+     *
+     * @param pixels The pixels to handle.
+     * @param gateway The gateway.
+     * @return See above.
+     * @throws ExecutionException
+     */
     private static DataSink getDataSink(final PixelsData pixels,
             final Gateway gateway) throws ExecutionException {
         return cache.get(pixels.getId(), new Callable<DataSink>() {
