@@ -31,6 +31,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 import ome.formats.OMEROMetadataStoreClient;
 import omero.RType;
 import omero.ServerError;
@@ -69,7 +72,6 @@ import omero.grid.SharedResourcesPrx;
 import omero.log.LogMessage;
 import omero.log.Logger;
 import omero.model.ExperimenterGroupI;
-import omero.util.CommonsLangUtils;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.util.PojoMapper;
@@ -347,7 +349,7 @@ public class Gateway {
         try {
             Connector c = getConnector(ctx, false, true);
             if (c != null) {
-                if (CommonsLangUtils.isNotEmpty(userName))
+                if (StringUtils.isNotEmpty(userName))
                     c = c.getConnector(userName);
                 c.closeImport();
             }
@@ -528,7 +530,7 @@ public class Gateway {
     public IUpdatePrx getUpdateService(SecurityContext ctx, String userName)
             throws DSOutOfServiceException {
         Connector c = getConnector(ctx, true, false);
-        if (CommonsLangUtils.isNotEmpty(userName)) {
+        if (StringUtils.isNotEmpty(userName)) {
             try {
                 c = c.getConnector(userName);
             } catch (Throwable e) {
@@ -768,7 +770,7 @@ public class Gateway {
     public OMEROMetadataStoreClient getImportStore(SecurityContext ctx,
             String userName) throws DSOutOfServiceException {
         Connector c = getConnector(ctx, true, false);
-        if (CommonsLangUtils.isNotEmpty(userName)) {
+        if (StringUtils.isNotEmpty(userName)) {
             try {
                 c = c.getConnector(userName);
             } catch (Throwable e) {
@@ -1062,12 +1064,11 @@ public class Gateway {
         try {
             if (networkChecker != null)
                 return networkChecker.isNetworkup(useCachedValue);
-            else
-                return true;
+            return true;
         } catch (Throwable t) {
             log.warn(this, new LogMessage("Error on isNetworkUp check", t));
-            return false;
         }
+        return false;
     }
 
     /**
@@ -1103,7 +1104,7 @@ public class Gateway {
      */
     public void closeConnector(SecurityContext ctx) {
         List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
-        if (clist == null || clist.isEmpty())
+        if (CollectionUtils.isEmpty(clist))
             return;
 
         for (Connector c : clist) {
@@ -1353,7 +1354,7 @@ public class Gateway {
             ServiceFactoryPrx prx = client.createSession(login.getUser()
                     .getUsername(), login.getUser().getPassword());
 
-            if(ctx.getGroupID()>=0)
+            if (ctx.getGroupID() >= 0)
                 prx.setSecurityContext(new ExperimenterGroupI(ctx.getGroupID(),
                         false));
             
