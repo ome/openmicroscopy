@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.StatusLabel
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 package omero.gateway.model;
 
 
-//Java imports
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -50,7 +47,13 @@ import pojos.DataObject;
 import pojos.FilesetData;
 import pojos.PixelsData;
 
-
+/**
+ * Notify of import update.
+ *
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @since 5.1
+ */
 public class ImportCallback
     implements IObserver
 {
@@ -61,15 +64,15 @@ public class ImportCallback
     /** The text indicating the scanning steps. */
     public static final String SCANNING_TEXT = "Scanning...";
 
-    /** 
+    /**
      * Bound property indicating that the original container has been reset.
-     * */
+     */
     public static final String NO_CONTAINER_PROPERTY = "noContainer";
 
     /** Bound property indicating that children files have been set. */
     public static final String FILES_SET_PROPERTY = "filesSet";
 
-    /** 
+    /**
      * Bound property indicating that the file has to be reset
      * This should be invoked if the log file for example has been selected.
      */
@@ -181,9 +184,6 @@ public class ImportCallback
     /** The callback. This should only be set when importing a directory.*/
     private Object callback;
 
-    /** Indicates that the file scanned is a directory.*/
-    //private boolean directory;
-
     /** The id of the log file.*/
     private long logFileID;
 
@@ -197,9 +197,7 @@ public class ImportCallback
     private File sourceFile;
 
     private boolean finished;
-    
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-
 
     /** Initializes the components.*/
     private void initialize()
@@ -252,7 +250,7 @@ public class ImportCallback
     {
         initialize();
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -531,7 +529,7 @@ public class ImportCallback
         if (event == null)
             return;
         cancellable = false;
-        
+
         if (event instanceof ImportEvent.IMPORT_DONE) {
             step = 6;
             finished = true;
@@ -599,7 +597,7 @@ public class ImportCallback
             ic = e.container;
         }
     }
-    
+
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.pcs.addPropertyChangeListener(listener);
     }
@@ -607,7 +605,7 @@ public class ImportCallback
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         this.pcs.removePropertyChangeListener(listener);
     }
-    
+
     public void firePropertyChange(String prop, Object oldValue, Object newValue) {
         this.pcs.firePropertyChange(prop, oldValue, newValue);
     }
