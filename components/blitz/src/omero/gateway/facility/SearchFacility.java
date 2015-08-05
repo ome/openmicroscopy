@@ -148,7 +148,7 @@ public class SearchFacility extends Facility {
                 }
 
                 DateFormat df = new SimpleDateFormat("yyyyMMdd");
-                String fields = SearchScope.getStringRepresenation(context.getScope());
+                String fields = SearchScope.getStringRepresentation(context.getScope());
                 String dFrom = from != null ? df.format(from) : null;
                 String dTo = to != null ? df.format(to) : null;
                 try {

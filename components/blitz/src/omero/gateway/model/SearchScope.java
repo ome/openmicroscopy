@@ -51,16 +51,6 @@ public enum SearchScope {
      * lucene search
      * @return
      */
-    @Deprecated
-    public String getStringRepresenation() {
-        return stringRepresentation;
-    }
-
-    /**
-     * Get a String representation of this scope which can be used in a
-     * lucene search
-     * @return
-     */
     public String getStringRepresentation() {
         return stringRepresentation;
     }
@@ -82,14 +72,5 @@ public enum SearchScope {
 
         return result.toString();
     }
-    /**
-     * Get a String representation of the given scopes which can be used in a
-     * lucence search
-     * @param scopes The scopes
-     * @return See above
-     */
-    @Deprecated
-    public static String getStringRepresenation(Collection<SearchScope> scopes) {
-        return getStringRepresentation(scopes);
-    }
+
 }
