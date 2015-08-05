@@ -167,6 +167,8 @@ $(document).ready(function() {
         return 0;
     };
 
+    // This is called directly by various jstree plugins
+    // E.g. omecut_plugin.js as well as the jstree in containers.html
     update_thumbnails_panel = function(event, data) {
         var inst = $.jstree.reference('#dataTree');
 

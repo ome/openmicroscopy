@@ -3,7 +3,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2015 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -94,9 +94,7 @@
                 // Add ui-selected class to range of icons etc
                 highlightClickedIcons(event, $targetIcon);
 
-                // Make the same selection in the jstree
-                var targetIconId = $targetIcon.data('id');
-                syncTreeSelection(targetIconId);
+                syncTreeSelection();
             }
 
             var highlightClickedIcons = function(event, $targetIcon) {
@@ -139,12 +137,6 @@
                     // Mark the icons for selection
                     $visibleIcons.slice(start, end+1).each(function(index, el) {
                         $(el).addClass('ui-selected');
-
-                        // Add the fileset selection if this image has a fileset
-                        var fsId = $targetIcon.data('fileset');
-                        if (fsId != undefined && fsId != '') {
-                            $visibleIcons.filter('[data-fileset="' + fsId + '"]').addClass('fs-selected');
-                        }
                     });
 
 
@@ -152,47 +144,20 @@
                 } else if (event[multiSelectKey] && lastSelectedIndex != -1) {
                     if ($targetIcon.hasClass('ui-selected')) {
                         $targetIcon.removeClass('ui-selected');
-
-                        // Remove the fileset selection
-                        // Add the fileset selection if this image has a fileset
-                        var fsId = $targetIcon.data('fileset');
-                        if (fsId != undefined && fsId != '') {
-                            var $fsMembers = $visibleIcons.filter('[data-fileset="' + fsId + '"]');
-                            if ($fsMembers.filter('.ui-selected').length === 0) {
-                                $fsMembers.removeClass('fs-selected');
-                            }
-                        }
-
                     } else {
                         $targetIcon.addClass('ui-selected');
-
-                        // Add the fileset selection if this image has a fileset
-                        var fsId = $targetIcon.data('fileset');
-                        if (fsId != undefined && fsId != '') {
-                            $visibleIcons.filter('[data-fileset="' + fsId + '"]').addClass('fs-selected');
-                        }
                     }
 
                 // This is a single selection or there was no other selection for the range/multi select
                 } else {
                     // Remove all selections
                     $visibleIcons.removeClass("ui-selected fs-selected");
-
                     // Add selection for this one item
                     $targetIcon.addClass("ui-selected lastSelected");
-
-                    // Add the fileset selection if this image has a fileset
-                    var fsId = $targetIcon.data('fileset');
-                    if (fsId != undefined && fsId != '') {
-                        $visibleIcons.filter('[data-fileset="' + fsId + '"]').addClass('fs-selected');
-                    }
                 }
 
                 // Mark the most recent selection
                 $targetIcon.addClass('lastSelected');
-
-                // Update the selected objects data object in the dom
-                OME.writeSelectedObjs(undefined, $visibleIcons.filter('.ui-selected'));
             }
 
             // When we filter, unselect the hidden icons and update
@@ -203,48 +168,54 @@
                 if ($filtered.length == 0) return;
 
                 // If we've filtered any selected images, de-select icon
-                // and also remove fs-selected
-                $filtered.removeClass("ui-selected fs-selected");
-                //TODO Remove any other fs-selected that were due to the
-                // now defunct selections
-
-                // Update the selected objects data object in the dom
-                // No need to check visibility as the dom is already
-                // updated to remove selection classes for hidden icons
-                var $selectedIcons = $("#dataIcons li.row.ui-selected");
-                OME.writeSelectedObjs(undefined, $selectedIcons);
+                $filtered.removeClass("ui-selected");
 
                 var imageId = $filtered.first().data('id');
                 syncTreeSelection(imageId);
             };
 
             // use IDs of the selected visible thumbnails to sync tree selection
-            var syncTreeSelection = function(imageId) {
-                // Get the node that seems to be the current container
+            var syncTreeSelection = function() {
 
+                var $selectedIcons = $('.ui-selected');
+                var imageId = $selectedIcons.first().data('id');
+
+                // Get the node that seems to be the current container
                 // Images only, all that is required for now as center panel only shows images
-                var containerNode = OME.getTreeImageContainerBestGuess(imageId);
+                var containerNode;
+                if (imageId) {
+                    // don't lookup container if no images selected
+                    containerNode = OME.getTreeImageContainerBestGuess(imageId);
+                }
 
                 // Deselect all to begin (supress jstree event)
                 datatree.deselect_all(true);
 
+                var fsIds = {};
                 if (containerNode) {
 
                     // Select the selected icons in the tree (supress jstree event)
-                    $('.ui-selected').each(function(index, el) {
-                        var $el = $(el);
+                    $selectedIcons.each(function(index, el) {
+                        var $el = $(el),
+                            fsId = $el.data('fileset');
+                        if (fsId != undefined && fsId != '') {
+                            // $icons.filter('[data-fileset="' + fsId + '"]').addClass('fs-selected');
+                            fsIds[fsId] = true;
+                        }
                         var selectedNode = datatree.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
                         datatree.select_node(selectedNode, true);
                     });
-                    // Update the buttons in the jstree
-                    buttonsShowHide(datatree.get_selected(true), datatree);
-
                 } else {
                     console.log('jstree may need to be refreshed');
                 }
+                // Update thumbnail highlighting of filesets
+                highlightFilesets(fsIds);
 
+                // Since we've suppressed jstree events, we need to manually handle selection change...
+                OME.writeSelectedObjs(undefined, $selectedIcons);
+                // Update the buttons in the jstree
+                buttonsShowHide(datatree.get_selected(true), datatree); 
                 // Trigger the selection changed event
-                // TODO Add data
                 $("body").trigger('selection_change.ome');
 
                 return false;
@@ -256,27 +227,8 @@
                 filter: 'li.row',
                 distance: 2,
                 stop: function() {
-
-                    // Get the visible icons that might need selecting
-                    var $visibleIcons = $("#dataIcons li.row:visible");
-
-                    // Update the fileset selections
-                    var $selectedIcons = $visibleIcons.filter('.ui-selected');
-                    $selectedIcons.each(function(index, el) {
-                        var $el = $(el);
-                        // Add the fileset selection if this image has a fileset
-                        var fsId = $el.data('fileset');
-                        if (fsId != undefined && fsId != '') {
-                            $visibleIcons.filter('[data-fileset="' + fsId + '"]').addClass('fs-selected');
-                        }
-
-                    });
-
-                    // Update the selected objects data object in the dom
-                    OME.writeSelectedObjs(undefined, $selectedIcons);
-
-                    // Make the same selection in the jstree
-                    syncTreeSelection($selectedIcons.first().data('id'));
+                    // Make the same selection in the jstree etc
+                    syncTreeSelection();
                 },
                 start: function() {
                     // Remove any fileset selection markings
@@ -298,6 +250,7 @@
                 }
             }
 
+            // Called from actions.js on selection changed - and immediately invoked below
             syncThumbSelection = function(data, event) {
                 // Use the selection itself to determine the last selected item
                 var lastSelectedType;
@@ -308,9 +261,7 @@
 
                 }
                 // Read the current selection from the 'selected_objects.ome' element
-                // instead of using what is passed in through data
-                // TODO If this is never called without data being populated, just use data
-                // instead
+                // instead of using what is passed in through data (might be null)
                 var sel_objs = $("body").data("selected_objects.ome");
                 $selectee.removeClass('ui-selected');    // clear selection
 
@@ -331,25 +282,9 @@
                     }
                 }
                 highlightFilesets(fsIds);
-
-
-
             }
 
-            // Sync selection on selection change (in tree)...
-            // TODO This is binding multiple times resulting in syncThumbSelection
-            // being run once per bind, this is unecessary and slow!
-            // It seems the 'off' does not work because that is a different 'syncThumbSelection',
-            // that we wish to remove. Much better would be to remove containers_icon.html
-            // completely and replace with JSON loaded data (especially as most of the data is in
-            // the jstree already) and then these javascript functions can be loaded once, not
-            // repeatedly
-            // $("body").off("selection_change.ome", syncThumbSelection);
-            // Try calling syncThumbSelection explicitly instead of listening
-            // $("body").on("selection_change.ome", syncThumbSelection);
-
-            // Also do the sync when containers_icon is loaded
-            // TODO Pass in data for selection so lastSelection can be determined, possible?
+            // Sync when containers_icon is loaded
             syncThumbSelection()
 
             // switch between 'icon' or 'table' layout by switching CSS
