@@ -26,6 +26,9 @@ Test Delete Project
     Click Element                           id=deleteButton
     Wait Until Element Is Visible           id=delete-dialog-form
     Click Dialog Button                     Yes
+    # Wait for activities to show job done, then refresh tree...
+    Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
+    Click Element                           refreshButton
     # On POST success, Experimenter should be selected and project removed from tree
     User Should Be Selected
     Page Should Not Contain Element         id=${nodeId}

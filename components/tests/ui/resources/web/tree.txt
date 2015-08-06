@@ -318,7 +318,8 @@ Click Node
 
 Wait For General Panel
     [Arguments]         ${nodeType}
-    Wait Until Element Is Visible           xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), '${nodeType}')]  ${WAIT}
+    Wait Until Page Contains                ${nodeType.title()} ID:  ${WAIT}
+    Wait Until Element Is Visible           css=tr.data_heading_id  ${WAIT}
 
 Wait For General Panel And Return Id
     [Arguments]         ${nodeType}

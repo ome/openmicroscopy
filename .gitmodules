@@ -1,7 +1,3 @@
-[submodule "docs/sphinx"]
-	path = docs/sphinx
-	url = git://github.com/openmicroscopy/ome-documentation.git
-	ignore = dirty
 [submodule "components/tools/OmeroPy/scripts"]
 	path = components/tools/OmeroPy/scripts
 	url = git://github.com/ome/scripts.git

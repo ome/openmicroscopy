@@ -1,0 +1,98 @@
+<!--
+build.xml
+
+Ant build file for common sphinx targets.
+Download Apache Ant from http://ant.apache.org/.
+Type "ant -p" for a list of targets.
+-->
+
+<project name="rules" basedir=".">
+  <description>Common sphinx targets</description>
+  <dirname property="imported.basedir" file="${ant.file.rules}"/>
+  <import file="${imported.basedir}/sphinx.xml"/>
+
+  <!-- Ant-Contrib Tasks: http://ant-contrib.sourceforge.net/ -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+    classpath="${imported.basedir}/ant-contrib-1.0b3.jar"/>
+  <!-- HACK - some environments do not install the antcontrib tasks properly
+    from antcontrib.properties above; also load them from antlib.xml -->
+  <taskdef resource="net/sf/antcontrib/antlib.xml"
+    classpath="${imported.basedir}/ant-contrib-1.0b3.jar"/>
+
+  <property name="omero.shortversion" value=""/>
+  <if>
+    <equals arg1="omero.shortversion" arg2=""/>
+    <then>
+      <property name="source.branch" value="v.${omero.shortversion}"/>
+    </then>
+  </if>
+  <property name="source.branch" value=""/>
+  <property name="source.user" value="openmicroscopy"/>
+  <property name="omero.release" value="${omero.shortversion}"/>
+  <property name="formats.release" value="${omero.shortversion}"/>
+  <property name="jenkins.job" value=""/>
+
+  <target name="sphinx-deps"/>
+  <target name="clean-deps"/>
+
+  <target name="html" depends="sphinx-deps">
+    <exec executable="${sphinx.build}" failonerror="true">
+        <env key="SOURCE_BRANCH" value="${source.branch}"/>
+        <env key="SOURCE_USER" value="${source.user}"/>
+        <env key="OMERO_RELEASE" value="${omero.release}"/>
+        <env key="FORMATS_RELEASE" value="${formats.release}"/>
+        <env key="JENKINS_JOB" value="${jenkins.job}"/>
+        <arg value="-b"/>
+        <arg value="html"/>
+        <arg line="${sphinx.opts}"/>
+        <arg value="."/>
+        <arg value="${sphinx.builddir}/html"/>
+      </exec>
+  </target>
+
+  <target name="latexpdf" depends="sphinx-deps">
+    <exec executable="${sphinx.build}" failonerror="true">
+        <env key="SOURCE_BRANCH" value="${source.branch}"/>
+        <env key="SOURCE_USER" value="${source.user}"/>
+        <env key="OMERO_RELEASE" value="${omero.release}"/>
+        <env key="FORMATS_RELEASE" value="${formats.release}"/>
+        <env key="JENKINS_JOB" value="${jenkins.job}"/>
+        <arg value="-b"/>
+        <arg value="latex"/>
+        <arg line="${sphinx.opts}"/>
+        <arg value="."/>
+        <arg value="${sphinx.builddir}/latex"/>
+    </exec>
+
+    <for param="file">
+      <path>
+       <fileset dir="${sphinx.builddir}/latex" includes="*.tex"/>
+      </path>
+      <sequential>
+        <runlatex file="@{file}"/>
+      </sequential>
+    </for>
+  </target>
+
+  <target name="pdf" depends="latexpdf"/>
+
+  <target name="linkcheck" depends="sphinx-deps">
+    <exec executable="${sphinx.build}" failonerror="true">
+        <env key="SOURCE_BRANCH" value="${source.branch}"/>
+        <env key="SOURCE_USER" value="${source.user}"/>
+        <env key="OMERO_RELEASE" value="${omero.release}"/>
+        <env key="FORMATS_RELEASE" value="${formats.release}"/>
+        <env key="JENKINS_JOB" value="${jenkins.job}"/>
+        <arg value="-b"/>
+        <arg value="linkcheck"/>
+        <arg line="${sphinx.opts}"/>
+        <arg value="."/>
+        <arg value="${sphinx.builddir}/linkcheck"/>
+      </exec>
+  </target>
+
+  <target name="clean" depends="clean-deps">
+    <delete dir="${sphinx.builddir}"/>
+  </target>
+
+</project>
