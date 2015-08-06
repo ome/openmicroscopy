@@ -249,7 +249,8 @@
                             } else if (node.type === 'share') {
                                 return '{% url 'api_images' %}'
                             } else if (node.id === '#') {
-                                return '{% url 'api_experimenter' active_user.id %}'
+                                // root node - Always load your own shares
+                                return '{% url 'api_experimenter' ome.user.id %}';
                             }
                         },
                         // Gather data for request
@@ -302,12 +303,8 @@
                                         }
                                     };
 
-                                    // Add 'state' opened for the current user by default
-                                    {% if active_user %}
-                                        if (value.id == {{ active_user.getId }}) {
-                                            node.state['opened'] = true;
-                                        }
-                                    {% endif %}
+                                    // Add 'state' opened by default
+                                    node.state['opened'] = true;
 
                                     jstree_data.push(node);
 
@@ -444,12 +441,10 @@
                             return false;
                         }
 
-                        // Disable multi-type selection
+                        // Disable multi-type selection of shares
                         var inst = this;
                         var selected = inst.get_selected(true);
-                        // As this function will previously have prevented cross-select, just
-                        // check the first selection instead.
-                        if (selected.length > 0 && selected[0].type !== node.type) {
+                        if (selected.length > 0 && (selected[0].type === 'share' || node.type === 'share')) {
                             return false;
                         }
                         return true;
