@@ -20,8 +20,6 @@
  */
 package omero.log;
 
-//Java imports
-
 /**
  * A simple {@link Logger} implementation which just prints the
  * messages to the console
