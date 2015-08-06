@@ -1268,10 +1268,13 @@ public class Gateway {
                 try {
                     isNetworkUp(true);
                 } catch (Exception e) {
-                    throw new DSOutOfServiceException("Network down.", e, ConnectionStatus.NETWORK);
+                    throw new DSOutOfServiceException("Network down.", e,
+                            ConnectionStatus.NETWORK);
                 }
                 if (!c.keepSessionAlive()) {
-                    throw new DSOutOfServiceException("Network down.", ConnectionStatus.LOST_CONNECTION);
+                    throw new DSOutOfServiceException(
+                            "Network down. Session not alive",
+                            ConnectionStatus.LOST_CONNECTION);
                 }
             }
         }
