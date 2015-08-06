@@ -852,12 +852,16 @@ class ITest(object):
         """
         return self.new_object(DatasetI, name=name, description=description)
 
-    def new_tag(self, name=None):
+    def new_tag(self, name=None, ns=None):
         """
         Creates a new tag object.
         :param name: The tag name. If None, a UUID string will be used
+        :param ns: The namespace for the annotation. If None, do not set.
         """
-        return self.new_object(TagAnnotationI, name=name)
+        tag = self.new_object(TagAnnotationI, name=name)
+        if ns is not None:
+            tag.setNs(rstring(ns))
+        return tag
 
     def make_image(self, name=None, description=None, date=0, client=None):
         """
@@ -896,15 +900,16 @@ class ITest(object):
         dataset = self.new_dataset(name=name, description=description)
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
 
-    def make_tag(self, name=None, client=None):
+    def make_tag(self, name=None, client=None, ns=None):
         """
         Creates a new tag instance and returns the persisted object.
         :param name: The tag name. If None, a UUID string will be used
         :param client: The client to use to create the object
+        :param ns: The namespace for the annotation
         """
         if client is None:
             client = self.client
-        tag = self.new_tag(name=name)
+        tag = self.new_tag(name=name, ns=ns)
         return client.sf.getUpdateService().saveAndReturnObject(tag)
 
     def createDatasets(self, count, baseName, client=None):
@@ -927,13 +932,14 @@ class ITest(object):
         return update.saveAndReturnArray(dsets)
 
     def make_file_annotation(self, name=None, binary=None, format=None,
-                             client=None):
+                             client=None, ns=None):
         """
         Creates a new DatasetI instance and returns the persisted object.
         If no name has been provided, a UUID string shall be used.
 
         :param name: the name of the project
         :param client: The client to use to create the object
+        :param ns: The namespace for the annotation
         """
 
         if client is None:
@@ -945,9 +951,11 @@ class ITest(object):
             format = "application/octet-stream"
         if binary is None:
             binary = "12345678910"
+        if name is None:
+            name = str(self.uuid())
 
         oFile = OriginalFileI()
-        oFile.setName(rstring(str(self.uuid())))
+        oFile.setName(rstring(name))
         oFile.setPath(rstring(str(self.uuid())))
         oFile.setSize(rlong(len(binary)))
         oFile.hasher = ChecksumAlgorithmI()
@@ -964,6 +972,8 @@ class ITest(object):
 
         fa = FileAnnotationI()
         fa.setFile(oFile)
+        if ns is not None:
+            fa.setNs(rstring(ns))
         return update.saveAndReturnObject(fa)
 
     def link(self, obj1, obj2, client=None):
