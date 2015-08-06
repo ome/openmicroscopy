@@ -650,7 +650,7 @@ class Connector
      * Shuts downs the stateful services.
      * 
      * @param rendering Pass <code>true</code> to shut down the rendering 
-     * 					services, <code>false</code> otherwise.
+     *                  services, <code>false</code> otherwise.
      */
      void shutDownServices(boolean rendering)
     {
