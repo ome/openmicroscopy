@@ -498,7 +498,13 @@ class OMEROGateway
 		return cb;
 	}
 	
-	public void closeService(SecurityContext ctx,
+	/**
+	 * Closes the specified service.
+	 *
+	 * @param ctx The security context.
+	 * @param svc The service to close.
+	 */
+	void closeService(SecurityContext ctx,
             StatefulServiceInterfacePrx svc)
     {
         if (ctx == null || svc == null) return;
@@ -1443,11 +1449,24 @@ class OMEROGateway
 	    return check.isUpgradeNeeded();
 	}
 
-	public ExperimenterData connect(LoginCredentials c) throws DSOutOfServiceException {
+	/**
+	 * Connects to the server and returns details about the logged in user.
+	 *
+	 * @param c The logging credentials.
+	 * @return
+	 * @throws DSOutOfServiceException
+	 */
+	ExperimenterData connect(LoginCredentials c) throws DSOutOfServiceException {
 	    return gw.connect(c);
 	}
-	
-	public String getSessionId(ExperimenterData user) {
+
+	/**
+	 * Returns the current session id for the given user.
+	 *
+	 * @param user The user to handle.
+	 * @return See above.
+	 */
+	String getSessionId(ExperimenterData user) {
 	    return gw.getSessionId(user);
 	}
 	
