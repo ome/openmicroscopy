@@ -654,7 +654,10 @@ class TreeViewerComponent
 			return;
 		}
 		if (object instanceof ImageData) {
-			TreeImageDisplay displayParent = display.getParentDisplay();
+			TreeImageDisplay displayParent = null;
+			if (display != null) {
+			    displayParent = display.getParentDisplay();
+			}
 			
 			if (displayParent instanceof TreeImageTimeSet ||
 				(displayParent instanceof TreeFileSet &&
