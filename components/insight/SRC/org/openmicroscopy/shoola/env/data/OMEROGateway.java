@@ -131,7 +131,6 @@ import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.RoiOptions;
-import omero.api.RoiResult;
 import omero.api.Save;
 import omero.api.SearchPrx;
 import omero.api.StatefulServiceInterfacePrx;
@@ -175,7 +174,6 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Laser;
-import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
@@ -189,14 +187,11 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
-import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.RenderingDef;
-import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
-import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Well;
@@ -225,11 +220,9 @@ import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
-import pojos.ROICoordinate;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
-import pojos.ShapeData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
@@ -709,36 +702,6 @@ class OMEROGateway
 			TableResult tr = new TableResult(data, headers);
 			tr.setIndexes(indexes);
 			return tr;
-		} catch (Exception e) {
-			try {
-				if (table != null) table.close();
-			} catch (Exception ex) {
-				//Digest exception
-			}
-			throw new DSAccessException("Unable to read the table.", e);
-		}
-	}
-
-	/**
-	 * Transforms the passed table data for a given image.
-	 *
-	 * @param table The table to convert.
-	 * @param key The key of the <code>where</code> clause.
-	 * @param id The identifier of the object to retrieve rows for.
-	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to
-	 *                           retrieve data from OMEDS service.
-	 */
-	private TableResult createTableResult(TablePrx table, String key, long id)
-		throws DSAccessException
-	{
-		if (table == null) return null;
-		try {
-			key = "("+key+"==%d)";
-			long totalRowCount = table.getNumberOfRows();
-			long[] rows = table.getWhereList(String.format(key, id), null, 0,
-					totalRowCount, 1L);
-			return createTableResult(table, rows);
 		} catch (Exception e) {
 			try {
 				if (table != null) table.close();
