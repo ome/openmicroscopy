@@ -2164,6 +2164,25 @@ def batch_annotate(request, conn=None, **kwargs):
     form_comment = CommentAnnotationForm(initial=initial)
     index = getIntOrDefault(request, 'index', 0)
 
+    # get groups for selected objects - setGroup() and create links
+    obj_ids = []
+    obj_labels = []
+    groupIds = set()
+    annotationBlocked = False
+    for key in objs:
+        obj_ids += ["%s=%s" % (key, o.id) for o in objs[key]]
+        for o in objs[key]:
+            groupIds.add(o.getDetails().group.id.val)
+            if not o.canAnnotate():
+                annotationBlocked = ("Can't add annotations because you don't"
+                                     " have permissions")
+            obj_labels.append({
+                'type': key.title(), 'id': o.id, 'name': o.getName()})
+    obj_string = "&".join(obj_ids)
+    link_string = "|".join(obj_ids).replace("=", "-")
+    groupId = list(groupIds)[0]
+    conn.SERVICE_OPTS.setOmeroGroup(groupId)
+
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
     # get average values for User ratings and Other ratings.
@@ -2186,22 +2205,6 @@ def batch_annotate(request, conn=None, **kwargs):
         archivedInfo = conn.getArchivedFilesInfo(iids)
         filesetInfo['count'] += archivedInfo['count']
         filesetInfo['size'] += archivedInfo['size']
-
-    obj_ids = []
-    obj_labels = []
-    groupIds = set()
-    annotationBlocked = False
-    for key in objs:
-        obj_ids += ["%s=%s" % (key, o.id) for o in objs[key]]
-        for o in objs[key]:
-            groupIds.add(o.getDetails().group.id.val)
-            if not o.canAnnotate():
-                annotationBlocked = ("Can't add annotations because you don't"
-                                     " have permissions")
-            obj_labels.append({
-                'type': key.title(), 'id': o.id, 'name': o.getName()})
-    obj_string = "&".join(obj_ids)
-    link_string = "|".join(obj_ids).replace("=", "-")
 
     context = {
         'form_comment': form_comment,
