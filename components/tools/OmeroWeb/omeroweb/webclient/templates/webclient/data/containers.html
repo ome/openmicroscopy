@@ -1110,6 +1110,11 @@
                                     // Get the node for this path component
                                     var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
 
+                                    // if we've failed to find root, we might be showing "All Members". Try again...
+                                    if (index === 0 && !node) {
+                                        node = inst.locate_node(comp.type + '-' + '-1', parentNode)[0];
+                                    }
+
                                     // If at any point the node doesn't exist, simply give up as the path has
                                     // become invalid
                                     if (node === false) {
