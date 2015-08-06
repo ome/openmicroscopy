@@ -184,6 +184,17 @@ class Connector
     /** Reference to the logger.*/
     private final Logger logger;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param context The context hosting information about the user.
+     * @param secureClient The entry point to server.
+     * @param entryEncrypted The entry point to access the various services.
+     * @param encrypted The entry point to access the various services.
+     * @param logger Reference to the logger.
+     * @param elapseTime The time between network check.
+     * @throws Exception Thrown if entry points cannot be initialized.
+     */
     Connector(SecurityContext context, client client,
             ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
                     throws Exception
