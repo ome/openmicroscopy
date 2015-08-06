@@ -148,8 +148,7 @@ OME.share_selection_changed = function(share_id) {
 // Standard ids are in the form TYPE-ID, web extensions may add an
 // additional -SUFFIX
 OME.table_selection_changed = function($selected) {
-    //TODO Use write select_objs function.
-    // Guess this is for search and such where there is no tree?
+    // This is for search and such where there is no tree
     var selected_objs = [];
     if (typeof $selected != 'undefined') {
         $selected.each(function(i){
@@ -218,7 +217,7 @@ OME.handleTableClickSelection = function(event) {
 
 // called from click events on plate. Selected wells
 OME.well_selection_changed = function($selected, well_index, plate_class) {
-    //TODO Use write selected_objs function
+
     var selected_objs = [];
     $selected.each(function(i){
         selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
@@ -720,7 +719,6 @@ OME.getTreeImageContainerBestGuess = function(imageId) {
 
     // Double check that it is either a single dataset selection or a multi
     // image selection. Get all the possible parent nodes
-    // TODO What about orphaned selection?
     if (selectedNodes.length === 1 && selectedNodes[0].type === 'dataset') {
         parentNodeIds.push(selectedNodes[0].id);
     } else if (selectedNodes.length >= 1 && selectedNodes[0].type === 'image') {
