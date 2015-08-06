@@ -19,14 +19,129 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from omero.plugins.metadata import MetadataControl
+import pytest
+
+import omero
+import omero.gateway
+from omero.constants.namespaces import NSBULKANNOTATIONS
+from omero.gateway import BlitzGateway
+from omero.plugins.metadata import Metadata, MetadataControl
+from omero.rtypes import unwrap
 from test.integration.clitest.cli import CLITest
 
 
 class TestMetadata(CLITest):
+    """
+    Test the get methods in Metadata
+
+    Some tests are combined for efficiency (import is relatively slow)
+    """
 
     def setup_method(self, method):
         super(TestMetadata, self).setup_method(method)
+        self.name = self.uuid()
+        self.image = self.importSingleImage(
+            GlobalMetadata={'gmd-' + self.name: 'gmd-' + self.name})
+
+        conn = BlitzGateway(client_obj=self.client)
+        self.imageid = unwrap(self.image.getId())
+        assert type(self.imageid) == long
+        wrapper = conn.getObject("Image", self.imageid)
+        self.md = Metadata(wrapper)
+
+    def create_annotations(self, obj):
+        tag = self.new_tag('tag-' + self.name)
+        fa = self.make_file_annotation(
+            'file-' + self.name, format="OMERO.tables", ns=NSBULKANNOTATIONS)
+        self.link(obj, tag)
+        self.link(obj, fa)
+        return tag, fa
+
+    def create_hierarchy(self, img):
+        dataset1 = self.new_dataset(name='dataset1-' + self.name)
+        dataset2 = self.new_dataset(name='dataset2-' + self.name)
+        project1 = self.new_project(name='project1-' + self.name)
+        self.link(project1, dataset1)
+        self.link(dataset1, img)
+        self.link(dataset2, img)
+        return dataset1, dataset2, project1
+
+    def test_get_identifiers(self):
+        assert self.md.get_type() == "Image"
+        assert self.md.get_id() == self.imageid
+        assert self.md.get_name() == "Image:%d" % self.imageid
+
+    @pytest.mark.parametrize('parents', [False, True])
+    def test_get_parents(self, parents):
+        if parents:
+            dataset1, dataset2, project1 = self.create_hierarchy(self.image)
+            expected = set((unwrap(dataset1.getName()),
+                           unwrap(dataset2.getName())))
+
+            assert self.md.get_parent().getName() in expected
+            assert set(p.getName() for p in self.md.get_parents()) == expected
+        else:
+            assert self.md.get_parent() is None
+            assert self.md.get_parents() == []
+
+    def test_get_roi_count(self):
+        assert self.md.get_roi_count() == 0
+
+    def test_get_original(self):
+        origmd = self.md.get_original()
+        assert len(origmd) == 3
+        assert origmd[0] is None
+        assert len(origmd[1]) == 2
+        assert len(origmd[2]) == 0
+
+    @pytest.mark.parametrize('annotations', [False, True])
+    def test_get_bulkanns(self, annotations):
+        if annotations:
+            tag, fa = self.create_annotations(self.image)
+
+        bulkanns = self.md.get_bulkanns()
+
+        if annotations:
+            assert len(bulkanns) == 1
+            b0 = bulkanns[0]
+            assert isinstance(b0.obj_wrapper,
+                              omero.gateway.FileAnnotationWrapper)
+            assert b0.getFileName() == unwrap(fa.getFile().getName())
+        else:
+            assert bulkanns == []
+
+    @pytest.mark.parametrize('annotations', [False, True])
+    def test_get_allanns(self, annotations):
+        if annotations:
+            tag, fa = self.create_annotations(self.image)
+
+        allanns = self.md.get_allanns()
+
+        if annotations:
+            assert len(allanns) == 2
+            a0 = allanns[0]
+            a1 = allanns[1]
+            if isinstance(a0.obj_wrapper,
+                          omero.gateway.FileAnnotationWrapper):
+                assert isinstance(a1.obj_wrapper,
+                                  omero.gateway.TagAnnotationWrapper)
+                assert a0.getName() == unwrap(fa.getFile().getName())
+                assert a1.getFileName() == unwrap(tag.getName())
+            else:
+                assert isinstance(a1.obj_wrapper,
+                                  omero.gateway.FileAnnotationWrapper)
+                assert isinstance(a0.obj_wrapper,
+                                  omero.gateway.TagAnnotationWrapper)
+                assert a1.getFileName() == unwrap(fa.getFile().getName())
+                assert a0.getName() == unwrap(tag.getName())
+        else:
+            assert allanns == []
+
+
+class TestMetadataControl(CLITest):
+
+    def setup_method(self, method):
+        super(TestMetadataControl, self).setup_method(method)
         self.cli.register("metadata", MetadataControl, "TEST")
         self.args += ["metadata"]
 
