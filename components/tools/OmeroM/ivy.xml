@@ -16,7 +16,6 @@
     <dependency org="log4j" name="log4j" rev="${versions.log4j}" conf="build->default"/>
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="build->default"/>
     <dependency org="org.slf4j" name="slf4j-log4j12" rev="${versions.slf4j}" conf="build->default"/>
-    <dependency org="org.slf4j" name="slf4j-log4j12" rev="${versions.slf4j}" conf="build->default"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}" conf="build->default"/>
   </dependencies>
 </ivy-module>
