@@ -1644,8 +1644,8 @@ class OMEROGateway
 	    try {
             BrowseFacility f = gw.getFacility(BrowseFacility.class);
             return f.loadHierarchy(ctx, rootType, rootIDs, options);
-        } catch (ExecutionException e) {
-            log("Can't get a BrowseFacility");
+        } catch (Throwable e) {
+            handleException(e, "Cannot load hierarchy for "+rootType+".");
         }
 
         return new HashSet();
