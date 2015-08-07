@@ -564,7 +564,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
        </apply>
     </target>
 
-    <target name="release-sphinx-api" depends="build-py"
+    <target name="release-sphinx-api" depends="build-py,build-web"
         description="The OMERO.py Sphinx API Documentation">
         <mkdir dir="${dist.dir}/docs/api/python"/>
 
