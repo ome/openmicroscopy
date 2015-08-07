@@ -1380,7 +1380,7 @@
                             } else if (node.id === '#') {
                                 // This handles multiple experimenters in the tree
                                 // url = '{% url 'api_experimenters' %}';
-                                {% if active_user and active_user.id and active_user.id != -1 %}
+                                {% if active_user and active_user.id != -1 %}
                                     url = '{% url 'api_experimenter' active_user.id %}';
                                 {% else %}
                                     var node = {
