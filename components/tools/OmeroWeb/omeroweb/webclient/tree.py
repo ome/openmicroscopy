@@ -453,7 +453,7 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
     return datasets
 
 
-def _marshal_image(conn, row, row_pixels=None):
+def _marshal_image(conn, row, row_pixels=None, share_id=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
           * id (rlong)
@@ -489,6 +489,8 @@ def _marshal_image(conn, row, row_pixels=None):
         image['sizeX'] = unwrap(sizeX)
         image['sizeY'] = unwrap(sizeY)
         image['sizeZ'] = unwrap(sizeZ)
+    if share_id is not None:
+        image['shareId'] = share_id
 
     return image
 
@@ -664,6 +666,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         # because they have been deleted
         if share_id is not None and image_rids and e["id"] in image_rids:
             image_rids.remove(e["id"])
+            kwargs['share_id'] = share_id
 
         images.append(_marshal_image(**kwargs))
 

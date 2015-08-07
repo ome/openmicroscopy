@@ -572,6 +572,7 @@ OME.writeSelectedObjs = function(selected_tree_nodes, selected_icons) {
  * Write the current selection to the dom
 */
 
+    // Here we handle data coming from jsTree. Nodes have data object from json
     var selected_objs = [];
     if (selected_tree_nodes !== undefined && selected_tree_nodes.length > 0) {
         var inst = $.jstree.reference('#dataTree');
@@ -583,13 +584,17 @@ OME.writeSelectedObjs = function(selected_tree_nodes, selected_icons) {
                 'rel': node.type,
                 'class': node.data.obj.permsCss
             };
+            if (node.data.obj.shareId) {
+                selected_obj.shareId = node.data.obj.shareId;
+            }
             // If it's an image it will have a filesetId
             if (node.type === 'image') {
-                selected_obj['fileset'] = node.data.obj.filesetId;
+                selected_obj.fileset = node.data.obj.filesetId;
             }
 
             selected_objs.push(selected_obj);
         });
+    // Or we have data from thumbnails. Data is from data-attr on DOM
     } else if (selected_icons !== undefined && selected_icons.length > 0) {
         selected_icons.each(function(index, el) {
             var $el = $(el);
@@ -599,10 +604,12 @@ OME.writeSelectedObjs = function(selected_tree_nodes, selected_icons) {
                 'rel': $el.data('type'),
                 'class': $el.data('perms')
             };
-
+            if ($el.data("share")) {
+                selected_obj.shareId = $el.data("share");
+            }
             // If it's an image it will have a filesetId
             if ($el.data('type') === 'image') {
-                selected_obj['fileset'] = $el.data('fileset');
+                selected_obj.fileset = $el.data('fileset');
             }
 
             selected_objs.push(selected_obj);

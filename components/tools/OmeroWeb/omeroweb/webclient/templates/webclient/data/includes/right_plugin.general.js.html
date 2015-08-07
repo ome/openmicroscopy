@@ -100,8 +100,8 @@ $(function () {
                 // everything else
                 } else {
                     if(orel=="image") {
-                        if (selected[0]["share"]) {
-                            url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["share"]+'/';
+                        if (selected[0]["shareId"]) {
+                            url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["shareId"]+'/';
                         } else {
                             url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                         }

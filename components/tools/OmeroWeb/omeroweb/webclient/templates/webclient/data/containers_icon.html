@@ -199,7 +199,6 @@
                         var $el = $(el),
                             fsId = $el.data('fileset');
                         if (fsId != undefined && fsId != '') {
-                            // $icons.filter('[data-fileset="' + fsId + '"]').addClass('fs-selected');
                             fsIds[fsId] = true;
                         }
                         var selectedNode = datatree.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
@@ -455,6 +454,7 @@
                 data-type="image"
                 data-id="{{ c.id }}"
                 data-perms="{{ c.getPermsCss }}"
+                {% if share %}data-share="{{ share.share.id }}"{% endif %}
                 data-owned="{{ c.isOwned }}">
 
                 <div class="image">
