@@ -1669,11 +1669,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             if isinstance(e, omero.model.ImageI):
                 try:
                     obj = omero.gateway.ImageWrapper(self, e)
-                    # Try to load the image without 'share' context
-                    # to test if deleted
-                    self.getQueryService().get("Image", obj.getId(),
-                                               {'omero.group': '-1'})
-                except (omero.ValidationException, omero.SecurityViolation):
+                except omero.ValidationException:
                     # If Object deleted, simply return placeholder
                     # ID used to generate placeholder thumbnail
                     obj = {'id': e.id.val}
