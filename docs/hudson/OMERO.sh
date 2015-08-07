@@ -12,9 +12,7 @@ set -x
 source docs/hudson/functions.sh
 echo Building $OMERO_BRANCH
 
-./build.py clean
-./build.py build-default test-compile
-./build.py release-all
+./build.py build-dev release-all
 if [ -d .git ]
 then
   ./build.py release-src

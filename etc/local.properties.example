@@ -16,8 +16,8 @@ omero.db.profile=psql
 # Defaults used in antlib/resources/lifecycle.xml
 # override in <COMPONENT>/build.xml files or
 # in etc/local.properties
-javac.source=1.6
-javac.target=1.6
+javac.source=1.7
+javac.target=1.7
 javac.debug=on
 javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines
@@ -57,7 +57,7 @@ simple.repository=ome.unstable
 jarsign.keystore=${omero.home}/lib/keystore
 jarsign.alias=omedev
 jarsign.storepass=omedev
-#Password can be stored in a file with Java>=1.7
+#Password can be stored in a file
 #jarsign.storepassfile=
 jarsign.validity=1000
 #Timestamping can be enabled by providing a server url

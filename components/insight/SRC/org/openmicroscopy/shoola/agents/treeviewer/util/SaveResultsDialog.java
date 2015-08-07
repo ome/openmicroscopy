@@ -33,6 +33,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Box;
@@ -49,6 +50,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
@@ -174,6 +176,7 @@ public class SaveResultsDialog
             int[] values = WindowManager.getIDList();
             if (values != null) {
                 List<String> paths = new ArrayList<String>();
+                FileObject ff;
                 for (int i = 0; i < values.length; i++) {
                     plus = WindowManager.getImage(values[i]);
                     img = new FileObject(plus);
@@ -181,9 +184,13 @@ public class SaveResultsDialog
                         String path = img.getAbsolutePath();
                         if (!paths.contains(path)) {
                             paths.add(path);
-                            toImport.add(img);
+                            //Check if the image has associated file
+                            List<FileObject> l = img.getAssociatedFiles();
+                            if (CollectionUtils.isEmpty(l)) {
+                                toImport.add(img);
+                            }
                             for (int j = 0; j < values.length; j++) {
-                                FileObject ff = new FileObject(
+                                ff = new FileObject(
                                         WindowManager.getImage(values[j]));
                                 if (path.equals(ff.getAbsolutePath())) {
                                     img.addAssociatedFile(ff);

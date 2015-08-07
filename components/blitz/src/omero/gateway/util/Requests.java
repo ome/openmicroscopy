@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import omero.cmd.Chgrp2;
+import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
 import omero.cmd.GraphModify2;
@@ -355,6 +356,247 @@ public class Requests {
     public static Chgrp2 chgrp(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun,
             long groupId) {
           return new Chgrp2(targetObjects, childOptions, dryRun, groupId);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetId the target object ID
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, Long targetId, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, Collections.singletonList(targetId));
+        return new Chmod2(targetObjects, (List<ChildOption>) null, false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetId the target object ID
+     * @param childOption how to process child objects
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, Long targetId, ChildOption childOption, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, Collections.singletonList(targetId));
+        return new Chmod2(targetObjects, Collections.singletonList(childOption), false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetId the target object ID
+     * @param childOptions how to process child objects
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, Long targetId, List<ChildOption> childOptions, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, Collections.singletonList(targetId));
+        return new Chmod2(targetObjects, childOptions, false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetId the target object ID
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, Long targetId, boolean dryRun, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, Collections.singletonList(targetId));
+        return new Chmod2(targetObjects, (List<ChildOption>) null, dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetId the target object ID
+     * @param childOption how to process child objects
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, Long targetId, ChildOption childOption, boolean dryRun, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, Collections.singletonList(targetId));
+        return new Chmod2(targetObjects, Collections.singletonList(childOption), dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetId the target object ID
+     * @param childOptions how to process child objects
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, Long targetId, List<ChildOption> childOptions, boolean dryRun,
+            String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, Collections.singletonList(targetId));
+        return new Chmod2(targetObjects, childOptions, dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetIds the target object IDs
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, List<Long> targetIds, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, targetIds);
+        return new Chmod2(targetObjects, (List<ChildOption>) null, false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetIds the target object IDs
+     * @param childOption how to process child objects
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, List<Long> targetIds, ChildOption childOption, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, targetIds);
+        return new Chmod2(targetObjects, Collections.singletonList(childOption), false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetIds the target object IDs
+     * @param childOptions how to process child objects
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, targetIds);
+        return new Chmod2(targetObjects, childOptions, false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetIds the target object IDs
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, List<Long> targetIds, boolean dryRun, String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, targetIds);
+        return new Chmod2(targetObjects, (List<ChildOption>) null, dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetIds the target object IDs
+     * @param childOption how to process child objects
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, List<Long> targetIds, ChildOption childOption, boolean dryRun,
+            String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, targetIds);
+        return new Chmod2(targetObjects, Collections.singletonList(childOption), dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetClass the target object class
+     * @param targetIds the target object IDs
+     * @param childOptions how to process child objects
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, boolean dryRun,
+            String permissions) {
+        final Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+        targetObjects.put(targetClass, targetIds);
+        return new Chmod2(targetObjects, childOptions, dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetObjects the target objects
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(Map<String, List<Long>> targetObjects, String permissions) {
+        return new Chmod2(targetObjects, (List<ChildOption>) null, false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetObjects the target objects
+     * @param childOption how to process child objects
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(Map<String, List<Long>> targetObjects, ChildOption childOption, String permissions) {
+        return new Chmod2(targetObjects, Collections.singletonList(childOption), false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetObjects the target objects
+     * @param childOptions how to process child objects
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, String permissions) {
+        return new Chmod2(targetObjects, childOptions, false, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetObjects the target objects
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(Map<String, List<Long>> targetObjects, boolean dryRun, String permissions) {
+        return new Chmod2(targetObjects, (List<ChildOption>) null, dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetObjects the target objects
+     * @param childOption how to process child objects
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(Map<String, List<Long>> targetObjects, ChildOption childOption, boolean dryRun, String permissions) {
+        return new Chmod2(targetObjects, Collections.singletonList(childOption), dryRun, permissions);
+    }
+
+    /**
+     * Create a new {@link Chmod2} request.
+     * @param targetObjects the target objects
+     * @param childOptions how to process child objects
+     * @param dryRun if this request is a dry run
+     * @param permissions the new permissions
+     * @return the new request
+     */
+    public static Chmod2 chmod(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun,
+            String permissions) {
+          return new Chmod2(targetObjects, childOptions, dryRun, permissions);
     }
 
     /**

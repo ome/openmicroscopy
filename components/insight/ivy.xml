@@ -42,13 +42,10 @@
     <dependency org="commons-digester" name="commons-digester" rev="${versions.commons-digester}"/>
     <dependency org="commons-discovery" name="commons-discovery" rev="${versions.commons-discovery}"/>
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
-    <dependency org="commons-logging" name="commons-logging" rev="${versi:ons.commons-logging}"/>
     <dependency org="commons-validator" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
-    <dependency org="org.apache.httpcomponents" name="httpclient" rev="${versions.httpclient}"/>
-    <dependency org="org.apache.httpcomponents" name="httpcore" rev="${versions.httpcore}"/>
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="net.imagej" name="ij" rev="${versions.ij}"/>
     <dependency org="javax.xml" name="jaxrpc" rev="${versions.jaxrpc}"/>

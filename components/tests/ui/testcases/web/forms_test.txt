@@ -53,7 +53,6 @@ Test Channel Rename
     ...                 whether the toolbar/right-click menu options for
     ...                 creating various containers are enabled.
 
-    Set Selenium Speed                          0.5 seconds
     Tree Should Be Visible
     Select And Expand Project
     Select And Expand Dataset
@@ -63,8 +62,8 @@ Test Channel Rename
     ${chName}=                                  Get Time    epoch
     Input Text                                  channel0    ch${chName}
     Submit Form                                 channel_names_edit
-    Wait Until Keyword Succeeds                 5 sec   1 sec   Element Should Not Be Visible     channel0
-    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]    10
+    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Element Should Not Be Visible     channel0
+    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]      ${WAIT}
 
 
 Test Share
@@ -75,34 +74,33 @@ Test Share
     Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
     Click Element                               createshareButton
-    Wait Until Page Contains Element            id_message
+    Wait Until Element Is Visible               id_message      ${WAIT}
     Input Text                                  id_message      Created via Selenium Test
     Click Element                               xpath=//div[@id='id_members_chosen']/ul[@class='chosen-choices']
     Page Should Contain Element                 xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
     Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
 
     Submit Form                                 create_share_form
-    Wait Until Page Contains Element            id=share_dialog_form
+    Wait Until Element Is Visible               id=share_dialog_form    ${WAIT}
     Page Should Contain Element                 id=deleteOthersWarning
-    Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]
+    Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]   ${WAIT}
     Click Dialog Button                         OK
 
     Go To                                       ${WELCOME URL}public/
-    Wait Until Page Contains Element            id=Public
-    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='share']/a
+    Wait Until Element Is Visible               id=Public   ${WAIT}
+    Wait Until Element Is Visible               xpath=//div[@id='dataTree']//li[@rel='share']/a     ${WAIT}
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='share']/a
     # Test Editing of Share.
-    Wait Until Page Contains Element            id=editshareButton
-    Sleep                                       0.5
+    Wait Until Element Is Visible               id=editshareButton      ${WAIT}
     Click Element                               id=editshareButton
-    Wait Until Page Contains Element            id_message
+    Wait Until Element Is Visible               id_message      ${WAIT}
     Input Text                                  id_message      Edited Share Message
     Click Dialog Button                         Accept
-    Wait Until Page Contains                    Edited Share Message
+    Wait Until Page Contains                    Edited Share Message    ${WAIT}
     # Add Comment
     Input Text                                  id_comment      New Discussion Comment
     Submit Form                                 add_share_comment_form
-    Wait Until Page Contains Element            xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]
+    Wait Until Element Is Visible               xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]    ${WAIT}
 
 
 Test Annotate
@@ -120,12 +118,15 @@ Test Annotate
 
     # Tags
     Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    # Wait for tag panel being loded
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
+    Page Should Contain Element                 id_tag
+
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
     Click Element                               choose_file_anns
@@ -153,11 +154,13 @@ Test Batch Annotate
     # Tags
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    # Wait for tag panel being loded
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
     Click Element                               choose_file_anns
@@ -165,6 +168,7 @@ Test Batch Annotate
     Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
     Submit Form                                 choose_attachments_form
     Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
+
 
 
 Test Search
@@ -177,8 +181,10 @@ Test Search
 
     # We don't care about results, just check we get *some* results in dataTable
     Location Should Be                      ${WELCOME URL}search/
-    Wait Until Page Contains Element        dataTable                   60
+    Wait Until Page Contains Element        dataTable       ${WAIT}
     # Repeat search
     Submit Form                             searching_form
     Wait Until Page Contains                Loading data...
-    Wait Until Page Contains Element        dataTable                   60
+    Wait Until Page Contains Element        dataTable       ${WAIT}
+    ${rows}=    Get Matching XPath Count    xpath=//table[@id="DataTable"]/tr
+    Wait Until Page Contains Element        xpath=//table[@id="dataTable"][@data-result-count!='${rows}']       ${WAIT}

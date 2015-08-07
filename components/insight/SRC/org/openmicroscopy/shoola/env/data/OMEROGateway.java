@@ -135,7 +135,7 @@ import omero.api.Save;
 import omero.api.SearchPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.cmd.Chmod;
+import omero.cmd.Chmod2;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -3621,7 +3621,7 @@ class OMEROGateway
                         case GroupData.PERMISSIONS_PUBLIC_READ:
                             r = "rwrwr-";
                     }
-                    Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
+                    final Chmod2 chmod = Requests.chmod("ExperimenterGroup", group.getId(), r);
                     List<Request> l = new ArrayList<Request>();
                     l.add(chmod);
                     return new RequestCallback(gw.submit(ctx, l, null));
