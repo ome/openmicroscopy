@@ -2349,13 +2349,11 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition.id.val},
-             {'type': 'wellsample', 'id': ws_a.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition.id.val},
-             {'type': 'wellsample', 'id': ws_b.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition.id.val}]]
 
         for e in expected:
             try:
@@ -2392,23 +2390,19 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_a2.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}]]
 
         for e in expected:
             try:
@@ -2441,14 +2435,12 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
 
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}]]
 
         for e in expected:
             try:
@@ -2482,23 +2474,19 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_a2.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}]]
 
         for e in expected:
             try:
@@ -2532,23 +2520,19 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_a2.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}]]
 
         for e in expected:
             try:
@@ -2583,13 +2567,11 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}]]
 
         for e in expected:
             try:
@@ -2624,13 +2606,11 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}]]
 
         for e in expected:
             try:
@@ -2665,13 +2645,11 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}]]
 
         print paths
 
@@ -2709,23 +2687,19 @@ class TestShow2(IWebTest):
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_a1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'wellsample', 'id': ws_b1.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_a2.id.val}],
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}],
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
-             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
-             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val}]]
 
         print paths
 
