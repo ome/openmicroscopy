@@ -239,14 +239,6 @@
   License File: jamon.txt
 
 
-  Artifacts:    jarbundler-*.jar
-  Project:      The Jar Bundler Ant Task.  It lets Ant create Mac OS X application
-                bundles.
-  Web Site:     http://www.loomcom.com/jarbundler/
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
-
-
   Artifacts:    java-getopt-*.jar
   Project:      GNU getopt -Java port
   Web Site:     http://www.urbanophile.com/~arenn/hacking/getopt/Package-gnu.getopt.html

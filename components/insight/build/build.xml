@@ -93,7 +93,6 @@
   <path id="insight.tools.path">
       <fileset dir="${base.build.dir}/../../../lib/repository">
             <include name="ant-contrib-*.jar"/>
-            <include name="jarbundler*.jar"/>
       </fileset>
   </path>
 

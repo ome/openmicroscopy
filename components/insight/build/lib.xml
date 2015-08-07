@@ -93,20 +93,4 @@ ${checkdup.found}
       </if>
     </sequential>
   </macrodef>
-
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * TASK NAME: jarbundler
-   * 
-   * DESCRIPTION: 
-   * Third-party task to create a Mac OS X distribution bundle.
-   * The Jar Bundler task comes from http://informagen.com/JarBundler/.  
-   * See their docs for parameters and usage.
-   *
-   * EXTERNAL DEPENDENCIES: jarbundler
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <taskdef name="jarbundler"
-      classname="net.sourceforge.jarbundler.JarBundler" >
-      <classpath refid="insight.tools.path" />
-  </taskdef>
-
 </antlib>
