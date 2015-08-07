@@ -229,27 +229,8 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
-        <available property="jdk1.6+" classname="java.util.ServiceLoader"/>
         <available property="jdk1.7+" classname="java.util.Objects"/>
         <available property="jdk1.8+" classname="java.util.stream.IntStream"/>
-
-        <if>
-            <and>
-                <or>
-                    <contains string="${os.arch}" substring="x86_64"/>
-                    <contains string="${os.arch}" substring="amd64"/>
-                </or>
-                <isset property="jdk1.6+"/>
-            </and>
-            <then>
-                <property name="maxmem.set" value="false"/>
-            </then>
-            <else>
-                <property name="javac.maxmem.default" value="750M"/>
-                <property name="javadoc.maxmem.default" value="750M"/>
-                <property name="maxmem.set" value="true"/>
-            </else>
-        </if>
 
         <if>
             <isset property="jdk1.8+"/>

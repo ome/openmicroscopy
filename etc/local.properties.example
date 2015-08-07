@@ -16,8 +16,8 @@ omero.db.profile=psql
 # Defaults used in antlib/resources/lifecycle.xml
 # override in <COMPONENT>/build.xml files or
 # in etc/local.properties
-javac.source=1.6
-javac.target=1.6
+javac.source=1.7
+javac.target=1.7
 javac.debug=on
 javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines
