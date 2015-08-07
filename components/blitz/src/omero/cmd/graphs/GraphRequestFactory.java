@@ -168,8 +168,7 @@ public class GraphRequestFactory {
                         constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
                                 targetClasses, graphPolicy, unnullable);
             }
-        } catch (Exception e) {
-            /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
+        } catch (ReflectiveOperationException e) {
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);
         }
         return request;
