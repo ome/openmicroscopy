@@ -416,6 +416,9 @@
                     var inst = this;
                     var node1 = inst.get_node(nodeId1);
                     var node2 = inst.get_node(nodeId2);
+                    if (node2.type == 'image') {
+                        return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
+                    }
                     // Nodes are 2 types, "Shares" and "Discussions", but we sort by IDs
                     return parseInt(node2.data.obj.id) <= parseInt(node1.data.obj.id) ? -1 : 1;
                 },
