@@ -42,10 +42,8 @@ public class PlanePoint {
     /**
      * Creates a new instance.
      * 
-     * @param x1
-     *            The first element.
-     * @param x2
-     *            The second element.
+     * @param x1  The first element of the point
+     * @param x2  The second element of the point
      */
     public PlanePoint(double x1, double x2) {
         this.x1 = x1;
@@ -154,6 +152,8 @@ public class PlanePoint {
      * This method returns <nobr><i>f(t, p)</i></nobr>, where <i>t</i> is
      * this point and <i>p</i> is the specified argument.
      * 
+     * @param x1  The first element of the point
+     * @param x2  The second element of the point
      * @return The vector associated to this point and <i>p</i>.
      */
     public PlanePoint vec(double x1, double x2) {
