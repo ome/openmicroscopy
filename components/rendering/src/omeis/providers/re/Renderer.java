@@ -7,7 +7,6 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,11 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
@@ -29,6 +26,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
+
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;

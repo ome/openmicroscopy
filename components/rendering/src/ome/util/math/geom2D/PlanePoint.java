@@ -7,12 +7,6 @@
 
 package ome.util.math.geom2D;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Represents a point in the Euclidean space <b>R</b><sup>2</sup>.
  * <p>

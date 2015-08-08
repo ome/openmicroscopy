@@ -7,11 +7,6 @@
 
 package omeis.providers.re.quantum;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 
