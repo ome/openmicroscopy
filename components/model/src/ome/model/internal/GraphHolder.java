@@ -44,7 +44,7 @@ public final class GraphHolder {
     }
 
     /**
-     * used mostly by {@link ome.api.IUpdate}. Improper use of this method may
+     * used mostly by {@code ome.api.IUpdate}. Improper use of this method may
      * cause erratic behavior.
      * 
      * @param replacement

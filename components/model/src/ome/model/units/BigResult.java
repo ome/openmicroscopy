@@ -27,8 +27,8 @@ import java.math.BigDecimal;
  * overflow. Use of {@link BigDecimal} in the {@link ome.model.units.Conversion}
  * prevents the overflow from happening prematurely, but once the value is to
  * be returned to the client, the ome.model (or dependent objects) will be
- * forced to transform the {@link BigDecimal} to a {@link double}. If that
- * {@link double} is either {@link Double#POSITIVE_INFINITY} or
+ * forced to transform the {@link BigDecimal} to a {@link Double}. If that
+ * {@link Double} is either {@link Double#POSITIVE_INFINITY} or
  * {@link Double#NEGATIVE_INFINITY}, then this exception will be thrown. The
  * internal {@link BigDecimal} will be returned in the {@link #result} field
  * for consumption by the client.

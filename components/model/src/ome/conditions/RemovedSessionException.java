@@ -7,7 +7,7 @@
 package ome.conditions;
 
 /**
- * Client attempted to access a {@link Session} which has either
+ * Client attempted to access a session which has either
  * {@link SessionTimeoutException expired} or been closed manually.
  * 
  * @author Josh Moore, josh at glencoesoftware.com

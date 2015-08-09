@@ -18,14 +18,11 @@ import java.sql.Timestamp;
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since 3.0-M2
- * @see ome.parameters.Page
- * @see ome.parameters.Order
- * @see
  */
 public class Filter implements Serializable {
 
     /**
-     * flag determining if a {@link ome.services.query.Query} will attempt to
+     * flag determining if a {@code ome.services.query.Query} will attempt to
      * return a single value <em>if supported</em>.
      */
     private boolean unique = false;

@@ -194,7 +194,7 @@ public abstract class Conversion {
 
     /**
      * Exponentiates two {@link Conversion} instances via
-     * {@link BigDecimal#pow(BigDecimal)}.
+     * {@link BigDecimal#pow(int)}.
      */
     public static class Pow extends Conversion {
 

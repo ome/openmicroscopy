@@ -19,7 +19,7 @@ import java.io.Serializable;
 import ome.conditions.ApiUsageException;
 
 /**
- * arbitrary query parameter used by {@link ome.api.IQuery}.
+ * arbitrary query parameter used by {@code ome.api.IQuery}.
  * 
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a

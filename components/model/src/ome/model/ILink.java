@@ -24,8 +24,6 @@ package ome.model;
  * @see ome.model.core.Image
  * @see ome.model.containers.Dataset
  * @see ome.model.containers.Project
- * @see ome.model.containers.Category
- * @see ome.model.containers.CategoryGroup
  */
 public interface ILink extends IObject {
 

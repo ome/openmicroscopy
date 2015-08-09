@@ -62,8 +62,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
      * in place for the "psql" profile. This method simply
      * bypasses all query rewriting until that's functional.
      *
-     * @see ticket 3961
-     * @see ticket 9077
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/3961">ticket 3961</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/9077">ticket 9077</a>
      */
     public String rewriteHql(String query, String key, Object value) {
         return query;

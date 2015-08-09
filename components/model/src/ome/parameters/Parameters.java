@@ -28,10 +28,6 @@ import ome.conditions.ApiUsageException;
 
 /**
  * container object for {@link QueryParameter} and {@link Filter} instances.
- * Parameters are provided to {@link IQuery} calls
- * {@link IQuery#findByQuery(String, Parameters)} and
- * {@link IQuery#findAllByQuery(String, Parameters)}, and define all named
- * query parameters needed for the call.
  * 
  * The public Strings available here are used throughout this class and should
  * also be used in query strings as named parameteres. For example, the field

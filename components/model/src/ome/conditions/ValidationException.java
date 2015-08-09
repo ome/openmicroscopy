@@ -16,10 +16,6 @@ package ome.conditions;
  * <ul>
  * <li>a {@link ome.model.containers.Project Project} name with invalid
  * characters</li>
- * <li>{@link ome.model.core.Image Image} linked to two distinct
- * {@link ome.model.containers.Category Categories} in a single
- * (mutually-exclusive) {@link ome.model.containers.CategoryGroup CategoryGroup}
- * </li>
  * </ul>
  * </p>
  * 

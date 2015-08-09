@@ -28,15 +28,14 @@ import ome.util.Filterable;
 /**
  * value type for low-level (row-level) details for all
  * {@link ome.model.IObject} objects. Details instances are given special
- * treatment through the Omero system, especially during {@link ome.api.IUpdate 
- * update}.
+ * treatment through the Omero system, especially during
+ * {@code ome.api.IUpdate} update.
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  * @author josh
- * @see ome.api.IUpdate
  */
 @MappedSuperclass
 public abstract class Details implements Filterable, Serializable {
