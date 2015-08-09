@@ -6,11 +6,6 @@
  */
 package ome.model.internal;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 

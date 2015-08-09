@@ -6,7 +6,6 @@
  */
 package ome.model.internal;
 
-// Java imports
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;

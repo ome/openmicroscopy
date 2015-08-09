@@ -10,12 +10,6 @@ package ome.util;
 import java.util.Collection;
 import java.util.Map;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * marks objects which can be filtered using {see FIXME }.
  * 

@@ -7,11 +7,6 @@
 
 package ome.util;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.core.Image;
 

@@ -6,7 +6,6 @@
  */
 package ome.model;
 
-// Java imports
 import java.io.Serializable;
 import java.util.Set;
 

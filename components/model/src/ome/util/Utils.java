@@ -7,7 +7,6 @@
 
 package ome.util;
 
-// Java imports
 import java.io.Closeable;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -16,10 +15,6 @@ import java.util.logging.Logger;
 
 import ome.model.IObject;
 import ome.model.internal.Permissions;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * various tools needed throughout Omero.

@@ -6,11 +6,6 @@
  */
 package ome.model;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;

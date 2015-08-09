@@ -7,13 +7,8 @@
 
 package ome.util;
 
-// Java imports
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * utility iterator which does nothing as quickly as possible.

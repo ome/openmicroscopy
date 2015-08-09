@@ -7,15 +7,10 @@
 
 package ome.parameters;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 
 import ome.conditions.ApiUsageException;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * parameter which defines the ordering as well as the start and offset for a

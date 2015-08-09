@@ -6,12 +6,6 @@
  */
 package ome.model;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * interface for all mutable domain objects. Provides access to the version
  * property which the backend uses for optimistic locking. An object with an id

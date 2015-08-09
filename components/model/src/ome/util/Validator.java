@@ -7,12 +7,9 @@
 
 package ome.util;
 
-// Java imports
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.acquisition.ImagingEnvironment;
 import ome.model.core.Channel;

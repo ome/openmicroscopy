@@ -6,12 +6,6 @@
  */
 package ome.model;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * extension of {@link ome.model.IObject} for building object hierarchies. ILink
  * represents a many-to-many relationship between two classes that take part in

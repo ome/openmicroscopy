@@ -7,16 +7,11 @@
 
 package ome.util;
 
-// Java imports
-
-// Third-party libraries
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-// Application-internal dependencies
 
 /**
  * collector for Model-validation status.

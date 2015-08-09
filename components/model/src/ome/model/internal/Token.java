@@ -6,12 +6,6 @@
  */
 package ome.model.internal;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * authorization token to allow/revoke certain privileges.
  * 

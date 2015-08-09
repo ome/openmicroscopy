@@ -7,11 +7,6 @@
 
 package ome.model;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;

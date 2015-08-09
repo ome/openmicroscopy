@@ -7,7 +7,6 @@
 
 package ome.util;
 
-// Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;

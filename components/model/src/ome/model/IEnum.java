@@ -6,12 +6,6 @@
  */
 package ome.model;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * interface for all domain enumarations. Mostly a marker interface, but does
  * provide access to the single value associated with this instance (See

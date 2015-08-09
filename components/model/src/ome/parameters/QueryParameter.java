@@ -7,15 +7,11 @@
 
 package ome.parameters;
 
-// Java imports
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
 /**

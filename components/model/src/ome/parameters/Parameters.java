@@ -7,7 +7,6 @@
 
 package ome.parameters;
 
-// Java imports
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,9 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
 /**

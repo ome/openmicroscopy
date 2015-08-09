@@ -7,16 +7,13 @@
 
 package ome.util;
 
-// Java imports
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.model.ModelBased;
 import ome.model.IObject;
 

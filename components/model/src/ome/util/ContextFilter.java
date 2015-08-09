@@ -19,12 +19,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * modified (hierarchical) visitor pattern. See
  * http://c2.com/cgi/wiki?HierarchicalVisitorPattern for more information. (A

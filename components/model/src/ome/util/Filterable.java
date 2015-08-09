@@ -7,12 +7,6 @@
 
 package ome.util;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * marks objects which can be filtered using {see FIXME }.
  * 
