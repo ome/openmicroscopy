@@ -7,7 +7,6 @@
 
 package ome.dsl;
 
-// Java imports
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-// Third-party libraries
 import com.google.common.collect.ImmutableMap;
 
 // Application-internal dependencies

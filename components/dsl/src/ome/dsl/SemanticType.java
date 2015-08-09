@@ -7,7 +7,6 @@
 
 package ome.dsl;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,10 +18,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * represents a SemanticType <b>definition</b>.
