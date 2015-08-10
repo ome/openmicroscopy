@@ -48,9 +48,14 @@ class MetadataTestBase(CLITest):
         tag = self.new_tag('tag-' + self.name)
         fa = self.make_file_annotation(
             'file-' + self.name, format="OMERO.tables", ns=NSBULKANNOTATIONS)
+        ma = omero.model.MapAnnotationI()
+        ma.setMapValue([omero.model.NamedValue(
+            'key-' + self.name, 'value-' + self.name)])
+
         self.link(obj, tag)
         self.link(obj, fa)
-        return tag, fa
+        self.link(obj, ma)
+        return tag, fa, ma
 
     def create_roi(self, img):
         roi = omero.model.RoiI()
@@ -114,7 +119,7 @@ class TestMetadata(MetadataTestBase):
     @pytest.mark.parametrize('annotations', [False, True])
     def test_get_bulkanns(self, annotations):
         if annotations:
-            tag, fa = self.create_annotations(self.image)
+            tag, fa, ma = self.create_annotations(self.image)
 
         bulkanns = self.md.get_bulkanns()
 
@@ -130,27 +135,33 @@ class TestMetadata(MetadataTestBase):
     @pytest.mark.parametrize('annotations', [False, True])
     def test_get_allanns(self, annotations):
         if annotations:
-            tag, fa = self.create_annotations(self.image)
+            tag, fa, ma = self.create_annotations(self.image)
 
         allanns = self.md.get_allanns()
 
         if annotations:
-            assert len(allanns) == 2
+            assert len(allanns) == 3
+            # Put into a known order to make comparison easier
+            allanns.sort(key=lambda x: x.ice_staticId())
             a0 = allanns[0]
             a1 = allanns[1]
-            if isinstance(a0.obj_wrapper,
-                          omero.gateway.FileAnnotationWrapper):
-                assert isinstance(a1.obj_wrapper,
-                                  omero.gateway.TagAnnotationWrapper)
-                assert a0.getName() == unwrap(fa.getFile().getName())
-                assert a1.getFileName() == unwrap(tag.getName())
-            else:
-                assert isinstance(a1.obj_wrapper,
-                                  omero.gateway.FileAnnotationWrapper)
-                assert isinstance(a0.obj_wrapper,
-                                  omero.gateway.TagAnnotationWrapper)
-                assert a1.getFileName() == unwrap(fa.getFile().getName())
-                assert a0.getName() == unwrap(tag.getName())
+            a2 = allanns[2]
+
+            assert isinstance(
+                a0.obj_wrapper, omero.gateway.FileAnnotationWrapper)
+            assert a0.getFileName() == unwrap(fa.getFile().getName())
+
+            assert isinstance(
+                a1.obj_wrapper, omero.gateway.MapAnnotationWrapper)
+            mapvalue = a1.getValue()
+            assert len(mapvalue) == 1
+            assert mapvalue[0][0] == 'key-%s' % self.name
+            assert mapvalue[0][1] == 'value-%s' % self.name
+
+            assert isinstance(
+                a2.obj_wrapper, omero.gateway.TagAnnotationWrapper)
+            assert a2.getName() == unwrap(tag.getName())
+
         else:
             assert allanns == []
 
@@ -162,23 +173,82 @@ class TestMetadataControl(MetadataTestBase):
         self.cli.register("metadata", MetadataControl, "TEST")
         self.args += ["metadata"]
 
-    # def test_summary(self, capfd):
-
-    def testOriginal(self, capfd):
-        uuid = self.uuid()
-        img = self.importSingleImage(GlobalMetadata={uuid: uuid})
-        prx = "Image:%s" % img.id.val
-        self.args += ["original", prx]
+    def invoke(self, capfd):
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
-        assert uuid in o
+        return o
 
-    # def test_bulkanns(self, capfd):
+    # def test_summary(self, capfd):
+
+    def test_original(self, capfd):
+        gmd = 'gmd-%s' % self.name
+        prx = "Image:%s" % self.imageid
+        self.args += ["original", prx]
+        assert gmd in self.invoke(capfd)
+
+    @pytest.mark.parametrize('report', [False, True])
+    def test_bulkanns(self, capfd, report):
+        tag, fa, ma = self.create_annotations(self.image)
+
+        prx = "Image:%s" % self.imageid
+        self.args += ["bulkanns", prx]
+        if report:
+            self.args += ["--report"]
+        o = self.invoke(capfd)
+
+        assert "FileAnnotation:" in o
+        assert "MapAnnotation:" not in o
+        assert "TagAnnotation:" not in o
+
+        if report:
+            assert "name: file-%s" % self.name in o
+        else:
+            assert "name: file-%s" % self.name not in o
 
     # def test_measures(self, capfd):
 
-    # def test_mapanns(self, capfd):
+    @pytest.mark.parametrize('report', [False, True])
+    def test_mapanns(self, capfd, report):
+        tag, fa, ma = self.create_annotations(self.image)
 
-    # def test_allands(self, capfd):
+        prx = "Image:%s" % self.imageid
+        self.args += ["mapanns", prx]
+        if report:
+            self.args += ["--report"]
+        o = self.invoke(capfd)
+
+        assert "FileAnnotation:" not in o
+        assert "MapAnnotation:" in o
+        assert "TagAnnotation:" not in o
+
+        if report:
+            assert "key-%s=value-%s" % (self.name, self.name) in o
+        else:
+            assert "key-%s" % self.name not in o
+            assert "value-%s" % self.name not in o
+
+    @pytest.mark.parametrize('report', [False, True])
+    def test_allanns(self, capfd, report):
+        tag, fa, ma = self.create_annotations(self.image)
+
+        prx = "Image:%s" % self.imageid
+        self.args += ["allanns", prx]
+        if report:
+            self.args += ["--report"]
+        o = self.invoke(capfd)
+
+        assert "FileAnnotation:" in o
+        assert "MapAnnotation:" in o
+        assert "TagAnnotation:" in o
+
+        if report:
+            assert "value: tag-%s" % self.name in o
+            assert "name: file-%s" % self.name in o
+            assert "key-%s=value-%s" % (self.name, self.name) in o
+        else:
+            assert "value: tag-%s" % self.name not in o
+            assert "name: file-%s" % self.name not in o
+            assert "key-%s" % self.name not in o
+            assert "value-%s" % self.name not in o
 
     # def test_populate(self, capfd):
