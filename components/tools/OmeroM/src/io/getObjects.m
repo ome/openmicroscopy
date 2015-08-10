@@ -5,7 +5,7 @@ function [objects, orphans] = getObjects(session, type, ids, varargin)
 %   specified type, identified by the input ids.
 %   If ids is an empty array, only the objects belonging to the session
 %   owner in the context of the current group are returned. If ids is non
-%   empty, all objects are returned independently of the owner.
+%   empty, all objects are returned independently of the owner or the group.
 %
 %   objects = getObjects(session, type, ids, parameters) returns all the
 %   objects of the specified type, identified by the input ids, owned by

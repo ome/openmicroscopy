@@ -5,7 +5,7 @@ function plates = getPlates(session, varargin)
 %   session user in the context of the session group.
 %
 %   plates = getPlates(session, ids) returns all the plates identified by
-%   the input ids in the context of the session group.
+%   the input ids independently of the owner across groups.
 %
 %   plates = getPlates(..., 'owner', owner) specifies the owner of the
 %   plates. A value of -1 implies plates are returned independently of

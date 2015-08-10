@@ -5,12 +5,10 @@ function datasets = getDatasets(session, varargin)
 %   session user in the context of the session group.
 %
 %   datasets = getDatasets(session, ids) returns all the datasets
-%   identified by the input ids across all groups.
+%   identified by the input ids independently of the owner across all groups.
 %
-%   datasets = getDatasets(session, ids, loaded) returns all the datasets
-%   identified by the input ids in the context of the session group. If
-%   loaded is true, the images attached to the datasets are also loaded.
-%   Default: false.
+%   datasets = getDatasets(..., loaded) also loads the images attached to the
+%   datasets if loaded is true. Default: false.
 %
 %   datasets = getDatasets(..., 'owner', owner) specifies the owner of the
 %   datasets. A value of -1 implies datasets are returned independently of
@@ -23,10 +21,11 @@ function datasets = getDatasets(session, varargin)
 %   Examples:
 %
 %      datasets = getDatasets(session);
+%      datasets = getDatasets(session, true);
 %      datasets = getDatasets(session, 'owner', ownerId);
 %      datasets = getDatasets(session, 'group', groupId);
 %      datasets = getDatasets(session, ids);
-%      datasets = getDatasets(session, ids, false);
+%      datasets = getDatasets(session, ids, true);
 %      datasets = getDatasets(session, ids, 'owner', ownerId);
 %      datasets = getDatasets(session, ids, 'group', groupId);
 %

@@ -2,17 +2,13 @@ function [projects, datasets] = getProjects(session, varargin)
 % GETPROJECTS Retrieve project objects from the server
 %
 %   projects = getProjects(session) returns all the projects owned by the
-%   session user in the context of the session group. This may
-%   have consequences in terms of loading time depending on the images
-%   contained in the projects' datasets.
+%   session user in the context of the session group.
 %
 %   projects = getProjects(session, ids) returns all the projects
-%   identified by the input ids in the context of the session group.
+%   identified by the input ids independently of the owner across groups.
 %
-%   projects = getProjects(session, ids, loaded) returns all the projects
-%   identified by the input ids in the context of the session group. If
-%   loaded is false, the images attached to the  datasets are not loaded.
-%   Default: false.
+%   projects = getProjects(..., loaded) also loads the images attached to the
+%   datasets if loaded is true,  Default: false.
 %
 %   projects = getProjects(..., 'owner', owner) specifies the owner of the
 %   projects. A value of -1 implies projects are returned independently of
