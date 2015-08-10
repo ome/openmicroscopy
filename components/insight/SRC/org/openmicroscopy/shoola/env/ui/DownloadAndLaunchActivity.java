@@ -24,7 +24,7 @@ package org.openmicroscopy.shoola.env.ui;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 /**
  * Activity to describe downloading a file and launching a specific application

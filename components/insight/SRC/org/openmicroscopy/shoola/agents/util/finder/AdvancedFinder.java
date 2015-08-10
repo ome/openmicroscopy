@@ -28,6 +28,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,15 +36,17 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+import omero.gateway.model.SearchParameters;
+import omero.gateway.model.SearchScope;
+
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -97,7 +100,7 @@ public class AdvancedFinder
 	private Collection tags;
 	
 	/** Host the result per group.*/
-	private AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
+	private SearchResultCollection results = new SearchResultCollection();
 	
 	/** The identifier of the group.*/
 	private long groupId;
@@ -114,25 +117,23 @@ public class AdvancedFinder
 	 * @param value The value to convert.
 	 * @return See above.
 	 */
-	private Integer convertScope(int value)
+	private SearchScope convertScope(int value)
 	{
 		switch (value) {
 			case SearchContext.TEXT_ANNOTATION:
-				return SearchParameters.TEXT_ANNOTATION;
+				return SearchScope.ANNOTATION;
 			case SearchContext.TAGS:
-				return SearchParameters.TAGS;
+				return SearchScope.ANNOTATION;
 			case SearchContext.URL_ANNOTATION:
-				return SearchParameters.URL_ANNOTATION;
+				return SearchScope.ANNOTATION;
 			case SearchContext.FILE_ANNOTATION:
-				return SearchParameters.FILE_ANNOTATION;
+				return SearchScope.ANNOTATION;
 			case SearchContext.NAME:
-				return SearchParameters.NAME;
+				return SearchScope.NAME;
 			case SearchContext.DESCRIPTION:
-				return SearchParameters.DESCRIPTION;
-			case SearchContext.CUSTOMIZED:
-				return SearchParameters.CUSTOMIZED;
+				return SearchScope.DESCRIPTION;
 			case SearchContext.ANNOTATION:
-                            return SearchParameters.ANNOTATION;
+			    return SearchScope.ANNOTATION;
 			default:
 				return null;
 		}
@@ -185,9 +186,9 @@ public class AdvancedFinder
 			context = new ArrayList<Integer>();
 			context.add(SearchContext.CUSTOMIZED);
 		}
-		List<Integer> scope = new ArrayList<Integer>(context.size());
+		Set<SearchScope> scope = new HashSet<SearchScope>();
 		Iterator i = context.iterator();
-		Integer v;
+		SearchScope v;
 		while (i.hasNext()) {
 			v = convertScope((Integer) i.next());
 			if (v != null) scope.add(v);
@@ -340,18 +341,18 @@ public class AdvancedFinder
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(AdvancedSearchResultCollection result)
+	public void setResult(SearchResultCollection result)
 	{
             if (result.isError()) {
                 String msg = "";
                 switch (result.getError()) {
-                    case AdvancedSearchResultCollection.GENERAL_ERROR:
+                    case SearchResultCollection.GENERAL_ERROR:
                         msg = "Invalid search expression";
                         break;
-                    case AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR:
+                    case SearchResultCollection.TOO_MANY_RESULTS_ERROR:
                         msg = "Too many results, please refine your search criteria.";
                         break;
-                    case AdvancedSearchResultCollection.TOO_MANY_CLAUSES:
+                    case SearchResultCollection.TOO_MANY_CLAUSES:
                         msg = "Please try to narrow down your query. The wildcard matched too many terms.";
                         break;
                 }

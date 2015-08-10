@@ -28,14 +28,17 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.log.Logger;
+import omero.gateway.Gateway;
+import omero.gateway.cache.CacheService;
+
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -172,5 +175,6 @@ public interface Registry
      *          supported {@link DataServicesView} interfaces.
      */
     public DataServicesView getDataServicesView(Class<?> view);
-
+    
+    public Gateway getGateway();
 }

@@ -32,13 +32,18 @@ import java.util.Map;
 //Third-party libraries
 
 
+
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 

@@ -56,7 +56,10 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.ServerInformation;
+
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
@@ -436,7 +439,7 @@ class ImporterModel
 	void fireDataCreation(ObjectToCreate data)
 	{
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
-		ctx.setServerInformation(this.ctx.getHostName(), this.ctx.getPort());
+		ctx.setServerInformation(this.ctx.getServerInformation());
 		ctx.setExperimenter(data.getExperimenter());
 		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());

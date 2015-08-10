@@ -63,7 +63,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject
 import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;

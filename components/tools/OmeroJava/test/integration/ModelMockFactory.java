@@ -123,7 +123,7 @@ public class ModelMockFactory {
      * @param pixelsService
      * @throws ServerError unexpected
      */
-    ModelMockFactory(IPixelsPrx pixelsService) throws ServerError {
+    public ModelMockFactory(IPixelsPrx pixelsService) throws ServerError {
         this.pixelsService = pixelsService;
         getExperimentTypes();
     }

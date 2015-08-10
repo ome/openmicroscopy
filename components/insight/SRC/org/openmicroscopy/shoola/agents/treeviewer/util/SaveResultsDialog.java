@@ -55,9 +55,11 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

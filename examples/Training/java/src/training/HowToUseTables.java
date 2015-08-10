@@ -2,7 +2,7 @@
  * training.HowToUseTables 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -30,14 +30,22 @@ import java.util.UUID;
 
 //Third-party libraries
 
+
+
+
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
 //Application-internal dependencies
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.LongColumn;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.TablePrx;
+import omero.log.SimpleLogger;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import pojos.ExperimenterData;
 
 /** 
  * Follow samples code indicating how to use OMERO.tables
@@ -60,8 +68,9 @@ public class HowToUseTables
 	private String password = "password";
 	//end edit
 	
-	/** Reference to the connector.*/
-	private Connector connector;
+	private Gateway gateway;
+    
+    private SecurityContext ctx;
 
 	/**
 	 * Creates a number of empty rows.
@@ -94,7 +103,7 @@ public class HowToUseTables
 		TablePrx table = null;
 		TablePrx table2 = null;
 		try {
-			store = connector.getSharedResources();
+			store = gateway.getSharedResources(ctx);
 			table = store.newTable(1, name);
 
 			//initialize the table
@@ -166,15 +175,24 @@ public class HowToUseTables
 			info.setPassword(password);
 			info.setUserName(userName);
 		}
-		connector = new Connector(info);
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getServer().setHostname(info.getHostName());
+        cred.getServer().setPort(info.getPort());
+        cred.getUser().setUsername(info.getUserName());
+        cred.getUser().setPassword(info.getPassword());
+
+        gateway = new Gateway(new SimpleLogger());
+        
 		try {
-			connector.connect();
+		    ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
 			createTable();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				connector.disconnect(); // Be sure to disconnect
+			    gateway.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
