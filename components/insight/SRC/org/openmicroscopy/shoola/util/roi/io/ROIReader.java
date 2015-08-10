@@ -270,6 +270,7 @@ public class ROIReader {
                 Roi shape;
                 for (int j = 0; j < subRois.length; j++) {
                     shape = subRois[j];
+                    type = shape.getTypeAsString();
                     if (shape instanceof Line) {
                         roiData.addShapeData(convertLine((Line) shape));
                     } else if (shape instanceof OvalRoi) {
