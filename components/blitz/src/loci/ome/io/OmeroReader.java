@@ -46,7 +46,6 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
-import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.Timestamp;
@@ -55,7 +54,6 @@ import omero.RString;
 import omero.RTime;
 import omero.ServerError;
 import omero.api.IAdminPrx;
-import omero.api.IQueryPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -78,7 +76,6 @@ import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.Time;
-import omero.model.enums.UnitsLength;
 import omero.sys.EventContext;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
@@ -273,7 +270,6 @@ public class OmeroReader extends FormatReader {
             }
 
             IAdminPrx iAdmin = serviceFactory.getAdminService();
-            IQueryPrx iQuery = serviceFactory.getQueryService();
             EventContext eventContext = iAdmin.getEventContext();
 
             if (group != null || groupID != null) {
@@ -707,7 +703,6 @@ public class OmeroReader extends FormatReader {
             store.setLineText(shape1.getTextValue().getValue(), roiNum, shapeNum);
         }
         if (shape1.getStrokeWidth() != null) {
-            UnitsLength cc = UnitsFactory.Shape_StrokeWidth;
             store.setLineStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
         }
         if (shape1.getStrokeColor() != null){
