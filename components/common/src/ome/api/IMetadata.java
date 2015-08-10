@@ -207,7 +207,7 @@ public interface IMetadata
      * Counts the number of annotation of a given type used by the specified
      * user but not owned by the user.
      * 
-     * @param type     The type of annotations to load.
+     * @param annotationType     The type of annotations to load.
      * @param userID   The identifier of the user.
      * @return See above.
      */
@@ -218,7 +218,7 @@ public interface IMetadata
      * Loads the annotations of a given type used by the specified
      * user but not owned by the user.
      * 
-     * @param type     The type of annotations to load.
+     * @param annotationType     The type of annotations to load.
      * @param userID   The identifier of the user.
      * @return See above.
      */
@@ -258,7 +258,7 @@ public interface IMetadata
 
     /**
      * Find the original file IDs for the import logs corresponding to the given Image or Fileset IDs.
-     * @param rootNodeType the root node type, may be {@link omero.model.core.Image} or {@link omero.model.fs.Fileset}
+     * @param rootNodeType the root node type, may be {@link ome.model.core.Image} or {@link ome.model.fs.Fileset}
      * @param ids the IDs of the entities for which the import log original file IDs are required
      * @return the original file IDs of the import logs
      */

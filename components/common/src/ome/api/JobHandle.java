@@ -116,7 +116,7 @@ public interface JobHandle extends StatefulServiceInterface {
      * Sets the job's message string, and returns the previous value.
 
      * @param message
-     * @return
+     * @return thee previous message value
      */
     String setMessage(String message);
 

@@ -33,7 +33,7 @@ public interface ITypes extends ServiceInterface {
      * Returns a list of classes which implement {@link IAnnotated}. These can
      * be used in combination with {@link ome.api.Search}.
      * 
-     * @return
+     * @return a {@link List} of {@link IAnnotated} implementations
      */
     List<Class<IAnnotated>> getAnnotationTypes();
 
@@ -76,7 +76,6 @@ public interface ITypes extends ServiceInterface {
      *            The type of the enumeration. Must extend {@link IEnum}
      * @param listEnum
      *            An enumeration collection of objects which should be searched.
-     * @return A managed enumeration. Never null.
      */
     <T extends IEnum> void updateEnumerations(@NotNull
     @Validate(IEnum.class)

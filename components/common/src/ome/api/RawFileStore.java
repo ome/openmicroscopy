@@ -29,7 +29,7 @@ public interface RawFileStore extends StatefulServiceInterface {
     /**
      * This method manages the state of the service. If the given file
      * is not considered DOWNLOADABLE, this method will throw a
-     * {@link SecurityViolation}.
+     * {@link ome.conditions.SecurityViolation}.
      * 
      * @param fileId
      *            an {@link ome.model.core.OriginalFile} id.
@@ -48,9 +48,8 @@ public interface RawFileStore extends StatefulServiceInterface {
     public boolean exists();
 
     /**
-     * Delegates to {@link ome.io.nio.FileBuffer}
-     * 
-     * @see ome.io.nio.FileBuffer#read(java.nio.ByteBuffer, long)
+     * Reads {@code length} bytes of data at the {@code position} from the raw
+     * file into an array of bytes
      */
     public byte[] read(long position, int length);
 
@@ -69,9 +68,8 @@ public interface RawFileStore extends StatefulServiceInterface {
     public boolean truncate(long length);
 
     /**
-     * Delegates to {@link ome.io.nio.FileBuffer}
-     * 
-     * @see ome.io.nio.FileBuffer#write(java.nio.ByteBuffer, long)
+     * Writes {@code length} bytes of data from the specified {@code buf} byte
+     * array starting at at {@code position} to the raw file
      */
     public void write(byte[] buf, long position, int length);
 

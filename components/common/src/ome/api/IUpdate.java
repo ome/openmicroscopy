@@ -50,7 +50,6 @@ import ome.model.IObject;
  * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO3.0
  * @see ome.util.Validation
- * @see ome.logic.UpdateImpl
  * @see ome.model.internal.Details
  */
 public interface IUpdate extends ServiceInterface {
@@ -89,7 +88,7 @@ public interface IUpdate extends ServiceInterface {
      * graphs of objects in the correct order.
      *
      * @param row
-     *            a persistent {@link IObject{ to be deleted.
+     *            a persistent {@link IObject} to be deleted.
      * @throws ValidationException
      *             if the row is locked, has foreign key constraints, or is
      *             otherwise marked un-deletable.
@@ -98,7 +97,7 @@ public interface IUpdate extends ServiceInterface {
 
     /**
      * Initiates full-text indexing for the given object. This may have to wait
-     * for the current {@link ome.services.fulltext.FullTextThread} to finish.
+     * for the current {@code ome.services.fulltext.FullTextThread} to finish.
      * Can only be executed by an admin. Other users must wait for the
      * background {@link Thread} to complete.
      * 

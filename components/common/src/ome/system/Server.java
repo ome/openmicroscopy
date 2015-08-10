@@ -53,7 +53,7 @@ public class Server {
     /**
      * standard constructor which users {@link #DEFAULT_PORT}.
      * 
-     * @param server
+     * @param serverHost
      *            Not null.
      */
     public Server(String serverHost) {

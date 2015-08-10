@@ -138,7 +138,7 @@ public interface IConfig extends ServiceInterface {
     Map<String, String> getConfigDefaults();
 
     /**
-     * retrieves configuration values like {@link getConfigValues(String)}
+     * retrieves configuration values like {@link #getConfigValues(String)}
      * but only those with the prefix "omero.client".
      *
      * @return a {@link Map} from the found keys to the linked values.
@@ -181,7 +181,6 @@ public interface IConfig extends ServiceInterface {
      *  
      * @param key
      * @param value
-     * @return
      * @throws ApiUsageException
      * @throws SecurityViolation
      * @see #setConfigValue(String, String)

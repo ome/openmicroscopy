@@ -72,9 +72,9 @@ public interface IRenderingSettings extends ServiceInterface {
      * rendering engine intelligent <i>pretty good image (PG)</i> logic for
      * the pixels set linked to that set of rendering settings. <b>NOTE:</b> 
      * This method should only be used to reset a rendering definition that has
-     * been retrieved via {@link IPixels#retrieveRenderingSettings(long)} as
-     * it relies on certain objects being loaded. The rendering settings are
-     * saved upon completion.
+     * been retrieved via {@link #getRenderingSettings(long)} as it relies on
+     * certain objects being loaded. The rendering settings are saved upon
+     * completion.
      * 
      * @param def A <code>RenderingDef</code> to reset. It is expected that
      * def.pixels will be <i>unloaded</i> and that the actual linked Pixels set
@@ -88,9 +88,8 @@ public interface IRenderingSettings extends ServiceInterface {
      * rendering engine intelligent <i>pretty good image (PG)</i> logic for
      * the pixels set linked to that set of rendering settings. <b>NOTE:</b> 
      * This method should only be used to reset a rendering definition that has
-     * been retrieved via {@link IPixel#retrieveRenderingSettings(long)} as
-     * it relies on certain objects being loaded. The rendering settings are
-     * not saved.
+     * been retrieved via {@link #getRenderingSettings(long)} as it relies on
+     * certain objects being loaded. The rendering settings are not saved.
      * 
      * @param def A <code>RenderingDef</code> to reset. It is expected that
      * def.pixels will be <i>unloaded</i> and that the actual linked Pixels set
@@ -140,11 +139,11 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * specified by the rendering engine intelligent <i>pretty good image
 	 * (PG)</i> logic. Supported container types are:
 	 * <ul>
-	 *   <li>{@link Project}</li>
-	 *   <li>{@link Dataset}</li>
-	 *   <li>{@link Image}</li>
-	 *   <li>{@link Plate}</li>
-	 *   <li>{@link Pixels}</li>
+	 *   <li>{@link ome.model.containers.Project}</li>
+	 *   <li>{@link ome.model.containers.Dataset}</li>
+	 *   <li>{@link ome.model.core.Image}</li>
+	 *   <li>{@link ome.model.screen.Plate}</li>
+	 *   <li>{@link ome.model.core.Pixels}</li>
 	 * </ul>
 	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.
@@ -160,11 +159,11 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * Resets the rendering settings of a given group of containers based on
 	 * the owner's (essentially a copy). Supported container types are:
 	 * <ul>
-	 *   <li>{@link Project}</li>
-	 *   <li>{@link Dataset}</li>
-	 *   <li>{@link Image}</li>
-	 *   <li>{@link Plate}</li>
-	 *   <li>{@link Pixels}</li>
+	 *   <li>{@link ome.model.containers.Project}</li>
+	 *   <li>{@link ome.model.containers.Dataset}</li>
+	 *   <li>{@link ome.model.core.Image}</li>
+	 *   <li>{@link ome.model.screen.Plate}</li>
+	 *   <li>{@link ome.model.core.Pixels}</li>
 	 * </ul>
 	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.
@@ -181,11 +180,11 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * global minimum and global maximum for the channel. Supported container
 	 * types are:
 	 * <ul>
-	 *   <li>{@link Project}</li>
-	 *   <li>{@link Dataset}</li>
-	 *   <li>{@link Image}</li>
-	 *   <li>{@link Plate}</li>
-	 *   <li>{@link Pixels}</li>
+	 *   <li>{@link ome.model.containers.Project}</li>
+	 *   <li>{@link ome.model.containers.Dataset}</li>
+	 *   <li>{@link ome.model.core.Image}</li>
+	 *   <li>{@link ome.model.screen.Plate}</li>
+	 *   <li>{@link ome.model.core.Pixels}</li>
 	 * </ul>
 	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.
@@ -203,19 +202,19 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>Dataset</code> will have the rendering settings applied. Supported
 	 * container types are:
 	 * <ul>
-	 *   <li>{@link Project}</li>
-	 *   <li>{@link Dataset}</li>
-	 *   <li>{@link Image}</li>
-	 *   <li>{@link Plate}</li>
-	 *   <li>{@link Screen}</li>
-	 *   <li>{@link Pixels}</li>
+	 *   <li>{@link ome.model.containers.Project}</li>
+	 *   <li>{@link ome.model.containers.Dataset}</li>
+	 *   <li>{@link ome.model.core.Image}</li>
+	 *   <li>{@link ome.model.screen.Plate}</li>
+	 *   <li>{@link ome.model.screen.Screen}</li>
+	 *   <li>{@link ome.model.core.Pixels}</li>
 	 * </ul>
 	 * 
 	 * @param <T> The type of object to copy to.
 	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.
-	 * @returns A map with two boolean keys. The value of the <code>TRUE</code>
+	 * @return A map with two boolean keys. The value of the <code>TRUE</code>
 	 * is a collection of images ID, the settings were successfully applied to.
 	 * The value of the <code>FALSE</code> is a collection of images ID, the 
 	 * settings could not be applied to.
@@ -308,11 +307,11 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * Resets a rendering settings back to channel global minimum and maximum
 	 * for the specified containers. Supported container types are:
 	 * <ul>
-	 *   <li>{@link Project}</li>
-	 *   <li>{@link Dataset}</li>
-	 *   <li>{@link Image}</li>
-	 *   <li>{@link Plate}</li>
-	 *   <li>{@link Pixels}</li>
+	 *   <li>{@link ome.model.containers.Project}</li>
+	 *   <li>{@link ome.model.containers.Dataset}</li>
+	 *   <li>{@link ome.model.core.Image}</li>
+	 *   <li>{@link ome.model.screen.Plate}</li>
+	 *   <li>{@link ome.model.core.Pixels}</li>
 	 * </ul>
 	 * 
 	 * @param type The type of nodes to handle.

@@ -291,7 +291,7 @@ public class PlaneDef implements Serializable {
     /**
      * Sets whether or not to render the shapes (masks).
      * 
-     * @param renderShapes The value to set.
+     * @param shapeIds The value to set.
      */
     public void setShapeIds(List<Long> shapeIds) {
         this.shapeIds = shapeIds;

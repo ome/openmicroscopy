@@ -30,7 +30,7 @@ import org.hibernate.search.ProjectionConstants;
  * 
  * Each instance also has a number of settings which can all be changed from
  * their defaults via accessors, e.g.{@link #setBatchSize(int)} or
- * {@link #setCaseSensitivity(boolean)}.
+ * {@link #setCaseSentivice(boolean)}.
  * 
  * The only methods which are required for the proper functioning of a
  * {@link Search} instance are:
@@ -158,7 +158,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
 
     /**
      * Returns the current case sensitivity setting. If
-     * {@link #setCaseSentivice()} has not been called, the
+     * {@link #setCaseSentivice(boolean)} has not been called, the
      * {@link #DEFAULT_CASE_SENSITIVTY default value} will be in effect.
      */
     boolean isCaseSensitive();
@@ -212,8 +212,8 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * {@link #byFullText(String)} and
      * {@link #bySomeMustNone(String[], String[], String[])} will throw an
      * {@link ApiUsageException}, since leading-wildcard searches are quite
-     * slow. Use {@link #setAllowLeadingWildcard()} in order to permit this
-     * usage.
+     * slow. Use {@link #setAllowLeadingWildcard(boolean)} in order to permit
+     * this usage.
      */
     boolean isAllowLeadingWildcard();
 
@@ -393,7 +393,6 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * Adds a fetch clause for loading non-annotation fields of returned
      * entities. Each fetch is a hibernate clause in dot notation.
      * 
-     * @param <T>
      * @param fetches
      *            Can be empty, which removes previous fetch setting.
      */
@@ -411,10 +410,11 @@ public interface Search extends ome.api.StatefulServiceInterface,
     // =========================================================================
 
     /**
-     * Returns transient (without ID) {@link TextAnnotation} instances which
-     * represent terms which are similar to the give terms. For example, if
-     * the argument is "cell", one return value might have as its textValue:
-     * "cellular" while another has "cellularize".
+     * Returns transient (without ID)
+     * {@link ome.model.annotations.TextAnnotation} instances which represent
+     * terms which are similar to the give terms. For example, if the argument
+     * is "cell", one return value might have as its textValue: "cellular"
+     * while another has "cellularize".
      * 
      * No filtering or fetching is performed.
      * 
@@ -424,10 +424,12 @@ public interface Search extends ome.api.StatefulServiceInterface,
     void bySimilarTerms(String...terms);
     
     /**
-     * Returns transient (without ID) {@link TagAnnotation} instances which
-     * represent all the {@link TagAnnotation tags} in the given group. The
-     * entities are transient and without ownership since multiple users can own
-     * the same tag. This method will override settings for types.
+     * Returns transient (without ID)
+     * {@link ome.model.annotations.TagAnnotation} instances which
+     * represent all the {@link ome.model.annotations.TagAnnotation tags} in
+     * the given group. The entities are transient and without ownership since
+     * multiple users can own the same tag. This method will override settings
+     * for types.
      * 
      * @param group
      *            Can be null or empty to return all tags.
@@ -436,10 +438,11 @@ public interface Search extends ome.api.StatefulServiceInterface,
 
     /**
      * Creates a query which will return transient (without ID)
-     * {@link TagAnnotation} instances which represent all the
-     * {@link TagAnnotation tag groups} which the given tag belongs to. The
-     * entities are transient and without ownership since multiple users can own
-     * the same tag group. This method will override settings for types.
+     * {@link ome.model.annotations.TagAnnotation} instances which represent
+     * all the {@link ome.model.annotations.TagAnnotation tag groups} which
+     * the given tag belongs to. The entities are transient and without
+     * ownership since multiple users can own the same tag group. This method
+     * will override settings for types.
      * 
      * @param tag
      *            Can be null or empty to return all groups.

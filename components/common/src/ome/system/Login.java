@@ -53,7 +53,7 @@ public class Login {
     public final static String OMERO_EVENT = "omero.event";
 
     /**
-     * {@link CopyOfLogin} constant which has username and password values set
+     * {@link Login} constant which has username and password values set
      * to null and other values set to their default. This will permit logging
      * in as an anonymous user.
      */

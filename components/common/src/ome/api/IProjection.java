@@ -70,7 +70,7 @@ public interface IProjection extends ServiceInterface
      *   <li><code>start > end</code></li>
      *   <li>the Pixels set qualified by <code>pixelsId</code> is unlocatable.</li>
      * </ul>
-     * @see #projectPixels()
+     * @see #projectPixels(long, PixelsType, int, int, int, List, int, int, int, String)
      */
     public byte[] projectStack(long pixelsId, PixelsType pixelsType,
                                int algorithm, int timepoint, int channelIndex,
@@ -80,7 +80,7 @@ public interface IProjection extends ServiceInterface
      * Performs a projection through selected optical sections and optical
      * sections for a given set of time points of a Pixels set. The Image which
      * is linked to the Pixels set will be copied using 
-     * {@link IPixels.copyAndResizeImage()}.
+     * {@link IPixels#copyAndResizeImage(long, Integer, Integer, Integer,  Integer, List, String, boolean)}.
      * @param pixelsId The source Pixels set Id.
      * @param pixelsType The destination Pixels type. If <code>null</code>, the
      * source Pixels set pixels type will be used.
@@ -118,7 +118,7 @@ public interface IProjection extends ServiceInterface
      *   <li><code>zStart > zEnd</code></li>
      *   <li>the Pixels set qualified by <code>pixelsId</code> is unlocatable.</li>
      * </ul>
-     * @see #projectStack()
+     * @see #projectStack(long, PixelsType, int, int, int, int, int start, int)
      */
     public long projectPixels(long pixelsId, PixelsType pixelsType, 
                               int algorithm, int tStart, int tEnd,
