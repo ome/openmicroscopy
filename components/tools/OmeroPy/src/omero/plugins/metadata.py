@@ -119,9 +119,8 @@ class MetadataControl(BaseControl):
                            help="Object in Class:ID format")
 
         for x in (bulkanns, mapanns, allanns, populate):
-            x.add_argument("--pretty", action="store_true", help=(
-                "Format output for human readability, "
-                "show additional information"))
+            x.add_argument("--report", action="store_true", help=(
+                "Show additional information"))
 
         bulkanns.add_argument(
             "--parents", action="store_true",
@@ -257,7 +256,7 @@ class MetadataControl(BaseControl):
                     output_bulkann(p, indent)
 
         md = self._load(args)
-        if args.pretty:
+        if args.report:
             output_bulkann(md, 0)
         else:
             output_bulkann(md)
@@ -274,7 +273,7 @@ class MetadataControl(BaseControl):
         mas = md.get_allanns()
         for ma in mas:
             if ma.get_type() == 'MapAnnotation':
-                if args.pretty:
+                if args.report:
                     self.ctx.out(self._format_ann(md, ma, 0))
                 else:
                     self.ctx.out(self._format_ann(md, ma))
@@ -283,7 +282,7 @@ class MetadataControl(BaseControl):
         "Provide a list of all annotations linked to the given object"
         md = self._load(args)
         for a in md.get_allanns():
-            if args.pretty:
+            if args.report:
                 self.ctx.out(self._format_ann(md, a, 0))
             else:
                 self.ctx.out(self._format_ann(md, a))
@@ -293,8 +292,7 @@ class MetadataControl(BaseControl):
     def populate(self, args):
         client = self.ctx.conn(args)
         # TODO: Configure logging properly
-        print args.pretty
-        if args.pretty:
+        if args.report:
             populate_metadata.log.setLevel(logging.DEBUG)
         else:
             populate_metadata.log.setLevel(logging.INFO)
