@@ -26,19 +26,14 @@ import omero.gateway
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.gateway import BlitzGateway
 from omero.plugins.metadata import Metadata, MetadataControl
-from omero.rtypes import unwrap
+from omero.rtypes import rdouble, unwrap
 from test.integration.clitest.cli import CLITest
 
 
-class TestMetadata(CLITest):
-    """
-    Test the get methods in Metadata
-
-    Some tests are combined for efficiency (import is relatively slow)
-    """
+class MetadataTestBase(CLITest):
 
     def setup_method(self, method):
-        super(TestMetadata, self).setup_method(method)
+        super(MetadataTestBase, self).setup_method(method)
         self.name = self.uuid()
         self.image = self.importSingleImage(
             GlobalMetadata={'gmd-' + self.name: 'gmd-' + self.name})
@@ -57,6 +52,17 @@ class TestMetadata(CLITest):
         self.link(obj, fa)
         return tag, fa
 
+    def create_roi(self, img):
+        roi = omero.model.RoiI()
+        point = omero.model.PointI()
+        point.setCx(rdouble(1))
+        point.setCy(rdouble(2))
+        roi.addShape(point)
+        roi.setImage(img)
+        roi = self.client.getSession().getUpdateService().saveAndReturnObject(
+            roi)
+        return roi
+
     def create_hierarchy(self, img):
         dataset1 = self.new_dataset(name='dataset1-' + self.name)
         dataset2 = self.new_dataset(name='dataset2-' + self.name)
@@ -65,6 +71,14 @@ class TestMetadata(CLITest):
         self.link(dataset1, img)
         self.link(dataset2, img)
         return dataset1, dataset2, project1
+
+
+class TestMetadata(MetadataTestBase):
+    """
+    Test the get methods in Metadata
+
+    Some tests are combined for efficiency (import is relatively slow)
+    """
 
     def test_get_identifiers(self):
         assert self.md.get_type() == "Image"
@@ -84,8 +98,11 @@ class TestMetadata(CLITest):
             assert self.md.get_parent() is None
             assert self.md.get_parents() == []
 
-    def test_get_roi_count(self):
-        assert self.md.get_roi_count() == 0
+    @pytest.mark.parametrize('nrois', [0, 1])
+    def test_get_roi_count(self, nrois):
+        if nrois:
+            self.create_roi(self.image)
+        assert self.md.get_roi_count() == nrois
 
     def test_get_original(self):
         origmd = self.md.get_original()
@@ -138,12 +155,14 @@ class TestMetadata(CLITest):
             assert allanns == []
 
 
-class TestMetadataControl(CLITest):
+class TestMetadataControl(MetadataTestBase):
 
     def setup_method(self, method):
         super(TestMetadataControl, self).setup_method(method)
         self.cli.register("metadata", MetadataControl, "TEST")
         self.args += ["metadata"]
+
+    # def test_summary(self, capfd):
 
     def testOriginal(self, capfd):
         uuid = self.uuid()
@@ -153,3 +172,13 @@ class TestMetadataControl(CLITest):
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         assert uuid in o
+
+    # def test_bulkanns(self, capfd):
+
+    # def test_measures(self, capfd):
+
+    # def test_mapanns(self, capfd):
+
+    # def test_allands(self, capfd):
+
+    # def test_populate(self, capfd):
