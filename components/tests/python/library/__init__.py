@@ -859,6 +859,7 @@ class ITest(object):
         :param ns: The namespace for the annotation. If None, do not set.
         """
         tag = self.new_object(TagAnnotationI, name=name)
+        tag.setTextValue(rstring(name))
         if ns is not None:
             tag.setNs(rstring(ns))
         return tag
