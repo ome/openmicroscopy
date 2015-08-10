@@ -8,7 +8,7 @@ function [screens, plates] = getScreens(session, varargin)
 %   screens to load and plates attached to them.
 %
 %   screens = getScreens(session, ids) returns all the screens identified
-%   by the input ids in the context of the session group.
+%   by the input ids independently of the owner across groups.
 %
 %   screens = getScreens(..., 'owner', owner) specifies the owner of the
 %   screens. A value of -1 implies screens are returned independently of

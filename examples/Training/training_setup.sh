@@ -69,7 +69,7 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Logout
 bin/omero logout
 
-# Create data owned by another user in the second group
+# Create data owned by another user in the same group
 bin/omero login $USER_NAME_2@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME
 bin/omero obj new Project name='Project 0'
 bin/omero obj new Dataset name='Dataset 0'

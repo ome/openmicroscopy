@@ -16,13 +16,10 @@ function images = getImages(session, varargin)
 %   across groups.
 %
 %   images = getImages(session, 'project', projectIds) returns all the
-%   images contained in the projects identified by the input ids in the
-%   context of the session group.
+%   images contained in the projects identified by the input ids.
 %
 %   images = getImages(session, 'dataset', datasetIds) returns all the
-%   images contained in the datasets identified by the input ids in the
-%   context of the session group.
-
+%   images contained in the datasets identified by the input ids.
 %
 %   Examples:
 %
