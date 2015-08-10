@@ -625,6 +625,8 @@ public interface PixelBuffer extends Closeable
     
     /**
      * Returns whether or not the pixel buffer has floating point pixels. 
+     * @return {@code true} if the pixel buffer as floating point,
+     *         {@code false} otherwise
      */
     public boolean isFloat();
     
@@ -696,8 +698,11 @@ public interface PixelBuffer extends Closeable
     /**
      * Return a list of lists each of which has sizeX, sizeY for the resolution
      * level matching the index of the outer index. For example, if an image
-     * has 2 resolution levels of size 2048x1024 and 1024x512 then this returns:
+     * has 2 resolution levels of size 2048x1024 and 1024x512 then this
+     * returns:
      * [[2048,1024],[1024,512]]
+     * @return a list of lists containing sizeX, sizeY for each resolution
+     *         level
      *
      */
     public List<List<Integer>> getResolutionDescriptions();

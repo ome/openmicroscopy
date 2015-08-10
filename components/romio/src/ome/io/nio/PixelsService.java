@@ -592,11 +592,13 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     /**
-     * Returns true if a pyramid should be used for the given {@link Pixels}.
+     * Returns whether a pyramid should be used for the given {@link Pixels}.
      * This usually implies that this is a "Big image" and therefore will
      * need tiling.
      *
      * @param pixels
+     * @return {@code true} if a pyramid should be used, {@code false}
+     *         otherwise
      */
     public boolean requiresPixelsPyramid(Pixels pixels) {
         String type = pixels.getPixelsType().getValue();
@@ -795,6 +797,7 @@ public class PixelsService extends AbstractFileSystemService
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
      * @param series series to use
+     * @return the initialized {@link BfPixelBuffer}
      */
     protected BfPixelBuffer createBfPixelBuffer(final String filePath,
                                               final int series) {
@@ -819,6 +822,7 @@ public class PixelsService extends AbstractFileSystemService
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param pixels passed to {@link BfPixelBuffer}
      * @param filePath Non-null.
+     * @return the initialized {@link BfPyramidPixelBuffer}
      */
     protected BfPyramidPixelBuffer createPyramidPixelBuffer(final Pixels pixels,
             final String filePath, boolean write) {
