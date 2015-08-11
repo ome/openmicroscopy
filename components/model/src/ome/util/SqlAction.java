@@ -1,3 +1,4 @@
+
 /*
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -120,11 +121,13 @@ public interface SqlAction {
     void createInsertTrigger(String name, String table, String procedure);
 
     /**
-     * Returns true if the given string is the UUID of a session that is
+     * Returns whether the given string is the UUID of a session that is
      * currently active.
      *
      * @param sessionUUID
      *            NOT NULL.
+     * @return {@code true} if {@code sessionUUID} is an active session,
+     *         {@code false} otherwise
      */
     boolean activeSession(String sessionUUID);
 
@@ -267,6 +270,7 @@ public interface SqlAction {
      * fields provided in the template.
      *
      * @param template non-null.
+     * @return a list of {@link DeleteLog} entries
      */
     List<DeleteLog> findRepoDeleteLogs(DeleteLog template);
 
