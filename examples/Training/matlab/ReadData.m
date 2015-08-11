@@ -72,7 +72,7 @@ try
 
     % Retrieve all the unloaded projects owned by the session owner across
     % groups
-    disp('Retrieving projects across owned by any user in the current group')
+    disp('Retrieving projects across by any user in the current group')
     projects = getProjects(session, 'owner', -1);
     fprintf(1, '  Found %g projects\n', numel(projects));
     for i = 1 : numel(projects),
@@ -159,7 +159,7 @@ try
 
     % Retrieve all the images contained in a given dataset.
     fprintf(1, 'Retrieving images contained in project %g\n', projectId);
-    images3 = getImages(session, 'dataset', projectId);
+    images3 = getImages(session, 'project', projectId);
     fprintf(1, '  Found %g images\n', numel(images3));
     for i = 1 : numel(images3),
         print_object(images3(i));
@@ -197,9 +197,9 @@ try
     % There is no explicit method in the gateway exposed to retrieve screening data
     % (to learn about the model go to ScreenPlateWell) but you can use the ContainerService to
     % load the data, you can use the method `findAllByQuery`.
-    
+
     % load Screen and plate owned by the user currently logged in
-    disp('Retrieving all screens and orphaned plates owner by the session user')
+    disp('Retrieving all screens and orphaned plates owned by the session user')
     [screens, orphanedPlates] = getScreens(session);
     fprintf(1, '  Found %g screens\n', numel(screens));
     for i = 1 : numel(screens),
@@ -236,8 +236,7 @@ try
     fprintf(1, '\n');
 
     %% Plates
-    % Retrieve all the unloaded datasets owned by the session owner.
-    % If the datasets contain images, the images will not be loaded.
+    % Retrieve all the plates owned by the session user.
     disp('Listing plates owned by the session user');
     allPlates = getPlates(session);
     fprintf(1, '  Found %g plates\n', numel(allPlates));
@@ -246,11 +245,10 @@ try
     end
     fprintf(1, '\n');
 
-    % Retrieve all the unloaded datasets owned by the session owner across
-    % all groups
+    % Retrieve all the pldates owned by the session user across all groups
     disp('Retrieving plates owned by the session user across all groups')
     allPlatesAllGroups = getPlates(session, 'group', -1);
-    fprintf(1, '  Found %g datasets\n', numel(allPlatesAllGroups));
+    fprintf(1, '  Found %g platest\n', numel(allPlatesAllGroups));
     for i = 1 : numel(allPlatesAllGroups),
         print_object(allPlatesAllGroups(i));
     end

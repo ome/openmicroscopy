@@ -74,7 +74,8 @@ assert(~strcmp(objectType.class, 'omero.model.PlateAcquisition'),...
 defaultParameters = omero.sys.ParametersI();
 defaultContext = java.util.HashMap;
 if isempty(ids),
-    % If no input id, return the objects owned by the session user in the    % current context
+    % If no input id, return the objects owned by the session user in the
+    % current context
     defaultOwner = session.getAdminService().getEventContext().userId;
 else
     % If ids are specified, return the objects owned by any user across
