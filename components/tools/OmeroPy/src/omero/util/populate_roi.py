@@ -504,7 +504,7 @@ class PlateAnalysisCtxFactory(object):
         for image in images:
             for ws in image.copyWellSamples():
                 ws.well.plate = plate
-        return images
+        return images, plate
 
     def gather_original_files(self, obj, original_files,
                               original_file_obj_map):
@@ -539,15 +539,16 @@ class PlateAnalysisCtxFactory(object):
         # we are now also collecting original files from plates (MIAS)
         # for which there's no clear key. Since all the files are loaded
         # in a single shot, double linking should not cause a problem.
-        plates = set()
         original_files = set()
         original_file_image_map = dict()
-        images = self.find_images_for_plate(plate_id)
+        images, plate = self.find_images_for_plate(plate_id)
         fileset = self.find_filesets_for_plate(plate_id)
         if fileset:
             original_files.update(fileset)
+            self.gather_original_files(plate, original_files, None)
         else:
-            for i, image in enumerate(images):
+            plates = set()
+            for image in images:
                 for ws in image.copyWellSamples():
                     plate = ws.well.plate
                     if plate not in plates:
