@@ -34,12 +34,13 @@ from omero.grid import ImageColumn
 from omero.grid import RoiColumn
 from omero.grid import StringColumn
 from omero.model import PlateI, WellI, WellSampleI, OriginalFileI
-from omero.model import FileAnnotationI, PlateAnnotationLinkI
+from omero.model import FileAnnotationI, MapAnnotationI, PlateAnnotationLinkI
 from omero.model import RoiAnnotationLinkI
 from omero.model import RoiI, PointI
 from omero.rtypes import rdouble, rint, rstring, unwrap
 
-from omero.util.populate_metadata import ParsingContext
+from omero.util.populate_metadata import (
+    ParsingContext, BulkToMapAnnotationContext, DeleteMapAnnotationContext)
 from omero.util.populate_roi import AbstractMeasurementCtx
 from omero.util.populate_roi import AbstractPlateAnalysisCtx
 from omero.util.populate_roi import MeasurementParsingResult
@@ -47,6 +48,23 @@ from omero.util.populate_roi import PlateAnalysisCtxFactory
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.constants.namespaces import NSMEASUREMENT
 from omero.util.temp_files import create_path
+
+
+def coord2offset(coord):
+    """
+    Convert a coordinate of the form AB12 into 0-based row-column indices
+
+    TODO: This should go into a utils file somewhere
+    """
+    ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    m = re.match('([A-Z]+)([0-9]+)$', coord.upper())
+    assert m
+    ra, ca = m.groups()
+    r = 0
+    for a in ra:
+        r = r * 26 + ALPHA.find(a) + 1
+    c = int(ca)
+    return r - 1, c - 1
 
 
 class BasePopulate(lib.ITest):
@@ -96,28 +114,53 @@ class BasePopulate(lib.ITest):
 
 class TestPopulateMetadata(BasePopulate):
 
+    def setup_method(self, method):
+        self.csvName = self.createCsv()
+        self.rowCount = 1
+        self.colCount = 2
+        self.plate = self.createPlate(self.rowCount, self.colCount)
+
+    def get_plate_annotations(self):
+        query = """select p from Plate p
+            left outer join fetch p.annotationLinks links
+            left outer join fetch links.child
+            where p.id=%s""" % self.plate.id.val
+        qs = self.client.sf.getQueryService()
+        plate = qs.findByQuery(query, None)
+        anns = plate.linkedAnnotationList()
+        return anns
+
+    def get_well_annotations(self):
+        query = """
+            SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
+            FROM WellAnnotationLink wal
+            WHERE wal.parent.plate.id=%d""" % self.plate.id.val
+        qs = self.client.sf.getQueryService()
+        was = unwrap(qs.projection(query, None))
+        return was
+
     def testPopulateMetadataPlate(self):
+        """
+        We should really test each of the parsing contexts in separate tests
+        but in practice each one uses data created by the others, so for
+        now just run them all together
+        """
+        self._test_parsing_context()
+        self._test_bulk_to_map_annotation_context()
+        self._test_delete_map_annotation_context()
+
+    def _test_parsing_context(self):
         """
             Create a small csv file, use populate_metadata.py to parse and
             attach to Plate. Then query to check table has expected content.
         """
 
-        csvName = self.createCsv()
-        rowCount = 1
-        colCount = 2
-        plate = self.createPlate(rowCount, colCount)
-        ctx = ParsingContext(self.client, plate, csvName)
+        ctx = ParsingContext(self.client, self.plate, self.csvName)
         ctx.parse()
         ctx.write_to_omero()
 
         # Get file annotations
-        query = """select p from Plate p
-            left outer join fetch p.annotationLinks links
-            left outer join fetch links.child
-            where p.id=%s""" % plate.id.val
-        qs = self.client.sf.getQueryService()
-        plate = qs.findByQuery(query, None)
-        anns = plate.linkedAnnotationList()
+        anns = self.get_plate_annotations()
         # Only expect a single annotation which is a 'bulk annotation'
         assert len(anns) == 1
         tableFileAnn = anns[0]
@@ -129,7 +172,7 @@ class TestPopulateMetadata(BasePopulate):
         t = r.openTable(OriginalFileI(fileid), None)
         cols = t.getHeaders()
         rows = t.getNumberOfRows()
-        assert rows == rowCount * colCount
+        assert rows == self.rowCount * self.colCount
         for hit in range(rows):
             rowValues = [col.values[0] for col in t.read(range(len(cols)),
                                                          hit, hit+1).columns]
@@ -140,6 +183,43 @@ class TestPopulateMetadata(BasePopulate):
                 assert "Treatment" in rowValues
             else:
                 assert False, "Row does not contain 'a1' or 'a2'"
+
+    def _test_bulk_to_map_annotation_context(self):
+        # self._testPopulateMetadataPlate()
+        assert len(self.get_well_annotations()) == 0
+
+        fileid = self.get_plate_annotations()[0].file.id.val
+        ctx = BulkToMapAnnotationContext(self.client, self.plate, fileid)
+        ctx.parse()
+        assert len(self.get_well_annotations()) == 0
+
+        ctx.write_to_omero()
+        was = self.get_well_annotations()
+        assert len(was) == 2
+
+        for ma, wid, wr, wc in was:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            assert mv['Well'] == str(wid)
+            assert coord2offset(mv['Well Name']) == (wr, wc)
+            if (wr, wc) == (0, 0):
+                assert mv['Well Type'] == 'Control'
+                assert mv['Concentration'] == '0'
+            else:
+                assert mv['Well Type'] == 'Treatment'
+                assert mv['Concentration'] == '10'
+
+    def _test_delete_map_annotation_context(self):
+        # self._test_bulk_to_map_annotation_context()
+        assert len(self.get_well_annotations()) == 2
+
+        ctx = DeleteMapAnnotationContext(self.client, self.plate, None)
+        ctx.parse()
+        assert len(self.get_well_annotations()) == 2
+
+        ctx.write_to_omero()
+        assert len(self.get_well_annotations()) == 0
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
