@@ -18,8 +18,7 @@ from omero.cli import CLI
 from omero.cli import ProxyStringType
 from omero.constants import namespaces
 from omero.gateway import BlitzGateway
-# from omero.util.populate_roi import PlateAnalysisCtxFactory
-from omero.util import populate_metadata
+from omero.util import populate_metadata, populate_roi
 
 HELP = """metadata methods
 
@@ -110,35 +109,41 @@ class MetadataControl(BaseControl):
         bulkanns = parser.add(sub, self.bulkanns)
         mapanns = parser.add(sub, self.mapanns)
         allanns = parser.add(sub, self.allanns)
+        rois = parser.add(sub, self.rois)
         populate = parser.add(sub, self.populate)
+        populateroi = parser.add(sub, self.populateroi)
 
         for x in (summary, original, bulkanns, measures, mapanns, allanns,
-                  populate):
+                  rois, populate, populateroi):
             x.add_argument("obj",
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
 
-        for x in (bulkanns, mapanns, allanns, populate):
+        for x in (bulkanns, mapanns, allanns, rois, populate, populateroi):
             x.add_argument("--report", action="store_true", help=(
                 "Show additional information"))
+
+        for x in (populate, populateroi):
+            dry_or_not = x.add_mutually_exclusive_group()
+            dry_or_not.add_argument("-n", "--dry-run", action="store_true")
+            dry_or_not.add_argument("-f", "--force", action="store_false",
+                                    dest="dry_run")
 
         bulkanns.add_argument(
             "--parents", action="store_true",
             help="Also search parents for bulk annotations")
 
+        rois.add_argument(
+            "--delete", action="store_true", help="Delete all ROIs")
+
         populate.add_argument(
             "--context", default=self.POPULATE_CONTEXTS[0][0],
             choices=[a[0] for a in self.POPULATE_CONTEXTS])
-        dry_or_not = populate.add_mutually_exclusive_group()
-        dry_or_not.add_argument("-n", "--dry-run", action="store_true")
-        dry_or_not.add_argument("-f", "--force", action="store_false",
-                                dest="dry_run")
         populate.add_argument("--file", help="Input file")
-        populate.add_argument(
-            "--measurement", type=int,
-            default=None, help=(
-                "Index of the measurement to populate. By default, all"
-            ))
+
+        populateroi.add_argument(
+            "--measurement", type=int, default=None,
+            help="Index of the measurement to populate. By default, all")
 
     def _load(self, args):
         client = self.ctx.conn(args)
@@ -290,6 +295,7 @@ class MetadataControl(BaseControl):
     # WRITE
 
     def populate(self, args):
+        "Add metadata (bulk-annotations) to an object"
         client = self.ctx.conn(args)
         # TODO: Configure logging properly
         if args.report:
@@ -302,22 +308,74 @@ class MetadataControl(BaseControl):
         if not args.dry_run:
             ctx.write_to_omero()
 
-    #    factory = PlateAnalysisCtxFactory(client.sf)
-    #    ctx = factory.get_analysis_ctx(args.plate.id.val)
-    #    count = ctx.get_measurement_count()
-    #    if not count:
-    #        self.ctx.die(100, "No measurements found")
-    #    for i in range(count):
-    #        if args.dry_run:
-    #            self.ctx.out(
-    #                "Measurement %d has %s result files." % (
-    #                    i, ctx.get_result_file_count(i)))
-    #        else:
-    #            if args.measurement is not None:
-    #                if args.measurement != i:
-    #                    continue
-    #            meas = ctx.get_measurement_ctx(i)
-    #            meas.parse_and_populate()
+    def _deleterois(self, client, roiids):
+        to_delete = {"Roi": roiids}
+        del_cmd = omero.cmd.Delete2(targetObjects=to_delete)
+        handle = client.getSession().submit(del_cmd)
+
+        callback = None
+        try:
+            callback = omero.callbacks.CmdCallbackI(client, handle)
+            loops = max(10, len(roiids) / 10)
+            delay = 500
+            callback.loop(loops, delay)
+            rsp = callback.getResponse()
+            if isinstance(rsp, omero.cmd.OK):
+                deleted = rsp.deletedObjects.get(
+                    "ome.model.roi.Roi", [])
+                self.ctx.out("Deleted %d ROIs" % len(deleted))
+            else:
+                self.ctx.err("Delete failed: %s" % rsp)
+        finally:
+            if callback:
+                callback.close(True)
+            else:
+                handle.close()
+
+    def rois(self, args):
+        "Manage ROIs"
+        md = self._load(args)
+        client = self.ctx.conn(args)
+        if md.get_type() == "Plate":
+            q = """SELECT r.id FROM Roi r, WellSample ws WHERE
+                r.image.id=ws.image AND ws.well.plate.id=%d""" % md.get_id()
+        else:
+            raise Exception("Not implemented for type %s" % md.get_type())
+        roiids = client.getSession().getQueryService().projection(q, None)
+        roiids = [r[0].val for r in roiids]
+        if args.delete:
+            self._deleterois(client, roiids)
+        else:
+            self.ctx.out('\n'.join('Roi:%d' % rid for rid in roiids))
+
+    def populateroi(self, args):
+        "Add ROIs to an object"
+        md = self._load(args)
+        client = self.ctx.conn(args)
+        # TODO: Configure logging properly
+        if args.report:
+            populate_roi.log.setLevel(logging.DEBUG)
+        else:
+            populate_roi.log.setLevel(logging.INFO)
+        factory = populate_roi.PlateAnalysisCtxFactory(client.sf)
+        ctx = factory.get_analysis_ctx(md.get_id())
+        count = ctx.get_measurement_count()
+        if not count:
+            self.ctx.die(100, "No measurements found")
+        if args.measurement is not None and args.measurement >= count:
+            self.ctx.die(
+                100, "Invalid measurement index: %d" % args.measurement)
+        for i in range(count):
+            if args.dry_run:
+                self.ctx.out(
+                    "Measurement %d has %s result files." % (
+                        i, ctx.get_result_file_count(i)))
+            else:
+                if args.measurement is not None:
+                    if args.measurement != i:
+                        continue
+                meas = ctx.get_measurement_ctx(i)
+                meas.parse_and_populate()
 
 try:
     register("metadata", MetadataControl, HELP)
