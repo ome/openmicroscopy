@@ -328,21 +328,48 @@ public class FileObject
             }
             String xmlStr = info.description;
             if (CommonsLangUtils.isBlank(xmlStr)) return false;
-            //Get Current Dimensions
+          //Get Current Dimensions
             int sizeC_cur = img.getNChannels();
             int sizeT_cur = img.getNFrames();
             int sizeZ_cur = img.getNSlices();
-
-            Document doc = xmlParser(xmlStr);
-            Node node = getPixelsNode(doc);
-            if (node == null) return false;
-            NamedNodeMap nnm = node.getAttributes();
             int sizeC_org = sizeC_cur;
             int sizeT_org = sizeT_cur;
             int sizeZ_org = sizeZ_cur;
-            sizeC_org = Integer.valueOf(nnm.getNamedItem("SizeC").getNodeValue());
-            sizeT_org = Integer.valueOf(nnm.getNamedItem("SizeT").getNodeValue());
-            sizeZ_org = Integer.valueOf(nnm.getNamedItem("SizeZ").getNodeValue());
+            Document doc = xmlParser(xmlStr);
+            if (doc == null) { //not XML or not possible to read it correctly
+                //try to parse the string
+                String[] values = xmlStr.split("\n");
+                String v;
+                for (int i = 0; i < values.length; i++) {
+                    v = values[i];
+                    if (v.startsWith("slices")) {
+                        String[] keys = v.split("=");
+                        if (keys.length > 1) {
+                            sizeZ_org = Integer.valueOf(keys[1]);
+                            IJ.log(i+" z "+sizeZ_org);
+                        }
+                    } else if (v.startsWith("channels")) {
+                        String[] keys = v.split("=");
+                        if (keys.length > 1) {
+                            sizeC_org = Integer.valueOf(keys[1]);
+                            IJ.log(i+" c "+sizeC_org);
+                        }
+                    } else if (v.startsWith("frames")) {
+                        String[] keys = v.split("=");
+                        if (keys.length > 1) {
+                            sizeT_org = Integer.valueOf(keys[1]);
+                            IJ.log(i+" t "+sizeT_org);
+                        }
+                    }
+                }
+            } else {
+                Node node = getPixelsNode(doc);
+                if (node == null) return false;
+                NamedNodeMap nnm = node.getAttributes();
+                sizeC_org = Integer.valueOf(nnm.getNamedItem("SizeC").getNodeValue());
+                sizeT_org = Integer.valueOf(nnm.getNamedItem("SizeT").getNodeValue());
+                sizeZ_org = Integer.valueOf(nnm.getNamedItem("SizeZ").getNodeValue());
+            }
             if (sizeC_cur != sizeC_org || sizeT_cur != sizeT_org ||
                     sizeZ_cur != sizeZ_org) {
                 return true;
