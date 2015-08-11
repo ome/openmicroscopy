@@ -7,13 +7,8 @@
 
 package ome.util.math.geom2D;
 
-// Java imports
 import java.awt.Rectangle;
 import java.util.ArrayList;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * This following class is the <code>body</code> of the

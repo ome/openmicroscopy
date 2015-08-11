@@ -7,13 +7,13 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// Application-internal dependencies
+
 import ome.util.PixelData;
+
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
