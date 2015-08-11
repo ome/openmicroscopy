@@ -19,7 +19,7 @@ function [screens, plates] = getScreens(session, varargin)
 %   across groups.
 %
 %   [screens, plates] = getScreens(session, [],...) returns all the
-%   orphaned platest in addition to all the projects.
+%   orphaned plates in addition to all the projects.
 %
 %   Examples:
 %
