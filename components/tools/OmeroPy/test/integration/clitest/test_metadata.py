@@ -203,7 +203,7 @@ class TestMetadataControl(MetadataTestBase):
         if report:
             assert "name: file-%s" % self.name in o
         else:
-            assert "name: file-%s" % self.name not in o
+            assert "name:" not in o
 
     # def test_measures(self, capfd):
 
@@ -224,8 +224,8 @@ class TestMetadataControl(MetadataTestBase):
         if report:
             assert "key-%s=value-%s" % (self.name, self.name) in o
         else:
-            assert "key-%s" % self.name not in o
-            assert "value-%s" % self.name not in o
+            assert "key-" not in o
+            assert "value-" not in o
 
     @pytest.mark.parametrize('report', [False, True])
     def test_allanns(self, capfd, report):
@@ -246,9 +246,9 @@ class TestMetadataControl(MetadataTestBase):
             assert "name: file-%s" % self.name in o
             assert "key-%s=value-%s" % (self.name, self.name) in o
         else:
-            assert "value: tag-%s" % self.name not in o
-            assert "name: file-%s" % self.name not in o
-            assert "key-%s" % self.name not in o
-            assert "value-%s" % self.name not in o
+            assert "value:" not in o
+            assert "name:" not in o
+            assert "key-" not in o
+            assert "value-" not in o
 
     # def test_populate(self, capfd):
