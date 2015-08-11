@@ -248,7 +248,7 @@ try
     % Retrieve all the pldates owned by the session user across all groups
     disp('Retrieving plates owned by the session user across all groups')
     allPlatesAllGroups = getPlates(session, 'group', -1);
-    fprintf(1, '  Found %g platest\n', numel(allPlatesAllGroups));
+    fprintf(1, '  Found %g plates\n', numel(allPlatesAllGroups));
     for i = 1 : numel(allPlatesAllGroups),
         print_object(allPlatesAllGroups(i));
     end
