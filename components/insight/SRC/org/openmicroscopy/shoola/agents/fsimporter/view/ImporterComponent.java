@@ -960,6 +960,7 @@ class ImporterComponent
         if (importImage) {
             //Import images first
             activate(Importer.PROJECT_TYPE, null, null, getImportFor(), false);
+            model.setResultsObject(object);
             List<FileObject> files = (List) object.getRefObjects();
             ImportLocationSettings settings = chooser.createLocationDialog();
             if (settings != null) {
