@@ -141,13 +141,13 @@ public class FileObject
             doc = builder.parse(stream);
         } catch (ParserConfigurationException e) {
             e.printStackTrace(pw);
-            IJ.log(pw.toString());
+            IJ.log(sw.toString());
         } catch (SAXException e) {
             e.printStackTrace(pw);
-            IJ.log(pw.toString());
+            IJ.log(sw.toString());
         } catch (IOException e) {
             e.printStackTrace(pw);
-            IJ.log(pw.toString());
+            IJ.log(sw.toString());
         } finally {
             try {
                 sw.close();
