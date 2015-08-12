@@ -23,22 +23,24 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JFrame;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 
+import pojos.AnnotationData;
 import pojos.ChannelData;
-//Application-internal dependencies
+import pojos.DataObject;
+import pojos.TagAnnotationData;
 import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -406,4 +408,31 @@ public interface MeasurementViewer
 	 * Exports the graph as JPEG or PNG.
 	 */
 	public void exportGraph();
+
+	/**
+	 * Sets the annotations associated to the shapes.
+	 *
+	 * @param result The roi annotations to set.
+	 */
+    public void setROIAnnotations(Map<DataObject, StructuredDataResults> result);
+
+    /**
+     * Sets the tags.
+     *
+     * @param tags The value to set.
+     */
+    public void setExistingTags(Collection tags);
+
+    /** Loads and displays the existing tags.*/
+    public void loadTags();
+
+    /**
+     * Tags the selected figures.
+     *
+     * @param tags The tags to use.
+     */
+    public void tagSelectedFigures(List<AnnotationData> tags);
+
+    /** Notifies that the annotations have been saved. Reloads.*/
+    public void onAnnotationSaved();
 }

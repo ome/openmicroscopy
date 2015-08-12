@@ -32,9 +32,13 @@ package org.openmicroscopy.shoola.agents.measurement;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
+import omero.gateway.SecurityContext;
 import omero.log.LogMessage;
+
 
 /** 
  * Parent of all classes that load data asynchronously for a 
@@ -74,7 +78,13 @@ public abstract class MeasurementViewerLoader
     
     /** The security context.*/
     protected final SecurityContext ctx;
-    
+
+    /** Convenience reference for subclasses. */
+    protected final MetadataHandlerView mhView;
+
+    /** Convenience reference for subclasses. */
+    protected final DataManagerView dmView;
+
     /**
      * Creates a new instance.
      * 
@@ -90,10 +100,24 @@ public abstract class MeasurementViewerLoader
         this.ctx = ctx;
         this.viewer = viewer;
         registry = MeasurementAgent.getRegistry();
-        idView = (ImageDataView) 
-        			registry.getDataServicesView(ImageDataView.class);
+        idView = (ImageDataView)
+                registry.getDataServicesView(ImageDataView.class);
+        mhView = (MetadataHandlerView)
+                registry.getDataServicesView(MetadataHandlerView.class);
+        dmView = (DataManagerView)
+                registry.getDataServicesView(DataManagerView.class);
     }
-    
+
+    /**
+     * Returns the id of the user currently logged in.
+     *
+     * @return See above.
+     */
+    protected long getCurrentUser()
+    {
+        return MeasurementAgent.getUserDetails().getId();
+    }
+
     /** Notifies the {@link #viewer} that the data retrieval is finished. */
     public void onEnd() {}
     

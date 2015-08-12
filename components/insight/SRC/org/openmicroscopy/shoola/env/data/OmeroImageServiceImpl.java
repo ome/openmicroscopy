@@ -1405,7 +1405,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#saveROI(SecurityContext, long, long, List)
 	 */
-	public List<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
+	public Collection<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
 		List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException
 	{
