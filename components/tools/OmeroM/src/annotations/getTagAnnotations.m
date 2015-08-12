@@ -1,4 +1,4 @@
-function tas = getTagAnnotations(session, ids)
+function tas = getTagAnnotations(session, ids, varargin)
 % GETTAGANNOTATIONS Retrieve tag annotations from the OMERO server
 %
 %   tas = getTagAnnotations(session, ids) returns all the tag annotations
@@ -35,4 +35,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return tag annotations
-tas = getAnnotations(session, ids, 'tag');
+tas = getAnnotations(session, ids, 'tag', varargin{:});

@@ -51,6 +51,7 @@ import omero.cmd.graphs.DeleteFacadeI;
 import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.GraphSpecListI;
+import omero.cmd.graphs.LegalGraphTargetsI;
 import omero.cmd.graphs.SkipHeadI;
 import omero.cmd.mail.SendEmailRequestI;
 
@@ -176,10 +177,9 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChmodI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        // TODO: Chmod2 too slow to be automatically substituted for Chmod
-                        /* if (graphRequestFactory.isGraphsWrap()) {
+                        if (graphRequestFactory.isGraphsWrap()) {
                             return new ChmodFacadeI(graphRequestFactory);
-                        } else */ {
+                        } else {
                             return new ChmodI(ic,
                                     ctx.getBean("chmodStrategy", ChmodStrategy.class));
                         }
@@ -246,6 +246,13 @@ public class RequestObjectFactoryRegistry extends
                         return graphRequestFactory.getRequest(SkipHeadI.class);
                     }
 
+                });
+        factories.put(LegalGraphTargetsI.ice_staticId(),
+                new ObjectFactory(LegalGraphTargetsI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new LegalGraphTargetsI(graphRequestFactory);
+                    }
                 });
         factories.put(OriginalMetadataRequestI.ice_staticId(),
                 new ObjectFactory(OriginalMetadataRequestI.ice_staticId()) {

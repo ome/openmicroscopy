@@ -65,7 +65,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrap
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;

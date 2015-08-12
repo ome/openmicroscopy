@@ -1,0 +1,65 @@
+# 
+# nginx userland template
+# this configuration is designed for running nginx as the omero user or similar
+# nginx -c etc/nginx.conf
+# for inclusion in a system-wide nginx configuration see omero web config nginx
+#
+pid %(ROOT)s/var/pid.nginx;
+error_log %(ROOT)s/var/log/nginx_error.log;
+worker_processes  5;
+working_directory %(ROOT)s/var;
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    access_log    %(ROOT)s/var/log/nginx_access.log;
+    include       %(ROOT)s/etc/mime.types;
+    default_type  application/octet-stream;
+    client_body_temp_path %(ROOT)s/var/nginx_tmp;
+
+    keepalive_timeout 65;
+
+    upstream omeroweb_server {
+        server %(FASTCGI_EXTERNAL)s fail_timeout=0;
+    }
+    
+    server {
+        listen %(HTTPPORT)d;
+        server_name _;
+        proxy_temp_path %(ROOT)s/var/nginx_tmp;
+
+        sendfile on;
+        client_max_body_size %(MAX_BODY_SIZE)s;
+
+        # maintenance page serve from here
+        location @maintenance {
+            root %(ROOT)s/etc/templates/error;
+            try_files $uri /maintainance.html =502;
+        }
+
+        # weblitz django apps serve media from here
+        location %(STATIC_URL)s {
+            alias %(OMEROWEBROOT)s/static;
+        }
+
+        location @proxy_to_app {
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+
+            proxy_pass http://omeroweb_server;
+        }
+
+        location %(FORCE_SCRIPT_NAME)s {
+
+            error_page 502 @maintenance;
+            # checks for static file, if not found proxy to app
+            try_files $uri @proxy_to_app;
+        }
+
+    }
+
+}

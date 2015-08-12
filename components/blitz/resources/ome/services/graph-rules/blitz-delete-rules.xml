@@ -132,6 +132,21 @@
         <bean parent="graphPolicyRule" p:matches="OTF[D].filterSet = FS:[E]" p:changes="FS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="OTF[D].objective = O:[E]" p:changes="O:[D]"/>
 
+        <!-- An instrument may not be linked directly to the image, so note relevance via settings. -->
+
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].detectorSettings = S:[ED], S.detector = D:[E]{i}"
+                                       p:changes="D:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].lightSourceSettings = S:[ED], S.lightSource = LS:[E]{i}"
+                                       p:changes="LS:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Image[D].objectiveSettings = S:[ED], S.objective = O:[E]{i}"
+                                       p:changes="O:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.detector = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.lightSource = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.objective = [E]{o}" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.detector = [D]" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.lightSource = [D]" p:changes="IN:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="IN:Instrument[E]{i}.objective = [D]" p:changes="IN:{r}"/>
+
         <!-- Delete emission and excitation filter links if either parent or child is deleted. -->
 
         <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = [D]" p:changes="L:[D]"/>
@@ -292,7 +307,7 @@
         <bean parent="graphPolicyRule" p:matches="FilesetEntry[D].originalFile = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="JobOriginalFileLink[D].child = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="PixelsOriginalFileMap[D].parent = OF:[E]{i}" p:changes="OF:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Roi[D].source = OF:[E]{i}" p:changes="OF:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Roi[D].source = OF:[E]{i}" p:changes="OF:{r}"/>
 
         <!-- Consider deleting an original file if it is linked to a job that is deleted. -->
 
@@ -415,11 +430,12 @@
 
         <!-- ROI -->
 
-        <!-- Delete contained objects: ROIs of deleted images, shapes of deleted ROIs, pixels of deleted masks. -->
+        <!-- Delete contained objects: ROIs of deleted images, shapes of deleted ROIs, pixels of deleted masks if possible. -->
 
         <bean parent="graphPolicyRule" p:matches="Image[D].rois = ROI:[E]" p:changes="ROI:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E], P.image = I:[E]{i}/d" p:changes="I:{r}"/>
 
         <!-- SCREEN -->
 
@@ -452,8 +468,8 @@
 
         <!-- If a screen is deleted then also delete the plate if it is used in no other screen. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [D], L.child = P:[E]{i}/d" p:changes="P:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [D], L.child = P:[E]{i}/d" p:changes="P:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}/d" p:changes="P:[D]"/>
 
         <!-- Delete screen-plate links if either the screen or plate is deleted regardless of permissions. -->
@@ -477,8 +493,8 @@
 
         <!-- If the last channel referencing stats info is deleted then delete the stats info itself regardless of permissions. -->
 
-        <bean parent="graphPolicyRule" p:matches="Channel[D].statsInfo = SI:[E]{i}" p:changes="SI:[E]{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Channel[E].statsInfo = SI:[E]{r}" p:changes="SI:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[D].statsInfo = SI:[E]{i}" p:changes="SI:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].statsInfo = SI:[E]{r}" p:changes="SI:{a}"/>
         <bean parent="graphPolicyRule" p:matches="SI:StatsInfo[E]{o}" p:changes="SI:[D]/n"/>
 
     </util:list>

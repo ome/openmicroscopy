@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -45,12 +46,15 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.model.units.BigResult;
+import omero.model.Length;
 import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -572,23 +576,27 @@ class InputServerStrategy
 	 */
 	private void addShapeSettings(ROIFigure figure, ShapeSettingsData data)
 	{
-	    Double value;
+	    Double value = ShapeSettingsData.DEFAULT_STROKE_WIDTH;
+	    Length l;
         try {
-            value = data.getStrokeWidth(UnitsLength.PIXEL).getValue();
-        } catch (BigResult e) {
-            value = 1d;
+            l = data.getStrokeWidth(UnitsLength.PIXEL);
+            if (l != null) {
+                value = l.getValue();
+            }
+        } catch (Exception e) {
+            if (e instanceof BigResult) {
+                BigResult ex = (BigResult) e;
+                if (ex.result != null) {
+                    value = ex.result.doubleValue();
+                }
+            }
         }
 		STROKE_WIDTH.set(figure, value);
 		STROKE_COLOR.set(figure, data.getStroke());
 		FILL_COLOR.set(figure, data.getFill());
-		FONT_FACE.set(figure, data.getFont());
-		
-		try {
-            value = data.getFontSize(UnitsLength.POINT).getValue();
-        } catch (BigResult e) {
-            value = 10d;
-        }
-		FONT_SIZE.set(figure, value);
+		Font f = data.getFont();
+		FONT_FACE.set(figure, f);
+		FONT_SIZE.set(figure, (double) f.getSize());
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());

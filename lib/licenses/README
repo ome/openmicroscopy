@@ -66,12 +66,6 @@
   //
 
 
-  Artifacts:    ai_path-*.jar
-  Project:      AI Path
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl.txt
-
-
   Artifacts:    ant-*.jar ivy-*.jar
                 As well as junit-frames.xsl, and junit-noframes.xsl files under components/insight/build/tools
   Project:      The Apache Ant Project.  Ant is a Java-based build tool. (Ivy is a subproject
@@ -86,14 +80,6 @@
   Web Site:     http://antlr.org
   License:      BSD
   License File: antlr.txt
-
-
-  Artifacts:    apacheds-*.jar
-  Project:      The Apache Directory Server is an embeddable LDAP server implemented in pure Java.
-  Web Site:     http://directory.apache.org/apacheds
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
 
   Artifacts:    appbundler-*.jar
   Project:      Packages a Java application as a Mac app bundle.
@@ -125,15 +111,6 @@
   Web Site:     http://xml.apache.org/batik/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
-
-
-  Artifacts:    backport-util-concurrent-*.jar
-  Project:      The Backport-util-concurrent library. A concurrency library
-                that works with uncompromised performance on all Java platforms currently in
-                use, allowing development of fully portable concurrent applications.
-                We don't use this software directly but required by ehCache.
-  Web Site:     http://backport-jsr166.sourceforge.net/
-  License:      This software is released to the public domain
 
 
   Artifacts:    btm-*.jar
@@ -187,27 +164,11 @@
   License File: dom4j.txt
 
 
-  Artifacts:    ehcache-*.jar
-  Project:      ehCache. A Java distributed cache for general purpose caching,
-                Java EE and light-weight containers.
-  Web Site:     http://ehcache.sourceforge.net/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    findbugs-*.jar
   Project:      FindBugs, Find Bugs in Java Programs
   Web Site:     http://findbugs.sourceforge.net
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
-
-
-  Artifcats:    FontBox-*.jar
-  Project:      FontBox, an open source Java library for parsing font files
-  Web Site:     http://sourceforge.net/projects/fontbox
-                http://fontbox.org no longer relevant.
-  License:      BSD (according to https://olex.openlogic.com/licenses/45)
-  License File: fontbox.txt
 
 
   Artifacts:    freemarker-*.jar
@@ -258,13 +219,6 @@
   License File: gpl.txt
 
 
-  Artifacts:    ini4j-*.jar
-  Project:      ini4j - Java API for handling Windows ini file format
-  Web Site:     http://ini4j.sourceforge.net/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    jai_imageio-*.jar
   Web Site:     http://jai-imageio.dev.java.net/
   License:      BSD
@@ -283,14 +237,6 @@
   Web Site:     http://jamon.sourceforge.net
   License:      BSD
   License File: jamon.txt
-
-
-  Artifacts:    jarbundler-*.jar
-  Project:      The Jar Bundler Ant Task.  It lets Ant create Mac OS X application
-                bundles.
-  Web Site:     http://www.loomcom.com/jarbundler/
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
 
 
   Artifacts:    java-getopt-*.jar
@@ -359,13 +305,6 @@
   License File: jtidy.txt
 
 
-  Artifacts:    jts-*.jar
-  Project:      Java Topology Suite
-  Web Site:     http://sourceforge.net/projects/jts-topo-suite/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
-
   Artifacts:    junit-*.jar
   Project:      The JUnit Testing Framework. A framework for unit-testing.  All our
                 regression tests make use of this framework in a way or another.
@@ -402,25 +341,11 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    PDFBox-*.jar
-  Project:      Apache PDFBox - Java PDF Library
-  Web Site:     http://incubator.apache.org/pdfbox
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    perf4j-*.jar
   Project:      Perf4j, a set of utilites for calculating and dsplaying performance statistics
   Web Site:     http://perf4j.codehaus.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
-
-
-  Artifacts:    physics-*.jar
-  Project:      TRAER.PHYSICS 3.0
-  Web Site:     http://murderandcreate.com/physics/
-  License:      Public Domain.
-                Use this code for whatever you want, just send me a link jeff@traer.cc
 
 
   Artifacts:    poi-*.jar
@@ -443,13 +368,6 @@
   Webpage:      http://www.randelshofer.ch/quaqua
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
-
-
-  Artifacts:    quartz-*.jar
-  Project:      Quartz Enterprise Job-Scheduler
-  Website:      http://opensymphony.org/quartz
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
 
 
   Artifacts:    reportng-*.jar
@@ -787,13 +705,6 @@
   Web Site:     http://www.mozilla.org/rhino/
   License:      Netscape Public License (NPL), Version 1.1
   License File: npl-1_1.txt
-
-
-  Artifacts:    xalan-*
-  Project:      The Xalan-Java Project.  An XSLT processor which is used by Ant.
-  Web Site:     http://xml.apache.org/xalan-j/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
 
 
   //

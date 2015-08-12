@@ -8,29 +8,32 @@ function [screens, plates] = getScreens(session, varargin)
 %   screens to load and plates attached to them.
 %
 %   screens = getScreens(session, ids) returns all the screens identified
-%   by the input ids in the context of the session group.
+%   by the input ids independently of the owner across groups.
 %
-%   screens = getScreens(session, 'owner', owner) returns all the screens
-%   owned by the input owner in the context of the session group.
+%   screens = getScreens(..., 'owner', owner) specifies the owner of the
+%   screens. A value of -1 implies screens are returned independently of
+%   the owner.
 %
-%   screens = getScreens(session, ids, 'owner', owner) returns all the
-%   screens identified by the input ids owned by the input user in the
-%   context of the session group.
+%   screens = getScreens(..., 'group', groupId) specifies the group
+%   context for the screens. A value of -1 means screens are returned
+%   across groups.
 %
 %   [screens, plates] = getScreens(session, [],...) returns all the
-%   orphaned platest in addition to all the projects.
+%   orphaned plates in addition to all the projects.
 %
 %   Examples:
 %
 %      screens = getScreens(session);
 %      screens = getScreens(session, 'owner', ownerId);
+%      screens = getScreens(session, 'group', groupId);
 %      screens = getScreens(session, ids);
 %      screens = getScreens(session, ids, 'owner', ownerId);
+%      screens = getScreens(session, ids, 'group', groupId);
 %      [screens, plates] = getScreens(session, []);
 %
 % See also: GETOBJECTS, GETPLATES, GETIMAGES
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -59,6 +62,6 @@ parameters = omero.sys.ParametersI();
 if nargout > 1, parameters.orphan(); end
 
 % Delegate unmatched arguments check to getObjects function
-unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
+unmatchedArgs =[fieldnames(ip.Unmatched)'; struct2cell(ip.Unmatched)'];
 [screens, plates] = getObjects(session, 'screen', ip.Results.ids,...
     parameters, unmatchedArgs{:});

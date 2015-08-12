@@ -115,7 +115,7 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @return offset of the row or scaline.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException;
@@ -128,7 +128,7 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @return offset of the 2D image plane.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public Long getPlaneOffset(Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException;
@@ -141,7 +141,7 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @return offset of the stack.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public Long getStackOffset(Integer c, Integer t)
             throws DimensionsOutOfBoundsException;
@@ -153,7 +153,7 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @return offset of the timepoint.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public Long getTimepointOffset(Integer t)
             throws DimensionsOutOfBoundsException;
@@ -194,7 +194,7 @@ public interface PixelBuffer extends Closeable
      * given 2D image plane. It is guaranteed that this buffer will have been 
      * byte swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
-     * @see getRegionDirect()
+     * @see #getRegionDirect(Integer, Long, byte[])
      */
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t, 
     		Integer count, Integer offset, byte[] buffer)
@@ -213,7 +213,7 @@ public interface PixelBuffer extends Closeable
      * given 2D image plane. It is guaranteed that this buffer will have been
      * byte swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
-     * @see getTileDirect()
+     * @see #getTileDirect(Integer, Integer, Integer, Integer, Integer, Integer, Integer, byte[])
      */
     public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
                              Integer y, Integer w, Integer h)
@@ -233,7 +233,7 @@ public interface PixelBuffer extends Closeable
      * region. It is guaranteed that this buffer will have been byte
      * swapped. <b>The buffer is essentially directly from disk.</b>
      * @throws IOException if there is a problem reading from the pixel buffer.
-     * @see getTile()
+     * @see #getTile(Integer, Integer, Integer, Integer, Integer, Integer, Integer)
      */
     public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
                                 Integer y, Integer w, Integer h, byte[] buffer)
@@ -248,7 +248,7 @@ public interface PixelBuffer extends Closeable
      * backing buffer will have been byte swapped. <b>The buffer is essentially 
      * directly from disk.</b>
      * @throws IOException if there is a problem reading from the pixel buffer.
-     * @see getRegionDirect()
+     * @see #getRegionDirect(Integer, Long, byte[])
      */
     public PixelData getRegion(Integer size, Long offset)
             throws IOException;
@@ -262,7 +262,7 @@ public interface PixelBuffer extends Closeable
      * region. It is guaranteed that this buffer will have been byte 
      * swapped. <b>The buffer is essentially directly from disk.</b>
      * @throws IOException if there is a problem reading from the pixel buffer.
-     * @see getRegion()
+     * @see #getRegion(Integer, Long)
      */
     public byte[] getRegionDirect(Integer size, Long offset, byte[] buffer)
     	throws IOException;
@@ -279,8 +279,8 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
-     * @see getRowDirect()
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
+     * @see #getRowDirect(Integer, Integer, Integer, Integer, byte[])
      */
     public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException;
@@ -297,8 +297,8 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
-     * @see getColDirect()
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
+     * @see #getColDirect(Integer, Integer, Integer, Integer, byte[])
      */
     public PixelData getCol(Integer x, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException;
@@ -315,8 +315,8 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
-     * @see getRow()
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
+     * @see #getRow(Integer, Integer, Integer, Integer)
      */
     public byte[] getRowDirect(Integer y, Integer z, Integer c, 
     		                   Integer t, byte[] buffer)
@@ -333,8 +333,8 @@ public interface PixelBuffer extends Closeable
      * column. It is guaranteed that this buffer will have been byte swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
-     * @see getCol()
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
+     * @see #getCol(Integer, Integer, Integer, Integer)
      */
     public byte[] getColDirect(Integer x, Integer z, Integer c, 
                                Integer t, byte[] buffer)
@@ -351,7 +351,7 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public PixelData getPlane(Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException;
@@ -373,7 +373,7 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public PixelData getPlaneRegion(Integer x, Integer y, Integer width, Integer
     		height, Integer z, Integer c, Integer t, Integer stride)
@@ -390,7 +390,7 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException;
@@ -406,7 +406,7 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public PixelData getStack(Integer c, Integer t)
     	throws IOException, DimensionsOutOfBoundsException;
@@ -421,7 +421,7 @@ public interface PixelBuffer extends Closeable
      * stack. It is guaranteed that this buffer will have been byte swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public byte[] getStackDirect(Integer c, Integer t, byte[] buffer) 
     	throws IOException, DimensionsOutOfBoundsException;
@@ -436,7 +436,7 @@ public interface PixelBuffer extends Closeable
      * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public PixelData getTimepoint(Integer t) 
     	throws IOException, DimensionsOutOfBoundsException;
@@ -449,7 +449,7 @@ public interface PixelBuffer extends Closeable
      * timepoint. It is guaranteed that this buffer will have been byte swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      */
     public byte[] getTimepointDirect(Integer t, byte[] buffer) 
     	throws IOException, DimensionsOutOfBoundsException;
@@ -503,9 +503,9 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      * @throws BufferOverflowException if
-     * <code>buffer.length > {@link getRowSize()}</code>.
+     * <code>buffer.length > {@link #getRowSize()}</code>.
      */
     public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
             Integer t) throws IOException, DimensionsOutOfBoundsException,
@@ -519,9 +519,9 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @throws IOException if there is a problem writing to the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      * @throws BufferOverflowException if
-     * <code>buffer.length > {@link getPlaneSize()}</code>.
+     * <code>buffer.length > {@link #getPlaneSize()}</code>.
      */
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
@@ -535,9 +535,9 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @throws IOException if there is a problem writing to the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      * @throws BufferOverflowException if
-     * <code>buffer.length > {@link getPlaneSize()}</code>.
+     * <code>buffer.length > {@link #getPlaneSize()}</code>.
      */
     public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
@@ -551,9 +551,9 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @throws IOException if there is a problem writing to the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      * @throws BufferOverflowException if
-     * <code>buffer.length > {@link getStackSize()}</code>.
+     * <code>buffer.length > {@link #getStackSize()}</code>.
      */
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
@@ -568,9 +568,9 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @throws IOException if there is a problem writing to the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      * @throws BufferOverflowException if
-     * <code>buffer.length > {@link getStackSize()()}</code>.
+     * <code>buffer.length > {@link #getStackSize()()}</code>.
      */
     public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
@@ -583,9 +583,9 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @throws IOException if there is a problem writing to the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      * @throws BufferOverflowException if
-     * <code>buffer.length > {@link getTimepointSize()}</code>.
+     * <code>buffer.length > {@link #getTimepointSize()}</code>.
      */
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException;
@@ -597,9 +597,9 @@ public interface PixelBuffer extends Closeable
      * @param t offset across the T-axis of the pixel buffer.
      * @throws IOException if there is a problem writing to the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
-     * after checking with {@link checkBounds()}.
+     * after checking with {@link #checkBounds(Integer, Integer, Integer, Integer, Integer)}.
      * @throws BufferOverflowException if
-     * <code>buffer.length > {@link getTimepointSize()}</code>.
+     * <code>buffer.length > {@link #getTimepointSize()}</code>.
      */
     public void setTimepoint(byte[] buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException;
@@ -625,7 +625,8 @@ public interface PixelBuffer extends Closeable
     
     /**
      * Returns whether or not the pixel buffer has floating point pixels. 
-     * @return
+     * @return {@code true} if the pixel buffer as floating point,
+     *         {@code false} otherwise
      */
     public boolean isFloat();
     
@@ -636,32 +637,32 @@ public interface PixelBuffer extends Closeable
     public String getPath();
 
 	/**
-	 * Delegates to {@link Pixels.getId()}.
+	 * Retrieves the identifier of this pixel buffer
 	 */
 	public long getId();
 	
 	/**
-	 * Delegates to {@link Pixels.getSizeX()}.
+	 * Retrieves the size in X of this pixel buffer
 	 */
 	public int getSizeX();
 
 	/**
-	 * Delegates to {@link Pixels.getSizeY()}.
+	 * Retrieves the size in Y of this pixel buffer
 	 */
 	public int getSizeY();
 
 	/**
-	 * Delegates to {@link Pixels.getSizeZ()}.
+	 * Retrieves the size in Z of this pixel buffer
 	 */
 	public int getSizeZ();
 
 	/**
-	 * Delegates to {@link Pixels.getSizeC()}.
+	 * Retrieves the size in C of this pixel buffer
 	 */
 	public int getSizeC();
 
 	/**
-	 * Delegates to {@link Pixels.getSizeT()}.
+	 * Retrieves the size in T of this pixel buffer
 	 */
 	public int getSizeT();
 
@@ -697,10 +698,12 @@ public interface PixelBuffer extends Closeable
     /**
      * Return a list of lists each of which has sizeX, sizeY for the resolution
      * level matching the index of the outer index. For example, if an image
-     * has 2 resolution levels of size 2048x1024 and 1024x512 then this returns:
+     * has 2 resolution levels of size 2048x1024 and 1024x512 then this
+     * returns:
      * [[2048,1024],[1024,512]]
+     * @return a list of lists containing sizeX, sizeY for each resolution
+     *         level
      *
-     * @return
      */
     public List<List<Integer>> getResolutionDescriptions();
 }

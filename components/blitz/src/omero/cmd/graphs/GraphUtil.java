@@ -25,12 +25,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 
 import ome.model.core.OriginalFile;
+import ome.model.internal.Details;
 import ome.services.graphs.GraphException;
+import ome.services.graphs.GraphPolicy.Ability;
+import ome.services.graphs.GraphTraversal.Processor;
 import ome.services.graphs.GraphOpts.Op;
 import ome.services.graphs.ModelObjectSequencer;
 import omero.cmd.GraphModify2;
@@ -285,7 +289,7 @@ public class GraphUtil {
             final String className = targetObjectsByClass.getKey();
             Collection<Long> ids = targetObjectsByClass.getValue();
             if (OriginalFile.class.getName().equals(className)) {
-                final Collection<List<Long>> sortedIds = ModelObjectSequencer.sortOriginalFileIds(session, ids);
+                final Collection<Collection<Long>> sortedIds = ModelObjectSequencer.sortOriginalFileIds(session, ids);
                 ids = new ArrayList<Long>(ids.size());
                 for (final Collection<Long> idBatch : sortedIds) {
                     ids.addAll(idBatch);
@@ -294,5 +298,40 @@ public class GraphUtil {
             orderedIds.putAll(className, ids);
         }
         return orderedIds;
+    }
+
+    /**
+     * Wrap a graph traversal processor so that it has no write effects.
+     * @param processor a graph traversal processor to wrap
+     * @return the graph traversal processor wrapped so that it has no write effects
+     */
+    static Processor disableProcessor(final Processor processor) {
+        return new Processor() {
+
+            @Override
+            public void nullProperties(String className, String propertyName, Collection<Long> ids) {
+                /* disable this write action */
+            }
+
+            @Override
+            public void deleteInstances(String className, Collection<Long> ids) {
+                /* disable this write action */
+            }
+
+            @Override
+            public void processInstances(String className, Collection<Long> ids) {
+                /* disable this write action */
+            }
+
+            @Override
+            public Set<Ability> getRequiredPermissions() {
+                return processor.getRequiredPermissions();
+            }
+
+            @Override
+            public void assertMayProcess(String className, long id, Details details) throws GraphException {
+                processor.assertMayProcess(className, id, details);
+            }
+        };
     }
 }

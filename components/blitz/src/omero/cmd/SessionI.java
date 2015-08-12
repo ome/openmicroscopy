@@ -438,14 +438,8 @@ public class SessionI implements _SessionOperations {
                     // unregistered.
                     //
                     if (servant instanceof CloseableServant) {
-                        final Ice.Current __curr = new Ice.Current();
-                        __curr.id = id;
-                        __curr.adapter = adapter;
-                        __curr.operation = "close";
-                        __curr.ctx = new HashMap<String, String>();
-                        __curr.ctx.put(CLIENTUUID.value, clientId);
                         CloseableServant cs = (CloseableServant) servant;
-                        cs.close(__curr);
+                        cs.close(newCurrent(id, "close", adapter, clientId));
                     }
                     // Now ignoring all non-CloseableServants, since
                     // that is *the* interface that should be used
@@ -473,6 +467,21 @@ public class SessionI implements _SessionOperations {
         if (obj instanceof SessionAware) {
             ((SessionAware) obj).setSession(this);
         }
+    }
+
+    public static Ice.Current newCurrent(Ice.Identity id, String method,
+            Ice.ObjectAdapter adapter, String clientId) {
+        final Ice.Current __curr = new Ice.Current();
+        __curr.id = id;
+        __curr.adapter = adapter;
+        __curr.operation = method;
+        __curr.ctx = new HashMap<String, String>();
+        __curr.ctx.put(CLIENTUUID.value, clientId);
+        return __curr;
+    }
+
+    public Ice.Current newCurrent(Ice.Identity id, String method) {
+        return newCurrent(id, method, adapter, clientId);
     }
 
     public void allow(Ice.ObjectPrx prx) {

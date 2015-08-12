@@ -16,8 +16,8 @@ omero.db.profile=psql
 # Defaults used in antlib/resources/lifecycle.xml
 # override in <COMPONENT>/build.xml files or
 # in etc/local.properties
-javac.source=1.6
-javac.target=1.6
+javac.source=1.7
+javac.target=1.7
 javac.debug=on
 javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines
@@ -47,11 +47,17 @@ ivy.log.module.when.found=false
 ivy.log.conflict.resolution=false
 ivy.log.resolved.revision=false
 
+# The resolver to use for OME dependencies like Bio-Formats
+ome.resolver=ome-resolver
+# The name of the OME artifactory repository to use when ome.resolver is
+# switched to ome-simple-artifactory
+simple.repository=ome.unstable
+
 # Default keystore values
 jarsign.keystore=${omero.home}/lib/keystore
 jarsign.alias=omedev
 jarsign.storepass=omedev
-#Password can be stored in a file with Java>=1.7
+#Password can be stored in a file
 #jarsign.storepassfile=
 jarsign.validity=1000
 #Timestamping can be enabled by providing a server url
@@ -67,10 +73,11 @@ test.with.fail=false
 testng.verbose=2
 testng.useDefaultListeners=false
 
-# Determines which Ivy resolver to use for
-# finding the loci libraries. Look in
-# etc/ivyconf.xml for more information.
-loci.resolver=omero-resolver
+# Controls how long CmdCallbackI based tests will wait
+# to finish. Value is approximately the number of
+# milliseconds to wait, but depends on the specific
+# number of retries used by each test.
+omero.test.timeout=500
 
 ############################################
 # hard-wired (compile-time) values

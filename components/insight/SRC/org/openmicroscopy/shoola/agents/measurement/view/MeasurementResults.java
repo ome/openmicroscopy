@@ -63,7 +63,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject
 import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -520,10 +520,13 @@ class MeasurementResults
 			file = new File(fileName);
 		}
 		String filename = file.getAbsolutePath();
+		MeasurementTableModel tm = (MeasurementTableModel) results.getModel();
+		tm = tm.copy();
+		tm.setShowUnits(true);
 		ExcelWriter writer = new ExcelWriter(filename);
 		writer.openFile();
 		writer.createSheet("Measurement Results");
-		writer.writeTableToSheet(0, 0, results.getModel());
+		writer.writeTableToSheet(0, 0, tm);
 		BufferedImage originalImage = model.getRenderedImage();
 		if(originalImage != null)
 		{

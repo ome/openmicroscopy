@@ -14,7 +14,9 @@
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
     <dependency org="log4j" name="log4j" rev="${versions.log4j}" conf="build->default"/>
-    <dependency org="slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="build->default"/>
-    <dependency org="slf4j" name="slf4j-log4j12" rev="${versions.slf4j}" conf="build->default"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="build->default"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="${versions.slf4j}" conf="build->default"/>
+    <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}" conf="build->default"/>
+    <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build->default"/>
   </dependencies>
 </ivy-module>

@@ -1,4 +1,5 @@
-function originalFile = updateOriginalFile(session, originalFile, filePath)
+function originalFile = updateOriginalFile(...
+    session, originalFile, filePath, varargin)
 % UPDATEORIGINALFILE Update a file on the OMERO server with new content
 %
 %    originalFile = updateOriginalFile(session, originalFile, filePath)
@@ -35,7 +36,9 @@ ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('originalFile', @(x) isa(x, 'omero.model.OriginalFile'));
 ip.addRequired('filePath', @(x) exist(x, 'file') == 2);
-ip.parse(session, originalFile, filePath);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.KeepUnmatched = true;
+ip.parse(session, originalFile, filePath, varargin{:});
 
 % Read file absolute path and properties
 [~, f] = fileattrib(filePath);
@@ -49,8 +52,22 @@ originalFile.setPath(rstring(path));
 originalFile.setSize(rlong(fileLength));
 
 % Update the originalFile object
+context = java.util.HashMap;
+% This method is used to update OriginalFiles that may or may yet NOT exist
+% on the server, hence:
+% Check if the Annotation exists on the server
+try
+    group = fileAnnotation.getDetails().getGroup().getId().getValue();
+    context.put('omero.group', num2str(group));
+catch
+end
+% If exists only client side accept omero.group parameter
+if ~context.containsKey('omero.group') && ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+end
 updateService = session.getUpdateService();
-originalFile = updateService.saveAndReturnObject(originalFile);
+originalFile = updateService.saveAndReturnObject(originalFile, context);
 
 % Initialize provider to compute client-side checksum
 checksumProviderFactory = ome.util.checksum.ChecksumProviderFactoryImpl;
@@ -59,7 +76,7 @@ hasher = checksumProviderFactory.getProvider(sha1);
 
 % Initialize the service to load the raw data
 rawFileStore = session.createRawFileStore();
-rawFileStore.setFileId(originalFile.getId().getValue());
+rawFileStore.setFileId(originalFile.getId().getValue(), context);
 
 %code for large files as well.
 lengthvec=262144;
@@ -93,7 +110,7 @@ end
 rawFileStore.truncate(fileLength);
 
 % Save and close the service
-originalFile = rawFileStore.save();
+originalFile = rawFileStore.save(context);
 rawFileStore.close();
 
 % Compare checksums of file client-side verus server-side

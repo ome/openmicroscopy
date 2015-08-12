@@ -74,10 +74,10 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.LogMessage;
+import omero.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
@@ -3211,7 +3211,8 @@ class ImViewerComponent
 	 */
 	public void loadTiles(Rectangle region)
 	{
-		if (model.getState() == DISCARDED) return;
+		if (model.getState() == DISCARDED || !model.isRendererLoaded()) 
+		    return;
 		if (region == null) 
 			region = model.getBrowser().getVisibleRectangle();
 		Map<Integer, Tile> tiles = getTiles();

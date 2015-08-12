@@ -93,5 +93,8 @@ if (ip.Results.c >= 0)
 end
 
 % Retrieve plane info
-planeInfo = session.getQueryService().findAllByQuery(query.toString, params);
+context = java.util.HashMap;
+context.put('omero.group', '-1');
+planeInfo = session.getQueryService().findAllByQuery(...
+    query.toString, params, context);
 planeInfo = toMatlabList(planeInfo);

@@ -633,12 +633,8 @@ class TreeViewerWin
     void selectFirstPane()
     { 
     	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
-    		if (firstPane != null) firstPane.setCollapsed(false);
-        	if (!UIUtilities.isLinuxOS()) {
-        		List<JXTaskPane> list = container.getTaskPanes();
-        		for (JXTaskPane pane: list) 
-            		pane.setAnimated(true);
-        	}
+    		if (firstPane != null) 
+    		    firstPane.setCollapsed(false);
     	}
     }
     
@@ -1243,11 +1239,7 @@ class TreeViewerWin
     		} else { //that's the search.
     			if (searchPane != null) searchPane.setCollapsed(false);
     		}
-    		
-        	if (!UIUtilities.isLinuxOS()) {
-        		for (JXTaskPane pane: list) 
-            		pane.setAnimated(true);
-        	}
+
 			container.addPropertyChangeListener(controller);
     	}
     	

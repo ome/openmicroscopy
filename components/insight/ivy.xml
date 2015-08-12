@@ -42,13 +42,10 @@
     <dependency org="commons-digester" name="commons-digester" rev="${versions.commons-digester}"/>
     <dependency org="commons-discovery" name="commons-discovery" rev="${versions.commons-discovery}"/>
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
-    <dependency org="commons-logging" name="commons-logging" rev="${versi:ons.commons-logging}"/>
     <dependency org="commons-validator" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
-    <dependency org="org.apache.httpcomponents" name="httpclient" rev="${versions.httpclient}"/>
-    <dependency org="org.apache.httpcomponents" name="httpcore" rev="${versions.httpcore}"/>
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="net.imagej" name="ij" rev="${versions.ij}"/>
     <dependency org="javax.xml" name="jaxrpc" rev="${versions.jaxrpc}"/>
@@ -56,36 +53,31 @@
     <dependency org="org.jfree" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
     <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
-    <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}"/>
+    <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}" transitive="false"/>
     <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
-    <dependency org="axis" name="axis-wsdl4j" rev="${versions.wsdl4j}"/>
+    <dependency org="axis" name="axis-wsdl4j" rev="${versions.wsdl4j}"  transitive="false"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
+    <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
+    <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
     <!-- Required for annotations in Permissions.java -->
-    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
-
+    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
     <!-- Bioformats -->
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
-        <artifact name="formats-api"/>
-        <artifact name="formats-bsd"/>
-        <artifact name="formats-common"/>
-        <artifact name="formats-gpl"/>
-        <artifact name="ome-xml"/>
-        <artifact name="specification"/>
-        <!-- forks & stubs -->
-        <artifact name="jai_imageio"/>
-        <artifact name="lwf-stubs"/>
-        <artifact name="mdbtools-java"/>
-        <artifact name="metakit"/>
-        <artifact name="ome-poi"/>
-        <artifact name="turbojpeg"/>
+    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
+        <exclude org="com.jgoodies"/>
+        <exclude org="org.slf4j"/>
+        <exclude org="xml-apis"/>
     </dependency>
-
+    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
+        <exclude org="org.slf4j"/>
+        <exclude org="commons-logging"/>
+    </dependency>
+    <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
-    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}" conf="build,client->default"/>
-    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}" conf="build,client->default"/>
+    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
+    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}"/>
   </dependencies>
 </ivy-module>

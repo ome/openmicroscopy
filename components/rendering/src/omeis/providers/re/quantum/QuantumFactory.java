@@ -7,18 +7,13 @@
 
 package omeis.providers.re.quantum;
 
-// Java imports
 import java.util.List;
 
-// Third-party libraries
-
-
-
 import ome.model.core.Pixels;
-// Application-internal dependencies
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
+
 import omeis.providers.re.data.PlaneFactory;
 
 /**

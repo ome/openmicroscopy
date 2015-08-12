@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -219,6 +219,15 @@ public interface Browser
      * The browser's title corresponding to {@link #ADMIN_EXPLORER} type.
      */
     public static final String     ADMIN_TITLE = "Administration";
+    
+    /** The text of the dummy default node. */
+    public static final String     LOADING_MSG = "Loading...";
+    
+    /** 
+     * The text of the node added to a {@link TreeImageSet} node
+     * containing no element.
+     */
+    public static final String     EMPTY_MSG = "Empty";
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.

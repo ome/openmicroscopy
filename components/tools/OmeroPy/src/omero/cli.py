@@ -1442,6 +1442,33 @@ def argv(args=sys.argv):
 # Specific argument types
 
 
+class ExperimenterArg(object):
+
+    def __init__(self, arg):
+        self.orig = arg
+        self.usr = None
+        try:
+            self.usr = long(arg)
+        except ValueError:
+            if ":" in arg:
+                parts = arg.split(":", 1)
+                if parts[0] == "User" or "Experimenter":
+                    try:
+                        self.usr = long(parts[1])
+                    except ValueError:
+                        pass
+
+    def lookup(self, client):
+        if self.usr is None:
+            import omero
+            a = client.sf.getAdminService()
+            try:
+                self.usr = a.lookupExperimenter(self.orig).id.val
+            except omero.ApiUsageException:
+                pass
+        return self.usr
+
+
 class ExperimenterGroupArg(object):
 
     def __init__(self, arg):
@@ -1719,19 +1746,19 @@ class GraphControl(CmdControl):
             inc = args.include.split(",")
         exc = self.default_exclude()
         if args.exclude:
-            exc = exc.extend(args.exclude.split(","))
+            exc.extend(args.exclude.split(","))
 
-        if len(inc) > 0 or len(exc) > 0:
+        if inc or exc:
             opt = omero.cmd.graphs.ChildOption()
-            if len(inc) > 0:
+            if inc:
                 opt.includeType = inc
-            if len(exc) > 0:
+            if exc:
                 opt.excludeType = exc
 
         commands = args.obj
         for req in commands:
             req.dryRun = args.dry_run
-            if len(inc) > 0 or len(exc) > 0:
+            if inc or exc:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.childOptions = req.childOptions

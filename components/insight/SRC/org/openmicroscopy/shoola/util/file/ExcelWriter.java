@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.file.MSWriter 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -37,7 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.table.TableModel;
+
+
 
 //Third-party libraries
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -490,7 +493,6 @@ public class ExcelWriter
 						elementRowCount, startColumn + columnCount);
 				element = getElement(tableModel.getValueAt(rowCount, 
 						columnCount), elementRowCount);
-				setCellStyle(cell, TWODECIMALPOINTS);
 				if (element != null) {
 					writeElement(currentSheet.getCurrentRow()+
 							elementRowCount,startColumn + columnCount, element);

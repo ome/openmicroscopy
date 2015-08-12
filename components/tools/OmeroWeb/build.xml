@@ -26,7 +26,6 @@
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
 
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="${up-two}/common.xml"/>
     <import file="${up-two}/python.xml"/>
 

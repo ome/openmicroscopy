@@ -7,16 +7,12 @@
 
 package ome.util.math.geom2D;
 
-// Java imports
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.util.mem.Handle;
 
 /**

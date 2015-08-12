@@ -120,17 +120,7 @@ import pojos.TagAnnotationData;
 class BrowserUI
     extends JPanel
     implements PropertyChangeListener
-{
-    
-	/** The text of the dummy default node. */
-    private static final String     LOADING_MSG = "Loading...";
-	
-    /** 
-     * The text of the node added to a {@link TreeImageSet} node
-     * containing no element.
-     */
-    private static final String     EMPTY_MSG = "Empty";
-    
+{   
     /** The <code>Attachments</code> smart folder. */
     private static final int[] VALUES = {TreeFileSet.MOVIE, TreeFileSet.OTHER};
     
@@ -1104,7 +1094,7 @@ class BrowserUI
                                 Collection nodes, DefaultTreeModel tm)
     {
         if (nodes.size() == 0) {
-            tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+            tm.insertNodeInto(new DefaultMutableTreeNode(Browser.EMPTY_MSG), 
                     parent, parent.getChildCount());
             return;
         }
@@ -1154,24 +1144,24 @@ class BrowserUI
                 } else {
                 	uo = display.getUserObject();
                 	if (uo instanceof DatasetData) {
-                		tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                		tm.insertNodeInto(new DefaultMutableTreeNode(Browser.EMPTY_MSG), 
                 				display, display.getChildCount());
                 	} else if (uo instanceof TagAnnotationData) {
                 		TagAnnotationData tag = (TagAnnotationData) uo;
                 		if (!(TagAnnotationData.INSIGHT_TAGSET_NS.equals(
                 				tag.getNameSpace()))) {
                 			tm.insertNodeInto(
-                					new DefaultMutableTreeNode(EMPTY_MSG), 
+                					new DefaultMutableTreeNode(Browser.EMPTY_MSG), 
                     				display, display.getChildCount());
                 		}
                 	} else if (uo instanceof GroupData) {
-                		tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                		tm.insertNodeInto(new DefaultMutableTreeNode(Browser.EMPTY_MSG), 
                 				display, display.getChildCount());
                 	} else if (uo instanceof FileAnnotationData) {
                 		if (browserType == Browser.SCREENS_EXPLORER) {
                 			TreeImageSet n = new TreeImageSet(uo);
                 			tm.insertNodeInto(
-                					new DefaultMutableTreeNode(EMPTY_MSG), 
+                					new DefaultMutableTreeNode(Browser.EMPTY_MSG), 
                     				n, n.getChildCount());
                 		}
                 	}
@@ -1208,7 +1198,7 @@ class BrowserUI
     private void buildEmptyNode(DefaultMutableTreeNode node)
     {
         DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-        tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), node,
+        tm.insertNodeInto(new DefaultMutableTreeNode(Browser.EMPTY_MSG), node,
                             node.getChildCount());
     }
     
@@ -1467,7 +1457,7 @@ class BrowserUI
     {
         DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
         parent.removeAllChildren();
-        tm.insertNodeInto(new DefaultMutableTreeNode(LOADING_MSG), parent,
+        tm.insertNodeInto(new DefaultMutableTreeNode(Browser.LOADING_MSG), parent,
                 			parent.getChildCount());
         tm.reload(parent);
     }
@@ -1486,7 +1476,7 @@ class BrowserUI
     	DefaultMutableTreeNode node = 
 			 (DefaultMutableTreeNode) parent.getChildAt(0);
     	Object uo = node.getUserObject();
-    	if (LOADING_MSG.equals(uo) || EMPTY_MSG.equals(uo))
+    	if (Browser.LOADING_MSG.equals(uo) || Browser.EMPTY_MSG.equals(uo))
     		return true;
     	return false;
     }
@@ -2009,7 +1999,7 @@ class BrowserUI
 			Object o = childNode.getUserObject();
 			if (o instanceof String) {
 				String s = (String) o;
-				if (EMPTY_MSG.equals(s)) {
+				if (Browser.EMPTY_MSG.equals(s)) {
 					remove.add(childNode);
 				}
 			}

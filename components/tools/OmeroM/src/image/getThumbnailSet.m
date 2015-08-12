@@ -71,10 +71,13 @@ pixelsIds = arrayfun(@(x) x.getPrimaryPixels().getId().getValue(), images);
 nPixels = numel(pixelsIds);
 
 % Create container service to load the thumbnails
+context = java.util.HashMap;
+group = images(1).getDetails().getGroup().getId().getValue();
+context.put('omero.group', num2str(group));
 store = session.createThumbnailStore();
 pixelsRange = 1 : min(nPixels, MAX_RETRIEVAL);
 thumbnailMap = store.getThumbnailSet(width, height,...
-    toJavaList(pixelsIds(pixelsRange), 'java.lang.Long'));
+    toJavaList(pixelsIds(pixelsRange), 'java.lang.Long'), context);
 store.close();
 
 % Load remaining pixels by series of MAX_RETRIEVAL thumbnails
@@ -84,7 +87,7 @@ if nPixels > MAX_RETRIEVAL
         pixelsRange = i * MAX_RETRIEVAL + 1 : min(nPixels, (i + 1) * MAX_RETRIEVAL);
         store = session.createThumbnailStore();
         thumbnailMap.putAll(store.getThumbnailSet(width, height,...
-            toJavaList(pixelsIds(pixelsRange), 'java.lang.Long')));
+            toJavaList(pixelsIds(pixelsRange), 'java.lang.Long'), context));
         store.close();
     end
 end

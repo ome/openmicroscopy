@@ -16,7 +16,8 @@ HELP = """Group administration methods"""
 defaultperms = {
     'private': 'rw----',
     'read-only': 'rwr---',
-    'read-annotate': 'rwra--'}
+    'read-annotate': 'rwra--',
+    'read-write': 'rwrw--'}
 
 
 class GroupControl(UserGroupControl):
@@ -32,11 +33,17 @@ Group permissions come in several styles:
     * private       (rw----)   [DEFAULT]
     * read-only     (rwr---)
     * read-annotate (rwra--)   [Previously known as 'collaborative']
+    * read-write    (rwrw--)
 
-In private groups, only group and system administrators will be able
-to view someone else's data. In read-only groups, other group members
+In private groups, only group owners and system administrators will be
+able to view someone else's data. In read-only groups, other group members
 can see data but not annotate or modify it. In read-annotate groups,
-annotation is permitted by group members.
+annotation is permitted by group members. In read-write groups, all
+group members can behave as if they co-own all the data.
+
+Changing a group to private unlinks data from other users' containers and
+unlinks other users' annotations from data. The change to private will
+fail if different users' data is too closely related to be separated.
 
 More information is available at:
 http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/\
@@ -185,8 +192,9 @@ server-permissions.html
                          % (g.name.val, gid, perms))
         else:
             try:
-                chmod = omero.cmd.Chmod(
-                    type="/ExperimenterGroup", id=gid, permissions=str(perms))
+                chmod = omero.cmd.Chmod2(
+                    targetObjects={'ExperimenterGroup': [gid]},
+                    permissions=str(perms))
                 c.submit(chmod)
                 self.ctx.out("Changed permissions for group %s (id=%s) to %s"
                              % (g.name.val, gid, perms))

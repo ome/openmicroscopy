@@ -34,7 +34,7 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 /** 
  * Parameters required to move a collection of objects between groups.

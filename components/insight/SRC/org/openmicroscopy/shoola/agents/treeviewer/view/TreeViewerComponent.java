@@ -40,15 +40,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
+
 //Application-internal dependencies
 import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -116,8 +120,10 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
@@ -648,7 +654,10 @@ class TreeViewerComponent
 			return;
 		}
 		if (object instanceof ImageData) {
-			TreeImageDisplay displayParent = display.getParentDisplay();
+			TreeImageDisplay displayParent = null;
+			if (display != null) {
+			    displayParent = display.getParentDisplay();
+			}
 			
 			if (displayParent instanceof TreeImageTimeSet ||
 				(displayParent instanceof TreeFileSet &&
@@ -3112,7 +3121,7 @@ class TreeViewerComponent
 	 */
         public void setSearchResult(Object result)
 	{
-	    AdvancedSearchResultCollection results = (AdvancedSearchResultCollection) result;
+	    SearchResultCollection results = (SearchResultCollection) result;
 
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {

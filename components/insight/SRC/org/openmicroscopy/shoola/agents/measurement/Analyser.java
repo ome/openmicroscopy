@@ -33,9 +33,9 @@ import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 import pojos.PixelsData;

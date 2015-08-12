@@ -56,7 +56,10 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.ServerInformation;
+
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
@@ -436,7 +439,7 @@ class ImporterModel
 	void fireDataCreation(ObjectToCreate data)
 	{
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
-		ctx.setServerInformation(this.ctx.getHostName(), this.ctx.getPort());
+		ctx.setServerInformation(this.ctx.getServerInformation());
 		ctx.setExperimenter(data.getExperimenter());
 		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());
@@ -621,7 +624,9 @@ class ImporterModel
             Map<Integer, List<ROIData>> indexes =
                 new HashMap<Integer, List<ROIData>>();
             int index;
+            boolean mif = false;
             if (CollectionUtils.isNotEmpty(files)) {
+                mif = true;
                 Iterator<FileObject> j = files.iterator();
                 FileObject o;
                 while (j.hasNext()) {
@@ -630,6 +635,9 @@ class ImporterModel
                         index = o.getIndex();
                         rois = reader.readImageJROI(-1, (ImagePlus) o.getFile());
                         indexes.put(index, rois);
+                        if (index < 0) {
+                            mif = false;
+                        }
                     }
                 }
             }
@@ -644,11 +652,14 @@ class ImporterModel
                 id = data.getId();
                 index = data.getSeries();
                 //First check overlay
+                rois = null;
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
                 } else {
-                   rois = reader.readImageJROI(id, img);
+                   if (!mif) {
+                       rois = reader.readImageJROI(id, img);
+                   }
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {

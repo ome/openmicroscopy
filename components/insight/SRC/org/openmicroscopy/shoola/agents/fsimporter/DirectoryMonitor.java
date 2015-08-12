@@ -31,7 +31,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.DataObject;

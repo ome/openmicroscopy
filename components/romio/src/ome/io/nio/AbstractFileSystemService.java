@@ -68,46 +68,37 @@ public class AbstractFileSystemService {
 
     /**
      * Returns a numbered path relative to the root of this service, but is
-     * ignorant of FS and similar constructs. For example, given an id of 123456
-     * this will return "ROOT/Pixels/Dir-123/Dir-456/123456"
+     * ignorant of FS and similar constructs. For example, given an id of
+     * 12345 this will return "ROOT/Pixels/Dir-123/Dir-456/123456"
      *
-     * Should be marked protected in 4.4  because assumptions on the existence
-     * of this file can be dangerous.
-     *
-     * @param id
-     * @return
+     * @param id   the Pixels identifier
+     * @return     the path relative to the root
      */
-    public /*protected*/ String getPixelsPath(Long id) {
+    public String getPixelsPath(Long id) {
         return getPath(PIXELS_PATH, id);
     }
 
     /**
      * Returns a numbered path relative to the root of this service, but is
-     * ignorant of FS and similar constructs. For example, given an id of 123456
-     * this will return "ROOT/Files/Dir-123/Dir-456/123456"
+     * ignorant of FS and similar constructs. For example, given an id of
+     * 123456 this will return "ROOT/Files/Dir-123/Dir-456/123456"
      *
-     * Should be marked protected in 4.4  because assumptions on the existence
-     * of this file can be dangerous.
-     *
-     * @param id
-     * @return
+     * @param id   the Files identifier
+     * @return     the path relative to the root
      */
-    public /*protected*/ String getFilesPath(Long id) {
+    public String getFilesPath(Long id) {
         return getPath(FILES_PATH, id);
     }
 
     /**
      * Returns a numbered path relative to the root of this service, but is
-     * ignorant of FS and similar constructs. For example, given an id of 123456
-     * this will return "ROOT/Thumbnails/Dir-123/Dir-456/123456"
+     * ignorant of FS and similar constructs. For example, given an id of
+     * 123456 this will return "ROOT/Thumbnails/Dir-123/Dir-456/123456"
      *
-     * Should be marked protected in 4.4  because assumptions on the existence
-     * of this file can be dangerous.
-     *
-     * @param id
-     * @return
+     * @param id     the thumbnail identifier
+     * @return       the path relative to the root
      */
-    public /*protected*/ String getThumbnailPath(Long id) {
+    public String getThumbnailPath(Long id) {
         return getPath(THUMBNAILS_PATH, id);
     }
 

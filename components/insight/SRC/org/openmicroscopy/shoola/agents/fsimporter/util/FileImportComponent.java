@@ -58,6 +58,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import ij.IJ;
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
 import omero.cmd.CmdCallback;
@@ -80,7 +81,7 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -290,12 +291,18 @@ public class FileImportComponent
 	    String logText = "View Import Log";
 	    String checksumText = "View Checksum";
 	    String exceptionText = "View Exception";
+	    String copyExceptionText = "Copy Exception to Clipboard";
 	    Object result = statusLabel.getImportResult();
 	    switch (resultIndex) {
 	    case FAILURE_LIBRARY:
 	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
                 public void actionPerformed(ActionEvent e) {
                     viewError();
+                }
+            }));
+	        menu.add(new JMenuItem(new AbstractAction(copyExceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    copyErrorToClipboard();
                 }
             }));
 	        break;
@@ -308,6 +315,11 @@ public class FileImportComponent
 	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
                 public void actionPerformed(ActionEvent e) {
                     viewError();
+                }
+            }));
+	        menu.add(new JMenuItem(new AbstractAction(copyExceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    copyErrorToClipboard();
                 }
             }));
 	        break;
@@ -517,6 +529,16 @@ public class FileImportComponent
 	        UIUtilities.centerAndShow(d);
 	    }
 	}
+
+	/** Copies the error to the clipboard.*/
+    private void copyErrorToClipboard()
+    {
+        Object o = statusLabel.getImportResult();
+        if (o instanceof ImportException) {
+            String v = UIUtilities.printErrorText((ImportException) o);
+            UIUtilities.copyToClipboard(v);
+        }
+    }
 
 	/** Browses the node or the data object. */
 	private void browse()
@@ -905,7 +927,38 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public StatusLabel getStatus() { return statusLabel; }
-	
+
+	/**
+	 * Returns the associated file if any.
+	 *
+	 * @param series See above.
+	 * @return See above.
+	 */
+	private FileObject getAssociatedFile(int series)
+	{
+	    List<FileObject> l = getFile().getAssociatedFiles();
+	    Iterator<FileObject> i = l.iterator();
+	    FileObject f;
+	    while (i.hasNext()) {
+            f = i.next();
+            if (f.getIndex() == series) {
+                return f;
+            }
+        }
+	    return null;
+	}
+
+	/**
+	 * Returns <code>true</code> if the file has some associated files,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	private boolean hasAssociatedFiles() {
+	    List<FileObject> l = getFile().getAssociatedFiles();
+	    return CollectionUtils.isNotEmpty(l);
+	}
+
 	/**
 	 * Sets the result of the import.
 	 * @param image The image.
@@ -924,16 +977,30 @@ public class FileImportComponent
 		} else if (image instanceof Set) {
 			//Result from the import itself
 			this.image = null;
+			Set set = (Set) image;
+			Iterator i = set.iterator();
+			FileObject f;
+			while (i.hasNext()) {
+                Object object = i.next();
+                if (object instanceof PixelsData) {
+                    PixelsData pix = (PixelsData) object;
+                    if (hasAssociatedFiles()) {
+                        int series = pix.getImage().getSeries();
+                        f = getAssociatedFile(series);
+                        if (f != null) {
+                            f.setImageID(pix.getImage().getId());
+                        }
+                    } else {
+                        f = getOriginalFile();
+                        f.setImageID(pix.getImage().getId());
+                    }
+                }
+            }
 			formatResult();
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
 			ThumbnailData data = list.get(0);
-			long iid = data.getImageID();
-			if (data.getImage() != null) {
-			    iid = data.getImage().getId();
-			}
-			getFile().setImageID(iid);
 			imageLabel.setData(data);
 			list.remove(0);
 			if (list.size() > 0) {

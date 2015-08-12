@@ -216,17 +216,6 @@
 		border-right:none;		
 	}
 
-	
-	#basket li{
-		-webkit-border-radius:3px; /* Saf3+, Chrome */
-		   -moz-border-radius:3px; /* FF1+ */
-		        border-radius:3px; /* Opera 10.5, IE 9 */ 
-	}
-	
-		#launch_basket  a{
-			background: url(../img/icon_basket.png) center center no-repeat;
-		}
-
 		#figScriptButton{
 			background: url(../img/icon_figure_scripts.png) center center no-repeat;
 		}
@@ -672,9 +661,6 @@ li.menu_back a {
 .menulist li.menu_back:hover>a {
 	background:url(../img/dropdown_left_arrow_hover.png) 0% center no-repeat !important;
 }
-	
-
-/* Basket */	
 
 #runningStatus {
 	 position:absolute; 
@@ -686,82 +672,7 @@ li.menu_back a {
 	 background:url(../img/spinner.gif) green 75% center no-repeat;
 }
 
-	
-#basket_panel {
-	width:350px;
-}
 
-	#basket_panel li {
-		overflow:hidden;
-		padding:10px;
-		border-bottom:solid 1px rgba(0,0,0,.05);
-		-webkit-box-shadow:0 1px 0 rgba(255,255,255,.5);
-		
-		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.5); /* Saf3.0+, Chrome */
-		   -moz-box-shadow: 0 1px 0 rgba(255,255,255,0.5); /* FF3.5+ */
-		        box-shadow: 0 1px 0 rgba(255,255,255,0.5); /* Opera 10.5, IE 9.0 */
-		
-	}
-
-	#basket_panel li:last-child {
-		border-bottom:none;
-		-webkit-box-shadow: none;
-		
-		-webkit-box-shadow:none; /* Saf3.0+, Chrome */
-		   -moz-box-shadow:none; /* FF3.5+ */
-		        box-shadow:none; /* Opera 10.5, IE 9.0 */
-		
-	}
-	
-		#launch_basket {
-			background: url(../img/icon_basket.png) 8px center no-repeat;
-			display:inline-block;
-		}
-
-	/* Basket Panel */
-	
-	#basket_content {
-		overflow:auto;
-		max-height:450px;
-	}
-	
-		.basket_image {
-			width:30px;
-			padding:4px;
-			background-color:white;
-			-webkit-box-shadow:0 1px 1px rgba(0,0,0,.2);
-			
-			-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
-			   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
-			        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-			
-			float:left;
-			margin-right:10px;
-		}
-
-			.basket_image img {
-				width:100%;
-			}
-
-			#basket_panel h1 {
-				font-size:1.2em;
-				color: #333;
-				overflow:hidden;
-				line-height:10px !important;
-				padding:4px 0;
-			}
-		
-			#basket_panel .date {
-				font-size:1.1em;
-				color:#999;
-			}
-		
-		
-		
-	
-	
-	
-	
 /* Activity Monitor */
 	
 
@@ -770,7 +681,7 @@ li.menu_back a {
 	overflow-y: auto;
 }
 
-	#activities_spinner, #basket_spinner {
+	#activities_spinner {
 	float: right;
 	}
 	
@@ -1234,35 +1145,4 @@ li.menu_back a {
     right: 0;
 }
 
-
-
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-
-
-
-
-/* Basket - Redundant
-#jobstatus, #cartTotal {
-    font-size: 80%;
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    padding: 1px 2px;
-    background: red;
-    border-radius: 4px;
-}
-*/
 

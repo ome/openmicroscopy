@@ -89,7 +89,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.ChannelData;
 

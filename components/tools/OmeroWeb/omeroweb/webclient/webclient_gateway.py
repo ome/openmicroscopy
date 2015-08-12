@@ -3,7 +3,7 @@
 #
 # webclient_gateway
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2015 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -39,7 +39,7 @@ import omero.scripts
 
 from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
-from omero.cmd import Chmod
+from omero.cmd import Chmod2
 
 from omero.gateway import AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
@@ -1379,13 +1379,17 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             if not flag:
                 add_exps.append(nex._obj)
 
+        msgs = []
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(up_gr)
         if permissions is not None:
-            self.updatePermissions(group, permissions)
+            err = self.updatePermissions(group, permissions)
+            if err is not None:
+                msgs.append(err)
         admin_serv.addGroupOwners(up_gr, add_exps)
         admin_serv.removeGroupOwners(up_gr, rm_exps)
+        return msgs
 
     def updateMyAccount(self, experimenter, firstName, lastName, email,
                         defaultGroupId, middleName=None, institution=None):
@@ -1453,11 +1457,18 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         perms = str(permissions)
         logger.debug("Chmod of group ID: %s to %s" % (group.id, perms))
-        command = Chmod(type="/ExperimenterGroup",
-                        id=group.id,
-                        permissions=perms)
-        cb = self.c.submit(command, loops=120)
-        cb.close(True)
+        command = Chmod2(targetObjects={'ExperimenterGroup': [group.id]},
+                         permissions=perms)
+        cb = None
+        message = None
+        try:
+            cb = self.c.submit(command, loops=120)
+        except omero.CmdError, ex:
+            message = ex.err.message
+        finally:
+            if cb:
+                cb.close(True)
+        return message
 
     def saveObject(self, obj):
         """
@@ -1733,6 +1744,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
+        self.SERVICE_OPTS.setOmeroGroup('-1')
         img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
 
@@ -2397,16 +2409,36 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if 'link' in kwargs:
             self.link = 'link' in kwargs and kwargs['link'] or None
 
-    """
-    This override standard omero.gateway.ImageWrapper.getChannels
-    and catch exceptions.
-    """
+    def getPixelSizeUnits(self):
+        """
+        We use the pixelSizeX to find the appropriate units.
+        By default, we get the actual size in Microns, then use the
+        lengthunit filter to pick the most suitable size (same logic
+        is used for doing the length conversions).
+        However, if unit can't be converted, then we just return the
+        current unit's symbol.
+        """
+        from webgateway.templatetags.common_filters import lengthunit
+        try:
+            size = self.getPixelSizeX(units="MICROMETER")
+        except:
+            size = self.getPixelSizeX(True)
+            if size is not None:
+                return size.getSymbol()
+        if size is None:
+                size = 0
+        else:
+            size = size.getValue()
+        return lengthunit(size)
 
     def getPixelSizeXMicrons(self):
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeX(units="MICROMETER")
+        try:
+            size = self.getPixelSizeX(units="MICROMETER")
+        except:
+            size = self.getPixelSizeX(True)
         if size is None:
             return 0
         return size.getValue()
@@ -2415,7 +2447,10 @@ class ImageWrapper (OmeroWebObjectWrapper,
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeY(units="MICROMETER")
+        try:
+            size = self.getPixelSizeY(units="MICROMETER")
+        except:
+            size = self.getPixelSizeY(True)
         if size is None:
             return 0
         return size.getValue()
@@ -2424,12 +2459,19 @@ class ImageWrapper (OmeroWebObjectWrapper,
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeZ(units="MICROMETER")
+        try:
+            size = self.getPixelSizeZ(units="MICROMETER")
+        except:
+            size = self.getPixelSizeZ(True)
         if size is None:
             return 0
         return size.getValue()
 
     def getChannels(self, *args, **kwargs):
+        """
+        This override standard omero.gateway.ImageWrapper.getChannels
+        and catch exceptions.
+        """
         try:
             return super(ImageWrapper, self).getChannels(*args, **kwargs)
         except Exception:

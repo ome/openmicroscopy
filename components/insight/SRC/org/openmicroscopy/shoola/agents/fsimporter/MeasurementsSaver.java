@@ -23,8 +23,9 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 import java.util.ArrayList;
 import java.util.List;
 
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.AnnotationData;

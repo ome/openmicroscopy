@@ -7,16 +7,11 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import omeis.providers.re.quantum.QuantumStrategy;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Queues the contexts that define the spatial domain transformations that have
