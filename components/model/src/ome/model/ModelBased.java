@@ -22,7 +22,7 @@ import ome.util.ReverseModelMapper;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 2.5
  * @since 2.5
  * @see ome.util.ModelMapper
  * @see ome.util.ReverseModelMapper
