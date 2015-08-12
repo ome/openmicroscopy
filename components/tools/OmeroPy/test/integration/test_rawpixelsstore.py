@@ -12,6 +12,8 @@
 import omero
 import threading
 import library as lib
+import pytest
+__import__("sys")
 
 from omero.util.tiles import TileLoopIteration
 from omero.util.tiles import RPSTileLoop
@@ -221,6 +223,8 @@ class TestRPS(lib.ITest):
 
 class TestTiles(lib.ITest):
 
+    @pytest.mark.skipif("sys.version_info < (2,7)",
+                        reason="This fails with Python < 2.7 and Ice >= 3.5")
     def testTiles(self):
         from omero.model import PixelsI
         from omero.sys import ParametersI
