@@ -82,6 +82,23 @@
             return locatedArray;
         };
 
+        this.select_fileset_nodes = function (filesetId) {
+            // Selects nodes that match the filesetId
+            // Also returns list of node IDs
+            var locatedArray = [];
+            for(var key in locate_map) {
+                var idNode = locate_map[key];
+                for (var id in idNode) {
+                    var node = idNode[id];
+                    if (filesetId == node.data.obj.filesetId) {
+                        locatedArray.push(id);
+                        this.select_node(id);
+                    }
+                }
+            }
+            return locatedArray;
+        };
+
         this._locate_add = function(node) {
             // Update the mapping
             var inst = this;

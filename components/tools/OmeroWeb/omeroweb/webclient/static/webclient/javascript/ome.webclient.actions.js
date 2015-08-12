@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+// Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 // All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -130,13 +130,12 @@ OME.clear_selected = function(force_refresh) {
 // select all images from the specified fileset (if currently visible)
 OME.select_fileset_images = function(filesetId) {
     var datatree = $.jstree.reference('#dataTree');
-    // This is only used when deleting filesets to select them all
-    // Fundamentally it can not really work as the images may have
-    // been split into many datasets. Given that it doesn't really
-    // work, just select visual fields which are in the fileset
-    $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
-        datatree.select_node(this);
-    });
+    // This is only used for chgrp of filesets to select them all
+    // It only selects images that have been loaded in the tree,
+    // in preparation for removing them from the tree on "OK".
+    // However, it will not update child counts on datasets that
+    // have not been loaded in tree.
+    datatree.select_fileset_nodes(filesetId);
 };
 
 // actually called when share is edited, to refresh right-hand panel
@@ -424,9 +423,9 @@ OME.refreshThumbnails = function(options) {
 
 
 // Handle deletion of selected objects in jsTree in container_tags.html and containers.html
-OME.handleDelete = function() {
-    var datatree = $.jstree._focused();
-    var selected = datatree.get_selected();
+OME.handleDelete = function(deleteUrl, filesetCheckUrl) {
+    var datatree = $.jstree.reference($('#dataTree'));
+    var selected = datatree.get_selected(true);
 
     var del_form = $( "#delete-dialog-form" );
     del_form.dialog( "open" )
@@ -439,81 +438,125 @@ OME.handleDelete = function() {
 
     // set up form - process all the objects for data-types and children
     var ajax_data = [];
-    var q = false;
+    var askDeleteContents = false;
     var dtypes = {};
-    var first_parent;   // select this when we're done deleting
-    var notOwned = false;
-    selected.each(function (i) {
-        if (!first_parent) first_parent = datatree._get_parent(this);
-        var $this = $(this);
-        ajax_data[i] = $this.attr('id').replace("-","=");
-        var dtype = $this.attr('rel');
-        if (dtype in dtypes) dtypes[dtype] += 1;
-        else dtypes[dtype] = 1;
-        if (!q && $this.attr('rel').indexOf('image')<0) q = true;
-        console.log($this, $this.hasClass('isOwned'));
-        if (!$this.hasClass('isOwned')) notOwned = true;
-    });
-    if (notOwned) {
-        $("#deleteOthersWarning").show();
-    } else {
-        $("#deleteOthersWarning").hide();
+    // Parent to select after deletion
+    var firstParent = datatree.get_node(datatree.get_parent(selected[0]));
+
+    var disabledNodes = [];
+
+    function traverse(state) {
+        // Check if this state is one that we are looking for
+        var n = datatree.get_node(state);
+        disabledNodes.push(n);
+
+        if (n.children) {
+            $.each(n.children, function(index, child) {
+                 traverse(child);
+            });
+        }
+        datatree.disable_node(n);
+
     }
+
+    $.each(selected, function(index, node) {
+        // Add the nodes that are to be deleted
+        ajax_data.push(node.type + '=' + node.data.obj.id);
+        // What types are being deleted and how many (for pluralization)
+        var dtype = node.type;
+        if (dtype in dtypes) {
+            dtypes[dtype] += 1;
+        } else {
+            dtypes[dtype] = 1;
+        }
+        // If the node type is not 'image' then ask about deleting contents
+        if (!askDeleteContents && node.type != 'image') {
+            askDeleteContents = true;
+        }
+
+        // Disable the nodes marked for deletion
+        // Record them so they can easily be removed/re-enabled later
+        disabledNodes.push(node);
+        if (node.children) {
+            $.each(node.children, function(index, child) {
+                 traverse(child);
+            });
+        }
+        datatree.disable_node(node);
+    });
+
     var type_strings = [];
     for (var key in dtypes) {
-        if (key === "acquisition") key = "Plate Run";
         type_strings.push(key.capitalize() + (dtypes[key]>1 && "s" || ""));
     }
     var type_str = type_strings.join(" & ");    // For delete dialog: E.g. 'Project & Datasets'
     $("#delete_type").text(type_str);
-    if (!q) $("#delete_contents_form").hide();  // don't ask about deleting contents
+    if (!askDeleteContents) $("#delete_contents_form").hide();  // don't ask about deleting contents
 
     // callback when delete dialog is closed
     del_form.bind("dialogclose", function(event, ui) {
         if (del_form.data("clicked_button") == "Yes") {
             var delete_anns = $("#delete_anns").prop('checked');
             var delete_content = true;      // $("#delete_content").prop('checked');
-            if (delete_content) ajax_data[ajax_data.length] = 'child=true';
-            if (delete_anns) ajax_data[ajax_data.length] = 'anns=true';
-            var url = del_form.attr('data-url');
-            datatree.deselect_all();
+            if (delete_content) ajax_data[ajax_data.length] = 'child=on';
+            if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
+            var url = deleteUrl;
+
             $.ajax({
-                async : false,
                 url: url,
                 data : ajax_data.join("&"),
                 dataType: "json",
                 type: "POST",
                 success: function(r){
+                    //TODO Makeshift error response should probably be removed?
                     if(eval(r.bad)) {
-                          $.jstree.rollback(data.rlbk);
-                          alert(r.errs);
+                        $.each(disabledNodes, function(index, node) {
+                             datatree.enable_node(node);
+                        });
+                        alert(r.errs);
                       } else {
-                          // If deleting 'Plate Run', clear selection
-                          if (type_str.indexOf('Plate Run') > -1) {
-                            OME.clear_selected(true);
-                          } else {
-                            // otherwise, select parent
-                            OME.tree_selection_changed();   // clear center and right panels etc
-                            first_parent.children("a").click();
-                          }
-                          // remove node from tree
-                          datatree.delete_node(selected);
-                          OME.refreshActivities();
+                            // Update the central panel in case delete removes an icon
+                            $.each(selected, function(index, node) {
+                                var e = {'type': 'delete_node'};
+                                var data = {'node': node,
+                                            'old_parent': firstParent};
+                                update_thumbnails_panel(e, data);
+                            });
+
+                            datatree.delete_node(selected);
+
+                            // Update the central panel with new selection
+                            datatree.deselect_all();
+                            datatree.select_node(firstParent);
+
+                            $.each(disabledNodes, function(index, node) {
+                                //TODO Make use of server calculated update like chgrp?
+                                updateParentRemoveNode(datatree, node, firstParent);
+                                removeDuplicateNodes(datatree, node);
+                            });
+
+                            OME.refreshActivities();
                       }
                 },
                 error: function(response) {
-                    $.jstree.rollback(data.rlbk);
+                    $.each(disabledNodes, function(index, node) {
+                         datatree.enable_node(node);
+                    });
                     alert("Internal server error. Cannot remove object.");
                 }
+            });
+        } else {
+            // Cancelled, re-enable nodes
+            $.each(disabledNodes, function(index, node) {
+                 datatree.enable_node(node);
             });
         }
     });
 
     // Check if delete will attempt to partially delete a Fileset.
     var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
-        $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span'),
-        filesetCheckUrl = del_form.attr('data-fileset-check-url');
-    $.get(filesetCheckUrl + "?" + OME.get_tree_selection(), function(html){
+        $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
+    $.get(filesetCheckUrl + OME.get_tree_selection(), function(html){
         if($('div.split_fileset', html).length > 0) {
             var $del_form_content = del_form.children().hide();
             del_form.append(html);
@@ -523,7 +566,7 @@ OME.handleDelete = function() {
             del_form.bind("dialogclose", function(event, ui) {
                 $deleteYesBtn.show();
                 $deleteNoBtn.text("No");
-                $("#chgrp_split_filesets", del_form).remove();
+                $(".split_filesets_info", del_form).remove();
                 $del_form_content.show();
             });
         }

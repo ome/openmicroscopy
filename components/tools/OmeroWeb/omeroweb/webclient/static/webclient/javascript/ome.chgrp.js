@@ -95,16 +95,11 @@ $(function() {
     var checkFilesetSplit = function checkFilesetSplit () {
         // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
         $group_chooser.hide();                      // hide group_chooser while we wait...
-        var sel = OME.get_tree_selection(),
-            selImages = (sel.indexOf('Image') > -1);
+        var sel = OME.get_tree_selection();
         $.get(webindex_url + "fileset_check/chgrp?" + sel, function(html){
             if($('div.split_fileset', html).length > 0) {
                 $(html).appendTo($chgrpform);
                 $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("Move All");
-                var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
-                if (selImages) {
-                    OME.select_fileset_images(filesetId);
-                }
             } else {
                 $group_chooser.show();
             }
@@ -189,7 +184,7 @@ $(function() {
         $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("OK");
         $newbtn.hide();
         $("#move_group_tree").show();
-        $("#chgrp_split_filesets").remove();
+        $(".split_filesets_info", $chgrpform).remove();
     };
 
     // set-up the dialog
@@ -206,10 +201,17 @@ $(function() {
             },
             "OK": function() {
                 var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
-                // If we have split filesets, on the first click 'OK', we ask 'Move All'?
-                if ($("#chgrp_split_filesets .split_fileset").length > 0 && $thisBtn.text() == 'Move All') {
+                // If we have split filesets, first submission is to confirm 'Move All'?
+                // We hide the split_filesets info panel and rename submit button to 'OK'
+                if ($(".split_filesets_info .split_fileset", $chgrpform).length > 0 && $thisBtn.text() == 'Move All') {
+                    var filesetId = $('input[name="fileset"]', $chgrpform).val();     // TODO - handle > 1 filesetId
+                    var sel = OME.get_tree_selection(),
+                        selImages = (sel.indexOf('Image') > -1);
+                    if (selImages) {
+                        OME.select_fileset_images(filesetId);
+                    }
                     $("#group_chooser").show();
-                    $("#chgrp_split_filesets").hide();
+                    $(".split_filesets_info", $chgrpform).hide();
                     $thisBtn.text('OK');
                     return false;
                 }
@@ -217,9 +219,10 @@ $(function() {
             },
             "Cancel": function() {
                 resetChgrpForm();
-                var datatree = $.jstree._focused();
-                datatree.deselect_all();
-                datatree.reselect();        // revert to previous selection
+                // TODO - handle this in new jsTree. Reset to original selection if "Move All" has changed selection
+                // var datatree = $.jstree._focused();
+                // datatree.deselect_all();
+                // datatree.reselect();        // revert to previous selection
                 $( this ).dialog( "close" );
             }
         }
@@ -244,10 +247,79 @@ $(function() {
                 data.push({'name':'target_id', 'value': chgrp_target.parent().attr('id')});
             }
         },
-        success: function() {
+        success: function(data) {
+            var inst = $.jstree.reference('#dataTree');
+            var remove = data.update.remove;
+            var childless = data.update.childless;
+
+            var removalClosure = [];
+            var unremovedParentClosure;
+            var removeType = function(type, ids) {
+                $.each(ids, function(index, id) {
+                    var removeLocated = inst.locate_node(type + '-' + id);
+                    if (removeLocated) {
+                        $.each(removeLocated, function(index, val) {
+                            if (unremovedParentClosure !== undefined &&
+                                val.id === unremovedParentClosure.id) {
+                                // The new selection is also to be deleted, so select its parent
+                                unremovedParentClosure = inst.get_node(inst.get_parent(val));
+                            }
+                            else if (inst.is_selected(val)) {
+                                // This node was selected, mark its parent to be selected instead
+                                unremovedParentClosure = inst.get_node(inst.get_parent(val));
+                            }
+                        // Accumulate nodes for deletion so the new selection can occur before delete
+                        removalClosure.push(val);
+                        });
+                    }
+                });
+            };
+
+            // Find and remove
+            // This is done in a specific order so that the correct node can be selected
+            var typeOrder = ['image', 'acquisition', 'dataset', 'plate', 'project', 'screen'];
+            $.each(typeOrder, function(index, type) {
+                if (remove.hasOwnProperty(type)) {
+                    removeType(type, remove[type]);
+                }
+            });
+
+            // Select the closest parent that was not part of the chgrp
+            inst.deselect_all(true);
+            inst.select_node(unremovedParentClosure);
+
+            // Update the central panel in case chgrp removes an icon
+            $.each(removalClosure, function(index, node) {
+                var e = {'type': 'delete_node'};
+                var data = {'node': node,
+                            'old_parent': inst.get_parent(node)};
+                update_thumbnails_panel(e, data);
+                inst.delete_node(node);
+            });
+
+            function markChildless(ids, dtype) {
+                $.each(ids, function(index, id) {
+                    var childlessLocated = inst.locate_node(property + '-' + id);
+                    // If some nodes were found, make them childless
+                    if (childlessLocated) {
+                        $.each(childlessLocated, function(index, node) {
+                            node.state.loaded = true;
+                            inst.redraw_node(node);
+                        });
+
+                    }
+                });
+            }
+
+            // Find and mark childless
+            for (var property in childless) {
+                if (childless.hasOwnProperty(property)) {
+                    markChildless(childless[property], property);
+                }
+
+            }
+
             OME.showActivities();
-            var selected = $.jstree._focused().get_selected();
-            $("#dataTree").jstree('remove', selected);
         }
     });
 

@@ -559,7 +559,7 @@
 	        color: hsl(210,10%,50%);
 	    }
 
-        #chgrp_split_filesets .split_fileset {
+        .split_filesets_info .split_fileset {
             font-size: 13px;
             line-height: 15px;
         }

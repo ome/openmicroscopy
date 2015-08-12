@@ -1,6 +1,6 @@
 {% comment %}
 /**
-  Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2012-2015 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -169,7 +169,7 @@ $(document).ready(function() {
 
     // This is called directly by various jstree plugins
     // E.g. omecut_plugin.js as well as the jstree in containers.html
-    update_thumbnails_panel = function(event, data) {
+    window.update_thumbnails_panel = function(event, data) {
         var inst = $.jstree.reference('#dataTree');
 
         // Get the container that is currently rendered
