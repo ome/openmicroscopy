@@ -118,6 +118,9 @@ public class ROIAction
 				setToolTip("Propagate the selected ROI through " +
 						"Time and Z Sections.");
 				break;
+			case TAG:
+                setName("Tag");
+                setToolTip("Tag the selected shapes.");
 		}
 	}
 	
@@ -153,6 +156,9 @@ public class ROIAction
 				break;
 			case PROPAGATE:
 				controller.propagateROI();
+				break;
+			case TAG:
+                controller.loadTags();
 		}
 	}	
 }

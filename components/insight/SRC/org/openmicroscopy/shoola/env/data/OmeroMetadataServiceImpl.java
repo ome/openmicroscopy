@@ -205,7 +205,7 @@ class OmeroMetadataServiceImpl
 	{
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(annotation.getId());
-		List l = gateway.findAnnotationLinks(ctx, object.getClass().getName(),
+		List l = gateway.findAnnotationLinks(ctx, object.getClass(),
 				-1, ids);
 		if (l == null) return false;
 		return l.size() > 0;
@@ -1280,7 +1280,7 @@ class OmeroMetadataServiceImpl
 			} 
 		}
 		List l = null;
-		String klass = PojoMapper.getModelType(type).getName();
+		Class klass = PojoMapper.getModelType(type);
 		if (ids.size() != 0)
 			l = gateway.findAnnotationLinks(ctx, klass, id, ids);
 		if (l != null) {
@@ -2480,5 +2480,51 @@ class OmeroMetadataServiceImpl
         if (rootType == null || CollectionUtils.isEmpty(rootIDs))
             throw new IllegalArgumentException("No node specified");
         return gateway.loadLogFiles(ctx, rootType, rootIDs);
+    }
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroMetadataService#saveData(SecurityContext, Map, Map, long)
+     */
+    public void saveAnnotationData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID)
+                    throws DSOutOfServiceException, DSAccessException
+    {
+        Entry<DataObject, List<AnnotationData>> e;
+        Iterator<Entry<DataObject, List<AnnotationData>>> j;
+        List<AnnotationData> annotations;
+        Iterator<AnnotationData> i;
+        AnnotationData ann;
+        if (toAdd != null && toAdd.size() > 0) {
+            j = toAdd.entrySet().iterator();
+            while (j.hasNext()) {
+               e = j.next();
+               annotations = prepareAnnotationToAdd(ctx, e.getValue());
+               if (annotations.size() > 0) {
+                   i = annotations.iterator();
+                   while (i.hasNext()) {
+                       ann = i.next();
+                       if (ann != null) {
+                           linkAnnotation(ctx, e.getKey(), ann);
+                       }
+                   }
+               }
+           }
+        }
+        if (toRemove != null && toRemove.size() > 0) {
+            j = toRemove.entrySet().iterator();
+            while (j.hasNext()) {
+               e = j.next();
+               annotations = e.getValue();
+               i = annotations.iterator();
+               while (i.hasNext()) {
+                   ann = i.next();
+                   if (ann != null) {
+                       removeAnnotation(ctx, ann, e.getKey());
+                   }
+               }
+           }
+        }
     }
 }

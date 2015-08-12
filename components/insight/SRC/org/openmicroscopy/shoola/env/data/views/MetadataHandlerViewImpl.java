@@ -473,4 +473,19 @@ class MetadataHandlerViewImpl
 			rootIDs, annotationType, nsInclude, nsExlcude);
 		return cmd.exec(observer);
 	}
+
+	
+    /**
+     * Implemented as specified by the view interface.
+     * @see MetadataHandlerView#annotateData(SecurityContext, Map, Map, long,
+     * AgentEventListener)
+     */
+    public CallHandle annotateData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID,
+            AgentEventListener observer) {
+        BatchCallTree cmd = new StructuredAnnotationSaver(ctx, toAdd, toRemove,
+                userID);
+        return cmd.exec(observer);
+    }
 }

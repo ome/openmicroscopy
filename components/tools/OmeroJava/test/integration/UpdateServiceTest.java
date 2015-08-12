@@ -574,11 +574,38 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
 
         //Create a roi
+        int n = 0;
         ROIData roiData = new ROIData();
         roiData.setImage((Image) i.proxy());
-        //Add shape
-        RectangleData r = new RectangleData(0, 0, 1, 1);
+        //Add rectangle
+        ShapeData r = new RectangleData(0, 0, 1, 1);
         roiData.addShapeData(r);
+        n++;
+        //Add ellipse
+        r = new EllipseData(2, 2, 1, 1);
+        roiData.addShapeData(r);
+        n++;
+        //Add point
+        r = new PointData(1, 1);
+        roiData.addShapeData(r);
+        n++;
+        //Add line
+        r = new LineData(0, 1, 1, 2);
+        roiData.addShapeData(r);
+        n++;
+        //Add polygon
+        String points = "points[10,10] points1[10,10] points2[10,10]";
+        Polygon rect = new PolygonI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        r = new PolygonData(rect);
+        roiData.addShapeData(r);
+        n++;
+        //Add polyline
+        Polyline polyline = new PolylineI();
+        polyline.setPoints(omero.rtypes.rstring(points));
+        r = new PolylineData(polyline);
+        roiData.addShapeData(r);
+        n++;
         Roi roi = (Roi) iUpdate.saveAndReturnObject(roiData.asIObject());
         //annotate both roi and the shape.
         RoiAnnotationLink ral = new RoiAnnotationLinkI();
@@ -590,7 +617,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertEquals(ral.getChild().getId().getValue(), data.getId().getValue());
         assertEquals(ral.getParent().getId().getValue(), roi.getId().getValue());
         List<Shape> shapes = roi.copyShapes();
-        assertEquals(1, shapes.size());
+        assertEquals(n, shapes.size());
         Iterator<Shape> k = shapes.iterator();
         while (k.hasNext()) {
             Shape shape = k.next();

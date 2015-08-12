@@ -155,13 +155,13 @@ import omero.grid.SharedResourcesPrx;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.grid.WellColumn;
-import omero.model.Annotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
+import omero.model.EllipseI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -171,24 +171,27 @@ import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.LabelI;
 import omero.model.Laser;
 import omero.model.LogicalChannel;
+import omero.model.MaskI;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
-import omero.model.PixelsI;
 import omero.model.PixelsType;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
-import omero.model.PlateI;
+import omero.model.PointI;
+import omero.model.PolygonI;
+import omero.model.PolylineI;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.RectI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -205,6 +208,7 @@ import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.EllipseData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -216,15 +220,20 @@ import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
-import pojos.PixelsData;
+import pojos.MaskData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
+import pojos.PointData;
+import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
+import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TextData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
@@ -961,70 +970,18 @@ class OMEROGateway
 		else if (WellSample.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
+		else if (RectangleData.class.equals(klass) || RectI.class.equals(klass) ||
+		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
+		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
+		        PolygonData.class.equals(klass) || PolygonI.class.equals(klass) ||
+		        PolylineData.class.equals(klass) || PolylineI.class.equals(klass) ||
+		        TextData.class.equals(klass) || LabelI.class.equals(klass) ||
+		        MaskData.class.equals(klass) || MaskI.class.equals(klass)) {
+		    table = "ShapeAnnotationLink";
+		} else if (ROIData.class.equals(klass)) {
+		    table = "RoiAnnotationLink";
+		}
 		else table = "AnnotationAnnotationLink";
-		return table;
-	}
-
-	/**
-	 * Determines the table name corresponding to the specified class.
-	 *
-	 * @param klass The class to analyze.
-	 * @return See above.
-	 */
-	private String getTableForAnnotationLink(String klass)
-	{
-		String table = null;
-		if (klass == null) return table;
-		if (klass.equals(Dataset.class.getName()))
-			table = "DatasetAnnotationLink";
-		else if (klass.equals(Project.class.getName()))
-			table = "ProjectAnnotationLink";
-		else if (klass.equals(Image.class.getName()))
-			table = "ImageAnnotationLink";
-		else if (klass.equals(Pixels.class.getName()))
-			table = "PixelAnnotationLink";
-		else if (klass.equals(Annotation.class.getName()))
-			table = "AnnotationAnnotationLink";
-		else if (klass.equals(DatasetData.class.getName()))
-			table = "DatasetAnnotationLink";
-		else if (klass.equals(ProjectData.class.getName()))
-			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageData.class.getName()))
-			table = "ImageAnnotationLink";
-		else if (klass.equals(PixelsData.class.getName()))
-			table = "PixelAnnotationLink";
-		else if (klass.equals(Screen.class.getName())) table =
-			"ScreenAnnotationLink";
-		else if (klass.equals(Plate.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(ScreenData.class.getName()))
-			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateData.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(DatasetI.class.getName()))
-			table = "DatasetAnnotationLink";
-		else if (klass.equals(ProjectI.class.getName()))
-			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageI.class.getName()))
-			table = "ImageAnnotationLink";
-		else if (klass.equals(PixelsI.class.getName()))
-			table = "PixelAnnotationLink";
-		else if (klass.equals(ScreenI.class.getName()))
-			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateI.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(ScreenData.class.getName()))
-			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateData.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(TagAnnotationData.class.getName()))
-			table = "AnnotationAnnotationLink";
-		else if (klass.equals(PlateAcquisitionData.class.getName()))
-			table = "PlateAcquisitionAnnotationLink";
-		else if (klass.equals(PlateAcquisitionI.class.getName()))
-			table = "PlateAcquisitionAnnotationLink";
-		else if (klass.equals(PlateAcquisition.class.getName()))
-			table = "PlateAcquisitionAnnotationLink";
 		return table;
 	}
 
@@ -1807,7 +1764,7 @@ class OMEROGateway
 	{
 		try {
 		    IQueryPrx service = gw.getQueryService(ctx);
-			String table = getTableForAnnotationLink(type.getName());
+			String table = getAnnotationTableLink(type);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link";
 			sql +=" left outer join link.child as child";
@@ -2487,7 +2444,7 @@ class OMEROGateway
 	{
 		try {
 		    IQueryPrx service = gw.getQueryService(ctx);
-			String table = getTableForAnnotationLink(type.getName());
+			String table = getAnnotationTableLink(type);
 			if (table == null) return null;
 			StringBuffer buffer = new StringBuffer();
 
@@ -2527,13 +2484,13 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	List findAnnotationLinks(SecurityContext ctx, String parentType,
+	List findAnnotationLinks(SecurityContext ctx, Class parentType,
 			long parentID, List<Long> children)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 		    IQueryPrx service = gw.getQueryService(ctx);
-			String table = getTableForAnnotationLink(parentType);
+			String table = getAnnotationTableLink(parentType);
 			if (table == null) return null;
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link");
@@ -6110,7 +6067,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
+	Collection<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
 			List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException
 	{
