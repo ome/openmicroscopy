@@ -1420,7 +1420,7 @@
                                 "action": function(){
                                     var deleteUrl = "{% url 'manage_action_containers' 'deletemany' %}",
                                         filesetCheckUrl = "{% url 'fileset_check' 'delete' %}?";
-                                    OME.handleDelete(deleteUrl, filesetCheckUrl);
+                                    OME.handleDelete(deleteUrl, filesetCheckUrl, {{ ome.user.id }});
                                 }
                             };
 
@@ -1720,7 +1720,7 @@
         $('#deleteButton').click(function() {
             var deleteUrl = "{% url 'manage_action_containers' 'deletemany' %}",
                 filesetCheckUrl = "{% url 'fileset_check' 'delete' %}?";
-            OME.handleDelete(deleteUrl, filesetCheckUrl);
+            OME.handleDelete(deleteUrl, filesetCheckUrl, {{ ome.user.id }});
         });
 
         $('#refreshButton').click(function() {

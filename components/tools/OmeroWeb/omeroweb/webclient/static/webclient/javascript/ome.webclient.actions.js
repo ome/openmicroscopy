@@ -423,7 +423,7 @@ OME.refreshThumbnails = function(options) {
 
 
 // Handle deletion of selected objects in jsTree in container_tags.html and containers.html
-OME.handleDelete = function(deleteUrl, filesetCheckUrl) {
+OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var datatree = $.jstree.reference($('#dataTree'));
     var selected = datatree.get_selected(true);
 
@@ -458,7 +458,7 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl) {
         datatree.disable_node(n);
 
     }
-
+    var notOwned = false;
     $.each(selected, function(index, node) {
         // Add the nodes that are to be deleted
         ajax_data.push(node.type + '=' + node.data.obj.id);
@@ -473,6 +473,9 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl) {
         if (!askDeleteContents && node.type != 'image') {
             askDeleteContents = true;
         }
+        if (node.data.obj.ownerId !== userId) {
+            notOwned = true;
+        }
 
         // Disable the nodes marked for deletion
         // Record them so they can easily be removed/re-enabled later
@@ -484,6 +487,12 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl) {
         }
         datatree.disable_node(node);
     });
+
+    if (notOwned) {
+        $("#deleteOthersWarning").show();
+    } else {
+        $("#deleteOthersWarning").hide();
+    }
 
     var type_strings = [];
     for (var key in dtypes) {
