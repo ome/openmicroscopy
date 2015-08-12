@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @version 3.0
  * @since OMERO-3.0
  */
 public abstract class SemanticType {
