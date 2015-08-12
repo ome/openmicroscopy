@@ -108,8 +108,16 @@ class TestChgrp(IWebTest):
             "new_container_name": projectName,
             "new_container_type": "project",
         }
-        data = _csrf_post_response(django_client, request_url, data)
-        assert data.content == "OK"
+        data = _csrf_post_response_json(django_client, request_url, data)
+        expected = {"update": {"childless": {"project": [],
+                                             "orphaned": False,
+                                             "dataset": []},
+                               "remove": {"project": [],
+                                          "plate": [],
+                                          "screen": [],
+                                          "image": [],
+                                          "dataset": [dataset.id.val]}}}
+        assert data == expected
 
         activities_url = reverse('activities_json')
 
@@ -164,8 +172,16 @@ class TestChgrp(IWebTest):
             "Dataset": dataset.id.val,
             "target_id": "project-%s" % project.id.val,
         }
-        data = _csrf_post_response(django_client, request_url, data)
-        assert data.content == "OK"
+        data = _csrf_post_response_json(django_client, request_url, data)
+        expected = {"update": {"childless": {"project": [],
+                                             "orphaned": False,
+                                             "dataset": []},
+                               "remove": {"project": [],
+                                          "plate": [],
+                                          "screen": [],
+                                          "image": [],
+                                          "dataset": [dataset.id.val]}}}
+        assert data == expected
 
         activities_url = reverse('activities_json')
 
@@ -204,5 +220,12 @@ class TestChgrp(IWebTest):
 def _get_response_json(django_client, request_url,
                        query_string, status_code=200):
     rsp = _get_response(django_client, request_url, query_string, status_code)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
+def _csrf_post_response_json(django_client, request_url,
+                             query_string, status_code=200):
+    rsp = _csrf_post_response(django_client, request_url, query_string, status_code)
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
