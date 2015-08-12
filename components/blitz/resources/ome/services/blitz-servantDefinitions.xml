@@ -357,6 +357,7 @@
 
   <bean id="graphRequestFactory" class="omero.cmd.graphs.GraphRequestFactory">
       <constructor-arg ref="aclVoter"/>
+      <constructor-arg ref="roles"/>
       <constructor-arg ref="systemTypes"/>
       <constructor-arg ref="graphPathBean"/>
       <constructor-arg ref="ome.services.delete.Deletion"/>

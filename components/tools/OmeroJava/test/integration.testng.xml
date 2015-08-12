@@ -10,13 +10,6 @@
     <packages>
       <package name="integration.*"/>
     </packages>
-    <classes>
-       <class name="integration.ExporterTest">
-    <methods>
-    <exclude name=".*" />
-    </methods>
-       </class>
-    </classes>
   </test>
   <test name="broken">
     <groups>

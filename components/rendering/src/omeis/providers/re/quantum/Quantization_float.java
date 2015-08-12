@@ -168,7 +168,7 @@ public class Quantization_float extends QuantumStrategy {
      *
      * @param qd
      *            Quantum definition object, contained mapping data.
-     * @param type
+     * @param pixels
      *            The pixels
      */
     public Quantization_float(QuantumDef qd, Pixels pixels) {

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.NetworkChecker
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,8 +21,6 @@
  */
 package omero.gateway.util;
 
-//Java imports
-
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -35,10 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import omero.log.Logger;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /**
  * Checks if the network is still up.
@@ -75,9 +67,7 @@ public class NetworkChecker {
      * @param address
      *            The address of the server the client is connected to or
      *            <code>null</code>.
-     * @param asIJPlugin
-     *            Pass <code>true</code> if it runs as an ImageJ plugin,
-     *            <code>false</code> otherwise.
+     * @param logger Reference to the logger.
      */
     public NetworkChecker(String address, Logger logger) {
         this.address = address;
@@ -111,6 +101,8 @@ public class NetworkChecker {
      * Returns <code>true</code> if the network is still up, otherwise throws an
      * <code>UnknownHostException</code>. This tests if the adapter is ready.
      *
+     * @param useCachedValue Pass <code>true</code> if we use the cached value,
+     *                       <code>false</code> otherwise.
      * @return See above.
      * @throws Exception
      *             Thrown if the network is down.
@@ -196,14 +188,16 @@ public class NetworkChecker {
 
     /**
      * Logs the error.
-     * 
+     *
      * @param msg
      *            The message to log
      * @param objs
      *            The objects to add to the message.
      */
     void log(String msg, Object... objs) {
-        logger.debug(this, String.format(msg, objs));
+        if (logger != null) {
+            logger.debug(this, String.format(msg, objs));
+        }
     }
 
 }

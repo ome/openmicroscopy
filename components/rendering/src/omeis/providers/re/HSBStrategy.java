@@ -7,7 +7,6 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,11 +17,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
@@ -30,6 +27,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.util.PixelData;
+
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;

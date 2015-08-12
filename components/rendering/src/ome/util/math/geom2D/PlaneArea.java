@@ -7,12 +7,8 @@
 
 package ome.util.math.geom2D;
 
-// Java imports
 import java.awt.Shape;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.util.mem.Copiable;
 
 /**

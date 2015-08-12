@@ -20,8 +20,6 @@
  */
 package omero.gateway;
 
-//Java imports
-
 /**
  * Holds hostname and port of an OMERO server
  * 
@@ -60,6 +58,7 @@ public class ServerInformation {
     }
 
     /**
+     * Return the hostname.
      * @return The hostname
      */
     public String getHostname() {
@@ -77,6 +76,7 @@ public class ServerInformation {
     }
 
     /**
+     * Return the port
      * @return The port
      */
     public int getPort() {

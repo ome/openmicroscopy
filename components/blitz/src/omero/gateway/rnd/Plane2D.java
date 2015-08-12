@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.Plane2D 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
@@ -24,109 +22,98 @@ package omero.gateway.rnd;
 
 import omero.util.ReadOnlyByteArray;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Holds structure used to mapped the raw pixels data.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class Plane2D
 {
-	
-	/** The number of bytes per pixel. */
-	private int 				bytesPerPixel;
-	
-	/** The number of timepoint along the x-axis. */
-	private int					sizeX;
-	
-	/** The original array. */
-	private ReadOnlyByteArray	data;
-	
-	/** Strategy used to transform original data. */
-	private BytesConverter		strategy;
-	
-	/** The converted raw data. */
-	private double[][]			mappedData;
-	
-	/** 
-	 * Determines the offset value.
-	 * 
-	 * @param x	The x-coordinate.
-	 * @param y	The y-coordinate.
-	 * @return See above.
-	 */
-	private int calculateOffset(int x, int y)
-	{
-		return bytesPerPixel*(sizeX*y+x);
-	}
-	
-	/**
-	 * Converts the raw data.
-	 * 
-	 * @param sizeY The number of pixels along the y-axis.
-	 */
-	private void mappedData(int sizeY)
-	{
-		mappedData = new double[sizeX][sizeY];
-		int offset;
-		for (int x = 0; x < sizeX; x++) {
-			for (int y = 0; y < sizeY; y++) {
-				offset = calculateOffset(x, y);
-				mappedData[x][y] = strategy.pack(data, offset, bytesPerPixel);
-			}
-		}
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param data			The array of byte.
-	 * @param sizeX			The number of pixels along the x-axis.
-	 * @param sizeY			The number of pixels along the y-axis.
-	 * @param bytesPerPixel	The number of bytes per pixel.
-	 * @param strategy		Strategy to transform pixel.
-	 */
-	public Plane2D(ReadOnlyByteArray data, int sizeX, int sizeY, 
-						int bytesPerPixel,
-						BytesConverter strategy)
-	{
-		this.bytesPerPixel = bytesPerPixel;
-		this.data = data;
-		this.strategy = strategy;
-		this.sizeX = sizeX;
-		mappedData(sizeY);
-	}
-	
-	/**
-	 * Returns the pixels value at the point specified by the x-coordinate
-	 * and y-coordinate.
-	 * 
-	 * @param x	The x-coordinate.
-	 * @param y	The y-coordinate.
-	 * @return See above.
-	 */
-	public double getPixelValue(int x, int y)
-	{
-		return mappedData[x][y];
-	}
-	
-	/**
+
+    /** The number of bytes per pixel. */
+    private int bytesPerPixel;
+
+    /** The number of elements along the x-axis. */
+    private int sizeX;
+
+    /** The original array. */
+    private ReadOnlyByteArray data;
+
+    /** Strategy used to transform original data. */
+    private BytesConverter strategy;
+
+    /** The converted raw data. */
+    private double[][] mappedData;
+
+    /** 
+     * Determines the offset value.
+     *
+     * @param x The x-coordinate.
+     * @param y The y-coordinate.
+     * @return See above.
+     */
+    private int calculateOffset(int x, int y)
+    {
+        return bytesPerPixel*(sizeX*y+x);
+    }
+
+    /**
+     * Converts the raw data.
+     *
+     * @param sizeY The number of pixels along the y-axis.
+     */
+    private void mappedData(int sizeY)
+    {
+        mappedData = new double[sizeX][sizeY];
+        int offset;
+        for (int x = 0; x < sizeX; x++) {
+            for (int y = 0; y < sizeY; y++) {
+                offset = calculateOffset(x, y);
+                mappedData[x][y] = strategy.pack(data, offset, bytesPerPixel);
+            }
+        }
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param data The array of byte.
+     * @param sizeX The number of pixels along the x-axis.
+     * @param sizeY The number of pixels along the y-axis.
+     * @param bytesPerPixel The number of bytes per pixel.
+     * @param strategy Strategy to transform pixel.
+     */
+    public Plane2D(ReadOnlyByteArray data, int sizeX, int sizeY,
+            int bytesPerPixel, BytesConverter strategy)
+    {
+        this.bytesPerPixel = bytesPerPixel;
+        this.data = data;
+        this.strategy = strategy;
+        this.sizeX = sizeX;
+        mappedData(sizeY);
+    }
+
+    /**
+     * Returns the pixels value at the point specified by the x-coordinate
+     * and y-coordinate.
+     *
+     * @param x The x-coordinate.
+     * @param y The y-coordinate.
+     * @return See above.
+     */
+    public double getPixelValue(int x, int y)
+    {
+        return mappedData[x][y];
+    }
+
+    /**
      * Returns the raw data value at the given offset
-     * 
+     *
      * @param offset The offset
      * @return See above.
      */

@@ -161,7 +161,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getFillColor();
 		if (value == null) return DEFAULT_FILL_COLOUR;
-		return new Color(value.getValue(), true);
+		Color c = new Color(value.getValue(), true);
+        if (c.getAlpha() == 0) return new Color(value.getValue(), false);
+        return c;
 	}
 	
 	/**
@@ -190,7 +192,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getStrokeColor();
 		if (value == null) return DEFAULT_STROKE_COLOUR;
-		return new Color(value.getValue(), true);
+		Color c = new Color(value.getValue(), true);
+		if (c.getAlpha() == 0) return new Color(value.getValue(), false);
+		return c;
 	}
 
 	/**
@@ -415,9 +419,17 @@ public class ShapeSettingsData
 		Length size = shape.getFontSize();
 		if (size != null) {
 		    try {
+		        if (size.getUnit().equals(UnitsLength.PIXEL)) {
+		            return size.getValue();
+		        }
                 return (new LengthI(size, UnitsLength.POINT)).getValue();
-            } catch (BigResult e) {
-                return e.result.doubleValue();
+            } catch (Exception e) {
+                if (e instanceof BigResult) {
+                    BigResult ex = (BigResult) e;
+                    if (ex.result != null) {
+                        return ex.result.doubleValue();
+                    }
+                }
             }
 		}
 		return DEFAULT_FONT_SIZE;

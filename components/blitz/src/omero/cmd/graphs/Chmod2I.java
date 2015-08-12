@@ -52,8 +52,10 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.graphs.GroupPredicate;
 import ome.system.EventContext;
 import ome.system.Login;
+import ome.system.Roles;
 import ome.util.Utils;
 import omero.cmd.Chmod2;
 import omero.cmd.Chmod2Response;
@@ -75,6 +77,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.CHMOD);
 
     private final ACLVoter aclVoter;
+    private final Roles securityRoles;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Deletion deletionInstance;
@@ -88,6 +91,9 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     private GraphTraversal graphTraversal;
     private Set<Long> acceptableGroups;
 
+    private GraphTraversal.PlanExecutor unlinker;
+    private GraphTraversal.PlanExecutor processor;
+
     private int targetObjectCount = 0;
     private int deletedObjectCount = 0;
     private int changedObjectCount = 0;
@@ -95,6 +101,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     /**
      * Construct a new <q>chmod</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
@@ -102,9 +109,11 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
      * @param graphPolicy the graph policy to apply for chmod
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Chmod2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
+    public Chmod2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
+        this.securityRoles = securityRoles;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
@@ -121,7 +130,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(dryRun ? 1 : 3);
+        helper.setSteps(dryRun ? 4 : 6);
 
         try {
             perm1 = (Long) Utils.internalForm(Permissions.parseString(permissions));
@@ -157,8 +166,15 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         }
         graphPolicyAdjusters = null;
 
+        graphPolicyWithOptions.registerPredicate(new GroupPredicate(securityRoles));
+
+        GraphTraversal.Processor processor = new InternalProcessor();
+        if (dryRun) {
+            processor = GraphUtil.disableProcessor(processor);
+        }
+
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -224,10 +240,20 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                 }
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets(false);
+                graphTraversal.assertNoPolicyViolations();
                 return null;
             case 2:
-                graphTraversal.processTargets();
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
+                unlinker = graphTraversal.unlinkTargets(false);
+                graphTraversal = null;
+                return null;
+            case 4:
+                unlinker.execute();
+                return null;
+            case 5:
+                processor.execute();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
@@ -301,6 +327,11 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         } else {
             graphPolicyAdjusters.add(adjuster);
         }
+    }
+
+    @Override
+    public int getStepProvidingCompleteResponse() {
+        return 0;
     }
 
     @Override

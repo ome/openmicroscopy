@@ -7,13 +7,9 @@
 
 package omeis.providers.re.data;
 
-// Java imports
-
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.util.PixelData;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;

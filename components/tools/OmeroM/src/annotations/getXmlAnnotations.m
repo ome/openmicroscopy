@@ -1,4 +1,4 @@
-function xas = getXmlAnnotations(session, ids)
+function xas = getXmlAnnotations(session, ids, varargin)
 % GETXMLANNOTATIONS Retrieve XML annotations from the OMERO server
 %
 %   xas = getXmlAnnotations(session, ids) returns all the XML
@@ -36,4 +36,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return XML annotations
-xas = getAnnotations(session, ids, 'xml');
+xas = getAnnotations(session, ids, 'xml', varargin{:});

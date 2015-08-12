@@ -36,7 +36,7 @@ import omero.gateway.model.ImportableObject;
 import pojos.ExperimenterData;
 
 /**
- * {@link Facility} which provides data transfer functionality, i. e. download
+ * {@link Facility} which provides data transfer functionality, i.e. download
  * files and upload/import files.
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -46,10 +46,10 @@ public class TransferFacility extends Facility {
 
     /** Reference to the helper class */
     private TransferFacilityHelper helper;
-    
+
     /** Reference to the {@link DataManagerFacility} */
     private DataManagerFacility datamanager;
-    
+
     /**
      * Creates a new instance
      * @param gateway Reference to the {@link Gateway}
@@ -62,68 +62,86 @@ public class TransferFacility extends Facility {
 
     /**
      * Uploads an image to the server
-     * @param context
-     * @param image
-     * @param observer
-     * @throws DSAccessException
+     *
+     * @param context The security context.
+     * @param image The image to upload.
+     * @param observer The observer to notify components of upload status.
      * @throws DSOutOfServiceException
-     * @throws ImportException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
+     * @throws ImportException If an error occurred while importing data.
      */
-    public void uploadImage(SecurityContext context, File image, 
+    public void uploadImage(SecurityContext context, File image,
             ImportCallback observer) throws DSAccessException,
             DSOutOfServiceException, ImportException {
         uploadImage(context, image, true, false, gateway.getLoggedInUser(),
-            observer);
+                observer);
     }
-    
+
     /**
-     * Uploads an image to the server
-     * @param context
-     * @param image
-     * @param folderAsContainer
-     * @param overrideName
-     * @param user
-     * @param observer
-     * @throws DSAccessException
+     * Uploads an image to the server.
+     *
+     * @param context The security context.
+     * @param image The image to upload.
+     * @param folderAsContainer Indicates to use the folder's name to create
+     *                          a dataset or screen.
+     * @param overrideName Indicates to override the file's name.
+     * @param user The owner of the image.
+     * @param observer The observer to notify components of upload status.
      * @throws DSOutOfServiceException
-     * @throws ImportException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
+     * @throws ImportException If an error occurred while importing data.
      */
-    public void uploadImage(SecurityContext context, File image, boolean folderAsContainer, boolean overrideName, ExperimenterData user,
+    public void uploadImage(SecurityContext context, File image,
+            boolean folderAsContainer, boolean overrideName, ExperimenterData user,
             ImportCallback observer) throws DSAccessException,
             DSOutOfServiceException, ImportException {
         ImportableFile imf = new ImportableFile(image, folderAsContainer);
         imf.setGroup(user.getDefaultGroup());
         imf.setStatus(observer);
-        
+
         ImportableObject imo = new ImportableObject(Arrays.asList(new ImportableFile[]{imf}),
                 overrideName);
-        
+
         helper.importFile(imo, imf, user, true);
     }
 
     /**
-     * Uploads an image to the server
-     * @param context
-     * @param image
-     * @param observer
-     * @param username
-     * @param groupname
-     * @throws DSAccessException
+     * Uploads an image to the server.
+     *
+     * @param context The security context.
+     * @param image The image to upload.
+     * @param observer The observer to notify components of upload status.
+     * @param username The OMERO user name.
+     * @param groupname The group to import the data to.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
      */
     public void uploadImage(SecurityContext context, File image,
             IObserver observer, String username, String groupname)
-            throws DSAccessException, DSOutOfServiceException {
+                    throws DSAccessException, DSOutOfServiceException {
     }
 
     /**
-     * Downloads the original file of an image from the server
-     * @param context
-     * @param targetPath
-     * @param imageId
-     * @return
-     * @throws DSAccessException
+     * Downloads the original file of an image from the server.
+     *
+     * @param context The security context.
+     * @param targetPath Path to the file.
+     * @param imageId The identifier of the image.
+     * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
      */
     public List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {

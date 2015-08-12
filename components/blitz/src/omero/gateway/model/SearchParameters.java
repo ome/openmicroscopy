@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.SearchDataContext 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -29,8 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import omero.gateway.facility.SearchFacility;
-import omero.util.CommonsLangUtils;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -57,16 +56,16 @@ public class SearchParameters
 
     /** Indicates that the date has to be interpreted as acquisition date*/
     public static final int DATE_ACQUISITION = 1;
-    
+
     public static final Set<SearchScope> ALL_SCOPE;
     public static final List<Class<? extends DataObject>> ALL_TYPES;
-    
+
     static {
         ALL_SCOPE = new HashSet<SearchScope>();
         ALL_SCOPE.add(SearchScope.NAME);
         ALL_SCOPE.add(SearchScope.DESCRIPTION);
         ALL_SCOPE.add(SearchScope.ANNOTATION);
-        
+
         ALL_TYPES = new ArrayList<Class<? extends DataObject>>();
         ALL_TYPES.add(ImageData.class);
         ALL_TYPES.add(DatasetData.class);
@@ -74,141 +73,142 @@ public class SearchParameters
         ALL_TYPES.add(PlateData.class);
         ALL_TYPES.add(ScreenData.class);
     }
-	
-	/** The lower bound of the time interval. */
-	private Timestamp 				start;
-	
-	/** The upper bound of the time interval. */
-	private Timestamp 				end;
-	
-	private int dateType = -1;
-	
-	/** The scope of the search. Mustn't not be <code>null</code>. */
-	private Set<SearchScope>			scope;
-	
-	/** The types to search on. */
-	private List<Class<? extends DataObject>>	types;
-	
-	/** The query terms to search for */
-	private String query;
 
-	private long groupId = ALL_GROUPS_ID;
-	
-	/** The userId the search is restricted to.*/
-	private long userId = -1;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param scope	Scope of the search
-	 * @param types The types to search on, i.e. project, dataset, image.
-	 * @param some	Some (at least one) of these terms must be present in 
-	 * 				the document. May be <code>null</code>.
-	 * @param must	All of these terms must be present in the document.
-	 * 				May be <code>null</code>.
-	 * @param none	None of these terms may be present in the document. 
-	 * 				May be <code>null</code>.
-	 */
-	public SearchParameters(Set<SearchScope> scope, List<Class<? extends DataObject>> types, String query)
-	{
-		this.query = query;
-		this.scope = scope;
-		this.types = types;
-	}
-	
-	/**
-	 * Sets the time interval.
-	 * 
-	 * @param start The lower bound of the time interval.
-	 * @param end	The upper bound of the time interval.
-	 */
-	public void setTimeInterval(Timestamp start, Timestamp end, int type)
-	{
-		this.start = start;
-		this.end = end;
-		this.dateType = type;
-	}
-	
-	/**
-	 * Returns the lower bound of the time interval.
-	 * 
-	 * @return See above.
-	 */
-	public Timestamp getStart() { return start; }
-	
-	/**
-	 * Returns the upper bound of the time interval.
-	 * 
-	 * @return See above.
-	 */
-	public Timestamp getEnd() { return end; }
-	
-	/**
-	 * Returns the scope of the search.
-	 * 
-	 * @return See above.
-	 */
-	public Set<SearchScope> getScope() { return scope; }
-	
-	/** 
-	 * Returns the types to search on.
-	 * 
-	 * @return See above.
-	 */
-	public List<Class<? extends DataObject>> getTypes() { return types; }
-	
-	/**
-	 * Returns the query terms to search for
-	 * 
-	 * @return See above.
-	 */
-	public String getQuery() { return query; }
-	
-	/**
-	 * Returns <code>true</code> if the context of the search is valid i.e.
-	 * parameters correctly set, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isValid()
-	{
-		return !(CommonsLangUtils.isBlank(query) && start == null
-                        && end == null);
-	}
-	
-	/**
-	 * Returns <code>true</code> if text to search for,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasTextToSearch()
-	{
-		return CommonsLangUtils.isNotBlank(query);
-	}
+    /** The lower bound of the time interval. */
+    private Timestamp start;
 
-        public long getUserId() {
-            return userId;
-        }
+    /** The upper bound of the time interval. */
+    private Timestamp end;
 
-        public void setUserId(long userId) {
-            this.userId = userId;
-        }
+    private int dateType = -1;
 
-        public int getDateType() {
-            return dateType;
-        }
+    /** The scope of the search. Mustn't not be <code>null</code>. */
+    private Set<SearchScope> scope;
 
-        public void setDateType(int dateType) {
-            this.dateType = dateType;
-        }
+    /** The types to search on. */
+    private List<Class<? extends DataObject>> types;
 
-        public long getGroupId() {
-            return groupId;
-        }
+    /** The query terms to search for */
+    private String query;
 
-        public void setGroupId(long groupId) {
-            this.groupId = groupId;
-        }
-        
+    private long groupId = ALL_GROUPS_ID;
+
+    /** The userId the search is restricted to.*/
+    private long userId = -1;
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param scope Scope of the search
+     * @param types The types to search on, i.e. project, dataset, image.
+     * @param some Some (at least one) of these terms must be present in 
+     *             the document. May be <code>null</code>.
+     * @param must All of these terms must be present in the document.
+     *             May be <code>null</code>.
+     * @param none None of these terms may be present in the document.
+     *             May be <code>null</code>.
+     */
+    public SearchParameters(Set<SearchScope> scope,
+            List<Class<? extends DataObject>> types, String query)
+    {
+        this.query = query;
+        this.scope = scope;
+        this.types = types;
+    }
+
+    /**
+     * Sets the time interval.
+     *
+     * @param start The lower bound of the time interval.
+     * @param end The upper bound of the time interval.
+     */
+    public void setTimeInterval(Timestamp start, Timestamp end, int type)
+    {
+        this.start = start;
+        this.end = end;
+        this.dateType = type;
+    }
+
+    /**
+     * Returns the lower bound of the time interval.
+     *
+     * @return See above.
+     */
+    public Timestamp getStart() { return start; }
+
+    /**
+     * Returns the upper bound of the time interval.
+     *
+     * @return See above.
+     */
+    public Timestamp getEnd() { return end; }
+
+    /**
+     * Returns the scope of the search.
+     *
+     * @return See above.
+     */
+    public Set<SearchScope> getScope() { return scope; }
+
+    /** 
+     * Returns the types to search on.
+     *
+     * @return See above.
+     */
+    public List<Class<? extends DataObject>> getTypes() { return types; }
+
+    /**
+     * Returns the query terms to search for
+     *
+     * @return See above.
+     */
+    public String getQuery() { return query; }
+
+    /**
+     * Returns <code>true</code> if the context of the search is valid i.e.
+     * parameters correctly set, <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isValid()
+    {
+        return !(StringUtils.isBlank(query) && start == null
+                && end == null);
+    }
+
+    /**
+     * Returns <code>true</code> if text to search for,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean hasTextToSearch()
+    {
+        return StringUtils.isNotBlank(query);
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    public int getDateType() {
+        return dateType;
+    }
+
+    public void setDateType(int dateType) {
+        this.dateType = dateType;
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
+
 }

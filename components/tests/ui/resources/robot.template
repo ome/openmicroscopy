@@ -19,6 +19,9 @@ ${SERVER_ID}            1
 
 ${BROWSER}              Firefox
 ${DELAY}                0
+${WAIT}                 50
+${TIMEOUT}              1
+${INTERVAL}             5
 
 ${LOGIN URL}            %(PROTOCOL)s://${WEB HOST}${WEB PREFIX}/webclient/login/
 ${WELCOME URL}          %(PROTOCOL)s://${WEB HOST}${WEB PREFIX}/webclient/

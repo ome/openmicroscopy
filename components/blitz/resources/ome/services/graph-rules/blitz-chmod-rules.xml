@@ -167,7 +167,7 @@
 
         <!-- Cannot downgrade to a private group if jobs have differently owned original files. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E], L.child = OF:[E], J =/!o OF"
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E], L.child = OF:[E];group=!user, J =/!o OF"
                                        p:error="cannot downgrade to private as {J} has differently owned {OF}"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->

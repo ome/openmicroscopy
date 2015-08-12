@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.log.Logger
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
@@ -23,12 +21,6 @@
 
 
 package omero.log;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Defines the log service interface.
@@ -57,106 +49,102 @@ package omero.log;
  * from different threads without compromising the integrity of the log records.
  * </p>
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
+ * @version 2.2
  * @since OME2.2
  */
-
 public interface Logger
 {
-	
-	/**
-	 * Logs a debug message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param logMsg	The log message.
-	 */
+
+    /**
+     * Logs a debug message.
+     *
+     * @param originator The originator of the message.
+     * @param logMsg The log message.
+     */
     public void debug(Object originator, String logMsg);
-    
-	/**
-	 * Logs a debug message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param msg	The log message.
-	 */
-	public void debug(Object originator, LogMessage msg);
-    
-	/**
-	 * Logs an info message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param logMsg	The log message.
-	 */
+
+    /**
+     * Logs a debug message.
+     *
+     * @param originator The originator of the message.
+     * @param msg The log message.
+     */
+    public void debug(Object originator, LogMessage msg);
+
+    /**
+     * Logs an info message.
+     *
+     * @param originator The originator of the message.
+     * @param logMsg The log message.
+     */
     public void info(Object originator, String logMsg);
-    
-	/**
-	 * Logs an info message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param msg	The log message.
-	 */
-	public void info(Object originator, LogMessage msg);
-    
-	/**
-	 * Logs a warn message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param logMsg	The log message.
-	 */
+
+    /**
+     * Logs an info message.
+     *
+     * @param originator The originator of the message.
+     * @param msg The log message.
+     */
+    public void info(Object originator, LogMessage msg);
+
+    /**
+     * Logs a warn message.
+     *
+     * @param originator The originator of the message.
+     * @param logMsg The log message.
+     */
     public void warn(Object originator, String logMsg);
-    
-	/**
-	 * Logs a warn message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param msg	The log message.
-	 */
-	public void warn(Object originator, LogMessage msg);
-	
-	/**
-	 * Logs an error message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param logMsg	The log message.
-	 */
-	public void error(Object originator, String logMsg);
-	
-	/**
-	 * Logs an error message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param msg	The log message.
-	 */
-	public void error(Object originator, LogMessage msg);
-    
-	/**
-	 * Logs a fatal message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param logMsg	The log message.
-	 */
-	public void fatal(Object originator, String logMsg);
-	
-	/**
-	 * Logs a fatal message.
-	 * 
-	 * @param originator The originator of the message.
-	 * @param msg	The log message.
-	 */
-	public void fatal(Object originator, LogMessage msg);
-	
-	/** 
-	 * Returns the log file.
-	 * 
-	 * @return See above.
-	 */
-	public String getLogFile();
+
+    /**
+     * Logs a warn message.
+     *
+     * @param originator The originator of the message.
+     * @param msg The log message.
+     */
+    public void warn(Object originator, LogMessage msg);
+
+    /**
+     * Logs an error message.
+     *
+     * @param originator The originator of the message.
+     * @param logMsg The log message.
+     */
+    public void error(Object originator, String logMsg);
+
+    /**
+     * Logs an error message.
+     *
+     * @param originator The originator of the message.
+     * @param msg The log message.
+     */
+    public void error(Object originator, LogMessage msg);
+
+    /**
+     * Logs a fatal message.
+     *
+     * @param originator The originator of the message.
+     * @param logMsg The log message.
+     */
+    public void fatal(Object originator, String logMsg);
+
+    /**
+     * Logs a fatal message.
+     *
+     * @param originator The originator of the message.
+     * @param msg The log message.
+     */
+    public void fatal(Object originator, LogMessage msg);
+
+    /** 
+     * Returns the log file.
+     *
+     * @return See above.
+     */
+    public String getLogFile();
 
 }

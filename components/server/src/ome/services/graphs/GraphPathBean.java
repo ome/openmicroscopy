@@ -276,7 +276,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                         } catch (NestedNullException e) {
                             propertyIsAccessible = false;
                         }
-                    } catch (/* TODO Java SE 7 ReflectiveOperation*/Exception e) {
+                    } catch (ReflectiveOperationException e) {
                         log.error("could not probe property of " + property.holder, e);
                     }
                     /* build property report line for log */

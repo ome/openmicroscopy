@@ -131,6 +131,7 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -248,13 +249,15 @@ public class AbstractServerTest extends AbstractTest {
         root = newRootOmeroClient();
         tmp.__del__();
 
-        try {
-            scalingFactor = new Long(System.getProperty("omero.test.timeout"));
-        } catch (Exception e) {
-            log.warn("Problem setting 'omero.test.timeout' to: " +
-                    System.getProperty("omero.test.timeout") +
-                    ". Defaulting to 500.");
-            scalingFactor = 500;
+        scalingFactor = 500;
+        final String timeoutString = System.getProperty("omero.test.timeout");
+        if (StringUtils.isNotBlank(timeoutString)) {
+            try {
+                scalingFactor = Long.valueOf(timeoutString);
+            } catch (NumberFormatException e) {
+                log.warn("Problem setting 'omero.test.timeout' to: {}. " +
+                         "Defaulting to {}.", timeoutString, scalingFactor);
+            }
         }
         final EventContext ctx = newUserAndGroup("rw----");
         this.userFsDir = ctx.userName + "_" + ctx.userId + FsFile.separatorChar;

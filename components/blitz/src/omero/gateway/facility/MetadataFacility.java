@@ -35,10 +35,9 @@ import pojos.ChannelData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
-//Java imports
 
 /**
- *
+ * A {@link Facility} to access the metadata.
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -48,6 +47,12 @@ public class MetadataFacility extends Facility {
 
     private BrowseFacility browse;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param gateway Reference to the gateway.
+     * @throws ExecutionException
+     */
     MetadataFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.browse = gateway.getFacility(BrowseFacility.class);
@@ -78,8 +83,9 @@ public class MetadataFacility extends Facility {
      * @param imageId
      *            The imageId to get the ChannelData for
      * @return List of ChannelData
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
+     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
      */
     public List<ChannelData> getChannelData(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {

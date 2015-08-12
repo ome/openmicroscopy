@@ -48,7 +48,11 @@ else
 end
 
 % Create object annotation link
+context = java.util.HashMap;
+group = parent.getDetails().getGroup().getId().getValue();
+context.put('omero.group', num2str(group));
+
 link = objectType.annotationLink();
 link.setParent(parent)
 link.setChild(annotation);
-link = session.getUpdateService().saveAndReturnObject(link);
+link = session.getUpdateService().saveAndReturnObject(link, context);

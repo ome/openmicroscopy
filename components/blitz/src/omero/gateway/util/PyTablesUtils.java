@@ -36,9 +36,9 @@ import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.grid.WellColumn;
 
-//Java imports
 
 /**
+ * Collection of utility classes to convert OMERO tables.
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -75,12 +75,6 @@ public class PyTablesUtils {
                     totalRowCount, 1L);
             return createTableResult(table, rows);
         } catch (Exception e) {
-            try {
-                if (table != null)
-                    table.close();
-            } catch (Exception ex) {
-                // Digest exception
-            }
             throw new DSAccessException("Unable to read the table.", e);
         }
     }
@@ -134,7 +128,6 @@ public class PyTablesUtils {
                 rowOffset += rowCount;
                 rowsToGo -= rowCount;
             }
-            table.close();
             TableResult tr = new TableResult(data, headers);
             tr.setIndexes(indexes);
             return tr;
@@ -146,6 +139,14 @@ public class PyTablesUtils {
                 // Digest exception
             }
             throw new DSAccessException("Unable to read the table.", e);
+        } finally {
+            if (table != null) {
+                try {
+                    table.close(); 
+                } catch (Exception e2) {
+                    //ignore
+                }
+            }
         }
     }
 

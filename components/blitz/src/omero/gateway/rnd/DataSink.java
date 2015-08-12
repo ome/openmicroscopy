@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.DataSink 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,13 +20,6 @@
  */
 package omero.gateway.rnd;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
@@ -38,10 +29,10 @@ import omero.util.ReadOnlyByteArray;
 import pojos.PixelsData;
 
 /** 
-* Encapsulates access to the image raw data. 
-* Contains the logic to interpret a linear byte array as a 5D array. 
-* Knows how to extract a 2D-plane from the 5D array, but delegates to the 
-* specified 2D-Plane the retrieval of pixel values. 
+* Encapsulates access to the image raw data.
+* Contains the logic to interpret a linear byte array as a 5D array.
+* Knows how to extract a 2D-plane from the 5D array, but delegates to the
+* specified 2D-Plane the retrieval of pixel values.
 *
 * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -93,7 +84,7 @@ public class DataSink
             throw new NullPointerException("No Gateway.");
         return new DataSink(source, gw);
     }
-    
+
     /**
      * Factory method to create a new <code>DataSink</code> to handle access to
      * the metadata associated with the specified pixels set.
@@ -129,7 +120,8 @@ public class DataSink
 
     /** The pixels store for that pixels set.*/
     private RawPixelsStorePrx store;
-    
+
+    /**Reference to the gateway.*/
     private Gateway gw;
 
     /**
@@ -142,7 +134,7 @@ public class DataSink
     {
         this(source, gw, 0);
     }
-    
+
     /**
      * Creates a new instance.
      *
@@ -156,17 +148,17 @@ public class DataSink
         this.source = source;
         String type = source.getPixelType();
         bytesPerPixels = getBytesPerPixels(type); 
-        
-        if(cacheSize > 0) {
-            if(gw.getCacheService() == null)
+
+        if (cacheSize > 0) {
+            if (gw.getCacheService() == null)
                 throw new IllegalArgumentException("No cache provided!");
-            
+
             int maxEntries =
                     cacheSize/(source.getSizeX()*source.getSizeY()*bytesPerPixels);
             cacheID = gw.getCacheService().createCache(
                     CacheService.IN_MEMORY, maxEntries);
         }
-        
+
         strategy = BytesConverter.getConverter(type);
     }
 
@@ -220,13 +212,14 @@ public class DataSink
      * @param t The timepoint at which data is to be fetched.
      * @param c The channel at which data is to be fetched.
      * @param strategy To transform bytes into pixels values.
+     * @param close Indicates to close the service if <code>true</code>.
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException If an error occurs while retrieving the
      *                              plane data from the pixels source.
      */
     private Plane2D createPlane(SecurityContext ctx, int z, int t, int c,
             BytesConverter strategy, boolean close)
-            throws DataSourceException
+                    throws DataSourceException
     {
         //Retrieve data
         Integer planeIndex = linearize(z, c, t);
@@ -257,11 +250,11 @@ public class DataSink
         ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
         plane = new Plane2D(array, source.getSizeX(), source.getSizeY(), 
                 bytesPerPixels, strategy);
-        if(cacheID >= 0)
+        if (cacheID >= 0)
             gw.getCacheService().addElement(cacheID, planeIndex, plane);
         return plane;
     }
-    
+
     /**
      * Extracts a 2D tile from the pixels set this object is working for.
      *
@@ -282,6 +275,7 @@ public class DataSink
      * @param h
      *            The height of the tile
      * @param close
+     *            Indicates to close the service if <code>true</code>.
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException
      *             If an error occurs while retrieving the plane data from the
@@ -335,17 +329,18 @@ public class DataSink
      * @param z The z-section at which data is to be fetched.
      * @param t The timepoint at which data is to be fetched.
      * @param c The channel at which data is to be fetched.
+     * @param close Indicate to close or not the service.
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException If an error occurs while retrieving the
      *                              plane data from the pixels source.
      */
     public Plane2D getPlane(SecurityContext ctx, int z, int t, int c, boolean
             close)
-            throws DataSourceException
+                    throws DataSourceException
     {
         return createPlane(ctx, z, t, c, strategy, close);
     }
-    
+
     /**
      * Returns <code>true</code> if a data source has already been created
      * for the specified pixels set, <code>false</code> otherwise.
@@ -361,9 +356,9 @@ public class DataSink
     /** Erases the cache. */
     public void clearCache()
     {
-        if(cacheID==-1)
+        if (cacheID == -1)
             return;
-        
+
         gw.getCacheService().clearCache(cacheID);
     }
 
@@ -375,9 +370,9 @@ public class DataSink
      */
     public void setCacheInMemory(boolean cacheInMemory)
     {
-        if(cacheID==-1)
+        if (cacheID == -1)
             return;
-        
+
         clearCache();
         if (cacheInMemory)
             gw.getCacheService().setCacheEntries(cacheID, 1);

@@ -22,26 +22,28 @@ package omero.gateway.model;
 
 import java.util.Collection;
 
-//Java imports
-
 /**
- * Defines the scope of a search, i. e. in which fields to search (name, description, etc.);
+ * Defines the scope of a search, i.e. in which fields to search (name, description, etc.);
  * See {@link SearchParameters}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
  */
-
 public enum SearchScope {
 
     //TODO: Check if annotation would be enough for ANNOTATION enum
     NAME("name"), DESCRIPTION("description"), ANNOTATION("annotation, file.name, file.path, file.contents, file.format");
-    
-    private String stringRepresenation;
-    
-    SearchScope(String stringRepresenation) {
-        this.stringRepresenation = stringRepresenation;
+
+    private String stringRepresentation;
+
+    /**
+     * Creates a new scope.
+     *
+     * @param stringRepresentation The string to search for.
+     */
+    SearchScope(String stringRepresentation) {
+        this.stringRepresentation = stringRepresentation;
     }
 
     /**
@@ -49,25 +51,26 @@ public enum SearchScope {
      * lucene search
      * @return
      */
-    public String getStringRepresenation() {
-        return stringRepresenation;
+    public String getStringRepresentation() {
+        return stringRepresentation;
     }
-    
+
     /**
      * Get a String representation of the given scopes which can be used in a
      * lucence search
      * @param scopes The scopes
      * @return See above
      */
-    public static String getStringRepresenation(Collection<SearchScope> scopes) {
+    public static String getStringRepresentation(Collection<SearchScope> scopes) {
         StringBuilder result = new StringBuilder();
 
         for (SearchScope scope : scopes) {
             if (result.length() > 0)
                 result.append(',');
-            result.append(scope.getStringRepresenation());
+            result.append(scope.getStringRepresentation());
         }
 
         return result.toString();
     }
+
 }

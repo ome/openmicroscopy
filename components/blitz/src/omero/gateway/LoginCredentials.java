@@ -20,8 +20,6 @@
  */
 package omero.gateway;
 
-//Java imports
-
 /**
  * Holds all necessary information needed for connecting to an OMERO server
  * 
@@ -96,6 +94,7 @@ public class LoginCredentials {
     }
 
     /**
+     * Returns the compression level.
      * @return The compression level
      */
     public float getCompression() {
@@ -130,6 +129,7 @@ public class LoginCredentials {
     }
 
     /**
+     * Returns the credentials.
      * @return The {@link UserCredentials}
      */
     public UserCredentials getUser() {
@@ -137,6 +137,7 @@ public class LoginCredentials {
     }
 
     /**
+     * Returns the server information.
      * @return The {@link ServerInformation}
      */
     public ServerInformation getServer() {
@@ -144,6 +145,7 @@ public class LoginCredentials {
     }
 
     /**
+     * Returns the OMERO group identifier.
      * @return The groupID to use for the connection
      */
     public long getGroupID() {

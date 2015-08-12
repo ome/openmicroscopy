@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.Connector 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -36,6 +34,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -101,7 +100,7 @@ import omero.log.Logger;
 import omero.model.ExperimenterGroup;
 import omero.model.Session;
 import omero.sys.Principal;
-import omero.util.CommonsLangUtils;
+
 
 
 /** 
@@ -185,6 +184,17 @@ class Connector
     /** Reference to the logger.*/
     private final Logger logger;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param context The context hosting information about the user.
+     * @param secureClient The entry point to server.
+     * @param entryEncrypted The entry point to access the various services.
+     * @param encrypted The entry point to access the various services.
+     * @param logger Reference to the logger.
+     * @param elapseTime The time between network check.
+     * @throws Exception Thrown if entry points cannot be initialized.
+     */
     Connector(SecurityContext context, client client,
             ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
                     throws Exception
@@ -640,7 +650,7 @@ class Connector
      * Shuts downs the stateful services.
      * 
      * @param rendering Pass <code>true</code> to shut down the rendering 
-     * 					services, <code>false</code> otherwise.
+     *                  services, <code>false</code> otherwise.
      */
      void shutDownServices(boolean rendering)
     {
@@ -828,7 +838,7 @@ class Connector
      Connector getConnector(final String userName)
             throws Throwable
     {
-        if (CommonsLangUtils.isBlank(userName)) 
+        if (StringUtils.isBlank(userName)) 
             return this;
 
         return derived.get(userName, new Callable<Connector>() {

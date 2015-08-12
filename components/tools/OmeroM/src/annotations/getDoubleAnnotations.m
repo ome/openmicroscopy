@@ -1,4 +1,4 @@
-function das = getDoubleAnnotations(session, ids)
+function das = getDoubleAnnotations(session, ids, varargin)
 % GETDOUBLEANNOTATIONS Retrieve double annotations from the OMERO server
 %
 %   das = getDoubleAnnotations(session, ids) returns all the double
@@ -36,4 +36,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return double annotations
-das = getAnnotations(session, ids, 'double');
+das = getAnnotations(session, ids, 'double', varargin{:});

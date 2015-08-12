@@ -20,8 +20,6 @@
  */
 package omero.log;
 
-//Java imports
-
 /**
  * Empty {@link Logger} implementation whichs doesn't do anything
  * 

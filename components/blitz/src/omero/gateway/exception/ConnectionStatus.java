@@ -20,10 +20,9 @@
  */
 package omero.gateway.exception;
 
-//Java imports
 
 /**
- *
+ * The various connections status.
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1

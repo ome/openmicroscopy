@@ -51,8 +51,6 @@ import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.util.PojoMapper;
 
-//Java imports
-
 /**
  * A {@link Facility} for performing searches
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -150,7 +148,7 @@ public class SearchFacility extends Facility {
                 }
 
                 DateFormat df = new SimpleDateFormat("yyyyMMdd");
-                String fields = SearchScope.getStringRepresenation(context.getScope());
+                String fields = SearchScope.getStringRepresentation(context.getScope());
                 String dFrom = from != null ? df.format(from) : null;
                 String dTo = to != null ? df.format(to) : null;
                 try {

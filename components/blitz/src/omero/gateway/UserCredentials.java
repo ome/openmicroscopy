@@ -20,7 +20,6 @@
  */
 package omero.gateway;
 
-//Java imports
 
 /**
  * Holds username and password of a user
@@ -59,6 +58,7 @@ public class UserCredentials {
     }
 
     /**
+     * Returns the user name.
      * @return The username
      */
     public String getUsername() {
@@ -76,6 +76,7 @@ public class UserCredentials {
     }
 
     /**
+     * Returns the password.
      * @return The password
      */
     public String getPassword() {
@@ -83,7 +84,7 @@ public class UserCredentials {
     }
 
     /**
-     * Set the password
+     * Sets the password
      * 
      * @param password
      *            See above

@@ -46,6 +46,10 @@ end
 pixels = image.getPrimaryPixels();
 
 % Retrieve channels
+context = java.util.HashMap;
+group = image.getDetails().getGroup().getId().getValue();
+context.put('omero.group', num2str(group));
 pixelsService = session.getPixelsService();
-pixels = pixelsService.retrievePixDescription(pixels.getId.getValue);
+pixels = pixelsService.retrievePixDescription(...
+    pixels.getId.getValue, context);
 channels = toMatlabList(pixels.copyChannels);

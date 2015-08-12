@@ -17,13 +17,13 @@ import ome.util.PixelData;
  * Represents a block of pixel data that needs to be re-ordered in accordance 
  * with a DeltaVision file. <b>NOTE:</b> This buffer does not re-order the
  * actual backing buffer so <code>read-only</code> buffers may be used and 
- * potential callers of {@link getData()} should be aware of this restriction.
+ * potential callers of {@link #getData()} should be aware of this restriction.
  *
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:chris@glencoesoftware.com">chris@glencoesoftware.com</a>
  * @version $Revision$
  * @since 3.0
- * @see PixelBuffer
+ * @see PixelData
  */
 public class ReorderedPixelData extends PixelData
 {

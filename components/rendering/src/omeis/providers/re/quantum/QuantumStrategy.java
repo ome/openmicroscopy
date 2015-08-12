@@ -10,6 +10,7 @@ package omeis.providers.re.quantum;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
+
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
 

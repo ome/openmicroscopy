@@ -400,6 +400,8 @@ class FileSelectionTable
 	        return true;
 	    }
 	    File file = f.getTrueFile();
+	    //check if file is null
+	    if (file == null) return false;
 	    Iterator<FileElement> i = queue.iterator();
 	    FileElement fe;
 	    String name = file.getAbsolutePath();

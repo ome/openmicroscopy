@@ -624,7 +624,9 @@ class ImporterModel
             Map<Integer, List<ROIData>> indexes =
                 new HashMap<Integer, List<ROIData>>();
             int index;
+            boolean mif = false;
             if (CollectionUtils.isNotEmpty(files)) {
+                mif = true;
                 Iterator<FileObject> j = files.iterator();
                 FileObject o;
                 while (j.hasNext()) {
@@ -633,6 +635,9 @@ class ImporterModel
                         index = o.getIndex();
                         rois = reader.readImageJROI(-1, (ImagePlus) o.getFile());
                         indexes.put(index, rois);
+                        if (index < 0) {
+                            mif = false;
+                        }
                     }
                 }
             }
@@ -647,11 +652,14 @@ class ImporterModel
                 id = data.getId();
                 index = data.getSeries();
                 //First check overlay
+                rois = null;
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
                 } else {
-                   rois = reader.readImageJROI(id, img);
+                   if (!mif) {
+                       rois = reader.readImageJROI(id, img);
+                   }
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {

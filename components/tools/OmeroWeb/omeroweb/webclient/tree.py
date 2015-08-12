@@ -342,7 +342,8 @@ def marshal_screens(conn, experimenter_id=None):
                left join splink.child plate
                left join plate.plateAcquisitions pa
         %s
-        order by lower(screen.name), screen.id, lower(plate.name), pa.id
+        order by lower(screen.name), screen.id, lower(plate.name), plate.id,
+        lower(pa.name), pa.id
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:

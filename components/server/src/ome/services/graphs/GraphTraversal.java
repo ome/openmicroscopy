@@ -22,6 +22,7 @@ package ome.services.graphs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -180,7 +181,7 @@ public class GraphTraversal {
             try {
                 final Class<? extends IObject> actualClass = (Class<? extends IObject>) Class.forName(className);
                 return actualClass.getConstructor(Long.class, boolean.class).newInstance(id, false);
-            } catch (/* TODO Java SE 7 ReflectiveOperation*/Exception e) {
+            } catch (ReflectiveOperationException e) {
                 throw new GraphException(
                         "no invocable constructor for: new " + className + "(Long.valueOf(" + id + "L), false)");
             }
@@ -327,6 +328,20 @@ public class GraphTraversal {
     }
 
     /**
+     * Track the progress of method calls to ensure that the sequencing makes sense.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1.3
+     */
+    private enum Milestone {
+        /** operation planned */
+        PLANNED,
+        /** model objects unlinked */
+        UNLINKED,
+        /** model objects processed */
+        PROCESSED;
+    }
+
+    /**
      * The state of the graph traversal. Various rules apply:
      * <ol>
      *   <li>An instance may be in no more than one of {@link #included}, {@link #deleted}, {@link #outside},
@@ -376,6 +391,19 @@ public class GraphTraversal {
         final Set<CI> mayChmod = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
         final Set<CI> overrides = new HashSet<CI>();
+    }
+
+    /**
+     * Executor that allows callers to actually perform the planned action.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1.3
+     */
+    public interface PlanExecutor {
+        /**
+         * Perform the planned action.
+         * @throws GraphException if the action fails
+         */
+        void execute() throws GraphException;
     }
 
     /**
@@ -430,6 +458,7 @@ public class GraphTraversal {
     private final SystemTypes systemTypes;
     private final GraphPathBean model;
     private final SetMultimap<String, String> unnullable;
+    private final Set<Milestone> progress = EnumSet.noneOf(Milestone.class);
     private final Planning planning;
     private final GraphPolicy policy;
     private final Processor processor;
@@ -469,6 +498,9 @@ public class GraphTraversal {
      */
     public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
             SetMultimap<String, Long> objects, boolean include, boolean applyRules) throws GraphException {
+        if (progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation already planned");
+        }
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
         targetSet.addAll(objectsToCIs(session, objects));
@@ -482,6 +514,7 @@ public class GraphTraversal {
                 planning.blockedBy.put(targetObject, new HashSet<CI>());
             }
         }
+        progress.add(Milestone.PLANNED);
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final SetMultimap<String, Long> included = HashMultimap.create();
         for (final CI includedObject : planning.included) {
@@ -505,6 +538,9 @@ public class GraphTraversal {
      */
     public Entry<Collection<IObject>, Collection<IObject>> planOperation(Session session,
             Collection<? extends IObject> objectInstances, boolean include, boolean applyRules) throws GraphException {
+        if (progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation already planned");
+        }
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
         final SetMultimap<String, Long> objectsToQuery = HashMultimap.create();
@@ -528,6 +564,7 @@ public class GraphTraversal {
                 planning.blockedBy.put(targetObject, new HashSet<CI>());
             }
         }
+        progress.add(Milestone.PLANNED);
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final Collection<IObject> included = new ArrayList<IObject>(planning.included.size());
         for (final CI includedObject : planning.included) {
@@ -625,6 +662,16 @@ public class GraphTraversal {
                     log.debug("marked " + object + " as " + Orphan.RELEVANT + " to verify " + Orphan.IS_NOT_LAST + " status");
                 }
             }
+        }
+    }
+
+    /**
+     * Check that there are no policy violations matched by {@code p:error} policy rules.
+     * @throws GraphException if the policy rules are violated
+     */
+    public void assertNoPolicyViolations() throws GraphException {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
         }
         /* review objects for error conditions */
         for (final CI object : planning.cached) {
@@ -1316,12 +1363,16 @@ public class GraphTraversal {
     }
 
     /**
-     * Remove links between the targeted model objects and the remainder of the model object graph.
+     * Prepare to remove links between the targeted model objects and the remainder of the model object graph.
      * @param isUnlinkIncludeFromExclude if {@link Action#EXCLUDE} objects must be unlinked from {@link Action#INCLUDE} objects
      * and vice versa
+     * @return the actual unlinker for the targeted model objects, to be used by the caller
      * @throws GraphException if the user does not have permission to unlink the targets
      */
-    public void unlinkTargets(boolean isUnlinkIncludeFromExclude) throws GraphException {
+    public PlanExecutor unlinkTargets(boolean isUnlinkIncludeFromExclude) throws GraphException {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
         /* accumulate plan for unlinking included/deleted from others */
         final SetMultimap<CP, Long> toNullByCP = HashMultimap.create();
         final Map<CP, SetMultimap<Long, Entry<String, Long>>> linkerToIdToLinked =
@@ -1387,8 +1438,9 @@ public class GraphTraversal {
                 }
             }
         }
-        /* unlink included/deleted by nulling properties */
-        for (final Entry<CP, Collection<Long>> nullCurr : toNullByCP.asMap().entrySet()) {
+        /* note unlink included/deleted by nulling properties */
+        final Map<CP, Collection<Long>> eachToNullByCP = toNullByCP.asMap();
+        for (final Entry<CP, Collection<Long>> nullCurr : eachToNullByCP.entrySet()) {
             final CP linker = nullCurr.getKey();
             if (unnullable.get(linker.className).contains(linker.propertyName) ||
                     model.getPropertyKind(linker.className, linker.propertyName) == PropertyKind.REQUIRED) {
@@ -1396,25 +1448,45 @@ public class GraphTraversal {
             }
             final Collection<Long> allIds = nullCurr.getValue();
             assertMayBeUpdated(linker.className, allIds);
-            for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
-                processor.nullProperties(linker.className, linker.propertyName, ids);
-            }
         }
-        /* unlink included/deleted by removing from collections */
+        /* note unlink included/deleted by removing from collections */
         for (final Entry<CP, SetMultimap<Long, Entry<String, Long>>> removeCurr : linkerToIdToLinked.entrySet()) {
             final CP linker = removeCurr.getKey();
             final Collection<Long> allIds = removeCurr.getValue().keySet();
             assertMayBeUpdated(linker.className, allIds);
             throw new GraphException("cannot remove elements from collection " + linker);
         }
+        return new PlanExecutor() {
+            @Override
+            public void execute() throws GraphException {
+                if (progress.contains(Milestone.UNLINKED)) {
+                    throw new IllegalStateException("model objects already unlinked");
+                }
+                /* actually do the noted unlinking */
+                for (final Entry<CP, Collection<Long>> nullCurr : eachToNullByCP.entrySet()) {
+                    final CP linker = nullCurr.getKey();
+                    final Collection<Long> allIds = nullCurr.getValue();
+                    for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
+                        processor.nullProperties(linker.className, linker.propertyName, ids);
+                    }
+                }
+                progress.add(Milestone.UNLINKED);
+            }
+        };
     }
 
     /**
-     * Process the targeted model objects.
+     * Prepare to process the targeted model objects.
+     * @return the actual processor for the targeted model objects, to be used by the caller
      * @throws GraphException if the user does not have permission to process the targets or
      * if a cycle is detected in the model object graph
      */
-    public void processTargets() throws GraphException {
+    public PlanExecutor processTargets() throws GraphException {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
+        final List<Entry<Map<String, Collection<Long>>, Map<String, Collection<Long>>>> toJoinAndDelete =
+                new ArrayList<Entry<Map<String, Collection<Long>>, Map<String, Collection<Long>>>>();
         /* process the targets forward across links */
         while (!planning.blockedBy.isEmpty()) {
             /* determine which objects can be processed in this step */
@@ -1443,38 +1515,65 @@ public class GraphTraversal {
                     toDelete.put(object.className, object.id);
                 }
             }
-            /* perform this group's deletes */
-            if (!toDelete.isEmpty()) {
-                for (final Entry<String, Collection<Long>> oneClassToDelete : toDelete.asMap().entrySet()) {
-                    final String className = oneClassToDelete.getKey();
-                    final Collection<Long> allIds = oneClassToDelete.getValue();
-                    assertMayBeDeleted(className, allIds);
-                    final Collection<List<Long>> idGroups;
-                    if (OriginalFile.class.getName().equals(className)) {
-                        idGroups = ModelObjectSequencer.sortOriginalFileIds(session, allIds);
-                        for (final List<Long> idGroup : idGroups) {
-                            for (final List<Long> ids : Iterables.partition(idGroup, BATCH_SIZE)) {
-                                processor.deleteInstances(className, ids);
+            /* note this group's includes and deletes */
+            final Map<String, Collection<Long>> eachToJoin = toJoin.asMap();
+            for (final Entry<String, Collection<Long>> oneClassToJoin : eachToJoin.entrySet()) {
+                final String className = oneClassToJoin.getKey();
+                final Collection<Long> allIds = oneClassToJoin.getValue();
+                assertMayBeProcessed(className, allIds);
+            }
+            final Map<String, Collection<Long>> eachToDelete = toDelete.asMap();
+            for (final Entry<String, Collection<Long>> oneClassToDelete : eachToDelete.entrySet()) {
+                final String className = oneClassToDelete.getKey();
+                final Collection<Long> allIds = oneClassToDelete.getValue();
+                assertMayBeDeleted(className, allIds);
+            }
+            toJoinAndDelete.add(Maps.immutableEntry(eachToJoin, eachToDelete));
+        }
+        return new PlanExecutor() {
+            @Override
+            public void execute() throws GraphException {
+                if (!progress.contains(Milestone.UNLINKED)) {
+                    throw new IllegalStateException("model objects not yet unlinked");
+                }
+                if (progress.contains(Milestone.PROCESSED)) {
+                    throw new IllegalStateException("model objects already processed");
+                }
+                /* actually do the noted processing */
+                for (final Entry<Map<String, Collection<Long>>, Map<String, Collection<Long>>> next : toJoinAndDelete) {
+                    final Map<String, Collection<Long>> toJoin = next.getKey();
+                    final Map<String, Collection<Long>> toDelete = next.getValue();
+                    /* perform this group's deletes */
+                    if (!toDelete.isEmpty()) {
+                        for (final Entry<String, Collection<Long>> oneClassToDelete : toDelete.entrySet()) {
+                            final String className = oneClassToDelete.getKey();
+                            final Collection<Long> allIds = oneClassToDelete.getValue();
+                            final Collection<Collection<Long>> idGroups;
+                            if (OriginalFile.class.getName().equals(className)) {
+                                idGroups = ModelObjectSequencer.sortOriginalFileIds(session, allIds);
+                            } else {
+                                idGroups = Collections.singleton(allIds);
+                            }
+                            for (final Collection<Long> idGroup : idGroups) {
+                                for (final List<Long> ids : Iterables.partition(idGroup, BATCH_SIZE)) {
+                                    processor.deleteInstances(className, ids);
+                                }
                             }
                         }
-                    } else {
-                        for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
-                            processor.deleteInstances(className, ids);
+                    }
+                    /* perform this group's includes */
+                    if (!toJoin.isEmpty()) {
+                        for (final Entry<String, Collection<Long>> oneClassToJoin : toJoin.entrySet()) {
+                            final String className = oneClassToJoin.getKey();
+                            final Collection<Long> allIds = oneClassToJoin.getValue();
+                            for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
+                                processor.processInstances(className, ids);
+                            }
                         }
                     }
                 }
+                progress.add(Milestone.PROCESSED);
             }
-            /* perform this group's includes */
-            if (!toJoin.isEmpty()) {
-                for (final Entry<String, Collection<Long>> oneClassToJoin : toJoin.asMap().entrySet()) {
-                    final String className = oneClassToJoin.getKey();
-                    final Collection<Long> allIds = oneClassToJoin.getValue();
-                    assertMayBeProcessed(className, allIds);
-                    for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
-                        processor.processInstances(className, ids);
-                    }
-                }
-            }
-        }
+        };
     }
 }

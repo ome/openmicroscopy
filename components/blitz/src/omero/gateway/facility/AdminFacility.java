@@ -42,7 +42,7 @@ import pojos.GroupData;
 import pojos.util.PojoMapper;
 
 /**
- * {@link Facility} for handling admin issues, e. g. creating users, groups,
+ * {@link Facility} for handling admin issues, e.g. creating users, groups,
  * etc.
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -52,14 +52,28 @@ import pojos.util.PojoMapper;
 
 public class AdminFacility extends Facility {
 
-    Roles roles;
+    /** Reference to the roles.*/
+    private Roles roles;
 
+    /**
+     * Creates a new instance.
+     * @param gateway Reference to the gateway.
+     */
     AdminFacility(Gateway gateway) {
         super(gateway);
     }
 
     /**
-     * Creates a group.
+     * Creates a group and returns it.
+     *
+     * @param ctx The security context.
+     * @param groupData Host information about the group to create.
+     * @param owner The owner of the group.
+     * @param permissions The group's permissions.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
      */
     public GroupData createGroup(SecurityContext ctx, GroupData groupData,
             ExperimenterData owner, int permissions)
@@ -92,7 +106,21 @@ public class AdminFacility extends Facility {
     }
 
     /**
-     * Creates an experimenter.
+     * Creates an experimenter and returns it.
+     *
+     * @param ctx The security context.
+     * @param exp The experimenter to create.
+     * @param username The user name to use.
+     * @param password The password to use.
+     * @param groups The groups to add the user to.
+     * @param isAdmin Pass <code>true</code> if the user is an administrator,
+     *                <code>false</code> otherwise.
+     * @param isGroupOwner Pass <code>true</code> if the user is a group owner,
+     *                <code>false</code> otherwise.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
      */
     public ExperimenterData createExperimenter(SecurityContext ctx,
             ExperimenterData exp, String username, String password,
@@ -233,6 +261,12 @@ public class AdminFacility extends Facility {
         return new PermissionsI(perms);
     }
 
+    /**
+     * Returns the security roles for the given context.
+     *
+     * @param ctx The security context.
+     * @return See above.
+     */
     private Roles getRoles(SecurityContext ctx) {
         try {
             if (roles == null)

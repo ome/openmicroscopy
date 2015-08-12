@@ -131,12 +131,11 @@ import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.RoiOptions;
-import omero.api.RoiResult;
 import omero.api.Save;
 import omero.api.SearchPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.cmd.Chmod;
+import omero.cmd.Chmod2;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -180,7 +179,6 @@ import omero.model.Instrument;
 import omero.model.Label;
 import omero.model.LabelI;
 import omero.model.Laser;
-import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
@@ -198,22 +196,27 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
+<<<<<<< HEAD
 import omero.model.Point;
 import omero.model.PointI;
 import omero.model.Polygon;
 import omero.model.PolygonI;
 import omero.model.Polyline;
 import omero.model.PolylineI;
+=======
+>>>>>>> origin/develop
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.RenderingDef;
-import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
+<<<<<<< HEAD
 import omero.model.Shape;
 import omero.model.ShapeAnnotationLink;
+=======
+>>>>>>> origin/develop
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Well;
@@ -250,12 +253,10 @@ import pojos.PointData;
 import pojos.PolygonData;
 import pojos.PolylineData;
 import pojos.ProjectData;
-import pojos.ROICoordinate;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.RectangleData;
 import pojos.ScreenData;
-import pojos.ShapeData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextData;
@@ -532,7 +533,13 @@ class OMEROGateway
 		return cb;
 	}
 	
-	public void closeService(SecurityContext ctx,
+	/**
+	 * Closes the specified service.
+	 *
+	 * @param ctx The security context.
+	 * @param svc The service to close.
+	 */
+	void closeService(SecurityContext ctx,
             StatefulServiceInterfacePrx svc)
     {
         if (ctx == null || svc == null) return;
@@ -736,36 +743,6 @@ class OMEROGateway
 			TableResult tr = new TableResult(data, headers);
 			tr.setIndexes(indexes);
 			return tr;
-		} catch (Exception e) {
-			try {
-				if (table != null) table.close();
-			} catch (Exception ex) {
-				//Digest exception
-			}
-			throw new DSAccessException("Unable to read the table.", e);
-		}
-	}
-
-	/**
-	 * Transforms the passed table data for a given image.
-	 *
-	 * @param table The table to convert.
-	 * @param key The key of the <code>where</code> clause.
-	 * @param id The identifier of the object to retrieve rows for.
-	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to
-	 *                           retrieve data from OMEDS service.
-	 */
-	private TableResult createTableResult(TablePrx table, String key, long id)
-		throws DSAccessException
-	{
-		if (table == null) return null;
-		try {
-			key = "("+key+"==%d)";
-			long totalRowCount = table.getNumberOfRows();
-			long[] rows = table.getWhereList(String.format(key, id), null, 0,
-					totalRowCount, 1L);
-			return createTableResult(table, rows);
 		} catch (Exception e) {
 			try {
 				if (table != null) table.close();
@@ -1455,11 +1432,24 @@ class OMEROGateway
 	    return check.isUpgradeNeeded();
 	}
 
-	public ExperimenterData connect(LoginCredentials c) throws DSOutOfServiceException {
+	/**
+	 * Connects to the server and returns details about the logged in user.
+	 *
+	 * @param c The logging credentials.
+	 * @return
+	 * @throws DSOutOfServiceException
+	 */
+	ExperimenterData connect(LoginCredentials c) throws DSOutOfServiceException {
 	    return gw.connect(c);
 	}
-	
-	public String getSessionId(ExperimenterData user) {
+
+	/**
+	 * Returns the current session id for the given user.
+	 *
+	 * @param user The user to handle.
+	 * @return See above.
+	 */
+	String getSessionId(ExperimenterData user) {
 	    return gw.getSessionId(user);
 	}
 	
@@ -1656,8 +1646,8 @@ class OMEROGateway
 	    try {
             BrowseFacility f = gw.getFacility(BrowseFacility.class);
             return f.loadHierarchy(ctx, rootType, rootIDs, options);
-        } catch (ExecutionException e) {
-            log("Can't get a BrowseFacility");
+        } catch (Throwable e) {
+            handleException(e, "Cannot load hierarchy for "+rootType+".");
         }
 
         return new HashSet();
@@ -3614,7 +3604,7 @@ class OMEROGateway
                         case GroupData.PERMISSIONS_PUBLIC_READ:
                             r = "rwrwr-";
                     }
-                    Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
+                    final Chmod2 chmod = Requests.chmod("ExperimenterGroup", group.getId(), r);
                     List<Request> l = new ArrayList<Request>();
                     l.add(chmod);
                     return new RequestCallback(gw.submit(ctx, l, null));
