@@ -665,6 +665,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		MapTable t = getSelectedTable();
 		if (t == null)
 			t = getUserTable();
+		if (t == null) return;
 		MapTableModel m = (MapTableModel) t.getModel();
 		// if nothing's selected add to end of table, otherwise below selected
 		// row
