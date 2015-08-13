@@ -270,6 +270,25 @@ public class ROIReader {
                 Roi shape;
                 for (int j = 0; j < subRois.length; j++) {
                     shape = subRois[j];
+                    
+                    // Set ImagePlus reference in subROIs for the check in L216 to work
+                    ImagePlus imp = r.getImage();
+                    if (imp != null) {
+                    	shape.setImage(imp);
+                    }
+                    
+                    // Transfer correct ROI positions (according to IJ) from superROI
+                    int pos = r.getPosition();
+                    int c = r.getCPosition();
+                    int z = r.getZPosition();
+                    int t = r.getTPosition();
+                    
+                    if (c == 0 || z == 0 || t == 0) {
+                    	shape.setPosition(pos);
+                    } else {
+                    	shape.setPosition(c, z, t);
+                    }
+                    
                     type = shape.getTypeAsString();
                     if (shape instanceof Line) {
                         roiData.addShapeData(convertLine((Line) shape));
