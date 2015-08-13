@@ -345,19 +345,16 @@ public class FileObject
                         String[] keys = v.split("=");
                         if (keys.length > 1) {
                             sizeZ_org = Integer.valueOf(keys[1]);
-                            IJ.log(i+" z "+sizeZ_org);
                         }
                     } else if (v.startsWith("channels")) {
                         String[] keys = v.split("=");
                         if (keys.length > 1) {
                             sizeC_org = Integer.valueOf(keys[1]);
-                            IJ.log(i+" c "+sizeC_org);
                         }
                     } else if (v.startsWith("frames")) {
                         String[] keys = v.split("=");
                         if (keys.length > 1) {
                             sizeT_org = Integer.valueOf(keys[1]);
-                            IJ.log(i+" t "+sizeT_org);
                         }
                     }
                 }
