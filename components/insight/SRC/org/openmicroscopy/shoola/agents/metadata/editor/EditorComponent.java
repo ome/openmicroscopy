@@ -1233,4 +1233,12 @@ class EditorComponent
     {
         return model.getScriptFromName(name);
     }
+    
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#getSelectedFileAnnotations()
+     */
+    public Collection<FileAnnotationData> getSelectedFileAnnotations() {
+        return view.getSelectedFileAnnotations();
+    }
 }

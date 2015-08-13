@@ -546,4 +546,13 @@ public interface Editor
     void setLDAPDetails(long userID, String result);
 
     ScriptObject getScriptFromName(String name);
+    
+    /**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+    public Collection<FileAnnotationData> getSelectedFileAnnotations();
+    
 }
