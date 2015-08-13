@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.AcquisitionDataUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -603,7 +603,7 @@ class AcquisitionDataUI
 		DocComponent doc;
 		docPane.removeAll();
 		while (i.hasNext()) {
-			docPane.add(new DocComponent(i.next(), model, false));
+			docPane.add(new DocComponent(i.next(), model, false, false));
 		}
 		revalidate();
 		repaint();
