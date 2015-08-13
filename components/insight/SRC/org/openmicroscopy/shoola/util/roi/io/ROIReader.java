@@ -324,13 +324,13 @@ public class ROIReader {
     {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
-        Roi[] rois = overlay.toArray();
+        if (overlay == null) return null;
         
+        Roi[] rois = overlay.toArray();
         for (Roi roi : rois) {
-        	roi.setImage(image);
+            roi.setImage(image);
         }
         
-        if (overlay == null) return null;
         return read(imageID, rois);
     }
 
