@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.text.NumberFormat;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginConfig;
@@ -169,7 +171,8 @@ public final class SplashScreenInit
                 uc = new UserCredentials(jnlpSession,
                         jnlpSession, jnlpHost, UserCredentials.HIGH);
                 try {
-                    uc.setPort(Integer.parseInt(jnlpPort));
+                    NumberFormat nf = NumberFormat.getInstance();
+                    uc.setPort(nf.parse(jnlpPort).intValue());
                 } catch (Exception e) {}//use the default port.
             } else {
                 uc = splashScreen.getUserCredentials((max == index-1));
