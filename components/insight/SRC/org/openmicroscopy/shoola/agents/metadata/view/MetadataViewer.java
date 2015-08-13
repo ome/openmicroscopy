@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -273,6 +273,13 @@ public interface MetadataViewer
 	 */
 	public JComponent getEditorUI();
 	
+	/**
+     * Returns the Editor to select the metadata.
+     * 
+     * @return See above.
+     */
+    public Editor getEditor();
+    
 	/**
 	 * Checks if the renderer has already been initialized
 	 * @return See above.
