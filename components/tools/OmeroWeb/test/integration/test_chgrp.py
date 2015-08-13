@@ -226,6 +226,7 @@ def _get_response_json(django_client, request_url,
 
 def _csrf_post_response_json(django_client, request_url,
                              query_string, status_code=200):
-    rsp = _csrf_post_response(django_client, request_url, query_string, status_code)
+    rsp = _csrf_post_response(django_client, request_url,
+                              query_string, status_code)
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
