@@ -128,7 +128,7 @@ public class FileObject
      * @param xmlStr The string to parse.
      * @return See above.
      */
-    private Document xmlParser(String xmlStr)
+    private Document xmlParser(String xmlStr) throws SAXException
     {
         InputSource stream = new InputSource();
         stream.setCharacterStream(new StringReader(xmlStr));
@@ -140,9 +140,6 @@ public class FileObject
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             doc = builder.parse(stream);
         } catch (ParserConfigurationException e) {
-            e.printStackTrace(pw);
-            IJ.log(sw.toString());
-        } catch (SAXException e) {
             e.printStackTrace(pw);
             IJ.log(sw.toString());
         } catch (IOException e) {
@@ -335,9 +332,11 @@ public class FileObject
             int sizeC_org = sizeC_cur;
             int sizeT_org = sizeT_cur;
             int sizeZ_org = sizeZ_cur;
-            Document doc = xmlParser(xmlStr);
-            if (doc == null) { //not XML or not possible to read it correctly
-                //try to parse the string
+            Document doc = null;
+            try {
+            	doc = xmlParser(xmlStr);
+            } catch (SAXException e) { //not XML or not possible to read it correctly
+            	//try to parse the string
                 String[] values = xmlStr.split("\n");
                 String v;
                 for (int i = 0; i < values.length; i++) {
@@ -362,7 +361,9 @@ public class FileObject
                         }
                     }
                 }
-            } else {
+            }
+            
+            if (doc != null) { 
                 Node node = getPixelsNode(doc);
                 if (node == null) return false;
                 NamedNodeMap nnm = node.getAttributes();
