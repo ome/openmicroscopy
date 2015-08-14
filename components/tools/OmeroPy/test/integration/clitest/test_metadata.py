@@ -23,7 +23,7 @@ import pytest
 
 import omero
 import omero.gateway
-from omero.constants.namespaces import NSBULKANNOTATIONS
+from omero.constants.namespaces import NSBULKANNOTATIONS, NSMEASUREMENT
 from omero.gateway import BlitzGateway
 from omero.plugins.metadata import Metadata, MetadataControl
 from omero.rtypes import rdouble, unwrap
@@ -46,16 +46,19 @@ class MetadataTestBase(CLITest):
 
     def create_annotations(self, obj):
         tag = self.new_tag('tag-' + self.name)
-        fa = self.make_file_annotation(
-            'file-' + self.name, format="OMERO.tables", ns=NSBULKANNOTATIONS)
+        fab = self.make_file_annotation(
+            'fileb-' + self.name, format="OMERO.tables", ns=NSBULKANNOTATIONS)
+        fam = self.make_file_annotation(
+            'filem-' + self.name, format="OMERO.tables", ns=NSMEASUREMENT)
         ma = omero.model.MapAnnotationI()
         ma.setMapValue([omero.model.NamedValue(
             'key-' + self.name, 'value-' + self.name)])
 
         self.link(obj, tag)
-        self.link(obj, fa)
+        self.link(obj, fab)
+        self.link(obj, fam)
         self.link(obj, ma)
-        return tag, fa, ma
+        return tag, fab, fam, ma
 
     def create_roi(self, img):
         roi = omero.model.RoiI()
@@ -119,7 +122,7 @@ class TestMetadata(MetadataTestBase):
     @pytest.mark.parametrize('annotations', [False, True])
     def test_get_bulkanns(self, annotations):
         if annotations:
-            tag, fa, ma = self.create_annotations(self.image)
+            tag, fab, fam, ma = self.create_annotations(self.image)
 
         bulkanns = self.md.get_bulkanns()
 
@@ -128,39 +131,60 @@ class TestMetadata(MetadataTestBase):
             b0 = bulkanns[0]
             assert isinstance(b0.obj_wrapper,
                               omero.gateway.FileAnnotationWrapper)
-            assert b0.getFileName() == unwrap(fa.getFile().getName())
+            assert b0.getFileName() == unwrap(fab.getFile().getName())
         else:
             assert bulkanns == []
 
     @pytest.mark.parametrize('annotations', [False, True])
+    def test_get_measures(self, annotations):
+        if annotations:
+            tag, fab, fam, ma = self.create_annotations(self.image)
+
+        measures = self.md.get_measures()
+
+        if annotations:
+            assert len(measures) == 1
+            m0 = measures[0]
+            assert isinstance(m0.obj_wrapper,
+                              omero.gateway.FileAnnotationWrapper)
+            assert m0.getFileName() == unwrap(fam.getFile().getName())
+        else:
+            assert measures == []
+
+    @pytest.mark.parametrize('annotations', [False, True])
     def test_get_allanns(self, annotations):
         if annotations:
-            tag, fa, ma = self.create_annotations(self.image)
+            tag, fab, fam, ma = self.create_annotations(self.image)
 
         allanns = self.md.get_allanns()
 
         if annotations:
-            assert len(allanns) == 3
+            assert len(allanns) == 4
             # Put into a known order to make comparison easier
-            allanns.sort(key=lambda x: x.ice_staticId())
+            allanns.sort(key=lambda x: (x.ice_staticId(), x.getId()))
             a0 = allanns[0]
             a1 = allanns[1]
             a2 = allanns[2]
+            a3 = allanns[3]
 
             assert isinstance(
                 a0.obj_wrapper, omero.gateway.FileAnnotationWrapper)
-            assert a0.getFileName() == unwrap(fa.getFile().getName())
+            assert a0.getFileName() == unwrap(fab.getFile().getName())
 
             assert isinstance(
-                a1.obj_wrapper, omero.gateway.MapAnnotationWrapper)
-            mapvalue = a1.getValue()
+                a1.obj_wrapper, omero.gateway.FileAnnotationWrapper)
+            assert a1.getFileName() == unwrap(fam.getFile().getName())
+
+            assert isinstance(
+                a2.obj_wrapper, omero.gateway.MapAnnotationWrapper)
+            mapvalue = a2.getValue()
             assert len(mapvalue) == 1
             assert mapvalue[0][0] == 'key-%s' % self.name
             assert mapvalue[0][1] == 'value-%s' % self.name
 
             assert isinstance(
-                a2.obj_wrapper, omero.gateway.TagAnnotationWrapper)
-            assert a2.getName() == unwrap(tag.getName())
+                a3.obj_wrapper, omero.gateway.TagAnnotationWrapper)
+            assert a3.getName() == unwrap(tag.getName())
 
         else:
             assert allanns == []
@@ -188,7 +212,7 @@ class TestMetadataControl(MetadataTestBase):
 
     @pytest.mark.parametrize('report', [False, True])
     def test_bulkanns(self, capfd, report):
-        tag, fa, ma = self.create_annotations(self.image)
+        tag, fab, fam, ma = self.create_annotations(self.image)
 
         prx = "Image:%s" % self.imageid
         self.args += ["bulkanns", prx]
@@ -201,15 +225,38 @@ class TestMetadataControl(MetadataTestBase):
         assert "TagAnnotation:" not in o
 
         if report:
-            assert "name: file-%s" % self.name in o
+            assert "name: fileb-%s" % self.name in o
+            assert "name: filem-%s" % self.name not in o
+            assert "ns: %s" % NSBULKANNOTATIONS in o
+            assert "ns: %s" % NSMEASUREMENT not in o
         else:
             assert "name:" not in o
 
-    # def test_measures(self, capfd):
+    @pytest.mark.parametrize('report', [False, True])
+    def test_measures(self, capfd, report):
+        tag, fab, fam, ma = self.create_annotations(self.image)
+
+        prx = "Image:%s" % self.imageid
+        self.args += ["measures", prx]
+        if report:
+            self.args += ["--report"]
+        o = self.invoke(capfd)
+
+        assert "FileAnnotation:" in o
+        assert "MapAnnotation:" not in o
+        assert "TagAnnotation:" not in o
+
+        if report:
+            assert "name: fileb-%s" % self.name not in o
+            assert "name: filem-%s" % self.name in o
+            assert "ns: %s" % NSBULKANNOTATIONS not in o
+            assert "ns: %s" % NSMEASUREMENT in o
+        else:
+            assert "name:" not in o
 
     @pytest.mark.parametrize('report', [False, True])
     def test_mapanns(self, capfd, report):
-        tag, fa, ma = self.create_annotations(self.image)
+        tag, fab, fam, ma = self.create_annotations(self.image)
 
         prx = "Image:%s" % self.imageid
         self.args += ["mapanns", prx]
@@ -229,7 +276,7 @@ class TestMetadataControl(MetadataTestBase):
 
     @pytest.mark.parametrize('report', [False, True])
     def test_allanns(self, capfd, report):
-        tag, fa, ma = self.create_annotations(self.image)
+        tag, fab, fam, ma = self.create_annotations(self.image)
 
         prx = "Image:%s" % self.imageid
         self.args += ["allanns", prx]
@@ -243,7 +290,8 @@ class TestMetadataControl(MetadataTestBase):
 
         if report:
             assert "value: tag-%s" % self.name in o
-            assert "name: file-%s" % self.name in o
+            assert "name: fileb-%s" % self.name in o
+            assert "name: filem-%s" % self.name in o
             assert "key-%s=value-%s" % (self.name, self.name) in o
         else:
             assert "value:" not in o
@@ -252,3 +300,7 @@ class TestMetadataControl(MetadataTestBase):
             assert "value-" not in o
 
     # def test_populate(self, capfd):
+
+    # def test_rois(self, capfd):
+
+    # def test_populateroi(self, capfd):

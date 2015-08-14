@@ -73,6 +73,10 @@ class Metadata(object):
         return self.wrap(self.obj_wrapper.listAnnotations(
             namespaces.NSBULKANNOTATIONS))
 
+    def get_measures(self):
+        return self.wrap(self.obj_wrapper.listAnnotations(
+            namespaces.NSMEASUREMENT))
+
     def get_allanns(self):
         return self.wrap(self.obj_wrapper.listAnnotations())
 
@@ -119,7 +123,8 @@ class MetadataControl(BaseControl):
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
 
-        for x in (bulkanns, mapanns, allanns, rois, populate, populateroi):
+        for x in (bulkanns, measures, mapanns, allanns,
+                  rois, populate, populateroi):
             x.add_argument("--report", action="store_true", help=(
                 "Show additional information"))
 
@@ -129,9 +134,10 @@ class MetadataControl(BaseControl):
             dry_or_not.add_argument("-f", "--force", action="store_false",
                                     dest="dry_run")
 
-        bulkanns.add_argument(
-            "--parents", action="store_true",
-            help="Also search parents for bulk annotations")
+        for x in (bulkanns, measures):
+            x.add_argument(
+                "--parents", action="store_true",
+                help="Also search parents for annotations")
 
         rois.add_argument(
             "--delete", action="store_true", help="Delete all ROIs")
@@ -152,6 +158,8 @@ class MetadataControl(BaseControl):
         klass = args.obj.ice_staticId().split("::")[-1]
         oid = args.obj.id.val
         wrapper = conn.getObject(klass, oid)
+        if not wrapper:
+            raise Exception("Failed to get object %s:%s" % (klass, oid))
         return Metadata(wrapper)
 
     def _format_ann(self, md, obj, indent=None):
@@ -244,33 +252,40 @@ class MetadataControl(BaseControl):
             for k, v in tuples:
                 self.ctx.out("%s=%s" % (k, v))
 
+    def _output_ann(self, mdobj, funcstr, parents, indent):
+        try:
+            anns = getattr(mdobj, funcstr)()
+        except NotImplementedError:
+            self.ctx.err('WARNING: Failed to get annotations for %s' %
+                         mdobj.get_name())
+            anns = []
+        if indent is not None:
+            self.ctx.out("%s%s" % (
+                '  ' * indent, mdobj.get_name()))
+            indent += 1
+        for a in anns:
+            self.ctx.out(self._format_ann(mdobj, a, indent))
+        if parents:
+            for p in mdobj.get_parents():
+                self._output_ann(p, funcstr, parents, indent)
+
     def bulkanns(self, args):
         ("Provide a list of the NSBULKANNOTATION tables linked "
          "to the given object")
-
-        def output_bulkann(mdobj, indent=None):
-            anns = mdobj.get_bulkanns()
-            if indent is not None:
-                self.ctx.out("%s%s" % (
-                    '  ' * indent, mdobj.get_name()))
-                indent += 1
-            for a in anns:
-                self.ctx.out(self._format_ann(md, a, indent))
-            if args.parents:
-                for p in mdobj.get_parents():
-                    output_bulkann(p, indent)
-
         md = self._load(args)
+        indent = None
         if args.report:
-            output_bulkann(md, 0)
-        else:
-            output_bulkann(md)
+            indent = 0
+        self._output_ann(md, 'get_bulkanns', args.parents, indent)
 
     def measures(self, args):
         ("Provide a list of the NSMEASUREMENT tables linked "
          "to the given object")
         md = self._load(args)
-        print md
+        indent = None
+        if args.report:
+            indent = 0
+        self._output_ann(md, 'get_measures', args.parents, indent)
 
     def mapanns(self, args):
         "Provide a list of all MapAnnotations linked to the given object"
