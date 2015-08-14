@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -125,6 +127,9 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -4332,8 +4337,10 @@ class TreeViewerComponent
 		model.setScript(script);
 		Browser browser = model.getSelectedBrowser();
 		List<DataObject> objects;
-		if (browser == null) objects = new ArrayList<DataObject>();
-		else objects = browser.getSelectedDataObjects();
+		if (browser == null)
+		    objects = new ArrayList<DataObject>();
+		else 
+		    objects = browser.getSelectedDataObjects();
 
 		if (CollectionUtils.isEmpty(objects)) {
 		    DataBrowser db = model.getDataViewer();
@@ -4342,6 +4349,22 @@ class TreeViewerComponent
 		        objects.addAll(db.getBrowser().getSelectedDataObjects());
 		    }
 		}
+		
+		// if it is a script which operates on FileAnnotations, pass on the selected
+		// FileAnnotations in the MetadataViewer as additional reference objects
+		ListMultimap<String, DataObject> addObjects = null;
+		Pattern p = Pattern.compile("file.?annotation.*", Pattern.CASE_INSENSITIVE);
+		for(String paramName : script.getInputs().keySet()) {
+		    Matcher m = p.matcher(paramName);
+		    if(m.matches()) {
+		        addObjects = ArrayListMultimap.create();
+                if (model.getMetadataViewer() != null) {
+                    addObjects.putAll(paramName, model.getMetadataViewer().getEditor()
+                            .getSelectedFileAnnotations());
+                }
+		    }
+		}
+		
 		//setStatus(false);
 		//Check if the objects are in the same group.
 		Iterator<DataObject> i = objects.iterator();
@@ -4364,12 +4387,12 @@ class TreeViewerComponent
 		}
 		if (scriptDialog == null) {
 			scriptDialog = new ScriptingDialog(view, 
-					model.getScript(script.getScriptID()), objects, 
+					model.getScript(script.getScriptID()), objects, addObjects,
 					TreeViewerAgent.isBinaryAvailable());
 			scriptDialog.addPropertyChangeListener(controller);
 			UIUtilities.centerAndShow(scriptDialog);
 		} else {
-			scriptDialog.reset(model.getScript(script.getScriptID()), objects);
+			scriptDialog.reset(model.getScript(script.getScriptID()), objects, addObjects);
 			if (!scriptDialog.isVisible())
 				UIUtilities.centerAndShow(scriptDialog);
 		}
