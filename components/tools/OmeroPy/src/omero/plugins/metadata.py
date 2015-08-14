@@ -308,33 +308,16 @@ class MetadataControl(BaseControl):
         if not args.dry_run:
             ctx.write_to_omero()
 
-    def _deleterois(self, client, roiids):
-        to_delete = {"Roi": roiids}
-        del_cmd = omero.cmd.Delete2(targetObjects=to_delete)
-        handle = client.getSession().submit(del_cmd)
-
-        callback = None
-        try:
-            callback = omero.callbacks.CmdCallbackI(client, handle)
-            loops = max(10, len(roiids) / 10)
-            delay = 500
-            callback.loop(loops, delay)
-            rsp = callback.getResponse()
-            if isinstance(rsp, omero.cmd.OK):
-                deleted = rsp.deletedObjects.get(
-                    "ome.model.roi.Roi", [])
-                self.ctx.out("Deleted %d ROIs" % len(deleted))
-            else:
-                self.ctx.err("Delete failed: %s" % rsp)
-        finally:
-            if callback:
-                callback.close(True)
-            else:
-                handle.close()
-
     def rois(self, args):
         "Manage ROIs"
         md = self._load(args)
+        if args.delete:
+            graphspec = "/%s/Roi:%d" % (md.get_type(), md.get_id())
+            cmd = ["delete", graphspec]
+            if args.report:
+                cmd += ["--report"]
+            return self.ctx.invoke(cmd)
+
         client = self.ctx.conn(args)
         if md.get_type() == "Plate":
             q = """SELECT r.id FROM Roi r, WellSample ws WHERE
@@ -343,10 +326,7 @@ class MetadataControl(BaseControl):
             raise Exception("Not implemented for type %s" % md.get_type())
         roiids = client.getSession().getQueryService().projection(q, None)
         roiids = [r[0].val for r in roiids]
-        if args.delete:
-            self._deleterois(client, roiids)
-        else:
-            self.ctx.out('\n'.join('Roi:%d' % rid for rid in roiids))
+        self.ctx.out('\n'.join('Roi:%d' % rid for rid in roiids))
 
     def populateroi(self, args):
         "Add ROIs to an object"
