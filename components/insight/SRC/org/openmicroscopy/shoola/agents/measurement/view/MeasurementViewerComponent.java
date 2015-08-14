@@ -1255,7 +1255,18 @@ class MeasurementViewerComponent
      */
     public void tagSelectedFigures(List<AnnotationData> tags)
     {
-        Collection<ROIShape> shapes = model.getSelectedShapes();
+        Collection<Figure> figures = view.getSelectedFiguresFromTables();
+        if (CollectionUtils.isEmpty(figures)) {
+            return;
+        }
+        List<ROIShape> shapes = new ArrayList<ROIShape>();
+        Iterator<Figure> kk = figures.iterator();
+        ROIFigure fig;
+        while (kk.hasNext())
+        {
+            fig = (ROIFigure) kk.next();
+            shapes.add(fig.getROIShape());
+        }
         if (CollectionUtils.isEmpty(shapes)) return;
 
         Multimap<Long, AnnotationData> m = ArrayListMultimap.create();
@@ -1271,6 +1282,7 @@ class MeasurementViewerComponent
         List<AnnotationData> originalTags = new ArrayList<AnnotationData>();
         List<DataObject> objects = new ArrayList<DataObject>();
         ShapeData d;
+        List<Long> ids = new ArrayList<Long>();
         while (i.hasNext()) {
             shape = i.next();
             d = shape.getData();
@@ -1279,7 +1291,15 @@ class MeasurementViewerComponent
                 data = (StructuredDataResults)
                         shape.getFigure().getAttribute(AnnotationKeys.TAG);
                 if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
-                    originalTags.addAll(data.getTags());
+                    Collection<TagAnnotationData> t = data.getTags();
+                    Iterator<TagAnnotationData> tt = t.iterator();
+                    while (tt.hasNext()) {
+                        TagAnnotationData tag = tt.next();
+                        if (!ids.contains(tag.getId())) {
+                            originalTags.add(tag);
+                            ids.add(tag.getId());
+                        }
+                    }
                 }
             }
         }

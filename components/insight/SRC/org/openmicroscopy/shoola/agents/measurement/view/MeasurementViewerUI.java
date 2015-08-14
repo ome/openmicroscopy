@@ -1537,7 +1537,18 @@ class MeasurementViewerUI
 		
 		roiManager.onSelectedFigures();
 	}
-	
+
+	/**
+	 * Returns the selected figures from the table. If a ROI is selected,
+	 * all the shapes hosted by that ROI
+	 *
+	 * @return See above.
+	 */
+	Collection<Figure> getSelectedFiguresFromTables()
+	{
+	    return roiManager.getSelectedFiguresFromTables();
+	}
+
 	/**
 	 * Creates a file chooser used to select where to save the results
 	 * as an Excel file.
@@ -1634,7 +1645,7 @@ class MeasurementViewerUI
 		super.setVisible(value);
 	}
 
- 	/**
+ /**
          * Opens a file chooser dialog and exports the graph as JPEG or PNG.
          */
         public void exportGraph() {

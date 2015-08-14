@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
+
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -40,6 +42,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
 
+
+
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
@@ -497,6 +502,34 @@ class ObjectManager
 	void loadTags()
 	{
 	    control.loadTags();
+	}
+	
+	/**
+	 * Returns a collection of all figures selected
+	 * If a ROI is selected, all the figures hosted will that ROI will be
+	 * returned.
+	 * @return See above.
+	 */
+	Collection<Figure> getSelectedFiguresFromTables()
+	{
+	    List l = objectsTable.getSelectedObjects();
+        if (CollectionUtils.isEmpty(l)) return null;
+        Iterator i = l.iterator();
+        Object o;
+        ROI roi;
+        ROIShape shape;
+        List<Figure> list = new ArrayList<Figure>();
+        while (i.hasNext()) {
+            o =  i.next();
+            if (o instanceof ROI) {
+                roi = (ROI) o;
+                list.addAll(roi.getAllFigures());
+            } else if (o instanceof ROIShape) {
+                shape = (ROIShape) o;
+                list.add(shape.getFigure());
+            }
+        }
+        return list;
 	}
 }
 
