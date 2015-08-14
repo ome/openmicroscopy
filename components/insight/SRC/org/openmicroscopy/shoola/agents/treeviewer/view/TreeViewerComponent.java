@@ -4354,20 +4354,21 @@ class TreeViewerComponent
 		    }
 		}
 		
-		// if it is a script which operates on FileAnnotations, pass on the selected
-		// FileAnnotations in the MetadataViewer as additional reference objects
-		ListMultimap<String, DataObject> addObjects = null;
-		Pattern p = Pattern.compile("file.?annotation.*", Pattern.CASE_INSENSITIVE);
-		for(String paramName : script.getInputs().keySet()) {
-		    Matcher m = p.matcher(paramName);
-		    if(m.matches()) {
-		        addObjects = ArrayListMultimap.create();
+        // if it is a script which operates on FileAnnotations, pass on the selected
+        // FileAnnotations in the MetadataViewer as additional reference objects
+        ListMultimap<String, DataObject> addObjects = null;
+        Pattern p = Pattern.compile("file.?annotation.*",
+                Pattern.CASE_INSENSITIVE);
+        for (String paramName : script.getInputs().keySet()) {
+            Matcher m = p.matcher(paramName);
+            if (m.matches()) {
+                addObjects = ArrayListMultimap.create();
                 if (model.getMetadataViewer() != null) {
-                    addObjects.putAll(paramName, model.getMetadataViewer().getEditor()
-                            .getSelectedFileAnnotations());
+                    addObjects.putAll(paramName, model.getMetadataViewer()
+                            .getEditor().getSelectedFileAnnotations());
                 }
-		    }
-		}
+            }
+        }
 		
 		//setStatus(false);
 		//Check if the objects are in the same group.

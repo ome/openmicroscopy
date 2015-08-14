@@ -421,17 +421,17 @@ class AnnotationDataUI
 		removeOtherAnnotationsButton.setActionCommand(
 				""+EditorControl.REMOVE_OTHER_ANNOTATIONS);
 		
-		selectButton = new JButton(icons.getIcon(IconManager.SCRIPT_WITH_UI));
-		selectButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		selectButton.setToolTipText("Select Files for Scripts");
-		selectButton.addMouseListener(new MouseAdapter() {
-            
+        selectButton = new JButton(icons.getIcon(IconManager.SCRIPT_WITH_UI));
+        selectButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        selectButton.setToolTipText("Select Files for Scripts");
+        selectButton.addMouseListener(new MouseAdapter() {
+
             public void mouseReleased(MouseEvent e) {
                 if (selectButton.isEnabled()) {
                     setFileAnnotationSelectable(!isFileAnnotationSelectable());
                 }
             }
-        
+
         });
         UIUtilities.unifiedButtonLookAndFeel(selectButton);
         
