@@ -100,8 +100,8 @@ public class ROISaver
 	 * 
 	 * @param ctx The security context.
 	 * @param imageID The image's ID.
-	 * @param fileID The ID of the files.
 	 * @param userID The user's ID.
+	 * @param roiList The rois to handle.
 	 */
 	public ROISaver(SecurityContext ctx, long imageID,long userID,
 			List<ROIData> roiList)
