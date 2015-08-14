@@ -593,17 +593,35 @@ class BulkToMapAnnotationContext(object):
     Processor for creating MapAnnotations from BulkAnnotations.
     """
 
-    def __init__(self, client, target_object, ofileid):
+    def __init__(self, client, target_object, ofileid=None):
         """
         :param client: OMERO client object
         :param target_object: The object to be annotated
-        :param ofileid: The OriginalFile ID of the bulk-annotations table
-        Todo: Automatically find the table by searching annotations
+        :param ofileid: The OriginalFile ID of the bulk-annotations table,
+               default is to use the a bulk-annotation attached to
+               target_object
         """
         self.client = client
         self.target_object = target_object
-        self.ofileid = ofileid
+        if ofileid:
+            self.ofileid = ofileid
+        else:
+            self.ofileid = self.get_bulk_annotation_file()
+        if not self.ofileid:
+            raise MetadataError("Unable to find bulk-annotations file")
         self.value_resolver = ValueResolver(self.client, self.target_object)
+
+    def get_bulk_annotation_file(self):
+        otype = self.target_object.ice_staticId().split('::')[-1]
+        q = """SELECT child.file.id FROM %sAnnotationLink link
+               WHERE parent.id=:id AND child.ns=:ns ORDER by id""" % otype
+        params = omero.sys.ParametersI()
+        params.addId(unwrap(self.target_object.getId()))
+        params.addString('ns', omero.constants.namespaces.NSBULKANNOTATIONS)
+        qs = self.client.getSession().getQueryService()
+        r = qs.projection(q, params)
+        if r:
+            return unwrap(r[0][0])
 
     def create_map_annotation(self, target, keys, values):
         ma = MapAnnotationI()
@@ -619,6 +637,7 @@ class BulkToMapAnnotationContext(object):
     def parse(self):
         tableid = self.ofileid
         sr = self.client.getSession().sharedResources()
+        log.debug('Loading table OriginalFile:%d', self.ofileid)
         table = sr.openTable(omero.model.OriginalFileI(tableid, False))
         assert table
 
