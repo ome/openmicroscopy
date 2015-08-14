@@ -149,7 +149,7 @@
         //var t = $('#rd-wblitz-ch'+idx).get(0);
         //if (t != undefined) t.checked=ch.active;
         var rgb = OME.hexToRgb(ch.color)
-        $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+','+rgb.g+','+rgb.b+')').attr('title', ch.label);
+        $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
     };
 
 
@@ -280,7 +280,7 @@
             var rgb = OME.hexToRgb(channels[i].color)
             $('<button id="wblitz-ch'+i+
                 '"class="squared' + (channels[i].active?' pressed':'') +
-                '"style="background-color: rgb('+rgb.r+','+rgb.g+','+rgb.b+')' +
+                '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
                 '"title="' + channels[i].label +
                 '">'+channels[i].label+'</button>')
             .appendTo(box)
@@ -459,7 +459,7 @@
             var rgb = OME.hexToRgb(channels[i].color)
             tmp.after(template
                 .replace(/\$class/g, btnClass)
-                .replace(/\$col/g, 'rgb('+rgb.r+','+rgb.g+','+rgb.b+')')
+                .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
