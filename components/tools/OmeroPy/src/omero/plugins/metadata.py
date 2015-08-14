@@ -334,12 +334,34 @@ class MetadataControl(BaseControl):
             return self.ctx.invoke(cmd)
 
         client = self.ctx.conn(args)
-        if md.get_type() == "Plate":
+        params = omero.sys.ParametersI()
+        params.addId(md.get_id())
+        if md.get_type() == "Screen":
+            q = """SELECT r.id FROM Roi r, WellSample ws, Plate p,
+                   ScreenPlateLink spl WHERE
+                   spl.child=p AND r.image=ws.image AND ws.well.plate=p AND
+                   spl.parent.id=:id"""
+        elif md.get_type() == "Plate":
             q = """SELECT r.id FROM Roi r, WellSample ws WHERE
-                r.image.id=ws.image AND ws.well.plate.id=%d""" % md.get_id()
+                   r.image=ws.image AND ws.well.plate.id=:id"""
+        elif md.get_type() == "PlateAcquisition":
+            q = """SELECT r.id FROM Roi r, WellSample ws WHERE
+                   r.image=ws.image AND ws.plateAcquisition.id=:id"""
+        elif md.get_type() == "Well":
+            q = """SELECT r.id FROM Roi r, WellSample ws WHERE
+                   r.image=ws.image AND ws.well.id=:id"""
+        elif md.get_type() == "Project":
+            q = """SELECT r.id FROM Roi r, DatasetImageLink dil,
+                   ProjectDatasetLink pdl WHERE dil.child=r.image AND
+                   dil.parent=pdl.child AND pdl.parent.id=:id"""
+        elif md.get_type() == "Dataset":
+            q = """SELECT r.id FROM Roi r, DatasetImageLink dil WHERE
+                   dil.child=r.image AND dil.parent.id=:id"""
+        elif md.get_type() == "Image":
+            q = """SELECT r.id FROM Roi r WHERE r.image.id=:id"""
         else:
             raise Exception("Not implemented for type %s" % md.get_type())
-        roiids = client.getSession().getQueryService().projection(q, None)
+        roiids = client.getSession().getQueryService().projection(q, params)
         roiids = [r[0].val for r in roiids]
         self.ctx.out('\n'.join('Roi:%d' % rid for rid in roiids))
 
