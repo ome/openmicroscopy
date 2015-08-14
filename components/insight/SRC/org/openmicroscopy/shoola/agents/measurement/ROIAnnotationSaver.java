@@ -81,7 +81,7 @@ public class ROIAnnotationSaver
      */
     public void load()
     {
-        mhView.saveData(ctx, objects, toAdd, toRemove, null, -1, this);
+        handle = mhView.saveData(ctx, objects, toAdd, toRemove, null, -1, this);
     }
 
     /**
