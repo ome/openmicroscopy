@@ -36,7 +36,6 @@ import org.jhotdraw.draw.AttributeKey;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
-import pojos.TagAnnotationData;
 import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
