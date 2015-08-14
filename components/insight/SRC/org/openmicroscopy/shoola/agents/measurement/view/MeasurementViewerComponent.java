@@ -1194,7 +1194,6 @@ class MeasurementViewerComponent
         model.setExistingTags(tags);
         //Display the UI.
         Collection<Figure> shapes = model.getSelectedFigures();
-        if (CollectionUtils.isEmpty(shapes)) return;
         Iterator<Figure> i = shapes.iterator();
         ROIFigure shape;
         StructuredDataResults data;
