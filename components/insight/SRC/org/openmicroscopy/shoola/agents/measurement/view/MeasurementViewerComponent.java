@@ -1142,15 +1142,21 @@ class MeasurementViewerComponent
 	    ROIFigure f;
 	    ShapeData shape;
 	    Map<Long, StructuredDataResults> r = convertMap(result, null);
-	    List<ROIShape> shapes = new ArrayList<ROIShape>();
 	    if (r == null) return;
 	    while (i.hasNext()) {
             f = i.next();
             shape = f.getROIShape().getData();
             f.setAttribute(AnnotationKeys.TAG, r.get(shape.getId()));
-            shapes.add(f.getROIShape());
         }
-	    if (CollectionUtils.isNotEmpty(shapes)) {
+	    
+	    Collection<Figure> figs = view.getSelectedFiguresFromTables();
+	    if (CollectionUtils.isNotEmpty(figs)) {
+	        List<ROIShape> shapes = new ArrayList<ROIShape>();
+	        Iterator<Figure> j = figs.iterator();
+	        while (j.hasNext()) {
+	            f = (ROIFigure) j.next();
+	            shapes.add(f.getROIShape());
+	        }
 	        view.displayAnnotations(shapes);
 	    }
 	}
