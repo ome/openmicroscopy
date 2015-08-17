@@ -128,7 +128,7 @@ class MetadataControl(BaseControl):
             x.add_argument("--report", action="store_true", help=(
                 "Show additional information"))
 
-        for x in (populate, populateroi):
+        for x in (rois, populate, populateroi):
             dry_or_not = x.add_mutually_exclusive_group()
             dry_or_not.add_argument("-n", "--dry-run", action="store_true")
             dry_or_not.add_argument("-f", "--force", action="store_false",
@@ -331,6 +331,8 @@ class MetadataControl(BaseControl):
             cmd = ["delete", graphspec]
             if args.report:
                 cmd += ["--report"]
+            if args.dry_run:
+                cmd += ["--dry-run"]
             return self.ctx.invoke(cmd)
 
         client = self.ctx.conn(args)
