@@ -84,12 +84,9 @@ class WebControl(BaseControl):
                 "--worker-connections", type=int, default=1000,
                 help="The maximum number of simultaneous clients.")
             nginx_start_group.add_argument(
-                "--threads", type=int, default=1,
-                help="The number of worker threads for handling requests.")
-            nginx_start_group.add_argument(
                 "--wsgi-args", type=str, default="",
                 help=("Additional arguments. Check Gunicorn Documentation "
-                "http://docs.gunicorn.org/en/latest/settings.htm"))
+                      "http://docs.gunicorn.org/en/latest/settings.htm"))
         #
         # Advanced
         #
@@ -223,6 +220,12 @@ class WebControl(BaseControl):
         d["OMEROPYTHONROOT"] = self._get_python_dir()
         d["OMEROFALLBACKROOT"] = self._get_fallback_dir()
 
+    def _fastcgi_deprecation(self, settings):
+        if settings.APPLICATION_SERVER in settings.FASTCGI_TYPES:
+            self.ctx.err(
+                "WARNING: FastCGI support is deprecated and will be removed"
+                " in OMERO 5.2. Install gunicorn and update config.")
+
     def config(self, args):
         """Generate a configuration file from a template"""
         from omeroweb import settings
@@ -244,6 +247,8 @@ class WebControl(BaseControl):
             port = 8080
         else:
             port = 80
+
+        self._fastcgi_deprecation(settings)  # to be removed in 5.2
 
         if settings.APPLICATION_SERVER in (settings.FASTCGITCP,
                                            settings.WSGITCP):
@@ -389,6 +394,7 @@ class WebControl(BaseControl):
         if not args.keep_sessions:
             self.clearsessions(args)
         import omeroweb.settings as settings
+        self._fastcgi_deprecation(settings)  # to be removed in 5.2
 
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -454,17 +460,17 @@ using bin\omero web start on Windows with FastCGI.
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         elif deploy == settings.WSGITCP:
             try:
-                import gunicorn
+                import gunicorn  # NOQA
             except ImportError:
-                self.ctx.die("Gunicorn not installed.")
+                self.ctx.die(608, "Gunicorn not installed.")
             try:
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
                 pass
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)s"
-            cmd += " --workers %(workers)s --worker-connections %(worker_conn)s"
-            cmd += " --threads %(threads)s"
+            cmd += " --workers %(workers)s "
+            cmd += " --worker-connections %(worker_conn)s"
             cmd += " --max-requests %(maxrequests)d"
             cmd += " %(wsgi_args)s"
             cmd += " omeroweb.wsgi:application"
@@ -475,7 +481,6 @@ using bin\omero web start on Windows with FastCGI.
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
                 'workers': args.workers,
                 'worker_conn': args.worker_connections,
-                'threads': args.threads,
                 'wsgi_args': args.wsgi_args}).split()
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         else:
@@ -488,6 +493,7 @@ using bin\omero web start on Windows with FastCGI.
     def status(self, args):
         self.ctx.out("OMERO.web status... ", newline=False)
         import omeroweb.settings as settings
+        self._fastcgi_deprecation(settings)  # to be removed in 5.2
 
         deploy = getattr(settings, 'APPLICATION_SERVER')
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
@@ -543,7 +549,7 @@ using bin\omero web start on Windows with FastCGI.
                 os.kill(pid, signal.SIGTERM)  # kill whole group
                 self.ctx.out("[OK]")
                 self.ctx.out("OMERO.web %s workers (PID %d) killed." %
-                    (deploy.replace("-tcp", "").upper(), pid))
+                             (deploy.replace("-tcp", "").upper(), pid))
                 return True
             finally:
                 if pid_path.exists():
