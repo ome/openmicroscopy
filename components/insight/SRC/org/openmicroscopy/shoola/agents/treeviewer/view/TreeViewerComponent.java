@@ -2669,8 +2669,13 @@ class TreeViewerComponent
 			"you wish to apply the settings to.");
 			return;
 		}
-		model.firePasteRenderingSettings(ids, klass);
-		fireStateChange();
+		
+        MessageBox box = new MessageBox(getUI(), "Save rendering settings",
+                RENDERINGSETTINGS_WARNING);
+        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+            model.firePasteRenderingSettings(ids, klass);
+            fireStateChange();
+        }
 	}
 
 	
