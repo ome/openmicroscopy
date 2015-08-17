@@ -427,9 +427,9 @@
                          ids.push(node.data.obj.id);
                     });
 
-                    rdef_url += "?toids=" + ids.join("&toids=");
+                    var data = {'toids': ids}
                     if (type === 'dataset' || type === 'plate' || type === 'acquisition') {
-                        rdef_url += '&to_type='+ type;
+                        data.to_type = type;
                     }
 
                     var confirmMsg = "This will save new rendering settings to " +
