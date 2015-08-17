@@ -17,8 +17,6 @@
  */
 package ome.services.delete;
 
-import java.util.Map;
-
 import ome.io.nio.AbstractFileSystemService;
 import ome.services.delete.files.FileDeleter;
 import ome.system.OmeroContext;
@@ -43,10 +41,7 @@ import com.google.common.collect.SetMultimap;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  * @see ome.api.IDelete
- * @deprecated all except setup and {@link #deleteFiles(SetMultimap)} will be removed in OMERO 5.2, so use the
- * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
-@Deprecated
 public class Deletion {
 
     /**
@@ -63,8 +58,6 @@ public class Deletion {
         implements ApplicationContextAware {
 
         protected OmeroContext ctx;
-
-        protected ApplicationContext specs;
 
         protected AbstractFileSystemService afs;
 
@@ -84,7 +77,7 @@ public class Deletion {
         @Override
         protected Deletion createInstance()
             throws Exception {
-            return new Deletion(afs, this.ctx);
+            return new Deletion(afs, ctx);
         }
 
         @Override
@@ -104,42 +97,11 @@ public class Deletion {
 
     private final AbstractFileSystemService afs;
 
-    //
-    // Execution state (per steps)
-    //
-
-    private FileDeleter files;
-
     public Deletion(AbstractFileSystemService afs, OmeroContext ctx) {
 
         this.afs = afs;
         this.ctx = ctx;
 
-    }
-
-    //
-    // Getters
-    //
-
-    public Map<String, long[]> getUndeletedFiles() {
-        return files == null ? null : files.getUndeletedFiles();
-    }
-
-    /**
-     * For each Report use the map of tables to deleted ids to remove the files
-     * under Files, Pixels and Thumbnails if the ids no longer exist in the db.
-     * Create a map of failed ids (not yet passed back to client).
-      */
-    public void deleteFiles() {
-        StopWatch sw = new Slf4JStopWatch();
-        try {
-            files.run();
-            if (files.getFailedFilesCount() > 0) {
-                log.warn(files.getWarning());
-            }
-        } finally {
-            sw.stop("omero.delete.binary");
-        }
     }
 
     /**
