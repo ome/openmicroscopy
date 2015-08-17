@@ -7,13 +7,8 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.io.Serializable;
 import java.util.Arrays;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Holds the data of an <i>RGB</i> image. The image data is stored in three

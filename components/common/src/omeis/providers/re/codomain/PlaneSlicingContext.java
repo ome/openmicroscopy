@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * We consider that the image is composed of eight <code>1-bit</code> planes
  * ranging from bit-plane <code>0</code> for the least significant bit to

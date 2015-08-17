@@ -7,7 +7,6 @@
 
 package ome.testing;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
-
-// Application-internal dependencies
 
 /**
  * abstract data container for testing. Sub-classes can set whatever values it

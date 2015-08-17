@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * The Identity map. This map is always in the codomain chain.
  * 

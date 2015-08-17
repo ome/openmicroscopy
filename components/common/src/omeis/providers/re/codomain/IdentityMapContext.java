@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * An empty context for the identity map.
  * 

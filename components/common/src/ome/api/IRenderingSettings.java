@@ -6,15 +6,10 @@
  */
 package ome.api;
 
-
-//Java imports
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.model.IObject;

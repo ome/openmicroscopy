@@ -7,7 +7,6 @@
 
 package ome.api;
 
-// Java imports
 import java.util.Collection;
 import java.util.List;
 

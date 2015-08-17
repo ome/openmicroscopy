@@ -7,14 +7,9 @@
 
 package omeis.providers.re.data;
 
-// Java imports
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Identifies a <i>2D</i>-plane in the <i>XYZ</i> moving frame of the <i>3D</i>

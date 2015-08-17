@@ -7,12 +7,8 @@
 
 package ome.api;
 
-// Java imports
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;

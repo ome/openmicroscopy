@@ -6,17 +6,14 @@
  */
 package ome.annotations;
 
-// Java imports
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 

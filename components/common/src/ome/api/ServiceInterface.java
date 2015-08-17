@@ -7,12 +7,6 @@
 
 package ome.api;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Marker interface representing an OMERO API Interface.
  * 

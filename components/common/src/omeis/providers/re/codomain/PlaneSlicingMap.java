@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * We assume that an image is composed of eight <code>1-bit</code> planes. Two
  * types of plane Slicing transformations {@link #transformConstant} and

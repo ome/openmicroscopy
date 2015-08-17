@@ -6,13 +6,9 @@
  */
 package ome.annotations;
 
-// Java imports
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.InternalException;
 
 /**

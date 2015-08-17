@@ -7,11 +7,6 @@
 
 package ome.api;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import java.util.List;
 
 import ome.annotations.Validate;

@@ -4,13 +4,7 @@
  */
 package omeis.providers.re.data;
 
-
-//Java imports
 import java.io.Serializable;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Identifies a rectangular region.

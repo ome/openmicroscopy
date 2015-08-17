@@ -7,13 +7,9 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.util.List;
 import java.util.Map;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ValidationException;
 import ome.model.core.Pixels;

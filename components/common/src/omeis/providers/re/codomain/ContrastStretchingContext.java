@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Two points <code>pStart</code> and <code>pEnd</code> define the context
  * of this transformation. We determine the equations of 3 lines (segments to be

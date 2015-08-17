@@ -6,9 +6,6 @@
  */
 package ome.testing;
 
-// Java imports
-
-// Third-party libraries
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;

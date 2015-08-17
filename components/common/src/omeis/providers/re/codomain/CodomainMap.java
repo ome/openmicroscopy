@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Declares the interface common to all codomain maps. Subclasses encapsulates a
  * parameterized map:

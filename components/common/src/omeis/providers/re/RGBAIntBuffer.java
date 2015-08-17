@@ -7,13 +7,7 @@
 
 package omeis.providers.re;
 
-
-// Java imports
 import java.util.Arrays;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Holds the data of an <i>RGBA</i> image. The image data is stored as a 

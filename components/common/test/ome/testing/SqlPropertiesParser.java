@@ -7,7 +7,6 @@
 
 package ome.testing;
 
-// Java imports
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -17,14 +16,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-
-// Application-internal dependencies
 
 /**
  * utility to parse a properties file. See "resources/test_queries.properties"

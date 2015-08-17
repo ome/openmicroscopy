@@ -7,12 +7,8 @@
 
 package ome.system;
 
-// Java imports
 import java.util.Properties;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
 /**

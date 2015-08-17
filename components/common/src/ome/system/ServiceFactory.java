@@ -7,7 +7,6 @@
 
 package ome.system;
 
-// Java imports
 import java.util.Properties;
 
 import ome.api.IAdmin;

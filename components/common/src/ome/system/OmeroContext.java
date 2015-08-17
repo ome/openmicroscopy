@@ -7,7 +7,6 @@
 
 package ome.system;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

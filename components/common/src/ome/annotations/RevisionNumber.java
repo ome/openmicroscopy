@@ -6,15 +6,10 @@
  */
 package ome.annotations;
 
-// Java imports
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * annotation used for tracking source code changes.

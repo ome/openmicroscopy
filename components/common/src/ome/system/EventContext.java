@@ -7,7 +7,6 @@
 
 package ome.system;
 
-// Java imports
 import java.util.List;
 
 import ome.annotations.RevisionDate;

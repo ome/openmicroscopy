@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Basic piecewise linear functions. The idea is to increase the dynamic range
  * of levels in the image being processed. The locations of the points

@@ -6,7 +6,6 @@
  */
 package ome.testing;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,13 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ome.conditions.ApiUsageException;
-
-// Application-internal dependencies
 
 /**
  * utility class to test CGC paths. Specifying just what should and what should
