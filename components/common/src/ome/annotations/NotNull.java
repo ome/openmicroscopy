@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 1.0
  * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)

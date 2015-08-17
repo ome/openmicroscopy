@@ -29,7 +29,7 @@ import ome.model.display.RenderingDef;
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev: 1187 $ $Date: 2007-01-14 22:36:45 +0000 (Sun, 14 Jan 2007) $) </small>
+ * @version 3.0
  * @since 3.0
  */
 public interface IRenderingSettings extends ServiceInterface {

@@ -26,8 +26,7 @@ import ome.conditions.ApiUsageException;
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0
- * @see ome.system.ServiceFactory <small> (<b>Internal version:</b> $Rev$
- *      $Date$) </small>
+ * @see ome.system.ServiceFactory
  * @since 1.0
  */
 public class Login {

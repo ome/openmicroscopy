@@ -90,7 +90,7 @@ import ome.parameters.Parameters;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @version 1.0
  * @since OME1.0
  * TODO possibly move optionBuilder to the common code. ome.common.utils
  * TODO possibly move map description to marker interface with a see also

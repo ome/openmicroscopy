@@ -26,7 +26,7 @@ import ome.annotations.Validate;
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 3.0
  * @since 3.0
  */
 public interface ThumbnailStore extends StatefulServiceInterface {

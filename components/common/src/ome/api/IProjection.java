@@ -17,7 +17,7 @@ import ome.model.enums.PixelsType;
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev: 1167 $ $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $) </small>
+ * @version 3.0
  * @since 3.0
  */
 public interface IProjection extends ServiceInterface

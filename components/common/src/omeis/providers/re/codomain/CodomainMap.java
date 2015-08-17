@@ -33,8 +33,7 @@ package omeis.providers.re.codomain;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/09 17:23:37 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public interface CodomainMap {

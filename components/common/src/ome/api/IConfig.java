@@ -37,7 +37,6 @@ import ome.conditions.SecurityViolation;
  * interfaces. See source code documentation for more.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @since 3.0-M3
  */
 /*
@@ -45,8 +44,6 @@ import ome.conditions.SecurityViolation;
  * subversion properties on this class file. These values can then be accessed
  * via ome.system.Version
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface IConfig extends ServiceInterface {
 
     /**

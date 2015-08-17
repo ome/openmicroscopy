@@ -25,8 +25,7 @@ import java.util.List;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/17 17:49:34 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class PlaneDef implements Serializable {
