@@ -20,7 +20,7 @@ from omero.constants import namespaces
 from omero.gateway import BlitzGateway
 from omero.util import populate_metadata, populate_roi
 
-HELP = """metadata methods
+HELP = """Metadata utilities
 
 Provides access to and editing of the metadata which
 is typically shown in the right handle panel of the
