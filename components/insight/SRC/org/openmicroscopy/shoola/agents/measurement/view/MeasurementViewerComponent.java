@@ -1277,10 +1277,9 @@ class MeasurementViewerComponent
         Iterator<ROIShape> i = shapes.iterator();
         ROIShape shape;
         StructuredDataResults data;
-        List<AnnotationData> originalTags = new ArrayList<AnnotationData>();
         List<DataObject> objects = new ArrayList<DataObject>();
         ShapeData d;
-        List<Long> ids = new ArrayList<Long>();
+        Map<Long, AnnotationData> mo = new HashMap<Long, AnnotationData>();
         while (i.hasNext()) {
             shape = i.next();
             d = shape.getData();
@@ -1293,9 +1292,8 @@ class MeasurementViewerComponent
                     Iterator<TagAnnotationData> tt = t.iterator();
                     while (tt.hasNext()) {
                         TagAnnotationData tag = tt.next();
-                        if (!ids.contains(tag.getId())) {
-                            originalTags.add(tag);
-                            ids.add(tag.getId());
+                        if (!mo.containsKey(tag.getId())) {
+                            mo.put(tag.getId(), tag);
                         }
                     }
                 }
@@ -1307,13 +1305,7 @@ class MeasurementViewerComponent
                     "You must save the ROI before annotating it.");
             return;
         }
-        //Original
-        Multimap<Long, AnnotationData> mo = ArrayListMultimap.create();
-        j = originalTags.iterator();
-        while (j.hasNext()) {
-            an = j.next();
-            mo.put(an.getId(), an);
-        }
+
         //Now we prepare the list of annotations to add or remove
         List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
         List<Object> toRemove = new ArrayList<Object>();
@@ -1329,7 +1321,7 @@ class MeasurementViewerComponent
                 toAdd.add(e.getValue());
             }
         }
-        k = mo.entries().iterator();
+        k = mo.entrySet().iterator();
         while (k.hasNext()) {
             e = k.next();
             Long id = e.getKey();
