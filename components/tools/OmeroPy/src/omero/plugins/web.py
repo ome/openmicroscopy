@@ -76,7 +76,20 @@ class WebControl(BaseControl):
             group.add_argument(
                 "--no-wait", action="store_true",
                 help="Do not wait on expired sessions clean-up")
-
+            nginx_start_group = x.add_argument_group()
+            nginx_start_group.add_argument(
+                "--workers", type=int, default=5,
+                help="The number of worker processes for handling requests.")
+            nginx_start_group.add_argument(
+                "--worker-connections", type=int, default=1000,
+                help="The maximum number of simultaneous clients.")
+            nginx_start_group.add_argument(
+                "--threads", type=int, default=1,
+                help="The number of worker threads for handling requests.")
+            nginx_start_group.add_argument(
+                "--wsgi-args", type=str, default="",
+                help=("Additional arguments. Check Gunicorn Documentation "
+                "http://docs.gunicorn.org/en/latest/settings.htm"))
         #
         # Advanced
         #
@@ -236,7 +249,7 @@ class WebControl(BaseControl):
                                            settings.WSGITCP):
             if settings.APPLICATION_SERVER_PORT == port:
                 self.ctx.die(
-                    678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
+                    678, "Port conflict: HTTP(%s) and"" wsgi/fastcgi-tcp(%s)."
                     % (port, settings.APPLICATION_SERVER_PORT))
 
         d = {
@@ -376,10 +389,12 @@ class WebControl(BaseControl):
         if not args.keep_sessions:
             self.clearsessions(args)
         import omeroweb.settings as settings
+
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
         location = self._get_python_dir() / "omeroweb"
         deploy = getattr(settings, 'APPLICATION_SERVER')
+
         if deploy == settings.WSGI:
             self.ctx.out("You are deploying OMERO.web using apache and"
                          " mod_wsgi.")
@@ -439,16 +454,29 @@ using bin\omero web start on Windows with FastCGI.
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         elif deploy == settings.WSGITCP:
             try:
+                import gunicorn
+            except ImportError:
+                self.ctx.die("Gunicorn not installed.")
+            try:
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
                 pass
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
-            cmd += " -b %(host)s:%(port)s -w 5"
+            cmd += " --bind %(host)s:%(port)s"
+            cmd += " --workers %(workers)s --worker-connections %(worker_conn)s"
+            cmd += " --threads %(threads)s"
+            cmd += " --max-requests %(maxrequests)d"
+            cmd += " %(wsgi_args)s"
             cmd += " omeroweb.wsgi:application"
             django = (cmd % {
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
-                'port': settings.APPLICATION_SERVER_PORT}).split()
+                'port': settings.APPLICATION_SERVER_PORT,
+                'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
+                'workers': args.workers,
+                'worker_conn': args.worker_connections,
+                'threads': args.threads,
+                'wsgi_args': args.wsgi_args}).split()
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         else:
             django = [sys.executable, "manage.py", "runserver", link,
@@ -460,6 +488,7 @@ using bin\omero web start on Windows with FastCGI.
     def status(self, args):
         self.ctx.out("OMERO.web status... ", newline=False)
         import omeroweb.settings as settings
+
         deploy = getattr(settings, 'APPLICATION_SERVER')
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None:
@@ -508,12 +537,13 @@ using bin\omero web start on Windows with FastCGI.
                 except:
                     self.ctx.out("[FAILED]")
                     self.ctx.out(
-                        "Django FastCGI workers (PID %s) not started?"
-                        % pid_text)
+                        "OMERO.web %s workers (PID %s) not started?"
+                        % (deploy.replace("-tcp", "").upper(), pid_text))
                     return True
                 os.kill(pid, signal.SIGTERM)  # kill whole group
                 self.ctx.out("[OK]")
-                self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
+                self.ctx.out("OMERO.web %s workers (PID %d) killed." %
+                    (deploy.replace("-tcp", "").upper(), pid))
                 return True
             finally:
                 if pid_path.exists():

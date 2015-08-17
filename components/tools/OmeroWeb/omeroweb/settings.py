@@ -362,7 +362,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.port":
         ["APPLICATION_SERVER_PORT", "4080", str, "Upstream application port"],
     "omero.web.application_server.max_requests":
-        ["APPLICATION_SERVER_MAX_REQUESTS", 400, int, None],
+        ["APPLICATION_SERVER_MAX_REQUESTS", 0, int,
+         ("The maximum number ofrequests a worker will process before "
+          "restarting.")],
     "omero.web.prefix":
         ["FORCE_SCRIPT_NAME",
          None,
