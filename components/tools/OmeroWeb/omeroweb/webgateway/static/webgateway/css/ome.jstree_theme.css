@@ -22,6 +22,13 @@
   padding: 0 4px 0 1px;
   margin: 0;
   vertical-align: top;
+  /* Don't allow to select text */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .jstree-anchor:focus {
   outline: 0;
