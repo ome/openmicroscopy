@@ -169,8 +169,10 @@ class ObjectManager
 							objectsTable.getSelectedRow());
 					if (node == null) return;
 					Object nodeValue = node.getUserObject();
-					if (nodeValue instanceof ROIShape) 
-						view.selectFigure(((ROIShape) nodeValue).getFigure());
+					view.clearInspector();
+					if (nodeValue instanceof ROIShape) {
+					    view.selectFigure(((ROIShape) nodeValue).getFigure());
+					}
 					int col = objectsTable.getSelectedColumn();
 					int row = objectsTable.getSelectedRow();
 					
