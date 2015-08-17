@@ -1353,19 +1353,23 @@
 
                             config["create"] = {
                                 "label" : "Create new",
+                                "_disabled": true,
                                 "submenu": {
                                     "project": {
                                         "label" : "Project",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/folder16.png" %}',
                                         action: function (node) {OME.handleNewContainer("project"); },
                                     },
                                     "dataset": {
                                         "label" : "Dataset",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/folder_image16.png" %}',
                                         action: function (node) {OME.handleNewContainer("dataset"); },
                                       },
                                       "screen": {
                                         "label" : "Screen",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/folder_screen16.png" %}',
                                         action: function (node) {OME.handleNewContainer("screen"); },
                                       }
@@ -1375,9 +1379,11 @@
                             config["ccp"] = {
                                 "label"     : "Edit",
                                 "action"    : false,
+                                "_disabled" : true,
                                 "submenu"   : {
                                     "cut"   :{
                                         "label" : "Cut Link",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
                                         "action": function(data) {
                                             var inst = $.jstree.reference(data.reference);
@@ -1389,6 +1395,7 @@
                                     },
                                     "copy"  : {
                                         "label" : "Copy Link",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
 
 
@@ -1401,6 +1408,7 @@
                                     },
                                     "paste": {
                                         "label" : "Paste Link",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function(data) {
                                             var inst = $.jstree.reference(data.reference);
@@ -1416,6 +1424,7 @@
 
                             config["delete"] = {
                                 "label" : "Delete",
+                                "_disabled": true,
                                 "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
                                 "action": function(){
                                     var deleteUrl = "{% url 'manage_action_containers' 'deletemany' %}",
@@ -1426,6 +1435,7 @@
 
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
+                                "_disabled": true,
                                 "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
                                 "action": function() {
                                     // TODO - make sure this works with new jsTree
@@ -1435,6 +1445,7 @@
                             
                             config["share"] = {
                                 "label" : "Create share",
+                                "_disabled": true,
                                 "icon"  : '{% static "webclient/image/icon_toolbar_share2.png" %}',
                                 "action": function(){
                                     // We get_selected() within createShare()
@@ -1444,10 +1455,12 @@
 
                             config["renderingsettings"] = {
                                 "label" : "Rendering Settings...",
+                                "_disabled": true,
                                 "action" : false,
                                 "submenu" : {
                                     "copy_rdef"  : {
                                         "label" : "Copy",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
                                         "action": function() {
                                             var inst = $.jstree.reference('#dataTree');
@@ -1456,6 +1469,7 @@
                                     },
                                     "paste_rdef": {
                                         "label" : "Paste and Save",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             var inst = $.jstree.reference('#dataTree');
@@ -1464,6 +1478,7 @@
                                     },
                                     "reset_rdef": {
                                         "label" : "Set Imported and Save",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             var inst = $.jstree.reference('#dataTree');
@@ -1472,6 +1487,7 @@
                                     },
                                     "owner_rdef": {
                                         "label" : "Set Owner's and Save",
+                                        "_disabled": true,
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             var inst = $.jstree.reference('#dataTree');
