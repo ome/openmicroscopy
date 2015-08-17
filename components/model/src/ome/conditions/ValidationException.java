@@ -16,16 +16,12 @@ package ome.conditions;
  * <ul>
  * <li>a {@link ome.model.containers.Project Project} name with invalid
  * characters</li>
- * <li>{@link ome.model.core.Image Image} linked to two distinct
- * {@link ome.model.containers.Category Categories} in a single
- * (mutually-exclusive) {@link ome.model.containers.CategoryGroup CategoryGroup}
- * </li>
  * </ul>
  * </p>
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 3.0
  * @since 3.0
  */
 public class ValidationException extends ApiUsageException {

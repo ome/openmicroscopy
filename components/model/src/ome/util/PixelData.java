@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
  * @author m.t.b.carroll@dundee.ac.uk
  * @version $Revision$
  * @since 3.0
- * @see PixelBuffer
  */
 public class PixelData
 {
