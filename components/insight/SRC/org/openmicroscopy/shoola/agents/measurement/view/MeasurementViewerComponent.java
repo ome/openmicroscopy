@@ -1142,17 +1142,13 @@ class MeasurementViewerComponent
 	    ROIFigure f;
 	    ShapeData shape;
 	    Map<Long, StructuredDataResults> r = convertMap(result, null);
-	    StructuredDataResults sd;
 	    List<ROIShape> shapes = new ArrayList<ROIShape>();
 	    if (r == null) return;
 	    while (i.hasNext()) {
             f = i.next();
             shape = f.getROIShape().getData();
-            sd = r.get(shape.getId());
-            if (sd != null) {
-                f.setAttribute(AnnotationKeys.TAG, sd);
-                shapes.add(f.getROIShape());
-            }
+            f.setAttribute(AnnotationKeys.TAG, r.get(shape.getId()));
+            shapes.add(f.getROIShape());
         }
 	    if (CollectionUtils.isNotEmpty(shapes)) {
 	        view.displayAnnotations(shapes);
@@ -1338,8 +1334,20 @@ class MeasurementViewerComponent
      */
     public void onAnnotationSaved() {
         //Load the annotation for the selected shapes.
-      //Display the UI.
-        Collection<ROIShape> shapes = model.getSelectedShapes();
+        //Display the UI.
+       
+        Collection<ROIFigure> figures = model.getAllFigures();
+        if (CollectionUtils.isEmpty(figures)) {
+            return;
+        }
+        List<ROIShape> shapes = new ArrayList<ROIShape>();
+        Iterator<ROIFigure> kk = figures.iterator();
+        ROIFigure fig;
+        while (kk.hasNext())
+        {
+            fig = kk.next();
+            shapes.add(fig.getROIShape());
+        }
         if (CollectionUtils.isEmpty(shapes)) return;
         Iterator<ROIShape> i = shapes.iterator();
         ROIShape shape;

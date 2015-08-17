@@ -147,22 +147,24 @@ public class FigureTableModel
 					} else if (AnnotationKeys.TAG.equals(key)) {
 	                    
 	                    StructuredDataResults sd = (StructuredDataResults) figure.getAttribute(key);
-	                    Collection<TagAnnotationData> tags = sd.getTags();
-	                    if (CollectionUtils.isNotEmpty(tags)) {
-	                        StringBuffer buffer = new StringBuffer();
-	                        Iterator<TagAnnotationData> k = tags.iterator();
-	                        TagAnnotationData tag;
-	                        int index = 0;
-	                        int size = tags.size()-1;
-	                        while (k.hasNext()) {
-	                            tag = k.next();
-	                            buffer.append(tag.getTagValue());
-	                            if (index < size) {
-	                                buffer.append(", ");
+	                    if (sd != null) {
+	                        Collection<TagAnnotationData> tags = sd.getTags();
+	                        if (CollectionUtils.isNotEmpty(tags)) {
+	                            StringBuffer buffer = new StringBuffer();
+	                            Iterator<TagAnnotationData> k = tags.iterator();
+	                            TagAnnotationData tag;
+	                            int index = 0;
+	                            int size = tags.size()-1;
+	                            while (k.hasNext()) {
+	                                tag = k.next();
+	                                buffer.append(tag.getTagValue());
+	                                if (index < size) {
+	                                    buffer.append(", ");
+	                                }
+	                                index++;
 	                            }
-	                            index++;
+	                            value = buffer.toString();
 	                        }
-	                        value = buffer.toString();
 	                    }
 					}
 					keys.add(key);
