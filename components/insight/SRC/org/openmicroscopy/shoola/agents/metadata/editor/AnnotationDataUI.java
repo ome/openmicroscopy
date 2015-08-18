@@ -1873,6 +1873,7 @@ class AnnotationDataUI
 		content.revalidate();
 		content.repaint();
 		mapsPane.clear();
+		setFileAnnotationSelectable(false);
 		revalidate();
 		repaint();
 	}
