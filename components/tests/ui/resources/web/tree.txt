@@ -107,7 +107,7 @@ Key Down
     [Arguments]    ${keyCode}    ${cssSelector}=body
     #     Press Key    css=body    \\40     # This doesn't work, since body is not a text input
     #    https://github.com/rtomac/robotframework-selenium2library/issues/198
-    Execute Javascript    var e = jQuery.Event("keydown");e.which = 40;$("${cssSelector}").trigger(e);
+    Execute Javascript    var e = jQuery.Event("keydown");e.which = ${keyCode};$("${cssSelector}").trigger(e);
 
 Popup Menu Item Should Be Enabled
     [Arguments]                         ${menuItem}    ${enabled}

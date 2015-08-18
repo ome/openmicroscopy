@@ -56,11 +56,11 @@ Test Container Creation Enabled
     ${imageNodeId}=                             Select Image By Id            ${imageId}
     # Using hot-key fails on jsTree 3 (worked OK previously)...
     # Focus                                       ${imageNodeId}
-    Key Down                                    40    '#${imageNodeId}'  # '40' is 'down' key    # Press Key    dataTree    /40
+    # Key Down                                    40    '#${imageNodeId}'  # '40' is 'down' key    # Press Key    dataTree    /40
     # ... Use 'Click Next Thumbnail' instead
-    # Click Next Thumbnail
+    Click Next Thumbnail
     Thumbnail Should Not Be Selected            ${imageId}
-    Image Should Not Be Selected                ${imageId}
+    Image Should Not Be Selected By Id          ${imageId}
     Click Thumbnail                             ${imageId}
     Thumbnail Should Be Selected                ${imageId}
     Image Should Be Selected By Id              ${imageId}
