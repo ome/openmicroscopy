@@ -32,6 +32,7 @@ import omero.ServerError;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -648,9 +649,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = groupPermissions;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
         doChange(client, factory, chmod, true);
         disconnect();
 
@@ -719,9 +718,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = groupPermissions;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
         doChange(client, factory, chmod, true);
         disconnect();
 

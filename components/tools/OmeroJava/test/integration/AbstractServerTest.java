@@ -59,6 +59,7 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
+import omero.gateway.util.Requests;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Arc;
@@ -136,7 +137,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 /**
@@ -1188,10 +1188,7 @@ public class AbstractServerTest extends AbstractTest {
      * @return
      */
     Chmod2 createChmodCommand(String type, long id, String perms) {
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of(type, Collections.singletonList(id));
-        chmod.permissions = perms;
-        return chmod;
+        return Requests.chmod(type, id, perms);
     }
 
     /**
