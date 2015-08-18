@@ -421,7 +421,7 @@ class AnnotationDataUI
 		removeOtherAnnotationsButton.setActionCommand(
 				""+EditorControl.REMOVE_OTHER_ANNOTATIONS);
 		
-        selectButton = new JButton(icons.getIcon(IconManager.SCRIPT_WITH_UI));
+        selectButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
         selectButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         selectButton.setToolTipText("Select Files for Scripts");
         selectButton.addMouseListener(new MouseAdapter() {
