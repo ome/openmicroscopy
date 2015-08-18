@@ -26,6 +26,7 @@ Includes classes to help with basic data-munging (TODO), and for formatting
 data for clients.
 """
 
+from collections import deque
 import re
 
 
@@ -33,6 +34,19 @@ class BulkAnnotationConfiguration(object):
     """
     Parent class for handling bulk-annotation column configurations
     """
+
+    REQUIRED = {"name"}
+    OPTIONAL = {
+        "clientname",
+        "clientvalue",
+        "includeclient",
+        "position",
+        "include",
+        "split",
+        "type",
+        "visible",
+        "omitempty",
+        }
 
     def __init__(self, default_cfg, column_cfgs):
         """
@@ -48,12 +62,15 @@ class BulkAnnotationConfiguration(object):
         Get the default column configuration, fill in unspecified fields
         """
         default_defaults = {
-            "clientvalue": "{{ value }}",
+            "clientvalue": None,
             "includeclient": True,
             "include": True,
             "split": False,
             "type": "string",
             "visible": True,
+            "position": -1,
+            "clientname": None,
+            "omitempty": False
         }
         if not cfg:
             cfg = {}
@@ -67,26 +84,15 @@ class BulkAnnotationConfiguration(object):
         defaults.update(cfg)
         return defaults
 
-    @staticmethod
-    def validate_column_config(cfg):
+    @classmethod
+    def validate_column_config(cls, cfg):
         """
         Check whether a column config section is valid, throws Exception if not
         """
-        required = {"name"}
-        optional = {
-            "clientname",
-            "clientvalue",
-            "includeclient",
-            "position",
-            "include",
-            "split",
-            "type",
-            "visible"
-            }
 
         keys = set(cfg.keys())
 
-        missing = required.difference(keys)
+        missing = cls.REQUIRED.difference(keys)
         if missing:
             raise Exception(
                 "Required key(s) missing from column configuration: %s" %
@@ -95,19 +101,38 @@ class BulkAnnotationConfiguration(object):
         if not cfg["name"]:
             raise Exception("Empty name in column configuration: %s" % cfg)
 
-        invalid = keys.difference(optional.union(required))
+        invalid = keys.difference(cls.OPTIONAL.union(cls.REQUIRED))
         if invalid:
             raise Exception(
                 "Invalid key(s) in column configuration: %s" % list(invalid))
 
-        try:
+    @classmethod
+    def validate_filled_column_config(cls, cfg):
+        """
+        Check whether a column config section is valid after filling all
+        optional fields with defaults
+        """
+        cls.validate_column_config(cfg)
+        allfields = cls.OPTIONAL.union(cls.REQUIRED)
+        keys = set(cfg.keys())
+
+        missing = allfields.difference(keys)
+        if missing:
+            raise Exception("Required key(s) missing from column+defaults "
+                            "configuration: %s" % list(missing))
+
+        if cfg["includeclient"] and not cfg["include"]:
+            raise Exception("Option `includeclient` requires option `include`")
+
+        if not isinstance(cfg["position"], int):
+            raise Exception("Option `position` must be an int")
+
+        if cfg["clientvalue"]:
             subbed = re.sub("\{\{\s*value\s*\}\}", '', cfg["clientvalue"])
             m = re.search("\{\{[\s\w]*}\}", subbed)
             if m:
                 raise Exception(
                     "clientvalue template parameter not found: %s" % m.group())
-        except KeyError:
-            pass
 
     def get_column_config(self, cfg):
         """
@@ -116,6 +141,7 @@ class BulkAnnotationConfiguration(object):
         self.validate_column_config(cfg)
         column_cfg = self.defaults.copy()
         column_cfg.update(cfg)
+        self.validate_filled_column_config(column_cfg)
         return column_cfg
 
 
@@ -155,11 +181,59 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
         # TODO: decide what to do with unmentioned columns
         super(KeyValueListTransformer, self).__init__(
             default_cfg, column_cfgs)
-        self.headerindexmap = dict((b, a) for (a, b) in enumerate(headers))
-        self.output_configs = []
-        for n in xrange(len(self.column_cfgs)):
-            cfg = self.column_cfgs[n]
-            self.output_configs.append((cfg, self.headerindexmap[cfg["name"]]))
+        self.headers = headers
+        self.output_configs = self.get_output_configs()
+        print self.output_configs[0]
+        print self.output_configs[1]
+
+    def get_output_configs(self):
+        """
+        Get the full set of output column configs, taking into account
+        specified column positions and columns include/excluded according
+        to the defaults
+        """
+        headerindexmap = dict((b, a) for (a, b) in enumerate(self.headers))
+        positioned = {}
+        unpositioned = deque()
+
+        checked = set()
+
+        # Specified columns
+        for cfg in self.column_cfgs:
+            checked.add(cfg["name"])
+            if not cfg["include"]:
+                print "Ignoring %s" % cfg["name"]
+                continue
+            print "Including %s" % cfg["name"]
+
+            pos = cfg["position"]
+            if pos > 0:
+                if pos in positioned:
+                    raise Exception(
+                        "Multiple columns specified for position: %d" % pos)
+                positioned[pos] = (cfg, headerindexmap[cfg["name"]])
+            else:
+                unpositioned.append((cfg, headerindexmap[cfg["name"]]))
+
+        # Unspecified Columns
+        for name in self.headers:
+            if name not in checked and self.defaults["include"]:
+                cfg = self.get_column_config({"name": name})
+                unpositioned.append((cfg, headerindexmap[cfg["name"]]))
+
+        # The dance- put positioned columns in the right place and fill
+        # any gaps with unpositioned columns (otherwise append to end)
+        output_configs = []
+        if positioned:
+            for pos in xrange(1, max(positioned.keys()) + 1):
+                if pos in positioned:
+                    output_configs.append(positioned.pop(pos))
+                elif not unpositioned:
+                    raise Exception("No column found for position: %d" % pos)
+                else:
+                    output_configs.append(unpositioned.popleft())
+        output_configs.extend(unpositioned)
+        return output_configs
 
     def transform1(self, value, cfg):
         """
@@ -174,23 +248,22 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
             return re.sub("\{\{\s*value\s*\}\}", v, cv)
 
         key = cfg["name"]
-        try:
+        if cfg["clientname"]:
             key = cfg["clientname"]
-        except KeyError:
-            pass
 
-        try:
-            if not cfg["visible"]:
-                key = "__%s" % key
-        except KeyError:
-            pass
+        if not cfg["visible"]:
+            key = "__%s" % key
 
-        if "split" in cfg and cfg["split"]:
+        if cfg["split"]:
             values = [v.strip() for v in value.split(cfg["split"])]
         else:
             values = [value]
 
-        if "clientvalue" in cfg:
+        if cfg["omitempty"]:
+            values = [v for v in values if v is not None and (
+                not isinstance(v, basestring) or v.strip())]
+
+        if cfg["clientvalue"]:
             values = [valuesub(v, cfg["clientvalue"]) for v in values]
         return key, values
 
@@ -199,10 +272,12 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
         Transform a table rows
         :param rowvalues: A table row
         :return: The transformed rows in the form [(k1, v1), (k2 v2), ...].
-                 v* will be a list, in most cases of length one unless the
-                 `split` configuration option is enabled for this column.
+                 v* will be a list of length:
+                 - 1 in most cases
+                 - 0 if `omitempty=True` and value was empty
+                 - 1+ if `split` option is enabled
         """
-        assert len(rowvalues) == len(self.headerindexmap)
+        assert len(rowvalues) == len(self.headers)
         rowkvs = [self.transform1(rowvalues[i], c)
                   for (c, i) in self.output_configs]
         return rowkvs
