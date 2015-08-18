@@ -422,7 +422,7 @@ public class PermissionsTest extends AbstractServerTest {
      * Test a specific case of using {@link Chown2} on an image that is in a dataset.
      * @param isImageOwner if the user who owns the dataset also owns the image
      * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
-     * @param groupPerms the permissions on the group in which the data exists
+     * @param groupPermissions the permissions on the group in which the data exists
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown container test cases")
@@ -499,7 +499,7 @@ public class PermissionsTest extends AbstractServerTest {
      * Test a specific case of using {@link Chown2} on a dataset that contains an image.
      * @param isImageOwner if the user who owns the dataset also owns the image
      * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
-     * @param groupPerms the permissions on the group in which the data exists
+     * @param groupPermissions the permissions on the group in which the data exists
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown container test cases")
