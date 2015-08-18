@@ -2145,7 +2145,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
-        assertEquals(2, results.size());
+        Assert.assertEquals(results.size(), 2);
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -2164,8 +2164,8 @@ public class PojosServiceTest extends AbstractServerTest {
                 }
             }
         }
-        assertEquals(2, value);
-        assertEquals(false, orphaned);
+        Assert.assertEquals(value, 2);
+        Assert.assertEquals(orphaned, false);
     }
 
     /**
@@ -2203,7 +2203,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
-        assertEquals(2, results.size());
+        Assert.assertEquals(results.size(), 2);
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -2222,7 +2222,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 }
             }
         }
-        assertEquals(2, value);
-        assertEquals(false, orphaned);
+        Assert.assertEquals(value, 2);
+        Assert.assertEquals(orphaned, false);
     }
 }
