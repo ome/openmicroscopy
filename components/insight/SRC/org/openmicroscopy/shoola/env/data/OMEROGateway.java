@@ -3107,16 +3107,17 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, File file, ImageData image)
+			SecurityContext ctx, File file, ImageData image, boolean keepOriginalPaths)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		return retrieveArchivedFiles(ctx, file, image);
+		return retrieveArchivedFiles(ctx, file, image, keepOriginalPaths);
 	}
 
 	/**
@@ -3125,13 +3126,15 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder
+	 *               structure.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	private Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, File file, ImageData image)
+			SecurityContext ctx, File file, ImageData image, boolean keepOriginalPaths)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		List<?> files = null;
@@ -3200,14 +3203,27 @@ class OMEROGateway
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 
+            String path = null;
+            if (keepOriginalPaths) {
+                path = folderPath.endsWith("/") ? folderPath : folderPath + "/";
+                path = path + of.getPath().getValue();
+                File origPath = new File(path);
+                if (!origPath.exists())
+                    origPath.mkdirs();
+            } else {
+                path = folderPath;
+            }
+			
 			try {
 			    store = gw.getRawFileService(ctx);
 				store.setFileId(of.getId().getValue());
-
-				if (folderPath != null) {
-				    f = new File(folderPath, of.getName().getValue());
-				} else f = file;
-				    results.add(f);
+				
+				if (path != null) 
+				    f = new File(path, of.getName().getValue());
+				else
+				    f = file;
+				
+				results.add(f);
 
 				stream = new FileOutputStream(f);
 				size = of.getSize().getValue();

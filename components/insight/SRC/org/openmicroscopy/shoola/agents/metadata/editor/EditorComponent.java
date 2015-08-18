@@ -73,6 +73,7 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -641,6 +642,18 @@ class EditorComponent
 		if (file == null) return;
 		model.download(file, override);
 	}
+	
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * 
+     * @see Editor#downloadOriginal(String, boolean)
+     */
+    public void downloadOriginal(String path, boolean override) {
+        if (CommonsLangUtils.isEmpty(path))
+            return;
+
+        model.downloadOriginal(path, override);
+    }
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.

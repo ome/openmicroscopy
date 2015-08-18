@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -303,13 +303,15 @@ public interface OmeroDataService
 	 * @param ctx The security context.
 	 * @param location The location where to save the files.
 	 * @param imageID The ID of the image.
+	 * @param keepOriginalPath Pass <code>true</code> to preserve the original 
+	 *         path structure
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			File location, long imageID)
+			File location, long imageID, boolean keepOriginalPath)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
