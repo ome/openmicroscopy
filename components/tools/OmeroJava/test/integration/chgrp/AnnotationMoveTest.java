@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
- * Copyright 2006-2013 University of Dundee. All rights reserved.
+ * Copyright 2006-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.chgrp;
 
 import integration.AbstractServerTest;
@@ -15,6 +14,7 @@ import java.util.List;
 
 import omero.cmd.Chgrp2;
 import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -26,8 +26,6 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import static org.testng.AssertJUnit.*;
 
@@ -77,11 +75,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         // reconnect as user1
         init(clientUser1);
         // now move the image.
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
         callback(true, client, dc);
 
         // Annotation of user1 should be removed
@@ -132,11 +126,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         List<Long> annotationIds = createNonSharableAnnotation(img, null);
         // now move the image.
         long id = img.getId().getValue();
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -178,11 +168,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         List<Long> annotationIds = createSharableAnnotation(img, null);
         // now move the image.
         long id = img.getId().getValue();
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -224,11 +210,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         assertTrue(annotationIds.size() > 0);
         // now move the image.
         long id = img.getId().getValue();
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
         final ChildOption option = new ChildOption();
         option.excludeType = DeleteServiceTest.SHARABLE_TO_KEEP_LIST;
         dc.childOptions = Collections.singletonList(option);
@@ -550,11 +532,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         long id = img1.getId().getValue();
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
         final ChildOption option = new ChildOption();
         option.excludeType = DeleteServiceTest.SHARABLE_TO_KEEP_LIST;
         dc.childOptions = Collections.singletonList(option);

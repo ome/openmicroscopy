@@ -2,7 +2,7 @@
  * integration.chgrp.HierarchyMoveCombinedDataTest
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -21,18 +21,17 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration.chgrp;
 
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import omero.cmd.Chgrp2;
-import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -44,8 +43,6 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import static org.testng.AssertJUnit.*;
 
@@ -135,11 +132,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
                 logRootIntoGroup(ctx.groupId);
         }
         // Create commands to move and create the link in target
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(d.getId().getValue()));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Dataset", d.getId().getValue(), g.getId().getValue());
         callback(true, client, dc);
 
         // Check if the dataset has been removed.
