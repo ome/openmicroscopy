@@ -278,7 +278,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 plates.addAll(p.linkedPlateList());
             }
             if (options.isOrphan()) {
-                if (rootNodeIds == null || rootNodeIds.size() == 0) {
+                if (CollectionUtils.isEmpty(rootNodeIds)) {
                     Iterator<Plate> i = plates.iterator();
                     Set<Long> linked = new HashSet<Long>();
                     while (i.hasNext()) {
