@@ -204,7 +204,7 @@ public class NullOmeroPojoService
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
 	public Map getArchivedImage(SecurityContext ctx, File location,
-			long pixelsID) 
+			long pixelsID, boolean keepOriginalPath) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
