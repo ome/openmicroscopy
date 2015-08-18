@@ -68,6 +68,7 @@ import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.StageLabel;
+import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
@@ -2104,4 +2105,124 @@ public class PojosServiceTest extends AbstractServerTest {
 
 		assertTrue(pl.getDetails().getCreationEvent().isLoaded());
 	}
+	
+
+    /**
+     * Test to load container hierarchy with project containing an dataset
+     * owned by another member of the group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyProjectWithOtherMembersDataset()
+            throws Exception {
+        // first create a project
+        String perms = "rwrw--";
+        EventContext ctx = newUserAndGroup(perms, true);
+
+        Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
+                .simpleProjectData().asIObject());
+
+        EventContext dataOwner = newUserInGroup();
+        Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
+        Dataset dNotOrphaned = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
+        assertEquals(dataOwner.userId,
+                dNotOrphaned.getDetails().getOwner().getId().getValue());
+        //link the dataset to another user's project.
+        ProjectDatasetLink link = new ProjectDatasetLinkI();
+        link.setParent(p);
+        link.setChild(dNotOrphaned);
+        iUpdate.saveAndReturnObject(link);
+
+        //create a project
+        Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
+                .simpleProjectData().asIObject());
+        ParametersI param = new ParametersI();
+        param.exp(rlong(dataOwner.userId));
+        param.orphan();
+        List results = factory.getContainerService().loadContainerHierarchy(
+                Project.class.getName(), new ArrayList(), param);
+        assertEquals(2, results.size());
+        Iterator i = results.iterator();
+        IObject object;
+        int value = 0;
+        boolean orphaned = false;
+        while (i.hasNext()) {
+            object = (IObject) i.next();
+            if (object instanceof Dataset) {
+                if (object.getId().getValue() == d.getId().getValue()) {
+                    value++;
+                } else if (object.getId().getValue() == dNotOrphaned.getId().getValue()) {
+                    orphaned = true;
+                }
+            } else if (object instanceof Project) {
+                if (object.getId().getValue() == p1.getId().getValue()) {
+                    value++;
+                }
+            }
+        }
+        assertEquals(2, value);
+        assertEquals(false, orphaned);
+    }
+
+    /**
+     * Test to load container hierarchy with project containing an dataset
+     * owned by another member of the group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyScreenWithOtherMembersPlate()
+            throws Exception {
+        // first create a Screen
+        String perms = "rwrw--";
+        EventContext ctx = newUserAndGroup(perms, true);
+
+        Screen p = (Screen) iUpdate.saveAndReturnObject(mmFactory
+                .simpleScreenData().asIObject());
+        EventContext dataOwner = newUserInGroup();
+        Plate d = (Plate) iUpdate.saveAndReturnObject(mmFactory
+                .simplePlateData().asIObject());
+        Plate dNotOrphaned = (Plate) iUpdate.saveAndReturnObject(mmFactory
+                .simplePlateData().asIObject());
+        assertEquals(dataOwner.userId,
+                dNotOrphaned.getDetails().getOwner().getId().getValue());
+        ScreenPlateLink link = new ScreenPlateLinkI();
+        link.setParent(p);
+        link.setChild(dNotOrphaned);
+        iUpdate.saveAndReturnObject(link);
+        //link the plate to another user's screen.
+        Screen p1 = (Screen) iUpdate.saveAndReturnObject(mmFactory
+                .simpleScreenData().asIObject());
+        ParametersI param = new ParametersI();
+        param.exp(rlong(dataOwner.userId));
+        param.orphan();
+        List results = factory.getContainerService().loadContainerHierarchy(
+                Screen.class.getName(), new ArrayList(), param);
+        assertEquals(2, results.size());
+        Iterator i = results.iterator();
+        IObject object;
+        int value = 0;
+        boolean orphaned = false;
+        while (i.hasNext()) {
+            object = (IObject) i.next();
+            if (object instanceof Plate) {
+                if (object.getId().getValue() == d.getId().getValue()) {
+                    value++;
+                } else if (object.getId().getValue() == dNotOrphaned.getId().getValue()) {
+                    orphaned = true;
+                }
+            } else if (object instanceof Screen) {
+                if (object.getId().getValue() == p1.getId().getValue()) {
+                    value++;
+                }
+            }
+        }
+        assertEquals(2, value);
+        assertEquals(false, orphaned);
+    }
 }
