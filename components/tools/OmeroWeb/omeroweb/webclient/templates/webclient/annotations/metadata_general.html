@@ -58,6 +58,9 @@
                 {% endif %}
                 linkify_element($( ".commentText" ));
 
+                // Temporary hack to get links to show in MapAnnotations
+                linkify_element($( "table.keyValueTable tbody tr td" ));
+
                 var acquisition_load = false;
                 var preview_load = false;
                 var hierarchy_load = false;
