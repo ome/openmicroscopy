@@ -205,19 +205,15 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                     Long id;
 
                     Map<Long, Dataset> notLinked = new HashMap<Long, Dataset>();
-                    
                     while (j.hasNext()) {
                         d = (Dataset) j.next();
                         id = d.getId();
                         if (!linked.contains(id)) {
                             notLinked.put(id, d);// not linked to user's project
-                            //l.add(d);
-                            //datasets.add(d);
                         }
                     }
                     StringBuffer sb = new StringBuffer();
                     sb.append("select this from Project this ");
-                    sb.append("left outer join fetch this.details.creationEvent ");
                     sb.append("left outer join fetch this.datasetLinks pdl ");
                     sb.append("left outer join fetch pdl.child ds ");
                     sb.append("where ds in (:list)");
