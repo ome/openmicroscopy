@@ -244,9 +244,6 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                             }
                         }
                     }
-                    //C
-                    //Check that the datasets are actually not linked to
-                    //anything
                 }
             }
             if (datasets.size() > 0) {
@@ -293,13 +290,45 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                     List<IObject> list = iQuery.execute(q);
                     Iterator<IObject> j = list.iterator();
                     Long id;
-
+                    Plate pp;
+                    Map<Long, Plate> notLinked = new HashMap<Long, Plate>();
                     while (j.hasNext()) {
-                        plate = (Plate) j.next();
-                        id = plate.getId();
+                        pp = (Plate) j.next();
+                        id = pp.getId();
                         if (!linked.contains(id)) {
-                            l.add(plate);
-                            plates.add(plate);
+                            notLinked.put(id, pp);// not linked to user's screen
+                        }
+                    }
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("select this from Screen this ");
+                    sb.append("left outer join fetch this.plateLinks pdl ");
+                    sb.append("left outer join fetch pdl.child ds ");
+                    sb.append("where ds in (:list)");
+                    if (notLinked.size() > 0) {
+                        List<Plate> nl = new ArrayList<Plate>();
+                        nl.addAll(notLinked.values());
+                        List<IObject> screens =
+                                iQuery.findAllByQuery(sb.toString(),
+                                new Parameters().addList("list", nl));
+                        if (screens.isEmpty()) {
+                            plates.addAll(nl);
+                            l.addAll(nl);
+                        } else { //some datasets are in the projects
+                            for (IObject o : screens) {
+                                p = (Screen) o;
+                                List<Plate> ll = p.linkedPlateList();
+                                for (Plate data : ll) {
+                                    if (notLinked.containsKey(data.getId())) {
+                                        notLinked.remove(data.getId());
+                                    }
+                                }
+                            }
+                            if (notLinked.size() > 0) {
+                                nl = new ArrayList<Plate>();
+                                nl.addAll(notLinked.values());
+                                plates.addAll(nl);
+                                l.addAll(nl); 
+                            }
                         }
                     }
                 }
