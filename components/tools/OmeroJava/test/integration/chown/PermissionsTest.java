@@ -262,9 +262,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, isExpectSuccess);
         disconnect();
 
@@ -358,9 +356,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, isExpectSuccess);
         disconnect();
 
@@ -474,9 +470,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -552,9 +546,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(datasetOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Dataset", Collections.singletonList(datasetId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Dataset", datasetId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -656,9 +648,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -725,9 +715,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -844,21 +832,23 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(datasetOwner);
-        final Chown2 chown = new Chown2();
+        final Chown2 chown;
 
         switch (target) {
         case DATASET:
-            chown.targetObjects = ImmutableMap.of("Dataset", Collections.singletonList(datasetId));
+            chown = Requests.chown("Dataset", datasetId, recipient.userId);
             break;
         case IMAGES:
-            chown.targetObjects = ImmutableMap.of("Image", imageIds);
+            chown = Requests.chown("Image", imageIds, recipient.userId);
             break;
         case PLATE:
-            chown.targetObjects = ImmutableMap.of("Plate", Collections.singletonList(plateId));
+            chown = Requests.chown("Plate", plateId, recipient.userId);
             break;
+        default:
+            chown = null;
+            Assert.fail("unexpected target for chown");
         }
 
-        chown.userId = recipient.userId;
         doChange(client, factory, chown, true);
         disconnect();
 
