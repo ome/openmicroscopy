@@ -49,8 +49,11 @@ class BulkAnnotationConfiguration(object):
         """
         default_defaults = {
             "clientvalue": "{{ value }}",
+            "includeclient": True,
             "include": True,
+            "split": False,
             "type": "string",
+            "visible": True,
         }
         if not cfg:
             cfg = {}
@@ -73,6 +76,7 @@ class BulkAnnotationConfiguration(object):
         optional = {
             "clientname",
             "clientvalue",
+            "includeclient",
             "position",
             "include",
             "split",
@@ -115,6 +119,30 @@ class BulkAnnotationConfiguration(object):
         return column_cfg
 
 
+class KeyValueListPassThrough(object):
+    """
+    Converts bulk-annotation rows into key-value lists without any
+    transformation
+    """
+
+    def __init__(self, headers, default_cfg=None, column_cfgs=None):
+        """
+        :param headers: A list of table headers
+        """
+        self.headers = headers
+
+    def transform_gen(self, values):
+        """
+        Generator which transforms table rows
+        :param values: An iterable of table rows
+        :return: A generator which returns rows in the form
+                 [(k1, v1), (k2 v2), ...]
+        """
+        for rowvals in values:
+            assert len(rowvals) == len(self.headers)
+            yield zip(self.headers, rowvals)
+
+
 class KeyValueListTransformer(BulkAnnotationConfiguration):
     """
     Converts bulk-annotation rows into key-value lists
@@ -133,26 +161,24 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
             cfg = self.column_cfgs[n]
             self.output_configs.append((cfg, self.headerindexmap[cfg["name"]]))
 
-    def transform1(self, key, value, cfg):
+    def transform1(self, value, cfg):
         """
-        Process a single key (table column name) and value, return after
-        applying transformations specified in cfg. cfg["name"] must equal key
+        Process a single value corresponding to a single table row-column
 
-        If split is specified in cfg the returned values will be in a list,
-        even if only one value was found after splitting
+        :return: The key and a list of [value]. In general [values] will be
+                 a single item unless `split` is specified in cfg in which
+                 case there may be multiple.
         """
 
         def valuesub(v, cv):
             return re.sub("\{\{\s*value\s*\}\}", v, cv)
 
-        if "name" not in cfg or cfg["name"] != key:
-            raise Exception(
-                "Expected cfg for %s, received %s" % (key, cfg["name"]))
-
+        key = cfg["name"]
         try:
             key = cfg["clientname"]
         except KeyError:
             pass
+
         try:
             if not cfg["visible"]:
                 key = "__%s" % key
@@ -161,36 +187,34 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
 
         if "split" in cfg and cfg["split"]:
             values = [v.strip() for v in value.split(cfg["split"])]
-            if "clientvalue" in cfg:
-                values = [valuesub(v, cfg["clientvalue"]) for v in values]
-            return key, values
+        else:
+            values = [value]
 
         if "clientvalue" in cfg:
-            value = valuesub(value, cfg["clientvalue"])
-        return key, value
+            values = [valuesub(v, cfg["clientvalue"]) for v in values]
+        return key, values
 
-    def transform_gen(self, values):
+    def transform(self, rowvalues):
         """
-        Generator which transforms table rows
-        :param values: An iterable of table rows
-        :return: A generator which returns transformed rows in the form
-                 [(k1, v1), (k2 v2), ...]. Note v* will be a list if the
-                 "split" configuration option is enabled for this column
+        Transform a table rows
+        :param rowvalues: A table row
+        :return: The transformed rows in the form [(k1, v1), (k2 v2), ...].
+                 v* will be a list, in most cases of length one unless the
+                 `split` configuration option is enabled for this column.
         """
-        for rowvals in values:
-            assert len(rowvals) == len(self.headerindexmap)
-            rowkvs = [self.transform1(c["name"], rowvals[i], c)
-                      for (c, i) in self.output_configs]
-            yield rowkvs
+        assert len(rowvalues) == len(self.headerindexmap)
+        rowkvs = [self.transform1(rowvalues[i], c)
+                  for (c, i) in self.output_configs]
+        return rowkvs
 
 
 def print_kvs(headers, values, default_cfg, column_cfgs):
     tr = KeyValueListTransformer(headers, default_cfg, column_cfgs)
-    g = tr.transform_gen(values)
     n = -1
-    for row in g:
+    for row in values:
         n += 1
-        for k, vs in row:
+        transformed = tr.transform(row)
+        for k, vs in transformed:
             if not isinstance(vs, list):
                 vs = [vs]
             for v in vs:

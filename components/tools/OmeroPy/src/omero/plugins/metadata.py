@@ -146,6 +146,8 @@ class MetadataControl(BaseControl):
             "--context", default=self.POPULATE_CONTEXTS[0][0],
             choices=[a[0] for a in self.POPULATE_CONTEXTS])
         populate.add_argument("--file", help="Input file")
+        populate.add_argument("--cfg", help=(
+            "YAML configuration file (file to be upload, or OriginalFile:ID)"))
 
         populateroi.add_argument(
             "--measurement", type=int, default=None,
@@ -318,7 +320,22 @@ class MetadataControl(BaseControl):
         else:
             populate_metadata.log.setLevel(logging.INFO)
         context_class = dict(self.POPULATE_CONTEXTS)[args.context]
-        ctx = context_class(client, args.obj, args.file)
+        if args.cfg:
+            cfgfileid = None
+            try:
+                otype, oid = args.cfg.split(':')
+                if otype.lower() == 'originalfile':
+                    cfgfileid = long(oid)
+            except ValueError:
+                pass
+
+            if not cfgfileid:
+                cfgfile = client.upload(args.cfg)
+                cfgfileid = cfgfile.getId().val
+
+            ctx = context_class(client, args.obj, args.file, cfgfileid)
+        else:
+            ctx = context_class(client, args.obj, args.file)
         ctx.parse()
         if not args.dry_run:
             ctx.write_to_omero()
