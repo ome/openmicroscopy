@@ -302,7 +302,7 @@ class TestWeb(object):
         o, e = capsys.readouterr()
 
         lines = self.clean_generated_file(o)
-        print lines
+
         if prefix:
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
@@ -336,7 +336,9 @@ class TestWeb(object):
         self.cli.invoke(self.args, strict=True)
 
         o, e = capsys.readouterr()
-        assert not e
+        # to be removed in 5.2
+        assert e.split(os.linesep)[0].startswith(
+            "WARNING: FastCGI support is deprecated")
         o = self.normalise_generated(o)
         d = self.compare_with_reference(server_type + '.conf', o)
         assert not d, 'Files are different:\n' + d
@@ -360,7 +362,9 @@ class TestWeb(object):
         self.cli.invoke(self.args, strict=True)
 
         o, e = capsys.readouterr()
-        assert not e
+        # to be removed in 5.2
+        assert e.split(os.linesep)[0].startswith(
+            "WARNING: FastCGI support is deprecated")
         o = self.normalise_generated(o)
         d = self.compare_with_reference(
             server_type[0] + '-withoptions.conf', o)
