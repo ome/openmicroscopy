@@ -108,8 +108,7 @@ public class PermissionsTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = new Delete2();
-        delete.targetObjects = ImmutableMap.of("Image", testImages);
+        final Delete2 delete = Requests.delete("Image", testImages);
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }

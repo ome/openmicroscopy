@@ -2,6 +2,7 @@
  * Copyright 2006-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static omero.rtypes.rdouble;
@@ -27,16 +28,13 @@ import java.util.UUID;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
-import omero.ApiUsageException;
-import omero.ServerError;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
 import omero.cmd.Delete2;
-import omero.cmd.DoAll;
-import omero.cmd.Request;
 import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
@@ -405,10 +403,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleImage());
         assertNotNull(img);
         long id = img.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Image", id);
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -432,10 +427,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .createInstrument());
         assertNotNull(ins);
         long id = ins.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Instrument.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Instrument", id);
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -477,10 +469,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertNotNull(detector);
 
         // delete detector
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Detector.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Detector", id);
         callback(true, client, dc);
 
         // fail to find detector
@@ -500,10 +489,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
         assertNotNull(p);
         long id = p.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Plate", id);
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -525,12 +511,12 @@ public class DeleteServiceTest extends AbstractServerTest {
     public void testDeletePlate() throws Exception {
         int[] values = { 0, 1 };
         Plate p;
-        List results;
+        List<? extends IObject> results;
         PlateAcquisition pa = null;
         StringBuilder sb;
         Well well;
         WellSample field;
-        Iterator j;
+        Iterator<? extends IObject> j;
         ParametersI param;
         List<Long> wellSampleIds;
         List<Long> imageIds;
@@ -561,10 +547,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 }
             }
             // Now delete the plate
-            Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Plate.class.getSimpleName(),
-                    Collections.singletonList(p.getId().getValue()));
+            Delete2 dc = Requests.delete("Plate", p.getId().getValue());
             callback(true, client, dc);
 
             param = new ParametersI();
@@ -623,12 +606,12 @@ public class DeleteServiceTest extends AbstractServerTest {
         int[] values = { 0, 1 };
         int b;
         Plate p;
-        List results;
+        List<IObject> results;
         PlateAcquisition pa = null;
         StringBuilder sb;
         Well well;
         WellSample field;
-        Iterator j;
+        Iterator<IObject> j;
         ParametersI param;
         List<Long> wellSampleIds;
         List<Long> imageIds;
@@ -664,10 +647,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 }
             }
             // Now delete the plate
-            Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Plate.class.getSimpleName(),
-                    Collections.singletonList(p.getId().getValue()));
+            Delete2 dc = Requests.delete("Plate", p.getId().getValue());
             callback(true, client, dc);
 
             // check the plate
@@ -741,17 +721,14 @@ public class DeleteServiceTest extends AbstractServerTest {
         ids.add(image1.getId().getValue());
         ids.add(image2.getId().getValue());
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(d.getId().getValue()));
+        Delete2 dc = Requests.delete("Dataset", d.getId().getValue());
         callback(true, client, dc);
 
         // Check if objects have been deleted
         ParametersI param = new ParametersI();
         param.addIds(ids);
         String sql = "select i from Image as i where i.id in (:ids)";
-        List results = iQuery.findAllByQuery(sql, param);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
         assertEquals(results.size(), 0);
 
         param = new ParametersI();
@@ -797,17 +774,14 @@ public class DeleteServiceTest extends AbstractServerTest {
         ids.add(image1.getId().getValue());
         ids.add(image2.getId().getValue());
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Project.class.getSimpleName(),
-                Collections.singletonList(p.getId().getValue()));
+        Delete2 dc = Requests.delete("Project", p.getId().getValue());
         callback(true, client, dc);
 
         // Check if objects have been deleted
         ParametersI param = new ParametersI();
         param.addIds(ids);
         String sql = "select i from Image as i where i.id in (:ids)";
-        List results = iQuery.findAllByQuery(sql, param);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
         assertEquals(results.size(), 0);
 
         param = new ParametersI();
@@ -849,10 +823,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(screen.getId().getValue()));
+        Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
         callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();
@@ -863,7 +834,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addIds(ids);
         String sql = "select i from Plate as i where i.id in (:ids)";
-        List results = iQuery.findAllByQuery(sql, param);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
         assertEquals(results.size(), 0);
 
         param = new ParametersI();
@@ -909,10 +880,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             infos.add(info.getId().getValue());
         }
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Image", id);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -997,10 +965,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             infos.add(info.getId().getValue());
         }
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Image", id);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -1071,10 +1036,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> settings = iQuery.findAllByQuery(sql, param);
         // now delete the image
         assertTrue(settings.size() > 0);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         // check if the settings have been deleted.
@@ -1114,10 +1076,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> settings = iQuery.findAllByQuery(sql, param);
         // now delete the image
         assertTrue(settings.size() > 0);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
         // check if the settings have been deleted.
         Iterator<IObject> i = settings.iterator();
@@ -1180,9 +1139,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(img.getId().getValue());
         // method already tested in PojosService test
-        List results = factory.getContainerService().getImages(
+        List<Image> results = factory.getContainerService().getImages(
                 Image.class.getName(), ids, param);
-        img = (Image) results.get(0);
+        img = results.get(0);
         ObjectiveSettings settings = img.getObjectiveSettings();
         StageLabel label = img.getStageLabel();
         ImagingEnvironment env = img.getImagingEnvironment();
@@ -1212,10 +1171,7 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         // Now we try to delete the image.
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
         // Follow the section with acquisition data.
         // Now check if the settings are still there.
@@ -1305,10 +1261,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         }
         // Delete the image.
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", image.getId().getValue());
         callback(true, client, dc);
         // check if the objects have been delete.
 
@@ -1321,7 +1274,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param = new ParametersI();
         param.addIds(shapeIds);
         sql = "select d from Shape as d where d.id in (:ids)";
-        List results = iQuery.findAllByQuery(sql, param);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
         assertEquals(results.size(), 0);
     }
 
@@ -1357,10 +1310,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             shapeIds.add(shape.getId().getValue());
         }
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Roi.class.getSimpleName(),
-                Collections.singletonList(serverROI.getId().getValue()));
+        Delete2 dc = Requests.delete("Roi", serverROI.getId().getValue());
         callback(true, client, dc);
 
         // make sure we still have the image
@@ -1406,9 +1356,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             annotationIds = createNonSharableAnnotation(obj, null);
 
 
-            Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    type, Collections.singletonList(id));
+            Delete2 dc = Requests.delete(type, id);
             callback(true, client, dc);
 
             assertDoesNotExist(obj);
@@ -1439,7 +1387,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<Long> annotationIds;
         ParametersI param;
         String sql;
-        List l;
+        List<IObject> l;
         for (int j = 0; j < values.length; j++) {
             Map<String, IObject> objects = createIObjects();
             for (Map.Entry<String, IObject> entry : objects.entrySet()) {
@@ -1448,17 +1396,13 @@ public class DeleteServiceTest extends AbstractServerTest {
                 id = obj.getId().getValue();
                 annotationIds = createSharableAnnotation(obj, null);
                 if (values[j]) {
-                    final Delete2 dc = new Delete2();
+                    final Delete2 dc = Requests.delete(type, id);
                     final ChildOption co = new ChildOption();
                     co.excludeType = SHARABLE_TO_KEEP_LIST;
-                    dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                            type, Collections.singletonList(id));
                     dc.childOptions = Collections.singletonList(co);
                     callback(true, client, dc);
                 } else {
-                    final Delete2 dc = new Delete2();
-                    dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                            type, Collections.singletonList(id));
+                    final Delete2 dc = Requests.delete(type, id);
                     callback(true, client, dc);
                 }
 
@@ -1491,17 +1435,17 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test
     public void testDeletePlateWithNonSharableAnnotations() throws Exception {
         Plate p;
-        List results;
+        List<IObject> results;
         StringBuilder sb;
         Well well;
         WellSample field;
-        Iterator j;
+        Iterator<IObject> j;
         ParametersI param;
         List<Long> wellSampleIds;
         List<Long> imageIds;
         List<Long> annotationIds = new ArrayList<Long>();
         List<Long> r;
-        List l;
+        List<IObject> l;
         p = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1, 1, 1,
                 0, false));
         param = new ParametersI();
@@ -1533,10 +1477,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             }
         }
         // Now delete the plate
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(p.getId().getValue()));
+        final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
         callback(true, client, dc);
 
         param = new ParametersI();
@@ -1594,7 +1535,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         Plate p = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1,
                 1, 1, 0, false));
         List<Well> results = loadWells(p.getId().getValue(), true);
-        Well well = (Well) results.get(0);
+        Well well = results.get(0);
         // create the roi.
         Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
@@ -1637,12 +1578,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         links.add(il);
         iUpdate.saveAndReturnArray(links);
 
-        final Delete2 dc = new Delete2();
+        final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
         final ChildOption co = new ChildOption();
         co.excludeType = Collections.singletonList(FileAnnotation.class.getSimpleName());
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(p.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
         // Shouldn't have measurements
@@ -1667,18 +1605,18 @@ public class DeleteServiceTest extends AbstractServerTest {
         Boolean[] annotations = { Boolean.valueOf(false), Boolean.valueOf(true) };
         int b;
         Plate p;
-        List results;
+        List<? extends IObject> results;
         PlateAcquisition pa = null;
         StringBuilder sb;
         Well well;
         WellSample field;
-        Iterator j;
+        Iterator<? extends IObject> j;
         ParametersI param;
         List<Long> wellSampleIds;
         List<Long> imageIds;
         Set<Long> annotationIds = new HashSet<Long>();
         List<Long> r;
-        List l;
+        List<IObject> l;
 
         for (int i = 0; i < values.length; i++) {
             b = values[i];
@@ -1719,19 +1657,13 @@ public class DeleteServiceTest extends AbstractServerTest {
                         annotationIds.addAll(r);
                 }
                 if (annotations[k]) {
-                    final Delete2 dc = new Delete2();
+                    final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
                     final ChildOption co = new ChildOption();
                     co.excludeType = SHARABLE_TO_KEEP_LIST;
-                    dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                            Plate.class.getSimpleName(),
-                            Collections.singletonList(p.getId().getValue()));
                     dc.childOptions = Collections.singletonList(co);
                     callback(true, client, dc);
                 } else {
-                    final Delete2 dc = new Delete2();
-                    dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                            Plate.class.getSimpleName(),
-                            Collections.singletonList(p.getId().getValue()));
+                    final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
                     callback(true, client, dc);
                 }
 
@@ -1814,10 +1746,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         l.link(new DatasetI(d.getId().getValue(), false), img2);
         iUpdate.saveAndReturnObject(l);
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(d.getId().getValue()));
+        final Delete2 dc = Requests.delete("Dataset", d.getId().getValue());
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -1868,10 +1797,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         pl.link(new ProjectI(p.getId().getValue(), false), d2);
         iUpdate.saveAndReturnObject(pl);
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Project.class.getSimpleName(),
-                Collections.singletonList(p.getId().getValue()));
+        final Delete2 dc = Requests.delete("Project", p.getId().getValue());
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -1924,10 +1850,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             link.link(screen, plate);
             iUpdate.saveAndReturnObject(link);
 
-            final Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Screen.class.getSimpleName(),
-                    Collections.singletonList(screen.getId().getValue()));
+            final Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
             callback(true, client, dc);
 
             param = new ParametersI();
@@ -1972,12 +1895,9 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         long id = fa.getId().getValue();
 
-        final Delete2 dc = new Delete2();
+        final Delete2 dc = Requests.delete("Image", img.getId().getValue());
         final ChildOption co = new ChildOption();
         co.excludeType = Collections.singletonList(FileAnnotation.class.getSimpleName());
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
 
@@ -2008,12 +1928,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<Long> ids = createSharableAnnotation(img1, img2);
         assertEquals(n, ids.size());
         // now delete the image 1.
-        Delete2 dc = new Delete2();
+        Delete2 dc = Requests.delete("Image", img1.getId().getValue());
         ChildOption co = new ChildOption();
         co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img1.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
         ParametersI param = new ParametersI();
@@ -2029,12 +1946,9 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleDatasetData().asIObject());
         ids = createSharableAnnotation(d1, d2);
         // now delete the dataset 1.
-        dc = new Delete2();
+        dc = Requests.delete("Dataset", d1.getId().getValue());
         co = new ChildOption();
         co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(d1.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
         param = new ParametersI();
@@ -2049,12 +1963,9 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleProjectData().asIObject());
         ids = createSharableAnnotation(p1, p2);
         // now delete the project 1.
-        dc = new Delete2();
+        dc = Requests.delete("Project", p1.getId().getValue());
         co = new ChildOption();
         co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Project.class.getSimpleName(),
-                Collections.singletonList(p1.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
 
@@ -2070,12 +1981,9 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleScreenData().asIObject());
         ids = createSharableAnnotation(s1, s2);
         // now delete the screen 1.
-        dc = new Delete2();
+        dc = Requests.delete("Screen", s1.getId().getValue());
         co = new ChildOption();
         co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(s1.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
 
@@ -2091,12 +1999,9 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
         ids = createSharableAnnotation(plate1, plate2);
         // now delete the plate 1.
-        dc = new Delete2();
+        dc = Requests.delete("Plate", plate1.getId().getValue());
         co = new ChildOption();
         co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(plate1.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
         param = new ParametersI();
@@ -2152,10 +2057,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         links.add(platel);
         iUpdate.saveAndReturnArray(links);
         // delete the tag
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Annotation.class.getSimpleName(),
-                Collections.singletonList(tagId));
+        Delete2 dc = Requests.delete("Annotation", tagId);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -2237,10 +2139,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         links.add(platel);
         iUpdate.saveAndReturnArray(links);
         // delete the tag
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Annotation.class.getSimpleName(),
-                Collections.singletonList(tagId));
+        Delete2 dc = Requests.delete("Annotation", tagId);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -2324,10 +2223,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         links.add(platel);
         iUpdate.saveAndReturnArray(links);
         // delete the tag
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Annotation.class.getSimpleName(),
-                Collections.singletonList(tagId));
+        Delete2 dc = Requests.delete("Annotation", tagId);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -2396,10 +2292,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         p = link.getChild();
         long plateID = p.getId().getValue();
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(screenId));
+        Delete2 dc = Requests.delete("Screen", screenId);
         callback(true, client, dc);
 
         sql = "select r from Screen as r ";
@@ -2455,12 +2348,8 @@ public class DeleteServiceTest extends AbstractServerTest {
         p = link.getChild();
         long plateID = p.getId().getValue();
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(plateID));
+        Delete2 dc = Requests.delete("Plate", plateID);
         callback(true, client, dc);
-
 
         sql = "select r from Screen as r ";
         sql += "where r.id = :id";
@@ -2506,17 +2395,14 @@ public class DeleteServiceTest extends AbstractServerTest {
         pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
         annotationIds.addAll(createSharableAnnotation(pa, null));
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(p.getId().getValue()));
+        Delete2 dc = Requests.delete("Plate",p.getId().getValue());
         callback(true, client, dc);
         // Check if annotations have been deleted.
         param = new ParametersI();
         param.addIds(annotationIds);
         sb = new StringBuilder();
         sb.append("select i from Annotation as i where i.id in (:ids)");
-        List l = iQuery.findAllByQuery(sb.toString(), param);
+        List<IObject> l = iQuery.findAllByQuery(sb.toString(), param);
         assertEquals(l.toString(), 0, l.size());
     }
 
@@ -2541,7 +2427,6 @@ public class DeleteServiceTest extends AbstractServerTest {
         ParametersI param;
         String sql;
         List<IObject> l;
-        Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
             type = entry.getKey();
             obj = entry.getValue();
@@ -2549,9 +2434,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
 
-            final Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    type, Collections.singletonList(id));
+            final Delete2 dc = Requests.delete(type, id);
             final ChildOption co = new ChildOption();
             co.includeNs = Collections.singletonList(NAMESPACE);
             co.excludeType = Collections.singletonList(Annotation.class.getSimpleName());
@@ -2598,7 +2481,6 @@ public class DeleteServiceTest extends AbstractServerTest {
         ParametersI param;
         String sql;
         List<IObject> l;
-        Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
             type = entry.getKey();
             obj = entry.getValue();
@@ -2610,9 +2492,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             List<String> ns = new ArrayList<String>();
             ns.add(NAMESPACE);
             ns.add(NAMESPACE_2);
-            final Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    type, Collections.singletonList(id));
+            final Delete2 dc = Requests.delete(type, id);
             final ChildOption co = new ChildOption();
             co.includeNs = ns;
             co.excludeType = Collections.singletonList(Annotation.class.getSimpleName());
@@ -2685,9 +2565,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(img.getId().getValue());
         // method already tested in PojosService test
-        List results = factory.getContainerService().getImages(
+        List<Image> results = factory.getContainerService().getImages(
                 Image.class.getName(), ids, param);
-        img = (Image) results.get(0);
+        img = results.get(0);
         ObjectiveSettings settings = img.getObjectiveSettings();
         StageLabel label = img.getStageLabel();
         ImagingEnvironment env = img.getImagingEnvironment();
@@ -2716,10 +2596,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         }
 
         // Now we try to delete the image.
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         // Follow the section with acquisition data.
@@ -2843,9 +2720,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(img.getId().getValue());
         // method already tested in PojosService test
-        List results = factory.getContainerService().getImages(
+        List<Image> results = factory.getContainerService().getImages(
                 Image.class.getName(), ids, param);
-        img = (Image) results.get(0);
+        img = results.get(0);
         ObjectiveSettings settings = img.getObjectiveSettings();
         StageLabel label = img.getStageLabel();
         ImagingEnvironment env = img.getImagingEnvironment();
@@ -2874,10 +2751,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         }
 
         // Now we try to delete the image.
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         // Follow the section with acquisition data.
@@ -2967,10 +2841,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> wellSamples = iQuery.findAllByQuery(sql, param);
         assertEquals(wellSamples.size(), fields);
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                PlateAcquisition.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("PlateAcquisition", id);
         callback(true, client, dc);
 
         sql = "select pa from PlateAcquisition as pa ";
@@ -3012,10 +2883,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertEquals(imageIds.size(), fields);
         assertTrue(annotationIds.size() > 0);
         // now delete the plate acquisition
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                PlateAcquisition.class.getSimpleName(),
-                Collections.singletonList(id));
+        dc = Requests.delete("PlateAcquisition", id);
         callback(true, client, dc);
 
         // Annotation should be gone
@@ -3060,10 +2928,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         options.add(Dataset.class.getSimpleName());
         options.add(Image.class.getSimpleName());
         long id = p.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Project.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Project", id);
         ChildOption co = new ChildOption();
         co.excludeType = options;
         dc.childOptions = Collections.singletonList(co);
@@ -3099,10 +2964,7 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         // Now delete the screen
         long id = s.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Screen", id);
         ChildOption co = new ChildOption();
         co.excludeType = Collections.singletonList(Plate.class.getSimpleName());
         dc.childOptions = Collections.singletonList(co);
@@ -3134,10 +2996,7 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         // Now delete the dataset
         long id = d.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Dataset", id);
         ChildOption co = new ChildOption();
         co.excludeType = Collections.singletonList(Image.class.getSimpleName());
         dc.childOptions = Collections.singletonList(co);
@@ -3227,21 +3086,9 @@ public class DeleteServiceTest extends AbstractServerTest {
             lcs.add(lc);
         }
         iUpdate.saveAndReturnArray(lcs);
-        List<Request> commands = new ArrayList<Request>();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img1.getId().getValue()));
-        commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img2.getId().getValue()));
-        commands.add(dc);
-        DoAll all = new DoAll();
-        all.requests = commands;
-        doChange(client, factory, all, true, null);
+        Delete2 dc = Requests.delete("Image", Arrays.asList(img1.getId().getValue(), img2.getId().getValue()));
         // Now delete the image.
+        doChange(client, factory, dc, true, null);
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
         ids.add(img2.getId().getValue());
@@ -3395,20 +3242,8 @@ public class DeleteServiceTest extends AbstractServerTest {
             lcs.add(lc);
         }
         iUpdate.saveAndReturnArray(lcs);
-        List<Request> commands = new ArrayList<Request>();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img1.getId().getValue()));
-        commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img2.getId().getValue()));
-        commands.add(dc);
-        DoAll all = new DoAll();
-        all.requests = commands;
-        doChange(client, factory, all, true, null);
+        Delete2 dc = Requests.delete("Image", Arrays.asList(img1.getId().getValue(), img2.getId().getValue()));
+        doChange(client, factory, dc, true, null);
         // Now delete the image.
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
@@ -3526,20 +3361,8 @@ public class DeleteServiceTest extends AbstractServerTest {
             l.add(channel);
         }
         iUpdate.saveAndReturnArray(l);
-        List<Request> commands = new ArrayList<Request>();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img1.getId().getValue()));
-        commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img2.getId().getValue()));
-        commands.add(dc);
-        DoAll all = new DoAll();
-        all.requests = commands;
-        doChange(client, factory, all, true, null);
+        Delete2 dc = Requests.delete("Image", Arrays.asList(img1.getId().getValue(), img2.getId().getValue()));
+        doChange(client, factory, dc, true, null);
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
         ids.add(img2.getId().getValue());
@@ -3580,10 +3403,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         }
         assertTrue(images.size() > 0);
         try {
-            Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Image.class.getSimpleName(),
-                    Collections.singletonList(images.get(0).getId().getValue()));
+            Delete2 dc = Requests.delete("Image", images.get(0).getId().getValue());
             callback(true, client, dc);
             fail("Should not be allowed.");
         } catch (AssertionError afe) {
@@ -3606,12 +3426,10 @@ public class DeleteServiceTest extends AbstractServerTest {
         img1 = (Image) iUpdate.saveAndReturnObject(img1);
         Image img2 = mmFactory.createImage();
         img2 = (Image) iUpdate.saveAndReturnObject(img2);
-        Delete2 dc = new Delete2();
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
         ids.add(img2.getId().getValue());
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),ids);
+        Delete2 dc = Requests.delete("Image", ids);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -3635,20 +3453,13 @@ public class DeleteServiceTest extends AbstractServerTest {
         img1 = (Image) iUpdate.saveAndReturnObject(img1);
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
-        List<Request> commands = new ArrayList<Request>();
         Delete2 dc = new Delete2();
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                 Image.class.getSimpleName(),
-                Collections.singletonList(img1.getId().getValue()));
-        commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Collections.singletonList(img1.getId().getValue()),
                 Dataset.class.getSimpleName(),
                 Collections.singletonList(d.getId().getValue()));
-        commands.add(dc);
-        DoAll all = new DoAll();
-        all.requests = commands;
-        doChange(client, factory, all, true, null);
+        doChange(client, factory, dc, true, null);
         ParametersI param = new ParametersI();
         param.addId(img1.getId().getValue());
 
@@ -3678,10 +3489,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleImage());
         List<Long> ids = createSharableAnnotation(img1, img2);
         assertTrue(ids.size() > 0);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img1.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img1.getId().getValue());
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -3711,10 +3519,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         fa.setFile(of);
         Annotation data = (Annotation) iUpdate.saveAndReturnObject(fa);
         long id = data.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Annotation.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Annotation", id);
         callback(true, client, dc);
         assertDoesNotExist(data);
         assertDoesNotExist(of);
@@ -3768,10 +3573,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         link1.link(image1, fa);
         link1 = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link1);
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image0.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", image0.getId().getValue());
         callback(true, client, dc);
         //
         // Check results
@@ -3826,10 +3628,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
 
         long imageID = image.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(imageID));
+        Delete2 dc = Requests.delete("Image", imageID);
         callback(true, client, dc);
         sql = "select i from Pixels i where i.id = :id";
         param = new ParametersI();
@@ -3856,10 +3655,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertNotNull(thumbnail);
         long imageID = image.getId().getValue();
         long thumbnailID = thumbnail.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", imageID);
         callback(true, client, dc);
         String sql = "select i from Thumbnail i where i.id = :id";
         ParametersI param = new ParametersI();
@@ -3892,10 +3688,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertEquals(fileset, image1.getFileset());
 
         try {
-            Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Image.class.getSimpleName(),
-                    Collections.singletonList(image0.getId().getValue()));
+            Delete2 dc = Requests.delete("Image", image0.getId().getValue());
             callback(true, client, dc);
             fail("Should throw on constraint violation");
         } catch (AssertionError e) {
@@ -3922,10 +3715,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     public void testSlowDeleteOfOriginalFile() throws Exception {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
                 .createOriginalFile());
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                OriginalFile.class.getSimpleName(),
-                Collections.singletonList(of.getId().getValue()));
+        Delete2 dc = Requests.delete("OriginalFile", of.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(of);
     }
@@ -3941,10 +3731,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
                 .createOriginalFile());
         createSharableAnnotation(of, null);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                OriginalFile.class.getSimpleName(),
-                Collections.singletonList(of.getId().getValue()));
+        Delete2 dc = Requests.delete("OriginalFile", of.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(of);
     }
@@ -3960,15 +3747,8 @@ public class DeleteServiceTest extends AbstractServerTest {
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
         long id = img.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Image", id);
         callback(true, client, dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
         callback(false, client, dc);
     }
 
@@ -3985,10 +3765,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .createImage());
 
         List<Long> ids = createNonSharableAnnotation(image, null);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", image.getId().getValue());
         callback(true, client, dc);
         String sql = "select a from Annotation as a where a.id in (:ids)";
         ParametersI p = new ParametersI();
@@ -4014,10 +3791,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
         // now Delete the image.
         assertExists(planeInfo);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", image.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(image);
         assertDoesNotExist(pixels);
@@ -4063,7 +3837,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         long lcID;
         List<Long> ids;
         LogicalChannel lc;
-        List l;
+        List<LogicalChannel> l;
         List<LogicalChannel> logicalChannels = new ArrayList<LogicalChannel>();
         List<LightPath> lightPaths = new ArrayList<LightPath>();
         List<DetectorSettings> detectorSettings = new ArrayList<DetectorSettings>();
@@ -4093,9 +3867,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         po.acquisitionData();
         ids = new ArrayList<Long>(1);
         ids.add(imageID);
-        List images = factory.getContainerService().getImages(
+        List<Image> images = factory.getContainerService().getImages(
                 Image.class.getName(), ids, po);
-        Image image = (Image) images.get(0);
+        Image image = images.get(0);
         long instrumentID = image.getInstrument().getId().getValue();
 
         Instrument instrument = factory.getMetadataService().loadInstrument(
@@ -4114,10 +3888,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<OTF> otfs = instrument.copyOtf();
 
         // Delete the image.
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", image.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(image);
         assertDoesNotExist(pixels);
@@ -4129,7 +3900,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertDoesNotExist(settings);
         assertDoesNotExist(experiment);
 
-        Iterator i = planes.iterator();
+        Iterator<? extends IObject> i = planes.iterator();
         while (i.hasNext()) {
             assertDoesNotExist((IObject) i.next());
         }
@@ -4201,18 +3972,12 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertExists(img1);
         assertExists(img2);
         assertExists(file);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img1.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img1.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(img1);
         assertExists(img2);
         assertExists(file);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img2.getId().getValue()));
+        dc = Requests.delete("Image", img2.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(img1);
         assertDoesNotExist(img2);

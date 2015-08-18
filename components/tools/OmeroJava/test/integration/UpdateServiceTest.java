@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static omero.rtypes.rlong;
@@ -17,14 +16,13 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import omero.cmd.Delete2;
-import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.BooleanAnnotation;
@@ -104,8 +102,6 @@ import omero.model.XmlAnnotationI;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import pojos.BooleanAnnotationData;
 import pojos.DatasetData;
@@ -557,7 +553,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.exp(rlong(self));
         //method tested in PojosServiceTest
-        List results = factory.getContainerService().loadContainerHierarchy(
+        List<IObject> results = factory.getContainerService().loadContainerHierarchy(
                 Plate.class.getName(),
                 Arrays.asList(pp.getId().getValue()), param);
         pp = (Plate) results.get(0);
@@ -741,10 +737,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(l);
         long id = l.getId().getValue();
         // annotation and image are linked. Remove the link.
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                ImageAnnotationLink.class.getSimpleName(),
-                Collections.singletonList(l.getId().getValue()));
+        final Delete2 dc = Requests.delete("ImageAnnotationLink", l.getId().getValue());
         callback(true, client, dc);
         // now check that the image is no longer linked to the annotation
         String sql = "select link from ImageAnnotationLink as link";

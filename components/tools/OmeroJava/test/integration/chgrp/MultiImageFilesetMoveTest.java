@@ -30,8 +30,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 import static org.testng.AssertJUnit.*;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
@@ -179,10 +177,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(img0);
         ids.add(img1);
-        List<Request> commands = new ArrayList<Request>();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(), ids);
+        Delete2 dc = Requests.delete("Image", ids);
         callback(true, client, dc);
         assertDoesNotExist(new FilesetI(fs0, false));
     }
