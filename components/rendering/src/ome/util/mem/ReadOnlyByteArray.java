@@ -7,12 +7,6 @@
 
 package ome.util.mem;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * A read-only slice of a given array. Given a <code>base</code> array and an
  * interval <code>[offset, offset+length]

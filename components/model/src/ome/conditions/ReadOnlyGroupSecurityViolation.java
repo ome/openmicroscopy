@@ -13,8 +13,8 @@ package ome.conditions;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2
- * @see ticket:1769
- * @see ticket:1992
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1769">ticket 1769</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1992">ticket 1992</a>
  */
 public class ReadOnlyGroupSecurityViolation extends GroupSecurityViolation {
 

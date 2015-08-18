@@ -47,10 +47,10 @@ module omero {
         /**
          *
          **/
-        ["deprecated:GraphSpecs in general are deprecated"]
+        ["deprecated:use LegalGraphTargets"]
         class GraphSpecList extends Request {};
 
-        ["deprecated:GraphSpecs in general are deprecated"]
+        ["deprecated:use LegalGraphTargetsResponse"]
         class GraphSpecListRsp extends Response {
             GraphModifyList list;
         };
@@ -370,6 +370,30 @@ module omero {
              * (those implementing WrappableRequest).
              **/
             GraphModify2 request;
+        };
+
+        /**
+         * Graph requests typically allow only specific model object classes
+         * to be targeted. This request lists the legal targets for a given
+         * request. The request's fields are ignored, only its class matters.
+         **/
+        class LegalGraphTargets extends Request {
+
+            /**
+             * A request of the type being queried.
+             **/
+            GraphModify2 request;
+        };
+
+        /**
+         * A list of the legal targets for a graph request.
+         **/
+        class LegalGraphTargetsResponse extends OK {
+
+            /**
+             * The legal targets for the given request's type.
+             **/
+            omero::api::StringSet targets;
         };
 
         /**

@@ -133,9 +133,9 @@
   <target name="compile"
           depends="app-init"
           description="Compile the whole app.">
-    <javac srcdir="${base.src.dir}" target="1.6"
+    <javac srcdir="${base.src.dir}" target="1.7"
            memoryMaximumSize="${javac.maxmem}"
-           source="1.6"
+           source="1.7"
            destdir="${app.compiled.dir}"
            includeantruntime="no"
            deprecation="yes"
@@ -146,9 +146,9 @@
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac>
-    <javac srcdir="${base.src.util.dir}" target="1.6"
+    <javac srcdir="${base.src.util.dir}" target="1.7"
            memoryMaximumSize="${javac.maxmem}"
-           source="1.6"
+           source="1.7"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
            deprecation="yes"
@@ -159,9 +159,9 @@
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac>
-    <javac srcdir="${base.src.svc.dir}" target="1.6"
+    <javac srcdir="${base.src.svc.dir}" target="1.7"
            memoryMaximumSize="${javac.maxmem}"
-           source="1.6"
+           source="1.7"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
            deprecation="yes"

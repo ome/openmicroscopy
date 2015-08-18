@@ -93,7 +93,6 @@
   <path id="insight.tools.path">
       <fileset dir="${base.build.dir}/../../../lib/repository">
             <include name="ant-contrib-*.jar"/>
-            <include name="jarbundler*.jar"/>
       </fileset>
   </path>
 
@@ -120,16 +119,6 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="init"> 
     <tstamp/>
-	<condition property="java.not.ok" value="true">
-	  <not>
-	    <or>
-	      <contains string="${ant.java.version}" substring="1.6"/>
-	      <contains string="${ant.java.version}" substring="1.7"/>
-	      <contains string="${ant.java.version}" substring="1.8"/>
-	    </or>
-	  </not>
-	</condition>
-	<fail if="java.not.ok" message="Must use JDK 1.6.x or higher to build."/>
     <mkdir dir="${build.dir}"/> 
   </target> 
  

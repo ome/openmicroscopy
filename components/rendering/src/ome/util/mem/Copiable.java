@@ -7,12 +7,6 @@
 
 package ome.util.mem;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Requires an implementing class to provide <i>deep</i> copies of its
  * instances. More precisely, an invocation of the {@link #copy() copy} method,

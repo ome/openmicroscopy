@@ -1,3 +1,4 @@
+
 /*
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -103,7 +104,7 @@ public interface SqlAction {
      * @param key Key of the argument e.g. (:ids)
      * @param value value which has been passed in for that parameter.
      * @return Returns a query replacement.
-     * @see ticket:3961
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/3697">ticket 3697</a>
      */
     String rewriteHql(String query, String key, Object value);
 
@@ -120,12 +121,13 @@ public interface SqlAction {
     void createInsertTrigger(String name, String table, String procedure);
 
     /**
-     * Returns true if the given string is the UUID of a session that is
+     * Returns whether the given string is the UUID of a session that is
      * currently active.
      *
      * @param sessionUUID
      *            NOT NULL.
-     * @return
+     * @return {@code true} if {@code sessionUUID} is an active session,
+     *         {@code false} otherwise
      */
     boolean activeSession(String sessionUUID);
 
@@ -148,33 +150,33 @@ public interface SqlAction {
      *
      * @param fileId
      * @param mimetypes null implies all files are checked
-     * @return
      */
     String scriptRepo(long fileId, Set<String> mimetypes);
 
     int synchronizeJobs(List<Long> ids);
 
     /**
-     * Calls {@link #findRepoFile(String, String, String, Set<String>)}
+     * Calls {@link #findRepoFile(String, String, String, Set)}
      * passing null.
      */
     Long findRepoFile(String uuid, String dirname, String basename);
 
     /**
-     * Calls {@link #findRepoFile(String, String, String, Set<String>)}
+     * Calls {@link #findRepoFile(String, String, String, Set)}
      */
     Long findRepoFile(String uuid, String dirname, String basename,
             String mimetype);
 
     /**
-     * Lookup the id of an {@link OriginalFile} in a given repository or
-     * return null if none is found.
+     * Lookup the id of an {@link ome.model.core.OriginalFile} in a given
+     * repository or return null if none is found.
      *
      * @param uuid The UUID of the repository (originalfile.sha1)
      * @param dirname the full directory path minus the file name.
      * @param basename i.e. the filename without any directory path
-     * @param mimetype if null, then no mimetype query fragement will be added.
-     * @return null if no {@link OriginalFile} is found, otherwise the id.
+     * @param mimetypes if null, then no mimetype query fragement will be added.
+     * @return null if no {@link ome.model.core.OriginalFile} is found,
+     *         otherwise the id.
      */
     Long findRepoFile(String uuid, String dirname, String basename,
             Set<String> mimetypes);
@@ -190,7 +192,7 @@ public interface SqlAction {
      * Return a list of original file ids that all have a path value matching
      * the passed dirname in the given repository.
      *
-     * @param uuid
+     * @param repoUuid
      * @param dirname
      * @return possibly empty list of ids.
      */
@@ -198,8 +200,8 @@ public interface SqlAction {
 
     /**
      * Record-class which matches _fs_deletelog. It will be used both as the
-     * search template for {@link findRepoDeleteLogs(DeleteLog)} as well
-     * as {@link deleteRepoDeleteLogs(DeleteLog)}. As a template, any of the
+     * search template for {@link #findRepoDeleteLogs(DeleteLog)} as well
+     * as {@link #deleteRepoDeleteLogs(DeleteLog)}. As a template, any of the
      * fields can be null. As a return value, none of the fields will be null.
      */
     static class DeleteLog implements RowMapper<DeleteLog> {
@@ -268,7 +270,7 @@ public interface SqlAction {
      * fields provided in the template.
      *
      * @param template non-null.
-     * @return
+     * @return a list of {@link DeleteLog} entries
      */
     List<DeleteLog> findRepoDeleteLogs(DeleteLog template);
 
@@ -399,7 +401,6 @@ public interface SqlAction {
      * @param offset Offset to the row which should be queried first
      * @param limit Maximum number of rows (after partionting) which should
      *        be returned.
-     * @return
      */
     List<Object[]> getEventLogPartitions(Collection<String> types,
             Collection<String> actions, long offset, long limit);
@@ -422,9 +423,8 @@ public interface SqlAction {
      *
      * @param segmentName
      * @param incrementSize
-     * @return
-     * @see ticket:3697
-     * @see ticket:3253
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/3697">ticket 3697</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/3253">ticket 3253</a>
      */
     long nextValue(String segmentName, int incrementSize);
 
@@ -457,7 +457,7 @@ public interface SqlAction {
 
     /**
      * Load all the non-empty email addresses for users in a given group.
-     * @param group id
+     * @param groupId
      * @return a non-null {@link Collection} of non-empty user email addresses.
      */
     Collection<String> getUserEmailsByGroup(long groupId);

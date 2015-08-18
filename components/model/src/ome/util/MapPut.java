@@ -13,8 +13,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Simple bean which calls "map.put(key, object)" on
- * {@link InitializingBean#afterPropertiesSet(). Must adhere to the {@link Map}
- * interface for nulls, etc.
+ * {@link InitializingBean#afterPropertiesSet()}. Must adhere to the
+ * {@link Map} interface for nulls, etc.
  */
 public class MapPut implements InitializingBean {
 

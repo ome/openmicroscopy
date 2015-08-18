@@ -18,11 +18,6 @@ ${currZ}                            3
 
 *** Keywords ***
 
-Log Out
-    Click Element                   xpath=//div[@id='show_user_dropdown']/span
-    Click Link                      link=Logout
-    Location Should Be              ${WEBCLIENT LOGIN URL}
-
 Pick Color
     [Arguments]          ${btnColor}        ${hexColor}       ${rgbColor}
     Click Element                           xpath=//button[@id="wblitz-ch0-color"]

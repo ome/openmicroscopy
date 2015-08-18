@@ -7,19 +7,16 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-// Application-internal dependencies
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
+
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;

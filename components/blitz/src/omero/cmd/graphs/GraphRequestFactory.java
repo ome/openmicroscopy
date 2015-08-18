@@ -141,6 +141,19 @@ public class GraphRequestFactory {
     }
 
     /**
+     * Get the legal target object classes for the given request.
+     * @param requestClass a request class
+     * @return the legal target object classes for that type of request
+     */
+    public <R extends GraphModify2> Set<Class<? extends IObject>> getLegalTargets(Class<R> requestClass) {
+        final Set<Class<? extends IObject>> targetClasses = allTargets.get(requestClass);
+        if (targetClasses.isEmpty()) {
+            throw new IllegalArgumentException("no legal target classes defined for request class " + requestClass);
+        }
+        return targetClasses;
+    }
+
+    /**
      * Construct a request.
      * @param requestClass a request class
      * @return a new instance of that class
@@ -152,10 +165,7 @@ public class GraphRequestFactory {
                 final Constructor<R> constructor = requestClass.getConstructor(GraphPathBean.class, GraphRequestFactory.class);
                 request = constructor.newInstance(graphPathBean, this);
             } else {
-                final Set<Class<? extends IObject>> targetClasses = allTargets.get(requestClass);
-                if (targetClasses.isEmpty()) {
-                    throw new IllegalArgumentException("no legal target classes defined for request class " + requestClass);
-                }
+                final Set<Class<? extends IObject>> targetClasses = getLegalTargets(requestClass);
                 GraphPolicy graphPolicy = graphPolicies.get(requestClass);
                 if (graphPolicy == null) {
                     throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
@@ -168,8 +178,7 @@ public class GraphRequestFactory {
                         constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
                                 targetClasses, graphPolicy, unnullable);
             }
-        } catch (Exception e) {
-            /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
+        } catch (ReflectiveOperationException e) {
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);
         }
         return request;

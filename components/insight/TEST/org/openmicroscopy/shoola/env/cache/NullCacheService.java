@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.env.cache;
 
+import omero.gateway.cache.CacheService;
+
 //Java imports
 
 //Third-party libraries
@@ -98,5 +100,7 @@ public class NullCacheService
      * @see CacheService#setCacheEntries(int, int)
      */
 	public void setCacheEntries(int cacheID, int size) {}
+
+    public void shutDown() {}
 	
 }

@@ -1166,7 +1166,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                                 final String message = "unexpected exception in expanding \"" + pattern + '"';
                                 throw new ServerError(null, null, message, cause);
                             }
-                        } catch (/* Java SE 7 ReflectiveOperation*/Exception e) {
+                        } catch (ReflectiveOperationException e) {
                             final String message = "unexpected exception in expanding \"" + pattern + '"';
                             throw new ServerError(null, null, message, e);
                         }

@@ -94,7 +94,7 @@ def compile(dir=dat):
         version = proc.communicate()[1].strip()
         pat = "%s/ice*%s.jar" % (rep, version)
         cp = ":".join(glob.glob(pat))
-        javac_cmd = "javac -target 1.6 -cp "
+        javac_cmd = "javac -target 1.7 -cp "
         javac_cmd += ("%s %s/*.java""" % (cp, dat))
         print javac_cmd
         call(javac_cmd, cwd=src)

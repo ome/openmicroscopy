@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -56,7 +56,12 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.ServerInformation;
+
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
@@ -121,7 +126,13 @@ class ImporterModel
 
     /** The id of the user to import for.*/
     private long userId;
-    
+
+    /**
+     * The result object used to determine setting when saving rois/measurement
+     * post import.
+     */
+    private ResultsObject object;
+
 	/** Initializes the model.*/
 	private void initialize()
 	{
@@ -436,7 +447,7 @@ class ImporterModel
 	void fireDataCreation(ObjectToCreate data)
 	{
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
-		ctx.setServerInformation(this.ctx.getHostName(), this.ctx.getPort());
+		ctx.setServerInformation(this.ctx.getServerInformation());
 		ctx.setExperimenter(data.getExperimenter());
 		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());
@@ -688,9 +699,19 @@ class ImporterModel
     private File createFile(String imageName)
     {
         File dir = Files.createTempDir();
-        String name = "ImageJ-"+FilenameUtils.getBaseName(
-                FilenameUtils.removeExtension(imageName))+"-Results-";
-        name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String name;
+        String fileName = null;
+        if (object != null) {
+            fileName = object.getTableName();
+        }
+        if (CommonsLangUtils.isBlank(fileName)) {
+            name = "ImageJ-"+FilenameUtils.getBaseName(
+                    FilenameUtils.removeExtension(imageName))+"-Results-";
+            name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        } else {
+            name = FilenameUtils.removeExtension(fileName);
+        }
+        
         name += ".csv";
         try {
             File f = new File(dir, name);
@@ -723,5 +744,16 @@ class ImporterModel
             i.next().setImage(new ImageI(imageID, false));
         }
     }
+
+    /**
+     * Sets the results object.
+     *
+     * @param object The object to set.
+     */
+    void setResultsObject(ResultsObject object)
+    {
+        this.object = object;
+    }
+
 
 }

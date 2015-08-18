@@ -7,7 +7,6 @@
 
 package ome.parameters;
 
-// Java imports
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,17 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
 /**
  * container object for {@link QueryParameter} and {@link Filter} instances.
- * Parameters are provided to {@link IQuery} calls
- * {@link IQuery#findByQuery(String, Parameters)} and
- * {@link IQuery#findAllByQuery(String, Parameters)}, and define all named
- * query parameters needed for the call.
  * 
  * The public Strings available here are used throughout this class and should
  * also be used in query strings as named parameteres. For example, the field
@@ -42,8 +34,7 @@ import ome.conditions.ApiUsageException;
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0
  * @since 3.0-M2
  */
 public class Parameters implements Serializable {

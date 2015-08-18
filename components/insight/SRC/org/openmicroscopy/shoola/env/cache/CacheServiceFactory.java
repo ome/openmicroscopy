@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.file.IOUtil;
-
+import omero.gateway.cache.CacheService;
 
 /** 
  * A factory for the {@link CacheService}. 
@@ -117,6 +117,7 @@ public class CacheServiceFactory
 			public void clearCache(int cacheID) {}
 			public void setCacheEntries(int cacheID, int size) {}
 			public void clearAllCaches() {}
+            public void shutDown() {}
 		};
 	}
 	

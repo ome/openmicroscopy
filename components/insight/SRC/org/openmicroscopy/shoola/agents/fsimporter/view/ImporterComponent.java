@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -960,6 +960,7 @@ class ImporterComponent
         if (importImage) {
             //Import images first
             activate(Importer.PROJECT_TYPE, null, null, getImportFor(), false);
+            model.setResultsObject(object);
             List<FileObject> files = (List) object.getRefObjects();
             ImportLocationSettings settings = chooser.createLocationDialog();
             if (settings != null) {

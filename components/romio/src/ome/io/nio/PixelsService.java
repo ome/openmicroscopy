@@ -139,7 +139,7 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     /**
-     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes)}
+     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
     public PixelsService(String path, long memoizerWait,
@@ -149,7 +149,7 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     /**
-     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes)}
+     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
     public PixelsService(String path, File memoizerDirectory,
@@ -592,12 +592,13 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     /**
-     * Returns true if a pyramid should be used for the given {@link Pixels}.
+     * Returns whether a pyramid should be used for the given {@link Pixels}.
      * This usually implies that this is a "Big image" and therefore will
      * need tiling.
      *
      * @param pixels
-     * @return
+     * @return {@code true} if a pyramid should be used, {@code false}
+     *         otherwise
      */
     public boolean requiresPixelsPyramid(Pixels pixels) {
         String type = pixels.getPixelsType().getValue();
@@ -713,7 +714,6 @@ public class PixelsService extends AbstractFileSystemService
 	 *
 	 * @param pixels
 	 * @param pixelsPyramidFilePath
-	 * @return
 	 * @throws MissingPyramidException
 	 */
     protected void handleMissingPyramid(Pixels pixels,
@@ -735,10 +735,8 @@ public class PixelsService extends AbstractFileSystemService
      * Helper method to properly log any exceptions raised by Bio-Formats and
      * add a min/max calculator wrapper to the reader stack.
      * @param filePath Non-null.
-     * @param store Min/max store to use with the min/max calculator.
      * @param series series to use
-     * @param reader passed to {@link BfPixelBuffer}
-     * @return
+     * @param store Min/max store to use with the min/max calculator.
      */
     protected BfPixelBuffer createMinMaxBfPixelBuffer(final String filePath,
                                                       final int series,
@@ -798,9 +796,8 @@ public class PixelsService extends AbstractFileSystemService
     /**
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
-     * @param reader passed to {@link BfPixelBuffer}
      * @param series series to use
-     * @return
+     * @return the initialized {@link BfPixelBuffer}
      */
     protected BfPixelBuffer createBfPixelBuffer(final String filePath,
                                               final int series) {
@@ -823,9 +820,9 @@ public class PixelsService extends AbstractFileSystemService
 
     /**
      * Helper method to properly log any exceptions raised by Bio-Formats.
+     * @param pixels passed to {@link BfPixelBuffer}
      * @param filePath Non-null.
-     * @param reader passed to {@link BfPixelBuffer}
-     * @return
+     * @return the initialized {@link BfPyramidPixelBuffer}
      */
     protected BfPyramidPixelBuffer createPyramidPixelBuffer(final Pixels pixels,
             final String filePath, boolean write) {
@@ -855,7 +852,6 @@ public class PixelsService extends AbstractFileSystemService
      * @param pixelsFilePath
      * @param pixels
      * @param allowModification
-     * @return
      */
     protected PixelBuffer createRomioPixelBuffer(String pixelsFilePath,
         Pixels pixels, boolean allowModification) {
@@ -866,7 +862,7 @@ public class PixelsService extends AbstractFileSystemService
 	 * Removes files from data repository based on a parameterized List of Long
 	 * pixels ids
 	 *
-	 * @param pixelsIds Long file keys to be deleted
+	 * @param pixelIds Long file keys to be deleted
 	 * @throws ResourceError If deletion fails.
 	 */
 	public void removePixels(List<Long> pixelIds) {
