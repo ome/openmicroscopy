@@ -54,6 +54,7 @@ import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 import ome.services.query.HierarchyNavigator;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -184,7 +185,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 datasets.addAll(p.linkedDatasetList());
             }
             if (options.isOrphan()) {
-                if (rootNodeIds == null || rootNodeIds.size() == 0) {
+                if (CollectionUtils.isEmpty(rootNodeIds)) {
                     Iterator<Dataset> i = datasets.iterator();
                     Set<Long> linked = new HashSet<Long>();
                     while (i.hasNext()) {
