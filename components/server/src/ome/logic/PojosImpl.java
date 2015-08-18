@@ -102,6 +102,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             + "left outer join fetch p.annotationLinksCountPerOwner " 
             + "where p in (:list)";
 
+    /** Query to load the number of annotations per dataset. */
+    final static String loadLinksDatasets = "select d from Dataset d "
+            + "left outer join fetch d.annotationLinksCountPerOwner "
+            + "left outer join fetch d.imageLinksCountPerOwner where d " 
+            + "in (:list)";
+    
     /* A model object hierarchy navigator that is convenient for getImagesBySplitFilesets.
      * To switch its API from bare Longs to an IObject-based query interface, it is easy to implement
      * HierarchyNavigatorWrap<Class<? extends IObject>, IObject> and implement noteLookups with its methods. */
@@ -198,14 +204,53 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                     Iterator<IObject> j = list.iterator();
                     Long id;
 
+                    Map<Long, Dataset> notLinked = new HashMap<Long, Dataset>();
+                    
                     while (j.hasNext()) {
                         d = (Dataset) j.next();
                         id = d.getId();
                         if (!linked.contains(id)) {
-                            l.add(d);
-                            datasets.add(d);
+                            notLinked.put(id, d);// not linked to user's project
+                            //l.add(d);
+                            //datasets.add(d);
                         }
                     }
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("select this from Project this ");
+                    sb.append("left outer join fetch this.details.creationEvent ");
+                    sb.append("left outer join fetch this.datasetLinks pdl ");
+                    sb.append("left outer join fetch pdl.child ds ");
+                    sb.append("where ds in (:list)");
+                    if (notLinked.size() > 0) {
+                        List<Dataset> nl = new ArrayList<Dataset>();
+                        nl.addAll(notLinked.values());
+                        List<IObject> projects =
+                                iQuery.findAllByQuery(sb.toString(),
+                                new Parameters().addList("list", nl));
+                        if (projects.isEmpty()) {
+                            datasets.addAll(nl);
+                            l.addAll(nl);
+                        } else { //some datasets are in the projects
+                            for (IObject o : projects) {
+                                p = (Project) o;
+                                List<Dataset> ll = p.linkedDatasetList();
+                                for (Dataset data : ll) {
+                                    if (notLinked.containsKey(data.getId())) {
+                                        notLinked.remove(data.getId());
+                                    }
+                                }
+                            }
+                            if (notLinked.size() > 0) {
+                                nl = new ArrayList<Dataset>();
+                                nl.addAll(notLinked.values());
+                                datasets.addAll(nl);
+                                l.addAll(nl); 
+                            }
+                        }
+                    }
+                    //C
+                    //Check that the datasets are actually not linked to
+                    //anything
                 }
             }
             if (datasets.size() > 0) {
