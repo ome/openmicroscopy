@@ -184,28 +184,28 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 datasets.addAll(p.linkedDatasetList());
             }
             if (options.isOrphan()) {
-            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
-            		Iterator<Dataset> i = datasets.iterator();
-            		Set<Long> linked = new HashSet<Long>();
-            		while (i.hasNext()) {
-						linked.add(i.next().getId());
-					}
-            		q = getQueryFactory().lookup(
+                if (rootNodeIds == null || rootNodeIds.size() == 0) {
+                    Iterator<Dataset> i = datasets.iterator();
+                    Set<Long> linked = new HashSet<Long>();
+                    while (i.hasNext()) {
+                        linked.add(i.next().getId());
+                    }
+                    q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             options.addClass(Dataset.class).addIds(rootNodeIds));
-            		List<IObject> list = iQuery.execute(q);
-            		Iterator<IObject> j = list.iterator();
-            		Long id;
-            		
-            		while (j.hasNext()) {
-            			d = (Dataset) j.next();
-						id = d.getId();
-						if (!linked.contains(id)) {
-							l.add(d);
-							datasets.add(d);
-						}
-					}
-            	}
+                    List<IObject> list = iQuery.execute(q);
+                    Iterator<IObject> j = list.iterator();
+                    Long id;
+
+                    while (j.hasNext()) {
+                        d = (Dataset) j.next();
+                        id = d.getId();
+                        if (!linked.contains(id)) {
+                            l.add(d);
+                            datasets.add(d);
+                        }
+                    }
+                }
             }
             if (datasets.size() > 0) {
                 iQuery.findAllByQuery(loadCountsDatasets, new Parameters()
@@ -239,28 +239,28 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 plates.addAll(p.linkedPlateList());
             }
             if (options.isOrphan()) {
-            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
-            		Iterator<Plate> i = plates.iterator();
-            		Set<Long> linked = new HashSet<Long>();
-            		while (i.hasNext()) {
-						linked.add(i.next().getId());
-					}
-            		q = getQueryFactory().lookup(
+                if (rootNodeIds == null || rootNodeIds.size() == 0) {
+                    Iterator<Plate> i = plates.iterator();
+                    Set<Long> linked = new HashSet<Long>();
+                    while (i.hasNext()) {
+                        linked.add(i.next().getId());
+                    }
+                    q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             options.addClass(Plate.class).addIds(rootNodeIds));
-            		List<IObject> list = iQuery.execute(q);
-            		Iterator<IObject> j = list.iterator();
-            		Long id;
-            		
-            		while (j.hasNext()) {
-            			plate = (Plate) j.next();
-						id = plate.getId();
-						if (!linked.contains(id)) {
-							l.add(plate);
-							plates.add(plate);
-						}
-					}
-            	}
+                    List<IObject> list = iQuery.execute(q);
+                    Iterator<IObject> j = list.iterator();
+                    Long id;
+
+                    while (j.hasNext()) {
+                        plate = (Plate) j.next();
+                        id = plate.getId();
+                        if (!linked.contains(id)) {
+                            l.add(plate);
+                            plates.add(plate);
+                        }
+                    }
+                }
             }
             if (plates.size() > 0) {
                 iQuery.findAllByQuery(loadCountsPlates, new Parameters()
