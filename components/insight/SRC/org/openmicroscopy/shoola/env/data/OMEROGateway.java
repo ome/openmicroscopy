@@ -3793,7 +3793,7 @@ class OMEROGateway
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (CollectionUtils.isEmpty(files)) return result;
 		Iterator<?> i;
-		List<OriginalFile> values = new ArrayList<OriginalFile>();
+		Map<OriginalFile, Fileset> values = new HashMap<OriginalFile, Fileset>();
 		if (image.isFSImage()) {
 			i = files.iterator();
 			Fileset set;
@@ -3805,10 +3805,13 @@ class OMEROGateway
 				j = entries.iterator();
 				while (j.hasNext()) {
 					FilesetEntry fs = j.next();
-					values.add(fs.getOriginalFile());
+					values.put(fs.getOriginalFile(), set);
 				}
 			}
-		} else values.addAll((List<OriginalFile>) files);
+		} else {
+		    for(Object f : files)
+		        values.put((OriginalFile)f, null);
+		}
 
 		RawFileStorePrx store = null;
 		OriginalFile of;
@@ -3820,15 +3823,27 @@ class OMEROGateway
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
 		folderPath = file.getAbsolutePath();
-		i = values.iterator();
+		Iterator<Entry<OriginalFile, Fileset>> entries = values.entrySet().iterator();
 
-		while (i.hasNext()) {
-			of = (OriginalFile) i.next();
+		while (entries.hasNext()) {
+		    Entry<OriginalFile, Fileset> entry = entries.next();
+		    
+			of = entry.getKey();
+			Fileset set = entry.getValue();
 
             String path = null;
-            if (keepOriginalPaths) {
+            if (keepOriginalPaths && set != null && set.sizeOfUsedFiles() > 1) {
+                // this will store multi file images within a subdirectory with
+                // the same name as the main image file
+                String repoPath = set.getTemplatePrefix().getValue();
                 path = folderPath.endsWith("/") ? folderPath : folderPath + "/";
-                path = path + of.getPath().getValue();
+                String imgFilename = set.getFilesetEntry(0).getOriginalFile()
+                        .getName().getValue();
+                path += imgFilename + "/";
+                path = path + (of.getPath().getValue().replace(repoPath, ""));
+                // path should now be in the form
+                // [DOWNLOAD_FOLDER]/[IMAGE_NAME]/X/Y/Z
+                // where X, Y, Z are image specific subdirectories
                 File origPath = new File(path);
                 if (!origPath.exists())
                     origPath.mkdirs();
@@ -3886,7 +3901,7 @@ class OMEROGateway
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
 	}
-
+	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 *
