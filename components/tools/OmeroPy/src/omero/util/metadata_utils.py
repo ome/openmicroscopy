@@ -53,7 +53,7 @@ class BulkAnnotationConfiguration(object):
         :param default_cfg: Dict of default values, can be empty
         :params column_cfgs: Array of dicts of column configurations
         """
-        self.defaults = self.get_default_cfg(default_cfg)
+        self.default_cfg = self.get_default_cfg(default_cfg)
         self.column_cfgs = [self.get_column_config(c) for c in column_cfgs]
 
     @staticmethod
@@ -139,7 +139,7 @@ class BulkAnnotationConfiguration(object):
         Replace unspecified fields in a column config with defaults
         """
         self.validate_column_config(cfg)
-        column_cfg = self.defaults.copy()
+        column_cfg = self.default_cfg.copy()
         column_cfg.update(cfg)
         self.validate_filled_column_config(column_cfg)
         return column_cfg
@@ -157,16 +157,15 @@ class KeyValueListPassThrough(object):
         """
         self.headers = headers
 
-    def transform_gen(self, values):
+    def transform(self, rowvalues):
         """
-        Generator which transforms table rows
-        :param values: An iterable of table rows
-        :return: A generator which returns rows in the form
+        Pass through a table row unchanged
+        :param values: A table rows
+        :return: A row in the form
                  [(k1, v1), (k2 v2), ...]
         """
-        for rowvals in values:
-            assert len(rowvals) == len(self.headers)
-            yield zip(self.headers, rowvals)
+        assert len(rowvalues) == len(self.headers)
+        return rowvalues
 
 
 class KeyValueListTransformer(BulkAnnotationConfiguration):
@@ -183,14 +182,21 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
             default_cfg, column_cfgs)
         self.headers = headers
         self.output_configs = self.get_output_configs()
-        print self.output_configs[0]
-        print self.output_configs[1]
 
     def get_output_configs(self):
         """
         Get the full set of output column configs, taking into account
-        specified column positions and columns include/excluded according
-        to the defaults
+        specified column positions and columns included/excluded according
+        to the defaults:
+
+        - positioned columns are at the specified index (1-based)
+        - gaps between positioned columns are filled with unpositioned
+          columns in order of
+          - Configured but unpositioned columns
+          - Unconfigured columns in order of headers (assuming the default
+            config is for them to be included)
+        - If there are gaps and no remaing columns to be included raise
+          an exception
         """
         headerindexmap = dict((b, a) for (a, b) in enumerate(self.headers))
         positioned = {}
@@ -202,9 +208,7 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
         for cfg in self.column_cfgs:
             checked.add(cfg["name"])
             if not cfg["include"]:
-                print "Ignoring %s" % cfg["name"]
                 continue
-            print "Including %s" % cfg["name"]
 
             pos = cfg["position"]
             if pos > 0:
@@ -217,7 +221,7 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
 
         # Unspecified Columns
         for name in self.headers:
-            if name not in checked and self.defaults["include"]:
+            if name not in checked and self.default_cfg["include"]:
                 cfg = self.get_column_config({"name": name})
                 unpositioned.append((cfg, headerindexmap[cfg["name"]]))
 
@@ -235,7 +239,8 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
         output_configs.extend(unpositioned)
         return output_configs
 
-    def transform1(self, value, cfg):
+    @staticmethod
+    def transform1(value, cfg):
         """
         Process a single value corresponding to a single table row-column
 
@@ -281,16 +286,3 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
         rowkvs = [self.transform1(rowvalues[i], c)
                   for (c, i) in self.output_configs]
         return rowkvs
-
-
-def print_kvs(headers, values, default_cfg, column_cfgs):
-    tr = KeyValueListTransformer(headers, default_cfg, column_cfgs)
-    n = -1
-    for row in values:
-        n += 1
-        transformed = tr.transform(row)
-        for k, vs in transformed:
-            if not isinstance(vs, list):
-                vs = [vs]
-            for v in vs:
-                print "% 2d % 10s : %s" % (n, k, v)
