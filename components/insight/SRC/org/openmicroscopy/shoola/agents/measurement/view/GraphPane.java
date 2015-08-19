@@ -48,6 +48,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -365,7 +366,7 @@ public class GraphPane
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
         HistogramPlot plot;
-        if (!data.isEmpty())
+        if (CollectionUtils.isNotEmpty(data))
             plot = new HistogramPlot(title, channelNames, data, channelColours,
                     bins, channelMinValue(), channelMaxValue());
         else
