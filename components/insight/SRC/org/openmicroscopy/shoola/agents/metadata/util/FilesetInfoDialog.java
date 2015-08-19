@@ -32,6 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 
+import omero.model.Fileset;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.editor.ImportType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -89,7 +91,12 @@ public class FilesetInfoDialog extends TinyDialog {
             l.setBackground(UIUtilities.BACKGROUND_COLOR);
             content.add(l, c);
         } else {
-            JLabel l = new JLabel(set.size() + " Image file");
+            int size = 0;
+            FilesetData fsd = set.iterator().next();
+            if (Fileset.class.isAssignableFrom(fsd.asIObject().getClass())) {
+                size = ((Fileset)fsd.asIObject()).sizeOfUsedFiles();
+            }
+            JLabel l = new JLabel(size + " Image file(s)");
             l.setBackground(UIUtilities.BACKGROUND_COLOR);
             content.add(l, c);
             c.gridy++;
