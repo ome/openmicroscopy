@@ -7,7 +7,6 @@ package integration.delete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import integration.AbstractServerTest;
@@ -125,26 +124,23 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
 
         /* delete the images of the fileset, the rendering settings of one of the images, or nonsense */
 
-        final SkipHead skipHead = new SkipHead();
-        skipHead.request = new Delete2();
-        skipHead.dryRun = dryRun;
+        final SkipHead skipHead;
         switch (target) {
         case IMAGES_OF_FILESET:
-            skipHead.targetObjects = Collections.singletonMap("Fileset", Collections.singletonList(filesetId));
-            skipHead.startFrom = Collections.singletonList("Image");
+            skipHead = Requests.skipHead("Fileset", filesetId, dryRun, "Image", new Delete2());
             break;
         case RENDERING_SETTINGS_OF_FILESET:
-            skipHead.targetObjects = Collections.singletonMap("Fileset", Collections.singletonList(filesetId));
-            skipHead.startFrom = Collections.singletonList("RenderingDef");
+            skipHead = Requests.skipHead("Fileset", filesetId, dryRun, "RenderingDef", new Delete2());
             break;
         case RENDERING_SETTINGS_OF_IMAGE:
-            skipHead.targetObjects = Collections.singletonMap("Image", Collections.singletonList(image1Id));
-            skipHead.startFrom = Collections.singletonList("RenderingDef");
+            skipHead = Requests.skipHead("Image", image1Id, dryRun, "RenderingDef", new Delete2());
             break;
         case NONSENSE_OF_IMAGE:
-            skipHead.targetObjects = Collections.singletonMap("Image", Collections.singletonList(image1Id));
-            skipHead.startFrom = Collections.singletonList("I like penguins");
+            skipHead = Requests.skipHead("Image", image1Id, dryRun, "I like penguins", new Delete2());
             break;
+        default:
+            skipHead = null;
+            Assert.fail("unexpected target for delete");
         }
 
         final boolean isExpectSuccess = target != Target.NONSENSE_OF_IMAGE;

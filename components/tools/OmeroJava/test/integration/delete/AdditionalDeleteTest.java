@@ -57,8 +57,6 @@ import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
  * Tests deletion of various elements of the graph.
  * These tests are resurrected from the previous DeleteITest class, now deleted.
@@ -81,10 +79,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = new SkipHead();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(imageId));
-        dc.startFrom = Collections.singletonList("Channel");
-        dc.request = new Delete2();
+        final SkipHead dc = Requests.skipHead("Image", imageId, "Channel", new Delete2());
         callback(true, client, dc);
 
         // Check that data is gone
@@ -115,10 +110,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = new SkipHead();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(imageId));
-        dc.startFrom = Collections.singletonList("RenderingDef");
-        dc.request = new Delete2();
+        final SkipHead dc = Requests.skipHead("Image", imageId, "RenderingDef", new Delete2());
         callback(true, client, dc);
 
         // Check that data is gone
