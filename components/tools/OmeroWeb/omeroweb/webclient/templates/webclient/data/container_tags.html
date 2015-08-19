@@ -37,6 +37,32 @@
 
     <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
+
+        function enableToolbarButton(name, enabled) {
+            if (enabled) {
+                $('input#'+name+'Button').removeClass('button-disabled').prop('disabled', false);
+            } else {
+                $('input#'+name+'Button').addClass('button-disabled').prop('disabled', true);
+            }
+        };
+
+        function buttonsShowHide(selected, inst) {
+            // Disable all unless explicitly enabled below
+            var toolbar_config = {
+                'delete':false
+            };
+            if (selected.length > 0) {
+                // If the current selection(s) can be deleted and is a tag or tagset
+                if (OME.nodeHasPermission(selected, 'canDelete', {{ active_group.id }}) &&
+                    (selected[0].type === 'tag' || selected[0].type === 'tagset')) {
+                    toolbar_config['delete'] = true;
+                }
+            }
+            for (var btnName in toolbar_config) {
+                enableToolbarButton(btnName, toolbar_config[btnName]);
+            }
+        };
+
         $(function() {
 
             // This is duplicated in containers.html
@@ -59,37 +85,6 @@
                     }
                 }
             });
-
-
-        function enableToolbarButton(name, enabled) {
-            if (enabled) {
-                $('input#'+name+'Button').removeClass('button-disabled').prop('disabled', false);
-            } else {
-                $('input#'+name+'Button').addClass('button-disabled').prop('disabled', true);
-            }
-        };
-
-        function buttonsShowHide(selected, inst) {
-            // Disable all unless explicitly enabled below
-            var toolbar_config = {
-                'delete':false
-            };
-
-            if (selected.length > 0) {
-
-                // If the current selection(s) can be deleted and is a tag or tagset
-                if (OME.nodeHasPermission(selected, 'canDelete', {{ active_group.id }}) &&
-                    (selected[0].type === 'tag' || selected[0].type === 'tagset')) {
-                    toolbar_config['delete'] = true;
-                }
-            }
-
-            for (var btnName in toolbar_config) {
-                enableToolbarButton(btnName, toolbar_config[btnName]);
-            }
-
-        };
-
 
 
             // We (un)truncate images when the left panel resizes...

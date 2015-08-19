@@ -213,7 +213,9 @@
                 // Since we've suppressed jstree events, we need to manually handle selection change...
                 OME.writeSelectedObjs(undefined, $selectedIcons);
                 // Update the buttons in the jstree
-                buttonsShowHide(datatree.get_selected(true), datatree); 
+                if (buttonsShowHide) {
+                    buttonsShowHide(datatree.get_selected(true), datatree);
+                }
                 // Trigger the selection changed event
                 $("body").trigger('selection_change.ome');
 
