@@ -913,23 +913,21 @@ class OmeroMetadataServiceImpl
     {
         Object object = results.getRelatedObject();
         if (CollectionUtils.isNotEmpty(annotations)) {
-            List<TextualAnnotationData> 
+            List<TextualAnnotationData>
                 texts = new ArrayList<TextualAnnotationData>();
             List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
-            List<TermAnnotationData> 
+            List<TermAnnotationData>
             terms = new ArrayList<TermAnnotationData>();
-            List<FileAnnotationData> 
+            List<FileAnnotationData>
             attachments = new ArrayList<FileAnnotationData>();
-            List<RatingAnnotationData> 
+            List<RatingAnnotationData>
             ratings = new ArrayList<RatingAnnotationData>();
-            List<XMLAnnotationData> 
+            List<XMLAnnotationData>
             xml = new ArrayList<XMLAnnotationData>();
-            List<MapAnnotationData> 
+            List<MapAnnotationData>
             maps = new ArrayList<MapAnnotationData>();
-            
-            List<AnnotationData> 
+            List<AnnotationData>
             other = new ArrayList<AnnotationData>();
-            
             Iterator i = annotations.iterator();
             AnnotationData data;
             BooleanAnnotationData b;
@@ -959,8 +957,7 @@ class OmeroMetadataServiceImpl
                 } else if (data instanceof MapAnnotationData) {
                     annotationIds.add(data.getId());
                     maps.add((MapAnnotationData) data);
-                } 
-                else {
+                } else {
                     annotationIds.add(data.getId());
                     other.add(data);
                 }
@@ -1033,10 +1030,11 @@ class OmeroMetadataServiceImpl
 	public Map<DataObject, StructuredDataResults>
 		loadStructuredData(SecurityContext ctx, List<DataObject> data,
 			long userID, boolean viewed) 
-	    throws DSOutOfServiceException, DSAccessException 
+	    throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
 			throw new IllegalArgumentException("Object not valid.");
+		
 		Map<DataObject, StructuredDataResults> 
 			results = new HashMap<DataObject, StructuredDataResults>();
 		Iterator<DataObject> i = data.iterator();
@@ -1045,13 +1043,12 @@ class OmeroMetadataServiceImpl
 		Class<?> klass = null;
 		List<Long> fids = new ArrayList<Long>();
 		ImageData img;
+		Multimap<Class<?>, Long> mm = ArrayListMultimap.create();
 		while (i.hasNext()) {
 			n = i.next();
 			if (n != null) {
 			    ids.add(n.getId());
-			    if (klass == null) {
-			        klass = n.getClass();
-			    }
+			    mm.put(n.getClass(), n.getId());
 			    if (n instanceof ImageData) {
 			        img = (ImageData) n;
 			        long fID = img.getFilesetId();
@@ -1074,7 +1071,26 @@ class OmeroMetadataServiceImpl
             usersIDs = new ArrayList<Long>(1);
             usersIDs.add(userID);
         }
-        Map map = gateway.loadAnnotations(ctx, klass, ids, null, usersIDs,
+        //Load annotations
+        for (Class<?> k : mm.keySet()) {
+            loadAnnotations(ctx, k, (List) mm.get(k), userID, data,
+                    filesetMap, results);
+        }
+		return results;
+	}
+
+	private void loadAnnotations(SecurityContext ctx, Class<?> klass,
+	        List<Long> ids, long userID, List<DataObject> data,
+	        Map<Long, Collection<AnnotationData>> filesetMap,
+	        Map<DataObject, StructuredDataResults> results)
+	throws DSOutOfServiceException, DSAccessException
+	{
+	    List<Long> usersIDs = null;
+        if (userID != -1) {
+            usersIDs = new ArrayList<Long>(1);
+            usersIDs.add(userID);
+        }
+	    Map map = gateway.loadAnnotations(ctx, klass, ids, null, usersIDs,
                 new Parameters());
         Multimap<Long, IObject> linkMap = ArrayListMultimap.create();
         if (!(klass.equals(TagAnnotationData.class) ||
@@ -1099,26 +1115,25 @@ class OmeroMetadataServiceImpl
             }
         }
         //format the results
-        i = data.iterator();
+        Iterator<DataObject> i = data.iterator();
         StructuredDataResults r;
         List<IObject> links;
+        DataObject n;
         while (i.hasNext()) {
             n = i.next();
-            if (n != null) {
+            if (n != null && ids.contains(n.getId())) {
                 r = new StructuredDataResults(n);
                 loadStructuredData(ctx, userID,
                         (Collection) map.get(n.getId()), r, false);
                 results.put(n, r);
                 if (n instanceof ImageData) {
-                    img = (ImageData) n;
+                    ImageData img = (ImageData) n;
                     r.setTransferlinks(filesetMap.get(img.getFilesetId()));
                 }
                 formatAnnotationLinks(linkMap.get(n.getId()), r);
             }
         }
-		return results;
 	}
-
 	/**
 	 * Formats the annotation links.
 	 *

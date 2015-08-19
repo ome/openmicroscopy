@@ -1343,7 +1343,6 @@ class MeasurementViewerComponent
     public void onAnnotationSaved() {
         //Load the annotation for the selected shapes.
         //Display the UI.
-       
         Collection<ROIFigure> figures = model.getAllFigures();
         if (CollectionUtils.isEmpty(figures)) {
             return;
