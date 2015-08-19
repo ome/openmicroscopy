@@ -234,7 +234,7 @@
 
             // Setup jstree
             .jstree({
-                'plugins': ['types', 'sort', 'locate', 'ometools', 'conditionalselect', 'truncatetext'],
+                'plugins': ['types', 'sort', 'locate', 'ometools', 'conditionalselect', 'truncatetext', 'contextmenu'],
                 // The jstree core
                 'core' : {
                     'themes': {
@@ -455,6 +455,14 @@
                             return false;
                         }
                         return true;
+                    }
+                },
+                // disable the browser context menu
+                'contextmenu' : {
+                    "select_node":true,
+                    "items" : function(obj){
+                        var config = {};
+                        return config;
                     }
                 },
             });
