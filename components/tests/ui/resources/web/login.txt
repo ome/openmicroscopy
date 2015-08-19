@@ -33,6 +33,7 @@ Login Page Should Be Open
 Open Browser To Login Page
     [Arguments]                 ${main url}=${LOGIN URL}    ${login url}=${LOGIN URL}     ${title}=OMERO.web - Login
     Open Browser                ${main url}         ${BROWSER}
+    Set Selenium Speed          ${DELAY}
     Login Page Should Be Open   ${login url}        ${title}
 
 Go To Login Page
