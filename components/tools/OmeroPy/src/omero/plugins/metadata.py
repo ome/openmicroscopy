@@ -308,7 +308,7 @@ class MetadataControl(BaseControl):
     def mapanns(self, args):
         "Provide a list of all MapAnnotations linked to the given object"
         def get_anns(md):
-            anns = [a for a in md.get_allanns(args.ns, 'MapAnnotation')]
+            anns = md.get_allanns(args.ns, 'MapAnnotation')
             if args.nsre:
                 return [a for a in anns if re.match(args.nsre, a.get_ns())]
             return anns
