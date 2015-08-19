@@ -1146,7 +1146,9 @@ class MeasurementViewerComponent
 	    while (i.hasNext()) {
             f = i.next();
             shape = f.getROIShape().getData();
-            f.setAttribute(AnnotationKeys.TAG, r.get(shape.getId()));
+            if (shape != null) {
+                f.setAttribute(AnnotationKeys.TAG, r.get(shape.getId()));
+            }
         }
 	    
 	    Collection<Figure> figs = view.getSelectedFiguresFromTables();
