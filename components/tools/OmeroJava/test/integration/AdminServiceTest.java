@@ -35,6 +35,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.GroupExperimenterMap;
+import omero.model.IObject;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.ParametersI;
@@ -280,13 +281,13 @@ public class AdminServiceTest extends AbstractServerTest {
         ids.add(userGroup.getId().getValue());
         p = new ParametersI();
         p.addLongs("gids", ids);
-        List list = (List) query.findAllByQuery("select m "
+        List<IObject> list = query.findAllByQuery("select m "
                 + "from GroupExperimenterMap as m "
                 + "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 + " where m.parent.id in (:gids)", p);
         assertNotNull(list);
-        Iterator i = list.iterator();
+        Iterator<IObject> i = list.iterator();
         GroupExperimenterMap geMap;
         int count = 0;
         while (i.hasNext()) {
@@ -346,13 +347,13 @@ public class AdminServiceTest extends AbstractServerTest {
         ids.add(userGroup.getId().getValue());
         p = new ParametersI();
         p.addLongs("gids", ids);
-        List list = (List) query.findAllByQuery("select m "
+        List<IObject> list = query.findAllByQuery("select m "
                 + "from GroupExperimenterMap as m "
                 + "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 + " where m.parent.id in (:gids)", p);
         assertNotNull(list);
-        Iterator i = list.iterator();
+        Iterator<IObject> i = list.iterator();
         GroupExperimenterMap geMap;
         int count = 0;
         while (i.hasNext()) {
@@ -400,13 +401,13 @@ public class AdminServiceTest extends AbstractServerTest {
         ids.add(userGroup.getId().getValue());
         p = new ParametersI();
         p.addLongs("gids", ids);
-        List list = (List) query.findAllByQuery("select m "
+        List<IObject> list = query.findAllByQuery("select m "
                 + "from GroupExperimenterMap as m "
                 + "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 + " where m.parent.id in (:gids)", p);
         assertNotNull(list);
-        Iterator i = list.iterator();
+        Iterator<IObject> i = list.iterator();
         GroupExperimenterMap geMap;
         int count = 0;
         while (i.hasNext()) {
@@ -780,8 +781,8 @@ public class AdminServiceTest extends AbstractServerTest {
         ParametersI p = new ParametersI();
         p.addLong("expId", expId);
         p.addLong("groupId", groupId);
-        List l = (List) query.findAllByQuery(sql, p);
-        Iterator i = l.iterator();
+        List<IObject> l = query.findAllByQuery(sql, p);
+        Iterator<IObject> i = l.iterator();
         GroupExperimenterMap map;
         while (i.hasNext()) {
             map = (GroupExperimenterMap) i.next();
@@ -1691,13 +1692,13 @@ public class AdminServiceTest extends AbstractServerTest {
         ids.add(userGroup.getId().getValue());
         p = new ParametersI();
         p.addLongs("gids", ids);
-        List list = (List) query.findAllByQuery("select m "
+        List<IObject> list = query.findAllByQuery("select m "
                 + "from GroupExperimenterMap as m "
                 + "left outer join fetch m.child "
                 + "left outer join fetch m.parent"
                 + " where m.parent.id in (:gids)", p);
         assertNotNull(list);
-        Iterator i = list.iterator();
+        Iterator<IObject> i = list.iterator();
         GroupExperimenterMap geMap;
         int count = 0;
         while (i.hasNext()) {
@@ -1736,6 +1737,7 @@ public class AdminServiceTest extends AbstractServerTest {
     /**
      * Test that the root experimenter is reported to be a member of both the system and the user groups
      * and that the guest experimenter is reported to be a member of the guest group.
+     * @throws ServerError unexpected
      */
     @Test
     public void testGroupMemberships() throws ServerError {
