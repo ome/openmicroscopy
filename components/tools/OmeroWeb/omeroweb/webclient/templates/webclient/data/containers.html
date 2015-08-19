@@ -317,7 +317,7 @@
                 // Only images can be added to a basket and only if they all are
                 toolbar_config['createshare'] = true;
                 $.each(selected, function(index, node) {
-                    if (node.type != 'image') {
+                    if (node.type != 'image' || !OME.nodeHasPermission(node, 'canLink')) {
                         toolbar_config['createshare'] = false;
                         // Break out of $.each
                         return false;
