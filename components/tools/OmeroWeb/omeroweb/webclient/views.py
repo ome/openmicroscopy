@@ -1145,7 +1145,7 @@ def api_share_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'shares': shares, 'discussions': discussions})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
               o3_type=None, o3_id=None, conn=None, **kwargs):
