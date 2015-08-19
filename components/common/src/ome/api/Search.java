@@ -412,7 +412,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
     /**
      * Returns transient (without ID)
      * {@link ome.model.annotations.TextAnnotation} instances which represent
-     * terms which are similar to the give terms. For example, if the argument
+     * terms which are similar to the given terms. For example, if the argument
      * is "cell", one return value might have as its textValue: "cellular"
      * while another has "cellularize".
      * 
