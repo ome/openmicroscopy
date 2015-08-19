@@ -178,6 +178,11 @@
             var syncTreeSelection = function() {
 
                 var $selectedIcons = $('.ui-selected');
+                {% if share %}
+                    // We don't support multi-selection of images in share
+                    $selectedIcons.removeClass('ui-selected');
+                    $selectedIcons = $selectedIcons.first().addClass('ui-selected');
+                {% endif %}
                 var imageId = $selectedIcons.first().data('id');
 
                 // Get the node that seems to be the current container
