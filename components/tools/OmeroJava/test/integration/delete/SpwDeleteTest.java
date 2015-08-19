@@ -10,7 +10,6 @@ import integration.AbstractServerTest;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ome.xml.model.OME;
@@ -101,10 +100,8 @@ public class SpwDeleteTest extends AbstractServerTest {
         Screen screen = plate.copyScreenLinks().get(0).getParent();
         long sid = screen.getId().getValue();
 
-        final Delete2 dc = Requests.delete("Screen", sid);
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList(Plate.class.getSimpleName());
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, "Plate");
+        final Delete2 dc = Requests.delete("Screen", sid, option);
         callback(true, client, dc);
 
         assertDoesNotExist(screen);

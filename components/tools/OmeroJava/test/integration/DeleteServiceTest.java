@@ -1396,10 +1396,8 @@ public class DeleteServiceTest extends AbstractServerTest {
                 id = obj.getId().getValue();
                 annotationIds = createSharableAnnotation(obj, null);
                 if (values[j]) {
-                    final Delete2 dc = Requests.delete(type, id);
-                    final ChildOption co = new ChildOption();
-                    co.excludeType = SHARABLE_TO_KEEP_LIST;
-                    dc.childOptions = Collections.singletonList(co);
+                    final ChildOption co = Requests.option(null, SHARABLE_TO_KEEP_LIST);
+                    final Delete2 dc = Requests.delete(type, id, co);
                     callback(true, client, dc);
                 } else {
                     final Delete2 dc = Requests.delete(type, id);
@@ -1578,10 +1576,8 @@ public class DeleteServiceTest extends AbstractServerTest {
         links.add(il);
         iUpdate.saveAndReturnArray(links);
 
-        final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
-        final ChildOption co = new ChildOption();
-        co.excludeType = Collections.singletonList(FileAnnotation.class.getSimpleName());
-        dc.childOptions = Collections.singletonList(co);
+        final ChildOption co = Requests.option(null, "FileAnnotation");
+        final Delete2 dc = Requests.delete("Plate", p.getId().getValue(), co);
         callback(true, client, dc);
         // Shouldn't have measurements
         ParametersI param = new ParametersI();
@@ -1657,10 +1653,8 @@ public class DeleteServiceTest extends AbstractServerTest {
                         annotationIds.addAll(r);
                 }
                 if (annotations[k]) {
-                    final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
-                    final ChildOption co = new ChildOption();
-                    co.excludeType = SHARABLE_TO_KEEP_LIST;
-                    dc.childOptions = Collections.singletonList(co);
+                    final ChildOption co = Requests.option(null, SHARABLE_TO_KEEP_LIST);
+                    final Delete2 dc = Requests.delete("Plate", p.getId().getValue(), co);
                     callback(true, client, dc);
                 } else {
                     final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
@@ -1895,10 +1889,8 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         long id = fa.getId().getValue();
 
-        final Delete2 dc = Requests.delete("Image", img.getId().getValue());
-        final ChildOption co = new ChildOption();
-        co.excludeType = Collections.singletonList(FileAnnotation.class.getSimpleName());
-        dc.childOptions = Collections.singletonList(co);
+        final ChildOption co = Requests.option(null, "FileAnnotation");
+        final Delete2 dc = Requests.delete("Image", img.getId().getValue(), co);
         callback(true, client, dc);
 
         // File annotation should be deleted even if
@@ -1928,10 +1920,8 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<Long> ids = createSharableAnnotation(img1, img2);
         assertEquals(n, ids.size());
         // now delete the image 1.
-        Delete2 dc = Requests.delete("Image", img1.getId().getValue());
-        ChildOption co = new ChildOption();
-        co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.childOptions = Collections.singletonList(co);
+        ChildOption co = Requests.option(null, SHARABLE_TO_KEEP_LIST);
+        Delete2 dc = Requests.delete("Image", img1.getId().getValue(), co);
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addIds(ids);
@@ -1946,10 +1936,8 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleDatasetData().asIObject());
         ids = createSharableAnnotation(d1, d2);
         // now delete the dataset 1.
-        dc = Requests.delete("Dataset", d1.getId().getValue());
-        co = new ChildOption();
-        co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.childOptions = Collections.singletonList(co);
+        co = Requests.option(null, SHARABLE_TO_KEEP_LIST);
+        dc = Requests.delete("Dataset", d1.getId().getValue(), co);
         callback(true, client, dc);
         param = new ParametersI();
         param.addIds(ids);
@@ -1963,10 +1951,8 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleProjectData().asIObject());
         ids = createSharableAnnotation(p1, p2);
         // now delete the project 1.
-        dc = Requests.delete("Project", p1.getId().getValue());
-        co = new ChildOption();
-        co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.childOptions = Collections.singletonList(co);
+        co = Requests.option(null, SHARABLE_TO_KEEP_LIST);
+        dc = Requests.delete("Project", p1.getId().getValue(), co);
         callback(true, client, dc);
 
         param = new ParametersI();
@@ -1981,10 +1967,8 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleScreenData().asIObject());
         ids = createSharableAnnotation(s1, s2);
         // now delete the screen 1.
-        dc = Requests.delete("Screen", s1.getId().getValue());
-        co = new ChildOption();
-        co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.childOptions = Collections.singletonList(co);
+        co = Requests.option(null, SHARABLE_TO_KEEP_LIST);
+        dc = Requests.delete("Screen", s1.getId().getValue(), co);
         callback(true, client, dc);
 
         param = new ParametersI();
@@ -1999,10 +1983,8 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
         ids = createSharableAnnotation(plate1, plate2);
         // now delete the plate 1.
-        dc = Requests.delete("Plate", plate1.getId().getValue());
-        co = new ChildOption();
-        co.excludeType = SHARABLE_TO_KEEP_LIST;
-        dc.childOptions = Collections.singletonList(co);
+        co = Requests.option(null, SHARABLE_TO_KEEP_LIST);
+        dc = Requests.delete("Plate", plate1.getId().getValue(), co);
         callback(true, client, dc);
         param = new ParametersI();
         param.addIds(ids);
@@ -2434,11 +2416,8 @@ public class DeleteServiceTest extends AbstractServerTest {
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
 
-            final Delete2 dc = Requests.delete(type, id);
-            final ChildOption co = new ChildOption();
-            co.includeNs = Collections.singletonList(NAMESPACE);
-            co.excludeType = Collections.singletonList(Annotation.class.getSimpleName());
-            dc.childOptions = Collections.singletonList(co);
+            final ChildOption co = Requests.option(null, "Annotation", NAMESPACE, null);
+            final Delete2 dc = Requests.delete(type, id, co);
             callback(true, client, dc);
 
             assertDoesNotExist(obj);
@@ -2492,11 +2471,8 @@ public class DeleteServiceTest extends AbstractServerTest {
             List<String> ns = new ArrayList<String>();
             ns.add(NAMESPACE);
             ns.add(NAMESPACE_2);
-            final Delete2 dc = Requests.delete(type, id);
-            final ChildOption co = new ChildOption();
-            co.includeNs = ns;
-            co.excludeType = Collections.singletonList(Annotation.class.getSimpleName());
-            dc.childOptions = Collections.singletonList(co);
+            final ChildOption co = Requests.option(null, "Annotation", ns, null);
+            final Delete2 dc = Requests.delete(type, id, co);
             callback(true, client, dc);
 
             assertDoesNotExist(obj);
@@ -2928,10 +2904,8 @@ public class DeleteServiceTest extends AbstractServerTest {
         options.add(Dataset.class.getSimpleName());
         options.add(Image.class.getSimpleName());
         long id = p.getId().getValue();
-        Delete2 dc = Requests.delete("Project", id);
-        ChildOption co = new ChildOption();
-        co.excludeType = options;
-        dc.childOptions = Collections.singletonList(co);
+        ChildOption co = Requests.option(null, options);
+        Delete2 dc = Requests.delete("Project", id, co);
         callback(true, client, dc);
 
         assertDoesNotExist(p);
@@ -2964,10 +2938,8 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         // Now delete the screen
         long id = s.getId().getValue();
-        Delete2 dc = Requests.delete("Screen", id);
-        ChildOption co = new ChildOption();
-        co.excludeType = Collections.singletonList(Plate.class.getSimpleName());
-        dc.childOptions = Collections.singletonList(co);
+        ChildOption co = Requests.option(null, "Plate");
+        Delete2 dc = Requests.delete("Screen", id, co);
         callback(true, client, dc);
 
         assertDoesNotExist(s);
@@ -2996,10 +2968,8 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         // Now delete the dataset
         long id = d.getId().getValue();
-        Delete2 dc = Requests.delete("Dataset", id);
-        ChildOption co = new ChildOption();
-        co.excludeType = Collections.singletonList(Image.class.getSimpleName());
-        dc.childOptions = Collections.singletonList(co);
+        ChildOption co = Requests.option(null, "Image");
+        Delete2 dc = Requests.delete("Dataset", id, co);
         callback(true, client, dc);
 
         assertDoesNotExist(d);

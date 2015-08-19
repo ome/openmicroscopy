@@ -290,12 +290,8 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
             }
         } finally {
-            final Delete2 request = Requests.delete("Project", projectId);
-
-            final ChildOption option = new ChildOption();
-            option.excludeType = Collections.singletonList("Image");
-            request.childOptions = Collections.singletonList(option);
-
+            final ChildOption option = Requests.option(null, "Image");
+            final Delete2 request = Requests.delete("Project", projectId, option);
             doChange(request);
         }
     }

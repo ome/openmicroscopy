@@ -9,7 +9,6 @@ import integration.AbstractServerTest;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ome.testing.ObjectFactory;
@@ -401,10 +400,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Image", pid);
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("TagAnnotation");
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, "TagAnnotation");
+        final Delete2 dc = Requests.delete("Image", pid, option);
         callback(true, client, dc);
 
         // Make sure the image is deleted but the annotation remains.
@@ -441,10 +438,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Image", pid);
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("FileAnnotation");
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, "FileAnnotation");
+        final Delete2 dc = Requests.delete("Image", pid, option);
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -480,11 +475,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Image", pid);
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("FileAnnotation");
-        option.excludeNs = Collections.singletonList("keepme");
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, "FileAnnotation", null, "keepme");
+        final Delete2 dc = Requests.delete("Image", pid, option);
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -517,11 +509,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         List<Long> annotationIds = createNonSharableAnnotation(obj, null);
         List<Long> annotationIdsNS = createNonSharableAnnotation(obj, "TEST");
 
-        final Delete2 dc = Requests.delete(type, id);
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("Annotation");
-        option.excludeNs = Collections.singletonList("TEST");
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, "Annotation", null, "TEST");
+        final Delete2 dc = Requests.delete(type, id, option);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -581,10 +570,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long id = file.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("OriginalFile", id);
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("Annotation");
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, "Annotation");
+        final Delete2 dc = Requests.delete("OriginalFile", id, option);
         callback(true, client, dc);
 
         assertGone(ann);

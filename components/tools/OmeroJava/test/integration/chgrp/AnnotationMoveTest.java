@@ -9,7 +9,6 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import omero.cmd.Chgrp2;
@@ -210,10 +209,8 @@ public class AnnotationMoveTest extends AbstractServerTest {
         assertTrue(annotationIds.size() > 0);
         // now move the image.
         long id = img.getId().getValue();
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
-        final ChildOption option = new ChildOption();
-        option.excludeType = DeleteServiceTest.SHARABLE_TO_KEEP_LIST;
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, DeleteServiceTest.SHARABLE_TO_KEEP_LIST);
+        final Chgrp2 dc = Requests.chgrp("Image", id, option, g.getId().getValue());
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -532,10 +529,8 @@ public class AnnotationMoveTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         long id = img1.getId().getValue();
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
-        final ChildOption option = new ChildOption();
-        option.excludeType = DeleteServiceTest.SHARABLE_TO_KEEP_LIST;
-        dc.childOptions = Collections.singletonList(option);
+        final ChildOption option = Requests.option(null, DeleteServiceTest.SHARABLE_TO_KEEP_LIST);
+        final Chgrp2 dc = Requests.chgrp("Image", id, option, g.getId().getValue());
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
