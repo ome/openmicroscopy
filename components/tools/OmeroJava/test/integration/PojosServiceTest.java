@@ -97,9 +97,6 @@ public class PojosServiceTest extends AbstractServerTest {
     /** Reference to class used to create data object. */
     CreatePojosFixture2 fixture;
 
-    /** Helper reference to the <code>IContainer</code> service. */
-    private IContainerPrx iContainer;
-
     /**
      * Makes sure that the pixels set is loaded.
      *
@@ -133,7 +130,6 @@ public class PojosServiceTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        iContainer = factory.getContainerService();
         fixture = CreatePojosFixture2.withNewUser(root);
         fixture.createAllPojos();
     }
@@ -161,7 +157,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(p.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -205,7 +201,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(p.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -254,7 +250,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(p.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -293,7 +289,7 @@ public class PojosServiceTest extends AbstractServerTest {
 
         ParametersI param = new ParametersI();
         param.exp(rlong(self));
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
         assertTrue(results.size() > 0);
         Iterator i = results.iterator();
@@ -326,7 +322,7 @@ public class PojosServiceTest extends AbstractServerTest {
 
         ParametersI param = new ParametersI();
         param.exp(rlong(self));
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
         assertTrue(results.size() > 0);
         Iterator i = results.iterator();
@@ -363,7 +359,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.exp(rlong(self));
         param.orphan();
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
         assertTrue(results.size() > 0);
         Iterator i = results.iterator();
@@ -400,7 +396,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.exp(rlong(self));
         param.orphan();
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
         assertTrue(results.size() > 0);
         Iterator i = results.iterator();
@@ -440,7 +436,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.leaves();
         List<Long> ids = new ArrayList<Long>();
         ids.add(d.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -488,7 +484,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.leaves();
         List<Long> ids = new ArrayList<Long>();
         ids.add(d.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -533,7 +529,8 @@ public class PojosServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(d1.getId().getValue());
         ids.add(d2.getId().getValue());
-        Map m = iContainer.getCollectionCount(Dataset.class.getName(),
+        Map m = factory.getContainerService().getCollectionCount(
+                Dataset.class.getName(),
                 DatasetData.IMAGE_LINKS, ids, p);
         Long v = (Long) m.get(d1.getId().getValue());
         assertEquals(v.longValue(), 1);
@@ -560,7 +557,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(d.getId().getValue());
-        List<Image> images = iContainer.getImages(Dataset.class.getName(), ids,
+        List<Image> images = factory.getContainerService().getImages(Dataset.class.getName(), ids,
                 param);
         assertTrue(images.size() > 0);
         Iterator<Image> i = images.iterator();
@@ -575,7 +572,8 @@ public class PojosServiceTest extends AbstractServerTest {
         assertEquals(count, 1);
         param = new ParametersI();
         param.exp(rlong(fixture.e.getId().getValue()));
-        images = iContainer.getImages(Dataset.class.getName(), ids, param);
+        images = factory.getContainerService().getImages(
+                Dataset.class.getName(), ids, param);
         assertEquals(images.size(), 0);
     }
 
@@ -598,8 +596,8 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(d.getId().getValue());
-        List<Image> images = iContainer.getImages(Dataset.class.getName(), ids,
-                param);
+        List<Image> images = factory.getContainerService().getImages(
+                Dataset.class.getName(), ids, param);
         assertTrue(images.size() > 0);
         Iterator<Image> i = images.iterator();
         Image img;
@@ -616,7 +614,8 @@ public class PojosServiceTest extends AbstractServerTest {
         assertEquals(count, 1);
         param = new ParametersI();
         param.exp(rlong(fixture.e.getId().getValue()));
-        images = iContainer.getImages(Dataset.class.getName(), ids, param);
+        images = factory.getContainerService().getImages(Dataset.class.getName(),
+                ids, param);
         assertEquals(images.size(), 0);
     }
 
@@ -808,7 +807,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 /* per page */
                 final ParametersI parameters = new ParametersI().page(
                         startImageIndex, pageSize);
-                final List<Image> pageOfImages = iContainer.getImages(
+                final List<Image> pageOfImages = factory.getContainerService().getImages(
                         Dataset.class.getName(), datasetIdList, parameters);
                 if (nextIsEmpty) {
                     Assert.assertTrue(pageOfImages.isEmpty(),
@@ -866,7 +865,7 @@ public class PojosServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(i.getId().getValue());
         // Should have one project.
-        List results = iContainer.findContainerHierarchies(
+        List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Image pp = (Image) results.get(0);
@@ -888,7 +887,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.exp(rlong(id));
 
         List<Long> ids = fixture.getProjectIds();
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList<Long>(), param);
         Iterator i = results.iterator();
         IObject object;
@@ -916,7 +915,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.grp(rlong(id));
 
         List<Long> ids = fixture.getProjectIds();
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList<Long>(), param);
         Iterator i = results.iterator();
         IObject object;
@@ -948,7 +947,7 @@ public class PojosServiceTest extends AbstractServerTest {
         i.setAcquisitionDate(rtime(startTime));
         i = (Image) iUpdate.saveAndReturnObject(i);
 
-        List result = iContainer.getImagesByOptions(po);
+        List result = factory.getContainerService().getImagesByOptions(po);
         assertTrue(result.size() > 0);
         Iterator j = result.iterator();
         int count = 0;
@@ -975,7 +974,7 @@ public class PojosServiceTest extends AbstractServerTest {
         po = new ParametersI();
         po.leaves();
         po.startTime(rtime(startTime));
-        result = iContainer.getImagesByOptions(po);
+        result = factory.getContainerService().getImagesByOptions(po);
         assertEquals(result.size(), 0);
     }
 
@@ -1001,7 +1000,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.noLeaves();
         List<Long> ids = new ArrayList<Long>();
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(), ids, param);
         assertTrue(results.size() > 0);
         Iterator i = results.iterator();
@@ -1020,7 +1019,8 @@ public class PojosServiceTest extends AbstractServerTest {
         // now check if the image is correctly loaded
         param = new ParametersI();
         param.leaves();
-        results = iContainer.loadContainerHierarchy(Dataset.class.getName(),
+        results = factory.getContainerService().loadContainerHierarchy(
+                Dataset.class.getName(),
                 ids, param);
         assertTrue(results.size() > 0);
         i = results.iterator();
@@ -1070,7 +1070,7 @@ public class PojosServiceTest extends AbstractServerTest {
         po.acquisitionData();
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(image.getId().getValue());
-        List results = iContainer.getImages(Image.class.getName(), ids, param);
+        List results = factory.getContainerService().getImages(Image.class.getName(), ids, param);
         assertNotNull(results);
         assertTrue(results.size() == 1);
         // Check if acquisition data are loaded.
@@ -1128,7 +1128,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(p.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -1226,7 +1226,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(s.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
+        List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -1307,7 +1307,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(i.getId().getValue());
-        List results = iContainer.findContainerHierarchies(
+        List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Project found = (Project) results.get(0);
@@ -1351,7 +1351,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(i.getId().getValue());
-        List results = iContainer.findContainerHierarchies(
+        List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Dataset found = (Dataset) results.get(0);
@@ -1379,7 +1379,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(i.getId().getValue());
-        List results = iContainer.findContainerHierarchies(
+        List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
         assertEquals(results.size(), 1);
         Image found = (Image) results.get(0);
@@ -1401,7 +1401,7 @@ public class PojosServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(i.getId().getValue());
         try {
-            iContainer.findContainerHierarchies(Dataset.class.getName(), ids,
+            factory.getContainerService().findContainerHierarchies(Dataset.class.getName(), ids,
                     param);
             fail("Only Project type is supported.");
         } catch (Exception e) {
@@ -1425,8 +1425,8 @@ public class PojosServiceTest extends AbstractServerTest {
 
         ParametersI param = new ParametersI();
         param.exp(rlong(self));
-        List results = iContainer.loadContainerHierarchy(Plate.class.getName(),
-                new ArrayList(), param);
+        List results = factory.getContainerService().loadContainerHierarchy(
+                Plate.class.getName(), new ArrayList(), param);
         assertTrue(results.size() > 0);
         Iterator i = results.iterator();
         int count = 0;
@@ -1455,7 +1455,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
         ids.add(p.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(Plate.class.getName(),
+        List results = factory.getContainerService().loadContainerHierarchy(Plate.class.getName(),
                 ids, param);
         assertEquals(results.size(), 1);
         Iterator i = results.iterator();
@@ -1489,7 +1489,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Image.class.getName(), Arrays.asList(i1.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
@@ -1538,7 +1538,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(i2.getId().getValue());
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Image.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 0);
     }
@@ -1573,7 +1573,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
@@ -1635,7 +1635,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Project.class.getName(), Arrays.asList(p.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
@@ -1701,7 +1701,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d2.getId().getValue());
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Dataset.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 0);
     }
@@ -1769,7 +1769,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(p2.getId().getValue());
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Project.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 0);
     }
@@ -1829,7 +1829,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
         map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
         map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 0);
     }
@@ -1889,7 +1889,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Map<String, List<Long>> map = new HashMap<String, List<Long>>();
         map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
         map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
@@ -1965,7 +1965,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d1.getId().getValue());
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Dataset.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 0);
     }
@@ -1996,7 +1996,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Parameters param = new ParametersI();
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 0);
     }
@@ -2030,7 +2030,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(i1.getId().getValue());
         ids.add(i3.getId().getValue());
         map.put(Image.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+        Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
         assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
@@ -2069,7 +2069,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.simpleProjectData().asIObject());
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(p.getId().getValue());
-		p = (Project) iContainer
+		p = (Project) factory.getContainerService()
 				.loadContainerHierarchy(Project.class.getName(), ids, null)
 				.iterator().next();
 
@@ -2079,7 +2079,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.simpleDatasetData().asIObject());
 		ids = new ArrayList<Long>();
 		ids.add(d.getId().getValue());
-		d = (Dataset) iContainer
+		d = (Dataset) factory.getContainerService()
 				.loadContainerHierarchy(Dataset.class.getName(), ids, null)
 				.iterator().next();
 
@@ -2089,7 +2089,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.simpleScreenData().asIObject());
 		ids = new ArrayList<Long>();
 		ids.add(s.getId().getValue());
-		s = (Screen) iContainer
+		s = (Screen) factory.getContainerService()
 				.loadContainerHierarchy(Screen.class.getName(), ids, null)
 				.iterator().next();
 
@@ -2099,7 +2099,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.simplePlateData().asIObject());
 		ids = new ArrayList<Long>();
 		ids.add(pl.getId().getValue());
-		pl = (Plate) iContainer
+		pl = (Plate) factory.getContainerService()
 				.loadContainerHierarchy(Plate.class.getName(), ids, null)
 				.iterator().next();
 
@@ -2179,11 +2179,9 @@ public class PojosServiceTest extends AbstractServerTest {
     public void testLoadContainerHierarchyScreenWithOtherMembersPlate()
             throws Exception {
         // first create a Screen
-        String perms = "rwrw--";
-        EventContext ctx = newUserAndGroup(perms, true);
-
         Screen p = (Screen) iUpdate.saveAndReturnObject(mmFactory
                 .simpleScreenData().asIObject());
+
         EventContext dataOwner = newUserInGroup();
         Plate d = (Plate) iUpdate.saveAndReturnObject(mmFactory
                 .simplePlateData().asIObject());
