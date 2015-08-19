@@ -31,6 +31,8 @@ GUI clients.
 ANNOTATION_TYPES = [t for t in dir(omero.model)
                     if re.match('[A-Za-z0-9]+Annotation$', t)]
 
+NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
+
 
 class Metadata(object):
     """
@@ -153,9 +155,13 @@ class MetadataControl(BaseControl):
             "--measurement", type=int, default=None,
             help="Index of the measurement to populate. By default, all")
 
-    def _load(self, args):
+    def _clientconn(self, args):
         client = self.ctx.conn(args)
         conn = BlitzGateway(client_obj=client)
+        return client, conn
+
+    def _load(self, args):
+        client, conn = self._clientconn(args)
         conn.SERVICE_OPTS.setOmeroGroup('-1')
         klass = args.obj.ice_staticId().split("::")[-1]
         oid = args.obj.id.val
@@ -313,7 +319,8 @@ class MetadataControl(BaseControl):
 
     def populate(self, args):
         "Add metadata (bulk-annotations) to an object"
-        client = self.ctx.conn(args)
+        md = self._load(args)
+        client, conn = self._clientconn(args)
         # TODO: Configure logging properly
         if args.report:
             populate_metadata.log.setLevel(logging.DEBUG)
@@ -330,8 +337,11 @@ class MetadataControl(BaseControl):
                 pass
 
             if not cfgfileid:
-                cfgfile = client.upload(args.cfg)
-                cfgfileid = cfgfile.getId().val
+                fileann = conn.createFileAnnfromLocalFile(
+                    args.cfg, mimetype="application/x-yaml",
+                    ns=NSBULKANNOTATIONSCONFIG)
+                cfgfileid = fileann.getFile().getId()
+                md.linkAnnotation(fileann)
 
             ctx = context_class(client, args.obj, args.file, cfgfileid)
         else:
