@@ -444,10 +444,10 @@
                             return false;
                         }
 
-                        // Disable multi-type selection of shares
+                        // Disable multi-type selection of shares AND images
                         var inst = this;
                         var selected = inst.get_selected(true);
-                        if (selected.length > 0 && (selected[0].type === 'share' || node.type === 'share')) {
+                        if (selected.length > 0) {
                             return false;
                         }
                         return true;
