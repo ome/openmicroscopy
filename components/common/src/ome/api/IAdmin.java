@@ -233,7 +233,7 @@ public interface IAdmin extends ServiceInterface {
     long uploadMyUserPhoto(String filename, String format, byte[] data);
 
     /**
-     * Retrieve the {@link ome.model.core.OriginalFile} objectd attached to this
+     * Retrieve the {@link ome.model.core.OriginalFile} object attached to this
      * user as specified by {@link #uploadMyUserPhoto(String, String, byte[])}.
      * The return value is order by the most recently modified file first.
      *
