@@ -72,15 +72,16 @@ class Metadata(object):
         return self.obj_wrapper.loadOriginalMetadata()
 
     def get_bulkanns(self):
-        return self.wrap(self.obj_wrapper.listAnnotations(
-            namespaces.NSBULKANNOTATIONS))
+        return self.get_allanns(namespaces.NSBULKANNOTATIONS)
 
     def get_measures(self):
-        return self.wrap(self.obj_wrapper.listAnnotations(
-            namespaces.NSMEASUREMENT))
+        return self.get_allanns(namespaces.NSMEASUREMENT)
 
-    def get_allanns(self):
-        return self.wrap(self.obj_wrapper.listAnnotations())
+    def get_allanns(self, ns=None, anntype=None):
+        anns = self.wrap(self.obj_wrapper.listAnnotations(ns))
+        if anntype:
+            return [a for a in anns if a.get_type() == anntype]
+        return anns
 
     def wrap(self, obj):
         if obj is None:
@@ -136,10 +137,17 @@ class MetadataControl(BaseControl):
             dry_or_not.add_argument("-f", "--force", action="store_false",
                                     dest="dry_run")
 
-        for x in (bulkanns, measures):
+        for x in (bulkanns, measures, mapanns, allanns):
             x.add_argument(
                 "--parents", action="store_true",
                 help="Also search parents for annotations")
+
+        for x in (mapanns, allanns):
+            x.add_argument(
+                "--ns", default=None, help="Restrict to this namespace")
+            x.add_argument(
+                "--nsre",
+                help="Restrict to this namespace (regular expression)")
 
         rois.add_argument(
             "--delete", action="store_true", help="Delete all ROIs")
@@ -260,9 +268,9 @@ class MetadataControl(BaseControl):
             for k, v in tuples:
                 self.ctx.out("%s=%s" % (k, v))
 
-    def _output_ann(self, mdobj, funcstr, parents, indent):
+    def _output_ann(self, mdobj, func, parents, indent):
         try:
-            anns = getattr(mdobj, funcstr)()
+            anns = func(mdobj)
         except NotImplementedError:
             self.ctx.err('WARNING: Failed to get annotations for %s' %
                          mdobj.get_name())
@@ -275,7 +283,7 @@ class MetadataControl(BaseControl):
             self.ctx.out(self._format_ann(mdobj, a, indent))
         if parents:
             for p in mdobj.get_parents():
-                self._output_ann(p, funcstr, parents, indent)
+                self._output_ann(p, func, parents, indent)
 
     def bulkanns(self, args):
         ("Provide a list of the NSBULKANNOTATION tables linked "
@@ -284,7 +292,8 @@ class MetadataControl(BaseControl):
         indent = None
         if args.report:
             indent = 0
-        self._output_ann(md, 'get_bulkanns', args.parents, indent)
+        self._output_ann(
+            md, lambda md: md.get_bulkanns(), args.parents, indent)
 
     def measures(self, args):
         ("Provide a list of the NSMEASUREMENT tables linked "
@@ -293,27 +302,36 @@ class MetadataControl(BaseControl):
         indent = None
         if args.report:
             indent = 0
-        self._output_ann(md, 'get_measures', args.parents, indent)
+        self._output_ann(
+            md, lambda md: md.get_measures(), args.parents, indent)
 
     def mapanns(self, args):
         "Provide a list of all MapAnnotations linked to the given object"
+        def get_anns(md):
+            anns = [a for a in md.get_allanns(args.ns, 'MapAnnotation')]
+            if args.nsre:
+                return [a for a in anns if re.match(args.nsre, a.get_ns())]
+            return anns
+
         md = self._load(args)
-        mas = md.get_allanns()
-        for ma in mas:
-            if ma.get_type() == 'MapAnnotation':
-                if args.report:
-                    self.ctx.out(self._format_ann(md, ma, 0))
-                else:
-                    self.ctx.out(self._format_ann(md, ma))
+        indent = None
+        if args.report:
+            indent = 0
+        self._output_ann(md, get_anns, args.parents, indent)
 
     def allanns(self, args):
         "Provide a list of all annotations linked to the given object"
+        def get_anns(md):
+            anns = md.get_allanns(args.ns)
+            if args.nsre:
+                return [a for a in anns if re.match(args.nsre, a.get_ns())]
+            return anns
+
         md = self._load(args)
-        for a in md.get_allanns():
-            if args.report:
-                self.ctx.out(self._format_ann(md, a, 0))
-            else:
-                self.ctx.out(self._format_ann(md, a))
+        indent = None
+        if args.report:
+            indent = 0
+        self._output_ann(md, get_anns, args.parents, indent)
 
     # WRITE
 
