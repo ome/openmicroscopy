@@ -336,6 +336,50 @@ class NullTxAction(NonFieldTxAction):
         self.save_and_return(ctx)
 
 
+class ObjGetTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+
+        if len(self.tx_cmd.arg_list) not in (2, 3, 4):
+            ctx.die(335, "usage: get OBJ [FIELD [INDEX]]")
+
+        if len(self.tx_cmd.arg_list) == 2:
+            proxy = self.obj
+        else:
+            field = self.tx_cmd.arg_list[2]
+            try:
+                current = getattr(self.obj, field)
+            except AttributeError:
+                ctx.die(336, "Unknown field '%s' for %s:%s" % (
+                    field, self.kls, self.obj.id.val))
+
+            if len(self.tx_cmd.arg_list) == 3:
+                if isinstance(current, list):
+                    ctx.die(336, "Index required for field '%s' of %s:%s" % (
+                        field, self.kls, self.obj.id.val))
+                else:
+                    if current is None:
+                        proxy = ""
+                    else:
+                        try:
+                            proxy = current.val
+                        except AttributeError, ae:
+                            ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
+                                field, self.kls, self.obj.id.val, ae.message))
+            else:
+                index = int(self.tx_cmd.arg_list[3])
+                try:
+                    proxy = current[index]
+                except IndexError:
+                    ctx.die(336, "Unknown index %s in field '%s' for %s:%s" % (
+                        index, field, self.kls, self.obj.id.val))
+                except AttributeError, ae:
+                    ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
+                        field, self.kls, self.obj.id.val, ae.message))
+
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+
 class TxState(object):
 
     def __init__(self, ctx):
@@ -369,8 +413,8 @@ class ObjControl(BaseControl):
     """Create and Update OMERO objects
 
 The obj command allows inserting any objects into the OMERO
-database as well as updating existing ones. This is likely
-useful for preparing datasets for import and similar.
+database as well as updating and querying existing ones. This
+is likely useful for preparing datasets for import and similar.
 
 Examples:
 
@@ -382,6 +426,9 @@ Examples:
 
     $ bin/omero obj null Dataset:123 description
     Dataset:123
+
+    $ bin/omero obj get Dataset:123 description
+    A dataset
 
     $ bin/omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
@@ -409,7 +456,7 @@ Bash examples:
         parser.add_argument(
             "command", nargs="?",
             choices=("new", "update", "null",
-                     "map-get", "map-set"),
+                     "map-get", "map-set", "get"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -459,6 +506,8 @@ Bash examples:
             return MapGetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "null":
             return NullTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "get":
+            return ObjGetTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 
