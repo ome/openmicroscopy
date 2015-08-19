@@ -2377,7 +2377,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
         annotationIds.addAll(createSharableAnnotation(pa, null));
 
-        Delete2 dc = Requests.delete("Plate",p.getId().getValue());
+        Delete2 dc = Requests.delete("Plate", p.getId().getValue());
         callback(true, client, dc);
         // Check if annotations have been deleted.
         param = new ParametersI();
