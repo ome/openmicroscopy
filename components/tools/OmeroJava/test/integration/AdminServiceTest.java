@@ -29,6 +29,7 @@ import omero.ValidationException;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.cmd.Request;
+import omero.gateway.util.Requests;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -1325,7 +1326,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // change permissions
         representation = "rwrw--";
 
-        Request mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
+        Request mod = Requests.chmod(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
         g = prx.getGroup(id);
@@ -1366,7 +1367,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // change permissions
         representation = "rwra--";
 
-        Request mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
+        Request mod = Requests.chmod(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
         g = prx.getGroup(id);
@@ -1407,7 +1408,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // change permissions
         representation = "rwrw--";
 
-        Request mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
+        Request mod = Requests.chmod(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
         g = prx.getGroup(id);
@@ -1446,7 +1447,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // change permissions
         representation = "rwr---";
 
-        Request mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
+        Request mod = Requests.chmod(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
         g = prx.getGroup(id);
@@ -1479,7 +1480,7 @@ public class AdminServiceTest extends AbstractServerTest {
         Permissions permissions = g.getDetails().getPermissions();
         // change permissions and promote the group
         representation = "rwrw--";
-        Request mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
+        Request mod = Requests.chmod(REF_GROUP, g.getId().getValue(),
                 representation);
 
         doChange(root, root.getSession(), mod, true);
@@ -1515,7 +1516,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // change permissions and promote the group
         representation = "rwr---";
-        Request mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
+        Request mod = Requests.chmod(REF_GROUP, g.getId().getValue(),
                 representation);
 
         doChange(root, root.getSession(), mod, true);
@@ -1526,7 +1527,7 @@ public class AdminServiceTest extends AbstractServerTest {
         g = prx.getGroup(id);
         // now try to turn it back to rw----
         representation = "rw----";
-        mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
+        mod = Requests.chmod(REF_GROUP, g.getId().getValue(),
                 representation);
 
         doChange(root, root.getSession(), mod, true);
