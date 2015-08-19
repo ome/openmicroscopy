@@ -75,9 +75,13 @@
             };
 
             if (selected.length > 0) {
-                // Can only remove images from share here
-                if (inst.get_node(selected[0]).type === 'image') {
-                    toolbar_config['removecontent'] = true;
+                // Can only remove images from share that you own
+                var node = inst.get_node(selected[0]);
+                if (node.type === 'image') {
+                    var share = inst.get_node(node.parent);
+                    if (share.data.obj.ownerId === {{ ome.user.id }}) {
+                        toolbar_config['removecontent'] = true;
+                    }
                 }
             }
 
