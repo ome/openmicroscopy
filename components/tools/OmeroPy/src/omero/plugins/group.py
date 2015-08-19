@@ -197,11 +197,12 @@ server-permissions.html
                 c.submit(chmod, loops=120)
                 self.ctx.out("Changed permissions for group %s (id=%s) to %s"
                              % (g.name.val, gid, perms))
-            except omero.GroupSecurityViolation:
+            except omero.CmdError, ce:
                 import traceback
                 self.ctx.dbg(traceback.format_exc())
                 self.ctx.die(504, "Cannot change permissions for group %s"
-                             " (id=%s) to %s" % (g.name.val, gid, perms))
+                             " (id=%s) to %s: %s"
+                             % (g.name.val, gid, perms, ce.err))
 
     def list(self, args):
         c = self.ctx.conn(args)
