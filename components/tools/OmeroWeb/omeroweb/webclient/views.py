@@ -3380,28 +3380,16 @@ def download_placeholder(request, conn=None, **kwargs):
 @login_required()
 @render_response()
 def load_public(request, share_id=None, conn=None, **kwargs):
-    """ Loads data for the tree in the 'public' main page. """
+    """ Loads data for the center panel in the 'public' main page. """
 
     # SUBTREE TODO:
     if share_id is None:
         share_id = (request.REQUEST.get("o_id") is not None and
                     long(request.REQUEST.get("o_id")) or None)
 
-    # check view
-    view = request.REQUEST.get("view")
-
-    if share_id is not None:
-        if view == 'tree':
-            template = "webclient/data/container_subtree.html"
-        elif view == 'icon':
-            template = "webclient/data/containers_icon.html"
-        controller = BaseShare(conn, share_id)
-        controller.loadShareContent()
-
-    else:
-        template = "webclient/data/containers_tree.html"
-        controller = BaseShare(conn)
-        controller.getShares()
+    template = "webclient/data/containers_icon.html"
+    controller = BaseShare(conn, share_id)
+    controller.loadShareContent()
 
     context = {'share': controller, 'manager': controller}
     context['isLeader'] = conn.isLeader()
