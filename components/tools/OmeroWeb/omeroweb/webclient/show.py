@@ -329,9 +329,10 @@ class Show(object):
         first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
         if first_obj == "tag" and self.menu != "usertags":
+            # redirect to usertags/?show=tag-123
             raise IncorrectMenuError(
                 reverse(viewname="load_template", args=['usertags']) +
-                "?show=" + self._initially_select[0]
+                "?show=" + self._initially_select[0].replace(".id", "")
             )
         first_selected = None
         try:
