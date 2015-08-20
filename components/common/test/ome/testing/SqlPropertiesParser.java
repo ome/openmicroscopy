@@ -7,7 +7,6 @@
 
 package ome.testing;
 
-// Java imports
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -17,14 +16,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-
-// Application-internal dependencies
 
 /**
  * utility to parse a properties file. See "resources/test_queries.properties"
@@ -32,7 +28,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 1.0
  * @since 1.0
  */
 public abstract class SqlPropertiesParser {

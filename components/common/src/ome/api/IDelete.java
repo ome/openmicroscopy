@@ -20,7 +20,6 @@ import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-//import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
@@ -68,7 +67,7 @@ public interface IDelete extends ServiceInterface {
     /**
      * Deletes an {@link Image} and all related (subordinate) metadata as
      * defined below. This method calls {@link #checkImageDelete(long, boolean)}
-     * and throws a {@link ConstraintViolation} exception with the results of
+     * and throws a {@code ConstraintViolationException} with the results of
      * that call are not empty; then it forcibly deletes all objects returned by
      * {@link #previewImageDelete(long, boolean)}
      * 
@@ -77,7 +76,6 @@ public interface IDelete extends ServiceInterface {
      * the current user:
      * <ul>
      * <li>{@link Pixels}</li>
-     * <li>{@link PixelsDimensions}</li>
      * <li>{@link PlaneInfo}</li>
      * <li>{@link RenderingDef}</li>
      * <li>{@link OriginalFile}</li>
@@ -116,7 +114,7 @@ public interface IDelete extends ServiceInterface {
      * @param force
      *            {@link Image} will be removed even if contained in other
      *            {@link Dataset datasets}. If false, a
-     *            {@link ConstraintViolation} will be raised.
+     *            {@code ConstraintViolationException} will be raised.
      * @throws ValidationException
      *             throws an exception if there is any unexpected object which
      *             prevents this object from being deleted, i.e. not in
@@ -135,7 +133,7 @@ public interface IDelete extends ServiceInterface {
      * Deletes several {@link Image} instances within a single transaction via
      * the {@link #deleteImage(long, boolean)} method.
      * 
-     * @param id
+     * @param ids
      *            As {@link #deleteImage(long, boolean)}
      * @param force
      *            As {@link #deleteImage(long, boolean)}
@@ -159,7 +157,7 @@ public interface IDelete extends ServiceInterface {
      * {@link Dataset} are first removed, otherwise this method would always
      * require a "force" argument of true.
      * 
-     * @param id
+     * @param datasetId
      *            As {@link #deleteImage(long, boolean)}
      * @param force
      *            As {@link #deleteImage(long, boolean)}
@@ -167,8 +165,8 @@ public interface IDelete extends ServiceInterface {
      *             As {@link #deleteImage(long, boolean)}
      * @throws ApiUsageException
      *             As {@link #deleteImage(long, boolean)}
-     * @throws SecurityVilation
-     *             As {@link #deleteImage(long, boolean)
+     * @throws SecurityViolation
+     *             As {@link #deleteImage(long, boolean)}
      */
     public void deleteImagesByDataset(long datasetId, boolean force)
             throws SecurityViolation, ValidationException, ApiUsageException;

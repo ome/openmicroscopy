@@ -7,7 +7,6 @@
 
 package ome.api;
 
-// Java imports
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +22,7 @@ import ome.model.IEnum;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $$) </small>
+ * @version 3.0
  * @since OMERO3
  */
 
@@ -33,7 +32,7 @@ public interface ITypes extends ServiceInterface {
      * Returns a list of classes which implement {@link IAnnotated}. These can
      * be used in combination with {@link ome.api.Search}.
      * 
-     * @return
+     * @return a {@link List} of {@link IAnnotated} implementations
      */
     List<Class<IAnnotated>> getAnnotationTypes();
 
@@ -76,7 +75,6 @@ public interface ITypes extends ServiceInterface {
      *            The type of the enumeration. Must extend {@link IEnum}
      * @param listEnum
      *            An enumeration collection of objects which should be searched.
-     * @return A managed enumeration. Never null.
      */
     <T extends IEnum> void updateEnumerations(@NotNull
     @Validate(IEnum.class)

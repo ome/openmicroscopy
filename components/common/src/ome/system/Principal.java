@@ -5,7 +5,6 @@
 
 package ome.system;
 
-// Java imports
 import java.io.Serializable;
 
 import ome.model.enums.EventType;

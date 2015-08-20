@@ -187,9 +187,9 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Closes {@link ome.model.meta.Session share}. No further logins will be
-     * possible and all getters (e.g. {@link #getMemberShares(boolean),
-     * {@link #getAllShares(boolean), ...} will filter these results if
-     * "onlyActive" is true.
+     * possible and all getters (e.g. {@link #getMemberShares(boolean)},
+     * {@link #getOwnShares(boolean)}, ...) will filter these results if
+     * {@code onlyActive} is true.
      * 
      * @param shareId
      */
@@ -229,11 +229,11 @@ public interface IShare extends ServiceInterface {
     <T extends IObject> void removeObjects(long shareId, @NotNull T... objects);
 
     /**
-     * Removes existing {@link ome.model.IObject item} from the
+     * Removes existing {@link ome.model.IObject object} from the
      * {@link ome.model.meta.Session share}.
      * 
-     * @param share
-     * @param item
+     * @param shareId
+     * @param object
      */
     <T extends IObject> void removeObject(long shareId, @NotNull T object);
 
@@ -244,7 +244,7 @@ public interface IShare extends ServiceInterface {
      * Looks up all {@link ome.model.annotations.Annotation comments} which
      * belong to the {@link ome.model.meta.Session share}.
      * 
-     * @param share
+     * @param shareId
      * @return list of Annotation
      */
     List<Annotation> getComments(long shareId);
@@ -263,19 +263,19 @@ public interface IShare extends ServiceInterface {
      * Creates {@link ome.model.annotations.TextAnnotation comment} for
      * {@link ome.model.meta.Session share}.
      * 
-     * @param share
+     * @param shareId
      * @param comment
      */
     CommentAnnotation addComment(long shareId, @NotNull String comment);
 
     /**
-     * Creates {@link TextAnnotation comment} which replies to an existing
+     * Creates {@link CommentAnnotation comment} which replies to an existing
      * comment.
      * 
      * @param shareId
      * @param comment
      * @param replyTo
-     * @return
+     * @return the new {@link CommentAnnotation}
      */
     CommentAnnotation addReply(long shareId, @NotNull String comment,
             @NotNull CommentAnnotation replyTo);
@@ -302,11 +302,12 @@ public interface IShare extends ServiceInterface {
     Set<String> getAllGuests(long shareId);
 
     /**
-     * Get a single set containing the {@link Experimenter#getOmeName() login names}
-     * of the {@link Experimenters} as well email addresses for guests.
+     * Get a single set containing the
+     * {@link Experimenter#getOmeName() login names}
+     * of the users as well email addresses for guests.
      * 
      * @param shareId
-     * @return
+     * @return a {@link Set} containing the login of all users
      * @throws ValidationException
      *             if there is a conflict between email addresses and user
      *             names.
@@ -317,7 +318,7 @@ public interface IShare extends ServiceInterface {
      * Adds {@link ome.model.meta.Experimenter experimenters} to
      * {@link ome.model.meta.Session share}
      * 
-     * @param share
+     * @param shareId
      * @param exps
      */
     void addUsers(long shareId, Experimenter... exps);
@@ -344,7 +345,7 @@ public interface IShare extends ServiceInterface {
      * Removes guest email addresses from the share.
      * 
      * @param shareId
-     * @param exp
+     * @param emailAddresses
      */
     void removeGuests(long shareId, String... emailAddresses);
 
@@ -353,7 +354,7 @@ public interface IShare extends ServiceInterface {
      * {@link ome.model.meta.Session share}
      * 
      * @param shareId
-     * @param exps
+     * @param exp
      */
     void addUser(long shareId, Experimenter exp);
 
@@ -370,7 +371,7 @@ public interface IShare extends ServiceInterface {
      * {@link ome.model.meta.Session share}
      * 
      * @param shareId
-     * @param exps
+     * @param exp
      */
     void removeUser(long shareId, Experimenter exp);
 
@@ -416,7 +417,7 @@ public interface IShare extends ServiceInterface {
      * {@link ome.model.meta.Experimenter experimenter} for period of time.
      * 
      * @param shareId
-     * @param exp
+     * @param experimenter
      * @param from
      *            - time
      * @param to

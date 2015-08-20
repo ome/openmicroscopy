@@ -62,11 +62,8 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public void prepare(@Validate(Long.class) Set<Long> pixelsIds);
 
     /**
-     * delegates to {@link ome.io.nio.PixelBuffer}
-     * 
-     * @param pixelsId
-     * @return
-     * @see ome.io.nio.PixelBuffer#getPlaneSize()
+     * Returns the plane size
+     * @return the plane size
      */
     public long getPlaneSize();
 

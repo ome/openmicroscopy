@@ -77,7 +77,7 @@ public class SimpleEventContext implements EventContext, Serializable {
      * any of {@link #getCurrentEventId()}, {@link #isCurrentUserAdmin()},
      * {@link #isReadOnly()}, or {@link #getCurrentUmask()} throws an
      * exception, those fields will remain null assuming that the
-     * {@link ome.security.SecuritySystem} will reload them later.
+     * {@code ome.security.SecuritySystem} will reload them later.
      */
     protected void copy(EventContext ec) {
         this.shareId = ec.getCurrentShareId();

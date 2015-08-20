@@ -7,12 +7,8 @@
 
 package ome.api;
 
-// Java imports
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -25,8 +21,7 @@ import ome.model.core.Image;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0
  * @since OME3.0
  */
 public interface IAnalysis extends ServiceInterface {
