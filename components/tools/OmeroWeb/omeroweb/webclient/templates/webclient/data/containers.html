@@ -1594,6 +1594,7 @@
                                     node.type === 'acquisition' ||
                                     node.type === 'image') {
 
+                                    config['renderingsettings']['_disabled'] = false;
                                     config['renderingsettings']["submenu"]['paste_rdef']['_disabled'] = false;
                                     config['renderingsettings']["submenu"]['reset_rdef']['_disabled'] = false;
                                     config['renderingsettings']["submenu"]['owner_rdef']['_disabled'] = false;
@@ -1601,6 +1602,7 @@
                             }
                             // Only enable copying if an image is the node
                             if (node.type === 'image') {
+                                config['renderingsettings']['_disabled'] = false;
                                 config['renderingsettings']["submenu"]['copy_rdef']['_disabled'] = false;
                             }
                             return config;
