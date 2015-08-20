@@ -714,11 +714,17 @@ class BulkToMapAnnotationContext(object):
         mas = []
         for row in izip(*(c.values for c in data.columns)):
             rowkvs = tr.transform(row)
-            targets = [omerotype(row[n], False) for omerotype, n in idcols]
-            malinks = self.create_map_annotation(targets, rowkvs)
-            log.debug('\n\t'.join("%s=%s" % (v.name, v.value)
-                      for v in malinks[0].getChild().getMapValue()))
-            mas.extend(malinks)
+            targets = []
+            for omerotype, n in idcols:
+                if row[n] > 0:
+                    targets.append(omerotype(row[n], False))
+                else:
+                    log.warn("Invalid Id:%d found in row %s", row[n], row)
+            if targets:
+                malinks = self.create_map_annotation(targets, rowkvs)
+                log.debug('\n\t'.join("%s=%s" % (v.name, v.value)
+                          for v in malinks[0].getChild().getMapValue()))
+                mas.extend(malinks)
 
         self.mapannotations = mas
 
