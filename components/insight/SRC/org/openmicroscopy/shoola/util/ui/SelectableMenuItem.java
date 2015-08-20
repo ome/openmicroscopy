@@ -100,7 +100,7 @@ public class SelectableMenuItem extends JMenuItem {
     /**
      * Creates a new instance.
      *
-     * @param selectedIcon
+     * @param checkedIcon
      *            The icon used when the menu is selected.
      * @param uncheckedIcon
      *            The icon used when the menu is not selected.
@@ -151,7 +151,7 @@ public class SelectableMenuItem extends JMenuItem {
     /**
      * Creates a new instance.
      *
-     * @param selectedIcon
+     * @param checkedIcon
      *            The icon used when the menu is selected.
      * @param uncheckedIcon
      *            The icon used when the menu is not selected.

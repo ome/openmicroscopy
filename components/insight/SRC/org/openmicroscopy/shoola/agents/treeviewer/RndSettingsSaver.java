@@ -188,7 +188,6 @@ public class RndSettingsSaver
 	 * @param ctx The security context.
 	 * @param rootType The type of nodes.
 	 * @param ids The identifiers of the nodes.
-	 * @param pixelsID The id of the pixels of reference.
      * @param defToPaste 'Pending' rendering settings to paste
      * @param refImage Image to which the rendering settings belong
 	 */

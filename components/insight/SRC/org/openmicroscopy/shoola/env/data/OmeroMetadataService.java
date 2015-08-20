@@ -575,7 +575,7 @@ public interface OmeroMetadataService
 	 * Returns the number of files of a given type.
 	 * 
 	 * @param ctx The security context.
-	 * @param userUD The user's identifier.
+	 * @param userID The user's identifier.
 	 * @param fileType One of the constants above.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged

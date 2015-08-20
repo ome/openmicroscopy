@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -597,7 +595,6 @@ public interface Renderer
      * Renders the specified plane.
      * 
      * @param pDef The plane to render.
-     * @param compression The compression level.
      * @return See above.
      */
     BufferedImage renderPlane(PlaneDef pDef);
@@ -675,7 +672,7 @@ public interface Renderer
      * 
      * @param loading Pass <code>true</code> to indicate that the settings are 
      *                being loaded, <code>false</code> when loaded.
-     * @param list The list of objects displaying the rendering settings
+     * @param results The list of objects displaying the rendering settings
      *             and the associated images.
      */
     void loadRndSettings(boolean loading, List<ViewedByItem> results);

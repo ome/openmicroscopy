@@ -304,7 +304,7 @@ public interface AdminService
      * 
      * @param ctx The security context.
      * @param toPaste The nodes to paste.
-     * @param toCut The nodes to cut.
+     * @param toRemoe The nodes to remove.
      * @return See above
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to 
