@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
  *   Copyright 2010-2015 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertFalse;
@@ -46,7 +45,6 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.Chmod2;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
 import omero.cmd.Delete2Response;
@@ -136,7 +134,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 /**
@@ -1176,22 +1173,6 @@ public class AbstractServerTest extends AbstractTest {
 
         callback(passes, c, dc);
         return "ok";
-    }
-
-    /**
-     * Creates the command to change permissions.
-     *
-     * @param session
-     * @param type
-     * @param id
-     * @param perms
-     * @return
-     */
-    Chmod2 createChmodCommand(String type, long id, String perms) {
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of(type, Collections.singletonList(id));
-        chmod.permissions = perms;
-        return chmod;
     }
 
     /**

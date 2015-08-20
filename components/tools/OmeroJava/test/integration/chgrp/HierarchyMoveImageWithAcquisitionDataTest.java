@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -19,19 +19,19 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration.chgrp;
 
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ome.xml.model.OME;
 import omero.ServerError;
 import omero.cmd.Chgrp2;
+import omero.gateway.util.Requests;
 import omero.model.Dataset;
 import omero.model.ExperimenterGroup;
 import omero.model.Image;
@@ -45,15 +45,11 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 import static org.testng.AssertJUnit.*;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 
 /**
- *
- *
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
@@ -151,11 +147,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         loginUser(sourceGroup);
 
         // Perform the move operation.
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(originalImageId));
-        dc.groupId = targetGroupId;
+        final Chgrp2 dc = Requests.chgrp("Image", originalImageId, targetGroupId);
         callback(true, client, dc);
 
         // check if the image have been moved.

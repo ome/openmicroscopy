@@ -1,38 +1,30 @@
 /*
- * $Id$
- *
- * Copyright 2013 University of Dundee. All rights reserved.
+ * Copyright 2013-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.delete;
 
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 import omero.SecurityViolation;
 import omero.api.IProjectionPrx;
 import omero.cmd.Delete2;
-import omero.cmd.DoAll;
-import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
+import omero.gateway.util.Requests;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.sys.EventContext;
-import omero.sys.ParametersI;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Deleted projected image and/or source image.
@@ -138,34 +130,17 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         Delete2 dc;
         switch (action) {
         case SOURCE_IMAGE:
-            dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Image.class.getSimpleName(),
-                    Collections.singletonList(id));
+            dc = Requests.delete("Image", id);
             callback(passes, client, dc);
             break;
         case PROJECTED_IMAGE:
-            dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Image.class.getSimpleName(),
-                    Collections.singletonList(projectedID));
+            dc = Requests.delete("Image", projectedID);
             callback(passes, client, dc);
             break;
         case BOTH_IMAGES:
-            List<Request> commands = new ArrayList<Request>();
-            dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Image.class.getSimpleName(),
-                    Collections.singletonList(id));
-            commands.add(dc);
-            dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Image.class.getSimpleName(),
-                    Collections.singletonList(projectedID));
-            commands.add(dc);
-            DoAll all = new DoAll();
-            all.requests = commands;
-            doChange(client, factory, all, passes, null);
+            dc = Requests.delete("Image", Arrays.asList(id, projectedID));
+            callback(passes, client, dc);
+            break;
         }
 
         //Check the result

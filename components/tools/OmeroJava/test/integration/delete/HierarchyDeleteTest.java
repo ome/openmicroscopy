@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.delete;
 
 import static omero.rtypes.rbool;
@@ -31,6 +30,7 @@ import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -118,10 +118,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i2);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(ds2.getId().getValue()));
+        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(ds2);
@@ -166,10 +163,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         link.setParent((Image) i.proxy());
         iUpdate.saveAndReturnObject(link);
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(ds2.getId().getValue()));
+        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(ds2);
         assertExists(ds1);
@@ -204,10 +198,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(ds2.getId().getValue()));
+        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(ds2);
@@ -244,10 +235,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         p2.linkDataset(d);
         p2 = (Project) iUpdate.saveAndReturnObject(p2);
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Project.class.getSimpleName(),
-                Collections.singletonList(p2.getId().getValue()));
+        final Delete2 dc = Requests.delete("Project", p2.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(p2);
@@ -283,10 +271,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         s2.linkPlate(p);
         s2 = (Screen) iUpdate.saveAndReturnObject(s2);
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(s2.getId().getValue()));
+        final Delete2 dc = Requests.delete("Screen", s2.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(s2);
@@ -473,10 +458,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
             /* Delete the run. */
 
-            final Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    PlateAcquisition.class.getSimpleName(),
-                    Collections.singletonList(runIdToDelete));
+            final Delete2 dc = Requests.delete("PlateAcquisition", runIdToDelete);
             callback(true, client, dc);
             
             /* Verify that exactly the expected entities remain. */
@@ -488,10 +470,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
        }
  
         /* Delete the plate. */
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(plateId));
+        final Delete2 dc = Requests.delete("Plate", plateId);
         callback(true, client, dc);
 
         /* Verify that no entities remain. */
@@ -563,10 +542,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         /* delete the dataset */
-        final Delete2 delete = new Delete2();
-        delete.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(dataset.getId().getValue()));
+        final Delete2 delete = Requests.delete("Dataset", dataset.getId().getValue());
         callback(true, client, delete);
 
         /* check what is left afterward */
@@ -620,18 +596,21 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         final boolean isExpectSuccess = target != Target.IMAGES;
 
-        final Delete2 delete = new Delete2();
+        final Delete2 delete;
 
         switch (target) {
         case DATASET:
-            delete.targetObjects = ImmutableMap.of("Dataset", Collections.singletonList(datasetId));
+            delete = Requests.delete("Dataset", datasetId);
             break;
         case IMAGES:
-            delete.targetObjects = ImmutableMap.of("Image", imageIds);
+            delete = Requests.delete("Image", imageIds);
             break;
         case PLATE:
-            delete.targetObjects = ImmutableMap.of("Plate", Collections.singletonList(plateId));
+            delete = Requests.delete("Plate", plateId);
             break;
+        default:
+            delete = null;
+            Assert.fail("unexpected target for delete");
         }
 
         doChange(client, factory, delete, isExpectSuccess);

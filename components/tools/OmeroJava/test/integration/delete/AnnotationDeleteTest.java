@@ -1,26 +1,22 @@
 /*
- * $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.delete;
 
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import omero.RLong;
 import omero.RString;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.FileAnnotation;
@@ -38,10 +34,6 @@ import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * Tests for deleting user ratings.
@@ -91,9 +83,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
                 .saveAndReturnObject(new TagAnnotationI());
         IObject link = mmFactory.createAnnotationLink(obj.proxy(), ann);
         link = iUpdate.saveAndReturnObject(link);
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(command,
-                Collections.singletonList(id.getValue()));
+        final Delete2 dc = Requests.delete(command, id.getValue());
         callback(true, client, dc);
         assertDoesNotExist(obj);
         assertDoesNotExist(link);
@@ -125,10 +115,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
             fa.setFile(mmFactory.createOriginalFile());
             fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
             file = fa.getFile();
-            final Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Annotation.class.getSimpleName(),
-                    Collections.singletonList(fa.getId().getValue()));
+            final Delete2 dc = Requests.delete("Annotation", fa.getId().getValue());
             callback(true, client, dc);
             assertDoesNotExist(fa);
             assertDoesNotExist(file);
@@ -160,10 +147,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(i1.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", i1.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(i1);
         assertDoesNotExist(link);

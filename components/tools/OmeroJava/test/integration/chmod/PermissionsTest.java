@@ -31,6 +31,7 @@ import omero.RType;
 import omero.ServerError;
 import omero.cmd.Chmod2;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -107,8 +108,7 @@ public class PermissionsTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = new Delete2();
-        delete.targetObjects = ImmutableMap.of("Image", testImages);
+        final Delete2 delete = Requests.delete("Image", testImages);
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }
@@ -223,9 +223,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chmod */
 
         init(chmodder);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = toPerms;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
         disconnect();
 
@@ -386,9 +384,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chmod */
 
         init(chmodder);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = "rw----";
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, "rw----");
         doChange(client, factory, chmod, true);
         disconnect();
 
@@ -480,9 +476,7 @@ public class PermissionsTest extends AbstractServerTest {
         final boolean isExpectSuccess = !"rw----".equals(toPerms);
 
         init(chmodder);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = toPerms;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
         disconnect();
 
@@ -549,9 +543,7 @@ public class PermissionsTest extends AbstractServerTest {
         final boolean isExpectSuccess = !"rw----".equals(toPerms);
 
         init(chmodder);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = toPerms;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
         disconnect();
 
@@ -639,9 +631,7 @@ public class PermissionsTest extends AbstractServerTest {
         final boolean isExpectSuccess = !"rw----".equals(toPerms);
 
         init(chmodder);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = toPerms;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
         disconnect();
 

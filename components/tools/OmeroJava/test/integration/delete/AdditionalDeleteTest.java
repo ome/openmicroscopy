@@ -9,7 +9,6 @@ import integration.AbstractServerTest;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ome.testing.ObjectFactory;
@@ -20,6 +19,7 @@ import omero.RType;
 import omero.cmd.Delete2;
 import omero.cmd.SkipHead;
 import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
@@ -56,8 +56,6 @@ import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
  * Tests deletion of various elements of the graph.
  * These tests are resurrected from the previous DeleteITest class, now deleted.
@@ -80,10 +78,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = new SkipHead();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(imageId));
-        dc.startFrom = Collections.singletonList("Channel");
-        dc.request = new Delete2();
+        final SkipHead dc = Requests.skipHead("Image", imageId, "Channel", new Delete2());
         callback(true, client, dc);
 
         // Check that data is gone
@@ -114,10 +109,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = new SkipHead();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(imageId));
-        dc.startFrom = Collections.singletonList("RenderingDef");
-        dc.request = new Delete2();
+        final SkipHead dc = Requests.skipHead("Image", imageId, "RenderingDef", new Delete2());
         callback(true, client, dc);
 
         // Check that data is gone
@@ -142,8 +134,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
      */
     public void testImage() throws Exception {
         final long imageId = iUpdate.saveAndReturnObject(mmFactory.createImage()).getId().getValue();
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(imageId));
+        final Delete2 dc = Requests.delete("Image", imageId);
         callback(true, client, dc);
 
         // Check that data is gone
@@ -167,8 +158,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long annId = link.getChild().getId().getValue();
 
         // Perform delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(imageId));
+        final Delete2 dc = Requests.delete("Image", imageId);
         callback(true, client, dc);
 
         // Check that the annotation is gone
@@ -204,8 +194,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         link2 = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link2);
 
         // Perform delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(imageId1));
+        final Delete2 dc = Requests.delete("Image", imageId1);
         callback(true, client, dc);
 
         // Check that data is gone
@@ -239,8 +228,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long id = p.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Project", Collections.singletonList(id));
+        final Delete2 dc = Requests.delete("Project", id);
         callback(true, client, dc);
 
         // Check that data is gone
@@ -274,8 +262,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long did = d.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Project", Collections.singletonList(pid));
+        final Delete2 dc = Requests.delete("Project", pid);
         callback(true, client, dc);
 
         // Check that data is gone
@@ -312,8 +299,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long wsid = ws.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Plate", Collections.singletonList(pid));
+        final Delete2 dc = Requests.delete("Plate", pid);
         callback(true, client, dc);
 
         // Check that data is gone
@@ -349,8 +335,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long aid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(iid));
+        final Delete2 dc = Requests.delete("Image", iid);
         callback(true, client, dc);
 
         // Check that data is gone
@@ -382,8 +367,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Annotation", Collections.singletonList(cid));
+        final Delete2 dc = Requests.delete("Annotation", cid);
         callback(true, client, dc);
 
         // Make sure the parent annotation still exists, but both the annotation
@@ -416,11 +400,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("TagAnnotation");
-        dc.childOptions = Collections.singletonList(option);
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(pid));
+        final ChildOption option = Requests.option(null, "TagAnnotation");
+        final Delete2 dc = Requests.delete("Image", pid, option);
         callback(true, client, dc);
 
         // Make sure the image is deleted but the annotation remains.
@@ -457,11 +438,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("FileAnnotation");
-        dc.childOptions = Collections.singletonList(option);
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(pid));
+        final ChildOption option = Requests.option(null, "FileAnnotation");
+        final Delete2 dc = Requests.delete("Image", pid, option);
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -497,12 +475,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("FileAnnotation");
-        option.excludeNs = Collections.singletonList("keepme");
-        dc.childOptions = Collections.singletonList(option);
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("Image", Collections.singletonList(pid));
+        final ChildOption option = Requests.option(null, "FileAnnotation", null, "keepme");
+        final Delete2 dc = Requests.delete("Image", pid, option);
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -535,12 +509,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         List<Long> annotationIds = createNonSharableAnnotation(obj, null);
         List<Long> annotationIdsNS = createNonSharableAnnotation(obj, "TEST");
 
-        final Delete2 dc = new Delete2();
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("Annotation");
-        option.excludeNs = Collections.singletonList("TEST");
-        dc.childOptions = Collections.singletonList(option);
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(type, Collections.singletonList(id));
+        final ChildOption option = Requests.option(null, "Annotation", null, "TEST");
+        final Delete2 dc = Requests.delete(type, id, option);
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -582,8 +552,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long id = file.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("OriginalFile", Collections.singletonList(id));
+        final Delete2 dc = Requests.delete("OriginalFile", id);
         callback(true, client, dc);
 
         assertGone(file);
@@ -601,11 +570,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long id = file.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = new Delete2();
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList("Annotation");
-        dc.childOptions = Collections.singletonList(option);
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of("OriginalFile", Collections.singletonList(id));
+        final ChildOption option = Requests.option(null, "Annotation");
+        final Delete2 dc = Requests.delete("OriginalFile", id, option);
         callback(true, client, dc);
 
         assertGone(ann);
