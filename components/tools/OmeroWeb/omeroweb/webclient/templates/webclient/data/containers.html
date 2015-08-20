@@ -721,18 +721,14 @@
                     /**
                     * Fired when the tree is loaded and ready for action
                     */
-
-                    // If it isn't present
-                    if (window.location.search.length == 0) {
-                        return false;
-                    }
+                    var inst = data.instance;
 
                     // Introspect the URL to get the show parameter
                     var param = OME.getURLParameter('show');
-
-                    if (param) {
-                        var inst = data.instance;
-
+                    if (!param) {
+                        // If not found, just select root node
+                        inst.select_node('ul > li:first');
+                    } else {
                         // Gather data for request
                         // Might have multiple objects separated by |
                         // We just use the first

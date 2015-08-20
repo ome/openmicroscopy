@@ -154,6 +154,9 @@
                     }
                 }
             })
+            .on('loaded.jstree', function(e, data) {
+                data.instance.select_node('ul > li:first');
+            })
             // TODO Possibly there is a path which can lead here so this will be needed
             // .on('loaded.jstree', function(e, data) {
             //     /**

@@ -134,12 +134,17 @@
             .on('loaded.jstree', function(e, data) {
                 var inst = data.instance;
                 var param = OME.getURLParameter('show');
-                // Tree root may be experimenter or 'All members' (this supports both)
-                var root = inst.get_node('ul > li:first');
-                inst.open_node(root, function() {
-                    var node = inst.locate_node(param, root)[0];
-                    inst.select_node(node);
-                });
+                if (!param) {
+                    // If not found, just select root node
+                    inst.select_node('ul > li:first');
+                } else {
+                    // Tree root may be experimenter or 'All members' (this supports both)
+                    var root = inst.get_node('ul > li:first');
+                    inst.open_node(root, function() {
+                        var node = inst.locate_node(param, root)[0];
+                        inst.select_node(node);
+                    });
+                }
             })
 
             // Setup jstree
