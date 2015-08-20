@@ -13,17 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.services.graphs.GraphEntry;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
 import omero.ServerError;
 import omero.cmd.Chown;
 import omero.cmd.HandleI;
+import omero.cmd.IRequest;
 import omero.cmd._HandleTie;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.State;
-import omero.cmd.graphs.ChownI;
+import omero.cmd.graphs.ChownFacadeI;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
@@ -76,13 +76,13 @@ public class ChownITest extends AbstractGraphTest {
         user.getCurrentEventContext(); // RELOAD.
     }
 
-    ChownI newChown(String type, long id, long user) {
+    IRequest newChown(String type, long id, long user) {
         return newChown(type, id, user, null);
     }
 
-    ChownI newChown(String type, long id, long user,
+    IRequest newChown(String type, long id, long user,
             Map<String, String> options) {
-        ChownI chown = (ChownI) ic.findObjectFactory(Chown.ice_staticId()).create("");
+        ChownFacadeI chown = (ChownFacadeI) ic.findObjectFactory(Chown.ice_staticId()).create("");
         chown.type = type;
         chown.id = id;
         chown.options = options;
@@ -100,7 +100,7 @@ public class ChownITest extends AbstractGraphTest {
         long imageId = makeImage();
 
         // Do chown and wait on completion.
-        ChownI chown = newChown("/Image", imageId, newUserId);
+        IRequest chown = newChown("/Image", imageId, newUserId);
         _HandleTie handle = doChown(chown);
         block(handle, 5, 1000);
 
@@ -135,7 +135,7 @@ public class ChownITest extends AbstractGraphTest {
 
         Map<String, String> options = new HashMap<String, String>();
         options.put("/DatasetImageLink", "KEEP");
-        ChownI chown = newChown("/Image", i.getId().getValue(), newUserId, options);
+        IRequest chown = newChown("/Image", i.getId().getValue(), newUserId, options);
         _HandleTie handle = doChown(chown);
         block(handle, 5, 1000);
 
@@ -157,7 +157,7 @@ public class ChownITest extends AbstractGraphTest {
         i.linkDataset(d);
         i = assertSaveAndReturn(i);
 
-        ChownI chown = newChown("/Image", i.getId().getValue(), newUserId);
+        IRequest chown = newChown("/Image", i.getId().getValue(), newUserId);
         _HandleTie handle = doChown(chown);
         block(handle, 5, 1000);
 
@@ -180,7 +180,7 @@ public class ChownITest extends AbstractGraphTest {
         assertTrue(size > 0);
 
         // Perform chown
-        ChownI chown = newChown("/Image/Pixels/Channel",
+        IRequest chown = newChown("/Image/Pixels/Channel",
                 imageId, newUserId);
         _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
@@ -203,7 +203,7 @@ public class ChownITest extends AbstractGraphTest {
         assertTrue(ids.size() > 0);
 
         // Perform chown
-        ChownI chown = newChown("/Image/Pixels/RenderingDef", imageId,
+        IRequest chown = newChown("/Image/Pixels/RenderingDef", imageId,
                 newUserId);
         _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
@@ -216,7 +216,7 @@ public class ChownITest extends AbstractGraphTest {
     @SuppressWarnings("rawtypes")
     public void testImage() throws Exception {
         long imageId = makeImage();
-        ChownI chown = newChown("/Image", imageId, newUserId);
+        IRequest chown = newChown("/Image", imageId, newUserId);
 
         _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
@@ -255,7 +255,7 @@ public class ChownITest extends AbstractGraphTest {
         long annId = link.getChild().getId().getValue();
 
         // Perform chown
-        ChownI chown = newChown("/Image", imageId, newUserId);
+        IRequest chown = newChown("/Image", imageId, newUserId);
         _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
         assertSuccess(handle);
@@ -296,7 +296,7 @@ public class ChownITest extends AbstractGraphTest {
         link2 = assertSaveAndReturn(link2);
 
         // Perform chown
-        ChownI chown = newChown("/Image", imageId1, newUserId);
+        IRequest chown = newChown("/Image", imageId1, newUserId);
         _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
         assertSuccess(handle);
@@ -332,7 +332,7 @@ public class ChownITest extends AbstractGraphTest {
         long did = p.linkedDatasetList().get(0).getId().getValue();
 
         // Do Delete
-        ChownI chown = newChown("/Project", pid, newUserId);
+        IRequest chown = newChown("/Project", pid, newUserId);
         doChown(chown);
 
         // Make sure its been moved.
@@ -365,7 +365,7 @@ public class ChownITest extends AbstractGraphTest {
         long did = d.getId().getValue();
 
         // Do Delete
-        ChownI chown = newChown("/Project", pid, newUserId);
+        IRequest chown = newChown("/Project", pid, newUserId);
         doChown(chown);
 
         // Make sure its been moved.
@@ -400,7 +400,7 @@ public class ChownITest extends AbstractGraphTest {
         long wsid = ws.getId().getValue();
 
         // Do Delete
-        ChownI chown = newChown("/Plate", pid, newUserId);
+        IRequest chown = newChown("/Plate", pid, newUserId);
         doChown(chown);
 
         // Make sure its moved
@@ -433,7 +433,7 @@ public class ChownITest extends AbstractGraphTest {
         long aid = link.getChild().getId().getValue();
 
         // Do Delete
-        ChownI chown = newChown("/Image", iid, newUserId);
+        IRequest chown = newChown("/Image", iid, newUserId);
         doChown(chown);
 
         // Make sure its moved
@@ -463,7 +463,7 @@ public class ChownITest extends AbstractGraphTest {
         long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        ChownI chown = newChown("/Annotation", cid, newUserId);
+        IRequest chown = newChown("/Annotation", cid, newUserId);
         doChown(chown);
 
         // Make sure the parent annotation still exists, but both the annotation
@@ -495,7 +495,7 @@ public class ChownITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/TagAnnotation", "KEEP");
-        ChownI chown = newChown("/Annotation", cid, newUserId, options);
+        IRequest chown = newChown("/Annotation", cid, newUserId, options);
         doChown(chown);
 
         // Make sure everything stays put.
@@ -528,7 +528,7 @@ public class ChownITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/TagAnnotation", "KEEP");
-        ChownI chown = newChown("/Image", pid, newUserId, options);
+        IRequest chown = newChown("/Image", pid, newUserId, options);
         doChown(chown);
 
         assertDoesNotExist("Image", pid);
@@ -566,7 +566,7 @@ public class ChownITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/FileAnnotation", "KEEP");
-        ChownI chown = newChown("/Image", pid, newUserId, options);
+        IRequest chown = newChown("/Image", pid, newUserId, options);
         doChown(chown);
 
         assertDoesNotExist("Image", pid);
@@ -601,7 +601,7 @@ public class ChownITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/FileAnnotation", "KEEP;excludes=keepme");
-        ChownI chown = newChown("/Image", pid, newUserId, options);
+        IRequest chown = newChown("/Image", pid, newUserId, options);
         doChown(chown);
 
         assertDoesNotExist("Image", pid);
@@ -673,7 +673,7 @@ public class ChownITest extends AbstractGraphTest {
         user.sf.setSecurityContext(new ExperimenterGroupI(newUserId, false), null);
     }
 
-    private _HandleTie doChown(ChownI chown) throws Exception {
+    private _HandleTie doChown(IRequest chown) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "chown");
         HandleI handle = new HandleI(1000);
         handle.setSession(user.sf);

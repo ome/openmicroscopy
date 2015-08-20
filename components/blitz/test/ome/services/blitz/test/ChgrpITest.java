@@ -14,10 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.services.delete.DeleteStepFactory;
-import ome.services.graphs.BaseGraphSpec;
-import ome.services.graphs.GraphEntry;
-import ome.services.graphs.GraphState;
 import ome.services.util.Executor;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
@@ -28,12 +24,13 @@ import omero.ServerError;
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
+import omero.cmd.IRequest;
 import omero.cmd._HandleTie;
 import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.Response;
 import omero.cmd.State;
-import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.ChgrpFacadeI;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
@@ -95,13 +92,13 @@ public class ChgrpITest extends AbstractGraphTest {
         changeToOldGroup();
     }
 
-    ChgrpI newChgrp(String type, long id, long grp) {
+    IRequest newChgrp(String type, long id, long grp) {
         return newChgrp(type, id, grp, null);
     }
 
-    ChgrpI newChgrp(String type, long id, long grp,
+    IRequest newChgrp(String type, long id, long grp,
             Map<String, String> options) {
-        ChgrpI chgrp = (ChgrpI) ic.findObjectFactory(Chgrp.ice_staticId()).create("");
+        ChgrpFacadeI chgrp = (ChgrpFacadeI) ic.findObjectFactory(Chgrp.ice_staticId()).create("");
         chgrp.type = type;
         chgrp.id = id;
         chgrp.options = options;
@@ -119,7 +116,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long imageId = makeImage();
 
         // Do chgrp and wait on completion.
-        ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
+        IRequest chgrp = newChgrp("/Image", imageId, newGroupId);
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 1000);
 
@@ -154,7 +151,7 @@ public class ChgrpITest extends AbstractGraphTest {
 
         Map<String, String> options = new HashMap<String, String>();
         options.put("/DatasetImageLink", "KEEP");
-        ChgrpI chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId, options);
+        IRequest chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId, options);
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 1000);
 
@@ -176,7 +173,7 @@ public class ChgrpITest extends AbstractGraphTest {
         i.linkDataset(d);
         i = assertSaveAndReturn(i);
 
-        ChgrpI chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId);
+        IRequest chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId);
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 1000);
 
@@ -199,7 +196,7 @@ public class ChgrpITest extends AbstractGraphTest {
         assertTrue(size > 0);
 
         // Perform chgrp
-        ChgrpI chgrp = newChgrp("/Image/Pixels/Channel",
+        IRequest chgrp = newChgrp("/Image/Pixels/Channel",
                 imageId, newGroupId);
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 500);
@@ -222,7 +219,7 @@ public class ChgrpITest extends AbstractGraphTest {
         assertTrue(ids.size() > 0);
 
         // Perform chgrp
-        ChgrpI chgrp = newChgrp("/Image/Pixels/RenderingDef", imageId,
+        IRequest chgrp = newChgrp("/Image/Pixels/RenderingDef", imageId,
                 newGroupId);
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 500);
@@ -235,7 +232,7 @@ public class ChgrpITest extends AbstractGraphTest {
     @SuppressWarnings("rawtypes")
     public void testImage() throws Exception {
         long imageId = makeImage();
-        ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
+        IRequest chgrp = newChgrp("/Image", imageId, newGroupId);
 
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 500);
@@ -274,7 +271,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long annId = link.getChild().getId().getValue();
 
         // Perform chgrp
-        ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
+        IRequest chgrp = newChgrp("/Image", imageId, newGroupId);
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 500);
         assertSuccess(handle);
@@ -315,7 +312,7 @@ public class ChgrpITest extends AbstractGraphTest {
         link2 = assertSaveAndReturn(link2);
 
         // Perform chgrp
-        ChgrpI chgrp = newChgrp("/Image", imageId1, newGroupId);
+        IRequest chgrp = newChgrp("/Image", imageId1, newGroupId);
         _HandleTie handle = submit(chgrp);
         block(handle, 5, 500);
         assertSuccess(handle);
@@ -351,7 +348,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long did = p.linkedDatasetList().get(0).getId().getValue();
 
         // Do Delete
-        ChgrpI chgrp = newChgrp("/Project", pid, newGroupId);
+        IRequest chgrp = newChgrp("/Project", pid, newGroupId);
         submit(chgrp);
 
         // Make sure its been moved.
@@ -384,7 +381,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long did = d.getId().getValue();
 
         // Do Delete
-        ChgrpI chgrp = newChgrp("/Project", pid, newGroupId);
+        IRequest chgrp = newChgrp("/Project", pid, newGroupId);
         submit(chgrp);
 
         // Make sure its been moved.
@@ -419,7 +416,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long wsid = ws.getId().getValue();
 
         // Do Delete
-        ChgrpI chgrp = newChgrp("/Plate", pid, newGroupId);
+        IRequest chgrp = newChgrp("/Plate", pid, newGroupId);
         submit(chgrp);
 
         // Make sure its moved
@@ -452,7 +449,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long aid = link.getChild().getId().getValue();
 
         // Do Delete
-        ChgrpI chgrp = newChgrp("/Image", iid, newGroupId);
+        IRequest chgrp = newChgrp("/Image", iid, newGroupId);
         submit(chgrp);
 
         // Make sure its moved
@@ -482,7 +479,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        ChgrpI chgrp = newChgrp("/Annotation", cid, newGroupId);
+        IRequest chgrp = newChgrp("/Annotation", cid, newGroupId);
         submit(chgrp);
 
         // Make sure the parent annotation still exists, but both the annotation
@@ -514,7 +511,7 @@ public class ChgrpITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/TagAnnotation", "KEEP");
-        ChgrpI chgrp = newChgrp("/Annotation", cid, newGroupId, options);
+        IRequest chgrp = newChgrp("/Annotation", cid, newGroupId, options);
         submit(chgrp);
 
         // Make sure everything stays put.
@@ -547,7 +544,7 @@ public class ChgrpITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/TagAnnotation", "KEEP");
-        ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
+        IRequest chgrp = newChgrp("/Image", pid, newGroupId, options);
         submit(chgrp);
 
         assertDoesNotExist("Image", pid);
@@ -585,7 +582,7 @@ public class ChgrpITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/FileAnnotation", "KEEP");
-        ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
+        IRequest chgrp = newChgrp("/Image", pid, newGroupId, options);
         submit(chgrp);
 
         assertDoesNotExist("Image", pid);
@@ -620,7 +617,7 @@ public class ChgrpITest extends AbstractGraphTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/FileAnnotation", "KEEP;excludes=keepme");
-        ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
+        IRequest chgrp = newChgrp("/Image", pid, newGroupId, options);
         submit(chgrp);
 
         assertDoesNotExist("Image", pid);

@@ -19,10 +19,8 @@ package omero.cmd.basic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ome.services.messages.ContextMessage;
 import ome.system.OmeroContext;
@@ -40,7 +38,6 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
 import omero.cmd.graphs.GraphUtil;
-import omero.cmd.graphs.Preprocessor;
 
 /**
  * Permits performing multiple operations
@@ -266,13 +263,8 @@ public class DoAllI extends DoAll implements IRequest {
             allgroups.put("omero.group", "-1");
             ctx.publishMessage(new ContextMessage.Push(this, allgroups));
             try {
-                final String isWrapGraphRequests = ctx.getProperty("omero.graphs.wrap");
                 // Process within -1 block.
-                if (Boolean.parseBoolean(isWrapGraphRequests)) {
-                    GraphUtil.combineFacadeRequests(this.requests);
-                } else {
-                    new Preprocessor(this.requests, this.helper);
-                }
+                GraphUtil.combineFacadeRequests(this.requests);
             } finally {
                 ctx.publishMessage(new ContextMessage.Pop(this, allgroups));
             }
