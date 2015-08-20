@@ -136,9 +136,6 @@ class TestTag(AbstractTagTest):
 
         if desc_arg:
             self.args += [desc_arg, tag_desc]
-        else:
-            desc_input = 'Please enter a description for this tag: '
-            raw_input(desc_input).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
@@ -147,7 +144,10 @@ class TestTag(AbstractTagTest):
         # Check tag is created
         tag = self.get_object(o)
         assert tag.textValue.val == tag_name
-        assert tag.description.val == tag_desc
+        if desc_arg:
+            assert tag.description.val == tag_desc
+        else:
+            assert tag.description is None
 
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
@@ -166,9 +166,6 @@ class TestTag(AbstractTagTest):
             raw_input(name_input).AndReturn(tag_name)
         if desc_arg:
             self.args += [desc_arg, tag_desc]
-        else:
-            desc_input = 'Please enter a description for this tag set: '
-            raw_input(desc_input).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
@@ -178,7 +175,10 @@ class TestTag(AbstractTagTest):
         tagset = self.get_object(o)
         assert tagset.textValue.val == tag_name
         assert tagset.ns.val == NSINSIGHTTAGSET
-        assert tagset.description.val == tag_desc
+        if desc_arg:
+            assert tagset.description.val == tag_desc
+        else:
+            assert tagset.description is None
 
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
