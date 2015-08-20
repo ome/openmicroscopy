@@ -1045,10 +1045,10 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         return HttpResponseBadRequest('Invalid parameter value')
 
     try:
-        # Get the tags
+        # Get ALL data (all owners) under specified tags
         if tag_id is not None:
             tagged = tree.marshal_tagged(conn=conn,
-                                         experimenter_id=experimenter_id,
+                                         experimenter_id=-1,
                                          tag_id=tag_id,
                                          group_id=group_id,
                                          page=page,
