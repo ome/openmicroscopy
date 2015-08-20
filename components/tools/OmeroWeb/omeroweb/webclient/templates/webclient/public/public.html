@@ -155,85 +155,9 @@
                 }
             })
             .on('loaded.jstree', function(e, data) {
+                // Select root node
                 data.instance.select_node('ul > li:first');
             })
-            // TODO Possibly there is a path which can lead here so this will be needed
-            // .on('loaded.jstree', function(e, data) {
-            //     /**
-            //     * Fired when the tree is loaded and ready for action
-            //     */
-
-            //     // If it isn't present
-            //     if (window.location.search.length == 0) {
-            //         return false;
-            //     }
-
-            //     // Introspect the URL to get the show parameter
-            //     var param = getURLParameter('show');
-
-            //     if (param) {
-            //         var inst = data.instance;
-
-            //         // Gather data for request
-            //         var paramSplit = param.split('-');
-
-            //         var payload = {};
-            //         payload[paramSplit[0]] = paramSplit[1];
-
-            //         // AJAX Query to get the path of the item we wish to 'show'
-            //         $.ajax({
-            //             url: '{% url 'api_paths_to_object' %}',
-            //             data : payload,
-            //             dataType: "json",
-            //             type: "GET",
-            //             success: function(json) {
-            //                 data = json.paths;
-            //                 // Use the open_node callback mechanism to facilitate loading the tree to the
-            //                 // point indicated by the path, starting from the top, 'experimenter'.
-            //                 var path = data[0];
-            //                 console.log(path);
-            //                 var lastIndex = path.length - 1;
-
-            //                 var traverse = function(index, parentNode) {
-            //                     // Get this path component
-            //                     var comp = path[index];
-            //                     // Get the node for this path component
-            //                     var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
-
-            //                     // If at any point the node doesn't exist, simply give up as the path has
-            //                     // become invalid
-            //                     if (node === false) {
-            //                         return;
-            //                     }
-
-            //                     // If this is not the final path component, open it and
-            //                     // traverse in the callback
-            //                      if (index < lastIndex) {
-            //                         inst.open_node(node, function() {
-            //                             traverse(index += 1, node);
-            //                         })
-
-            //                     // Otherwise select it
-            //                      } else {
-            //                         // TODO Centre view on this selection
-            //                         inst.select_node(node);
-            //                      }
-            //                 };
-
-            //                 // Start traversing at the start of the path with no parent node
-            //                 traverse(0, undefined);
-            //             },
-            //             error: function(json) {
-            //                 console.log('failure');
-            //             }
-            //         });
-            //     }
-
-            //     // Update the URL to remove the parameters as they serve to preload data this one
-            //     // time only
-            //     // TODO Test on an old browser
-            //     history.pushState({}, '', window.location.pathname);
-            // })
 
             // Setup jstree
             .jstree({
