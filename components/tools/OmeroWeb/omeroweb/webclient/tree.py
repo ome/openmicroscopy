@@ -1245,14 +1245,14 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                         and obj.details.owner.id = :id
                         '''
     common_clause += '''
-                    order by lower(obj.name)
+                    order by obj.name
                     '''
 
     params.add('tid', rlong(tag_id))
 
     # Projects
     q = '''
-        select obj.id,
+        select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
@@ -1269,7 +1269,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Datasets
     q = '''
-        select obj.id,
+        select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
@@ -1286,7 +1286,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Images
     q = '''
-        select obj.id,
+        select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
@@ -1302,7 +1302,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Screens
     q = '''
-        select obj.id,
+        select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
@@ -1319,7 +1319,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Plate
     q = '''
-        select obj.id,
+        select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
@@ -1336,7 +1336,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Plate Acquisitions
     q = '''
-        select obj.id,
+        select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,

@@ -25,7 +25,7 @@ import pytest
 import library as lib
 
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
+from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
     PlateAcquisitionI, TagAnnotationI, ProjectAnnotationLinkI, \
     DatasetAnnotationLinkI, ImageAnnotationLinkI, ScreenAnnotationLinkI, \
     PlateAnnotationLinkI, PlateAcquisitionAnnotationLinkI
@@ -1050,7 +1050,7 @@ def tags(request, tags_groupA, tags_groupB):
 
 
 @pytest.fixture(scope='function')
-def tagset_hierarchy_userA_groupA(request, userA,
+def tagset_hierarchy_userA_groupA(request, userA, userB,
                                   project_hierarchy_userA_groupA,
                                   screen_hierarchy_userA_groupA):
     """
@@ -1116,6 +1116,12 @@ def tagset_hierarchy_userA_groupA(request, userA,
                acq_link]
 
     links = conn.getUpdateService().saveAndReturnArray(to_save)
+
+    # User B also links tag to image
+    image_link = ImageAnnotationLinkI()
+    image_link.parent = ImageI(image.id.val, False)
+    image_link.child = TagAnnotationI(tags[0].id.val, False)
+    get_connection(userB).getUpdateService().saveObject(image_link)
 
     # links is: project, dataset, image, screen, plate, acquisition
     return tagsets + tags + [link.parent for link in links]
@@ -1211,7 +1217,7 @@ class TestTree(lib.ITest):
     @pytest.fixture(scope='function')
     def groupA(self):
         """Returns a new read-only group."""
-        return self.new_group(perms='rwr---')
+        return self.new_group(perms='rwra--')
 
     # Create a read-only group
     @pytest.fixture(scope='function')
