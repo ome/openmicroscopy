@@ -3222,7 +3222,7 @@ class OMEROGateway
                     String imgFilename = set.getFilesetEntry(0).getOriginalFile()
                             .getName().getValue();
                     path += imgFilename;
-                    path = generateUniquePathname(path);
+                    path = generateUniquePathname(path, false);
                     // path should now be in the form
                     // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]
                     // where N is a consecutive number if the folder IMAGE_NAME
@@ -3249,6 +3249,12 @@ class OMEROGateway
 				    f = new File(path, of.getName().getValue());
 				else
 				    f = file;
+				
+                if (f.exists()) {
+                    String newFileName = generateUniquePathname(f.getPath(),
+                            true);
+                    f = new File(newFileName);
+                }
 				
 				results.add(f);
 
@@ -3298,13 +3304,19 @@ class OMEROGateway
      * 
      * @param path
      *            The path name to check
+     * @param isFile
+     *            Pass <code>true</code> if the path name represents a file
      * @return A unique path name based on the given path or the path itself if
      *         it doesn't exist yet
      */
-    private String generateUniquePathname(String path) {
-
+    private String generateUniquePathname(String path, boolean isFile) {
         File tmp = new File(path);
-        if (tmp.isDirectory() && tmp.exists()) {
+        if (tmp.exists()) {
+            String fileExt = null;
+            if (isFile && path.matches(".+\\..+")) {
+                fileExt = path.substring(path.lastIndexOf('.'), path.length());
+                path = path.substring(0, path.lastIndexOf('.'));
+            }
             if (path.matches(".+\\(\\d+\\)")) {
                 int n = Integer.parseInt(path.substring(
                         path.lastIndexOf('(') + 1, path.lastIndexOf(')')));
@@ -3313,7 +3325,9 @@ class OMEROGateway
             } else {
                 path += "(1)";
             }
-            return generateUniquePathname(path);
+            if (fileExt != null)
+                path += fileExt;
+            return generateUniquePathname(path, isFile);
         }
         return path;
     }
