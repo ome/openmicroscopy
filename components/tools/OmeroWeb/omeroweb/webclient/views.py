@@ -629,7 +629,7 @@ def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
     return HttpJsonResponse({'experimenter': experimenter})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_container_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -1192,6 +1192,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
     template = None
     template = "webclient/data/containers_icon.html"
     if 'orphaned' in kw:
+        # We need to set group context since we don't have a container Id
+        if request.session.get('active_group'):
+            conn.SERVICE_OPTS.setOmeroGroup(
+                request.session.get('active_group'))
         load_pixels = True
         manager.listOrphanedImages(filter_user_id, page)
     elif 'dataset' in kw:
