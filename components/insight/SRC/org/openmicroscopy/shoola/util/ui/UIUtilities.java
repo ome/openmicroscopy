@@ -109,9 +109,6 @@ import omero.model.enums.UnitsLength;
  * 					a.falconi@dundee.ac.uk</a>
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class UIUtilities
@@ -1552,7 +1549,7 @@ public class UIUtilities
     /**
      * Formats as a <code>String</code> the specified time,
      * using the default date format: yyyy-MM-dd HH:mm:ss
-     * @param time The timestamp to format.
+     * @param date The timestamp to format.
      * @return Returns the stringified version of the passed timestamp.
      */
     public static String formatDefaultDate(Date date) 
@@ -2527,8 +2524,8 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Returns {@link #RED}, {@link #RED} or {@link #RED} to indicate the
-	 * range of the color.
+	 * Returns {@link #RED_COLOR}, {@link #GREEN_COLOR} or {@link #BLUE_COLOR}
+	 * to indicate the range of the color.
 	 * 
 	 * @param color The color to handle.
 	 * @return See above
@@ -2569,15 +2566,13 @@ public class UIUtilities
 	 * of specified characters.
 	 * 
 	 * @param name The name of handle.
-	 * @param numberOfCharacters The number of characters.
 	 * @return See above.
 	 */
 	public static String formatPartialName(String name)
 	{
 		return formatPartialName(name, DEFAULT_NUMBER_OF_CHARACTERS);
 	}
-	
-    
+
     /**
      * Creates a new button and formats it using settings from action.
      * 

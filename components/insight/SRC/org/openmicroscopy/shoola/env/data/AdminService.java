@@ -22,20 +22,11 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -124,11 +115,10 @@ public interface AdminService
      * @param ctx The security context.
      * @param group The group to update.
      * @param permissions The desired permissions level
-     * @param adapter	The adapter to handle the result
-     * @return See above.
+     * @param adapter The adapter to handle the result
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service. 
+     * retrieve data from OMERO service.
      */
     public void updateGroupPermissions(SecurityContext ctx, GroupData group,
             int permissions, DSCallAdapter adapter)
@@ -138,9 +128,10 @@ public interface AdminService
      * Reloads a group from the server
      * @param ctx The security context.
      * @param group The group to load.
-     * @return
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
+     * @return See above
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
      */
     public GroupData reloadGroup(SecurityContext ctx, GroupData group)
             throws DSOutOfServiceException, DSAccessException ;
@@ -151,10 +142,10 @@ public interface AdminService
      * @param ctx The security context.
      * @param exp The experimenter to handle.
      * @param groupID The identifier group the user is member of.
-     * @result The updated user.
+     * @return The updated user.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to 
-     * retrieve data from OMERO service. 
+     * retrieve data from OMERO service.
      */
     public ExperimenterData changeExperimenterGroup(SecurityContext ctx,
             ExperimenterData exp, long groupID)
@@ -190,16 +181,12 @@ public interface AdminService
 
     /**
      * Returns the address of the server the user is currently connected to.
-     * 
-     * @param ctx The security context.
      * @return See above.
      */
     public String getServerName();
 
     /**
      * Returns the version of the server if available.
-     * 
-     * @param ctx The security context.
      * @return See above.
      */
     public String getServerVersion();
@@ -217,7 +204,7 @@ public interface AdminService
      * This means that we have established a connection and have successfully
      * logged in.
      * 
-     * @return	<code>true</code> if connected, <code>false</code> otherwise.
+     * @return <code>true</code> if connected, <code>false</code> otherwise.
      */
     public boolean isConnected();
 
@@ -451,9 +438,8 @@ public interface AdminService
      * Returns the disk space.
      * 
      * @param ctx The security context.
-     * @param f The file to upload.
-     * @param format The format of the file.
-     * @param experimenter The experimenter to handle.
+     * @param type The node
+     * @param id The node's id.
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to
@@ -468,7 +454,6 @@ public interface AdminService
      * @param ctx The security context.
      * @param group The group to add the experimenters to.
      * @param experimenters The experimenters to add.
-     * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to 
      * retrieve data from OMERO service.

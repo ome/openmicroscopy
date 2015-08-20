@@ -23,14 +23,9 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-//Java imports
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import omero.gateway.SecurityContext;
@@ -54,9 +49,6 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class RndSettingsSaver 
@@ -194,13 +186,15 @@ public class RndSettingsSaver
 	 * @param viewer The TreeViewer this data loader is for.
 	 *               Mustn't be <code>null</code>.
 	 * @param ctx The security context.
-	 * @param ref The time reference object.
+	 * @param rootType The type of nodes.
+	 * @param ids The identifiers of the nodes.
 	 * @param pixelsID The id of the pixels of reference.
-         * @param defToPaste 'Pending' rendering settings to paste
-         * @param refImage  Image to which the rendering settings belong
+     * @param defToPaste 'Pending' rendering settings to paste
+     * @param refImage Image to which the rendering settings belong
 	 */
 	public RndSettingsSaver(TreeViewer viewer, 
-                SecurityContext ctx, Class rootType, List<Long> ids, RndProxyDef defToPaste, ImageData refImage)
+                SecurityContext ctx, Class rootType, List<Long> ids,
+                RndProxyDef defToPaste, ImageData refImage)
         {
                 super(viewer, ctx);
                 checkRootType(rootType);
@@ -215,7 +209,6 @@ public class RndSettingsSaver
                 this.refImage = refImage;
                 ref = null;
         }
-        	
 
 	/**
 	 * Creates a new instance.
@@ -224,7 +217,7 @@ public class RndSettingsSaver
 	 *               Mustn't be <code>null</code>.
 	 * @param ctx The security context.
 	 * @param ref The time reference object.
-	 * @param pixelsID The id of the pixels of reference.
+	 * @param refImage Image to which the rendering settings belong
 	 */
 	public RndSettingsSaver(TreeViewer viewer, SecurityContext ctx,
 			TimeRefObject ref, ImageData refImage)

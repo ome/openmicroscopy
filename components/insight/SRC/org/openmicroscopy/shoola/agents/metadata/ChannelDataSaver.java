@@ -24,15 +24,11 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import omero.gateway.SecurityContext;
@@ -68,8 +64,8 @@ public class ChannelDataSaver
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param pixelsID The id of the pixels set.
-     * @param userID The id of the user.
+     * @param channels The channels to handle.
+     * @param parent The parent of the channels.
      */
     public ChannelDataSaver(Editor viewer, SecurityContext ctx,
             List<ChannelData> channels, DataObject parent)

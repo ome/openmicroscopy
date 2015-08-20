@@ -23,12 +23,8 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
-//Java imports
 import java.util.Collection;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import omero.gateway.model.ROIResult;
@@ -39,7 +35,7 @@ import omero.log.LogMessage;
 import org.openmicroscopy.shoola.agents.metadata.editor.PropertiesUI;
 
 /** 
- * An async. loader which updates the {@link PreviewToolBar} with
+ * An async. loader which updates the UI components with
  * the number of ROIs the image associated to the PreviewToolBar has.
  *
  * @author  Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp;
@@ -72,7 +68,7 @@ public class ROICountLoader
     /**
      * Creates a new instance
      * @param ctx The SecurityContext
-     * @param toolbar Reference to the toolbar
+     * @param propUI Reference to the UI.
      * @param imageID The image id to load the ROIs for
      * @param userID The user id
      */

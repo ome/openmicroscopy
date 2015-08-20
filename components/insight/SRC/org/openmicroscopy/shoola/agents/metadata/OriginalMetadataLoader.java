@@ -24,12 +24,8 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
-//Java imports
 import java.io.File;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.cmd.OriginalMetadataResponse;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.RequestCallback;
@@ -116,7 +112,7 @@ public class OriginalMetadataLoader
 
     /** 
      * Sets the adapter.
-     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     * @see EditorLoader#update(DSCallFeedbackEvent)
      */
     public void update(DSCallFeedbackEvent fe)
     {
