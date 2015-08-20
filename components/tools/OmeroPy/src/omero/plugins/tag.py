@@ -5,7 +5,7 @@
 
    :author: Sam Hart <sam@glencoesoftware.com>
 
-   Copyright (C) 2013 Glencoe Software, Inc. All rights reserved.
+   Copyright (C) 2013-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 """
 
@@ -438,8 +438,7 @@ JSON File Format:
         """
         Creates a new tag object. Returns the new tag object.
 
-        If either the name or description parameters are None, the user will be
-        prompted to input them.
+        If name parameter is None, the user will be prompted to input it.
 
         The "text" parameter should be the text description to use upon user
         input. For example, if we were creating a tag, this would be "tag"
@@ -448,11 +447,7 @@ JSON File Format:
         if name is None:
             name = raw_input("Please enter a name for this %s: " % text)
 
-        if description is None:
-            description = raw_input("Please enter a description for this %s: "
-                                    % text)
-
-        if name is not None and description is not None and name != '':
+        if name is not None and name != '':
             tag = TagAnnotationI()
             tag.textValue = rstring(name)
             if description is not None and len(description) > 0:
