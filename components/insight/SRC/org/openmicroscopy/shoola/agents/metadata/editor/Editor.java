@@ -60,9 +60,6 @@ import pojos.InstrumentData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface Editor 
@@ -323,7 +320,7 @@ public interface Editor
 	/** 
 	 * Reloads the rendering control for the first selected image. 
 	 * (Note: This is a blocking method, for asynchronous call use 
-         *   {@link loadRenderingControl(int)} instead
+         *   {@link #loadRenderingControl(int)} instead
 	 */
 	public void loadRenderingControl();
 	
@@ -334,7 +331,7 @@ public interface Editor
 	 * @param file The local copy.
 	 * @param uiView The object handle the result.
 	 */
-	public void setLoadedFile(FileAnnotationData data, File file, 
+	public void setLoadedFile(FileAnnotationData data, File file,
 			Object uiView);
 
 	/**
