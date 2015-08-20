@@ -26,8 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EventObject;
@@ -61,7 +59,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /**
- * A table for displaying a {@link SearchResultCollection}
+ * A table for displaying a search result.
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -81,9 +79,10 @@ public class SearchResultTable extends JXTable {
 
     /**
      * Creates a new instance
-     * 
-     * @param data
-     * @param browserModel
+     *
+     * @param Reference to the view.
+     * @param data The data to display
+     * @param browserModel The model.
      */
     public SearchResultTable(SearchResultView parent, List<DataObject> data,
             AdvancedResultSearchModel browserModel) {
@@ -95,7 +94,7 @@ public class SearchResultTable extends JXTable {
     }
 
     /**
-     * Initializes the table; i. e. creates/sets the cell renderers, etc.
+     * Initializes the table; i.e. creates/sets the cell renderers, etc.
      */
     public void initTable() {
         TableCellRenderer defaultRenderer = new MyRenderer();
