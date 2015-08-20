@@ -981,7 +981,7 @@ def api_link_list(request, conn=None, **kwargs):
     return HttpJsonResponse(response)
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_paths_to_object(request, conn=None, **kwargs):
     """
     This finds the paths to objects in the hierarchy. It returns only
