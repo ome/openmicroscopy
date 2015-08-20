@@ -122,7 +122,7 @@ class TestTag(AbstractTagTest):
     # Tag creation commands
     # ========================================================================
     @pytest.mark.parametrize('name_arg', [None, '--name'])
-    @pytest.mark.parametrize('desc_arg', [None, '--desc'])
+    @pytest.mark.parametrize('desc_arg', [None, '--description'])
     def testCreateTag(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
