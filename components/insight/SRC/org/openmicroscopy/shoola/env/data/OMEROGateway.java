@@ -3119,7 +3119,7 @@ class OMEROGateway
 	{
 		return retrieveArchivedFiles(ctx, file, image, keepOriginalPaths);
 	}
-
+	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 *
@@ -3203,25 +3203,37 @@ class OMEROGateway
 		folderPath = file.getAbsolutePath();
 		Iterator<Entry<OriginalFile, Fileset>> entries = values.entrySet().iterator();
 
+		Map<Fileset, String> filesetPaths = new HashMap<Fileset, String>();
+		
 		while (entries.hasNext()) {
 		    Entry<OriginalFile, Fileset> entry = entries.next();
 		    
 			of = entry.getKey();
 			Fileset set = entry.getValue();
-
+			String repoPath = set.getTemplatePrefix().getValue();
+			
             String path = null;
             if (keepOriginalPaths && set != null && set.sizeOfUsedFiles() > 1) {
                 // this will store multi file images within a subdirectory with
                 // the same name as the main image file
-                String repoPath = set.getTemplatePrefix().getValue();
-                path = folderPath.endsWith("/") ? folderPath : folderPath + "/";
-                String imgFilename = set.getFilesetEntry(0).getOriginalFile()
-                        .getName().getValue();
-                path += imgFilename + "/";
-                path = path + (of.getPath().getValue().replace(repoPath, ""));
+                path = filesetPaths.get(set);
+                if (path == null) {
+                    path = folderPath.endsWith("/") ? folderPath : folderPath + "/";
+                    String imgFilename = set.getFilesetEntry(0).getOriginalFile()
+                            .getName().getValue();
+                    path += imgFilename;
+                    path = generateUniquePathname(path);
+                    // path should now be in the form
+                    // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]
+                    // where N is a consecutive number if the folder IMAGE_NAME
+                    // already exists
+                    filesetPaths.put(set, path);
+                }
+                path = path +"/"+ (of.getPath().getValue().replace(repoPath, ""));
                 // path should now be in the form
-                // [DOWNLOAD_FOLDER]/[IMAGE_NAME]/X/Y/Z
+                // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]/X/Y/Z
                 // where X, Y, Z are image specific subdirectories
+                // for the single image/data files
                 File origPath = new File(path);
                 if (!origPath.exists())
                     origPath.mkdirs();
@@ -3280,6 +3292,32 @@ class OMEROGateway
 		return result;
 	}
 	
+    /**
+     * Checks if the given path already exists and if so, generates a new path
+     * name path(N), where N is a consecutive number
+     * 
+     * @param path
+     *            The path name to check
+     * @return A unique path name based on the given path or the path itself if
+     *         it doesn't exist yet
+     */
+    private String generateUniquePathname(String path) {
+
+        File tmp = new File(path);
+        if (tmp.isDirectory() && tmp.exists()) {
+            if (path.matches(".+\\(\\d+\\)")) {
+                int n = Integer.parseInt(path.substring(
+                        path.lastIndexOf('(') + 1, path.lastIndexOf(')')));
+                n++;
+                path = path.substring(0, path.lastIndexOf('(')) + "(" + n + ")";
+            } else {
+                path += "(1)";
+            }
+            return generateUniquePathname(path);
+        }
+        return path;
+    }
+
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 *
