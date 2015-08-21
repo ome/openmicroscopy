@@ -463,7 +463,6 @@ OME.handleDelete = function() {
         if (dtype in dtypes) dtypes[dtype] += 1;
         else dtypes[dtype] = 1;
         if (!q && $this.attr('rel').indexOf('image')<0) q = true;
-        console.log($this, $this.hasClass('isOwned'));
         if (!$this.hasClass('isOwned')) notOwned = true;
     });
     if (notOwned) {
