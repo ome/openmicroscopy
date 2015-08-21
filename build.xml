@@ -735,7 +735,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="copy-etc" depends="init">
             <copy todir="${dist.dir}/etc">
                 <fileset dir="${omero.home}/etc">
-                    <exclude name="local.properties"/>
+                    <exclude name="local.properties*"/>
+                    <exclude name="ivysettings.xml"/>
                 </fileset>
             </copy>
             <copy file="${omero.home}/components/tests/ui/resources/robot.template" todir="${dist.dir}/etc/templates"/>
