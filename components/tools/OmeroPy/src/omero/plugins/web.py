@@ -54,6 +54,10 @@ Example IIS usage:
 
 class WebControl(BaseControl):
 
+    config_choices = ("nginx", "nginx-development",
+                      "nginx-wsgi", "nginx-wsgi-development",
+                      "apache", "apache-fcgi", "apache-wsgi")
+
     def _configure(self, parser):
         sub = parser.sub()
 
@@ -101,10 +105,7 @@ class WebControl(BaseControl):
             "  apache: Apache 2.2 with mod_fastcgi\n"
             "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n"
             "  apache-wsgi: Apache 2.2+ with mod_wsgi\n")
-        config.add_argument("type", choices=(
-            "nginx", "nginx-development",
-            "nginx-wsgi", "nginx-wsgi-development",
-            "apache", "apache-fcgi", "apache-wsgi"))
+        config.add_argument("type", choices=self.config_choices)
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
         nginx_group.add_argument(
@@ -226,19 +227,33 @@ class WebControl(BaseControl):
                 "WARNING: FastCGI support is deprecated and will be removed"
                 " in OMERO 5.2. Install gunicorn and update config.")
 
+    def _assert_config_argtype(self, argtype, settings):
+        mismatch = False
+        if (settings.APPLICATION_SERVER in settings.WSGI_TYPES and
+                "wsgi" not in argtype):
+            mismatch = True
+        if settings.APPLICATION_SERVER in ("development",):
+            mismatch = True
+        if (settings.APPLICATION_SERVER in settings.FASTCGI_TYPES and
+                argtype not in ("nginx", "nginx-development",
+                                "apache", "apache-fcgi")):
+            mismatch = True
+        if mismatch:
+            self.ctx.die(1, ("ERROR: configuration mismatch. "
+                             "omero.web.application_server=%s cannot be used "
+                             " with 'omero web config %s'"
+                             ".") % (settings.APPLICATION_SERVER, argtype))
+            self._fastcgi_deprecation(settings)  # to be removed in 5.2
+
     def config(self, args):
         """Generate a configuration file from a template"""
         from omeroweb import settings
-        if not args.type:
-            self.ctx.die(
-                "Available configuration helpers:\n"
-                " - nginx-wsgi, nginx-wsgi-development\n"
-                " nginx, nginx-development,"
-                " apache, apache-fcgi, apache-wsgi\n")
 
         if args.system:
             self.ctx.err(
                 "WARNING: --system is no longer supported, see --help")
+
+        self._assert_config_argtype(args.type, settings)
 
         server = args.type
         if args.http:
