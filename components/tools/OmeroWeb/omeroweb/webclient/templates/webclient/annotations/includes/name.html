@@ -51,7 +51,11 @@
         </tr>
         {% endif %}
         <tr class="data_heading_id">
-            <th>{{ manager.obj_type|title }} ID:</th>
+            {% ifequal manager.obj_type "acquisition" %}
+              <th>Run ID:</th>
+            {% else %}
+              <th>{{ manager.obj_type|title }} ID:</th>
+            {% endifequal %}
             <td><strong>{{ manager.obj_id }}</strong></td>
         </tr>
         <tr>
