@@ -934,7 +934,7 @@
           </div>
           <div class="odd row">
             <label for="wblitz-interpolate">Interpolate</label>
-            <input id="wblitz-interpolate" type="checkbox" checked/>
+            <input id="wblitz-interpolate" type="checkbox" {% if interpolate %}checked{% endif %}/>
           </div>
             <h1>Current Image</h1>
           <div class="even row">
@@ -1072,6 +1072,10 @@
       var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
       $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
 
+      // Turn off interpolation if disabled
+      {% if not interpolate %}
+        viewport.setPixelated(true);
+      {% endif %}
     });
 
     // 'Color' checkbox to left of image
