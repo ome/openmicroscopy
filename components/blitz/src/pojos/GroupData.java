@@ -294,4 +294,11 @@ public class GroupData extends DataObject {
         experimenters = new HashSet<ExperimenterData>(m.result());
     }
 
+    @Override
+    public String toString() {
+        return "GroupData [getGroupId()=" + getGroupId() + ", getName()="
+                + getName() + "]";
+    }
+
+    
 }

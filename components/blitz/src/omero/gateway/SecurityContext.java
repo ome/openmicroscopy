@@ -168,4 +168,14 @@ public class SecurityContext {
                 && Objects.equal(((SecurityContext) obj).getExperimenter(),
                         this.getExperimenter());
     }
+
+    @Override
+    public String toString() {
+        return "SecurityContext [groupID=" + groupID + ", experimenter="
+                + experimenter + ", sudo=" + sudo + ", serverInformation="
+                + serverInformation + ", compression=" + compression + "]";
+    }
+
+    
+    
 }
