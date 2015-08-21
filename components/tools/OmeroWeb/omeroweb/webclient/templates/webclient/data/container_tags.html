@@ -177,7 +177,7 @@
                         // This path does not include the root node so the first entry is always
                         // the experimenter node except on inital load in which case it is false
                         var path = inst.get_path(node, false, true);
-                        if (path) {
+                        if (path && node.type == 'experimenter') {
                             payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
                         }
 
