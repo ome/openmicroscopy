@@ -1244,8 +1244,9 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
         common_clause += '''
                         and obj.details.owner.id = :id
                         '''
+    # NB: Need to add lower(obj.name) to select so we can sort on it
     common_clause += '''
-                    order by obj.name
+                    order by lower(obj.name), obj.id
                     '''
 
     params.add('tid', rlong(tag_id))
@@ -1257,7 +1258,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.details.owner.id,
                obj.details.permissions,
                (select count(id) from ProjectDatasetLink pdl
-                where pdl.parent = obj.id)
+                where pdl.parent = obj.id),
+               lower(obj.name)
         from Project obj
         %s
         ''' % common_clause
@@ -1274,7 +1276,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.details.owner.id,
                obj.details.permissions,
                (select count(id) from DatasetImageLink dil
-                 where dil.parent=obj.id)
+                 where dil.parent=obj.id),
+               lower(obj.name)
         from Dataset obj
         %s
         ''' % common_clause
@@ -1290,14 +1293,15 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
-               obj.fileset.id
+               obj.fileset.id,
+               lower(obj.name)
         from Image obj
         %s
         ''' % common_clause
 
     images = []
     for e in qs.projection(q, params, service_opts):
-        images.append(_marshal_image(conn, e[0:6]))
+        images.append(_marshal_image(conn, e[0:5]))
     tagged['images'] = images
 
     # Screens
@@ -1307,7 +1311,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.details.owner.id,
                obj.details.permissions,
                (select count(spl.id) from ScreenPlateLink spl
-                where spl.parent=obj.id)
+                where spl.parent=obj.id),
+               lower(obj.name)
         from Screen obj
         %s
         ''' % common_clause
@@ -1324,7 +1329,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.details.owner.id,
                obj.details.permissions,
                (select count(pa.id) from PlateAcquisition pa
-                where pa.plate.id=obj.id)
+                where pa.plate.id=obj.id),
+               lower(obj.name)
         from Plate obj
         %s
         ''' % common_clause
@@ -1341,7 +1347,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.details.owner.id,
                obj.details.permissions,
                obj.startTime,
-               obj.endTime
+               obj.endTime,
+               lower(obj.name)
         from PlateAcquisition obj
         %s
         ''' % common_clause
