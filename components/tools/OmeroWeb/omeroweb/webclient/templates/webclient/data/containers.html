@@ -1566,8 +1566,9 @@
                                     // allow 'share'
                                     config["share"]["_disabled"] = false;
                                 } else if (node.type === "screen") {
-                                    // If it's a screen disable copy/cut, create and share
+                                    // Screen: we have a Plate, allow paste
                                     if (to_paste === "plate") {
+                                        config["ccp"]["_disabled"] = false;
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = false;
                                     }
                                 } else if (node.type === "plate") {
