@@ -1413,63 +1413,31 @@ def load_searching(request, form=None, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
-def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
+def load_data_by_tag(request, conn=None, **kwargs):
     """
-    Loads data for the tag tree and center panel.
+    Loads data for the center panel.
     Either get the P/D/I etc under tags, or the images etc under a tagged
     Dataset or Project.
     @param o_type       'tag' or 'project', 'dataset'.
     """
 
-    if (request.REQUEST.get("o_type") is not None and
-            len(request.REQUEST.get("o_type")) > 0):
-        o_type = request.REQUEST.get("o_type")
-        try:
-            o_id = long(request.REQUEST.get("o_id"))
-        except:
-            pass
-
-    # check view
-    view = request.REQUEST.get("view")
-
-    # prepare forms
-    filter_user_id = request.session.get('user_id')
-
-    # prepare data
-    kw = dict()
-    if o_type is not None and o_id > 0:
-        kw[str(o_type)] = long(o_id)
+    o_id = getIntOrDefault(request, "o_id", None)
+    if o_id is None:
+        return handlerInternalError(
+            request, "Need to specify tag id as ?o_id=id")
 
     try:
-        manager = BaseContainer(conn, **kw)
+        manager = BaseContainer(conn, tag=o_id)
     except AttributeError, x:
         return handlerInternalError(request, x)
 
-    if o_id is not None:
-        if o_type == "tag":
-            manager.loadDataByTag()
-            if view == "tree":
-                template = "webclient/data/container_tags_containers.html"
-            elif view == "icon":
-                template = "webclient/data/containers_icon.html"
+    manager.loadDataByTag()
+    template = "webclient/data/containers_icon.html"
 
-        elif o_type == "dataset":
-            manager.listImagesInDataset(o_id, filter_user_id)
-            template = "webclient/data/container_tags_subtree.html"
-    else:
-        manager.loadTags(filter_user_id)
-        template = "webclient/data/container_tags_tree.html"
-    # load data
-
-    context = {
-        'manager': manager,
-        'insight_ns': omero.rtypes.rstring(
-            omero.constants.metadata.NSINSIGHTTAGSET).val}
-    context['template_view'] = view
-    context['isLeader'] = conn.isLeader()
-    context['template'] = template
+    context = {'manager': manager,
+               'template': template}
     return context
 
 

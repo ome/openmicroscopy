@@ -229,7 +229,7 @@ urlpatterns = patterns(
         views.download_orig_metadata,
         name="download_orig_metadata"),
 
-    url(r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$',
+    url(r'^load_data_by_tag/',
         views.load_data_by_tag,
         name="load_data_by_tag"),
 

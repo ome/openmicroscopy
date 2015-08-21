@@ -417,8 +417,8 @@ class BaseContainer(BaseController):
         if eid is not None:
             if eid == -1:       # Load data for all users
                 eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
+            # else:
+            #     self.experimenter = self.conn.getObject("Experimenter", eid)
         im_list = list(self.conn.listImagesInDataset(
             oid=did, eid=eid, page=page, load_pixels=load_pixels))
         im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
