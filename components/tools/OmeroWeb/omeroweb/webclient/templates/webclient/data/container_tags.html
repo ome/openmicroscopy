@@ -146,6 +146,54 @@
                     });
                 }
             })
+            // hotkeys... NB: same code as on containers.html
+            .on('keydown.jstree', '.jstree-anchor', function (e) {
+                var datatree = $.jstree.reference($('#dataTree'));
+
+                switch(e.which) {
+                    // Up
+                    case 38:
+                        e.preventDefault();
+                        var prev = datatree.get_prev_dom(this);
+                        if(prev && prev.length) {
+                            datatree.deselect_all();
+                            datatree.select_node(prev);
+                        }
+                        break;
+                    // Down
+                    case 40:
+                        e.preventDefault();
+                        var next = datatree.get_next_dom(this);
+                        if(next && next.length) {
+                            datatree.deselect_all();
+                            datatree.select_node(next);
+                        }
+                        break;
+                    // Left
+                    case 37:
+                        e.preventDefault();
+                        if(!datatree.is_open(this)) {
+                            var prev = datatree.get_parent(this);
+                            if(prev && prev.length) {
+                                datatree.deselect_all();
+                                datatree.select_node(prev);
+                            }
+                        }
+                        break;
+                    // Right
+                    case 39:
+                        e.preventDefault();
+                        // opening of node is handled by jsTree, we just select...
+                        if(!datatree.is_closed(this)) {
+                            var next = datatree.get_next_dom(this);
+                            if(next && next.length) {
+                                datatree.deselect_all();
+                                datatree.select_node(next);
+                            }
+                        }
+                        break;
+                }
+            })
 
             // Setup jstree
             .jstree({
