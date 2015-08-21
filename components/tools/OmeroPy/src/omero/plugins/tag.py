@@ -370,20 +370,29 @@ JSON File Format:
 
         tc = TagCollection()
 
-        sql = """
-            select a.id, a.description, a.textValue,
-            a.details.owner.id, a.details.owner.firstName,
-            a.details.owner.lastName
-            from AnnotationAnnotationLink b
-            inner join b.parent a
-            where a.ns=:ns
-            """
+        if tag:
+            sql = """
+                select a.id, a.description, a.textValue,
+                a.details.owner.id, a.details.owner.firstName,
+                a.details.owner.lastName
+                from AnnotationAnnotationLink b
+                inner join b.parent a
+                where a.ns=:ns
+                """
+            sql += " and b.child.id = :tid"
+            params.map['tid'] = rlong(long(tag))
+        else:
+            sql = """
+                select a.id, a.description, a.textValue,
+                a.details.owner.id, a.details.owner.firstName,
+                a.details.owner.lastName
+                from Annotation a
+                where a.ns=:ns
+                """
+
         if args.uid:
             params.map["eid"] = rlong(long(args.uid))
             sql += " and a.details.owner.id = :eid"
-        if tag:
-            sql += " and b.child.id = :tid"
-            params.map['tid'] = rlong(long(tag))
 
         for element in q.projection(sql, params, ice_map):
             tag_id, description, text, owner, first, last = map(unwrap,
