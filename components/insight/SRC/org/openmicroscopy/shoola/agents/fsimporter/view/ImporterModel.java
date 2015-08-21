@@ -449,6 +449,7 @@ class ImporterModel
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
 		ctx.setServerInformation(this.ctx.getServerInformation());
 		ctx.setExperimenter(data.getExperimenter());
+		ctx.sudo();
 		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());
 		loader.load();
