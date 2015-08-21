@@ -86,7 +86,7 @@ class WebControl(BaseControl):
             nginx_start_group.add_argument(
                 "--wsgi-args", type=str, default="",
                 help=("Additional arguments. Check Gunicorn Documentation "
-                      "http://docs.gunicorn.org/en/latest/settings.htm"))
+                      "http://docs.gunicorn.org/en/latest/settings.html"))
         #
         # Advanced
         #
