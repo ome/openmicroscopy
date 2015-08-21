@@ -611,9 +611,17 @@ present, the user will enter a console""")
         else:
             return "master"
 
+    def _get_etc_dir(self):
+        """Return path to directory containing configuration files"""
+        return self.ctx.dir / "etc"
+
     def _get_grid_dir(self):
-        """Return path to grid directory containing configuration files"""
-        return self.ctx.dir / "etc" / "grid"
+        """Return path to directory containing Gridconfiguration files"""
+        return self._get_etc_dir() / "grid"
+
+    def _get_templates_dir(self):
+        """Return path to directory containing templates"""
+        return self.ctx.dir / "etc" / "templates"
 
     def _cmd(self, *command_arguments):
         """
@@ -691,6 +699,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+        self.copycfg(args, config, verbose=False)
         self.jvmcfg(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
@@ -749,6 +758,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
+        self.copycfg(args, config, verbose=False)
         self.jvmcfg(args, config, verbose=False)
         self.check_access()
         self.checkice()
@@ -928,10 +938,17 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @with_config
+    def copycfg(self, args, config, verbose=True):
+        for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
+            path(cfg_file).copy(self._get_etc_dir())
+        default_xml = path(self._get_templates_dir() / "grid" / "default.xml")
+        default_xml.copy(self._get_grid_dir())
+
+    @with_config
     def jvmcfg(self, args, config, verbose=True):
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
-        templates = self._get_grid_dir() / "templates.xml"
+        templates = self._get_templates_dir() / "grid" / "templates.xml"
         generated = self._get_grid_dir() / "generated.xml"
         if generated.exists():
             generated.remove()
@@ -970,6 +987,7 @@ present, the user will enter a console""")
     @with_config
     def diagnostics(self, args, config):
         self.check_access(os.R_OK)
+        self.copycfg(args, config, verbose=False)
         memory = self.jvmcfg(args, config, verbose=False)
         omero_data_dir = self._get_data_dir(config)
 
