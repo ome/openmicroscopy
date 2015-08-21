@@ -393,12 +393,14 @@ class BaseContainer(BaseController):
         pa_list = list(self.conn.getObjectsByAnnotations(
             'PlateAcquisition', [self.tag.id]))
 
-        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        im_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        pa_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        def sortKeys(x):
+            return (x.getName() and x.getName().lower() or " ", x.id)
+        pr_list.sort(key=lambda x: sortKeys(x))
+        ds_list.sort(key=lambda x: sortKeys(x))
+        im_list.sort(key=lambda x: sortKeys(x))
+        sc_list.sort(key=lambda x: sortKeys(x))
+        pl_list.sort(key=lambda x: sortKeys(x))
+        pa_list.sort(key=lambda x: sortKeys(x))
 
         self.containers = {
             'projects': pr_list,
