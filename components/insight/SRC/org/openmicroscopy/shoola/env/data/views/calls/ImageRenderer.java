@@ -23,14 +23,8 @@
 
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-
-//Java imports
 import java.awt.image.BufferedImage;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -48,9 +42,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ImageRenderer
@@ -69,14 +60,14 @@ public class ImageRenderer
     /**
      * Creates a {@link BatchCall} to retrieve the user images.
      * 
-     * @param pixelsID  The id of the pixels set the plane belongs to.
-     * @param pd        The plane to render.
-	 * @param largeImae Pass <code>true</code> to render a large image,
-	 * 					<code>false</code> otherwise.
+     * @param pixelsID The id of the pixels set the plane belongs to.
+     * @param pd The plane to render.
+	 * @param largeImage Pass <code>true</code> to render a large image,
+	 *                  <code>false</code> otherwise.
 	 * @param compression The compression level.
-     * @return          The {@link BatchCall}.
+     * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long pixelsID, final PlaneDef pd, 
+    private BatchCall makeBatchCall(final long pixelsID, final PlaneDef pd,
     		final boolean largeImage, final int compression)
     {
         return new BatchCall("rendering image: ") {

@@ -80,7 +80,7 @@ public class SearchResultTable extends JXTable {
     /**
      * Creates a new instance
      *
-     * @param Reference to the view.
+     * @param parent Reference to the view.
      * @param data The data to display
      * @param browserModel The model.
      */

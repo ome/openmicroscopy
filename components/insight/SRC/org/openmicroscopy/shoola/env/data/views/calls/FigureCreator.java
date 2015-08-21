@@ -22,14 +22,8 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-//Java imports
 import java.util.List;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import omero.gateway.SecurityContext;
@@ -46,34 +40,31 @@ import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-public class FigureCreator 
-	extends BatchCallTree
+public class FigureCreator
+    extends BatchCallTree
 {
 
     /** Loads the specified tree. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
 
     /** The server call-handle to the computation. */
-    private Object	callBack;
-    
+    private Object callBack;
+
     /** The security context.*/
     private SecurityContext ctx;
-    
+
     /**
      * Creates a {@link BatchCall} to create a movie.
-     * 
-     * @param ids 	The id of the objects.	
-     * @param type  The type of objects to handle.
+     *
+     * @param ids The id of the objects.
+     * @param type The type of objects to handle.
      * @param param The parameters used to generate the figure.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final List<Long> ids, final Class type,
-    		final Object param)
+            final Object param)
     {
         return new ProcessBatchCall("Creating figure: ") {
             public ProcessCallback initialize() throws Exception
@@ -81,50 +72,50 @@ public class FigureCreator
                 OmeroImageService os = context.getImageService();
                 ScriptCallback cb = os.createFigure(ctx, ids, type, param);
                 if (cb == null) {
-                	callBack = Boolean.valueOf(false);
-                	return null;
+                    callBack = Boolean.valueOf(false);
+                    return null;
                 } else {
-                	callBack = new ProcessCallback(cb);
+                    callBack = new ProcessCallback(cb);
                     return (ProcessCallback) callBack;
                 }
             }
         };
     }
-    
+
     /**
      * Returns the server call-handle to the computation.
-     * 
+     *
      * @return See above.
      */
     protected Object getPartialResult() { return callBack; }
-    
+
     /**
      * Adds the {@link #loadCall} to the computation tree.
-     * 
+     *
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }
 
     /**
      * Returns the root node of the requested tree.
-     * 
+     *
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return Boolean.valueOf(true); }
-    
+
     /**
      * Creates a new instance.
      * 
      * @param ctx The security context.
-     * @param ids 	The id of the objects.
-     * @param type  The type of objects to handle.	
+     * @param ids The id of the objects.
+     * @param type The type of objects to handle.
      * @param param The parameters used to generate the figure.
      */
-	public FigureCreator(SecurityContext ctx, List<Long> imageIds,
-			Class type, Object param)
-	{
-		this.ctx = ctx;
-		loadCall = makeBatchCall(imageIds, type, param);
-	}
-	
+    public FigureCreator(SecurityContext ctx, List<Long> ids,
+            Class type, Object param)
+    {
+        this.ctx = ctx;
+        loadCall = makeBatchCall(ids, type, param);
+    }
+
 }
