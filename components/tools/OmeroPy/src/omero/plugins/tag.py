@@ -380,7 +380,7 @@ JSON File Format:
             """
         if args.uid:
             params.map["eid"] = rlong(long(args.uid))
-            sql += " and a.owner.id = :eid"
+            sql += " and a.details.owner.id = :eid"
         if tag:
             sql += " and b.child.id = :tid"
             params.map['tid'] = rlong(long(tag))
