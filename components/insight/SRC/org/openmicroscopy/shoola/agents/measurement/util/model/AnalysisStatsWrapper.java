@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 //Java imports
-import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -78,13 +77,8 @@ public class AnalysisStatsWrapper
 		Map<Integer, Double> channelMean = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
 		Map<Integer, double[]> channelData = new TreeMap<Integer, double[]>();
-		Map<Integer, Map<Point, Double>> channelPixel = 
-			new TreeMap<Integer, Map<Point, Double>>();
-		Iterator<Double> 	pixelIterator;
-		Map<Point, Double> pixels;
+		double[] pixels;
 		
-		double[] pixelData;
-		int cnt;
 		int channel;
 		Iterator channelIterator = shapeStats.keySet().iterator();
 		while (channelIterator.hasNext())
@@ -99,19 +93,8 @@ public class AnalysisStatsWrapper
 			channelStdDev.put(channel, UIUtilities.roundTwoDecimals(
 					stats.getStandardDeviation()));
 			pixels = stats.getPixelsValue();
-				
-			channelPixel.put(channel, pixels);
-			pixelIterator = pixels.values().iterator();
-			pixelData = new double[pixels.size()];
-			cnt = 0;
-			while (pixelIterator.hasNext())
-			{
-				pixelData[cnt] = pixelIterator.next();
-				cnt++;
-			}
 			
-			channelData.put(channel, pixelData);
-			//pixels.clear();
+			channelData.put(channel, pixels);
 		}
 		Map<StatsType, Map> 
 			statsMap = new HashMap<StatsType, Map>(StatsType.values().length);
@@ -121,7 +104,7 @@ public class AnalysisStatsWrapper
 		statsMap.put(StatsType.MEAN, channelMean);
 		statsMap.put(StatsType.STDDEV, channelStdDev);
 		statsMap.put(StatsType.PIXELDATA, channelData);
-		statsMap.put(StatsType.PIXEL_PLANEPOINT2D, channelPixel);
+		statsMap.put(StatsType.PIXEL_PLANEPOINT2D, channelData);
 		//shapeStats.clear();
 		return statsMap;
 	}

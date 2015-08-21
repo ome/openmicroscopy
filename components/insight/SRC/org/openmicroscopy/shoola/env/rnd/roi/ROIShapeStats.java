@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 //Java imports
 import java.awt.Point;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -75,10 +73,14 @@ public class ROIShapeStats
     private int pointsCount;
 
     /** 
-     * Map whose keys are the point on the plane and the values are 
-     * the corresponding pixels value.
+     * Array holding the pixels values.
      */
-    private Map<Point, Double> pixelsValue;
+    private double[] pixelsValue;
+    
+    /**
+     * Index pointing to the next unassigned field in the pixelsValue array
+     */
+    private int index;
 
     /**
      * Sets the minimum value.
@@ -182,12 +184,11 @@ public class ROIShapeStats
     public int getPointsCount() { return pointsCount; }
 
     /**
-     * Returns the map storing the pixel coordinates and the corresponding 
-     * pixel value.
+     * Returns the pixel values.
      * 
      * @return See above.
      */
-    public Map<Point, Double> getPixelsValue() { return pixelsValue; }
+    public double[] getPixelsValue() { return pixelsValue; }
 
     /** 
      * Calculates the mean and standard deviation for the current 
@@ -218,16 +219,17 @@ public class ROIShapeStats
         max = Math.max(pixelValue,max);
         sum += pixelValue;
         sumOfSquares += pixelValue*pixelValue;
-        pixelsValue.put(loc, new Double(pixelValue));
+        pixelsValue[index++] = pixelValue;
     }
 
     /**
-     * Creates a new map to store the pixel values. 
+     * Creates a new array to store the pixel values. 
      * @see PointIteratorObserver#onStartPlane(int, int, int, int)
      */
     public void onStartPlane(int z, int w, int t, int pointsCount)
     {
-        pixelsValue = new LinkedHashMap<Point, Double>(pointsCount);
+        pixelsValue = new double[pointsCount];
+        index = 0;
     }
 
     /**
