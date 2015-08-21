@@ -1722,7 +1722,7 @@ class GraphControl(CmdControl):
             if err:
                 self.ctx.die(367, err)
 
-            specs = sorted(speclist.targets)
+            specs = sorted([t.split(".")[-1] for t in speclist.targets])
             self.ctx.out("\n".join(specs))
             return  # Early exit.
 
