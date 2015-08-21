@@ -468,9 +468,9 @@ using bin\omero web start on Windows with FastCGI.
             except:
                 pass
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
-            cmd += " --bind %(host)s:%(port)s"
-            cmd += " --workers %(workers)s "
-            cmd += " --worker-connections %(worker_conn)s"
+            cmd += " --bind %(host)s:%(port)d"
+            cmd += " --workers %(workers)d "
+            cmd += " --worker-connections %(worker_conn)d"
             cmd += " --max-requests %(maxrequests)d"
             cmd += " %(wsgi_args)s"
             cmd += " omeroweb.wsgi:application"
