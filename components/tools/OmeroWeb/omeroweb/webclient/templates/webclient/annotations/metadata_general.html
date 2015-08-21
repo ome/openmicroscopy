@@ -713,26 +713,6 @@
                 {% with obj=manager.acquisition nameText=manager.acquisition.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-                
-
-                <h2 class="data_heading_id">
-                    Plate Run ID: <strong>{{ manager.acquisition.id }}</strong>
-                    <!-- open link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Acquisition">
-                        <span></span>
-                    </button>
-                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                        <input type="text" size="30">
-                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                    </div>
-                </h2>
-                <table style="float:left; width:100px; clear:left">
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
-                    </tr>
-                </table>
-                <div style="clear: both"></div>
 
                 <hr/>
                 
