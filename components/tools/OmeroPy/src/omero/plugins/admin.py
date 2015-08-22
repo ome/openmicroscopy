@@ -937,14 +937,40 @@ present, the user will enter a console""")
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
 
-    @with_config
     def copycfg(self, args, config, verbose=True):
+
+        # Define substitution dictionary for template files
+        config = config.as_map()
+        substitutions = {
+            '@omero.ports.prefix@': config.get('omero.ports.prefix', ''),
+            '@omero.ports.ssl@': config.get('omero.ports.ssl', '4064'),
+            '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
+            '@omero.ports.registry@': config.get(
+                'omero.ports.registry', '4061'),
+            }
+
+        def copy_template(input_file, output_dir):
+            """Replace templates"""
+
+            with open(input_file) as template:
+                data = template.read()
+            output_file = path(output_dir / os.path.basename(input_file))
+            if output_file.exists():
+                output_file.remove()
+            with open(output_file, 'w') as f:
+                for key, value in substitutions.iteritems():
+                    data = re.sub(key, value, data)
+                f.write(data)
+
+        # Copy templates replacing port valeus
         for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
-            path(cfg_file).copy(self._get_etc_dir())
-        ice_config = path(self._get_templates_dir() / "ice.config")
-        ice_config.copy(self._get_etc_dir())
-        default_xml = path(self._get_templates_dir() / "grid" / "default.xml")
-        default_xml.copy(self._get_grid_dir())
+            copy_template(cfg_file, self._get_etc_dir())
+        for xml_file in glob(
+                self._get_templates_dir() / "grid" / "*default.xml"):
+            copy_template(xml_file, self._get_etc_dir() / "grid")
+
+        ice_config = self._get_templates_dir() / "ice.config"
+        copy_template(ice_config, self._get_etc_dir())
 
     @with_config
     def jvmcfg(self, args, config, verbose=True):
