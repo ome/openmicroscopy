@@ -14,6 +14,7 @@ import re
 import pytest
 
 from path import path
+from glob import glob
 
 import omero
 import omero.clients
@@ -32,12 +33,16 @@ def tmpadmindir(tmpdir):
     etc_dir = tmpdir.mkdir('etc')
     etc_dir.mkdir('grid')
     tmpdir.mkdir('var')
-    templates_dir = etc_dir.mkdir('templates').mkdir('grid')
+    templates_dir = etc_dir.mkdir('templates')
+    templates_dir.mkdir('grid')
 
-    templates_file = (
-        path() / ".." / ".." / ".." / "etc" / "templates" / "grid" /
-        "templates.xml")
-    templates_file.copy(path(templates_dir) / "templates.xml")
+    old_templates_dir = path() / ".." / ".." / ".." / "etc" / "templates"
+    for f in glob(old_templates_dir / "*.cfg"):
+        path(f).copy(path(templates_dir))
+    for f in glob(old_templates_dir / "grid" / "*.xml"):
+        path(f).copy(path(templates_dir / "grid"))
+    path(old_templates_dir / "ice.config").copy(path(templates_dir))
+
     return path(tmpdir)
 
 
@@ -161,24 +166,27 @@ class TestAdmin(object):
 
 class TestAdminPorts(object):
 
-    def setup_method(self, method):
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmpadmindir):
         # Other setup
         self.cli = CLI()
         self.cli.dir = tmpadmindir
         self.cli.register("admin", AdminControl, "TEST")
+        self.cli.register("config", PrefsControl, "TEST")
+        self.cli.invoke(["admin", "copycfg"], strict=True)
         self.args = ["admin", "ports"]
 
     def create_new_ice_config(self):
-        with open(self.cfg_files['ice.config'], 'w') as f:
+        with open(self.cli.dir / "etc" / 'ice.config', 'w') as f:
             f.write('omero.host=localhost')
 
     def check_cfg(self, prefix='', registry=4061, **kwargs):
         for key in ['master.cfg', 'internal.cfg']:
-            s = self.cfg_files[key].text()
+            s = path(self.cli.dir / "etc" / key).text()
             assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
 
     def check_config_xml(self, prefix='', webserver=4080, ssl=4064, **kwargs):
-        config_text = self.cfg_files["config.xml"].text()
+        config_text = path(self.cli.dir / "etc" / "grid" / "config.xml").text()
         serverport_property = (
             '<property name="omero.web.application_server.port"'
             ' value="%s%s"') % (prefix, webserver)
@@ -190,7 +198,7 @@ class TestAdminPorts(object):
         assert serverlist_property in config_text
 
     def check_ice_config(self, prefix='', webserver=4080, ssl=4064, **kwargs):
-        config_text = self.cfg_files["ice.config"].text()
+        config_text = path(self.cli.dir / "etc" / "ice.config").text()
         pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
         matches = pattern.findall(config_text)
         assert matches == ["omero.port=%s%s" % (prefix, ssl)]
@@ -205,7 +213,7 @@ class TestAdminPorts(object):
             'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s"'
             % (prefix, tcp))
         for key in ['default.xml', 'windefault.xml']:
-            s = self.cfg_files[key].text()
+            s = path(self.cli.dir / "etc" / "grid" / key).text()
             assert routerport in s
             assert insecure_routerport in s
             assert client_endpoints in s
@@ -290,7 +298,7 @@ class TestAdminPorts(object):
         if webserver:
             self.args += ['--webserver', '%s' % webserver]
             kwargs["webserver"] = webserver
-        self.args += ['--skipcheck']
+
         self.cli.invoke(self.args, strict=True)
 
         self.check_ice_config(**kwargs)
