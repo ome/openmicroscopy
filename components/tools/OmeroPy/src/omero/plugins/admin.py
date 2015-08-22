@@ -951,7 +951,7 @@ present, the user will enter a console""")
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
         templates = self._get_templates_dir() / "grid" / "templates.xml"
-        generated = self._get_grid_dir() / "generated.xml"
+        generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
