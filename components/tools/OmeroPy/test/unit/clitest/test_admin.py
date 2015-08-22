@@ -306,10 +306,12 @@ class TestAdminJvmCfg(object):
         self.args = ["admin", "jvmcfg"]
         self.cli.dir = path(tmpadmindir)
 
-    def testDefault(self):
+    def testTemplatesGeneration(self):
+        assert not os.path.exists(
+            path(self.cli.dir) / "etc" / "grid" / "templates.xml")
         self.cli.invoke(self.args, strict=True)
         assert os.path.exists(
-            path(self.cli.dir) / "etc" / "grid" / "generated.xml")
+            path(self.cli.dir) / "etc" / "grid" / "templates.xml")
 
     @pytest.mark.parametrize(
         'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])

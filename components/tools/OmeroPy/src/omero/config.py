@@ -323,7 +323,7 @@ class ConfigXml(object):
 
         # Now add a single extension point which will be
         # contain a parsed version of templates.xml
-        SubElement(icegrid, "include", file="generated.xml")
+        SubElement(icegrid, "include", file="templates.xml")
         self.write_element(icegrid)
 
     def write_element(self, icegrid):
