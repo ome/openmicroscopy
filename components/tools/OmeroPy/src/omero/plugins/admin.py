@@ -215,6 +215,10 @@ Examples:
             "Reset JVM settings based on the current system")
 
         Action(
+            "copycfg",
+            "Regenerate configuration files based on the current properties")
+
+        Action(
             "waitup",
             "Used by start after calling startasync to wait on status==0",
             wait=True)
@@ -937,6 +941,7 @@ present, the user will enter a console""")
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
 
+    @with_config
     def copycfg(self, args, config, verbose=True):
 
         # Define substitution dictionary for template files
