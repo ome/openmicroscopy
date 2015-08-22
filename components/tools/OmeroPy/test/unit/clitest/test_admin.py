@@ -21,42 +21,33 @@ import omero.clients
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.admin import AdminControl
 from omero.plugins.prefs import PrefsControl
-from omero.util.temp_files import create_path
 
 from mocks import MockCLI
 
 omeroDir = path(os.getcwd()) / "build"
 
 
+@pytest.fixture(autouse=True)
+def tmpadmindir(tmpdir):
+    etc_dir = tmpdir.mkdir('etc')
+    etc_dir.mkdir('grid')
+    tmpdir.mkdir('var')
+    templates_dir = etc_dir.mkdir('templates').mkdir('grid')
+
+    templates_file = (
+        path() / ".." / ".." / ".." / "etc" / "templates" / "grid" /
+        "templates.xml")
+    templates_file.copy(path(templates_dir) / "templates.xml")
+    return path(tmpdir)
+
+
 class TestAdmin(object):
 
-    def setup_method(self, method):
-        # Non-temp directories
-        build_dir = path() / "build"
-        top_dir = path() / ".." / ".." / ".."
-        etc_dir = top_dir / "etc"
-
-        # Necessary fiels
-        prefs_file = build_dir / "prefs.class"
-        internal_cfg = etc_dir / "internal.cfg"
-        master_cfg = etc_dir / "master.cfg"
-
-        # Temp directories
-        tmp_dir = create_path(folder=True)
-        tmp_etc_dir = tmp_dir / "etc"
-        tmp_grid_dir = tmp_etc_dir / "grid"
-        tmp_lib_dir = tmp_dir / "lib"
-        tmp_var_dir = tmp_dir / "var"
-
-        # Setup tmp dir
-        [x.makedirs() for x in (tmp_grid_dir, tmp_lib_dir, tmp_var_dir)]
-        prefs_file.copy(tmp_lib_dir)
-        master_cfg.copy(tmp_etc_dir)
-        internal_cfg.copy(tmp_etc_dir)
-
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmpadmindir):
         # Other setup
         self.cli = MockCLI()
-        self.cli.dir = tmp_dir
+        self.cli.dir = tmpadmindir
         self.cli.register("admin", AdminControl, "TEST")
         self.cli.register("config", PrefsControl, "TEST")
 
@@ -171,40 +162,11 @@ class TestAdmin(object):
 class TestAdminPorts(object):
 
     def setup_method(self, method):
-        # # Non-temp directories
-        ctxdir = path() / ".." / ".." / ".." / "dist"
-        etc_dir = ctxdir / "etc"
-
-        # List configuration files to backup
-        self.cfg_files = {}
-        for f in ['internal.cfg', 'master.cfg', 'ice.config']:
-            self.cfg_files[f] = etc_dir / f
-        for f in ['windefault.xml', 'default.xml', 'config.xml']:
-            self.cfg_files[f] = etc_dir / 'grid' / f
-
-        # Create temp files for backup
-        tmp_dir = create_path(folder=True)
-        self.tmp_cfg_files = {}
-        for key in self.cfg_files.keys():
-            if self.cfg_files[key].exists():
-                self.tmp_cfg_files[key] = tmp_dir / key
-                self.cfg_files[key].copy(self.tmp_cfg_files[key])
-            else:
-                self.tmp_cfg_files[key] = None
-
         # Other setup
         self.cli = CLI()
-        self.cli.dir = ctxdir
+        self.cli.dir = tmpadmindir
         self.cli.register("admin", AdminControl, "TEST")
         self.args = ["admin", "ports"]
-
-    def teardown_method(self, method):
-        # Restore backups
-        for key in self.cfg_files.keys():
-            if self.tmp_cfg_files[key] is not None:
-                self.tmp_cfg_files[key].copy(self.cfg_files[key])
-            else:
-                self.cfg_files[key].remove()
 
     def create_new_ice_config(self):
         with open(self.cfg_files['ice.config'], 'w') as f:
@@ -336,49 +298,32 @@ class TestAdminPorts(object):
 
 class TestAdminJvmCfg(object):
 
-    @classmethod
-    def setup_class(cls):
-        # Other setup
-        cls.cli = CLI()
-        cls.cli.register("admin", AdminControl, "TEST")
-        cls.cli.register("config", PrefsControl, "TEST")
-        cls.args = ["admin", "jvmcfg"]
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmpadmindir):
+        self.cli = CLI()
+        self.cli.register("admin", AdminControl, "TEST")
+        self.cli.register("config", PrefsControl, "TEST")
+        self.args = ["admin", "jvmcfg"]
+        self.cli.dir = path(tmpadmindir)
 
-    @pytest.fixture
-    def tmp_grid_dir(self, monkeypatch):
-        # # Non-temp directories
-        ctxdir = path() / ".." / ".." / ".." / "dist"
-        grid_dir = ctxdir / "etc" / "grid"
-        templates_file = grid_dir / "templates.xml"
-
-        # Create temp files for backup
-        self.tmp_grid_dir = create_path(folder=True)
-        templates_file.copy(self.tmp_grid_dir)
-        config_file = self.tmp_grid_dir / "config.xml"
-        open(config_file, 'a').close()
-
-        monkeypatch.setattr(AdminControl, '_get_grid_dir',
-                            lambda x: self.tmp_grid_dir)
-
-    def testDefault(self, tmp_grid_dir):
-
+    def testDefault(self):
         self.cli.invoke(self.args, strict=True)
-        assert os.path.exists(self.tmp_grid_dir / "generated.xml")
+        assert os.path.exists(
+            path(self.cli.dir) / "etc" / "grid" / "generated.xml")
 
     @pytest.mark.parametrize(
         'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])
-    def testInvalidStrategy(self, suffix, tmp_grid_dir):
-        source_config = "%s" % (self.tmp_grid_dir / "config.xml")
+    def testInvalidStrategy(self, suffix, tmpdir):
+
         key = "omero.jvmcfg.strategy%s" % suffix
-        self.cli.invoke(
-            ["config", "--source", source_config, "set", key, "bad"],
-            strict=True)
+        self.cli.invoke(["config", "set", key, "bad"], strict=True)
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    def testOldTemplates(self, tmp_grid_dir):
-
+    def testOldTemplates(self):
         old_templates = path(__file__).dirname() / ".." / "old_templates.xml"
-        old_templates.copy(self.tmp_grid_dir / "templates.xml")
+        old_templates.copy(
+            path(self.cli.dir) / "etc" / "templates" / "grid" /
+            "templates.xml")
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
