@@ -941,6 +941,8 @@ present, the user will enter a console""")
     def copycfg(self, args, config, verbose=True):
         for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
             path(cfg_file).copy(self._get_etc_dir())
+        ice_config = path(self._get_templates_dir() / "ice.config")
+        ice_config.copy(self._get_etc_dir())
         default_xml = path(self._get_templates_dir() / "grid" / "default.xml")
         default_xml.copy(self._get_grid_dir())
 
