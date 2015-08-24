@@ -129,12 +129,12 @@ public class ROIAnalyser
      * @param channels Collection of selected channels.
      * @return A map whose keys are the {@link ROIShape} objects specified
      *         and whose values are a map (keys: channel index, value
-     *         the corresponding {@link ROIShapeStats} objects computed by
+     *         the corresponding {@link AbstractROIShapeStats} objects computed by
      *         this method).
      * @throws DataSourceException  If an error occurs while retrieving plane
      *                              data from the pixels source.
      */
-    public Map<ROIShape, Map<Integer, ROIShapeStats>> analyze(
+    public Map<ROIShape, Map<Integer, AbstractROIShapeStats>> analyze(
             SecurityContext ctx, ROIShape[] shapes,
             Collection<Integer> channels)
     throws DataSourceException
@@ -144,10 +144,10 @@ public class ROIAnalyser
             throw new IllegalArgumentException("No shapes defined.");
         if (CollectionUtils.isEmpty(channels))
             throw new IllegalArgumentException("No channels defined.");
-        Map<ROIShape, Map<Integer, ROIShapeStats>>
-        r = new HashMap<ROIShape, Map<Integer, ROIShapeStats>>();
-        ROIShapeStats computer;
-        Map<Integer, ROIShapeStats> stats;
+        Map<ROIShape, Map<Integer, AbstractROIShapeStats>>
+        r = new HashMap<ROIShape, Map<Integer, AbstractROIShapeStats>>();
+        AbstractROIShapeStats computer;
+        Map<Integer, AbstractROIShapeStats> stats;
         Iterator<Integer> j;
         int n = channels.size();
         Integer w;
@@ -157,7 +157,7 @@ public class ROIAnalyser
             shape = shapes[i];
             close = i == shapes.length-1;
             if (checkPlane(shape.getZ(), shape.getT())) {
-                stats = new HashMap<Integer, ROIShapeStats>(n);
+                stats = new HashMap<Integer, AbstractROIShapeStats>(n);
                 j = channels.iterator();
                 List<Point> points = shape.getFigure().getPoints();
                 int count = 0;
@@ -165,7 +165,7 @@ public class ROIAnalyser
                 while (j.hasNext()) {
                     w = j.next();
                     if (checkChannel(w.intValue())) {
-                        computer =  new ROIShapeStats();
+                        computer =  new ROIShapeStatsSimple();
                         runner.register(computer);
                         if (close) {
                             last = count == channels.size()-1;
