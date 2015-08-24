@@ -1669,12 +1669,9 @@ class GraphControl(CmdControl):
             help=("Pass multiple objects to commands strictly in the order "
                   "given, otherwise group into as few commands as possible."))
         parser.add_argument(
-            "--list", action="store_true",
-            help="Print a list of all available graph specs")
+            "--list", action="store_true", help=SUPPRESS)
         parser.add_argument(
-            "--list-details", action="store_true",
-            help="Print a list of all available graph specs along with "
-            "detailed info")
+            "--list-details", action="store_true", help=SUPPRESS)
         parser.add_argument(
             "--report", action="store_true",
             help="Print more detailed report of each action")
