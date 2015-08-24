@@ -22,12 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.rnd.data;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Describes a region.
  *
@@ -36,9 +30,6 @@ package org.openmicroscopy.shoola.env.rnd.data;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class Region
@@ -58,11 +49,9 @@ public class Region
 	
 	/**
 	 * Creates a new instance.
-	 * 
-	 * @param xLocation The x-coordinate of the top-left corner of the region.
-	 * @param yLocation The y-coordinate of the top-left corner of the region.
-	 * @param width		The width of the region.
-	 * @param height	The height of the region.
+	 *
+	 * @param width The width of the region.
+	 * @param height The height of the region.
 	 */
 	public Region(int width, int height)
 	{
@@ -123,7 +112,6 @@ public class Region
 	
 	/**
 	 * Overridden to return the dimension of the region and location.
-	 * @see {@link #toString()}
 	 */
 	public String toString()
 	{

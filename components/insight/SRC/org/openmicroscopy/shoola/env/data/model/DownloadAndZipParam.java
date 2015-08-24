@@ -24,14 +24,10 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 
-//Java imports
 import java.io.File;
 import java.util.List;
 import javax.swing.Icon;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.FileAnnotationData;
 
 /** 
@@ -42,9 +38,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DownloadAndZipParam 
@@ -65,9 +58,8 @@ public class DownloadAndZipParam
      * @param files  The files to download.
      * @param folder The folder where 
      * @param icon   The associated icon.
-     * @param zipFolderName t
      */
-    public DownloadAndZipParam(List<FileAnnotationData> files, File folder, 
+    public DownloadAndZipParam(List<FileAnnotationData> files, File folder,
     		Icon icon)
     {
     	if (files == null || files.size() == 0)

@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.util.browser;
 
 
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,11 +35,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -67,23 +62,22 @@ import pojos.WellData;
 
 /**
  * This class contains a collection of utility static methods that transform
- * an hierarchy of {@link DataObject}s into a visualisation tree.
+ * an hierarchy of {@link DataObject}s into a visualization tree.
  * The tree is then displayed in the TreeViewer. For example,
  * A list of Projects-Datasets is passed to the
- * {@link #transformHierarchy(Set, long, long)} method and transforms into a set
+ * {@link #transformHierarchy(Collection)} method and transforms into a set
  * of TreeImageSet-TreeImageSet.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
-
  * @since OME2.2
  */
 public class TreeViewerTranslator
 {
 
     /**
-     * Transforms a {@link DatasetData} into a visualisation object i.e.
+     * Transforms a {@link DatasetData} into a visualization object i.e.
      * a {@link TreeCheckNode}.
      *
      * @param data The {@link DatasetData} to transform.
@@ -380,8 +374,7 @@ public class TreeViewerTranslator
 
     /**
      * Transforms a set of {@link DataObject}s into their corresponding 
-     * visualization objects. The elements of the set can either be
-     * {@link ProjectData}, {@link CategoryGroupData} or {@link ImageData}.
+     * visualization objects.
      *
      * @param dataObjects The collection of {@link DataObject}s to transform.
      * @return A set of visualization objects.

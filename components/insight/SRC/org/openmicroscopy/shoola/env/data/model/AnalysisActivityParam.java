@@ -22,13 +22,7 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import javax.swing.Icon;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Parameters required to analyze images.
@@ -38,9 +32,6 @@ import javax.swing.Icon;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class AnalysisActivityParam
@@ -56,9 +47,7 @@ public class AnalysisActivityParam
      * Creates a new instance.
      * 
      * @param param The parameters used to create the movie.
-     * @param ids	The selected objects.
-     * @param objectType The type of objects to handle.
-     * @param type	The type of figure.
+     * @param icon The icon to use to identify action.
      */
     public AnalysisActivityParam(Object param, Icon icon)
     {
@@ -81,5 +70,5 @@ public class AnalysisActivityParam
 	 * @return See above.
 	 */
 	public Object getParameters() { return param; }
-    
+
 }

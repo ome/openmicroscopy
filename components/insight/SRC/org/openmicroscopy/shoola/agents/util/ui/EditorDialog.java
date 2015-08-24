@@ -78,9 +78,6 @@ import pojos.XMLAnnotationData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class EditorDialog
@@ -618,8 +615,6 @@ public class EditorDialog
      * 
      * @param owner The owner of the frame.
      * @param data The type of object to create.
-     * @param withParent Sets to <code>true</code> if the object will
-     * have a parent, <code>false</code> otherwise.
      * @param type The type of the dialog.
      */
     public EditorDialog(JFrame owner, String data, int type)

@@ -466,7 +466,7 @@ public class FileObject
     /**
      * Returns the index of the image if it is an image plus.
      *
-     * @return
+     * @return See above.
      */
     public int getIndex()
     {

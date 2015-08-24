@@ -312,7 +312,7 @@ public class ScriptObject
      * Returns <code>true</code> if it is an official script,
      * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean isOfficialScript() { return official; }
 

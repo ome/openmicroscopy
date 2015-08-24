@@ -23,13 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import omero.gateway.SecurityContext;
@@ -46,9 +39,6 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ImageLoader
@@ -78,9 +68,10 @@ public class ImageLoader
      * 
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render. 
-     * @param largeImae Pass <code>true</code> to render a large image,
+     * @param largeImage Pass <code>true</code> to render a large image,
 	 *                  <code>false</code> otherwise.
 	 * @param compression The compression level.
      */

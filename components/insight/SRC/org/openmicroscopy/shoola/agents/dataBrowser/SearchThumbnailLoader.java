@@ -67,7 +67,7 @@ public class SearchThumbnailLoader extends DataBrowserLoader {
      *            <code>null</code>.
      * @param ctx
      *            The security context.
-     * @param objects
+     * @param imgs
      *            The <code>DataObject</code>s associated to the images to
      *            fetch. Mustn't be <code>null</code>.
      * @param model

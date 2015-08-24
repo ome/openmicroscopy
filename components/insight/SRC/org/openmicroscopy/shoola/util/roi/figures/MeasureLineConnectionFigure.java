@@ -242,7 +242,7 @@ public class MeasureLineConnectionFigure
 		
 	/**
 	 * Overridden to stop updating shape if read-only.
-	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 * @see AbstractAttributedFigure#setBounds(Point2D.Double, Point2D.Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
@@ -535,7 +535,7 @@ public class MeasureLineConnectionFigure
 	/**
 	 * Returns the number of points in the line. 
 	 * 
-	 * @result See above.
+	 * @return See above.
 	 */
 	public int getPointCount() { return getNodeCount(); }
 	
@@ -549,7 +549,7 @@ public class MeasureLineConnectionFigure
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#setStatus(boolean)
+	 * @see ROIFigure#setStatus(int)
 	 */
 	public void setStatus(int status) { this.status = status; }
 	
