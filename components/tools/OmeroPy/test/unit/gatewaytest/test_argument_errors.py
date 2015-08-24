@@ -31,7 +31,11 @@ import pytest
 class TestArgumentErrors(object):
 
     @classmethod
-    def setup_class(cls):
+    @pytest.fixture(autouse=True)
+    def setup_class(cls, tmpdir, monkeypatch):
+        ice_config = tmpdir / "ice.config"
+        ice_config.write("omero.host=localhost\nomero.port=4064")
+        monkeypatch.setenv("ICE_CONFIG", ice_config)
         cls.g = _BlitzGateway()
 
     def test_graphspec_with_plus(self):
