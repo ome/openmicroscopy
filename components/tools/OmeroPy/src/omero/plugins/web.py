@@ -282,6 +282,9 @@ class WebControl(BaseControl):
                       "nginx-wsgi", "nginx-wsgi-development",
                       "apache-wsgi"):
             d["HTTPPORT"] = port
+
+        if server in ("nginx", "nginx-development",
+                      "nginx-wsgi", "nginx-wsgi-development"):
             d["MAX_BODY_SIZE"] = args.max_body_size
 
         # FORCE_SCRIPT_NAME always has a starting /, and will not have a

@@ -341,32 +341,47 @@ class TestWeb(object):
         assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('server_type', [
-        "nginx", "nginx-wsgi", "nginx-development",
-        "apache", "apache-fcgi", "apache-wsgi"])
+        ["nginx", 'fastcgi-tcp'],
+        ["nginx-wsgi", 'wsgi-tcp'],
+        ["nginx-development", 'fastcgi-tcp'],
+        ["nginx-wsgi-development", 'wsgi-tcp'],
+        ["apache", 'fastcgi-tcp'],
+        ["apache-fcgi", 'fastcgi-tcp'],
+        ["apache-wsgi", 'wsgi']])
     def testFullTemplateDefaults(self, server_type, capsys, monkeypatch):
-        self.args += ["config", server_type]
+        app_server = server_type[-1]
+        del server_type[-1]
+        self.add_application_server(app_server, monkeypatch)
+        self.args += ["config"] + server_type
         self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
 
         o, e = capsys.readouterr()
         # to be removed in 5.2
-        assert e.split(os.linesep)[0].startswith(
-            "WARNING: FastCGI support is deprecated")
+        if "wsgi" not in app_server:
+            assert e.split(os.linesep)[0].startswith(
+                "WARNING: FastCGI support is deprecated")
         o = self.normalise_generated(o)
-        d = self.compare_with_reference(server_type + '.conf', o)
+        d = self.compare_with_reference(server_type[0] + '.conf', o)
         assert not d, 'Files are different:\n' + d
 
     @pytest.mark.parametrize('server_type', [
-        ['nginx', '--http', '1234', '--max-body-size', '2m'],
-        ['nginx-development', '--http', '1234', '--max-body-size', '2m'],
-        ['nginx-wsgi', '--http', '1234', '--max-body-size', '2m'],
-        ['apache'],
-        ['apache-wsgi', '--http', '1234'],
-        ['apache-fcgi']])
+        ['nginx', '--http', '1234', '--max-body-size', '2m', 'fastcgi-tcp'],
+        ['nginx-development', '--http', '1234', '--max-body-size', '2m',
+         'fastcgi-tcp'],
+        ['nginx-wsgi', '--http', '1234', '--max-body-size', '2m', 'wsgi-tcp'],
+        ['nginx-wsgi-development', '--http', '1234', '--max-body-size', '2m',
+         'wsgi-tcp'],
+        ['apache', 'fastcgi-tcp'],
+        ['apache-wsgi', '--http', '1234', 'wsgi'],
+        ['apache-fcgi', 'fastcgi-tcp']])
     def testFullTemplateWithOptions(self, server_type, capsys, monkeypatch):
         prefix = '/test'
         cgihost = '0.0.0.0'
         cgiport = '12345'
+        app_server = server_type[-1]
+        del server_type[-1]
+        self.add_application_server(app_server, monkeypatch)
         self.add_prefix(prefix, monkeypatch)
         self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
 
@@ -376,8 +391,9 @@ class TestWeb(object):
 
         o, e = capsys.readouterr()
         # to be removed in 5.2
-        assert e.split(os.linesep)[0].startswith(
-            "WARNING: FastCGI support is deprecated")
+        if "wsgi" not in app_server:
+            assert e.split(os.linesep)[0].startswith(
+                "WARNING: FastCGI support is deprecated")
         o = self.normalise_generated(o)
         d = self.compare_with_reference(
             server_type[0] + '-withoptions.conf', o)
