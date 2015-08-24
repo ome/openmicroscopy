@@ -1535,6 +1535,16 @@ class _BlitzGateway (object):
         return (self.getConfigService().getConfigValue(
                 "omero.client.viewer.initial_zoom_level") or 0)
 
+    def getInterpolateSetting(self):
+        """
+        Returns default interpolation setting on the server.
+        This is a string but represents a boolean, E.g. 'true'
+
+        :return:    String
+        """
+        return (self.getConfigService().getConfigValue(
+                "omero.client.interpolate_pixels") or 'true')
+
     def getWebclientHost(self):
         """
         Returns default initial zoom level set on the server.
