@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -98,18 +98,35 @@ public class ImagePaintingFactory
     */
     
     /**
-     * Sets the value of the for the rendering algorithms.
+     * Sets the value of the for the rendering algorithms (interpolation 
+     * enabled by default)
      * 
      * @param g2D The graphics context.
      */
     public static void setGraphicRenderingSettings(Graphics2D g2D)
     {
-        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        setGraphicRenderingSettings(g2D, true);
+    }
+    
+    /**
+     * Sets the value of the for the rendering algorithms.
+     * 
+     * @param g2D The graphics context.
+     * @param interpolate Pass <code>false</code> to disable interpolation
+     */
+    public static void setGraphicRenderingSettings(Graphics2D g2D, boolean interpolate)
+    {
         g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
                 RenderingHints.VALUE_RENDER_QUALITY);
-        g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        if (interpolate) {
+            g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        } else {
+            g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_OFF);
+        }
     }
     
     /**
