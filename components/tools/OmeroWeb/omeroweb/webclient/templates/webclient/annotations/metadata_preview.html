@@ -168,6 +168,11 @@
                       base_src = $this.attr('src').split('&_=')[0];
                   $this.attr('src', base_src + "&_=random"+Math.random());
               });
+
+              // Turn off interpolation if disabled
+              {% if not interpolate %}
+                OME.preview_viewport.setPixelated(true);
+              {% endif %}
             });
 
             // handle 'Color' checkbox
