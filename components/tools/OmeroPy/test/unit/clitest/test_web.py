@@ -61,6 +61,12 @@ class TestWeb(object):
                             raising=False)
         return static_prefix
 
+    def add_application_server(self, app_server, monkeypatch):
+        if app_server:
+            monkeypatch.setattr(settings, 'APPLICATION_SERVER', app_server,
+                                raising=False)
+        return app_server
+
     def add_fastcgi_hostport(self, host, port, monkeypatch):
         if host:
             monkeypatch.setattr(settings, 'APPLICATION_SERVER_HOST', host,
@@ -167,11 +173,14 @@ class TestWeb(object):
         "nginx-wsgi", "nginx-wsgi-development"])
     @pytest.mark.parametrize('http', [False, 8081])
     @pytest.mark.parametrize('prefix', [None, '/test'])
+    @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
     @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
     @pytest.mark.parametrize('cgiport', [None, '12345'])
-    def testNginxGunicornConfig(self, server_type, http, prefix, cgihost,
-                                cgiport, max_body_size, capsys, monkeypatch):
+    def testNginxGunicornConfig(self, server_type, http, prefix, app_server,
+                                cgihost, cgiport, max_body_size, capsys,
+                                monkeypatch):
 
+        self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
         expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
 
@@ -281,10 +290,14 @@ class TestWeb(object):
         assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
+    @pytest.mark.parametrize('app_server', ['wsgi'])
     @pytest.mark.parametrize('http', [False, 8081])
-    def testApacheWSGIConfig(self, prefix, http, capsys, monkeypatch):
+    def testApacheWSGIConfig(self, prefix, app_server, http, capsys,
+                             monkeypatch):
 
+        self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
+
         try:
             import pwd
             username = pwd.getpwuid(os.getuid()).pw_name
