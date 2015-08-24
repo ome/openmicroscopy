@@ -17,7 +17,6 @@ import re
 import json
 import omero
 import omero.clients
-from omero.gateway.utils import toBoolean
 
 from django.http import HttpResponse, HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
@@ -1907,8 +1906,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
 
     rid = getImgDetailsFromReq(request)
 
-    interpolate = toBoolean(conn.getConfigService().getConfigValue(
-        "omero.client.interpolate_pixels"))
+    interpolate = request.session['server_settings']['interpolate_pixels']
 
     try:
         image = conn.getObject("Image", iid)
