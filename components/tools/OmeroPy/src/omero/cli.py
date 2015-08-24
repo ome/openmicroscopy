@@ -38,6 +38,7 @@ from threading import Lock
 from path import path
 
 from omero_ext.argparse import ArgumentError
+from omero_ext.argparse import ArgumentTypeError
 from omero_ext.argparse import ArgumentParser
 from omero_ext.argparse import FileType
 from omero_ext.argparse import Namespace
@@ -305,7 +306,7 @@ class NewFileType(FileType):
     """
     def __call__(self, s):
         if s != "-" and os.path.exists(s):
-            raise ValueError("File exists: %s" % s)
+            raise ArgumentTypeError("File exists: %s" % s)
         return FileType.__call__(self, s)
 
 
@@ -316,7 +317,7 @@ class ExistingFile(FileType):
     """
     def __call__(self, s):
         if s != "-" and not os.path.exists(s):
-            raise ValueError("File does not exist: %s" % s)
+            raise ArgumentTypeError("File does not exist: %s" % s)
         if s != "-":
             return FileType.__call__(self, s)
         else:
@@ -331,9 +332,9 @@ class DirectoryType(FileType):
     def __call__(self, s):
         p = path(s)
         if not p.exists():
-            raise ValueError("Directory does not exist: %s" % s)
+            raise ArgumentTypeError("Directory does not exist: %s" % s)
         elif not p.isdir():
-            raise ValueError("Path is not a directory: %s" % s)
+            raise ArgumentTypeError("Path is not a directory: %s" % s)
         return str(p.abspath())
 
 
