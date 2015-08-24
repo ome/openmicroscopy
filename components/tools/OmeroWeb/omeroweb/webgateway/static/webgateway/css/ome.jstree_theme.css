@@ -207,6 +207,12 @@
   border: 0;
   box-shadow: 0 0 0;
 }
+
+/* We want the icons to appear disabled too */
+.vakata-context .vakata-contextmenu-disabled i {
+  opacity: 0.5;
+}
+
 .vakata-context li > a > i {
   text-decoration: none;
   display: inline-block;
