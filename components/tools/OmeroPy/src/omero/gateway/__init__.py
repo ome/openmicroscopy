@@ -1543,7 +1543,7 @@ class _BlitzGateway (object):
         :return:    String
         """
         return (self.getConfigService().getConfigValue(
-                "omero.client.interpolate_pixels") or 'true')
+                "omero.client.viewer.interpolate_pixels") or 'true')
 
     def getWebclientHost(self):
         """
