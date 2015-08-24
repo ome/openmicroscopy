@@ -22,6 +22,8 @@ import omero.RLong;
 import omero.RString;
 import omero.cmd.Delete2;
 import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLink;
+import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Channel;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -34,14 +36,15 @@ import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import omero.model.Roi;
+import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
-
-import static org.testng.AssertJUnit.*;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Tests for deleting user ratings.
@@ -257,4 +260,60 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         annotateSaveDeleteAndCheck(roi, Roi.class.getSimpleName(), roi.getId());
     }
 
+    /**
+     * Test deletion of tag sets with variously linked tags.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testDeleteTargetSharedTag() throws Exception {
+        /* create two tag sets */
+        final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= 2; i++) {
+            final TagAnnotation tagset = new TagAnnotationI();
+            tagset.setName(rstring("tagset #" + i));
+            tagset.setNs(rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
+            tagsets.add((TagAnnotation) iUpdate.saveAndReturnObject(tagset).proxy());
+        }
+
+        /* create three tags */
+        final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= 3; i++) {
+            final TagAnnotation tag = new TagAnnotationI();
+            tag.setName(rstring("tag #" + i));
+            tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
+        }
+
+        /* define how to link the tag sets to the tags */
+        final SetMultimap<TagAnnotation, TagAnnotation> members = HashMultimap.create();
+        members.put(tagsets.get(0), tags.get(0));
+        members.put(tagsets.get(0), tags.get(1));
+        members.put(tagsets.get(1), tags.get(1));
+        members.put(tagsets.get(1), tags.get(2));
+
+        /* perform the linking */
+        for (final Map.Entry<TagAnnotation, TagAnnotation> toLink : members.entries()) {
+            final AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
+            link.setParent(toLink.getKey());
+            link.setChild(toLink.getValue());
+            iUpdate.saveObject(link);
+        }
+
+        /* delete the first tag set */
+        final Delete2 delete = new Delete2();
+        delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tagsets.get(0).getId().getValue()));
+
+        /* check that the tag set is deleted and only the tags that are thus orphaned */
+        assertDoesNotExist(tagsets.get(0));
+        assertExists(tagsets.get(1));
+        assertDoesNotExist(tags.get(0));
+        assertExists(tags.get(1));
+        assertExists(tags.get(2));
+
+        /* delete the second tag set */
+        delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tagsets.get(1).getId().getValue()));
+
+        /* check that the tag set and the remaining tags are deleted */
+        assertNoneExist(tagsets);
+        assertNoneExist(tags);
+    }
 }
