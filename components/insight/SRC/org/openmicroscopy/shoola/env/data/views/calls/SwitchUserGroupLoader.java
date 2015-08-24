@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import org.openmicroscopy.shoola.env.Agent;
-import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.ExperimenterData;
@@ -102,7 +100,6 @@ extends BatchCallTree
         if (experimenter == null)
             throw new IllegalArgumentException();
         this.experimenter = experimenter;
-        this.groupID = groupID;
     }
 
 }

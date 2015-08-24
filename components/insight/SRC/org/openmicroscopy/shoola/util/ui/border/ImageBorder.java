@@ -22,7 +22,6 @@
 
 package org.openmicroscopy.shoola.util.ui.border;
 
-// Java Imports
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -34,9 +33,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /**
@@ -53,9 +49,6 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ImageBorder 
@@ -160,7 +153,6 @@ public class ImageBorder
      * Unless the insets have been manually set using {@link #setInsets(Insets)}
      * 
      * @see See above.
-     * @see Border#getBorderInsets(Component)
      */
     public Insets getBorderInsets(Component c) 
     {

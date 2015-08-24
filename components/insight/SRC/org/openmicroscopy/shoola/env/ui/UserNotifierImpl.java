@@ -263,7 +263,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	/**
 	 * Implemented as specified by {@link UserNotifier}.
 	 * 
-	 * @see UserNotifier#notifyError(String, String, String, List)
+	 * @see UserNotifier#notifyError(String, String, String, List, PropertyChangeListener)
 	 */
 	public void notifyError(String title, String summary, String email,
 			List<ImportErrorObject> toSubmit, PropertyChangeListener listener) {
@@ -471,7 +471,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	/**
 	 * Implemented as specified by {@link UserNotifier}.
 	 * 
-	 * @see UserNotifier#openApplication(Object)
+	 * @see UserNotifier#openApplication(Object, String)
 	 */
 	public void openApplication(ApplicationData data, String path) {
 

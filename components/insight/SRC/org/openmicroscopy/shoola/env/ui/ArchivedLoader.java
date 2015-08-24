@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-
-//Java imports
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -86,7 +84,6 @@ public class ArchivedLoader
      * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
      * @param images The images to export.
-     * @param name The name of the saved image.
      * @param file The location where to download the image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.

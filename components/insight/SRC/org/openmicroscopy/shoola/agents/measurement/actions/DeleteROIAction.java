@@ -22,15 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -44,12 +39,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-public class DeleteROIAction 
+public class DeleteROIAction
 	extends MeasurementViewerAction
 {
 
@@ -89,7 +81,6 @@ public class DeleteROIAction
 	
 	/** 
      * Deletes all ROI owned by the user currently logged in.
-     * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     { 
