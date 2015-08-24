@@ -96,7 +96,7 @@ public class FilesetInfoDialog extends TinyDialog {
             if (Fileset.class.isAssignableFrom(fsd.asIObject().getClass())) {
                 size = ((Fileset)fsd.asIObject()).sizeOfUsedFiles();
             }
-            String txt = size == 1 ? "Image file" : "Image files";
+            String txt = size <= 1 ? "Image file" : "Image files";
             JLabel l = new JLabel(size + " " + txt);
             l.setBackground(UIUtilities.BACKGROUND_COLOR);
             content.add(l, c);
