@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 //Java imports
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,7 +32,9 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.roi.AbstractROIShapeStats;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -70,7 +73,7 @@ public class AnalysisStatsWrapper
 	public static Map<StatsType, Map> convertStats(Map shapeStats)
 	{
 		if (shapeStats == null || shapeStats.size() == 0) return null;
-		ROIShapeStats stats;
+		AbstractROIShapeStats stats;
 		Map<Integer, Double> channelMin = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelSum = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelMax = new TreeMap<Integer, Double>();
@@ -84,7 +87,7 @@ public class AnalysisStatsWrapper
 		while (channelIterator.hasNext())
 		{
 			channel = (Integer) channelIterator.next();
-			stats = (ROIShapeStats) shapeStats.get(channel);
+			stats = (AbstractROIShapeStats) shapeStats.get(channel);
 			channelSum.put(channel, stats.getSum());
 			channelMin.put(channel, stats.getMin());
 			channelMax.put(channel, stats.getMax());
@@ -92,7 +95,20 @@ public class AnalysisStatsWrapper
 					stats.getMean()));
 			channelStdDev.put(channel, UIUtilities.roundTwoDecimals(
 					stats.getStandardDeviation()));
-			pixels = stats.getPixelsValue();
+			
+            if (stats instanceof ROIShapeStatsSimple)
+                pixels = ((ROIShapeStatsSimple) stats).getPixelsValue();
+            else {
+                Map<Point, Double> pixelsMap = ((ROIShapeStats) stats)
+                        .getPixelsValue();
+                Iterator<Double> pixelIterator = pixelsMap.values().iterator();
+                pixels = new double[pixelsMap.size()];
+                int cnt = 0;
+                while (pixelIterator.hasNext()) {
+                    pixels[cnt] = pixelIterator.next();
+                    cnt++;
+                }
+            }
 			
 			channelData.put(channel, pixels);
 		}
