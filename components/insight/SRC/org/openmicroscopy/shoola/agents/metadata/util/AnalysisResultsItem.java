@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.util;
 
-
-//Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -49,11 +47,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-//Third-party libraries
-
 import org.jdesktop.swingx.JXBusyLabel;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
@@ -72,9 +67,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class AnalysisResultsItem 
@@ -447,7 +439,7 @@ public class AnalysisResultsItem
 	
 	/**
 	 * Overridden to return the text associated to this component.
-	 * @see {@link JMenuItem#toString()}
+	 * @see JMenuItem#toString()
 	 */
 	public String toString()
 	{

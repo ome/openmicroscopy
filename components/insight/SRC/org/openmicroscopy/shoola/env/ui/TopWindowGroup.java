@@ -39,9 +39,8 @@ import javax.swing.JMenuItem;
  * Links a group of windows to the {@link TaskBar} and manages their display
  * on screen.
  * <p>Rather than adding an entry in the
- * {@link TaskBar#WINDOW_MENU} for each window in the group, the constructor of
- * this class adds a drop-down {@link ToolBarButtonMenu button}
- * (a sub-menu to the {@link TaskBar#WINDOW_MENU}. These menus contain an entry
+ * {@link TaskBar#WINDOW_MENU} for each window in the group}.
+ * These menus contain an entry
  * for each window in the group and are populated/depopulated via the
  * {@link #add(TopWindow, String, Icon) add}/{@link #remove(JFrame) remove}
  * methods.</p>

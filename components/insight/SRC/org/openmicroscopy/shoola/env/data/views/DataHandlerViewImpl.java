@@ -81,11 +81,11 @@ public class DataHandlerViewImpl
 	 
 	 /**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#pasteRndSettings(SecurityContext, Class, List, RndProxyDef, ImageData
-	 * 										AgentEventListener)
+	 * @see DataHandlerView#pasteRndSettings(SecurityContext, Class, List, RndProxyDef, ImageData, AgentEventListener)
 	 */
         public CallHandle pasteRndSettings(SecurityContext ctx,
-                        Class rootNodeType, List<Long> ids, RndProxyDef def, ImageData refImage, AgentEventListener observer)
+                        Class rootNodeType, List<Long> ids, RndProxyDef def,
+                        ImageData refImage, AgentEventListener observer)
         {
                 BatchCallTree cmd = new RenderingSettingsSaver(ctx, rootNodeType, ids, def, refImage);
                 return cmd.exec(observer);

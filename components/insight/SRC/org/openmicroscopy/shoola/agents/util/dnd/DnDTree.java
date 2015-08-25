@@ -587,14 +587,14 @@ public class DnDTree
 	/**
 	 * Implemented as specified by {@link DropTargetListener} I/F but
 	 * no-operation in our case.
-	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
+	 * {@link DropTargetListener#dropActionChanged(DropTargetDragEvent)}
 	 */
 	public void dropActionChanged(DropTargetDragEvent dtde) {}
 	
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
 	 * no-operation in our case.
-	 * {@link DragSourceListener#dragDropEnd(DragSourceDragEvent)}
+	 * {@link DragSourceListener#dragDropEnd(DragSourceDropEvent)}
 	 */
 	public void dragDropEnd(DragSourceDropEvent dsde)
 	{
@@ -618,7 +618,7 @@ public class DnDTree
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
 	 * no-operation in our case.
-	 * {@link DragSourceListener#dragExit(DropTargetEvent)}
+	 * {@link DragSourceListener#dragExit(DragSourceEvent)}
 	 */
 	public void dragExit(DragSourceEvent dse)
 	{

@@ -308,10 +308,10 @@ public class MeasureLineFigure
 	}
 		
 	/**
-	 * Overridden to stop updating shape if readonly.
-	 * @see AbstractAttributedFigure#setBounds(Point2D.Double, (Point2D.Double)
+	 * Overridden to stop updating shape if read-only.
+	 * @see AbstractAttributedFigure#setBounds(Point2D.Double, Point2D.Double)
 	 */
-	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
 	{
 		if (!readOnly && interactable)
 		{
