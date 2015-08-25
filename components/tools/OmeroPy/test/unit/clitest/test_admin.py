@@ -232,7 +232,10 @@ class TestAdminJvmCfg(object):
     @pytest.mark.parametrize('registry', [None, 111])
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
-    def testExplicitPorts(self, registry, ssl, tcp, prefix):
+    def testExplicitPorts(self, registry, ssl, tcp, prefix, monkeypatch):
+
+        monkeypatch.setattr(omero.install.jvmcfg, "adjust_settings",
+                            lambda x, y: {})
         kwargs = {}
         if prefix:
             kwargs["prefix"] = prefix
