@@ -105,9 +105,8 @@ public class ChildOptionsPolicy {
 
             @Override
             protected boolean isAdjustedBeforeReview(Details object) {
-                if (object.action == GraphPolicy.Action.EXCLUDE &&
-                        object.orphan != GraphPolicy.Orphan.IS_LAST && object.orphan != GraphPolicy.Orphan.IS_NOT_LAST) {
-                    /* the model object is [E]{ir} */
+                if (object.action == GraphPolicy.Action.EXCLUDE && object.orphan == GraphPolicy.Orphan.RELEVANT) {
+                    /* the model object is [E]{r} */
                     for (final ChildOptionI childOption : childOptions) {
                         final Boolean isIncludeVerdict = childOption.isIncludeType(object.subject.getClass());
                         if (isIncludeVerdict == Boolean.TRUE && (requiredPermissions == null ||
