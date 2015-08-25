@@ -37,6 +37,8 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.HashMultimap;
@@ -248,12 +250,16 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         annotateSaveDeleteAndCheck(roi, Roi.class.getSimpleName(), roi.getId());
     }
 
+    /* child options to try using in deletion */
+    private enum Option { INCLUDE, EXCLUDE, NONE };
+
     /**
      * Test deletion of tag sets with variously linked tags.
+     * @param option the child option to use in the deletion
      * @throws Exception unexpected
      */
-    @Test
-    public void testDeleteTargetSharedTag() throws Exception {
+    @Test(dataProvider = "child option")
+    public void testDeleteTargetSharedTag(Option option) throws Exception {
         /* create two tag sets */
         final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= 2; i++) {
@@ -287,14 +293,48 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         }
 
         /* delete the first tag set */
-        doChange(Requests.delete("Annotation", tagsets.get(0).getId().getValue()));
+        final Delete2 request;
+        final Long tagset0Id = tagsets.get(0).getId().getValue();
+        switch (option) {
+        case INCLUDE:
+            request = Requests.delete("Annotation", tagset0Id, Requests.option("Annotation", null));
+            break;
+        case EXCLUDE:
+            request = Requests.delete("Annotation", tagset0Id, Requests.option(null, "Annotation"));
+            break;
+        case NONE:
+            request = Requests.delete("Annotation", tagset0Id);
+            break;
+        default:
+            request = null;
+            Assert.fail("unexpected option for delete");
+        }
+        doChange(request);
 
-        /* check that the tag set is deleted and only the tags that are thus orphaned */
+        /* check that the tag set is deleted and the other remains */
         assertDoesNotExist(tagsets.get(0));
         assertExists(tagsets.get(1));
-        assertDoesNotExist(tags.get(0));
-        assertExists(tags.get(1));
-        assertExists(tags.get(2));
+
+        /* check that only the expected tags are deleted */
+        switch (option) {
+        case INCLUDE:
+            assertDoesNotExist(tags.get(0));
+            assertDoesNotExist(tags.get(1));
+            assertExists(tags.get(2));
+            break;
+        case EXCLUDE:
+            assertExists(tags.get(0));
+            assertExists(tags.get(1));
+            assertExists(tags.get(2));
+            /* delete the tag that is not in the second tag set */
+            doChange(Requests.delete("Annotation", tags.get(0).getId().getValue()));
+            break;
+        case NONE:
+            assertDoesNotExist(tags.get(0));
+            assertExists(tags.get(1));
+            assertExists(tags.get(2));
+            break;
+        }
 
         /* delete the second tag set */
         doChange(Requests.delete("Annotation", tagsets.get(1).getId().getValue()));
@@ -302,5 +342,19 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         /* check that the tag set and the remaining tags are deleted */
         assertNoneExist(tagsets);
         assertNoneExist(tags);
+    }
+
+    /**
+     * @return the child options to try using in deletion
+     */
+    @DataProvider(name = "child option")
+    public Object[][] provideChildOption() {
+        final Option[] values = Option.values();
+        final Object[][] testCases = new Object[values.length][1];
+        int index = 0;
+        for (final Option value : values) {
+            testCases[index++][0] = value;
+        }
+        return testCases;
     }
 }
