@@ -38,7 +38,6 @@ from omero.plugins.prefs import \
 from omero_ext import portalocker
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType
-from omero_ext.argparse import SUPPRESS
 from omero_version import ice_compatibility
 
 try:
