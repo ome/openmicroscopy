@@ -194,6 +194,7 @@ def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, **kwargs):
 
 
 class TestAdminJvmCfg(object):
+    """Test template files regeneration"""
 
     @pytest.fixture(autouse=True)
     def setup_method(self, tmpadmindir):
@@ -226,18 +227,6 @@ class TestAdminJvmCfg(object):
             "templates.xml")
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
-
-
-class TestConfigPorts(object):
-
-    @pytest.fixture(autouse=True)
-    def setup_method(self, tmpadmindir):
-        # Other setup
-        self.cli = CLI()
-        self.cli.dir = tmpadmindir
-        self.cli.register("admin", AdminControl, "TEST")
-        self.cli.register("config", PrefsControl, "TEST")
-        self.args = ["admin", "regenerate"]
 
     @pytest.mark.parametrize('prefix', [None, 1])
     @pytest.mark.parametrize('registry', [None, 111])
