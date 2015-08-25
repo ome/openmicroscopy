@@ -1697,6 +1697,11 @@ OMERO Diagnostics %s
 
     @with_rw_config
     def ports(self, args, config):
+        self.ctx.err(
+            "WARNING: the admin ports subcommand is deprecated. Changes will"
+            " be overwritten the next time the configuration files are"
+            " regenerated. Use the omero.ports.xxx configuration properties"
+            " instead.")
         self.check_access()
         from omero.install.change_ports import change_ports
         webserverkey = 'omero.web.application_server.port'
