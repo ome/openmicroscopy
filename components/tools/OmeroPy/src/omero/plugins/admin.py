@@ -212,11 +212,7 @@ Examples:
 
         Action(
             "jvmcfg",
-            "Reset JVM settings based on the current system")
-
-        Action(
-            "regenerate",
-            "Regenerate configuration files based on the current properties")
+            "Reset configuration settings based on the current system")
 
         Action(
             "waitup",
@@ -703,7 +699,6 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.regenerate(args, config, verbose=False)
         self.jvmcfg(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
@@ -762,7 +757,6 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
-        self.regenerate(args, config, verbose=False)
         self.jvmcfg(args, config, verbose=False)
         self.check_access()
         self.checkice()
@@ -942,42 +936,6 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @with_config
-    def regenerate(self, args, config, verbose=True):
-
-        # Define substitution dictionary for template files
-        config = config.as_map()
-        substitutions = {
-            '@omero.ports.prefix@': config.get('omero.ports.prefix', ''),
-            '@omero.ports.ssl@': config.get('omero.ports.ssl', '4064'),
-            '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
-            '@omero.ports.registry@': config.get(
-                'omero.ports.registry', '4061'),
-            }
-
-        def copy_template(input_file, output_dir):
-            """Replace templates"""
-
-            with open(input_file) as template:
-                data = template.read()
-            output_file = path(output_dir / os.path.basename(input_file))
-            if output_file.exists():
-                output_file.remove()
-            with open(output_file, 'w') as f:
-                for key, value in substitutions.iteritems():
-                    data = re.sub(key, value, data)
-                f.write(data)
-
-        # Copy templates replacing port valeus
-        for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
-            copy_template(cfg_file, self._get_etc_dir())
-        for xml_file in glob(
-                self._get_templates_dir() / "grid" / "*default.xml"):
-            copy_template(xml_file, self._get_etc_dir() / "grid")
-
-        ice_config = self._get_templates_dir() / "ice.config"
-        copy_template(ice_config, self._get_etc_dir())
-
-    @with_config
     def jvmcfg(self, args, config, verbose=True):
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
@@ -1015,12 +973,44 @@ present, the user will enter a console""")
         config2.XML = None  # Prevent re-saving
         config2.close()
         config.save()
+
+        # Define substitution dictionary for template files
+        config = config.as_map()
+        substitutions = {
+            '@omero.ports.prefix@': config.get('omero.ports.prefix', ''),
+            '@omero.ports.ssl@': config.get('omero.ports.ssl', '4064'),
+            '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
+            '@omero.ports.registry@': config.get(
+                'omero.ports.registry', '4061'),
+            }
+
+        def copy_template(input_file, output_dir):
+            """Replace templates"""
+
+            with open(input_file) as template:
+                data = template.read()
+            output_file = path(output_dir / os.path.basename(input_file))
+            if output_file.exists():
+                output_file.remove()
+            with open(output_file, 'w') as f:
+                for key, value in substitutions.iteritems():
+                    data = re.sub(key, value, data)
+                f.write(data)
+
+        # Regenerate various configuration files from templates
+        for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
+            copy_template(cfg_file, self._get_etc_dir())
+        for xml_file in glob(
+                self._get_templates_dir() / "grid" / "*default.xml"):
+            copy_template(xml_file, self._get_etc_dir() / "grid")
+        ice_config = self._get_templates_dir() / "ice.config"
+        copy_template(ice_config, self._get_etc_dir())
+
         return rv
 
     @with_config
     def diagnostics(self, args, config):
         self.check_access(os.R_OK)
-        self.regenerate(args, config, verbose=False)
         memory = self.jvmcfg(args, config, verbose=False)
         omero_data_dir = self._get_data_dir(config)
 
