@@ -64,6 +64,7 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     /**
      * Returns the plane size
      * @return the plane size
+     * @see "ome.io.nio.PixelBuffer#getPlaneSize()"
      */
     public long getPlaneSize();
 

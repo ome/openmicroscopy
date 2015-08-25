@@ -207,6 +207,8 @@ public class Permissions implements Serializable {
      * returns the order of the bit representing the given {@link Flag}. This
      * is dependent on the internal representation of {@link Permissions} and
      * should only be used when necessary.
+     *
+     * @see "ome.tools.hibernate.SecurityFilter"
      */
     public static int bit(Flag flag) {
         return flag.bit();
@@ -216,6 +218,8 @@ public class Permissions implements Serializable {
      * returns the order of the bit representing the given {@link Role} and
      * {@link Right}. This is dependent on the internal representation of
      * {@link Permissions} and should only be used when necessary.
+     *
+     * @see "ome.tools.hibernate.SecurityFilter"
      */
     public static int bit(Role role, Right right) {
         return right.mask() << role.shift();
