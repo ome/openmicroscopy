@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base {@link FileTransfer} implementation primarily providing the
- * {@link #start(TransferState)} and {@link #finish(TransferState, long)}
+ * {@code start(TransferState)} and {@code finish(TransferState, long)}
  * methods. Also used as the factory for {@link FileTransfer} implementations
  * via {@link #createTransfer(String)}.
  *
@@ -64,7 +64,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * Factory method for instantiating {@link FileTransfer} objects from
      * a string. Supported values can be found in the {@link Transfers} enum.
      * Otherwise, a FQN for a class on the classpath should be passed in.
-     * @param arg non-null
+     * @param arg a type of {@link FileTransfer} instance as named among {@link Transfers}
+     * @return the new {@link FileTransfer} instance of the requested type
      */
     public static FileTransfer createTransfer(String arg) {
         Logger tmp = LoggerFactory.getLogger(AbstractFileTransfer.class);
@@ -90,8 +91,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * {@link TransferState#start()}, and loads the {@link RawFileStorePrx}
      * which any implementation will need.
      *
-     * @param state non-null.
-     * @return
+     * @param state the transfer state
+     * @return a raw file store proxy for the upload
      * @throws ServerError
      */
     protected RawFileStorePrx start(TransferState state) throws ServerError {
@@ -159,7 +160,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
     }
 
     /**
-     * Method used by subclasses during {@link #afterTransfer(int, List<String>)}
+     * Method used by subclasses during {@link ome.formats.importer.transfers.FileTransfer#afterTransfer(int, List)}
      * if they would like to remove all the files transferred in the set.
      */
     protected void deleteTransferredFiles(int errors, List<String> srcFiles)

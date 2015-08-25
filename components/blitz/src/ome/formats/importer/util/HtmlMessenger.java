@@ -152,9 +152,9 @@ public class HtmlMessenger
 	/**
 	 * Instantiate messenger
 	 *
-	 * @param url
+	 * @param url the HTTP POST URL
 	 * @param postList variables list in post
-	 * @throws HtmlMessengerException
+	 * @throws HtmlMessengerException if the POST failed
 	 */
 	public HtmlMessenger(String url, Map<String, String> postList)
 	        throws HtmlMessengerException
@@ -185,9 +185,9 @@ public class HtmlMessenger
 	/**
 	 * Creates a client to communicate.
 	 *
-	 * @param url
-	 * @return
-	 * @throws HtmlMessengerException
+	 * @param url get a HTTP client connection
+	 * @return if the connection is encrypted
+	 * @throws HtmlMessengerException if connection to the URL failed
 	 */
 	public CloseableHttpClient getCommunicationLink(String url)
 	        throws HtmlMessengerException
@@ -202,7 +202,7 @@ public class HtmlMessenger
 	 * This method executes the post created when this class is instantiated
 	 *
 	 * @return server reply
-	 * @throws HtmlMessengerException
+	 * @throws HtmlMessengerException if the HTTP POST failed
 	 */
 	 public String executePost() throws HtmlMessengerException
 	 {

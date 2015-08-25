@@ -29,9 +29,9 @@ import ome.xml.meta.MetadataRoot;
 import omero.model.Pixels;
 
 /**
- * {@link MetadataRoot} implementation for the client side
- * implementation of the Bio-Formats {@link MetadataStore}.  This
- * class merely provides access to the pixels list.
+ * {@link MetadataRoot} implementation for the client-side
+ * implementation of the Bio-Formats {@link loci.formats.meta.MetadataStore}.
+ * This class merely provides access to the pixels list.
  *
  * @author Roger Leigh, rleigh at lifesci.dundee.ac.uk
  */
@@ -43,7 +43,10 @@ public class OMEROMetadataStoreClientRoot extends ArrayList<Pixels> implements M
     super();
   }
 
-  /** Copy constructor. */
+  /**
+   * Copy constructor. 
+   * @param list the list of {@link Pixels} objects for this instance
+   */
   public OMEROMetadataStoreClientRoot(List<Pixels> list)
   {
     super(list);

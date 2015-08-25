@@ -96,7 +96,7 @@ public class OMEXMLModelComparator implements Comparator<LSID>
      * Assigns a value to a particular class based on its location in the
      * OME-XML hierarchy.
      * @param klass Class to assign a value to.
-     * @param indexed Number of class indexes that were present in its LSID.
+     * @param indexes Number of class indexes that were present in its LSID.
      * @return The value.
      */
     public int getValue(Class<? extends IObject> klass, int indexes)

@@ -529,12 +529,12 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Sets the id which will be used by {@link #initializeServices(boolean)}
+     * Sets the id which will be used
      * to set the call context for all services. If null, the call context
      * will be left which will then use the context of the session.
      *
-     * @param groupID
-     * @return
+     * @param groupID the group ID to use for call contexts
+     * @return the previous group ID, may be {@code null}
      */
     public Long setGroup(Long groupID) {
         Long old = this.groupID;
@@ -547,6 +547,7 @@ public class OMEROMetadataStoreClient
      * service factory. When finished with this instance, close stateful
      * services via {@link #closeServices()}.
      * @param serviceFactory The factory. Mustn't be <code>null</code>.
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(ServiceFactoryPrx serviceFactory)
         throws ServerError
@@ -563,6 +564,7 @@ public class OMEROMetadataStoreClient
      * services via {@link #closeServices()}.
      *
      * @param c The client. Mustn't be <code>null</code>.
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(omero.client c)
         throws ServerError
@@ -671,6 +673,9 @@ public class OMEROMetadataStoreClient
      * @param server Server hostname.
      * @param port Server port.
      * @param sessionKey Bind session key.
+     * @throws CannotCreateSessionException if a session could not be created
+     * @throws PermissionDeniedException if the services may not be initialized
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(String server, int port, String sessionKey)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
@@ -687,6 +692,10 @@ public class OMEROMetadataStoreClient
      * @param server Server hostname.
      * @param port Server port.
      * @param sessionKey Bind session key.
+     * @param isSecure if a secure session should be created
+     * @throws CannotCreateSessionException if a session could not be created
+     * @throws PermissionDeniedException if the services may not be initialized
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(String server, int port, String sessionKey, boolean isSecure)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
@@ -807,7 +816,7 @@ public class OMEROMetadataStoreClient
     /**
      * Sets the active instance provider.
      *
-     * @param enumProvider Enumeration provider to use.
+     * @param instanceProvider the instance provider to use
      */
     public void setInstanceProvider(InstanceProvider instanceProvider)
     {
@@ -815,7 +824,7 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Retrieves the active enumeration provider.
+     * Retrieves the active instance provider.
      *
      * @return See above.
      */
@@ -1424,7 +1433,7 @@ public class OMEROMetadataStoreClient
     /**
      * Adds a model processor to the end of the processing chain.
      * @param processor Model processor to add.
-     * @return <code>true</code> as specified by {@link Collection.add(E)}.
+     * @return <code>true</code> as specified by {@link Collection#add(Object)}
      */
     public boolean addModelProcessor(ModelProcessor processor)
     {
@@ -1594,8 +1603,7 @@ public class OMEROMetadataStoreClient
      * Changes the default group of the currently logged in user.
      *
      * @param groupID The id of the group.
-     * @throws Exception If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws ServerError if the group could not be set or the services initialized accordingly
      */
     public void setCurrentGroup(long groupID)
         throws ServerError
@@ -1643,7 +1651,7 @@ public class OMEROMetadataStoreClient
      * Also strips system groups from this map
      *
      * @return map of group id & name
-     * @throws ServerError
+     * @throws ServerError if the groups could not be mapped
      */
     public Map<Long, String> mapUserGroups() throws ServerError
     {
@@ -1691,8 +1699,8 @@ public class OMEROMetadataStoreClient
     /**
      * Retrieve the default group's name
      *
-     * @return name
-     * @throws ServerError
+     * @return the name of the default group
+     * @throws ServerError if the default group could not be retrieved
      */
     public String getDefaultGroupName() throws ServerError
     {
@@ -1709,7 +1717,7 @@ public class OMEROMetadataStoreClient
      * Retrieve the default group's permission 'level'.
      *
      * @return ImportEvent's group level
-     * @throws ServerError
+     * @throws ServerError if the default group could not be retrieved
      */
     @Deprecated
     public int getDefaultGroupLevel() throws ServerError {
@@ -1750,7 +1758,7 @@ public class OMEROMetadataStoreClient
 
     /**
      * Post processes the internal structure of the client side MetadataStore.
-     * Should be called before {@link saveToDB()}.
+     * Should be called before {@link #saveToDB(FilesetJobLink)}.
      */
     public void postProcess()
     {
@@ -1764,6 +1772,7 @@ public class OMEROMetadataStoreClient
     /**
      * Updates the server side MetadataStore with a list of our objects and
      * references and saves them into the database.
+     * @param link the link to save to the database
      * @return List of Pixels after database commit.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1885,10 +1894,10 @@ public class OMEROMetadataStoreClient
     /**
      * Helper method to retrieve an object from iQuery
      *
-     * @param <T>
-     * @param klass
-     * @param id
-     * @return
+     * @param <T> the kind of model object to retrieve
+     * @param klass the class of the model object
+     * @param id the ID of the model object
+     * @return the model object
      */
     @SuppressWarnings("unchecked")
     public <T extends IObject> T getTarget(Class<T> klass, long id)
@@ -1917,8 +1926,8 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectId
-     * @return
+     * @param projectId the ID of the project
+     * @return the project
      */
     public Project getProject(long projectId)
     {
@@ -1933,10 +1942,10 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param datasetName
-     * @param datasetDescription
-     * @param project
-     * @return
+     * @param datasetName the name of the dataset
+     * @param datasetDescription the description of the dataset
+     * @param project the project in which the dataset is (if any)
+     * @return the newly persisted dataset
      */
     public Dataset addDataset(String datasetName, String datasetDescription,
             Project project)
@@ -1991,7 +2000,7 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @return
+     * @return the screens
      */
     public List<Screen> getScreens()
     {
@@ -2014,7 +2023,7 @@ public class OMEROMetadataStoreClient
 
 
     /**
-     * @return
+     * @return the projects
      */
     public List<Project> getProjects()
     {
@@ -2039,8 +2048,8 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param p
-     * @return
+     * @param p the project whose datasets to get ({@code null} for orphaned datasets)
+     * @return the datasets
      */
     public List<Dataset> getDatasets(Project p)
     {
@@ -2069,7 +2078,7 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @return
+     * @return the orphaned datasets
      */
     public List<Dataset> getDatasetsWithoutProjects()
     {
@@ -2095,9 +2104,9 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectName
-     * @param projectDescription
-     * @return
+     * @param projectName the name of the project
+     * @param projectDescription the description of the project
+     * @return the newly persisted project
      */
     public Project addProject(String projectName, String projectDescription)
     {
@@ -2117,9 +2126,9 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param screenName
-     * @param screenDescription
-     * @return
+     * @param screenName the name of the screen
+     * @param screenDescription the description of the screen
+     * @return the newly persisted screen
      */
     public Screen addScreen(String screenName, String screenDescription)
     {
@@ -2161,8 +2170,9 @@ public class OMEROMetadataStoreClient
      * The call to close on the RawPixelsStorePrx may throw, in which case
      * the current import should be considered failed, since the saving of
      * the pixels server-side will have not completed successfully.
-     *
-     * @see ticket:5594
+     * 
+     * @throws ServerError if the pixel store could not be finalized or a new one created
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5594">Trac ticket #5594</a>
      */
     public void finalizePixelStore() throws ServerError
     {
@@ -2538,9 +2548,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Arc
-     * @param instrumentIndex
-     * @param lightSourceIndex
-     * @return
+     * @param instrumentIndex the index of the instrument
+     * @param lightSourceIndex the index of the light source within the instrument
+     * @return the arc
      */
     private Arc getArc(int instrumentIndex, int lightSourceIndex)
     {
@@ -2646,8 +2656,8 @@ public class OMEROMetadataStoreClient
     //////// BooleanAnnotation /////////
 
     /**
-     * @param booleanAnnotationIndex
-     * @return
+     * @param booleanAnnotationIndex the index of the Boolean annotation
+     * @return the Boolean annotation
      */
     private BooleanAnnotation getBooleanAnnotation(int booleanAnnotationIndex)
     {
@@ -2789,8 +2799,8 @@ public class OMEROMetadataStoreClient
         o.getLogicalChannel().setEmissionWave(convertLength(emissionWavelength));
     }
 
-    /** (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.model.primitives.PositiveFloat, int, int)
+    /**
+     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(Length, int, int)
      */
     @Override
     public void setChannelExcitationWavelength(
@@ -2908,9 +2918,9 @@ public class OMEROMetadataStoreClient
     /**
      * Logical Channel and Channel combined in the new model
      *
-     * @param imageIndex
-     * @param logicalChannelIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @param channelIndex the index of the channel within the image
+     * @return the light settings
      */
     private LightSettings getChannelLightSourceSettings(int imageIndex, int channelIndex)
     {
@@ -3015,9 +3025,9 @@ public class OMEROMetadataStoreClient
     ////////Detector/////////
 
     /**
-     * @param instrumentIndex
-     * @param detectorIndex
-     * @return
+     * @param instrumentIndex the instrument index
+     * @param detectorIndex the detector index within the instrument
+     * @return the detector
      */
     public Detector getDetector(int instrumentIndex, int detectorIndex)
     {
@@ -3158,9 +3168,9 @@ public class OMEROMetadataStoreClient
     ////////Detector Settings/////////
 
     /**
-     * @param instrumentIndex
-     * @param detectorIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @param channelIndex the index of the channel within the image
+     * @return the detector settings
      */
     private DetectorSettings getDetectorSettings(int imageIndex, int channelIndex)
     {
@@ -3262,9 +3272,9 @@ public class OMEROMetadataStoreClient
     ////////Dichroic/////////
 
     /**
-     * @param instrumentIndex
-     * @param dichroicIndex
-     * @return
+     * @param instrumentIndex the index of the instrument
+     * @param dichroicIndex the index of the dichroic within the instrument
+     * @return the dichroic
      */
     private Dichroic getDichroic(int instrumentIndex, int dichroicIndex)
     {
@@ -3384,9 +3394,9 @@ public class OMEROMetadataStoreClient
     ////////Eclipse/////////
 
     /**
-     * @param ROIIndex
-     * @param shapeIndex
-     * @return
+     * @param ROIIndex the index of the ROI
+     * @param shapeIndex the index of the shape within the ROI
+     * @return the ellipse
      */
     private Ellipse getEllipse(int ROIIndex, int shapeIndex)
     {
@@ -4142,8 +4152,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Image
-     * @param imageIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @return the image
      */
     private Image getImage(int imageIndex)
     {
@@ -6479,9 +6489,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Reagent
-     * @param screenIndex
-     * @param reagentIndex
-     * @return
+     * @param screenIndex the index of the screen
+     * @param reagentIndex the index of the reagent within the screen
+     * @return the reagent
      */
     private Reagent getReagent(int screenIndex, int reagentIndex)
     {
@@ -6556,9 +6566,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve the Rectangle object (as a Rect object)
-     * @param ROIIndex
-     * @param shapeIndex
-     * @return
+     * @param ROIIndex the index of the ROI
+     * @param shapeIndex the index of the shape within the ROI
+     * @return the rectangle
      */
     private Rect getRectangle(int ROIIndex, int shapeIndex)
     {
@@ -6743,8 +6753,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Screen
-     * @param screenIndex
-     * @return
+     * @param screenIndex the index of the screen
+     * @return the screen
      */
     private Screen getScreen(int screenIndex)
     {
@@ -6869,8 +6879,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve StageLabel
-     * @param imageIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @return the image's stage label
      */
     private StageLabel getStageLabel(int imageIndex)
     {
@@ -6924,8 +6934,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve CommentAnnotation object
-     * @param commentAnnotationIndex
-     * @return
+     * @param commentAnnotationIndex the index of the comment annotation
+     * @return the comment annotation
      */
     private CommentAnnotation getCommentAnnotation(int commentAnnotationIndex)
     {
@@ -6984,9 +6994,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve the Label object
-     * @param ROIIndex
-     * @param shapeIndex
-     * @return
+     * @param ROIIndex the index of the ROI
+     * @param shapeIndex the index of the shape within the ROI
+     * @return the label
      */
     private Label getLabel(int ROIIndex, int shapeIndex)
     {
@@ -7191,8 +7201,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve TimestampAnnotation
-     * @param timestampAnnotationIndex
-     * @return
+     * @param timestampAnnotationIndex the index of the timestamp annotation
+     * @return the timestamp annotation
      */
     private TimestampAnnotation getTimestampAnnotation(int timestampAnnotationIndex)
     {
@@ -7339,9 +7349,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Well
-     * @param plateIndex
-     * @param wellIndex
-     * @return
+     * @param plateIndex the index of the plate
+     * @param wellIndex the index of the well within the plate
+     * @return the well
      */
     private Well getWell(int plateIndex, int wellIndex)
     {
@@ -7449,10 +7459,10 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve WellSample
-     * @param plateIndex
-     * @param wellIndex
-     * @param wellSampleIndex
-     * @return
+     * @param plateIndex the index of the plate
+     * @param wellIndex the index of the well within the plate
+     * @param wellSampleIndex the index of the field within the well
+     * @return the well sample
      */
     private WellSample getWellSample(int plateIndex, int wellIndex, int wellSampleIndex)
     {
@@ -7549,8 +7559,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve XMLAnnotation
-     * @param XMLAnnotationIndex
-     * @return
+     * @param XMLAnnotationIndex the index of the XML annotation
+     * @return the XML annotation
      */
 
     private XmlAnnotation getXMLAnnotation(int XMLAnnotationIndex)
@@ -7837,8 +7847,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve TagAnnotation object
-     * @param tagAnnotationIndex
-     * @return
+     * @param tagAnnotationIndex the index of the tag annotation
+     * @return the tag annotation
      */
     private TagAnnotation getTagAnnotation(int tagAnnotationIndex)
     {
@@ -7917,8 +7927,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve TermAnnotation object
-     * @param termAnnotationIndex
-     * @return
+     * @param termAnnotationIndex the index of the term annotation
+     * @return the term annotation
      */
     private TermAnnotation getTermAnnotation(int termAnnotationIndex)
     {

@@ -48,7 +48,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
     /**
      * "Transfer" files by soft-linking them into place. This method is likely
      * re-usable for other general "linking" strategies by overriding
-     * {@link #createProcessBuilder(File, File)} and the other protected methods here.
+     * {@code createProcessBuilder(File, File)} and the other protected methods here.
      */
     public String transfer(TransferState state) throws IOException, ServerError {
         RawFileStorePrx rawFileStore = start(state);
@@ -76,9 +76,9 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
     /**
      * Build a path of the form "root.path/root.name/file.path/file.name".
      *
-     * @param root
-     * @param ofile
-     * @return
+     * @param root the root directory
+     * @param ofile a path relative to the root
+     * @return the assembled path with separators suitable for the local filesystem
      */
     protected File getLocalLocation(OriginalFile root, OriginalFile ofile) {
         StringBuilder sb = new StringBuilder();
@@ -237,9 +237,9 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      * {@link ProcessBuilder#start()} called on it. The only critical
      * piece of information should be the return code.
      *
-     * @param file
-     * @param location
-     * @return
+     * @param file File to be copied.
+     * @param location Location to copy to.
+     * @return an instance ready for performing the transfer
      */
     protected abstract ProcessBuilder createProcessBuilder(File file, File location);
 
