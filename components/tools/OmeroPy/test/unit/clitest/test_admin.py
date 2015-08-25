@@ -164,6 +164,35 @@ class TestAdmin(object):
         assert 0 == self.cli.rv
 
 
+def check_registry(topdir, prefix='', registry=4061, **kwargs):
+    for key in ['master.cfg', 'internal.cfg']:
+        s = path(topdir / "etc" / key).text()
+        assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
+
+
+def check_ice_config(topdir, prefix='', ssl=4064, **kwargs):
+    config_text = path(topdir / "etc" / "ice.config").text()
+    pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
+    matches = pattern.findall(config_text)
+    assert matches == ["omero.port=%s%s" % (prefix, ssl)]
+
+
+def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, **kwargs):
+    routerport = (
+        '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
+    insecure_routerport = (
+        '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
+        '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
+    client_endpoints = (
+        'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s"'
+        % (prefix, tcp))
+    for key in ['default.xml', 'windefault.xml']:
+        s = path(topdir / "etc" / "grid" / key).text()
+        assert routerport in s
+        assert insecure_routerport in s
+        assert client_endpoints in s
+
+
 class TestAdminPorts(object):
 
     @pytest.fixture(autouse=True)
@@ -180,11 +209,6 @@ class TestAdminPorts(object):
         with open(self.cli.dir / "etc" / 'ice.config', 'w') as f:
             f.write('omero.host=localhost')
 
-    def check_cfg(self, prefix='', registry=4061, **kwargs):
-        for key in ['master.cfg', 'internal.cfg']:
-            s = path(self.cli.dir / "etc" / key).text()
-            assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
-
     def check_config_xml(self, prefix='', webserver=4080, ssl=4064, **kwargs):
         config_text = path(self.cli.dir / "etc" / "grid" / "config.xml").text()
         serverport_property = (
@@ -196,27 +220,6 @@ class TestAdminPorts(object):
             ) % (prefix, ssl)
         assert serverport_property in config_text
         assert serverlist_property in config_text
-
-    def check_ice_config(self, prefix='', webserver=4080, ssl=4064, **kwargs):
-        config_text = path(self.cli.dir / "etc" / "ice.config").text()
-        pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
-        matches = pattern.findall(config_text)
-        assert matches == ["omero.port=%s%s" % (prefix, ssl)]
-
-    def check_default_xml(self, prefix='', tcp=4063, ssl=4064, **kwargs):
-        routerport = (
-            '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
-        insecure_routerport = (
-            '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
-            '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
-        client_endpoints = (
-            'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s"'
-            % (prefix, tcp))
-        for key in ['default.xml', 'windefault.xml']:
-            s = path(self.cli.dir / "etc" / "grid" / key).text()
-            assert routerport in s
-            assert insecure_routerport in s
-            assert client_endpoints in s
 
     @pytest.mark.parametrize('prefix', [None, 1, 2])
     @pytest.mark.parametrize('default', [True, False])
@@ -233,20 +236,20 @@ class TestAdminPorts(object):
         self.cli.invoke(self.args, strict=True)
 
         # Check configuration file ports have been prefixed
-        self.check_ice_config(**kwargs)
-        self.check_cfg(**kwargs)
+        check_ice_config(self.cli.dir, **kwargs)
+        check_registry(self.cli.dir, **kwargs)
+        check_default_xml(self.cli.dir, **kwargs)
         self.check_config_xml(**kwargs)
-        self.check_default_xml(**kwargs)
 
         # Check revert argument
         self.args += ['--revert']
         self.cli.invoke(self.args, strict=True)
 
         # Check configuration file ports have been deprefixed
-        self.check_ice_config()
-        self.check_cfg()
+        check_ice_config(self.cli.dir)
+        check_registry(self.cli.dir)
+        check_default_xml(self.cli.dir)
         self.check_config_xml()
-        self.check_default_xml()
 
     @pytest.mark.parametrize('default', [True, False])
     def testFailingRevert(self, default):
@@ -260,10 +263,10 @@ class TestAdminPorts(object):
         self.cli.invoke(self.args, strict=True)
 
         # Check configuration file ports
-        self.check_ice_config(**kwargs)
-        self.check_cfg(**kwargs)
+        check_ice_config(self.cli.dir, **kwargs)
+        check_registry(self.cli.dir, **kwargs)
+        check_default_xml(self.cli.dir, **kwargs)
         self.check_config_xml(**kwargs)
-        self.check_default_xml(**kwargs)
 
         # Test revert with a mismatching prefix
         self.args[-1] = "2"
@@ -271,10 +274,10 @@ class TestAdminPorts(object):
         self.cli.invoke(self.args, strict=True)
 
         # Check configuration file ports have not been modified
-        self.check_ice_config(**kwargs)
-        self.check_cfg(**kwargs)
+        check_ice_config(self.cli.dir, **kwargs)
+        check_registry(self.cli.dir, **kwargs)
+        check_default_xml(self.cli.dir, **kwargs)
         self.check_config_xml(**kwargs)
-        self.check_default_xml(**kwargs)
 
     @pytest.mark.parametrize('prefix', [None, 1])
     @pytest.mark.parametrize('registry', [None, 111])
@@ -301,7 +304,9 @@ class TestAdminPorts(object):
 
         self.cli.invoke(self.args, strict=True)
 
-        self.check_ice_config(**kwargs)
+        check_ice_config(self.cli.dir, **kwargs)
+        check_registry(self.cli.dir, **kwargs)
+        check_default_xml(self.cli.dir, **kwargs)
 
 
 class TestAdminJvmCfg(object):
@@ -337,3 +342,39 @@ class TestAdminJvmCfg(object):
             "templates.xml")
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
+
+
+class TestConfigPorts(object):
+
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmpadmindir):
+        # Other setup
+        self.cli = CLI()
+        self.cli.dir = tmpadmindir
+        self.cli.register("admin", AdminControl, "TEST")
+        self.cli.register("config", PrefsControl, "TEST")
+        self.args = ["admin", "copycfg"]
+
+    @pytest.mark.parametrize('prefix', [None, 1])
+    @pytest.mark.parametrize('registry', [None, 111])
+    @pytest.mark.parametrize('tcp', [None, 222])
+    @pytest.mark.parametrize('ssl', [None, 333])
+    def testExplicitPorts(self, registry, ssl, tcp, prefix):
+        kwargs = {}
+        if prefix:
+            kwargs["prefix"] = prefix
+        if registry:
+            kwargs["registry"] = registry
+        if tcp:
+            kwargs["tcp"] = tcp
+        if ssl:
+            kwargs["ssl"] = ssl
+        for (k, v) in kwargs.iteritems():
+            self.cli.invoke(
+                ["config", "set", "omero.ports.%s" % k, "%s" % v],
+                strict=True)
+        self.cli.invoke(self.args, strict=True)
+
+        check_ice_config(self.cli.dir, **kwargs)
+        check_registry(self.cli.dir, **kwargs)
+        check_default_xml(self.cli.dir, **kwargs)
