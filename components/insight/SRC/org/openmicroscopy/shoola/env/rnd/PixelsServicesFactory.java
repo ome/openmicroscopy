@@ -515,7 +515,7 @@ public class PixelsServicesFactory
 	 *                  call the method. It must be a reference to the
 	 *                  container's registry.
 	 * @param pixelsID  The id of the pixels set.
-	 * @param pDef      The plane to render.
+	 * @param pd      The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
 	 * @return See above.

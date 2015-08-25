@@ -652,7 +652,6 @@ public class OneKnobSliderUI
 
 		/**
 		 * Overloaded the <code>mousePressed</code> event in the TrackListener.
-		 * @see TrackListener#mousePressed(MouseEvent)
 		 */
 		public void mousePressed(MouseEvent event) 
 		{
@@ -716,7 +715,6 @@ public class OneKnobSliderUI
 		 * as this method relied on the private member of isDragged in sliderUI.
 		 * Has to override this as we could not set the isDragging variable in
 		 * the basicSliderUI. :-( *Why private??!*
-		 * @see TrackListener#mouseDragged(MouseEvent) 
 		 */
 		public void mouseDragged(MouseEvent event) 
 		{

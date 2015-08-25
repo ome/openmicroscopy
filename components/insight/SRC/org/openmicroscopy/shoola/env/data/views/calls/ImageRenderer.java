@@ -100,7 +100,7 @@ public class ImageRenderer
      * @param ctx The security context.
      * @param pixelsID  The id of the pixels set the plane belongs to.
      * @param pd        The plane to render.
-	 * @param largeImae Pass <code>true</code> to render a large image,
+	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @param compression The compression level.
      */

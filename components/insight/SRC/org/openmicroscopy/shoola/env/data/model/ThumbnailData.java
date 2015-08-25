@@ -23,15 +23,10 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.ImageData;
 
 /** 
@@ -44,9 +39,6 @@ import pojos.ImageData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class ThumbnailData
@@ -168,7 +160,7 @@ public class ThumbnailData
      * Sets the time the flag indicating if the image requires a pyramid to be
      * built.
      * 
-     * @param backOffForPyramid The value to set.
+     * @param requirePyramid The value to set.
      */
     public void setBackOffForPyramid(Boolean requirePyramid)
     {

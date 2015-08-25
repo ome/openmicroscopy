@@ -23,15 +23,11 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.Map;
 
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
@@ -50,9 +46,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class StructuredDataResults
@@ -291,7 +284,7 @@ public class StructuredDataResults
 	/**
 	 * Sets the collections of annotations.
 	 * 
-	 * @param terms The value to set.
+	 * @param otherAnnotation The value to set.
 	 */
 	public void setOtherAnnotation(Collection<AnnotationData> otherAnnotation)
 	{ 
@@ -325,7 +318,7 @@ public class StructuredDataResults
 	/**
 	 * Sets the collection.
 	 * 
-	 * @param links The collection to set.
+	 * @param annotationLinks The collection to set.
 	 */
 	public void setAnnotationLinks(Collection<AnnotationLinkData> annotationLinks)
 	{
@@ -363,11 +356,11 @@ public class StructuredDataResults
 	/**
 	 * Sets the collection of {@link MapAnnotationData}.
 	 * 
-	 * @return See above.
+	 * @param mapAnnotations The value to set.
 	 */
-	public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations) {
+	public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations)
+	{
 		this.mapAnnotations = mapAnnotations;
 	}
-	
-	
+
 }

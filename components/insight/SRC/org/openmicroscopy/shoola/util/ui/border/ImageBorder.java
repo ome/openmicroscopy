@@ -152,7 +152,7 @@ public class ImageBorder
      * Returns Insets calculated from the thickness of the side Images. 
      * Unless the insets have been manually set using {@link #setInsets(Insets)}
      * 
-     * @see See above.
+     * @return See above.
      */
     public Insets getBorderInsets(Component c) 
     {

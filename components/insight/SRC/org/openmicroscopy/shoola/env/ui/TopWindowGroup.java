@@ -183,8 +183,7 @@ public class TopWindowGroup
 	/**
 	 * Adds the specified window to this group.
 	 * This method also creates the display buttons for the window.  This means
-	 * an entry will be added to the drop-down button in the 
-	 * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and to the sub-menu in the
+	 * an entry will be added to the sub-menu in the
 	 * {@link TaskBar#WINDOW_MENU}.
 	 * 
 	 * @param window	The window to add.

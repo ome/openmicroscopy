@@ -163,7 +163,7 @@ extends JDialog
 
     /**
      * Checks if there was an error opening the webbrowser
-     * @return
+     * @return See above.
      */
     public boolean hasError() {
         return helpWebbrowserError;

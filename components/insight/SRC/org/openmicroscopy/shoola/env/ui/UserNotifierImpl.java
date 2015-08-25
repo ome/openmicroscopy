@@ -471,7 +471,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	/**
 	 * Implemented as specified by {@link UserNotifier}.
 	 * 
-	 * @see UserNotifier#openApplication(Object, String)
+	 * @see UserNotifier#openApplication(ApplicationData, String)
 	 */
 	public void openApplication(ApplicationData data, String path) {
 

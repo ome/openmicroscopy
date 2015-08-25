@@ -39,7 +39,7 @@ import javax.swing.text.StyledDocument;
 /** 
  * This is a {@link DocumentListener} that takes a set of Regular expressions
  * and {@link SimpleAttributeSet} for each.
- * When the {@link Document} is edited, it is parsed and if it is a 
+ * When the Document is edited, it is parsed and if it is a 
  * {@link StyledDocument} applies a Style to the matching Strings. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;

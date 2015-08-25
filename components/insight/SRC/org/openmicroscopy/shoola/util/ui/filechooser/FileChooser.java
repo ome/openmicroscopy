@@ -621,7 +621,7 @@ public class FileChooser
     /**
      * Sets the value indicating to check or not if the file can be overridden.
      * 
-     * @param checkOverwrite Pass <code>true</code> to override,
+     * @param checkOverride Pass <code>true</code> to override,
      * <code>false</code> otherwise.
      */
     public void setCheckOverride(boolean checkOverride)

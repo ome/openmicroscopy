@@ -127,7 +127,7 @@ public class LoadImporter
     /**
      * Returns the top nodes.
      * 
-     * @param datasets The values to set.
+     * @param objects The values to set.
      */
     public void setObjects(Map<Long, Map<Long, List<TreeImageDisplay>>> objects)
     {

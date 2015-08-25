@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.util;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -58,7 +56,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import ij.IJ;
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
 import omero.cmd.CmdCallback;
@@ -1487,7 +1484,7 @@ public class FileImportComponent
 	 * Sets to <code>true</code> to mark the file for reimport.
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param Pass <code>true</code> to mark the file for reimport.
+	 * @param reimported Pass <code>true</code> to mark the file for reimport,
 	 * <code>false</code> otherwise.
 	 */
 	public void setReimported(boolean reimported)
@@ -1664,7 +1661,7 @@ public class FileImportComponent
 
 	/**
 	 * Returns the name of the file and group's id and user's id.
-	 * @see #toString();
+	 * @see #toString()
 	 */
 	public String toString()
 	{

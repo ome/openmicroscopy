@@ -22,17 +22,10 @@
  */
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.List;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.model.SearchParameters;
@@ -56,9 +49,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataHandlerViewImpl 
@@ -91,7 +81,7 @@ public class DataHandlerViewImpl
 	 
 	 /**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#pasteRndSettings(SecurityContext, long, Class, List, RndProxyDef, ImageData
+	 * @see DataHandlerView#pasteRndSettings(SecurityContext, Class, List, RndProxyDef, ImageData
 	 * 										AgentEventListener)
 	 */
         public CallHandle pasteRndSettings(SecurityContext ctx,
@@ -188,7 +178,7 @@ public class DataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#advancedSearchFor(List, SearchDataContext,
+	 * @see DataHandlerView#advancedSearchFor(SecurityContext, SearchParameters,
 	 * 										AgentEventListener)
 	 */
 	public CallHandle advancedSearchFor(SecurityContext ctx,
