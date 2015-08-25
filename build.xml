@@ -301,13 +301,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-vm" description="Build a virtual image">
-        <exec executable="bash" dir="docs/install/VM">
-            <arg line="omerovm.sh"/>
-            <arg line="omero-vm-${omero.version}"/>
-        </exec>
-    </target>
-
     <target name="eclipse" depends="init">
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
