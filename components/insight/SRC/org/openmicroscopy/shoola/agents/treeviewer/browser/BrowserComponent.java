@@ -1110,7 +1110,6 @@ class BrowserComponent
 		 if (model.getState() == DISCARDED)
 			 throw new IllegalStateException("This method cannot be invoked "+
 	                "in the DISCARDED state.");
-		 System.err.println(view.isPartialName());
 		 PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		 accept(v);
 		 view.repaint();
