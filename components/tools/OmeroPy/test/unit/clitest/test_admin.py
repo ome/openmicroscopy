@@ -141,7 +141,11 @@ class TestAdmin(object):
         self.cli.mox.ReplayAll()
         pytest.raises(NonZeroReturnCode, self.invoke, "admin status")
 
-    def testStatusPasses(self):
+    def testStatusPasses(self, tmpdir, monkeypatch):
+
+        ice_config = tmpdir / 'ice.config'
+        ice_config.write('omero.host=localhost\nomero.port=4064')
+        monkeypatch.setenv("ICE_CONFIG", ice_config)
 
         # Setup the call to bin/omero admin ice node
         popen = self.cli.createPopen()
