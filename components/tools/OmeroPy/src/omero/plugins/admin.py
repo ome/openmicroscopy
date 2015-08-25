@@ -38,6 +38,7 @@ from omero.plugins.prefs import \
 from omero_ext import portalocker
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType
+from omero_ext.argparse import SUPPRESS
 from omero_version import ice_compatibility
 
 try:
@@ -215,7 +216,7 @@ Examples:
             "Reset JVM settings based on the current system")
 
         Action(
-            "copycfg",
+            "regenerate",
             "Regenerate configuration files based on the current properties")
 
         Action(
@@ -703,7 +704,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.copycfg(args, config, verbose=False)
+        self.regenerate(args, config, verbose=False)
         self.jvmcfg(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
@@ -762,7 +763,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
-        self.copycfg(args, config, verbose=False)
+        self.regenerate(args, config, verbose=False)
         self.jvmcfg(args, config, verbose=False)
         self.check_access()
         self.checkice()
@@ -942,7 +943,7 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @with_config
-    def copycfg(self, args, config, verbose=True):
+    def regenerate(self, args, config, verbose=True):
 
         # Define substitution dictionary for template files
         config = config.as_map()
@@ -1020,7 +1021,7 @@ present, the user will enter a console""")
     @with_config
     def diagnostics(self, args, config):
         self.check_access(os.R_OK)
-        self.copycfg(args, config, verbose=False)
+        self.regenerate(args, config, verbose=False)
         memory = self.jvmcfg(args, config, verbose=False)
         omero_data_dir = self._get_data_dir(config)
 
@@ -1702,65 +1703,6 @@ OMERO Diagnostics %s
             " be overwritten the next time the configuration files are"
             " regenerated. Use the omero.ports.xxx configuration properties"
             " instead.")
-        self.check_access()
-        from omero.install.change_ports import change_ports
-        webserverkey = 'omero.web.application_server.port'
-        webserver_default_port = 4080
-        weblistkey = 'omero.web.server_list'
-        weblist_default_port = 4064
-        weblist_template = '[["localhost", %s, "omero"]]'
-
-        if not args.skipcheck:
-            if 0 == self.status(args, node_only=True):
-                self.ctx.die(
-                    100, "Can't change ports while the server is running!")
-
-            # Resetting return value.
-            self.ctx.rv = 0
-
-        if args.prefix:
-            for x in ("registry", "tcp", "ssl", "webserver"):
-                setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
-        change_ports(
-            args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
-
-        # Use the same conditions as change_ports when modifying ports
-        if args.revert:
-            webserver_from = args.webserver
-            webserver_to = str(webserver_default_port)
-            weblist_from = weblist_template % args.ssl
-            weblist_to = weblist_template % str(weblist_default_port)
-        else:
-            webserver_from = str(webserver_default_port)
-            webserver_to = args.webserver
-            weblist_from = weblist_template % str(weblist_default_port)
-            weblist_to = weblist_template % args.ssl
-        try:
-            waport = config[webserverkey]
-        except KeyError:
-            waport = ''
-            webserver_from = ''
-        try:
-            weblist = config[weblistkey]
-        except KeyError:
-            weblist = ''
-            weblist_from = ''
-
-        if waport != webserver_from:
-            self.ctx.out('No match found for %s=%s in %s' % (
-                webserverkey, webserver_from, config.filename))
-        else:
-            config[webserverkey] = webserver_to
-            self.ctx.out('Converted: %s => %s %s in %s' % (
-                webserver_from, webserver_to, webserverkey, config.filename))
-
-        if weblist != weblist_from:
-            self.ctx.out('No match found for %s=%s in %s' % (
-                weblistkey, weblist_from, config.filename))
-        else:
-            config[weblistkey] = weblist_to
-            self.ctx.out('Converted: %s => %s %s in %s' % (
-                weblist_from, weblist_to, weblistkey, config.filename))
 
     def cleanse(self, args):
         self.check_access()

@@ -193,122 +193,6 @@ def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, **kwargs):
         assert client_endpoints in s
 
 
-class TestAdminPorts(object):
-
-    @pytest.fixture(autouse=True)
-    def setup_method(self, tmpadmindir):
-        # Other setup
-        self.cli = CLI()
-        self.cli.dir = tmpadmindir
-        self.cli.register("admin", AdminControl, "TEST")
-        self.cli.register("config", PrefsControl, "TEST")
-        self.cli.invoke(["admin", "copycfg"], strict=True)
-        self.args = ["admin", "ports"]
-
-    def create_new_ice_config(self):
-        with open(self.cli.dir / "etc" / 'ice.config', 'w') as f:
-            f.write('omero.host=localhost')
-
-    def check_config_xml(self, prefix='', webserver=4080, ssl=4064, **kwargs):
-        config_text = path(self.cli.dir / "etc" / "grid" / "config.xml").text()
-        serverport_property = (
-            '<property name="omero.web.application_server.port"'
-            ' value="%s%s"') % (prefix, webserver)
-        serverlist_property = (
-            '<property name="omero.web.server_list"'
-            ' value="[[&quot;localhost&quot;, %s%s, &quot;omero&quot;]]"'
-            ) % (prefix, ssl)
-        assert serverport_property in config_text
-        assert serverlist_property in config_text
-
-    @pytest.mark.parametrize('prefix', [None, 1, 2])
-    @pytest.mark.parametrize('default', [True, False])
-    def testRevert(self, prefix, default):
-
-        if not default:
-            self.create_new_ice_config()
-
-        kwargs = {}
-        if prefix:
-            self.args += ['--prefix', '%s' % prefix]
-            kwargs['prefix'] = prefix
-        self.args += ['--skipcheck']
-        self.cli.invoke(self.args, strict=True)
-
-        # Check configuration file ports have been prefixed
-        check_ice_config(self.cli.dir, **kwargs)
-        check_registry(self.cli.dir, **kwargs)
-        check_default_xml(self.cli.dir, **kwargs)
-        self.check_config_xml(**kwargs)
-
-        # Check revert argument
-        self.args += ['--revert']
-        self.cli.invoke(self.args, strict=True)
-
-        # Check configuration file ports have been deprefixed
-        check_ice_config(self.cli.dir)
-        check_registry(self.cli.dir)
-        check_default_xml(self.cli.dir)
-        self.check_config_xml()
-
-    @pytest.mark.parametrize('default', [True, False])
-    def testFailingRevert(self, default):
-
-        if not default:
-            self.create_new_ice_config()
-
-        kwargs = {'prefix': 1}
-        self.args += ['--skipcheck']
-        self.args += ['--prefix', '%s' % kwargs['prefix']]
-        self.cli.invoke(self.args, strict=True)
-
-        # Check configuration file ports
-        check_ice_config(self.cli.dir, **kwargs)
-        check_registry(self.cli.dir, **kwargs)
-        check_default_xml(self.cli.dir, **kwargs)
-        self.check_config_xml(**kwargs)
-
-        # Test revert with a mismatching prefix
-        self.args[-1] = "2"
-        self.args += ['--revert']
-        self.cli.invoke(self.args, strict=True)
-
-        # Check configuration file ports have not been modified
-        check_ice_config(self.cli.dir, **kwargs)
-        check_registry(self.cli.dir, **kwargs)
-        check_default_xml(self.cli.dir, **kwargs)
-        self.check_config_xml(**kwargs)
-
-    @pytest.mark.parametrize('prefix', [None, 1])
-    @pytest.mark.parametrize('registry', [None, 111])
-    @pytest.mark.parametrize('tcp', [None, 222])
-    @pytest.mark.parametrize('ssl', [None, 333])
-    @pytest.mark.parametrize('webserver', [None, 444])
-    def testExplicitPorts(self, registry, ssl, tcp, webserver, prefix):
-        kwargs = {}
-        if prefix:
-            self.args += ['--prefix', '%s' % prefix]
-            kwargs['prefix'] = prefix
-        if registry:
-            self.args += ['--registry', '%s' % registry]
-            kwargs["registry"] = registry
-        if tcp:
-            self.args += ['--tcp', '%s' % tcp]
-            kwargs["tcp"] = tcp
-        if ssl:
-            self.args += ['--ssl', '%s' % ssl]
-            kwargs["ssl"] = ssl
-        if webserver:
-            self.args += ['--webserver', '%s' % webserver]
-            kwargs["webserver"] = webserver
-
-        self.cli.invoke(self.args, strict=True)
-
-        check_ice_config(self.cli.dir, **kwargs)
-        check_registry(self.cli.dir, **kwargs)
-        check_default_xml(self.cli.dir, **kwargs)
-
-
 class TestAdminJvmCfg(object):
 
     @pytest.fixture(autouse=True)
@@ -353,7 +237,7 @@ class TestConfigPorts(object):
         self.cli.dir = tmpadmindir
         self.cli.register("admin", AdminControl, "TEST")
         self.cli.register("config", PrefsControl, "TEST")
-        self.args = ["admin", "copycfg"]
+        self.args = ["admin", "regenerate"]
 
     @pytest.mark.parametrize('prefix', [None, 1])
     @pytest.mark.parametrize('registry', [None, 111])
