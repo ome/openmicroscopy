@@ -23,15 +23,10 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import omero.gateway.SecurityContext;
@@ -48,9 +43,6 @@ import pojos.ProjectData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ProjectsLoader 
@@ -74,7 +66,6 @@ public class ProjectsLoader
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      * @param userID The user's identifier.
-     * @param groupID The group's identifier.
      */
     public ProjectsLoader(TreeViewer viewer, SecurityContext ctx, 
     		TreeImageDisplay node, long userID)

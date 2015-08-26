@@ -22,15 +22,10 @@
 */
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
-
-//Java imports
 import java.util.List;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxList;
 
@@ -42,9 +37,6 @@ import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxList;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class KeywordSelectionAction
@@ -63,7 +55,7 @@ public class KeywordSelectionAction
 	}
 
 	/**
-	 * Implemented as specified by the {@link #TableModelListener}.
+	 * Implemented as specified by the {@link TableModelListener}.
 	 * @see TableModelListener#tableChanged(TableModelEvent)
 	 */
 	public void tableChanged(TableModelEvent e)

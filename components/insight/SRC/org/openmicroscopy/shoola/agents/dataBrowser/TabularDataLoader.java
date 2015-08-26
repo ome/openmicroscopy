@@ -23,12 +23,8 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import omero.gateway.model.TableResult;
@@ -46,9 +42,6 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class TabularDataLoader 
@@ -113,7 +106,7 @@ public class TabularDataLoader
     
     /** 
 	 * Loads the tabular data. 
-	 * @see EditorLoader#cancel()
+	 * @see DataBrowserLoader#cancel()
 	 */
 	public void load()
 	{
@@ -124,13 +117,13 @@ public class TabularDataLoader
 	
 	/** 
 	 * Cancels the data loading. 
-	 * @see EditorLoader#cancel()
+	 * @see DataBrowserLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
 	
 	/**
      * Feeds the result back to the viewer.
-     * @see EditorLoader#handleResult(Object)
+     * @see DataBrowserLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {

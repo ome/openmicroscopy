@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
-
-//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -34,10 +32,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Component laying out the {@link TreeComponentNode}s.
  *
@@ -46,9 +40,6 @@ import javax.swing.JPanel;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class TreeComponent 
@@ -65,10 +56,10 @@ public class TreeComponent
 	/** Bound property indicating the displayed component. */
 	public static final String	EXPANDED_PROPERTY = "expanded";
 	
-	/** The icon displayed when the {@link #collapse} is selected. */
+	/** The icon displayed when the node is collapsed. */
 	private Icon 					collapseIcon;
 	
-	/** The icon displayed when the {@link #elapse} is selected. */
+	/** The icon displayed when the node is elapsed. */
 	private Icon 					elapseIcon;
 	
 	/** One of the orientation constants defined by this class. */

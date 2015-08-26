@@ -379,7 +379,6 @@ public interface ImViewer
 	 * @param index    The index of the channel.
 	 * @param selected Pass <code>true</code> to select the channel,
 	 *                 <code>false</code> otherwise.
-	 * @param render   Pass <code>true</code>
 	 */
 	public void setChannelSelection(int index, boolean selected);
 
@@ -459,7 +458,7 @@ public interface ImViewer
 	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public List getImageComponents(String colorModel, boolean includROI);
+	public List getImageComponents(String colorModel, boolean includeROI);
 
 	/**
 	 * Returns the image currently displayed.
@@ -623,8 +622,7 @@ public interface ImViewer
 
 	/**
 	 * Returns the index of the selected tabbed pane.
-	 * One out of the following list: {@link #VIEW_INDEX}, 
-	 * {@link #ANNOTATOR_INDEX} or {@link #GRID_INDEX}.
+	 * One of the constants defined by this class.
 	 * 
 	 * @return See above.
 	 */
@@ -1254,8 +1252,7 @@ public interface ImViewer
 	void onUpdatedChannels(List<ChannelData> channels);
 
 	/** 
-	 * Returns the display mode. One of the constants defined by 
-	 * {@link LookupNames}.
+	 * Returns the display mode.
 	 * 
 	 * @return See above.
 	 */
@@ -1312,7 +1309,7 @@ public interface ImViewer
     
     /**
      * Returns if interpolation is enabled or not
-     * @return
+     * @return See above.
      */
     public boolean isInterpolation();
 

@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.io.File;
 
 import javax.swing.Icon;
@@ -44,9 +42,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DownloadActivityParam
@@ -286,7 +281,7 @@ public class DownloadActivityParam
 	/**
 	 * Get the {@link FileAnnotationData} which should get
 	 * deleted after download finished
-	 * @return
+	 * @return See above.
 	 */
 	public FileAnnotationData getToDelete() {
 		return toDelete;

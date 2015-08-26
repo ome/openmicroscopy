@@ -808,7 +808,7 @@ public class TreeCellRenderer
 
     /**
      * Overridden to highlight the destination of the target.
-     * @see paintComponent(Graphics)
+     * @see #paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {

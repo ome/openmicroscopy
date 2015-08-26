@@ -23,15 +23,10 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
@@ -64,7 +59,7 @@ public class DataObjectTransfer
     
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Throwable)
      */
     protected void onException(String message, Throwable ex)
     { 

@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
-import ij.IJ;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,9 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-
-//Third-party libraries
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
@@ -47,7 +41,7 @@ import loci.formats.in.OMEXMLReader;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-//Application-internal dependencies
+
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -67,9 +61,6 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ImportableObject
@@ -290,7 +281,8 @@ public class ImportableObject
 	/**
 	 * Returns <code>true</code> if the thumbnail has to be loaded when 
 	 * the image is imported, <code>false</code> otherwise.
-	 * @return
+	 *
+	 * @return See above.
 	 */
 	public boolean isLoadThumbnail() { return loadThumbnail; }
 	
@@ -324,7 +316,7 @@ public class ImportableObject
 	/**
 	 * Sets the depth used scanning a folder.
 	 * 
-	 * @param depth The value to set.
+	 * @param scanningDepth The value to set.
 	 */
 	public void setScanningDepth(int scanningDepth)
 	{
@@ -341,7 +333,7 @@ public class ImportableObject
 	/**
 	 * Sets the depth used when the name is overridden.
 	 * 
-	 * @param depth The value to set.
+	 * @param depthForName The value to set.
 	 */
 	public void setDepthForName(int depthForName)
 	{

@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -34,14 +32,6 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
-
-
-
-
-
-
-//Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.projection.ProjectionType;
@@ -168,9 +158,10 @@ public interface OmeroImageService
     /**
      * Returns true if a connection is available for the given
      * {@link SecurityContext}. This is equivalent to being able to
-     * access a {@link Connector};
+     * access a <code>Connector</code>.
      *
      * @param ctx The security context.
+     * @return See above.
      */
 	public boolean isAlive(SecurityContext ctx)
 	    throws DSOutOfServiceException;
@@ -491,7 +482,6 @@ public interface OmeroImageService
 	 *  
 	 * @param object The object hosting the information about the file to import.
 	 * @param importable The file to import. Mustn't be <code>null</code>.
-	 * @param userID The id of the user.
      * @param close Pass <code>true</code> to close the import, 
      * <code>false</code> otherwise.
 	 * @return See above.
@@ -563,15 +553,12 @@ public interface OmeroImageService
 	
 	/**
 	 * Exports the passed image as an XML file.
-	 * 
-	 * @param index One of the export contants defined by this class.
+	 *
+	 * @param ctx The security context.
+	 * @param index One of the export constants defined by this class.
 	 * @param imageID The ID of the image.
 	 * @param folder  The folder where to export the image.
 	 * @param target The selected schema.
-	 * @param ctx The security context.
-	 * @param imageID The ID of the image.
-	 * @param folder The folder where to export the image.
-	 * @param target Host information about the downgrade style sheets.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -673,7 +660,6 @@ public interface OmeroImageService
 	 * Returns all the scripts with a UI.
 	 * 
 	 * @param ctx The security context.
-	 * @param userID The id of the experimenter or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.

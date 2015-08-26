@@ -617,7 +617,7 @@ public class SelectionWizardUI
      * Formats the tooltip of a tag.
      *
      * @param data The annotation to handle.
-     * @param parent Its parent.
+     * @param parents The tags.
      * @param exp The experimenter associated to the tag.
      * @return See
      */

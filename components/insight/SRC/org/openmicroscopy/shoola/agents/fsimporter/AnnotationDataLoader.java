@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,7 +64,7 @@ public class AnnotationDataLoader
 	 * @param viewer The Importer this data loader is for.
 	 * Mustn't be <code>null</code>.
      * @param ctx The security context.
-	 * @param imageID The identifier of the image.
+	 * @param fileSetID The identifier of the fileset.
 	 * @param index The index of the UI element.
 	 */
 	public AnnotationDataLoader(Importer viewer, SecurityContext ctx,

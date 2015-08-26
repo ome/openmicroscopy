@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -35,21 +33,14 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-//Third-party libraries
-
-//Application-internal dependencies
 
 
 /** 
  * Links a group of windows to the {@link TaskBar} and manages their display
  * on screen.
- * <p>Rather than adding a quick-launch button in the 
- * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and an entry in the
- * {@link TaskBar#WINDOW_MENU} for each window in the group, the constructor of
- * this class adds a drop-down {@link ToolBarButtonMenu button}
- * (a button that triggers the display of a popup menu) to the
- * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and
- * a sub-menu to the {@link TaskBar#WINDOW_MENU}. These menus contain an entry
+ * <p>Rather than adding an entry in the
+ * {@link TaskBar#WINDOW_MENU} for each window in the group}.
+ * These menus contain an entry
  * for each window in the group and are populated/depopulated via the
  * {@link #add(TopWindow, String, Icon) add}/{@link #remove(JFrame) remove}
  * methods.</p>
@@ -65,9 +56,6 @@ import javax.swing.JMenuItem;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class TopWindowGroup 
@@ -156,8 +144,7 @@ public class TopWindowGroup
 	
 	/**
 	 * Creates a new window group.
-	 * This constructor adds a drop-down button to the 
-	 * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and a sub-menu to the
+	 * This constructor adds a sub-menu to the
 	 * {@link TaskBar#WINDOW_MENU}.  These menus can then be populated/
 	 * depopulated via the {@link #add(TopWindow, String, Icon) add}/
 	 * {@link #remove(JFrame) remove} methods. 
@@ -167,8 +154,7 @@ public class TopWindowGroup
 	 * 				{@link TaskBar#WINDOW_MENU}.
 	 * @param icon	The icon of this window group.  This icon will be displayed
 	 * 				both by the the sub-menu entry in the
-	 * 				{@link TaskBar#WINDOW_MENU} and by the drop-down button on
-	 * 				the {@link TaskBar#QUICK_LAUNCH_TOOLBAR}.
+	 * 				{@link TaskBar#WINDOW_MENU}.
 	 * @param tb	A reference to the task bar.
 	 */
 	public TopWindowGroup(String name, Icon icon, TaskBar tb)
@@ -196,8 +182,7 @@ public class TopWindowGroup
 	/**
 	 * Adds the specified window to this group.
 	 * This method also creates the display buttons for the window.  This means
-	 * an entry will be added to the drop-down button in the 
-	 * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and to the sub-menu in the
+	 * an entry will be added to the sub-menu in the
 	 * {@link TaskBar#WINDOW_MENU}.
 	 * 
 	 * @param window	The window to add.

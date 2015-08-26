@@ -20,14 +20,12 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-import ij.IJ;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
 
 /**
@@ -76,7 +74,7 @@ public class SaveResultsLoader
 
     /**
      * Saves the imageJ results.
-     * @see EditorLoader#load()
+     * @see UserNotifierLoader#load()
      */
     public void load()
     {

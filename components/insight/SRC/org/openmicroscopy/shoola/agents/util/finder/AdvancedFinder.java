@@ -74,9 +74,6 @@ import pojos.WellData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class AdvancedFinder
@@ -339,7 +336,7 @@ public class AdvancedFinder
 	
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setResult(SecurityContext, Object)
+	 * @see Finder#setResult(SearchResultCollection)
 	 */
 	public void setResult(SearchResultCollection result)
 	{

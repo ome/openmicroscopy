@@ -23,13 +23,9 @@
 package org.openmicroscopy.shoola.svc.communicator;
 
 
-//Java imports
 import java.io.File;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 
@@ -57,8 +53,6 @@ public interface Communicator
      * @param error The error message.
      * @param applicationName The name of the application.
      * @param applicationVersion The version of the application.
-     * @param filesInfo The information about the files to submit or
-     *                  <code>null</code>.
      * @param reply The result of the post.
      * @throws TransportException Thrown if an error occurred while trying
      *                            to submit the error.
@@ -79,7 +73,7 @@ public interface Communicator
      * @param error The error message.
      * @param applicationName The name of the application.
      * @param applicationVersion The version of the application.
-     * @param file The main file.
+     * @param mainFile The main file.
      * @param associatedFiles The associated files.
      * @param reply The result of the post.
      * @throws TransportException Thrown if an error occurred while trying

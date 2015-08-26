@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.roi.model;
 
-//Java imports
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,9 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -50,9 +46,6 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ROIShape 
@@ -355,8 +348,8 @@ public class ROIShape
     /**
      * Copies the shape.
      *
-     * @param plane
-     * @return
+     * @param plane The plane to copy.
+     * @return See above.
      */
     public ROIShape copy(Coord3D plane)
     {

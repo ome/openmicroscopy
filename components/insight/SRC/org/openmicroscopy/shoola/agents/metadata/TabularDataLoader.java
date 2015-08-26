@@ -23,14 +23,8 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
-//Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import omero.gateway.SecurityContext;
@@ -44,9 +38,6 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class TabularDataLoader 
@@ -71,7 +62,7 @@ public class TabularDataLoader
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param originalID The identifier of the table.
+     * @param originalFileID The identifier of the table.
      * @param loadAll Pass <code>true</code> indicating to load all
      * 				  annotations available if the user can annotate,
      *                <code>false</code> to only load the user's annotation.

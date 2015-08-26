@@ -49,7 +49,7 @@ public class Selectable<T> {
 	
 	/**
 	 * Return the wrapped object
-	 * @return
+	 * @return See above
 	 */
 	public T getObject()
 	{

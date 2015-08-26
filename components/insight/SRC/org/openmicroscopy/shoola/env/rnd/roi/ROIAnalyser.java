@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.rnd.roi;
 
 
-//Java imports
 import java.awt.Point;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,22 +30,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-
-
-
 import org.apache.commons.collections.CollectionUtils;
 
-
-
-
 import omero.gateway.Gateway;
-//Application-internal dependencies
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
-import omero.gateway.rnd.DataSink;
 
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -114,13 +102,9 @@ public class ROIAnalyser
      * Creates a new instance to analyze the pixels set accessible through
      * <code>source</code>.
      * 
-     * @param source Gateway to the raw data of the pixels set this iterator
+     * @param gateway Gateway to the raw data of the pixels set this iterator
      *               will work on. Mustn't be <code>null</code>.
-     * @param sizeZ The number of z-sections.
-     * @param sizeT The number of timepoints.
-     * @param size The number of channels.
-     * @param sizeX The number of pixels along the x-axis.
-     * @param sizeY The number of pixels along the y-axis.
+     * @param pixels The pixels to analyze.
      */
     public ROIAnalyser(Gateway gateway, PixelsData pixels)
     {

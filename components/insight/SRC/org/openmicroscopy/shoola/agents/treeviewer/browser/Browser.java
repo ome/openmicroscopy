@@ -23,10 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-
-
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.util.Collection;
@@ -36,9 +32,6 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -64,9 +57,6 @@ import pojos.ImageData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface Browser
@@ -690,10 +680,10 @@ public interface Browser
 	/**
 	 * Brings up the menu to manage the data.
 	 * 
-	 * @param index		The index of the menu.
-	 * @param invoker   The component that requested the pop-up menu.
-	 * @param loc       The point at which to display the menu, relative to the
-	 *                  <code>component</code>'s coordinates.
+	 * @param index The index of the menu.
+	 * @param source The component that requested the pop-up menu.
+	 * @param point The point at which to display the menu, relative to the
+	 *            <code>component</code>'s coordinates.
 	 */
 	void showMenu(int index, Component source, Point point);
 
@@ -848,8 +838,7 @@ public interface Browser
 	 * Sets the nodes to copy or cut depending on the passed index.
 	 * 
 	 * @param nodes The nodes to copy or paste.
-	 * @param index One of the following constants:
-	 *              {@link #CUT_AND_PASTE} or {@link #COPY_AND_PASTE}.
+	 * @param index One of the constants defined by this class.
 	 */
 	void setNodesToCopy(TreeImageDisplay[] nodes, int index);
 

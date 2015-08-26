@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -189,7 +187,8 @@ public class PixelsServicesFactory
 	 * 						cannot call the method. 
 	 * 						It must be a reference to the
 	 *                  	container's registry.
-	 * @param reList        The {@link RenderingEngine}s.
+	 * @param ctx The security context.
+	 * @param reList        The rendering proxies.
 	 * @param pixels   		The pixels set.
 	 * @param metadata  	The channel metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
@@ -217,7 +216,7 @@ public class PixelsServicesFactory
 	 *                call the method. It must be a reference to the
 	 *                container's registry.
 	 * @param pixelsID	The ID of the pixels set.
-	 * @param reList The {@link RenderingEngine}s.
+	 * @param reList The rendering proxies
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while setting 
 	 * the value.
@@ -259,7 +258,7 @@ public class PixelsServicesFactory
 	 *                call the method. It must be a reference to the
 	 *                container's registry.
 	 * @param pixelsID The ID of the pixels set.
-	 * @param reList The {@link RenderingEngine}s.
+	 * @param reList The rendering proxies
 	 * @param def The rendering def linked to the rendering engine.
 	 * This is passed to speed up the initialization sequence.
 	 * @return See above.
@@ -516,7 +515,7 @@ public class PixelsServicesFactory
 	 *                  call the method. It must be a reference to the
 	 *                  container's registry.
 	 * @param pixelsID  The id of the pixels set.
-	 * @param pDef      The plane to render.
+	 * @param pd      The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
 	 * @return See above.

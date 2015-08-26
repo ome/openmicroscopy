@@ -22,15 +22,10 @@
  */
 package org.openmicroscopy.shoola.env.data.login;
 
-//Java imports
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.GroupData;
 
 /** 
@@ -42,9 +37,6 @@ import pojos.GroupData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class UserCredentials
@@ -300,7 +292,7 @@ public class UserCredentials
 	 * Sets to <code>true</code> if the experimenter has to be activated,
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param administrator The value to set.
+	 * @param active The value to set.
 	 */
 	public void setActive(Boolean active)
 	{

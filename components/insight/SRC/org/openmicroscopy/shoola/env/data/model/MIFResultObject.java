@@ -24,17 +24,14 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import omero.gateway.SecurityContext;
 
 import pojos.ImageData;
@@ -140,9 +137,9 @@ public class MIFResultObject
 	}
 
 	/**
-	 * Sets the thumbnails corresponding to the list returned by 
-	 * {@link #get}
-	 * @param thumbnails
+	 * Sets the thumbnails.
+	 *
+	 * @param thumbnails The value to set.
 	 */
 	public void setThumbnails(List<ThumbnailData> thumbnails)
 	{

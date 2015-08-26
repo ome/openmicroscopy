@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.agents.util;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -34,9 +33,6 @@ import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
@@ -286,7 +282,7 @@ public class TreeCellRenderer
 
     /**
      * Overridden to highlight the destination of the target.
-     * @see paintComponent(Graphics)
+     * @see #paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {

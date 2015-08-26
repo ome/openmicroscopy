@@ -22,14 +22,9 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-//Java imports
 import java.util.Collection;
 import java.util.Iterator;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -79,7 +74,7 @@ public class ArchivedFilesLoader
     }
     
     /**
-     * Adds the {@link #loadCall} to the computation tree.
+     * Adds the call per pixels' id to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()

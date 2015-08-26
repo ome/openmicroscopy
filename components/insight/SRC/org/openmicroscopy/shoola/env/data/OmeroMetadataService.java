@@ -24,18 +24,11 @@ package org.openmicroscopy.shoola.env.data;
 
 
 
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-
-
-//Application-internal dependencies
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
 import omero.model.Binning;
@@ -79,9 +72,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface OmeroMetadataService
@@ -582,12 +572,10 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Returns the number of files of a given type. The specified type is 
-	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
-	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
+	 * Returns the number of files of a given type.
 	 * 
 	 * @param ctx The security context.
-	 * @param userUD The user's identifier.
+	 * @param userID The user's identifier.
 	 * @param fileType One of the constants above.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -600,9 +588,7 @@ public interface OmeroMetadataService
 
 	/**
 	 * Loads the files specified by the given type. Returns a collection
-	 * of <code>FileAnnotationData</code>s. The specified type is 
-	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
-	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
+	 * of <code>FileAnnotationData</code>s.
 	 * 
 	 * @param ctx The security context.
 	 * @param fileType One of the constants above. 
@@ -742,7 +728,7 @@ public interface OmeroMetadataService
 	 * @param annotationType The type of annotation to load.
 	 * @param nsInclude The annotation's name space to include if any.
 	 * @param nsExlcude The annotation's name space to exclude if any.
-	 * @return 
+	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.

@@ -213,7 +213,7 @@ public class RenderingDefinitionHistory {
     /**
      * Checks if an undo operation is possible
      * 
-     * @return
+     * @return See above.
      */
     public boolean canUndo() {
         return !history.isEmpty() && pointer >= 0;
@@ -222,7 +222,7 @@ public class RenderingDefinitionHistory {
     /**
      * Checks if a redo operation is possible
      * 
-     * @return
+     * @return See above.
      */
     public boolean canRedo() {
         return !history.isEmpty() && pointer < history.size() - 1;

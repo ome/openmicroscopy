@@ -82,11 +82,10 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Creates a new instance
-     *
-     * @param data
-     *            The {@link DataObject}s which should be shown in the table
-     * @param model
-     *            Reference to the DataBrowserModel
+     * 
+     * @param parent Reference to the parent.
+     * @param data The {@link DataObject}s which should be shown in the table
+     * @param model Reference to the AdvancedResultSearchModel
      */
     public SearchResultTableModel(SearchResultTable parent, List<DataObject> data,
             AdvancedResultSearchModel model) {
