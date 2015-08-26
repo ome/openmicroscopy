@@ -496,7 +496,7 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
 
     var type_strings = [];
     for (var key in dtypes) {
-        type_strings.push(key.capitalize() + (dtypes[key]>1 && "s" || ""));
+        type_strings.push(key.replace("acquisition", "Run").capitalize() + (dtypes[key]>1 && "s" || ""));
     }
     var type_str = type_strings.join(" & ");    // For delete dialog: E.g. 'Project & Datasets'
     $("#delete_type").text(type_str);
