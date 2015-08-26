@@ -98,13 +98,26 @@
         }
         
         $(document).ready(function() {
+
+            var syncTreeSelection = function(selected, idx, perms) {
+                // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
+                var datatree = $.jstree.reference('#dataTree');
+                datatree.deselect_all(true);
+                // Update the buttons in the jstree
+                if (buttonsShowHide) {
+                    buttonsShowHide(datatree.get_selected(true), datatree);
+                }
+                // Calls to ome.webclient.actions.js
+                OME.well_selection_changed(selected, idx, perms);
+            };
+
             wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
                 handleClickSelection(event);
                 var $selected = $('td.ui-selected', wpv.self);
-                OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
+                syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
             });
             $( '#spw' ).on( "dblclick", "td.well img", function(event) {
                 OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
@@ -115,7 +128,7 @@
                 distance: 2,
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
-                    OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                    syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
                 },
                 start: function(){
                 }
@@ -137,7 +150,7 @@
                     if (selected_wells.length > 0) {
                         handleClickSelection(undefined, selected_wells.children("img"));
                         $selected = $('td.ui-selected', wpv.self);
-                        OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                        syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
                     }
                 });
             {% endif %}
