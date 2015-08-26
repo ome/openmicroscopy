@@ -561,10 +561,9 @@
                             var data = {
                                 'id': r['id'],
                                 'isOwner': true,
+                                'ownerId': {{ ome.user_id }},
                                 'name': new_container_name,
-                                // Is that it for perms!? Seems very limited. A dataset normally has:
-                                // canEdit canAnnotate canLink canDelete canChgrp
-                                'permsCss': 'canLink canDelete'
+                                'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
                             };
 
                             var node = {
