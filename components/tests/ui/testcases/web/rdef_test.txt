@@ -6,7 +6,7 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
+# Suite Teardown      Close all browsers
 
 *** Variables ***
 
@@ -57,7 +57,7 @@ Wait For Toolbar Button Disabled
 
 Right Click Image Rendering Settings
     [Arguments]            ${imageId}       ${optionText}
-    ${treeId}=                              Get Node Id For Image           ${imageId}
+    ${treeId}=                              Wait For Image Node           ${imageId}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
     Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Rendering Settings...')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
@@ -171,8 +171,8 @@ Test Owners Rdef
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
 
-    # Get Id for next Image
-    Click Element                           xpath=//li[@id='image-${imageId}']/following-sibling::li/a
+    # Click next thumbnail and get the image ID
+    Click Next Thumbnail
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Click Link                              General
     ${imageId_2}=                           Wait For General Panel And Return Id      Image

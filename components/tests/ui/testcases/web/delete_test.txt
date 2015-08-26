@@ -28,10 +28,10 @@ Test Delete Project
     Click Dialog Button                     Yes
     # Wait for activities to show job done, then refresh tree...
     Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
+    Page Should Not Contain Element         id=${nodeId}
     Click Element                           refreshButton
     # On POST success, Experimenter should be selected and project removed from tree
     User Should Be Selected
-    Page Should Not Contain Element         id=${nodeId}
     Project Should Not Exist in Tree        ${pid}
 
 

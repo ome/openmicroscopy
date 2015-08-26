@@ -19,7 +19,7 @@ Test Container Creation Enabled
 
     Tree Should Be Visible
     Wait For Node To Be Visible                 ${FULL NAME}
-    Node Should Be Visible                      Orphaned Images
+    Wait For Node To Be Visible                 Orphaned Images
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
