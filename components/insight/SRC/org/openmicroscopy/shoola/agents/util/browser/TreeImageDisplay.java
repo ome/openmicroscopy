@@ -216,14 +216,14 @@ public abstract class TreeImageDisplay
      * @param b The value to set.
      */
     void setPartialName(boolean b) { partialName = b; }
-    
+
     /**
      * Returns <code>true</code> if the partial name of the node is shown, 
      * <code>false</code> otherwise.
      * 
      * @return See above.
      */
-    boolean isPartialName() { return partialName; }
+    public boolean isPartialName() { return partialName; }
     
     /**
      * Sets to <code>true</code> if the node is expanded, 
