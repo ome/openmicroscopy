@@ -65,8 +65,7 @@ class TransferableNode
 	public Object getTransferData(DataFlavor df)
 		throws UnsupportedFlavorException, IOException
 	{
-		if (isDataFlavorSupported (df)) return object;
-		throw new UnsupportedFlavorException(df);
+	    return object;
 	}
 	
 	/**
@@ -75,7 +74,7 @@ class TransferableNode
 	 */
 	public boolean isDataFlavorSupported(DataFlavor df)
 	{
-		return (df.equals(DnDTree.localFlavor));
+	    return true;
 	}
 	
 	/**
