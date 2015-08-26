@@ -536,8 +536,10 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
 
                             // Update the central panel with new selection
                             datatree.deselect_all();
-                            datatree.select_node(firstParent);
-
+                            // Don't select plate during 'Run' delete - tries to load partially deleted data
+                            if (firstParent.type !== "plate") {
+                                datatree.select_node(firstParent);
+                            }
                             $.each(disabledNodes, function(index, node) {
                                 //TODO Make use of server calculated update like chgrp?
                                 updateParentRemoveNode(datatree, node, firstParent);
