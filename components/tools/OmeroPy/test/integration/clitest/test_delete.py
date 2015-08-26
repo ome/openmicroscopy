@@ -330,7 +330,7 @@ class TestDelete(CLITest):
         assert not self.query.find('Dataset', dset.id.val)
         assert self.query.find('Image', img.id.val)
 
-    def testIncludeExclude(self, simpleHierarchy):
+    def testExcludeOverridesInclude(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
 
         self.args += ['Project:%s' % proj.id.val]
@@ -338,10 +338,10 @@ class TestDelete(CLITest):
         self.args += ['--include', 'Image']
         self.cli.invoke(self.args, strict=True)
 
-        # Check that everything has been deleted.
+        # Check that only the Project has been deleted.
         assert not self.query.find('Project', proj.id.val)
         assert self.query.find('Dataset', dset.id.val)
-        assert not self.query.find('Image', img.id.val)
+        assert self.query.find('Image', img.id.val)
 
     # These tests check the default exclusion of the annotations:
     # FileAnnotation, TagAnnotation and TermAnnotation
