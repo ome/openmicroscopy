@@ -505,7 +505,7 @@ class TestTagDelete(AbstractTagTest):
         assert not self.query.find('TagAnnotation', self.ts1_id)
         assert not self.query.find('TagAnnotation', self.tag_ids[0])
         assert self.query.find('TagAnnotation', self.ts2_id)
-        assert self.query.find('TagAnnotation', self.tag_ids[1])
+        assert not self.query.find('TagAnnotation', self.tag_ids[1])
         assert self.query.find('TagAnnotation', self.tag_ids[2])
 
     def testDeleteTwoTagSetsIncludingTags(self):
