@@ -361,6 +361,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
 
         /* delete the second tag set */
         delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tagsets.get(1).getId().getValue()));
+        doChange(delete);
 
         /* check that the tag set and the remaining tags are deleted */
         assertNoneExist(tagsets);
