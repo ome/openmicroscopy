@@ -264,7 +264,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     }
 
     /* child options to try using in deletion */
-    private enum Option { INCLUDE, EXCLUDE, NONE };
+    private enum Option { NONE, INCLUDE, EXCLUDE, BOTH };
 
     /**
      * Test deletion of tag sets with variously linked tags.
@@ -310,6 +310,8 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tagsets.get(0).getId().getValue()));
 
         switch (option) {
+        case NONE:
+            break;
         case INCLUDE:
             delete.childOptions = Collections.<ChildOption>singletonList(new ChildOption());
             delete.childOptions.get(0).includeType = Collections.singletonList("Annotation");
@@ -318,7 +320,10 @@ public class AnnotationDeleteTest extends AbstractServerTest {
             delete.childOptions = Collections.<ChildOption>singletonList(new ChildOption());
             delete.childOptions.get(0).excludeType = Collections.singletonList("Annotation");
             break;
-        case NONE:
+        case BOTH:
+            delete.childOptions = Collections.<ChildOption>singletonList(new ChildOption());
+            delete.childOptions.get(0).includeType = Collections.singletonList("Annotation");
+            delete.childOptions.get(0).excludeType = Collections.singletonList("Annotation");
             break;
         default:
             Assert.fail("unexpected option for delete");
@@ -331,6 +336,13 @@ public class AnnotationDeleteTest extends AbstractServerTest {
 
         /* check that only the expected tags are deleted */
         switch (option) {
+        case NONE:
+            assertDoesNotExist(tags.get(0));
+            assertExists(tags.get(1));
+            assertExists(tags.get(2));
+            break;
+        case BOTH:
+            /* include overrides exclude */
         case INCLUDE:
             assertDoesNotExist(tags.get(0));
             assertDoesNotExist(tags.get(1));
@@ -344,11 +356,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
             delete = new Delete2();
             delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tags.get(0).getId().getValue()));
             doChange(delete);
-            break;
-        case NONE:
-            assertDoesNotExist(tags.get(0));
-            assertExists(tags.get(1));
-            assertExists(tags.get(2));
             break;
         }
 
