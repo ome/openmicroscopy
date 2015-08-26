@@ -306,26 +306,26 @@ class TestDelete(CLITest):
         assert not self.query.find('Dataset', dset.id.val)
         assert not self.query.find('Image', img.id.val)
 
-    def testIncludeExcludeSecond(self, simpleHierarchy):
+    def testExcludeDataset(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
 
         self.args += ['Project:%s' % proj.id.val]
         self.args += ['--exclude', 'Dataset']
         self.cli.invoke(self.args, strict=True)
 
-        # Check that everything has been deleted.
+        # Check that only the Project has been deleted.
         assert not self.query.find('Project', proj.id.val)
         assert self.query.find('Dataset', dset.id.val)
         assert self.query.find('Image', img.id.val)
 
-    def testExcludeThird(self, simpleHierarchy):
+    def testExcludeImage(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
 
         self.args += ['Project:%s' % proj.id.val]
         self.args += ['--exclude', 'Image']
         self.cli.invoke(self.args, strict=True)
 
-        # Check that everything has been deleted.
+        # Check that only Project & Dataset have been deleted.
         assert not self.query.find('Project', proj.id.val)
         assert not self.query.find('Dataset', dset.id.val)
         assert self.query.find('Image', img.id.val)
