@@ -1906,8 +1906,6 @@ def full_viewer(request, iid, conn=None, **kwargs):
 
     rid = getImgDetailsFromReq(request)
 
-    interpolate = request.session['server_settings']['interpolate_pixels']
-
     try:
         image = conn.getObject("Image", iid)
         if image is None:
@@ -1916,7 +1914,6 @@ def full_viewer(request, iid, conn=None, **kwargs):
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
-             'interpolate': interpolate,
              'build_year': build_year,
              'roiCount': image.getROICount(),
              'viewport_server': kwargs.get(

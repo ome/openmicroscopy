@@ -157,7 +157,13 @@ def imageMarshal(image, key=None, request=None):
         init_zoom = 0
 
     try:
+        interpolate = request.session['server_settings']['interpolate_pixels']
+    except:
+        interpolate = False
+
+    try:
         rv.update({
+            'interpolate': interpolate,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
                      'z': image.getSizeZ(),

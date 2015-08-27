@@ -1107,7 +1107,6 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
 
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
-    interpolate = request.session['server_settings']['interpolate_pixels']
 
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     if share_id:
@@ -1148,7 +1147,6 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     context['manager'] = manager
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
-    context['interpolate'] = interpolate
     context['template'] = "webclient/annotations/metadata_preview.html"
     return context
 
