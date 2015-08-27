@@ -411,6 +411,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     elif menu == 'usertags':
         template = "webclient/data/container_tags.html"
     else:
+        # E.g. search/search.html
         template = "webclient/%s/%s.html" % (menu, menu)
 
     # tree support
@@ -421,10 +422,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         first_sel = show.first_selected
     except IncorrectMenuError, e:
         return HttpResponseRedirect(e.uri)
-    init = {
-        'initially_open': show.initially_open,
-        'initially_select': show.initially_select
-    }
+    # We get the owner of the top level object, E.g. Project
+    # Actual api_paths_to_object() is retrieved by jsTree once loaded
     initially_open_owner = show.initially_open_owner
 
     # need to be sure that tree will be correct omero.group
@@ -432,6 +431,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         switch_active_group(request, first_sel.details.group.id.val)
 
     # search support
+    init = {}
     global_search_form = GlobalSearchForm(data=request.REQUEST.copy())
     if menu == "search":
         if global_search_form.is_valid():
@@ -2714,7 +2714,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
     @param action:      "addnewcontainer", (creates a new Project, Dataset,
                         Screen), "editname", "savename", "editdescription",
                         "savedescription",  (used as GET and POST for in-line
-                        editing), "paste", "move", "remove",
+                        editing),
                         "removefromshare", (tree P/D/I moving etc)
                         "delete", "deletemany"      (delete objects)
     @param o_type:      "dataset", "project", "image", "screen", "plate",
@@ -2962,38 +2962,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
-    elif action == 'paste':
-        # Handles 'paste' action from the jsTree. Destination in POST
-        destination = request.REQUEST['destination'].split('-')
-        rv = manager.paste(destination)
-        if rv:
-            rdict = {'bad': 'true', 'errs': rv}
-            return HttpJsonResponse(rdict)
-        else:
-            rdict = {'bad': 'false'}
-            return HttpJsonResponse(rdict)
-    elif action == 'move':
-        # Handles drag-and-drop moving of objects in jsTree.
-        # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
-        parent = request.REQUEST['parent'].split('-')
-        # source = request.REQUEST['source'].split('-')
-        destination = request.REQUEST['destination'].split('-')
-        rv = None
-        try:
-            if parent[1] == destination[1]:
-                rv = "Error: Cannot move to the same place."
-        except Exception, x:
-            rdict = {'bad': 'true', 'errs': str(x)}
-        else:
-            if rv is None:
-                rv = manager.move(parent, destination)
-            if rv:
-                rdict = {'bad': 'true', 'errs': rv}
-            else:
-                rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
     elif action == 'remove':
-        # Handles 'remove' of Images from jsTree, removal of comment, tag from
+        # Handles removal of comment, tag from
         # Object etc.
         # E.g. image-123  or image-1|image-2
         parents = request.REQUEST['parent']
