@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 //Java imports
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -34,33 +36,61 @@ import java.awt.Point;
  * 2D-selection within an XY-plane. Some of the fields are also used as
  * accumulators during the computation.
  *
+ * (A less memory consuming implementation of {@link AbstractROIShapeStats} than
+ * {@link ROIShapeStats} )
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ROIShapeStatsSimple extends AbstractROIShapeStats {
-    /**
-     * Array holding the pixels values.
-     */
-    private double[] pixelsValue;
 
     /**
-     * Index pointing to the next unassigned field in the pixelsValue array
+     * The {@link List} of {@link Point}s
      */
-    private int index;
+    private List<Point> points;
 
     /**
-     * Returns the pixel values.
+     * The corresponding values
+     */
+    private double values[];
+
+    /**
+     * Get the {@link Point}s in the order they have been added.
      * 
      * @return See above.
      */
-    public double[] getPixelsValue() {
-        return pixelsValue;
+    public List<Point> getPoints() {
+        return points;
+    }
+
+    /**
+     * Get the values in the order they have been added.
+     * 
+     * @return See above.
+     */
+    public double[] getValues() {
+        return values;
+    }
+
+    /**
+     * Get the value for a certain {@link Point} (Note: Not very efficient, if
+     * you know the index better use {@link #getValues()}[index] )
+     * 
+     * @param p
+     *            The {@link Point} to get the value for
+     * @return See above.
+     */
+    public double getValue(Point p) {
+        int i = points.indexOf(p);
+        if (i == -1)
+            return Double.NaN;
+        else
+            return values[i];
     }
 
     /**
      * Calculates the mean and standard deviation for the current
-     * {@link ROIShapeStatsSimple}.
+     * {@link ROIShapeStats}.
      * 
      * @see PointIteratorObserver#onEndPlane(int, int, int, int)
      */
@@ -78,8 +108,8 @@ public class ROIShapeStatsSimple extends AbstractROIShapeStats {
     }
 
     /**
-     * Updates the min, max, and sum values of the current
-     * {@link ROIShapeStatsSimple}.
+     * Updates the min, max, and sum values of the current {@link ROIShapeStats}
+     * .
      * 
      * @see PointIteratorObserver#update(double, int, int, int, Point)
      */
@@ -88,17 +118,18 @@ public class ROIShapeStatsSimple extends AbstractROIShapeStats {
         max = Math.max(pixelValue, max);
         sum += pixelValue;
         sumOfSquares += pixelValue * pixelValue;
-        pixelsValue[index++] = pixelValue;
+        values[points.size()] = pixelValue;
+        points.add(loc);
     }
 
     /**
-     * Creates a new array to store the pixel values.
+     * Creates a new map to store the pixel values.
      * 
      * @see PointIteratorObserver#onStartPlane(int, int, int, int)
      */
     public void onStartPlane(int z, int w, int t, int pointsCount) {
-        pixelsValue = new double[pointsCount];
-        index = 0;
+        points = new ArrayList<Point>();
+        values = new double[pointsCount];
     }
 
     /**
@@ -118,5 +149,4 @@ public class ROIShapeStatsSimple extends AbstractROIShapeStats {
      */
     public void iterationFinished() {
     }
-
 }

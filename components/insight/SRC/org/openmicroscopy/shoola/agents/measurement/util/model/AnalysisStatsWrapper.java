@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 //Java imports
-import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +32,6 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.roi.AbstractROIShapeStats;
-import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -60,8 +58,7 @@ public class AnalysisStatsWrapper
 		MEAN,
 		STDDEV,
 		PIXELDATA,
-		SUM,
-		PIXEL_PLANEPOINT2D
+		SUM
 	};
 
 	/**
@@ -73,21 +70,20 @@ public class AnalysisStatsWrapper
 	public static Map<StatsType, Map> convertStats(Map shapeStats)
 	{
 		if (shapeStats == null || shapeStats.size() == 0) return null;
-		AbstractROIShapeStats stats;
+		ROIShapeStatsSimple stats;
 		Map<Integer, Double> channelMin = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelSum = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelMax = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelMean = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
-		Map<Integer, double[]> channelData = new TreeMap<Integer, double[]>();
-		double[] pixels;
+		Map<Integer, ROIShapeStatsSimple> channelData = new TreeMap<Integer,ROIShapeStatsSimple>();
 		
 		int channel;
 		Iterator channelIterator = shapeStats.keySet().iterator();
 		while (channelIterator.hasNext())
 		{
 			channel = (Integer) channelIterator.next();
-			stats = (AbstractROIShapeStats) shapeStats.get(channel);
+			stats = (ROIShapeStatsSimple) shapeStats.get(channel);
 			channelSum.put(channel, stats.getSum());
 			channelMin.put(channel, stats.getMin());
 			channelMax.put(channel, stats.getMax());
@@ -95,22 +91,7 @@ public class AnalysisStatsWrapper
 					stats.getMean()));
 			channelStdDev.put(channel, UIUtilities.roundTwoDecimals(
 					stats.getStandardDeviation()));
-			
-            if (stats instanceof ROIShapeStatsSimple)
-                pixels = ((ROIShapeStatsSimple) stats).getPixelsValue();
-            else {
-                Map<Point, Double> pixelsMap = ((ROIShapeStats) stats)
-                        .getPixelsValue();
-                Iterator<Double> pixelIterator = pixelsMap.values().iterator();
-                pixels = new double[pixelsMap.size()];
-                int cnt = 0;
-                while (pixelIterator.hasNext()) {
-                    pixels[cnt] = pixelIterator.next();
-                    cnt++;
-                }
-            }
-			
-			channelData.put(channel, pixels);
+			channelData.put(channel,  (ROIShapeStatsSimple) stats);
 		}
 		Map<StatsType, Map> 
 			statsMap = new HashMap<StatsType, Map>(StatsType.values().length);
@@ -120,8 +101,6 @@ public class AnalysisStatsWrapper
 		statsMap.put(StatsType.MEAN, channelMean);
 		statsMap.put(StatsType.STDDEV, channelStdDev);
 		statsMap.put(StatsType.PIXELDATA, channelData);
-		statsMap.put(StatsType.PIXEL_PLANEPOINT2D, channelData);
-		//shapeStats.clear();
 		return statsMap;
 	}
 	
