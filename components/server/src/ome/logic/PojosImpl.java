@@ -54,6 +54,7 @@ import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 import ome.services.query.HierarchyNavigator;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -101,6 +102,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             + "left outer join fetch p.annotationLinksCountPerOwner " 
             + "where p in (:list)";
 
+    /** Query to load the number of annotations per dataset. */
+    final static String loadLinksDatasets = "select d from Dataset d "
+            + "left outer join fetch d.annotationLinksCountPerOwner "
+            + "left outer join fetch d.imageLinksCountPerOwner where d " 
+            + "in (:list)";
+    
     /* A model object hierarchy navigator that is convenient for getImagesBySplitFilesets.
      * To switch its API from bare Longs to an IObject-based query interface, it is easy to implement
      * HierarchyNavigatorWrap<Class<? extends IObject>, IObject> and implement noteLookups with its methods. */
@@ -184,28 +191,60 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 datasets.addAll(p.linkedDatasetList());
             }
             if (options.isOrphan()) {
-            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
-            		Iterator<Dataset> i = datasets.iterator();
-            		Set<Long> linked = new HashSet<Long>();
-            		while (i.hasNext()) {
-						linked.add(i.next().getId());
-					}
-            		q = getQueryFactory().lookup(
+                if (CollectionUtils.isEmpty(rootNodeIds)) {
+                    Iterator<Dataset> i = datasets.iterator();
+                    Set<Long> linked = new HashSet<Long>();
+                    while (i.hasNext()) {
+                        linked.add(i.next().getId());
+                    }
+                    q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             options.addClass(Dataset.class).addIds(rootNodeIds));
-            		List<IObject> list = iQuery.execute(q);
-            		Iterator<IObject> j = list.iterator();
-            		Long id;
-            		
-            		while (j.hasNext()) {
-            			d = (Dataset) j.next();
-						id = d.getId();
-						if (!linked.contains(id)) {
-							l.add(d);
-							datasets.add(d);
-						}
-					}
-            	}
+                    List<IObject> list = iQuery.execute(q);
+                    Iterator<IObject> j = list.iterator();
+                    Long id;
+
+                    Map<Long, Dataset> notLinked = new HashMap<Long, Dataset>();
+                    while (j.hasNext()) {
+                        d = (Dataset) j.next();
+                        id = d.getId();
+                        if (!linked.contains(id)) {
+                            notLinked.put(id, d);// not linked to user's project
+                        }
+                    }
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("select this from Project this ");
+                    sb.append("left outer join fetch this.datasetLinks pdl ");
+                    sb.append("left outer join fetch pdl.child ds ");
+                    sb.append("where ds in (:list)");
+                    if (notLinked.size() > 0) {
+                        List<Dataset> nl = new ArrayList<Dataset>();
+                        nl.addAll(notLinked.values());
+                        List<IObject> projects =
+                                iQuery.findAllByQuery(sb.toString(),
+                                new Parameters().addList("list", nl));
+                        if (projects.isEmpty()) {
+                            datasets.addAll(nl);
+                            l.addAll(nl);
+                        } else { //some datasets are in the projects
+                            for (IObject o : projects) {
+                                p = (Project) o;
+                                List<Dataset> ll = p.linkedDatasetList();
+                                for (Dataset data : ll) {
+                                    if (notLinked.containsKey(data.getId())) {
+                                        notLinked.remove(data.getId());
+                                    }
+                                }
+                            }
+                            if (notLinked.size() > 0) {
+                                nl = new ArrayList<Dataset>();
+                                nl.addAll(notLinked.values());
+                                datasets.addAll(nl);
+                                l.addAll(nl); 
+                            }
+                        }
+                    }
+                }
             }
             if (datasets.size() > 0) {
                 iQuery.findAllByQuery(loadCountsDatasets, new Parameters()
@@ -239,28 +278,60 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 plates.addAll(p.linkedPlateList());
             }
             if (options.isOrphan()) {
-            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
-            		Iterator<Plate> i = plates.iterator();
-            		Set<Long> linked = new HashSet<Long>();
-            		while (i.hasNext()) {
-						linked.add(i.next().getId());
-					}
-            		q = getQueryFactory().lookup(
+                if (CollectionUtils.isEmpty(rootNodeIds)) {
+                    Iterator<Plate> i = plates.iterator();
+                    Set<Long> linked = new HashSet<Long>();
+                    while (i.hasNext()) {
+                        linked.add(i.next().getId());
+                    }
+                    q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             options.addClass(Plate.class).addIds(rootNodeIds));
-            		List<IObject> list = iQuery.execute(q);
-            		Iterator<IObject> j = list.iterator();
-            		Long id;
-            		
-            		while (j.hasNext()) {
-            			plate = (Plate) j.next();
-						id = plate.getId();
-						if (!linked.contains(id)) {
-							l.add(plate);
-							plates.add(plate);
-						}
-					}
-            	}
+                    List<IObject> list = iQuery.execute(q);
+                    Iterator<IObject> j = list.iterator();
+                    Long id;
+                    Plate pp;
+                    Map<Long, Plate> notLinked = new HashMap<Long, Plate>();
+                    while (j.hasNext()) {
+                        pp = (Plate) j.next();
+                        id = pp.getId();
+                        if (!linked.contains(id)) {
+                            notLinked.put(id, pp);// not linked to user's screen
+                        }
+                    }
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("select this from Screen this ");
+                    sb.append("left outer join fetch this.plateLinks pdl ");
+                    sb.append("left outer join fetch pdl.child ds ");
+                    sb.append("where ds in (:list)");
+                    if (notLinked.size() > 0) {
+                        List<Plate> nl = new ArrayList<Plate>();
+                        nl.addAll(notLinked.values());
+                        List<IObject> screens =
+                                iQuery.findAllByQuery(sb.toString(),
+                                new Parameters().addList("list", nl));
+                        if (screens.isEmpty()) {
+                            plates.addAll(nl);
+                            l.addAll(nl);
+                        } else { //some datasets are in the projects
+                            for (IObject o : screens) {
+                                p = (Screen) o;
+                                List<Plate> ll = p.linkedPlateList();
+                                for (Plate data : ll) {
+                                    if (notLinked.containsKey(data.getId())) {
+                                        notLinked.remove(data.getId());
+                                    }
+                                }
+                            }
+                            if (notLinked.size() > 0) {
+                                nl = new ArrayList<Plate>();
+                                nl.addAll(notLinked.values());
+                                plates.addAll(nl);
+                                l.addAll(nl); 
+                            }
+                        }
+                    }
+                }
             }
             if (plates.size() > 0) {
                 iQuery.findAllByQuery(loadCountsPlates, new Parameters()
