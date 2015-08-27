@@ -1065,11 +1065,6 @@
       // disable 'Max Intensity' projection for single-Z images
       var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
       $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
-
-      // Turn off interpolation if disabled
-      {% if not interpolate %}
-        viewport.setPixelated(true);
-      {% endif %}
     });
 
     // 'Color' checkbox to left of image
