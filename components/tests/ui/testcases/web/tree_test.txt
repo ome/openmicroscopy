@@ -27,7 +27,7 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Dataset    ${FULL NAME}
     Node Popup Menu Item Should Be Enabled      Screen     ${FULL NAME}
     Node Popup Menu Item Should Be Disabled     Delete     ${FULL NAME}
-    Select First Project
+    Select First Project With Children
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
@@ -35,7 +35,7 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Dataset
     Node Popup Menu Item Should Be Disabled     Screen
     Node Popup Menu Item Should Be Enabled      Delete
-    Select First Dataset
+    Select First Dataset With Children
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
