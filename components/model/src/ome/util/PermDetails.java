@@ -38,7 +38,7 @@ import org.hibernate.Hibernate;
  * select d.details.permissions from Dataset d
  * </code>
  *
- * which returns a {@link Permissions} object with none of the extended
+ * which returns a {@link ome.model.internal.Permissions} object with none of the extended
  * restrictions (canRead, canAnnotate, etc) properly loaded, use:
  *
  * <code>
@@ -47,8 +47,8 @@ import org.hibernate.Hibernate;
  *
  * The return value for each will be the same.
  *
- * @see "HHH-3868"
- * @see "trac-12474"
+ * @see <a href="https://hibernate.atlassian.net/browse/HHH-3868">HHH-3868</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/12474">trac-12474</a>
  */
 @SuppressWarnings("serial")
 public class PermDetails implements IObject {
