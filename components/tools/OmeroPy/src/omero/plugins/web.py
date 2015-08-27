@@ -239,11 +239,10 @@ class WebControl(BaseControl):
                                 "apache", "apache-fcgi")):
             mismatch = True
         if mismatch:
-            self.ctx.die(1, ("ERROR: configuration mismatch. "
-                             "omero.web.application_server=%s cannot be used "
-                             " with 'omero web config %s'"
-                             ".") % (settings.APPLICATION_SERVER, argtype))
-            self._fastcgi_deprecation(settings)  # to be removed in 5.2
+            self.ctx.die(680, ("ERROR: configuration mismatch. "
+                               "omero.web.application_server=%s cannot be"
+                               " used with 'omero web config %s'"
+                               ".") % (settings.APPLICATION_SERVER, argtype))
 
     def config(self, args):
         """Generate a configuration file from a template"""
