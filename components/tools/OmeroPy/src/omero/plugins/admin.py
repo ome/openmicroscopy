@@ -981,8 +981,20 @@ present, the user will enter a console""")
 
     @with_config
     def diagnostics(self, args, config):
+
+        from xml.etree.ElementTree import XML
+        from omero.install.jvmcfg import read_settings
+
         self.check_access(os.R_OK)
-        memory = self.regenerate_templates(args, config)
+        templates = self._get_grid_dir() / "templates.xml"
+        template_xml = XML(templates.text())
+        try:
+            memory = read_settings(template_xml)
+        except Exception, e:
+            self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
+                         % (templates, e))
+
+        # memory = self.regenerate_templates(args, config)
         omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
@@ -1296,10 +1308,7 @@ OMERO Diagnostics %s
         # JVM settings
         self.ctx.out("")
         for k, v in sorted(memory.items()):
-            settings = v.pop(0)
             sb = " ".join([str(x) for x in v])
-            if str(settings) != "Settings()":
-                sb += " # %s" % settings
             item("JVM settings", " %s" % (k[0].upper() + k[1:]))
             self.ctx.out("%s" % sb)
 
