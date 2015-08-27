@@ -446,6 +446,8 @@ public class SelectionWizardUI
             filterArea.setForeground(Color.LIGHT_GRAY);
         }
         filterArea.getDocument().addDocumentListener(this);
+        filterArea.setSelectionStart(0);
+        filterArea.setSelectionEnd(filterArea.getText().length());
     }
 
     /**
