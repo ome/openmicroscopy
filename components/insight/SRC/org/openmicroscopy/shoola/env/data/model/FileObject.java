@@ -334,9 +334,9 @@ public class FileObject
             int sizeZ_org = sizeZ_cur;
             Document doc = null;
             try {
-            	doc = xmlParser(xmlStr);
+                doc = xmlParser(xmlStr);
             } catch (SAXException e) { //not XML or not possible to read it correctly
-            	//try to parse the string
+                //try to parse the string
                 String[] values = xmlStr.split("\n");
                 String v;
                 for (int i = 0; i < values.length; i++) {
