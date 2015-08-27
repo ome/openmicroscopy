@@ -859,7 +859,9 @@ class Connector
                 p.name = userName;
                 p.eventType = "Sessions";
                 ISessionPrx prx = entryEncrypted.getSessionService();
-                Session session = prx.createSessionWithTimeout(p, 0L);
+                Session session = prx.getSession(secureClient.getSessionId());
+                long timeout = session.getTimeToIdle().getValue();
+                session = prx.createSessionWithTimeouts(p, 0, timeout);
                 //Create the userSession
                 omero.client client = new omero.client(context.getHostName(),
                         context.getPort());
