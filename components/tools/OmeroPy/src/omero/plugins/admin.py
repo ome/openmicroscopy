@@ -210,8 +210,12 @@ Examples:
                                           exclusive=False)
 
         Action(
+            "rewrite",
+            "Regenerate the template files using the current configuration")
+
+        Action(
             "jvmcfg",
-            "Reset configuration settings based on the current system")
+            "Display JVM configuration settings based on the current system")
 
         Action(
             "waitup",
@@ -658,7 +662,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.regenerate_templates(args, config)
+        self.rewrite(args, config)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
@@ -716,7 +720,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
-        self.regenerate_templates(args, config)
+        self.rewrite(args, config)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -896,7 +900,19 @@ present, the user will enter a console""")
 
     @with_config
     def jvmcfg(self, args, config):
-        rv = self.regenerate_templates(args, config)
+        """Display JVM settings from the current configuration"""
+
+        from xml.etree.ElementTree import XML
+        from omero.install.jvmcfg import adjust_settings
+
+        # JVM configuration regeneration
+        templates = self._get_templates_dir() / "grid" / "templates.xml"
+        template_xml = XML(templates.text())
+        try:
+            rv = adjust_settings(config, template_xml)
+        except Exception, e:
+            self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
+                         % (templates, e))
 
         self.ctx.out("JVM Settings:")
         self.ctx.out("============")
@@ -907,12 +923,16 @@ present, the user will enter a console""")
                 sb += " # %s" % settings
             self.ctx.out("%s=%s" % (k, sb))
 
-    def regenerate_templates(self, args, config, force_rewrite=False):
-        """Internal function in termers"""
+    @with_config
+    def rewrite(self, args, config, force=False):
+        """
+        Regenerate all the template files under the configuration directory
+        """
+
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
 
-        if not force_rewrite:
+        if not force:
             if 0 == self.status(args, node_only=True):
                 self.ctx.die(
                     100, "Can't regenerate templates the server is running!")
@@ -994,7 +1014,6 @@ present, the user will enter a console""")
             self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
                          % (templates, e))
 
-        # memory = self.regenerate_templates(args, config)
         omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
