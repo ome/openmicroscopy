@@ -907,10 +907,17 @@ present, the user will enter a console""")
                 sb += " # %s" % settings
             self.ctx.out("%s=%s" % (k, sb))
 
-    def regenerate_templates(self, args, config):
+    def regenerate_templates(self, args, config, force_rewrite=False):
         """Internal function in termers"""
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
+
+        if not force_rewrite:
+            if 0 == self.status(args, node_only=True):
+                self.ctx.die(
+                    100, "Can't regenerate templates the server is running!")
+            # Reset return value
+            self.ctx.rv = 0
 
         # JVM configuration regeneration
         templates = self._get_templates_dir() / "grid" / "templates.xml"
