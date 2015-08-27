@@ -197,7 +197,7 @@ def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, **kwargs):
         assert client_endpoints in s
 
 
-class TestAdminJvmCfg(object):
+class TestAdminRegenerateTemplates(object):
     """Test template files regeneration"""
 
     @pytest.fixture(autouse=True)
@@ -227,9 +227,17 @@ class TestAdminJvmCfg(object):
         for f in etc_files:
             assert os.path.exists(path(self.cli.dir) / "etc" / f)
 
+    def testForceRewrite(self, monkeypatch):
+        """Test template regeneration while the server is running"""
+
+        # Call the jvmcfg command and test file genearation
+        monkeypatch.setattr(AdminControl, "status", lambda *args, **kwargs: 0)
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     @pytest.mark.parametrize(
         'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])
-    def testInvalidStrategy(self, suffix, tmpdir):
+    def testInvalidJvmCfgStrategy(self, suffix, tmpdir):
         """Test invalid JVM strategy configuration leads to CLI error"""
 
         key = "omero.jvmcfg.strategy%s" % suffix
