@@ -208,7 +208,7 @@ public class Permissions implements Serializable {
      * is dependent on the internal representation of {@link Permissions} and
      * should only be used when necessary.
      *
-     * @see "ome.tools.hibernate.SecurityFilter"
+     * @see ome.tools.hibernate.SecurityFilter
      */
     public static int bit(Flag flag) {
         return flag.bit();
@@ -219,7 +219,7 @@ public class Permissions implements Serializable {
      * {@link Right}. This is dependent on the internal representation of
      * {@link Permissions} and should only be used when necessary.
      *
-     * @see "ome.tools.hibernate.SecurityFilter"
+     * @see ome.tools.hibernate.SecurityFilter
      */
     public static int bit(Role role, Right right) {
         return right.mask() << role.shift();

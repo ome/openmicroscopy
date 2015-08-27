@@ -50,7 +50,7 @@ public interface RawFileStore extends StatefulServiceInterface {
      * Reads {@code length} bytes of data at the {@code position} from the raw
      * file into an array of bytes
      *
-     * @see "ome.io.nio.FileBuffer#read(java.nio.ByteBuffer, long)"
+     * @see ome.io.nio.FileBuffer#read(java.nio.ByteBuffer, long)
      */
     public byte[] read(long position, int length);
 
