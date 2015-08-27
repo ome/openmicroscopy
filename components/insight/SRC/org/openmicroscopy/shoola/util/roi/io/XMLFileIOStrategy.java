@@ -22,16 +22,11 @@
  */
 package org.openmicroscopy.shoola.util.roi.io;
 
-
-//Java imports
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -46,9 +41,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class XMLFileIOStrategy
@@ -81,7 +73,7 @@ public class XMLFileIOStrategy
 	 * @throws NoSuchROIException
 	 * @throws ParsingException
 	 * @throws ROICreationException
-	 * @returns list of the newly loaded ROI.
+	 * @return list of the newly loaded ROI.
 	 */
 	public List<ROI> read(InputStream input, ROIComponent component)
 		throws NoSuchROIException, ParsingException, ROICreationException, 

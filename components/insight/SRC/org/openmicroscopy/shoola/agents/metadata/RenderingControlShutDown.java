@@ -23,13 +23,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import omero.gateway.SecurityContext;
@@ -94,8 +87,7 @@ public class RenderingControlShutDown
     public void cancel() { handle.cancel(); }
     
     /**
-     * Notifies the user that an error has occurred and discards the 
-     * {@link #viewer}.
+     * Logs the error
      * @see DSCallAdapter#handleException(Throwable)
      */
     public void handleException(Throwable exc)

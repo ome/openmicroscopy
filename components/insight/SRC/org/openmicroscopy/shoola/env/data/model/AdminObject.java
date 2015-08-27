@@ -23,16 +23,12 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.IllegalArgumentException;
 
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -47,9 +43,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class AdminObject 
@@ -140,7 +133,6 @@ public class AdminObject
 	 * 
 	 * @param group The group to handle.
 	 * @param values The experimenters to handle.
-	 * @param index One of the constants defined by this class.
 	 */
 	public AdminObject(GroupData group, Collection<ExperimenterData> values)
 	{

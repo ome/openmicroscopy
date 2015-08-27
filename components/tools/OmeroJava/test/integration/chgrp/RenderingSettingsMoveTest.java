@@ -1,21 +1,19 @@
 /*
- * $Id$
- *
- * Copyright 2006-2013 University of Dundee. All rights reserved.
+ * Copyright 2006-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.chgrp;
 
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Chgrp2;
+import omero.gateway.util.Requests;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -23,8 +21,6 @@ import omero.model.Pixels;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import static org.testng.AssertJUnit.*;
 
@@ -104,11 +100,7 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         //move the image(s)
         long id = img.getId().getValue();
         // Move the image
-        final Chgrp2 mv = new Chgrp2();
-        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
-        mv.groupId = g.getId().getValue();
+        final Chgrp2 mv = Requests.chgrp("Image", id, g.getId().getValue());
         callback(true, client, mv);
 
         //Check if the settings have been deleted.

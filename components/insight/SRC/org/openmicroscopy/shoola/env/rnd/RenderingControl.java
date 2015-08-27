@@ -23,19 +23,12 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
-
-//Third-party libraries
-
-
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
@@ -57,9 +50,6 @@ import pojos.PixelsData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface RenderingControl
@@ -579,7 +569,7 @@ public interface RenderingControl
     /**
      * Resets the rendering settings.
      * 
-     * @param settings
+     * @param rndDef
      *            The settings to set.
      * @param includeZT Pass <code>true</code> to also reset Z and T setting,
      *         <code>false</code> to ignore Z and T
@@ -821,7 +811,7 @@ public interface RenderingControl
 	 * Returns <code>true</code> if it is a big image, <code>false</code>
 	 * otherwise.
 	 * 
-	 * @return
+	 * @return See above.
 	 * @throws RenderingServiceException
 	 * @throws DSOutOfServiceException
 	 */

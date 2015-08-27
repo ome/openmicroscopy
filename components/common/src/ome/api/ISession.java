@@ -32,7 +32,7 @@ import ome.system.Principal;
  * {@link Session}.
  * 
  * Note: Both the RMI {@link ome.system.ServiceFactory} as well as the Ice
- * {@link omero.api.ServiceFactoryPrx} use {@link ISession} to acquire a
+ * {@code omero.api.ServiceFactoryPrx} use {@link ISession} to acquire a
  * {@link Session}. In the RMI case, the {@link ISession} instance is the first
  * remote proxy accessed. In the Ice case, Glacier2 contacts {@link ISession}
  * itself and returns a ServiceFactory remote proxy. From both ServiceFactory
@@ -47,7 +47,7 @@ public interface ISession extends ServiceInterface {
      * Allows a user to open up another session for him/herself with the given
      * defaults without needing to re-enter password.
      * 
-     * @DEV.TODO Review the security of this method.
+     * TODO Review the security of this method.
      */
     Session createUserSession(long timeToLiveMilliseconds,
             long timeToIdleMillisecond, String defaultGroup);
@@ -74,7 +74,7 @@ public interface ISession extends ServiceInterface {
      * 
      * @param principal
      *            Non-null {@link Principal} with the target user's name
-     * @param timeToLiveMillseconds
+     * @param timeToLiveMilliseconds
      *            The time that this {@link Session} has until destruction.
      *            Setting the value to 0 will prevent destruction unless the
      *            session remains idle.
@@ -164,10 +164,10 @@ public interface ISession extends ServiceInterface {
     Object getInput(String session, String key);
 
     /**
-     * Retrieves all keys in the {@link Session sesson's} input environment.
+     * Retrieves all keys in the {@link Session session's} input environment.
      * 
      * @param session
-     * @return
+     * @return a {@link Set} of keys
      */
     Set<String> getInputKeys(String session);
 

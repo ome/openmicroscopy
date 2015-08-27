@@ -1,24 +1,22 @@
 /*
- * $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.delete;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
@@ -42,8 +40,6 @@ import omero.model.Well;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import static org.testng.AssertJUnit.*;
 import pojos.FileAnnotationData;
@@ -76,10 +72,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(i1.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", i1.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(i1);
@@ -152,10 +145,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         // Now delete the rois.
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Roi.class.getSimpleName(),
-                Collections.singletonList(roiID));
+        final Delete2 dc = Requests.delete("Roi", roiID);
         callback(true, client, dc);
         assertDoesNotExist(roi);
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
@@ -228,11 +218,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         // Now delete the plate
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(p.getId()
-                        .getValue()));
+        final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(p);
         assertDoesNotExist(roi);

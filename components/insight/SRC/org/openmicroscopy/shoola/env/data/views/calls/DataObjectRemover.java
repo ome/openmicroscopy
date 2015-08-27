@@ -22,16 +22,11 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-//Java imports
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.RequestCallback;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -49,9 +44,6 @@ import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataObjectRemover
@@ -91,7 +83,7 @@ public class DataObjectRemover
     }
     
     /**
-     * Adds the {@link #call} to the computation tree.
+     * Adds the {@link #makeDeleteCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.GraphPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -48,6 +48,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -364,8 +365,13 @@ public class GraphPane
 	private HistogramPlot drawHistogram(String title,  List<String> channelNames,
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
-		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
-			channelColours, bins, channelMinValue(), channelMaxValue());
+        HistogramPlot plot;
+        if (CollectionUtils.isNotEmpty(data))
+            plot = new HistogramPlot(title, channelNames, data, channelColours,
+                    bins, channelMinValue(), channelMaxValue());
+        else
+            plot = new HistogramPlot(title, Collections.EMPTY_LIST,
+                    Collections.EMPTY_LIST, Collections.EMPTY_LIST, bins, 0, 1);
 		plot.setXAxisName("Intensity");
 		plot.setYAxisName("Frequency");
 		return plot;

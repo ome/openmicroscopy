@@ -23,31 +23,18 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-//Java imports
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 import javax.swing.filechooser.FileSystemView;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.grid.RepositoryPrx;
-import omero.model.Image;
-import omero.model.IObject;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import pojos.DataObject;
 import pojos.FileData;
 import pojos.ImageData;
-import pojos.MultiImageData;
 
 
 /** 
@@ -58,9 +45,6 @@ import pojos.MultiImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class FSFileSystemView 
@@ -245,9 +229,11 @@ public class FSFileSystemView
 	public long getUserID() { return userID; }
 	
     /**
-	 * Overridden to handle <code>FileData</code>.
-	 * @see FileSystemView#isRoot(FileData)
-	 */
+     * Checks if the file is the root.
+     *
+     * @param f The file to handle.
+     * @return See above.
+     */
     public boolean isRoot(FileData f)
     {
     	if (f == null) return false;
@@ -287,7 +273,6 @@ public class FSFileSystemView
      * Registers the passed file. Returns the updated data object.
      * 
      * @param file The file to register.
-     * @param userID The id of the owner of the directory to register.
      * @return See above.
      */
     public DataObject register(DataObject file)
@@ -407,7 +392,6 @@ public class FSFileSystemView
      * @param dir 			The directory to handle.
      * @param useFileHiding Pass <code>true</code> to return the files not
      * 						hidden, <code>false</code> otherwise.
-     *  @see FileSystemView#getFiles(FileData, boolean)
      */
     public DataObject[] getFiles(FileData dir, boolean useFileHiding)
     	throws FSAccessException

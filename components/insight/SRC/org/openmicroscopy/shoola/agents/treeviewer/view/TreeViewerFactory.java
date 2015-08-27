@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
-
-//Java imports
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -47,10 +45,6 @@ import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -78,9 +72,6 @@ import pojos.ImageData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class TreeViewerFactory
@@ -513,7 +504,7 @@ public class TreeViewerFactory
 	}
 	
 	/**
-	 * Sets the {@link #viewer} to <code>null</code> when it is
+	 * Removes all the references to viewer when the state is
 	 * {@link TreeViewer#DISCARDED discarded}. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */ 

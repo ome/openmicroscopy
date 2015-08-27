@@ -40,6 +40,7 @@ import omero.cmd.DiskUsageResponse;
 import omero.cmd.ManageImageBinaries;
 import omero.cmd.ManageImageBinariesResponse;
 import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -221,8 +222,7 @@ public class DiskUsageTest extends AbstractServerTest {
     @AfterClass
     public void teardown() throws Exception {
         if (imageId != null) {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
+            final Delete2 request = Requests.delete("Image", imageId);
             doChange(request);
         }
     }
@@ -290,13 +290,8 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
             }
         } finally {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Project", Collections.singletonList(projectId));
-
-            final ChildOption option = new ChildOption();
-            option.excludeType = Collections.singletonList("Image");
-            request.childOptions = Collections.singletonList(option);
-
+            final ChildOption option = Requests.option(null, "Image");
+            final Delete2 request = Requests.delete("Project", projectId, option);
             doChange(request);
         }
     }
@@ -367,8 +362,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            final Delete2 request = Requests.delete("Annotation", annotationIds);
             doChange(request);
         }
     }
@@ -407,8 +401,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            final Delete2 request = Requests.delete("Annotation", annotationIds);
             doChange(request);
         }
     }
@@ -441,8 +434,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            final Delete2 request = Requests.delete("Annotation", annotationIds);
             doChange(request);
         }
     }
@@ -492,8 +484,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            final Delete2 request = Requests.delete("Annotation", annotationIds);
             doChange(request);
         }
     }
@@ -528,8 +519,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            final Delete2 request = Requests.delete("Annotation", annotationIds);
             doChange(request);
         }
     }
@@ -558,8 +548,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            final Delete2 request = Requests.delete("Annotation", annotationIds);
             doChange(request);
         }
     }

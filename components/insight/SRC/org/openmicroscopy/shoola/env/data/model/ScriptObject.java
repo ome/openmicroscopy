@@ -312,7 +312,7 @@ public class ScriptObject
      * Returns <code>true</code> if it is an official script,
      * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean isOfficialScript() { return official; }
 
@@ -661,10 +661,12 @@ public class ScriptObject
     public long getGroupID() { return groupID; }
 
     /**
-     * 
-     * @param data
-     * @param key
-     * @return
+     * Returns <code>true</code> if the specified object is supported,
+     * <code>false</code> otherwise.
+     *
+     * @param data The object to set.
+     * @param key The key to determine if the object is supported.
+     * @return See above.
      */
     public boolean isSupportedType(pojos.DataObject data, String key)
     {

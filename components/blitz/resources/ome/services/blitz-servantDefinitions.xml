@@ -388,7 +388,6 @@
           <value>openmicroscopy.org/omero/measurement</value>
         </set>
       </constructor-arg>
-      <constructor-arg value="${omero.graphs.wrap}"/>
   </bean>
 
   <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"

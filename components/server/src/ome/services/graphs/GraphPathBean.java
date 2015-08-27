@@ -260,7 +260,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                     /* the property can link to entities, so process it further */
                     final String propertyPath = Joiner.on('.').join(property.path);
                     /* find if the property is accessible (e.g., not protected) */
-                    boolean propertyIsAccessible = true;
+                    boolean propertyIsAccessible = false;
                     String classToInstantiateName = property.holder;
                     Class<?> classToInstantiate = null;
                     try {
@@ -271,13 +271,12 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                         }
                         try {
                             PropertyUtils.getNestedProperty(classToInstantiate.newInstance(), propertyPath);
+                            propertyIsAccessible = true;
                         } catch (NoSuchMethodException e) {
-                            propertyIsAccessible = false;
-                        } catch (NestedNullException e) {
-                            propertyIsAccessible = false;
+                            /* expected for collection properties */
                         }
-                    } catch (ReflectiveOperationException e) {
-                        log.error("could not probe property of " + property.holder, e);
+                    } catch (NestedNullException | ReflectiveOperationException e) {
+                        log.error("could not probe property " + propertyPath + " of " + property.holder, e);
                     }
                     /* build property report line for log */
                     final char arrowShaft = property.isNullable ? '-' : '=';

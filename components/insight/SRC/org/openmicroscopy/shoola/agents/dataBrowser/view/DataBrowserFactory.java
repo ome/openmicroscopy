@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,10 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 
@@ -73,9 +68,6 @@ import pojos.WellData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataBrowserFactory
@@ -115,15 +107,15 @@ public class DataBrowserFactory
 	}
 	
 	/**
-         * Creates a browser to display the results.
-         * 
-         * @param result The value to set.
-         * @return See above.
-         */
-        public static final DataBrowser getSearchBrowser(SearchResultCollection results)
-        {
-                return singleton.createSearchDataBrowser(results);
-        }
+	 * Creates a browser to display the results.
+	 * 
+	 * @param results The value to set.
+	 * @return See above.
+	 */
+	public static final DataBrowser getSearchBrowser(SearchResultCollection results)
+	{
+	    return singleton.createSearchDataBrowser(results);
+	}
 
 	/**
 	 * Returns the browser used for searching data.
@@ -210,9 +202,9 @@ public class DataBrowserFactory
 	 * Creates a new {@link DataBrowser} for the passed collection of 
 	 * files.
 	 * 
-	 *  @param ctx The security context.
-	 * @param parent		The parent's node.
-	 * @param experimenters	The collection to set.
+	 * @param ctx The security context.
+	 * @param parent The parent's node.
+	 * @param files The collection to set.
 	 * @return See above.
 	 */
 	public static final DataBrowser getFSFolderBrowser(
@@ -225,8 +217,8 @@ public class DataBrowserFactory
 	 * Creates a new {@link DataBrowser} for the passed collection of datasets.
 	 * 
 	 * @param ctx The security context.
-	 * @param parent	The parent's node.
-	 * @param nodes		The collection to set.
+	 * @param parent The parent's node.
+	 * @param nodes The collection to set.
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(SecurityContext ctx, 
@@ -238,8 +230,7 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed node.
 	 * 
-	 * @param parent  The node.
-	 * @param experimenter  The experimenter associated to the node.
+	 * @param parent The node.
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(Object parent)

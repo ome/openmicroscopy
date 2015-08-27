@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -19,25 +19,23 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration.chgrp;
 
 /**
- *
- *
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import omero.api.Save;
 import omero.cmd.Chgrp2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
+import omero.gateway.util.Requests;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -54,8 +52,6 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import static org.testng.AssertJUnit.*;
 
@@ -155,11 +151,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Create commands to move and create the link in target
         List<Request> list = new ArrayList<Request>();
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(d.getId().getValue()));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Dataset", d.getId().getValue(), g.getId().getValue());
         list.add(dc);
 
         ProjectDatasetLink link = null;
@@ -276,11 +268,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(s1.getId().getValue()));
-        dc.groupId = g.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Dataset", s1.getId().getValue(), g.getId().getValue());
         callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();
@@ -289,7 +277,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addIds(ids);
         String sql = "select i from Image as i where i.id in (:ids)";
-        List results = iQuery.findAllByQuery(sql, param);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
         assertEquals(results.size(), ids.size());
 
         // S1 should have moved

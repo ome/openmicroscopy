@@ -22,14 +22,8 @@
  */
 package org.openmicroscopy.shoola.util.math.geom2D;
 
-
-
-//Java imports
 import java.awt.geom.Point2D;
 
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Represents a point in the Euclidean space <b>R</b><sup>2</sup>.
@@ -44,9 +38,6 @@ import java.awt.geom.Point2D;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class PlanePoint2D
@@ -183,7 +174,7 @@ public class PlanePoint2D
     
     /**
      * Calculates the Euclidian norm of this vector.
-     * That is, the square root of the {@link #dot(PlanePoint) dot} product of 
+     * That is, the square root of the {@link #dot(PlanePoint2D) dot} product of 
      * this vector by itself.
      * 
      * @return  The norm of this vector.

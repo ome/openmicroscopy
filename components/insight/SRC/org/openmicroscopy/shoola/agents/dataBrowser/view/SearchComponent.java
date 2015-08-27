@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
-//Java imports
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,14 +40,11 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 
-
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 import omero.gateway.model.SearchParameters;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
@@ -70,9 +65,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class SearchComponent
@@ -344,11 +336,9 @@ public class SearchComponent
 	/**
 	 * Initializes the component. Displays the controls buttons.
 	 * 
-	 * @param controls The collection of controls to add.
 	 * @param groups The collection of groups.
 	 */
-	public void initialize(
-			Collection<GroupData> groups)
+	public void initialize(Collection<GroupData> groups)
 	{
 		initialize(true, groups);
 	}
@@ -358,7 +348,6 @@ public class SearchComponent
 	 * 
 	 * @param showControl Pass <code>true</code> to display the buttons,
 	 *                    <code>false</code> otherwise.
-	 * @param controls The collection of controls to add.
 	 * @param groups The collection of groups.
 	 */
 	public void initialize(boolean showControl, Collection<GroupData> groups)
@@ -391,7 +380,7 @@ public class SearchComponent
 	/** 
 	 * Sets the values to add. 
 	 * 
-	 * @param values The values to add.
+	 * @param terms The values to add.
 	 */
 	protected void setTerms(List<String> terms)
 	{

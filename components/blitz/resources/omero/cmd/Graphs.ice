@@ -44,17 +44,6 @@ module omero {
          "java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
         sequence<GraphModify> GraphModifyList;
 
-        /**
-         *
-         **/
-        ["deprecated:use LegalGraphTargets"]
-        class GraphSpecList extends Request {};
-
-        ["deprecated:use LegalGraphTargetsResponse"]
-        class GraphSpecListRsp extends Response {
-            GraphModifyList list;
-        };
-
         ["deprecated:use omero::cmd::Chgrp2 instead"]
         class Chgrp extends GraphModify {
             long grp;

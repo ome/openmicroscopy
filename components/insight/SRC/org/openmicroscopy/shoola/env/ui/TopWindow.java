@@ -24,16 +24,12 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-//Java imports
 import java.awt.Frame;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.AnimatedJFrame;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -41,8 +37,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * A superclass for windows that are to be linked to the {@link TaskBar} by
  * means of one quick-launch button and a menu entry in the 
  * {@link TaskBar#WINDOW_MENU}.
- * <p>The constructor of this class automatically adds a button to the 
- * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and an entry in the
+ * <p>The constructor of this class automatically adds an entry in the
  * {@link TaskBar#WINDOW_MENU} &#151; subclasses use the <code>configure</code>
  * methods to specify icons, names, and tooltips. These are display-trigger
  * buttons that cause the window to be shown on screen. This class uses the
@@ -61,9 +56,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public abstract class TopWindow
@@ -87,8 +79,6 @@ public abstract class TopWindow
 	/** Adds the display buttons to the task bar and enables them. */
 	private void configureButtons()
 	{
-		//taskBar.addToMenu(TaskBar.WINDOW_MENU, winMenuEntry);
-		//taskBar.addToToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
 		enableButtons(true);
 	}
 	
@@ -121,8 +111,7 @@ public abstract class TopWindow
 	
 	/**
 	 * Called by subclasses to perform initialization.
-	 * This constructor adds a button to the 
-	 * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and an entry to the
+	 * This constructor adds an entry to the
 	 * {@link TaskBar#WINDOW_MENU} &#151; subclasses can then use the 
 	 * <code>configure</code> methods to specify icons, names, and tooltips.  
 	 * Also an instance of {@link TopWindowManager} is created to control mouse

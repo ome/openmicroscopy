@@ -22,18 +22,12 @@
  */
 package org.openmicroscopy.shoola.util.image.io;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
@@ -44,9 +38,6 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class IconReader
@@ -365,7 +356,7 @@ public class IconReader
 	/**
 	 * Returns the icon identified by the passed type.
 	 * 
-	 * @param index One of the constants defined by this class.
+	 * @param iconIndex One of the constants defined by this class.
 	 * @return See above.
 	 * @throws IOException If an error occurred while reading the file.
 	 */

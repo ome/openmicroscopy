@@ -13,8 +13,8 @@ import ome.model.meta.Session;
  * Manages the creation of a single {@link Session} created via the injected
  * {@link ISession} service. This is used for by the client-side
  * {@link ServiceFactory}. Each instance synchronizes on an internal mutex
- * during every call to {@link #getSessionId()} and
- * {@link #setSessionId(String)}
+ * during every call to {@link #getSession()} and
+ * {@link #setSession(Session)}
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  */

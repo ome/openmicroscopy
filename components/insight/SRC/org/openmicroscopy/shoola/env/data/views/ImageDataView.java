@@ -24,17 +24,11 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
 
@@ -65,9 +59,6 @@ import pojos.ROIData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public interface ImageDataView
@@ -111,7 +102,7 @@ public interface ImageDataView
      * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render.
-	 * @param largeImae Pass <code>true</code> to render a large image,
+	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @param compression The compression level used.
      * @param observer  Call-back handler.
@@ -276,11 +267,9 @@ public interface ImageDataView
 	/**
 	 * Imports the collection of images into the specified container.
 	 *  
-	 * @param context   The container where to import the images into or 
-	 * 					<code>null</code>.
-	 * @param userID	The id of the user.
-	 * @param groupID	The id of the group.
-	 * @param observer	Call-back handler.
+	 * @param context The container where to import the images into or 
+	 *                 <code>null</code>.
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle importFiles(ImportableObject context,
@@ -393,13 +382,13 @@ public interface ImageDataView
 	 * Loads the ROI if possible from the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param imageID 	The image's id.
-	 * @param userID	The user's id.
-	 * @param observer	Call-back handler.
+	 * @param imageID The image's id.
+	 * @param userID The user's id.
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadROIFromServer(SecurityContext ctx, long imageID,
-			long userID, AgentEventListener serverSideROILoader);
+			long userID, AgentEventListener observer);
 	
 	/**
 	 * Renders the image with the overlays if the passed map is not 

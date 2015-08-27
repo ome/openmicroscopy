@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
-
-
-//Java imports
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -47,9 +44,6 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public interface Browser
@@ -412,14 +406,14 @@ public interface Browser
 	
 	/**
          * Returns if interpolation is enabled or not
-         * @return
+         * @return See above.
          */
         public boolean isInterpolation();
     
        /**
         * En-/Disables interpolation
         * 
-        * @param interpolation
+        * @param interpolation The value to set.
         */
         public void setInterpolation(boolean interpolation);
 

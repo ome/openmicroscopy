@@ -22,12 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.events.iviewer;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -41,39 +35,36 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-public class ViewImageObject 
+public class ViewImageObject
 {
 
-	  /** The image to view. */
-    private DataObject	image;
-    
+    /** The image to view. */
+    private DataObject image;
+
     /** Rendering settings to set if any. */
-    private RndProxyDef	settings;
-    
+    private RndProxyDef settings;
+
     /** The id of the user who set the rendering settings. */
-    private long		selectedUserID;
-    
+    private long selectedUserID;
+
     /** The parent of the image or <code>null</code> if no context specified. */
-    private DataObject	parent;
-    
+    private DataObject parent;
+
     /** 
      * The grandparent of the image or <code>null</code> if no 
      * context specified. 
      */
-    private DataObject	grandParent;
-    
+    private DataObject grandParent;
+
     /** The id of the image to view. Used when no <code>ImageData</code>set. */
-    private long		imageID;
-    
+    private long imageID;
+
     /**
      * Creates a new instance.
-     * 
-     * @param imageID  	The id of the image to view.
+     *
+     * @param imageID The id of the image to view.
      */
     public ViewImageObject(long imageID)
     {
@@ -82,94 +73,93 @@ public class ViewImageObject
         this.imageID = imageID;
         selectedUserID = -1;
     }
-    
+
     /**
      * Creates a new instance.
-     * 
-     * @param image   	The image to view.
-     * @param bounds    The bounds of the component posting the event.
+     *
+     * @param image The image to view.
      */
     public ViewImageObject(DataObject image)
     {
         if (image == null) 
             throw new IllegalArgumentException("Image not null.");
         if (!(image instanceof ImageData || image instanceof WellSampleData))
-        	throw new IllegalArgumentException("Object can either be a " +
-        			"WellSample or an Image.");
+            throw new IllegalArgumentException("Object can either be a " +
+                    "WellSample or an Image.");
         this.image = image;
         selectedUserID = -1;
         imageID = -1;
     }
-    
+
     /**
      * Sets the context of the node.
      * 
-     * @param parent		The parent of the image or <code>null</code> 
-     * 						if no context specified.
-     * @param grandParent   The grandparent of the image or <code>null</code> 
-     * 						if no context specified.
+     * @param parent The parent of the image or <code>null</code>
+     *               if no context specified.
+     * @param grandParent The grandparent of the image or <code>null</code>
+     *                    if no context specified.
      */
     public void setContext(DataObject parent, DataObject grandParent)
     {
-    	this.parent = parent;
-    	this.grandParent = grandParent;
+        this.parent = parent;
+        this.grandParent = grandParent;
     }
-    
+
     /**
      * Returns the id of the image to view. 
      * 
      * @return See above.
      */
     public long getImageID() { return imageID; }
-    
+
     /**
      * Returns the parent of the image or <code>null</code> 
      * if no context specified.
-     * 
+     *
      * @return See above.
      */
     public DataObject getParent() { return parent; }
-    
+
     /**
      * Returns the grandparent of the image or <code>null</code> 
      * if no context specified.
-     * 
+     *
      * @return See above.
      */
     public DataObject getGrandParent() { return grandParent; }
-    
+
     /**
      * Sets the rendering settings set by the selected user.
      * 
-     * @param settings			The settings to set.
-     * @param selectedUserID	The id of the user who set the
-     * 							the rendering settings.
+     * @param settings The settings to set.
+     * @param selectedUserID The id of the user who set the
+     *                       the rendering settings.
      */
     public void setSettings(RndProxyDef	settings, long selectedUserID)
     {
-    	this.settings = settings;
-    	this.selectedUserID = selectedUserID;
+        this.settings = settings;
+        this.selectedUserID = selectedUserID;
     }
-    
+
     /**
      * Returns the rendering settings set by the specified user.
-     * 
+     *
      * @return See above.
      */
     public RndProxyDef getSettings() { return settings; }
-    
+
     /**
      * Returns the ID of the user the settings are related to.
-     * 
-     * @return See above. 
+     *
+     * @return See above.
      */
     public long getSelectedUserID() { return selectedUserID; }
 
     /**
      * Returns the image or well sample.
-     * 
-     * @return See above. 
+     *
+     * @return See above.
      */
     public DataObject getImage() { return image; }
-    
+
 }

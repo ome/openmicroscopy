@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-//Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -509,7 +508,7 @@ public class StatusLabel
      * Returns <code>true</code> if the checksums have been calculated,
      * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean hasChecksum() { return checksumEvent != null; }
 

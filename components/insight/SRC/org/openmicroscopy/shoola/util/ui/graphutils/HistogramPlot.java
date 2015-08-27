@@ -22,21 +22,15 @@
  */
 package org.openmicroscopy.shoola.util.ui.graphutils;
 
-
-//Java imports
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.statistics.HistogramDataset;
-
-//Application-internal dependencies
-
 
 /** 
  * Displays a histogram using <code>JfreeChart</code>.
@@ -46,9 +40,6 @@ import org.jfree.data.statistics.HistogramDataset;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class HistogramPlot
@@ -158,7 +149,7 @@ public class HistogramPlot
 	 * of items along the Y-axis greater than the passed value. 
 	 * 
 	 * @param threshold The threshold value.
-	 * @return 
+	 * @return See above.
 	 */
 	public Map<Double, Double> getYValues(int threshold)
 	{

@@ -16,7 +16,11 @@ import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
 import ome.parameters.Parameters;
 
 /**
@@ -44,8 +48,8 @@ import ome.parameters.Parameters;
  * </p>
  * <p>
  * Most methods take such an <code>options</code> map which is built on the
- * client-side using {@link omero.client.OptionBuilder an option builder.} The
- * currently supported options are:
+ * client-side using the {@link Parameters} class. The currently supported
+ * options are:
  * <ul>
  * <li><b>annotator</b>(Integer): If key exists but value null, annotations
  * are retrieved for all objects in the hierarchy where they exist; if a valid
@@ -86,12 +90,12 @@ import ome.parameters.Parameters;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @version 1.0
  * @since OME1.0
- * @DEV.TODO possibly move optionBuilder to the common code. ome.common.utils
- * @DEV.TODO possibly move map description to marker interface with a see also
+ * TODO possibly move optionBuilder to the common code. ome.common.utils
+ * TODO possibly move map description to marker interface with a see also
  *           link
- * @DEV.TODO add throws statements where necessary (IllegalArgument, ...)
+ * TODO add throws statements where necessary (IllegalArgument, ...)
  * 
  */
 public interface IContainer extends ServiceInterface {
@@ -110,15 +114,18 @@ public interface IContainer extends ServiceInterface {
      * <p>
      * Note that objects are never duplicated. For example, if an Experimenter
      * owns all the objects in the retrieved tree, then those objects will be
-     * linked to the <i>same</i> instance of {@link Experimenter}. Or if an
+     * linked to the <i>same</i> instance of
+     * {@link ome.model.meta.Experimenter}. Or if an
      * Image is contained in more than one Dataset in the retrieved tree, then
-     * all enclosing {@link Dataset} objects will point to the <i>same</i>
-     * {@link Image} object. And so on.
+     * all enclosing {@link ome.model.containers.Dataset} objects will point
+     * to the <i>same</i> {@link ome.model.core.Image} object. And so on.
      * </p>
      * 
-     * @param rootNodeType
-     *            The type of the root node. Can be {@link Project},
-     *            {@link Dataset}, {@link Screen} or {@link Plate}.
+     * @param rootNodeType  The type of the root node. Can be
+     *                      {@link Project},
+     *                      {@link Dataset},
+     *                      {@link Screen} or
+     *                      {@link Plate}.
      *            Cannot be null.
      * @param rootNodeIds
      *            The ids of the root nodes. Can be null if an Experimenter is
@@ -142,7 +149,7 @@ public interface IContainer extends ServiceInterface {
      *            when the root node is a {@link Screen}.
      *            <code>orphan</code> implies that objects which are not contained
      *            in an object of rootNodeType should also be returned.
-     * @DEV.TODO should it be applied at all levels?
+     * TODO should it be applied at all levels?
      * @return a set of hierarchy trees. The requested node as root and all of
      *           its descendants. The type of the returned value will be
      *           <code>rootNodeType</code>, unless <code>orphan</code> is specified
@@ -210,7 +217,7 @@ public interface IContainer extends ServiceInterface {
      *            top-level only or at each level in the hierarchy, but will not
      *            apply to the leaf (Image) level.
      * @return A <code>Set</code> with all root nodes that were found.
-     * @DEV.TODO decide on use of experimenter option
+     * TODO decide on use of experimenter option
      */
     public <T extends IObject> Set<IObject> findContainerHierarchies(@NotNull
     Class<T> rootNodeType, @NotNull
@@ -242,9 +249,9 @@ public interface IContainer extends ServiceInterface {
      *            </p>.
      *            <code>acquisition data</code> is only relevant for images.
      * @return A set of images.
-     * @see ome.util.builders.PojoOptions#paginate(int, int)
-     * @see ome.util.builders.PojoOptions#startTime(java.sql.Timestamp)
-     * @see ome.util.builders.PojoOptions#endTime(java.sql.Timestamp)
+     * @see Parameters#paginate(Integer, Integer)
+     * @see Parameters#startTime(java.sql.Timestamp)
+     * @see Parameters#endTime(java.sql.Timestamp)
      */
     public <T extends IObject> Set<Image> getImages(@NotNull
     Class<T> rootNodeType, @NotNull
@@ -341,13 +348,13 @@ public interface IContainer extends ServiceInterface {
      *      Project p = new Project(id,false);
      *      dataset.addProject(p);
      * </code>
-     * then for each parent relationship a DataObject {@link ILink#link} is
+     * then for each parent relationship a DataObject {@link ILink} is
      * created.
      * 
      * @param object
      *            IObject. Supported: Project, Dataset,
      *            Annotation, Group, Experimenter. Not null.
-     * @options Parameters as above.
+     * @param options Parameters as above.
      * @return the created object
      */
     public <T extends IObject> T createDataObject(@NotNull
@@ -362,7 +369,7 @@ public interface IContainer extends ServiceInterface {
      * @param options
      *            Parameters as above.
      * 
-     * @see createDataObject
+     * @see #createDataObject(IObject, Parameters)
      */
     public IObject[] createDataObjects(@NotNull IObject[] dataObjects, 
     		Parameters options);
@@ -376,7 +383,7 @@ public interface IContainer extends ServiceInterface {
      * @param options
      *            Parameters as above.
      */
-    public void unlink(@NotNull ILink[] dataOjectLinks, Parameters options);
+    public void unlink(@NotNull ILink[] dataObjectLinks, Parameters options);
 
     /**
      * Convenience method for creating links. Functionality also availeble

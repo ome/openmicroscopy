@@ -22,15 +22,10 @@
  */
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import omero.gateway.SecurityContext;
@@ -47,9 +42,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public interface AdminView
@@ -86,8 +78,7 @@ public interface AdminView
 	 * Loads the users who are administrators.
 	 * 
 	 * @param ctx The security context.
-	 * @param id	The identifier of the groups.
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadAdministrators(SecurityContext ctx,
@@ -177,8 +168,8 @@ public interface AdminView
 	 * or groups that could not be deleted.
 	 * 
 	 * @param ctx The security context.
-	 * @param experimenters The experimenters to delete.
-	 * @param observer	Call-back handler.
+	 * @param objects The objects to delete.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle deleteObjects(SecurityContext ctx,

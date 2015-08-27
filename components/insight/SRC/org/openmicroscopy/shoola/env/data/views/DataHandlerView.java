@@ -23,18 +23,11 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.List;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.model.SearchParameters;
@@ -53,9 +46,6 @@ import pojos.ImageData;
 * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 * @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
 * @since OME3.0
 */
 public interface DataHandlerView
@@ -102,14 +92,13 @@ public interface DataHandlerView
 	 * <code>ImageData</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param pixelsID The id of the pixels set of reference.
 	 * @param rootNodeType The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code>.
 	 * @param ids The identifiers of the nodes to apply settings to. 
 	 * 				Mustn't be <code>null</code>.
+	 * @param def The 'pending' rendering settings
+     * @param refImage The image the rendering settings belong to
 	 * @param observer Call-back handler.
-         * @param def The 'pending' rendering settings
-         * @param refImage The image the rendering settings belong to
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle pasteRndSettings(SecurityContext ctx,

@@ -22,11 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.util.browser;
 
-
-//Java imports
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,9 +32,6 @@ import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -60,9 +54,6 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class NodesFinder 
@@ -186,10 +177,10 @@ public class NodesFinder
 	 * @param type The type to data object.
 	 * @param ids The identifiers of the data object.
 	 */
-	public NodesFinder(Class<?> type, List<Long> id)
+	public NodesFinder(Class<?> type, List<Long> ids)
 	{
 		this.type = type;
-		this.ids = id;
+		this.ids = ids;
 		nodes = new HashSet<TreeImageDisplay>();
 	}
 	

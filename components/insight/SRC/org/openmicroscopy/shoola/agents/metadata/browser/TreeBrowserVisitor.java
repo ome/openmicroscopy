@@ -33,27 +33,20 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
  * visualization tree.
  * <p>This interface allows you to define arbitrary operations that can then 
  * be applied to the tree by calling the 
- * {@link TreeBrowserDisplay#accept(MetadataDisplayVisitor) accept} method of 
- * {@link TreeBrowserDisplay}, usually on the root node.  
- * or by calling the
- * {@link TreeBrowserDisplay#accept(MetadataDisplayVisitor, int) accept} method
- * of {@link TreeBrowserDisplay}.
+ * {@link TreeBrowserDisplay#doAccept(TreeBrowserVisitor) doAccept} method of 
+ * {@link TreeBrowserDisplay}, usually on the root node.
  * When a node is visited, the corresponding <code>visit</code> method is
  * called, passing a reference to the node. That is, if an {@link TreeBrowserNode}
  * is being visited, then the {@link #visit(TreeBrowserNode)} method is called. 
  * Otherwise the {@link #visit(TreeBrowserSet)} is called for {@link TreeBrowserSet}
  * nodes.
  * </p>
- * @see MedatadaDisplay
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface TreeBrowserVisitor

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 
-//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -34,8 +33,6 @@ import javax.swing.JFrame;
 import javax.swing.Timer;
 
 import omero.gateway.Gateway;
-
-//Third-party libraries
 
 /**
  *  Window uses to let the user know the time before the application will shut
@@ -211,9 +208,9 @@ public class ShutDownDialog
     }
 
     /**
-     * Sets the checker.
+     * Sets the gateway.
      *
-     * @param checker The value to set.
+     * @param gateway The value to set.
      */
     public void setGateway(Gateway gateway)
     {

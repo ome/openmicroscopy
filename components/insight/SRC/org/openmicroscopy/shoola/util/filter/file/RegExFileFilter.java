@@ -22,15 +22,9 @@
  */
 package org.openmicroscopy.shoola.util.filter.file;
 
-
-//Java imports
 import java.io.File;
 import java.util.regex.Pattern;
 import javax.swing.filechooser.FileFilter;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * A file filter for regular expressions.
@@ -40,9 +34,6 @@ import javax.swing.filechooser.FileFilter;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class RegExFileFilter 
@@ -159,8 +150,7 @@ public class RegExFileFilter
     }
 
 	/**
-	 * Overridden to return the extension of the filter.
-	 * @see CustomizedFileFilter#getExtensions()
+	 * Returns the extension of the filter.
 	 */
 	public String[] getExtensions()
 	{ 

@@ -23,88 +23,79 @@
 
 package org.openmicroscopy.shoola.env.init;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.PluginInfo;
 
 
 /** 
  * Reports an error occurred during initialization.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *          <a href="mailto:a.falconi@dundee.ac.uk">
+ *          a.falconi@dundee.ac.uk</a>
  * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 
-public class StartupException 
-	extends Exception
+public class StartupException
+extends Exception
 {
-	
-	/** The information about the plugin if any.*/
-	private PluginInfo pluginInfo;
-	
-	/**
-	 * Constructs a new exception with the specified detail message.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 */
-	public StartupException(String message) 
-	{
-		super(message);
-	}
-	
-	/**
-	 * Constructs a new exception with the specified detail message and cause.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
-	 */
-	public StartupException(String message, Throwable cause)
-	{
-		super(message, cause);
-	}
 
-	/**
-	 * Returns the fully qualified name of the class whose instance rose this
-	 * exception.
-	 * 
-	 * @return	See above.
-	 */
-	public String getOriginator() 
-	{
-		String originator = "unknown";
-		StackTraceElement[] stack = getStackTrace();
-		if (stack != null && 0 < stack.length)
-			originator = stack[0].getClassName();
-		return originator;
-	}
+    /** The information about the plugin if any.*/
+    private PluginInfo pluginInfo;
 
-	/**
-	 * Returns the information about the plugin if used in plugin mode.
-	 * 
-	 * @return See above.
-	 */
-	public PluginInfo getPlugin() { return pluginInfo; }
-	
-	/**
-	 * Sets the plugin's information.
-	 * 
-	 * @param plugin The value to set.
-	 */
-	public void setPluginInfo(PluginInfo pluginInfo)
-	{
-		this.pluginInfo = pluginInfo;
-	}
+    /**
+     * Constructs a new exception with the specified detail message.
+     * 
+     * @param message Short explanation of the problem.
+     */
+    public StartupException(String message) 
+    {
+        super(message);
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     * 
+     * @param message Short explanation of the problem.
+     * @param cause The exception that caused this one to be risen.
+     */
+    public StartupException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
+
+    /**
+     * Returns the fully qualified name of the class whose instance rose this
+     * exception.
+     * 
+     * @return See above.
+     */
+    public String getOriginator() 
+    {
+        String originator = "unknown";
+        StackTraceElement[] stack = getStackTrace();
+        if (stack != null && 0 < stack.length)
+            originator = stack[0].getClassName();
+        return originator;
+    }
+
+    /**
+     * Returns the information about the plugin if used in plugin mode.
+     * 
+     * @return See above.
+     */
+    public PluginInfo getPlugin() { return pluginInfo; }
+
+    /**
+     * Sets the plugin's information.
+     *
+     * @param pluginInfo The value to set.
+     */
+    public void setPluginInfo(PluginInfo pluginInfo)
+    {
+        this.pluginInfo = pluginInfo;
+    }
 
 }

@@ -3,6 +3,7 @@ import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
 import omero.cmd.OK;
 import omero.cmd.Response;
+import omero.gateway.util.Requests;
 import omero.api.ServiceFactoryPrx;
 import omero.model.*;
 import static omero.rtypes.*;
@@ -38,12 +39,9 @@ public class FileAnnotationDelete {
             d.linkAnnotation(fa);
             d = (Dataset) s.getUpdateService().saveAndReturnObject(d);
             fa = (FileAnnotation) d.linkedAnnotationList().get(0);
+            long faID = fa.getId().getValue();
 
-
-            Delete2 deleteCmd = new Delete2();
-            List<Long> ids = Collections.singletonList(fa.getId().getValue());
-            deleteCmd.targetObjects = new HashMap<String, List<Long>>();
-            deleteCmd.targetObjects.put("Annotation", ids);
+            Delete2 deleteCmd = Requests.delete("Annotation", faID);
             Map<String, String> callContext = new HashMap<String, String>();
             CmdCallbackI cb = null;
             try {

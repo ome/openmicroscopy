@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-
-//Java imports
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,13 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -184,8 +179,7 @@ public class ArchivedImageLoader
 	 * exception so to fail early and in the caller's thread.
 	 * 
 	 * @param ctx The security context.
-     * @param imageID The Id of the image.
-     * @param name The name of the image.
+     * @param imageIDs The identifiers of the images.
      * @param folderPath The location where to download the archived image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.

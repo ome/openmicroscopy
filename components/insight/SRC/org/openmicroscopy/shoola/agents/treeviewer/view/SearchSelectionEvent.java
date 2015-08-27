@@ -41,8 +41,8 @@ public class SearchSelectionEvent extends RequestEvent {
 
     /**
      * Creates a new instance
-     * 
-     * @param dataObjects
+     *
+     * @param dataObjects The data objects to handle.
      */
     public SearchSelectionEvent(List<DataObject> dataObjects) {
         this.dataObjects = dataObjects;
@@ -50,8 +50,8 @@ public class SearchSelectionEvent extends RequestEvent {
 
     /**
      * Get the selected {@link DataObject}s
-     * 
-     * @return
+     *
+     * @return See above.
      */
     public List<DataObject> getDataObjects() {
         return dataObjects;
@@ -59,8 +59,8 @@ public class SearchSelectionEvent extends RequestEvent {
 
     /**
      * Set the selected {@link DataObject}s
-     * 
-     * @param dataObjects
+     *
+     * @param dataObjects The data objects to handle.
      */
     public void setDataObjects(List<DataObject> dataObjects) {
         this.dataObjects = dataObjects;
