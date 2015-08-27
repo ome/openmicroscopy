@@ -699,7 +699,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.jvmcfg(args, config, verbose=False)
+        self.regenerate_templates(args, config)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
@@ -757,7 +757,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
-        self.jvmcfg(args, config, verbose=False)
+        self.regenerate_templates(args, config)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -936,9 +936,24 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @with_config
-    def jvmcfg(self, args, config, verbose=True):
+    def jvmcfg(self, args, config):
+        rv = self.regenerate_templates(args, config)
+
+        self.ctx.out("JVM Settings:")
+        self.ctx.out("============")
+        for k, v in sorted(rv.items()):
+            settings = v.pop(0)
+            sb = " ".join([str(x) for x in v])
+            if str(settings) != "Settings()":
+                sb += " # %s" % settings
+            self.ctx.out("%s=%s" % (k, sb))
+
+    def regenerate_templates(self, args, config):
+        """Internal function in termers"""
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
+
+        # JVM configuration regeneration
         templates = self._get_templates_dir() / "grid" / "templates.xml"
         generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
@@ -950,16 +965,6 @@ present, the user will enter a console""")
         except Exception, e:
             self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
                          % (templates, e))
-
-        if verbose:
-            self.ctx.out("JVM Settings:")
-            self.ctx.out("============")
-            for k, v in sorted(rv.items()):
-                settings = v.pop(0)
-                sb = " ".join([str(x) for x in v])
-                if str(settings) != "Settings()":
-                    sb += " # %s" % settings
-                self.ctx.out("%s=%s" % (k, sb))
 
         def clear_tail(elem):
             elem.tail = ""
@@ -1011,7 +1016,7 @@ present, the user will enter a console""")
     @with_config
     def diagnostics(self, args, config):
         self.check_access(os.R_OK)
-        memory = self.jvmcfg(args, config, verbose=False)
+        memory = self.regenerate_templates(args, config)
         omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
