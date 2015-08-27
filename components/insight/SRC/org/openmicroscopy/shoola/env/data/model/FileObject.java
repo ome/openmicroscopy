@@ -333,10 +333,16 @@ public class FileObject
             int sizeT_org = sizeT_cur;
             int sizeZ_org = sizeZ_cur;
             Document doc = null;
+            boolean xml = false;
             try {
-                doc = xmlParser(xmlStr);
+                if (xmlStr.startsWith("<")) {
+                    doc = xmlParser(xmlStr);
+                }
             } catch (SAXException e) { //not XML or not possible to read it correctly
-                //try to parse the string
+                xml = false;
+            }
+            if (!xml) {
+              //try to parse the string
                 String[] values = xmlStr.split("\n");
                 String v;
                 for (int i = 0; i < values.length; i++) {
@@ -359,7 +365,6 @@ public class FileObject
                     }
                 }
             }
-            
             if (doc != null) { 
                 Node node = getPixelsNode(doc);
                 if (node == null) return false;
