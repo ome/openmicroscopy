@@ -14,6 +14,7 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
+import re
 from omero_ext.argparse import SUPPRESS
 
 HELP = "OMERO.web configuration/deployment tools"
@@ -292,8 +293,11 @@ class WebControl(BaseControl):
 
         try:
             d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+            prefix = re.sub(r'\W+', '', d["FORCE_SCRIPT_NAME"])
+            d["UPSTREAM_NAME"] = "omeroweb_%s" % prefix
         except:
             d["FORCE_SCRIPT_NAME"] = "/"
+            d["UPSTREAM_NAME"] = "omeroweb_server"
 
         if server in ("apache", "apache-fcgi", "apache-wsgi"):
             try:
