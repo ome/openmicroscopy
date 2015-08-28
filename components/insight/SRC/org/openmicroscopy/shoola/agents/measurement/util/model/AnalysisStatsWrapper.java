@@ -31,7 +31,6 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.roi.AbstractROIShapeStats;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -76,7 +75,7 @@ public class AnalysisStatsWrapper
 		Map<Integer, Double> channelMax = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelMean = new TreeMap<Integer, Double>();
 		Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
-		Map<Integer, ROIShapeStatsSimple> channelData = new TreeMap<Integer,ROIShapeStatsSimple>();
+		Map<Integer, ROIShapeStatsSimple> channelData = new TreeMap<Integer, ROIShapeStatsSimple>();
 		
 		int channel;
 		Iterator channelIterator = shapeStats.keySet().iterator();
@@ -91,7 +90,7 @@ public class AnalysisStatsWrapper
 					stats.getMean()));
 			channelStdDev.put(channel, UIUtilities.roundTwoDecimals(
 					stats.getStandardDeviation()));
-			channelData.put(channel,  (ROIShapeStatsSimple) stats);
+			channelData.put(channel, (ROIShapeStatsSimple) stats);
 		}
 		Map<StatsType, Map> 
 			statsMap = new HashMap<StatsType, Map>(StatsType.values().length);
