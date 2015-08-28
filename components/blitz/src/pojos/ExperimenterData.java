@@ -332,4 +332,12 @@ public class ExperimenterData extends DataObject {
         return ldap.getValue();
     }
 
+    @Override
+    public String toString() {
+        return "ExperimenterData [getUserName()=" + getUserName()
+                + ", getDefaultGroup()=" + getDefaultGroup() + ", getGroups()="
+                + getGroups() + "]";
+    }
+
+    
 }
