@@ -67,6 +67,13 @@ class TestWeb(object):
                                 raising=False)
         return app_server
 
+    def add_upstream_name(self, prefix, monkeypath):
+        if prefix:
+            prefix = re.sub(r'\W+', '', prefix)
+        else:
+            prefix = "server"
+        return "omeroweb_%s" % prefix
+
     def add_fastcgi_hostport(self, host, port, monkeypatch):
         if host:
             monkeypatch.setattr(settings, 'APPLICATION_SERVER_HOST', host,
@@ -182,6 +189,7 @@ class TestWeb(object):
 
         self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
+        upstream_name = self.add_upstream_name(prefix, monkeypatch)
         expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
 
         self.args += ["config"]
@@ -197,7 +205,7 @@ class TestWeb(object):
 
         if "development" in server_type:
             missing = self.required_lines_in([
-                "upstream omeroweb_server {",
+                "upstream %s {" % upstream_name,
                 "server %s fail_timeout=0;" % expected_cgi,
                 "server {",
                 "listen %s;" % (http or 8080),
@@ -207,7 +215,7 @@ class TestWeb(object):
                 ], lines)
         else:
             missing = self.required_lines_in([
-                "upstream omeroweb_server {",
+                "upstream %s {" % upstream_name,
                 "server %s fail_timeout=0;" % expected_cgi,
                 "server {",
                 "listen %s;" % (http or 80),
@@ -297,6 +305,7 @@ class TestWeb(object):
 
         self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
+        upstream_name = self.add_upstream_name(prefix, monkeypatch)
 
         try:
             import pwd
@@ -320,7 +329,8 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
                 ('DocumentRoot ', 'lib/python/omeroweb'),
-                ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
+                ('WSGIDaemonProcess %s ' % upstream_name +
+                 'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
                 ('WSGIScriptAlias %s ' % prefix,
@@ -332,7 +342,8 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
                 ('DocumentRoot ', 'lib/python/omeroweb'),
-                ('WSGIDaemonProcess omeroweb processes=5 threads=1 '
+                ('WSGIDaemonProcess %s ' % upstream_name +
+                 'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
                 ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py'),
