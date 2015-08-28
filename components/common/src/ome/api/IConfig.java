@@ -7,7 +7,6 @@
 
 package ome.api;
 
-// Java imports
 import java.util.Date;
 import java.util.Map;
 
@@ -37,7 +36,6 @@ import ome.conditions.SecurityViolation;
  * interfaces. See source code documentation for more.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @since 3.0-M3
  */
 /*
@@ -45,8 +43,6 @@ import ome.conditions.SecurityViolation;
  * subversion properties on this class file. These values can then be accessed
  * via ome.system.Version
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface IConfig extends ServiceInterface {
 
     /**
@@ -138,7 +134,7 @@ public interface IConfig extends ServiceInterface {
     Map<String, String> getConfigDefaults();
 
     /**
-     * retrieves configuration values like {@link getConfigValues(String)}
+     * retrieves configuration values like {@link #getConfigValues(String)}
      * but only those with the prefix "omero.client".
      *
      * @return a {@link Map} from the found keys to the linked values.
@@ -181,7 +177,6 @@ public interface IConfig extends ServiceInterface {
      *  
      * @param key
      * @param value
-     * @return
      * @throws ApiUsageException
      * @throws SecurityViolation
      * @see #setConfigValue(String, String)

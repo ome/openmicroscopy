@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * We consider that the image is composed of eight <code>1-bit</code> planes
  * ranging from bit-plane <code>0</code> for the least significant bit to
@@ -24,8 +18,7 @@ package omeis.providers.re.codomain;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/12 23:29:38 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class PlaneSlicingContext extends CodomainMapContext {

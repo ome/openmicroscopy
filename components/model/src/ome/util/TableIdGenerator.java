@@ -21,7 +21,7 @@ import org.hibernate.type.Type;
 
 /**
  * OMERO-specific id generation strategy. Combines both {@link TableGenerator}
- * and {@link OptimizerFactory.PooledOptimizer} into a single class because of
+ * and {@link OptimizerFactory} into a single class because of
  * weirdness in their implementation. Instead, uses our own ome_nextval(?,?)
  * method to keep the Hibernate sequence values ({@link #hiValue}) in sync with
  * the database values.

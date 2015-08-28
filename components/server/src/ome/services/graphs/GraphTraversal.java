@@ -181,7 +181,7 @@ public class GraphTraversal {
             try {
                 final Class<? extends IObject> actualClass = (Class<? extends IObject>) Class.forName(className);
                 return actualClass.getConstructor(Long.class, boolean.class).newInstance(id, false);
-            } catch (ReflectiveOperationException e) {
+            } catch (IllegalArgumentException | ReflectiveOperationException | SecurityException e) {
                 throw new GraphException(
                         "no invocable constructor for: new " + className + "(Long.valueOf(" + id + "L), false)");
             }

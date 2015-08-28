@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -19,19 +19,19 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration.chgrp;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import omero.ServerError;
 import omero.cmd.Chgrp2;
+import omero.gateway.util.Requests;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -45,13 +45,9 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 import static org.testng.AssertJUnit.*;
 
 /**
- *
- *
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
@@ -99,11 +95,7 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
         loginUser(sourceGroup);
 
         // Perform the move operation.
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(originalImageId));
-        dc.groupId = rwGroupId;
+        final Chgrp2 dc = Requests.chgrp("Image", originalImageId, rwGroupId);
         callback(true, client, dc);
 
         // check if the objects have been moved.

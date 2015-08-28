@@ -57,6 +57,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+
 /**
  * Strategy used by the ScriptRepository for registering, loading, and saving
  * files.
@@ -686,20 +689,12 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                                 .getEventContextQuiet();
                             Deletion d = executor.getContext().getBean(
                                 Deletion.class.getName(), Deletion.class);
-                            int steps = d.start(ec, getSqlAction(), session,
-                                "/OriginalFile", id, null);
-                            if (steps > 0) {
-                                for (int i = 0; i < steps; i++) {
-                                    d.execute(i);
-                                }
-                                d.finish();
-                                return d;
-                            }
+                            final SetMultimap<String, Long> toDelete = HashMultimap.create();
+                            toDelete.put("OriginalFile", id);
+                            d.deleteFiles(toDelete);
+                            return null;
                         } catch (ome.conditions.ValidationException ve) {
                             log.debug("ValidationException on delete", ve);
-                        }
-                        catch (GraphException ge) {
-                            log.debug("GraphException on delete", ge);
                         }
                         catch (Throwable e) {
                             log.warn("Throwable while deleting script " + id, e);
@@ -708,14 +703,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     }
 
                 });
-
-        if (deletion != null) {
-            deletion.deleteFiles();
-            deletion.stop();
-        } else {
-            throw new ApiUsageException("Cannot delete "
-                    + id + "\nIs in use by other objects");
-        }
     }
 
 }

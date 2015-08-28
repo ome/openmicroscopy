@@ -24,14 +24,8 @@
 package org.openmicroscopy.shoola.env.data.events;
 
 
-
-//Java imports
 import java.util.Collection;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.LookupNames;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.DataObject;
@@ -126,7 +120,7 @@ public class ViewInPluginEvent
 	/**
 	 * Returns the collection of selected objects.
 	 * 
-	 * @param objects The objects to view.
+	 * @return See above.
 	 */
 	public Collection<DataObject> getDataObjects() { return objects; }
 	

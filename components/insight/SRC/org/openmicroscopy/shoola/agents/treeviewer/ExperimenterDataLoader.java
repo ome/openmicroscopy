@@ -23,15 +23,11 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-//Java imports
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
@@ -47,9 +43,9 @@ import pojos.TagAnnotationData;
 
 /** 
  * Loads a Project/Dataset/(Image) hierarchy rooted by a given Project
- * if the {@link #containerType} is {@link #PROJECT}.
+ * if the {@link #rootNodeType} is {@link #PROJECT}.
  * Loads a Dataset/(Image) hierarchy rooted by a given Dataset
- * if the {@link #containerType} is {@link #DATASET}.
+ * if the {@link #rootNodeType} is {@link #DATASET}.
  * Note that Images are retrieved if the {@link #withImages} flag is set to
  * <code>true</code>.
  * This class calls the <code>loadContainerHierarchy</code> method in the
@@ -60,9 +56,6 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ExperimenterDataLoader

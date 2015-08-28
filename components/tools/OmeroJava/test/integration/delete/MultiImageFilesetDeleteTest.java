@@ -7,7 +7,6 @@ package integration.delete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import integration.AbstractServerTest;
@@ -16,6 +15,7 @@ import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Delete2;
 import omero.cmd.SkipHead;
+import omero.gateway.util.Requests;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -28,8 +28,6 @@ import omero.sys.ParametersI;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.Assert;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Tests for deleting hierarchies and the effects that that should have under
@@ -73,10 +71,7 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     	link.setChild((Image) i2.proxy());
     	link.setParent((Dataset) d2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	Delete2 dc = new Delete2();
-    	dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-    	        Dataset.class.getSimpleName(),
-    	        Arrays.asList(d1.getId().getValue(), d2.getId().getValue()));
+    	Delete2 dc = Requests.delete("Dataset", Arrays.asList(d1.getId().getValue(), d2.getId().getValue()));
     	doChange(dc);
     	assertDoesNotExist(d1);
     	assertDoesNotExist(d2);
@@ -129,26 +124,23 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
 
         /* delete the images of the fileset, the rendering settings of one of the images, or nonsense */
 
-        final SkipHead skipHead = new SkipHead();
-        skipHead.request = new Delete2();
-        skipHead.dryRun = dryRun;
+        final SkipHead skipHead;
         switch (target) {
         case IMAGES_OF_FILESET:
-            skipHead.targetObjects = Collections.singletonMap("Fileset", Collections.singletonList(filesetId));
-            skipHead.startFrom = Collections.singletonList("Image");
+            skipHead = Requests.skipHead("Fileset", filesetId, dryRun, "Image", new Delete2());
             break;
         case RENDERING_SETTINGS_OF_FILESET:
-            skipHead.targetObjects = Collections.singletonMap("Fileset", Collections.singletonList(filesetId));
-            skipHead.startFrom = Collections.singletonList("RenderingDef");
+            skipHead = Requests.skipHead("Fileset", filesetId, dryRun, "RenderingDef", new Delete2());
             break;
         case RENDERING_SETTINGS_OF_IMAGE:
-            skipHead.targetObjects = Collections.singletonMap("Image", Collections.singletonList(image1Id));
-            skipHead.startFrom = Collections.singletonList("RenderingDef");
+            skipHead = Requests.skipHead("Image", image1Id, dryRun, "RenderingDef", new Delete2());
             break;
         case NONSENSE_OF_IMAGE:
-            skipHead.targetObjects = Collections.singletonMap("Image", Collections.singletonList(image1Id));
-            skipHead.startFrom = Collections.singletonList("I like penguins");
+            skipHead = Requests.skipHead("Image", image1Id, dryRun, "I like penguins", new Delete2());
             break;
+        default:
+            skipHead = null;
+            Assert.fail("unexpected target for delete");
         }
 
         final boolean isExpectSuccess = target != Target.NONSENSE_OF_IMAGE;
@@ -179,8 +171,7 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
             assertHasRenderingDef(image2Id, isImage2SettingsExist);
 
             /* delete the fileset */
-            final Delete2 delete = new Delete2();
-            delete.targetObjects = Collections.singletonMap("Fileset", Collections.singletonList(filesetId));
+            final Delete2 delete = Requests.delete("Fileset", filesetId);
             doChange(delete);
         }
 

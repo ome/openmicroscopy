@@ -24,14 +24,10 @@
 package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -46,118 +42,116 @@ import pojos.GroupData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ExperimenterVisitor 
-	extends BrowserVisitor
+public class ExperimenterVisitor
+extends BrowserVisitor
 {
 
-	/** The nodes found.*/
-	private List<TreeImageDisplay> nodes;
-	
-	/** The id of the user to find or <code>-1</code>.*/
-	private long userID;
-	
-	/** The ids of the group to find or <code>-1</code>.*/
-	private Collection<Long> groupIDs;
-	
-	/** Flag indicating to check only the group.*/
-	private boolean groupOnly;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the {@link Browser}.
-	 *              Mustn't be <code>null</code>.
-	 * @param groupID The id of the group.
-	 */
-	public ExperimenterVisitor(Browser model, long groupID)
-	{
-		super(model);
-		groupOnly = true;
-		groupIDs = new ArrayList<Long>();
-		if (groupID >= 0) groupIDs.add(groupID);
-		nodes = new ArrayList<TreeImageDisplay>();
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the {@link Browser}.
-	 *              Mustn't be <code>null</code>.
-	 * @param userID The id of the user.
-	 * @param groupID The id of the group.
-	 */
-	public ExperimenterVisitor(Browser model, long userID, long groupID)
-	{
-		super(model);
-		this.userID = userID;
-		groupIDs = new ArrayList<Long>();
-		if (groupID >= 0) groupIDs.add(groupID);
-		nodes = new ArrayList<TreeImageDisplay>();
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the {@link Browser}.
-	 *              Mustn't be <code>null</code>.
-	 * @param userID The id of the user.
-	 * @param groupID The id of the group.
-	 */
-	public ExperimenterVisitor(Browser model, long userID,
-			Collection<Long> groupIDs)
-	{
-		super(model);
-		this.userID = userID;
-		if (groupIDs == null) groupIDs = new ArrayList<Long>();
-		this.groupIDs = groupIDs;
-		nodes = new ArrayList<TreeImageDisplay>();
-	}
-	
-	/** 
-	 * Returns the nodes.
-	 * 
-	 * @return See above.
-	 */
-	public List<TreeImageDisplay> getNodes() { return nodes; }
-	
-	/**
-     * Retrieves the nodes hosting a <code>DataObject</code> with the same ID
-     * than {@link #originalNodeID}.
+    /** The nodes found.*/
+    private List<TreeImageDisplay> nodes;
+
+    /** The id of the user to find or <code>-1</code>.*/
+    private long userID;
+
+    /** The ids of the group to find or <code>-1</code>.*/
+    private Collection<Long> groupIDs;
+
+    /** Flag indicating to check only the group.*/
+    private boolean groupOnly;
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the {@link Browser}.
+     *              Mustn't be <code>null</code>.
+     * @param groupID The id of the group.
+     */
+    public ExperimenterVisitor(Browser model, long groupID)
+    {
+        super(model);
+        groupOnly = true;
+        groupIDs = new ArrayList<Long>();
+        if (groupID >= 0) groupIDs.add(groupID);
+        nodes = new ArrayList<TreeImageDisplay>();
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the {@link Browser}.
+     *              Mustn't be <code>null</code>.
+     * @param userID The id of the user.
+     * @param groupID The id of the group.
+     */
+    public ExperimenterVisitor(Browser model, long userID, long groupID)
+    {
+        super(model);
+        this.userID = userID;
+        groupIDs = new ArrayList<Long>();
+        if (groupID >= 0) groupIDs.add(groupID);
+        nodes = new ArrayList<TreeImageDisplay>();
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the {@link Browser}.
+     *              Mustn't be <code>null</code>.
+     * @param userID The id of the user.
+     * @param groupIDs The id of the groups.
+     */
+    public ExperimenterVisitor(Browser model, long userID,
+            Collection<Long> groupIDs)
+    {
+        super(model);
+        this.userID = userID;
+        if (groupIDs == null) groupIDs = new ArrayList<Long>();
+        this.groupIDs = groupIDs;
+        nodes = new ArrayList<TreeImageDisplay>();
+    }
+
+    /** 
+     * Returns the nodes.
+     * 
+     * @return See above.
+     */
+    public List<TreeImageDisplay> getNodes() { return nodes; }
+
+    /**
+     * No operation.
      * @see BrowserVisitor#visit(TreeImageNode)
      */
     public void visit(TreeImageNode node) {}
-    
+
     /**
-     * Retrieves the nodes hosting a <code>DataObject</code> with the same ID
-     * than {@link #originalNodeID}.
+     * Retrieves the specified nodes.
      * @see BrowserVisitor#visit(TreeImageSet)
      */
     public void visit(TreeImageSet node)
     {
-    	Object ho = node.getUserObject();
-    	if (ho instanceof ExperimenterData && !groupOnly) {
-    		if (userID < 0) nodes.add(node);
-    		else {
-    			if (userID == ((ExperimenterData) ho).getId()) {
-    				if (groupIDs.size() == 0) nodes.add(node);
-    				else {
-    					TreeImageDisplay parent = node.getParentDisplay();
-        				Object pho = parent.getUserObject();
-        				if (pho instanceof GroupData && 
-        						groupIDs.contains(((GroupData) pho).getId()))
-        				nodes.add(node);
-    				}
-    			}
-    		}
-    	} else if (ho instanceof GroupData) {
-    		if (groupOnly) {
-    			if (groupIDs.contains(((GroupData) ho).getId())) {
-    				nodes.add(node);
-    			} else {
-    				if (groupIDs.size() == 0)
-    					nodes.add(node);
-    			}
-    		}
-    	}
+        Object ho = node.getUserObject();
+        if (ho instanceof ExperimenterData && !groupOnly) {
+            if (userID < 0) nodes.add(node);
+            else {
+                if (userID == ((ExperimenterData) ho).getId()) {
+                    if (groupIDs.size() == 0) nodes.add(node);
+                    else {
+                        TreeImageDisplay parent = node.getParentDisplay();
+                        Object pho = parent.getUserObject();
+                        if (pho instanceof GroupData && 
+                                groupIDs.contains(((GroupData) pho).getId()))
+                            nodes.add(node);
+                    }
+                }
+            }
+        } else if (ho instanceof GroupData) {
+            if (groupOnly) {
+                if (groupIDs.contains(((GroupData) ho).getId())) {
+                    nodes.add(node);
+                } else {
+                    if (groupIDs.size() == 0)
+                        nodes.add(node);
+                }
+            }
+        }
     }
 }

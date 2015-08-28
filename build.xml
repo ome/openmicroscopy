@@ -301,13 +301,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-vm" description="Build a virtual image">
-        <exec executable="bash" dir="docs/install/VM">
-            <arg line="omerovm.sh"/>
-            <arg line="omero-vm-${omero.version}"/>
-        </exec>
-    </target>
-
     <target name="eclipse" depends="init">
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
@@ -640,7 +633,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
                 <bottom><![CDATA[
                 <div id="ome-logo-for-top" style="display:none"><div id="ome-logo-inner"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME Docs"></div></div>
-                <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava Api</b></div>
+                <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava API</b></div>
                 <p><i>Version: ${omero.version}</i></p>
                 <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
                 ]]></bottom>

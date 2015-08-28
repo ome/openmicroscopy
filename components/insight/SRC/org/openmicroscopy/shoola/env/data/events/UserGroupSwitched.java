@@ -22,12 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data.events;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -38,9 +32,6 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class UserGroupSwitched
@@ -53,7 +44,7 @@ public class UserGroupSwitched
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param success 	Pass <code>true</code> if the switch was successful,
+	 * @param successful 	Pass <code>true</code> if the switch was successful,
 	 * 					<code>false</code> otherwise.
 	 */
 	public UserGroupSwitched(boolean successful)

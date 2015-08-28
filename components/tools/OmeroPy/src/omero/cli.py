@@ -38,6 +38,7 @@ from threading import Lock
 from path import path
 
 from omero_ext.argparse import ArgumentError
+from omero_ext.argparse import ArgumentTypeError
 from omero_ext.argparse import ArgumentParser
 from omero_ext.argparse import FileType
 from omero_ext.argparse import Namespace
@@ -305,7 +306,7 @@ class NewFileType(FileType):
     """
     def __call__(self, s):
         if s != "-" and os.path.exists(s):
-            raise ValueError("File exists: %s" % s)
+            raise ArgumentTypeError("File exists: %s" % s)
         return FileType.__call__(self, s)
 
 
@@ -316,7 +317,7 @@ class ExistingFile(FileType):
     """
     def __call__(self, s):
         if s != "-" and not os.path.exists(s):
-            raise ValueError("File does not exist: %s" % s)
+            raise ArgumentTypeError("File does not exist: %s" % s)
         if s != "-":
             return FileType.__call__(self, s)
         else:
@@ -331,9 +332,9 @@ class DirectoryType(FileType):
     def __call__(self, s):
         p = path(s)
         if not p.exists():
-            raise ValueError("Directory does not exist: %s" % s)
+            raise ArgumentTypeError("Directory does not exist: %s" % s)
         elif not p.isdir():
-            raise ValueError("Path is not a directory: %s" % s)
+            raise ArgumentTypeError("Path is not a directory: %s" % s)
         return str(p.abspath())
 
 
@@ -1672,9 +1673,7 @@ class GraphControl(CmdControl):
             "--list", action="store_true",
             help="Print a list of all available graph specs")
         parser.add_argument(
-            "--list-details", action="store_true",
-            help="Print a list of all available graph specs along with "
-            "detailed info")
+            "--list-details", action="store_true", help=SUPPRESS)
         parser.add_argument(
             "--report", action="store_true",
             help="Print more detailed report of each action")
@@ -1709,7 +1708,7 @@ class GraphControl(CmdControl):
         client = self.ctx.conn(args)
         if args.list_details or args.list:
             cb = None
-            req = omero.cmd.GraphSpecList()
+            req = omero.cmd.LegalGraphTargets(self.cmd_type()())
             try:
                 try:
                     speclist, status, cb = self.response(client, req)
@@ -1724,22 +1723,9 @@ class GraphControl(CmdControl):
             if err:
                 self.ctx.die(367, err)
 
-            specs = speclist.list
-            specmap = dict()
-            for s in specs:
-                specmap[s.type] = s
-            keys = sorted(specmap)
-
-            if args.list_details:
-                for key in keys:
-                    spec = specmap[key]
-                    self.ctx.out("=== %s ===" % key)
-                    for k, v in spec.options.items():
-                        self.ctx.out("%s" % (k,))
-                return  # Early exit.
-            elif args.list:
-                self.ctx.out("\n".join(keys))
-                return  # Early exit.
+            specs = sorted([t.split(".")[-1] for t in speclist.targets])
+            self.ctx.out("\n".join(specs))
+            return  # Early exit.
 
         inc = []
         if args.include:

@@ -42,7 +42,7 @@ import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd._HandleTie;
 import omero.cmd.basic.DoAllI;
-import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.ChgrpFacadeI;
 import omero.model.DatasetI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -77,8 +77,8 @@ public class DoAllITest extends AbstractGraphTest {
         }
     }
 
-    ChgrpI chgrp(long imageID, long groupID) {
-        ChgrpI chgrp = (ChgrpI) ic.findObjectFactory(Chgrp.ice_staticId())
+    Request chgrp(long imageID, long groupID) {
+        ChgrpFacadeI chgrp = (ChgrpFacadeI) ic.findObjectFactory(Chgrp.ice_staticId())
                 .create("");
         chgrp.type = "/Image";
         chgrp.id = imageID;

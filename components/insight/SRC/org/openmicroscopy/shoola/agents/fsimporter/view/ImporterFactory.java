@@ -22,17 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-
-
-//Java imports
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import omero.gateway.SecurityContext;
@@ -48,9 +41,6 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ImporterFactory 
@@ -124,7 +114,7 @@ public class ImporterFactory
 		singleton.clear();
 	}
 
-	   /** Close all the instances.*/
+	/** Close all the instances.*/
     public static void terminate()
     {
         if (singleton.importer != null) {
@@ -262,7 +252,7 @@ public class ImporterFactory
 	}
 	
 	/**
-	 * Sets the {@link #viewer} to <code>null</code> when it is
+	 * Sets the {@link #importer} to <code>null</code> when it is
 	 * {@link Importer#DISCARDED discarded}. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */ 

@@ -64,7 +64,7 @@ public class MeasurementsSaver
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param data The data to save.
-     * @param imageID The image to link the roi to.
+     * @param image The image to link the roi to.
      * @param userID The owner of the rois.
      */
     public MeasurementsSaver(Importer viewer, SecurityContext ctx,

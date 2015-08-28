@@ -23,14 +23,10 @@
 package org.openmicroscopy.shoola.agents.measurement.util.actions;
 
 
-//Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
 /** 
@@ -41,9 +37,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionContr
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ROIAction
@@ -57,9 +50,9 @@ public class ROIAction
 	protected ROIActionController 	controller;
 
 	/**
-	 * Sets the names of the action.
+	 * Sets the name of the action.
 	 * 
-	 * @param name see above.
+	 * @param name The value to set.
 	 */
 	private void setName(String name)
 	{
@@ -70,7 +63,7 @@ public class ROIAction
 	/**
 	 * Sets the tool-tip of the action.
 	 * 
-	 * @param name see above.
+	 * @param name The value to set.
 	 */
 	private void setToolTip(String name)
 	{
@@ -136,7 +129,7 @@ public class ROIAction
 	
 	/**
 	 * Manipulates the ROI.
-	 * @see ActionListener#actionPerformed(ActionEvent)
+	 * @see AbstractAction#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
@@ -160,5 +153,5 @@ public class ROIAction
 			case TAG:
                 controller.loadTags();
 		}
-	}	
+	}
 }

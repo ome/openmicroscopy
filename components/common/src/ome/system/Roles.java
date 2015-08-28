@@ -7,7 +7,6 @@
 
 package ome.system;
 
-// Java imports
 import java.io.Serializable;
 
 import com.google.common.base.Predicate;

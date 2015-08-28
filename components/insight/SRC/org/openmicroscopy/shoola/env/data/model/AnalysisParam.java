@@ -22,17 +22,12 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
- * Holds information about the objects to analyse.
+ * Holds information about the objects to analyze.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -89,7 +84,7 @@ public class AnalysisParam
 	 * Creates a new instance.
 	 * 
 	 * @param ids The objects to analyze.
-	 * @param type The type of object to analyze.
+	 * @param nodeType The type of object to analyze.
 	 * @param index One of the constants defined by this class.
 	 */
 	public AnalysisParam(List<Long> ids, Class nodeType, int index)

@@ -317,7 +317,7 @@ public class IOUtil
 	/**
 	 * Makes the zip.
 	 * 
-	 * @param zipName The name of the zip.
+	 * @param zip The zip file.
 	 * @param compress Pass <code>true</code> to compress,
 	 * <code>false</code> otherwise.
 	 */
@@ -352,7 +352,7 @@ public class IOUtil
 	/**
 	 * Makes the zip.
 	 * 
-	 * @param zipName The name of the zip.
+	 * @param zip The zip.
 	 */
 	public static File zipDirectory(File zip)
 		throws Exception

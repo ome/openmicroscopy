@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,16 +29,10 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-
-
-
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Third-party libraries
+
 import org.jhotdraw.draw.AttributeKey;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -58,9 +51,6 @@ import pojos.TagAnnotationData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class FigureTableModel 
@@ -91,7 +81,6 @@ public class FigureTableModel
 	 * @param fieldList The collection of fields. Mustn't be <code>null</code>.
 	 * @param columnNames The collection of column's names.
 	 *                    Mustn't be <code>null</code>.
-	 * @param canvas Reference to the drawing canvas. Mustn't be <code>null</code>.
 	 */
 	public FigureTableModel(List<AttributeField> fieldList,
 			List<String> columnNames)

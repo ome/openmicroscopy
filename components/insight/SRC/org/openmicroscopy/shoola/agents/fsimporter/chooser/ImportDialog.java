@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-//Java imports
-import ij.IJ;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
@@ -1247,8 +1245,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            The owner of the dialog.
 	 * @param filters
 	 *            The list of filters.
-	 * @param containers
-	 *            The container where to import the files.
+	 * @param selectedContainer
+	 *            The selected container if any.
 	 * @param objects
 	 *            The possible objects.
 	 * @param type

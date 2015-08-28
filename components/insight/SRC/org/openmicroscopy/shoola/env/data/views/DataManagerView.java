@@ -23,17 +23,12 @@
 
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
@@ -52,9 +47,6 @@ import pojos.ImageData;
 *              <a href="mailto:a.falconi@dundee.ac.uk">
 *                  a.falconi@dundee.ac.uk</a>
 * @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
 * @since OME2.2
 */
 public interface DataManagerView
@@ -160,7 +152,7 @@ public interface DataManagerView
 	 * Adds the specified items to the parent.
 	 * 
 	 * @param ctx The security context.
-	 * @param parents The <code>DataObject</code>s to update. Either a 
+	 * @param parent The <code>DataObject</code>s to update. Either a 
 	 *                  <code>ProjectData</code> or <code>DatasetData</code>.
 	 * @param children  The items to add.
 	 * @param observer  Call-back handler.
@@ -350,7 +342,7 @@ public interface DataManagerView
 	 */
 	public CallHandle saveChannelData(SecurityContext ctx,
 			List<ChannelData> channels, List<DataObject> objects,
-			AgentEventListener channelDataSaver);
+			AgentEventListener observer);
 	
 	/**
 	 * Loads to the plate hosting the specified images.

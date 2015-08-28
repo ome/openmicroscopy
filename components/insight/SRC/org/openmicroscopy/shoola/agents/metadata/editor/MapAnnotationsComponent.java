@@ -576,7 +576,7 @@ public class MapAnnotationsComponent extends JPanel implements
 	 * @param excludeEmpty
 	 *            Pass <code>true</code> to exclude {@link MapAnnotationData}s
 	 *            without {@link NamedValue} entries
-	 * @return
+	 * @return See above.
 	 */
 	public List<MapAnnotationData> getMapAnnotations(boolean onlyDirty,
 			boolean excludeEmpty) {
@@ -649,7 +649,7 @@ public class MapAnnotationsComponent extends JPanel implements
 	/**
 	 * Get the selected {@link NamedValue}s
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	public List<NamedValue> getSelection() {
 		MapTable t = getSelectedTable();
@@ -665,6 +665,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		MapTable t = getSelectedTable();
 		if (t == null)
 			t = getUserTable();
+		if (t == null) return;
 		MapTableModel m = (MapTableModel) t.getModel();
 		// if nothing's selected add to end of table, otherwise below selected
 		// row

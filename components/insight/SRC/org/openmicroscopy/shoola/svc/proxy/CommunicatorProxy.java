@@ -22,17 +22,10 @@
  */
 package org.openmicroscopy.shoola.svc.proxy;
 
-
-
-//Java imports
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
@@ -87,7 +80,7 @@ public class CommunicatorProxy
     /**
      * Implemented as specified by the {@link Communicator} interface.
      * @see Communicator#submitError(String, String, String, String, String,
-     *                          String, String, Map, StringBuilder)
+     *                          String, String, StringBuilder)
      */
     public void submitError(String invoker, String email, String comment,
             String extra, String error, String applicationName,

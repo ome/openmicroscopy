@@ -22,14 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.events.importer;
 
-
-//Java imports
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
@@ -45,7 +40,7 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * @since 3.0-Beta4
  */
 public class LoadImporter
-	extends RequestEvent
+    extends RequestEvent
 {
 
     /** The currently selected container or <code>null</code>. */
@@ -67,6 +62,7 @@ public class LoadImporter
      *  Creates a new instance.
      * 
      * @param selectedContainer The selected container.
+     * @param type The of import.
      */
     public LoadImporter(TreeImageDisplay selectedContainer, int type)
     {
@@ -131,7 +127,7 @@ public class LoadImporter
     /**
      * Returns the top nodes.
      * 
-     * @param datasets The values to set.
+     * @param objects The values to set.
      */
     public void setObjects(Map<Long, Map<Long, List<TreeImageDisplay>>> objects)
     {

@@ -134,9 +134,6 @@ import pojos.XMLAnnotationData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ModelMapper
@@ -474,12 +471,8 @@ public class ModelMapper
     
     /**
      * Creates a new annotation <code>IObject</code>.
-     * 
-     * @param annotatedObject   The <code>DataObject</code> to annotate.
-     *                          Can either be a <code>DatasetData</code>
-     *                          or a <code>ImageData</code>. Mustn't be
-     *                          <code>null</code>.
-     * @param data              The annotation to create.
+     *
+     * @param data The annotation to create.
      * @return See above.
      */
     @SuppressWarnings("unchecked")

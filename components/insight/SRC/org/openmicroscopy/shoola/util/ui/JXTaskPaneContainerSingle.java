@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
 
 
 //Third-party libraries
@@ -125,6 +123,27 @@ public class JXTaskPaneContainerSingle
 	}
 
 	/**
+	 * Get the number of task panes currently in expanded state
+	 * @return See above
+	 */
+	private int getTaskPaneExpandedCount()
+    {
+        Component[] comps = getComponents();
+        if (comps == null) 
+            return -1;
+        JXTaskPane pane;
+        int count = 0;
+        for (int i = 0; i < comps.length; i++) {
+            if (comps[i] instanceof JXTaskPane) {
+                pane = (JXTaskPane) comps[i];
+                if (!pane.isCollapsed()) 
+                    count++;
+            }
+        }
+        return count;
+    }
+
+	/**
 	 * Return the list of JXTaskPanes in the component.
 	 * @return See above.
 	 */
@@ -176,7 +195,7 @@ public class JXTaskPaneContainerSingle
 		Component c;
 		JXTaskPane p;
 		if (src.isCollapsed()) {
-			if (hasTaskPaneExpanded()) 
+			if (getTaskPaneExpandedCount()<2) 
 			    return;
 			for (int i = 0; i < comp.length; i++) {
 				c = comp[i];

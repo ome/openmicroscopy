@@ -22,17 +22,12 @@
  */
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -55,9 +50,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface MetadataHandlerView
@@ -162,11 +154,12 @@ public interface MetadataHandlerView
 	 * Loads all {@link DataObject}s the given annotations ({@link FileAnnotationData}) are linked to
 	 * @param ctx The security context.
 	 * @param annotations The annotations ({@link FileAnnotationData})
-	 * @param referenceObjects The DataObjects from which the FileAnnotations should be removed
+	 * @param toBeDeletedFromIds The DataObjects from which the FileAnnotations should be removed
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle checkFileAnnotationDeletion(SecurityContext ctx, List<FileAnnotationData> annotations, List<DataObject> toBeDeletedFromIds,
+	public CallHandle checkFileAnnotationDeletion(SecurityContext ctx,
+	        List<FileAnnotationData> annotations, List<DataObject> toBeDeletedFromIds,
 			AgentEventListener observer);
 	
 	/**
@@ -305,7 +298,6 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param imageIDs The ids of the pixels set related to the image.
 	 * @param location The location where to store the files.
-	 * @param name The name of the image.
 	 * @param override Flag indicating to override the existing file if it
 	 *                 exists, <code>false</code> otherwise.
 	 * @param observer Call-back handler.
@@ -492,7 +484,6 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param imageId The id of the image.
-	 * @param userID The id of the experimenter or <code>-1</code>.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFileset(SecurityContext ctx,

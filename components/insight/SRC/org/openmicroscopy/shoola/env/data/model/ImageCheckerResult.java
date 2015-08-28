@@ -47,7 +47,7 @@ public class ImageCheckerResult {
 	
 	/**
 	 * Get all MIFResultObjects.
-	 * @return
+	 * @return See above.
 	 */
 	public List<MIFResultObject> getMifResults() {
 		return mifResults;

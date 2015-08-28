@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.agents.util.dnd;
 
 
-//Java imports
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -66,10 +65,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -592,14 +587,14 @@ public class DnDTree
 	/**
 	 * Implemented as specified by {@link DropTargetListener} I/F but
 	 * no-operation in our case.
-	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
+	 * {@link DropTargetListener#dropActionChanged(DropTargetDragEvent)}
 	 */
 	public void dropActionChanged(DropTargetDragEvent dtde) {}
 	
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
 	 * no-operation in our case.
-	 * {@link DragSourceListener#dragDropEnd(DragSourceDragEvent)}
+	 * {@link DragSourceListener#dragDropEnd(DragSourceDropEvent)}
 	 */
 	public void dragDropEnd(DragSourceDropEvent dsde)
 	{
@@ -623,7 +618,7 @@ public class DnDTree
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
 	 * no-operation in our case.
-	 * {@link DragSourceListener#dragExit(DropTargetEvent)}
+	 * {@link DragSourceListener#dragExit(DragSourceEvent)}
 	 */
 	public void dragExit(DragSourceEvent dse)
 	{
@@ -654,7 +649,7 @@ public class DnDTree
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
 	 * no-operation in our case.
-	 * {@link DragSourceListener#dragOver(DragSourceDragEvent)}
+	 * {@link DragSourceListener#dropActionChanged(DragSourceDragEvent)}
 	 */
 	public void dropActionChanged(DragSourceDragEvent dsde)
 	{
@@ -664,14 +659,14 @@ public class DnDTree
 	/**
 	 * Implemented as specified by {@link DropTargetListener} I/F but
 	 * no-operation in our case.
-	 * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
+	 * {@link DropTargetListener#dragEnter(DropTargetDragEvent)}
 	 */
 	public void dragEnter(DropTargetDragEvent dtde) {}
 
 	/**
 	 * Implemented as specified by {@link DropTargetListener} I/F but
 	 * no-operation in our case.
-	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
+	 * {@link DropTargetListener#dragExit(DropTargetEvent)}
 	 */
 	public void dragExit(DropTargetEvent dte) {}
 

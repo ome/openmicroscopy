@@ -30,7 +30,7 @@ import ome.parameters.QueryParameter;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 3.0
  * @since 3.0
  */
 public interface IQuery extends ServiceInterface {
@@ -155,7 +155,7 @@ public interface IQuery extends ServiceInterface {
      *            the name of the field, either as simple string or as public
      *            final static from the entity class, e.g.
      *            {@link ome.model.containers.Project#NAME}. Not null.
-     * @param value
+     * @param stringValue
      *            String used for search. Not null.
      * @param caseSensitive
      *            whether to use LIKE or ILIKE
@@ -232,7 +232,7 @@ public interface IQuery extends ServiceInterface {
      * select this.name from SomeClass this ...
      * </pre>
      * 
-     * If a {@link Page} is desired, add it to the query parameters.
+     * If a page is desired, add it to the query parameters.
      * 
      * @param queryName
      *            String identifier of the query to execute. Not null.
@@ -270,8 +270,8 @@ public interface IQuery extends ServiceInterface {
      *            results.
      * @param parameters
      *            Currently the parameters themselves are unusued. But the
-     *            {@link Parameters#getFilter()} can be used to limit the number
-     *            of results returned ({@link Filter#maxResults()}) or the
+     *            {@link Parameters#filter} can be used to limit the number
+     *            of results returned ({@link Filter#limit}) or the
      *            user for who the results will be found ({@link Filter#owner()}).
      * @return A list of loaded {@link IObject} instances. Never null.
      */

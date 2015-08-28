@@ -23,13 +23,8 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-
-//Java imports
 import javax.swing.Icon;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -93,7 +88,7 @@ public class ScriptActivity
      * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
      * @param script The script to run.
-     * @param activity The activity associated to this loader.
+     * @param index The activity associated to this loader.
      */
     public ScriptActivity(UserNotifier viewer, Registry registry,
             SecurityContext ctx, ScriptObject script, int index)

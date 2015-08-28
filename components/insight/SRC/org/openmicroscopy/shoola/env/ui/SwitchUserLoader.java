@@ -22,13 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
-
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
@@ -45,9 +38,6 @@ import pojos.ExperimenterData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class SwitchUserLoader
@@ -70,7 +60,6 @@ public class SwitchUserLoader
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
      * @param ctx The security context.
-     * @param toSave		The data to save before switching group.
      * @param experimenter  The experimenter to handle.
      * @param groupID		The identifier of the group.
      */

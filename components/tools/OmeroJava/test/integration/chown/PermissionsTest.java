@@ -32,6 +32,7 @@ import omero.ServerError;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -104,8 +105,7 @@ public class PermissionsTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = new Delete2();
-        delete.targetObjects = ImmutableMap.of("Image", testImages);
+        final Delete2 delete = Requests.delete("Image", testImages);
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }
@@ -261,9 +261,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, isExpectSuccess);
         disconnect();
 
@@ -357,9 +355,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, isExpectSuccess);
         disconnect();
 
@@ -421,7 +417,7 @@ public class PermissionsTest extends AbstractServerTest {
      * Test a specific case of using {@link Chown2} on an image that is in a dataset.
      * @param isImageOwner if the user who owns the dataset also owns the image
      * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
-     * @param groupPerms the permissions on the group in which the data exists
+     * @param groupPermissions the permissions on the group in which the data exists
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown container test cases")
@@ -473,9 +469,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -498,7 +492,7 @@ public class PermissionsTest extends AbstractServerTest {
      * Test a specific case of using {@link Chown2} on a dataset that contains an image.
      * @param isImageOwner if the user who owns the dataset also owns the image
      * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
-     * @param groupPerms the permissions on the group in which the data exists
+     * @param groupPermissions the permissions on the group in which the data exists
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown container test cases")
@@ -551,9 +545,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(datasetOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Dataset", Collections.singletonList(datasetId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Dataset", datasetId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -648,18 +640,14 @@ public class PermissionsTest extends AbstractServerTest {
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = groupPermissions;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
         doChange(client, factory, chmod, true);
         disconnect();
 
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -719,18 +707,14 @@ public class PermissionsTest extends AbstractServerTest {
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of("ExperimenterGroup", Collections.singletonList(dataGroupId));
-        chmod.permissions = groupPermissions;
+        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
         doChange(client, factory, chmod, true);
         disconnect();
 
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = new Chown2();
-        chown.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
-        chown.userId = recipient.userId;
+        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
         doChange(client, factory, chown, true);
         disconnect();
 
@@ -847,21 +831,23 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(datasetOwner);
-        final Chown2 chown = new Chown2();
+        final Chown2 chown;
 
         switch (target) {
         case DATASET:
-            chown.targetObjects = ImmutableMap.of("Dataset", Collections.singletonList(datasetId));
+            chown = Requests.chown("Dataset", datasetId, recipient.userId);
             break;
         case IMAGES:
-            chown.targetObjects = ImmutableMap.of("Image", imageIds);
+            chown = Requests.chown("Image", imageIds, recipient.userId);
             break;
         case PLATE:
-            chown.targetObjects = ImmutableMap.of("Plate", Collections.singletonList(plateId));
+            chown = Requests.chown("Plate", plateId, recipient.userId);
             break;
+        default:
+            chown = null;
+            Assert.fail("unexpected target for chown");
         }
 
-        chown.userId = recipient.userId;
         doChange(client, factory, chown, true);
         disconnect();
 

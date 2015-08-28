@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 
-
-
-//Java imports
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -43,9 +40,6 @@ import java.util.regex.Pattern;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
@@ -67,14 +61,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @authorAndrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ImgSaver

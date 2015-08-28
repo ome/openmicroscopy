@@ -22,14 +22,9 @@
 */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-//Java imports
 import java.util.Collection;
 import java.util.List;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 
 import omero.gateway.SecurityContext;
@@ -47,66 +42,63 @@ import pojos.ROIData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-public class ROISaver 
-	extends BatchCallTree
+public class ROISaver
+    extends BatchCallTree
 {
 
-	/** Call to save the ROIs. */
-	private BatchCall	saveCall;
-	
-	/** Was the save successful. */
-	private Collection<ROIData> 	result;
-	
-	/**
-	 * Creates a {@link BatchCall} to load the ROIs.
-	 * 
-	 * @param ctx The security context.
-	 * @param imageID The id of the image.
-	 * @param fileID  The id of the file.
-	 * @param userID  The id of the user. 
-	 * @return The {@link BatchCall}.
-	 */
-	private BatchCall makeSaveCall(final SecurityContext ctx,
-		final long imageID, final long userID, final List<ROIData> roiList)
-	{
-		return new BatchCall("save ROI") {
-			            public void doCall() throws Exception
-	        {
-			    OmeroImageService svc = context.getImageService();
-			    result = svc.saveROI(ctx, imageID, userID, roiList);
-	        }
-	    };
-	}
-	
-	/**
-	 * Adds the {@link #loadCall} to the computation tree.
-	 * @see BatchCallTree#buildTree()
-	 */
-	protected void buildTree() { add(saveCall); }
-		
+    /** Call to save the ROIs. */
+    private BatchCall saveCall;
+
+    /** Was the save successful. */
+    private List<ROIData> result;
+
+    /**
+     * Creates a {@link BatchCall} to load the ROIs.
+     * 
+     * @param ctx The security context.
+     * @param imageID The id of the image.
+     * @param userID The id of the user.
+     * @param roiList The rois to save.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeSaveCall(final SecurityContext ctx,
+            final long imageID, final long userID, final List<ROIData> roiList)
+    {
+        return new BatchCall("save ROI") {
+            public void doCall() throws Exception
+            {
+                OmeroImageService svc = context.getImageService();
+                result = svc.saveROI(ctx, imageID, userID, roiList);
+            }
+        };
+    }
+
+    /**
+     * Adds the {@link #saveCall} to the computation tree.
+     * @see BatchCallTree#buildTree()
+     */
+    protected void buildTree() { add(saveCall); }
+
     /**
      * Returns the result of the save.
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return result; }
-    
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param ctx The security context.
-	 * @param imageID The image's ID.
-	 * @param userID The user's ID.
-	 * @param roiList The rois to handle.
-	 */
-	public ROISaver(SecurityContext ctx, long imageID,long userID,
-			List<ROIData> roiList)
-	{
-		saveCall = makeSaveCall(ctx, imageID, userID, roiList);
-	}
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+     * @param imageID The image's ID.
+     * @param userID The user's ID.
+     * @param roiList The list of ROIs to save.
+     */
+    public ROISaver(SecurityContext ctx, long imageID,long userID,
+            List<ROIData> roiList)
+    {
+        saveCall = makeSaveCall(ctx, imageID, userID, roiList);
+    }
 
 }

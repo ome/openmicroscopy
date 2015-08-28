@@ -42,8 +42,8 @@ TEST(ChgrpTest, testSimpleChgrp ) {
     image->setName( rstring("testSimpleChgrp") );
     image = ImagePtr::dynamicCast( iupdate->saveAndReturnObject( image ) );
 
-    omero::api::LongList imageIds;
-    omero::api::StringLongListMap objects;
+    LongList imageIds;
+    StringLongListMap objects;
     ChildOptions options;
     Chgrp2Ptr chgrpCmd = new Chgrp2();
     imageIds.push_back( image->getId()->getValue() );

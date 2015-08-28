@@ -15,25 +15,20 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package integration.chgrp;
 
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import static org.testng.AssertJUnit.*;
 import ome.specification.XMLMockObjects;
@@ -45,10 +40,10 @@ import omero.api.IMetadataPrx;
 import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp2;
 import omero.cmd.Delete2;
-import omero.cmd.DoAll;
 import omero.cmd.OK;
 import omero.cmd.Request;
 import omero.cmd.Response;
+import omero.gateway.util.Requests;
 import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -174,11 +169,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         long fs1 = f.images.get(1).getFileset().getId().getValue();
         assertEquals(fs0, fs1);
 
-        final Chgrp2 mv = new Chgrp2();
-        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img0));
-        mv.groupId = secondGroup.getId().getValue();
+        final Chgrp2 mv = Requests.chgrp("Image", img0, secondGroup.getId().getValue());
 
         Response rsp = doChange(client, factory, mv, false); // Don't pass
         // However, it should still be possible to delete the 2 images
@@ -186,10 +177,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(img0);
         ids.add(img1);
-        List<Request> commands = new ArrayList<Request>();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(), ids);
+        Delete2 dc = Requests.delete("Image", ids);
         callback(true, client, dc);
         assertDoesNotExist(new FilesetI(fs0, false));
     }
@@ -203,11 +191,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	List<Image> images = importMIF(imageCount);
         long fs0 = images.get(0).getFileset().getId().getValue();
 
-        final Chgrp2 mv = new Chgrp2();
-        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Fileset.class.getSimpleName(),
-                Collections.singletonList(fs0));
-        mv.groupId = secondGroup.getId().getValue();
+        final Chgrp2 mv = Requests.chgrp("Fileset", fs0, secondGroup.getId().getValue());
 
         Response rsp = doChange(client, factory, mv, true);
         OK err = (OK) rsp;
@@ -250,11 +234,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     		set.addImage(j.next());
 		}
     	set = (Fileset) iUpdate.saveAndReturnObject(set);
-    	final Chgrp2 mv = new Chgrp2();
-        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Fileset.class.getSimpleName(),
-                Collections.singletonList(set.getId().getValue()));
-        mv.groupId = secondGroup.getId().getValue();
+    	final Chgrp2 mv = Requests.chgrp("Fileset", set.getId().getValue(), secondGroup.getId().getValue());
     	Response rsp = doChange(client, factory, mv, true);
     	OK err = (OK) rsp;
     	assertNotNull(err);
@@ -439,11 +419,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
 		}
         long filesetID = images.get(0).getFileset().getId().getValue();
         iUpdate.saveAndReturnArray(links);
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(dataset.getId().getValue()));
-        dc.groupId = secondGroup.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Dataset", dataset.getId().getValue(), secondGroup.getId().getValue());
 
     	doAllChanges(client, factory, true, dc);
     	disconnect();

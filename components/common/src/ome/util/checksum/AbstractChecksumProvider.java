@@ -91,7 +91,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     }
 
     /**
-     * @see ChecksumProvider#putBytes(String)
+     * @see ChecksumProvider#putFile(String)
      */
     public ChecksumProvider putFile(String filePath) {
         this.verifyState(this.hashBytes, this.hashString);

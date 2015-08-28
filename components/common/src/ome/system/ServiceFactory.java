@@ -7,7 +7,6 @@
 
 package ome.system;
 
-// Java imports
 import java.util.Properties;
 
 import ome.api.IAdmin;
@@ -147,7 +146,6 @@ public class ServiceFactory {
      * given name.
      * 
      * @see OmeroContext#CLIENT_CONTEXT
-     * @see OmeroContext#INTERNAL_CONTEXT
      * @see OmeroContext#MANAGED_CONTEXT
      */
     public ServiceFactory(String contextName) {
@@ -231,7 +229,7 @@ public class ServiceFactory {
 
     /**
      * create a new {@link RawPixelsStore} proxy. This proxy will have to be
-     * initialized using {@link RawPixelsStore#setPixelsId(long)}
+     * initialized using {@link RawPixelsStore#setPixelsId(long, boolean)}
      */
     public RawPixelsStore createRawPixelsStore() {
         return getServiceByClass(RawPixelsStore.class);

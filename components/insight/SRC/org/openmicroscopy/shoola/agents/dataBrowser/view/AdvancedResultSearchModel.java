@@ -234,8 +234,8 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
     /**
      * Get the thumbnail for a certain image
      * 
-     * @param refObj
-     * @return
+     * @param refObj The image to handle.
+     * @return See above
      */
     public Thumbnail getThumbnail(DataObject refObj) {
         return thumbs.get(refObj);
@@ -254,9 +254,9 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      * Checks if the search result corresponding to the provided type and id is
      * an ID match
      * 
-     * @param type
-     * @param id
-     * @return
+     * @param type The type of data object
+     * @param id The object to handle.
+     * @return <code>true</code> if found, <code>false</code> otherwise.
      */
     public boolean isIdMatch(Class<? extends DataObject> type, long id) {
         for (SearchResult r : results) {

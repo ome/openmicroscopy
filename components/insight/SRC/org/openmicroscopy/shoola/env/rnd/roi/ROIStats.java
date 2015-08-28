@@ -23,15 +23,10 @@
 package org.openmicroscopy.shoola.env.rnd.roi;
 
 
-
-//Java imports
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.Pixels;
 
 
@@ -43,9 +38,6 @@ import omero.model.Pixels;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ROIStats
@@ -110,7 +102,7 @@ public class ROIStats
      * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
      * @param w The w coordinate. Must be in the range <code>[0, sizeW)</code>.
      * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
-     * @return A {@link ROIPlaneStats} object holding the statistics for the
+     * @return A {@link ROIShapeStats} object holding the statistics for the
      *          2D-selection in the specified plane. If no selection was
      *          made in that plane, then <code>null</code> is returned instead.
      */

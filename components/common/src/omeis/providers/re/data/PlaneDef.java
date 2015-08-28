@@ -7,14 +7,9 @@
 
 package omeis.providers.re.data;
 
-// Java imports
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Identifies a <i>2D</i>-plane in the <i>XYZ</i> moving frame of the <i>3D</i>
@@ -25,8 +20,7 @@ import java.util.List;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/17 17:49:34 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class PlaneDef implements Serializable {
@@ -291,7 +285,7 @@ public class PlaneDef implements Serializable {
     /**
      * Sets whether or not to render the shapes (masks).
      * 
-     * @param renderShapes The value to set.
+     * @param shapeIds The value to set.
      */
     public void setShapeIds(List<Long> shapeIds) {
         this.shapeIds = shapeIds;

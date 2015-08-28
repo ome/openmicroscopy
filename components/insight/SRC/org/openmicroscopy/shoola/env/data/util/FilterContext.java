@@ -23,17 +23,12 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -45,9 +40,6 @@ import pojos.TextualAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class FilterContext
@@ -231,8 +223,8 @@ public class FilterContext
 	/**
 	 * Sets the ROI index and the selected number of ROIs.
 	 * 
-	 * @param index	One of the constants defined by this class.
-	 * @param rate	The selected number of ROIs.
+	 * @param index One of the constants defined by this class.
+	 * @param rois The selected number of ROIs.
 	 */
 	public void setRois(int index, int rois) {
 	    this.roiIndex = index;

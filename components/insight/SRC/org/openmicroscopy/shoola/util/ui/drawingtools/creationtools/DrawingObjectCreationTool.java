@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
-
-//Java imports
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -38,8 +36,6 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-
-//Third-party libraries
 import org.jhotdraw.draw.AbstractTool;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.CompositeFigure;
@@ -49,8 +45,6 @@ import org.jhotdraw.draw.Figure;
 import org.jhotdraw.util.ResourceBundleUtil;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
-//Application-internal dependencies
-
 /** 
  * A tool to create new drawing figures.
  *
@@ -59,9 +53,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DrawingObjectCreationTool
@@ -188,7 +179,7 @@ public class DrawingObjectCreationTool
      * @param prototype The prototype used to create a new Figure.
      * @param attributes The CreationTool applies these attributes to the
      * prototype after having applied the default attributes from the DrawingEditor.
-     * @param presentationName The presentationName parameter is currently not used.
+     * @param name The presentationName parameter is currently not used.
      */
     public DrawingObjectCreationTool(Figure prototype, 
     		Map<AttributeKey, Object> attributes, String name)

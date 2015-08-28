@@ -7,7 +7,6 @@
 
 package ome.system;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -177,7 +176,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * Managed means that the services are fully wrapped by interceptors, and
      * are essentially the services made available remotely.
      * 
-     * @see #INTERNAL_CONTEXT
+     * @see #MANAGED_CONTEXT
      */
     public static OmeroContext getManagedServerContext() {
         synchronized (mutex) {
@@ -196,7 +195,6 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * parameter will return the same (==) context instance.
      * 
      * @see #getClientContext()
-     * @see #getInternalServerContext()
      * @see #getManagedServerContext()
      */
     public static OmeroContext getInstance(String beanFactoryName) {
@@ -262,9 +260,8 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * useful when using a static context, and {@link Properties} which were
      * pulled from {@link System#getProperties()} have been changed.
      * 
-     * If this is a server-side instance ({@link OmeroContext#MANAGED_CONTEXT}
-     * or {@link OmeroContext#INTERNAL_CONTEXT}), this may take a significant
-     * amount of time.
+     * If this is a server-side instance ({@link #MANAGED_CONTEXT}), this may
+     * take a significant amount of time.
      * 
      * @see org.springframework.context.ConfigurableApplicationContext#refresh()
      */
@@ -283,7 +280,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     }
 
     /**
-     * Calls {@link #refreshAll() if {@link #isRunning()} throws an
+     * Calls {@link #refreshAll()} if {@link #isRunning()} throws an
      * {@link IllegalStateException}.
      */
     public void refreshAllIfNecessary() {
@@ -297,9 +294,8 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     /**
      * closes all the nested OmeroContexts within this instance.
      * 
-     * If this is a server-side instance ({@link OmeroContext#MANAGED_CONTEXT}
-     * or {@link OmeroContext#INTERNAL_CONTEXT}), this may take a significant
-     * amount of time.
+     * If this is a server-side instance ({@link #MANAGED_CONTEXT}), this may
+     * take a significant amount of time.
      * 
      * @see org.springframework.context.ConfigurableApplicationContext#close()
      */

@@ -63,7 +63,6 @@ public class GraphRequestFactory {
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
     private final ImmutableSetMultimap<String, String> unnullable;
     private final ImmutableSet<String> defaultExcludeNs;
-    private final boolean isGraphsWrap;
 
     /**
      * Construct a new graph request factory.
@@ -76,13 +75,12 @@ public class GraphRequestFactory {
      * @param allRules rules for all request classes that use the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param defaultExcludeNs the default value for an unset excludeNs field
-     * @param isGraphsWrap if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
      * @throws GraphException if the graph path rules could not be parsed
      */
     public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
-            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs,
-            boolean isGraphsWrap) throws GraphException {
+            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs)
+                    throws GraphException {
         this.aclVoter = aclVoter;
         this.securityRoles = securityRoles;
         this.systemTypes = systemTypes;
@@ -116,14 +114,6 @@ public class GraphRequestFactory {
         this.unnullable = unnullableBuilder.build();
 
         this.defaultExcludeNs = ImmutableSet.copyOf(defaultExcludeNs);
-
-        final String logMessage = "substituting Chgrp, Chmod, Chown, Delete requests with Chgrp2, Chmod2, Chown2, Delete2 requests";
-        if (isGraphsWrap) {
-            LOGGER.debug(logMessage);
-        } else {
-            LOGGER.warn("not " + logMessage);
-        }
-        this.isGraphsWrap = isGraphsWrap;
     }
 
     /**
@@ -131,13 +121,6 @@ public class GraphRequestFactory {
      */
     public GraphPathBean getGraphPathBean() {
         return graphPathBean;
-    }
-
-    /**
-     * @return if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
-     */
-    public boolean isGraphsWrap() {
-        return isGraphsWrap;
     }
 
     /**
@@ -178,7 +161,7 @@ public class GraphRequestFactory {
                         constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
                                 targetClasses, graphPolicy, unnullable);
             }
-        } catch (ReflectiveOperationException e) {
+        } catch (IllegalArgumentException | ReflectiveOperationException | SecurityException e) {
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);
         }
         return request;

@@ -43,7 +43,7 @@ public interface Reorderable {
 
 	/**
 	 * Moves certain rows of a table from fromIndices to toIndex
-	 * @param fromIndex See above
+	 * @param fromIndices See above
 	 * @param toIndex See above
 	 * @return The new index where the rows have been inserted
 	 */

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +43,7 @@ import omero.cmd.HandlePrx;
 import omero.cmd.OK;
 import omero.cmd.Request;
 import omero.cmd.Response;
+import omero.gateway.util.Requests;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -75,7 +75,6 @@ import pojos.GroupData;
 import pojos.PermissionData;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 /**
  * 
@@ -388,11 +387,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                                 && targetGroup != sourceGroup) {
                             img = images.get(k);
                             long imageId = img.getId().getValue();
-                            final Chgrp2 dc = new Chgrp2();
-                            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                                    Image.class.getSimpleName(),
-                                    Collections.singletonList(imageId));
-                            dc.groupId = targetGroup;
+                            final Chgrp2 dc = Requests.chgrp("Image", imageId, targetGroup);
                             testParams.add(new TestParam(dc, testUserNames[i],
                                     PASSWORD, sourceGroup));
                         }

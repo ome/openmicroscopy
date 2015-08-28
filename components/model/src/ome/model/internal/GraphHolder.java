@@ -6,11 +6,6 @@
  */
 package ome.model.internal;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 
@@ -24,7 +19,7 @@ import ome.model.IObject;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 3.0
  * @since 3.0
  * @author josh
  */
@@ -44,7 +39,7 @@ public final class GraphHolder {
     }
 
     /**
-     * used mostly by {@link ome.api.IUpdate}. Improper use of this method may
+     * used mostly by {@code ome.api.IUpdate}. Improper use of this method may
      * cause erratic behavior.
      * 
      * @param replacement

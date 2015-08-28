@@ -23,17 +23,12 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
-
-//Java imports
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
@@ -58,7 +53,7 @@ import pojos.WellSampleData;
  * an hierarchy of {@link DataObject}s into a visualization tree.
  * The tree is then displayed in the DataBrowser. For example,
  * A list of Projects-Datasets-Images is passed to the 
- * {@link #transformProjects(Set, long, long)} method and transforms into a set
+ * {@link #transformProjects(Set)} method and transforms into a set
  * of ImageSet-ImageSet-ImageNode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -66,9 +61,6 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataBrowserTranslator 

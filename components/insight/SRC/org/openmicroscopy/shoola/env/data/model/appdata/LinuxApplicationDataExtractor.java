@@ -81,11 +81,12 @@ public class LinuxApplicationDataExtractor implements ApplicationDataExtractor
 	}
 
     /**
+     * Returns the command string to launch the default application for the
+     *          file specified by {@code location} with xdg-open which should
+     *          be available on all freedesktop.org compliant linux desktops.
      * @param location
      *            the location pointing to the file to be opened
-     * @returns the command string to launch the default application for the
-     *          file specified by {@code location} with xdg-open which should
-     *          be available on all freedesktop.org compliant linux desktops
+     * @return See above.
      */
     public String[] getDefaultOpenCommandFor(URL location) {
         String[] defaultCommands = new String[] { "xdg-open",

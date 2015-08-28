@@ -24,14 +24,10 @@
 package org.openmicroscopy.shoola.agents.util.ui;
 
 
-//Java imports
 import javax.swing.Icon;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -74,7 +70,7 @@ public class JComboBoxImageObject {
 	/**
 	 * Returns the object hosted by this class.
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	public DataObject getData() { return data; }
 	
