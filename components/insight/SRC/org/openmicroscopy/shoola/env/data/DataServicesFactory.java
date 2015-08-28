@@ -554,7 +554,7 @@ public class DataServicesFactory
 		LoginCredentials cred = new LoginCredentials();
         cred.getUser().setUsername(uc.getUserName());
         cred.getUser().setPassword(uc.getPassword());
-        cred.getServer().setHostname( uc.getHostName());
+        cred.getServer().setHostname(uc.getHostName());
         cred.getServer().setPort(uc.getPort());
         cred.setApplicationName(name);
         cred.setCheckNetwork(true);
