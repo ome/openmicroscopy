@@ -267,13 +267,13 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("l.illumination",     "i_type",   true, true);
                 qb.join("l.contrastMethod",   "c_method", true, true);
                 qb.join("i.rois",             "r",        true, true);
-                qb.join("r.details.owner",    "r_o",      false, true);
-                qb.join("r.details.group",    "r_g",      false, true);
+                qb.join("r.details.owner",    "r_o",      true, true);
+                qb.join("r.details.group",    "r_g",      true, true);
                 qb.join("r.annotationLinks",  "r_a_link", true, true);
                 qb.join("r_a_link.child",     "r_a",      true, true);
                 qb.join("r.shapes",           "s",        true, true);
-                qb.join("s.details.owner",    "s_o",      false, true);
-                qb.join("s.details.group",    "s_g",      false, true);
+                qb.join("s.details.owner",    "s_o",      true, true);
+                qb.join("s.details.group",    "s_g",      true, true);
                 qb.join("s.annotationLinks",  "s_a_link", true, true);
                 qb.join("s_a_link.child",     "s_a",      true, true);
                 qb.where();
