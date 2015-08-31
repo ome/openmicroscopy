@@ -13,12 +13,19 @@ Suite Teardown      Close all browsers
 
 ${thumbnailsXpath}      //ul[@id='dataIcons']//div[contains(@class, 'image')]
 
+*** Keywords ***
+
+Cleal activity
+    [Documentation]         Clear any activities from earlier tests etc.
+    Click Element           id=launch_activities
+    Click Element           id=clear_activities
 
 *** Test Cases ***
 
 Test Delete Project
     [Documentation]     Create and Delete a Project
 
+    Cleal activity
     Select Experimenter
     ${pid}=                                 Create project      robot test delete
     Click Element                           refreshButton
@@ -37,9 +44,7 @@ Test Delete Project
 Test Delete Project Dataset
     [Documentation]     Create and Delete a Project containing a Dataset
 
-    # Clear any activities from earlier tests etc.
-    Click Element                           id=launch_activities
-    Click Element                           id=clear_activities
+    Cleal activity
     Select Experimenter
     ${pid}=                                 Create project      robot test delete
     ${did}=                                 Create Dataset      robot test deleteChildren
@@ -62,6 +67,7 @@ Test Delete Project Dataset
 Test Delete Images in Dataset
     [Documentation]     Deletes images pre-imported into a dataset named "Delete"
 
+    Cleal activity
     Select Experimenter
     # Click on Dataset, wait for thumbnails and count them
     Click Element                           xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
@@ -74,19 +80,19 @@ Test Delete Images in Dataset
     Click Dialog Button                     Yes
     # Should see almost instant removal of 1 thumbnail...
     ${delThumbCount}=                       Evaluate   ${thumbCount} - 1
-    Wait Until Keyword Succeeds             1   0.1   Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
-    # ...Need to check that centre panel doesn't reload and show image during delete: #12866
-    Sleep                                   5
+    Wait Until Keyword Succeeds     ${TIMEOUT}      ${INTERVAL}   Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
+    # Wait for activities to show job done, then refresh tree...
+    Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']//a[contains(@class, 'jstree-clicked')]
     Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
 
 
 Test Delete Images in Share
     [Documentation]     Deletes pre-imported images after putting them in Share
 
+    Cleal activity
     Select Experimenter
-    # Clear any activities from earlier tests etc.
-    Click Element                           id=launch_activities
-    Click Element                           id=clear_activities
     # Add image in 'Delete' Dataset to Share
     Click Element                               xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
     Wait Until Page Contains Element            id=dataIcons
