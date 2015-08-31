@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,10 @@
 
 % File annotation constants
 filePath = 'mydata.txt';
-fileContent = 'file annotation content';
+fileContent = 'file annotation current session group';
+fileContent2 = 'file annotation different group';
 newFileContent = [fileContent ' modified'];
+newFileContent2 = [fileContent2 ' modified'];
 fileMimeType = 'application/octet-stream';
 fileDescription = 'file annotation description';
 newFileDescription = [fileDescription ' modified'];
@@ -45,7 +47,8 @@ try
     projectId = p.projectid;
     plateId = p.plateid;
     screenId = p.screenid;
-    
+    group2 = p.group2;
+    groupId = a.lookupGroup('training_group-2').getId().getValue();
     %% File Annotation
     disp('File annotation');
     % Create a local file
@@ -58,45 +61,69 @@ try
     fileAnnotation = writeFileAnnotation(session, filePath,...
         'mimetype', fileMimeType, 'description', fileDescription,...
         'namespace', ns);
-    fprintf(1, 'Created file annotation %g\n',...
-        fileAnnotation.getId().getValue());
+    fprintf(1, 'Created file annotation %g (group: %g)\n',...
+        fileAnnotation.getId().getValue(),...
+        fileAnnotation.getDetails().getGroup().getId().getValue());
     
+    fid = fopen(filePath, 'w');
+    fwrite(fid, fileContent2);
+    fclose(fid);
+    fileAnnotation2 = writeFileAnnotation(session, filePath,...
+        'mimetype', fileMimeType, 'description', fileDescription,...
+        'namespace', ns, 'group', groupId);
+    fprintf(1, 'Created file annotation %g (group: %g)\n',...
+        fileAnnotation2.getId().getValue(),...
+        fileAnnotation2.getDetails().getGroup().getId().getValue());
     % Delete the local file
     delete(filePath);
     
-    % Download the content of the file annotation
-    fprintf(1, 'Reading content of file annotation %g\n',...
-        fileAnnotation.getId().getValue());
+    % Download and read the content of the file annotation
     getFileAnnotationContent(session, fileAnnotation, fileOutputPath);
-    
-    % Read the downloaded content
     fid = fopen(fileOutputPath, 'r');
     readContent = fread(fid);
     fclose(fid);
-    fprintf(1, 'File content: %s\n', readContent);
-    
-    % Delete the local file
+    fprintf(1, 'Reading content of file annotation %g: %s\n',...
+        fileAnnotation.getId().getValue(), readContent);
     delete(fileOutputPath);
     
-    % Update the local file
-    fprintf(1, 'Creating local file with content: %s\n', newFileContent);
+    % Download and read the content of the file annotation
+    getFileAnnotationContent(session, fileAnnotation2, fileOutputPath);
+    fid = fopen(fileOutputPath, 'r');
+    readContent = fread(fid);
+    fclose(fid);
+    fprintf(1, 'Reading content of file annotation %g: %s\n',...
+        fileAnnotation2.getId().getValue(), readContent);
+    delete(fileOutputPath);
+    
+    % Update the file annotation on the server
+    disp('Updating file annotations with new content');
     fid = fopen(filePath, 'w');
     fwrite(fid, newFileContent);
     fclose(fid);
-    
-    % Update the file annotation on the server
     fileAnnotation = updateFileAnnotation(session, fileAnnotation, filePath,...
+        'description', newFileDescription);
+    fid = fopen(filePath, 'w');
+    fwrite(fid, newFileContent2);
+    fclose(fid);
+    fileAnnotation2 = updateFileAnnotation(session, fileAnnotation2, filePath,...
         'description', newFileDescription);
     delete(filePath);
     
     % Read the content of the updated file annotation
-    fprintf(1, 'Reading content of updated file annotation %g\n',...
-        fileAnnotation.getId().getValue());
     getFileAnnotationContent(session, fileAnnotation, fileOutputPath);
     fid = fopen(fileOutputPath, 'r');
     readContent = fread(fid);
     fclose(fid);
-    fprintf(1, 'Updated file content: %s\n', readContent);
+    fprintf(1, 'Reading content of updated file annotation %g: %s\n',...
+        fileAnnotation.getId().getValue(), readContent);
+    delete(fileOutputPath);
+    
+    getFileAnnotationContent(session, fileAnnotation2, fileOutputPath);
+    fid = fopen(fileOutputPath, 'r');
+    readContent = fread(fid);
+    fclose(fid);
+    fprintf(1, 'Reading content of updated file annotation %g: %s\n',...
+        fileAnnotation2.getId().getValue(), readContent);
     delete(fileOutputPath);
     
     % Project - Annotation link
@@ -107,6 +134,7 @@ try
         projectId, ns);
     fas = getProjectFileAnnotations(session, projectId, 'include', ns);
     assert(hasAnnotation(fa, fas), 'WriteData: Could not find annotation');
+    
     
     % Dataset - Annotation link
     linkAnnotation(session, fa, 'dataset', datasetId);
@@ -298,7 +326,7 @@ try
         screenId, ns);
     las = getScreenLongAnnotations(session, screenId, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
- 
+    
     %% Map Annotation
     disp('Map annotation');
     mapAnnotation = writeMapAnnotation(session, 'key', 'value',...
@@ -351,7 +379,7 @@ try
         screenId, ns);
     mas = getObjectAnnotations(session, 'map', 'screen', screenId, 'include', ns);
     assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
- 
+    
     %% Tag Annotation
     disp('Tag annotation');
     tagAnnotation = writeTagAnnotation(session, 'tag value',...

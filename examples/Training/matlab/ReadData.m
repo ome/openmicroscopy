@@ -31,12 +31,12 @@ try
     datasetId = p.datasetid;
     imageId = p.imageid;
     plateId = p.plateid;
-
+    
     print_object = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
         char(x.getName().getValue()), x.getId().getValue(),...
         x.getDetails().getOwner().getId().getValue(),...
         x.getDetails().getGroup().getId().getValue());
-
+    
     %% Projects
     % Retrieve all the projects and orphaned datasets owned by session
     % owner in the current context
@@ -59,7 +59,7 @@ try
         print_object(orphanedDatasets(j));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve all the unloaded projects owned by the session owner across
     % groups
     disp('Retrieving projects owned by the session user across groups')
@@ -69,9 +69,9 @@ try
         print_object(projects(i));
     end
     fprintf(1, '\n');
-
-    % Retrieve all the unloaded projects owned by the session owner across
-    % groups
+    
+    % Retrieve all the unloaded projects owned by the any user in the
+    % context of the current session group
     disp('Retrieving projects across by any user in the current group')
     projects = getProjects(session, 'owner', -1);
     fprintf(1, '  Found %g projects\n', numel(projects));
@@ -79,7 +79,7 @@ try
         print_object(projects(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve a loaded project specified by an input identifier
     % If the dataset contains images, the images will be loaded
     fprintf(1, 'Reading project %g with loaded images\n', projectId);
@@ -95,7 +95,7 @@ try
         end
     end
     fprintf(1, '\n');
-
+    
     %% Datasets
     % Retrieve all the unloaded datasets owned by the session owner.
     % If the datasets contain images, the images will not be loaded.
@@ -106,7 +106,7 @@ try
         print_object(allDatasets(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve all the unloaded datasets owned by the session owner across
     % all groups
     disp('Retrieving dataset owned by the session user across all groups')
@@ -116,7 +116,17 @@ try
         print_object(allDatasetsAllGroups(i));
     end
     fprintf(1, '\n');
-
+    
+    % Retrieve all the unloaded datasets owned by the any user in the
+    % context of the current session group
+    disp('Retrieving datasets across by any user in the current group')
+    datasets = getDatasets(session, 'owner', -1);
+    fprintf(1, '  Found %g datasets\n', numel(datasets));
+    for i = 1 : numel(datasets),
+        print_object(datasets(i));
+    end
+    fprintf(1, '\n');
+    
     % Retrieve a loaded dataset specified by an input identifier
     % If the dataset contains images, the images will be loaded
     fprintf(1, 'Retrieving dataset %g with loaded images\n', datasetId);
@@ -128,7 +138,7 @@ try
         print_object(images(i));
     end
     fprintf(1, '\n');
-
+    
     %% Images
     % Retrieve all the images owned by the session user.
     disp('Retrieving images owned by the session user in the current group')
@@ -138,7 +148,7 @@ try
         print_object(allImages(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve all the images owned by the session user across all groups
     disp('Retrieving images owned by the session user across groups')
     allImagesAllGroups = getImages(session, 'group', -1);
@@ -147,7 +157,7 @@ try
         print_object(allImagesAllGroups(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve all the images contained in a given dataset.
     fprintf(1, 'Retrieving images contained in dataset %g\n', datasetId);
     images2 = getImages(session, 'dataset', datasetId);
@@ -156,7 +166,7 @@ try
         print_object(images2(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve all the images contained in a given dataset.
     fprintf(1, 'Retrieving images contained in project %g\n', projectId);
     images3 = getImages(session, 'project', projectId);
@@ -165,7 +175,7 @@ try
         print_object(images3(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve an image if the identifier is known.
     fprintf(1, 'Retrieving image: %g\n', imageId);
     image = getImages(session, imageId);
@@ -197,7 +207,7 @@ try
     % There is no explicit method in the gateway exposed to retrieve screening data
     % (to learn about the model go to ScreenPlateWell) but you can use the ContainerService to
     % load the data, you can use the method `findAllByQuery`.
-
+    
     % load Screen and plate owned by the user currently logged in
     disp('Retrieving all screens and orphaned plates owned by the session user')
     [screens, orphanedPlates] = getScreens(session);
@@ -225,7 +235,7 @@ try
         end
     end
     fprintf(1, '\n');
-
+    
     % Retrieve all the images owned by the session user across all groups
     disp('Retrieving all screens owned by the session user across all groups')
     allScreensAllGroups = getScreens(session, 'group', -1);
@@ -234,7 +244,7 @@ try
         print_object(allScreensAllGroups(i));
     end
     fprintf(1, '\n');
-
+    
     %% Plates
     % Retrieve all the plates owned by the session user.
     disp('Listing plates owned by the session user');
@@ -244,7 +254,7 @@ try
         print_object(allPlates(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve all the pldates owned by the session user across all groups
     disp('Retrieving plates owned by the session user across all groups')
     allPlatesAllGroups = getPlates(session, 'group', -1);
@@ -253,9 +263,9 @@ try
         print_object(allPlatesAllGroups(i));
     end
     fprintf(1, '\n');
-
+    
     % Retrieve Wells within a Plate, see ScreenPlateWell.
-
+    
     % Given a plate ID, load the wells.
     % You will have to use the findAllByQuery method.
     fprintf(1, 'Listing wells for plate: %g\n ', plateId);
