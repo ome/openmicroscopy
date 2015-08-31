@@ -28,6 +28,7 @@ from omero.rtypes import rstring, rtime
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _post_response
 from weblibrary import _csrf_get_response, _get_response
+from weblibrary import _csrf_delete_response, _delete_response
 
 import json
 
@@ -266,43 +267,31 @@ class TestCsrf(IWebTest):
         response = _csrf_post_response(self.django_client, request_url, data)
         did = json.loads(response.content).get("id")
 
-        # Copy image
         img = self.image_with_channels()
-        request_url = reverse("manage_action_containers",
-                              args=["paste", "image", img.id.val])
-        data = {
-            'destination': "dataset-%i" % did
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
 
         # Move image
-        request_url = reverse("manage_action_containers",
-                              args=["move", "image", img.id.val])
-        data = {
-            'destination': 'orphaned-0',
-            'parent': 'dataset-%i' % did
+        request_url = reverse("api_links")
+        data ={
+            'parent_type': 'dataset',
+            'parent_id': did,
+            'child_type': 'image',
+            'child_id': img.id.val
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
 
-        # Remove image
-        request_url = reverse("manage_action_containers",
-                              args=["remove", "image", img.id.val])
-        data = {
-            'parent': 'dataset-%i' % did
-        }
         _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, json.dumps(data), content_type="application/json")
 
         # Delete image
-        request_url = reverse("manage_action_containers", args=["deletemany"])
-        data = {
-            'child': 'on',
-            'dataset': did
+        request_url = reverse("api_links")
+        data ={
+            'parent_type': 'dataset',
+            'parent_id': did,
+            'child_type': 'image',
+            'child_id': img.id.val
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        _delete_response(self.django_client, request_url, data)
+        _csrf_delete_response(self.django_client, request_url, json.dumps(data), content_type="application/json")
+
 
     def test_create_share(self):
 
