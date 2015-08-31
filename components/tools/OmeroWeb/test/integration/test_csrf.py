@@ -271,7 +271,7 @@ class TestCsrf(IWebTest):
 
         # Move image
         request_url = reverse("api_links")
-        data ={
+        data = {
             'parent_type': 'dataset',
             'parent_id': did,
             'child_type': 'image',
@@ -279,19 +279,24 @@ class TestCsrf(IWebTest):
         }
 
         _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, json.dumps(data), content_type="application/json")
+        _csrf_post_response(self.django_client,
+                            request_url,
+                            json.dumps(data),
+                            content_type="application/json")
 
         # Delete image
         request_url = reverse("api_links")
-        data ={
+        data = {
             'parent_type': 'dataset',
             'parent_id': did,
             'child_type': 'image',
             'child_id': img.id.val
         }
         _delete_response(self.django_client, request_url, data)
-        _csrf_delete_response(self.django_client, request_url, json.dumps(data), content_type="application/json")
-
+        _csrf_delete_response(self.django_client,
+                              request_url,
+                              json.dumps(data),
+                              content_type="application/json")
 
     def test_create_share(self):
 

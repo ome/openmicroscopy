@@ -78,8 +78,10 @@ class IWebTest(lib.ITest):
 # Helpers
 def _response(django_client, request_url, method, data, status_code=403,
               content_type=MULTIPART_CONTENT, **extra):
-    response = getattr(django_client, method)(request_url, data=data,
-                                  content_type=content_type, **extra)
+    response = getattr(django_client, method)(request_url,
+                                              data=data,
+                                              content_type=content_type,
+                                              **extra)
     assert response.status_code == status_code, response
     return response
 
@@ -107,7 +109,7 @@ def _delete_response(django_client, request_url, data, status_code=403,
     return _response(django_client, request_url, method='delete', data=data,
                      status_code=status_code, content_type=content_type,
                      **extra)
-    
+
 
 def _csrf_delete_response(django_client, request_url, data, status_code=200,
                           content_type=MULTIPART_CONTENT):
