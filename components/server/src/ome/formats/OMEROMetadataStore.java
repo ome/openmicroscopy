@@ -61,6 +61,7 @@ import ome.model.screen.PlateAcquisition;
 import ome.model.stats.StatsInfo;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.util.LSID;
 import ome.util.SqlAction;
 
@@ -72,7 +73,8 @@ import org.perf4j.StopWatch;
 
 /**
  * An OMERO metadata store. This particular metadata store requires the user to
- * be logged into OMERO prior to use with the {@link #login()} method. While
+ * be logged into OMERO prior to use with the
+ * {@link ome.security.SecuritySystem#login(ome.system.Principal)} method. While
  * attempts have been made to allow the caller to switch back and forth between 
  * Images and Pixels during metadata population it is <b>strongly</b> 
  * encouraged that at least Images and Pixels are populated in ascending order. 
@@ -1847,14 +1849,15 @@ public class OMEROMetadataStore
      * Creates a new instance.
      * 
      * @param factory a non-null, active {@link ServiceFactory}
-     * @throws MetadataStoreException if the factory is null or there
+     * @param sql the SQL action instance
+     * @throws ValidationException if the factory is null or there
      *             is another error instantiating required services.
      */
     public OMEROMetadataStore(ServiceFactory factory, SqlAction sql)
-    	throws Exception
+            throws ValidationException
     {
         if (factory == null || sql == null)
-            throw new Exception("arguments cannot be null.");
+            throw new ValidationException("arguments cannot be null");
         sf = factory;
         this.sql = sql;
     }
@@ -1973,7 +1976,7 @@ public class OMEROMetadataStore
     }
 
     /**
-     * For all plates and all image which are not contained within a well,
+     * For all plates and all images which are not contained within a well,
      * create a link from the {@link Fileset} to the given object.
      */
     private void linkFileset(FilesetJobLink link)
@@ -2162,7 +2165,7 @@ public class OMEROMetadataStore
 
     /**
      * Saves the current object graph to the database.
-     * 
+     * @param link a link from the fileset to be linked from
      * @return List of the Pixels objects with their attached object graphs
      * that have been saved.
      */
