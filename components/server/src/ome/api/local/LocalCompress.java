@@ -39,15 +39,14 @@ public interface LocalCompress {
 	 * 
 	 * @param percentage A percentage compression level from 1.00 (100%) to 
 	 * 0.01 (1%).
-	 * @throws ValidationException if the <code>percentage</code> is out of
-	 * range.
+	 * @throws ome.conditions.ValidationException if the {@code percentage} is out of
+	 * range. (actually doesn't but might should)
 	 */
 	void setCompressionLevel(float percentage);
 	
 	/**
 	 * Returns the current compression level for the service.
-	 * 
-	 * @returns See above.
+	 * @return the current compression level
 	 */
 	float getCompressionLevel();
 }
