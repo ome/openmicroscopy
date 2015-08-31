@@ -64,7 +64,9 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
 
     protected transient SessionFactory sf;
 
-    /** injector for usage by the container. Not for general use */
+    /** injector for usage by the container. Not for general use 
+     * @param sessions the session factory
+     */
     public final void setSessionFactory(SessionFactory sessions) {
         getBeanHelper().throwIfAlreadySet(this.sf, sessions);
         sf = sessions;
@@ -165,7 +167,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
 
     @RolesAllowed("system")
     public <T extends IEnum> List<T> getOriginalEnumerations() {
-        List<IEnum> orygin = new ArrayList<IEnum>();
+        List<IEnum> original = new ArrayList<IEnum>();
         InputStream in = null;
         try {
             URL file = ResourceUtils.getURL("classpath:enums.properties");
@@ -186,9 +188,9 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
                 className = className.substring(0, (className.length() - 1));
                 String val = property.getProperty(key);
                 Class klass = Class.forName(className);
-                IEnum orygninEntry = (IEnum) klass.getConstructor(String.class)
+                IEnum originalEntry = (IEnum) klass.getConstructor(String.class)
                         .newInstance(val);
-                orygin.add(orygninEntry);
+                original.add(originalEntry);
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Class not found. " + e.getMessage());
@@ -217,7 +219,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
             } catch (IOException e) {
             }
         }
-        return (List<T>) orygin;
+        return (List<T>) original;
     }
 
     @RolesAllowed("system")
@@ -342,7 +344,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
     
     /**
-     * @see ticket:1204
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/1204">Trac ticket #1204</a>
      */
     private void worldReadable(IObject obj) {
         Permissions p = obj.getDetails().getPermissions();
