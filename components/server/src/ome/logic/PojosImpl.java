@@ -707,9 +707,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
      * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#deleteDataObject(IObject, Parameters)
      */
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public void deleteDataObject(IObject row, Parameters arg1) {
+    private void deleteDataObject(IObject row, Parameters options) {
         iUpdate.deleteObject(row);
     }
 
@@ -717,9 +715,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
      * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#deleteDataObjects(IObject[], Parameters)
      */
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public void deleteDataObjects(IObject[] rows, Parameters options) {
+    private void deleteDataObjects(IObject[] rows, Parameters options) {
         for (IObject object : rows) {
             deleteDataObject(object, options);
         }
