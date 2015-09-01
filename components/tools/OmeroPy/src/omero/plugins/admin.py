@@ -319,6 +319,46 @@ dt_socket,address=8787,suspend=y" \\
             "--finish", action="store_true",
             help="Re-enables the background indexer after for indexing")
 
+        ports = Action(
+            "ports",
+            """Allows modifying the ports from a standard OMERO install
+
+To have multiple OMERO servers running on the same machine several ports
+must be modified from their defaults. Changing the ports on a running server
+will be prevented, use --skipcheck to override this.
+
+Examples:
+
+  # Set ports to registry:14061, tcp:14063, ssl:14064, web:14080
+  %(prog)s --prefix=1
+  # Set ports back to defaults: 4061, 4063, 4064, 4080
+  %(prog)s --prefix=1 --revert
+  # Set ports to: 4444, 5555, 6666, 7777
+  %(prog)s --registry=4444 --tcp=5555 --ssl=6666 --webserver=7777
+
+""").parser
+        ports.add_argument(
+            "--prefix",
+            help="Adds a prefix to each port ON TOP OF any other settings")
+        ports.add_argument(
+            "--registry", default="4061",
+            help="Registry port. (default: %(default)s)")
+        ports.add_argument(
+            "--tcp", default="4063",
+            help="The tcp port to be used by Glacier2 (default: %(default)s)")
+        ports.add_argument(
+            "--ssl", default="4064",
+            help="The ssl port to be used by Glacier2 (default: %(default)s)")
+        ports.add_argument(
+            "--webserver", default="4080",
+            help="The web application server port (default: %(default)s)")
+        ports.add_argument(
+            "--revert", action="store_true",
+            help="Used to rollback from the given settings to the defaults")
+        ports.add_argument(
+            "--skipcheck", action="store_true",
+            help="Skips the check if the server is already running")
+
         sessionlist = Action(
             "sessionlist", "List currently running sessions").parser
         sessionlist.add_login_arguments()
@@ -1683,6 +1723,14 @@ OMERO Diagnostics %s
                            use_exec=True, debug=debug, xargs=xargs,
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
+
+    @with_rw_config
+    def ports(self, args, config):
+        self.ctx.err(
+            "WARNING: the admin ports subcommand is deprecated. Changes will"
+            " be overwritten the next time the configuration files are"
+            " regenerated. Use the omero.ports.xxx configuration properties"
+            " instead.")
 
     def cleanse(self, args):
         self.check_access()
