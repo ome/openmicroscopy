@@ -46,7 +46,7 @@ import com.google.common.io.Files;
 
 /**
  * Top of the error handling hierarchy. Will add errors to a queue
- * which can be sent with {@code sendErrors()}. Subclasses will get
+ * which can be sent with {@link #sendErrors()}. Subclasses will get
  * a chance to handle all {@link ImportEvent} instances, but should
  * try not to duplicate handling.
  *
@@ -297,7 +297,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /**
      * abstract on update method
      *
-     * @param importLibrary
+     * @param importLibrary the import library
      * @param event - importEvent
      */
     protected abstract void onUpdate(IObservable importLibrary, ImportEvent event);
@@ -603,22 +603,22 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
     /**
-     * @param index
+     * @param index the index in the error container
      */
     protected void onSending(int index)
     {
     }
 
     /**
-     * @param index
+     * @param index the index in the error container
      */
     protected void onSent(int index)
     {
     }
 
     /**
-     * @param index
-     * @param serverReply
+     * @param index the index in the error container
+     * @param serverReply the reply from the server
      */
     protected void onNotSending(int index, String serverReply)
     {
@@ -626,7 +626,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     /**
      * Action to take on exception
-     * @param exception
+     * @param exception the exception
      */
     protected void onException(Exception exception)
     {

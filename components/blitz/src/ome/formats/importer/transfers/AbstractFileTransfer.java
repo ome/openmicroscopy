@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base {@link FileTransfer} implementation primarily providing the
- * {@code start(TransferState)} and {@code finish(TransferState, long)}
+ * {@link #start(TransferState)} and {@link #finish(TransferState, long)}
  * methods. Also used as the factory for {@link FileTransfer} implementations
  * via {@link #createTransfer(String)}.
  *
@@ -93,7 +93,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      *
      * @param state the transfer state
      * @return a raw file store proxy for the upload
-     * @throws ServerError
+     * @throws ServerError if the uploader could not be obtained
      */
     protected RawFileStorePrx start(TransferState state) throws ServerError {
         log.info("Transferring {}...", state.getFile());
@@ -107,7 +107,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * @param state non-null
      * @param offset total length transferred.
      * @return client-side digest string.
-     * @throws ServerError
+     * @throws ServerError if the upload could not be completed and checksummed
      */
     protected String finish(TransferState state, long offset) throws ServerError {
         state.start();
@@ -122,7 +122,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      *
      * @param rawFileStore possibly null
      * @param stream possibly null
-     * @throws ServerError
+     * @throws ServerError presently not at all as errors are simply logged, but possibly in the future
      */
     protected void cleanupUpload(RawFileStorePrx rawFileStore,
             FileInputStream stream) throws ServerError {
@@ -160,7 +160,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
     }
 
     /**
-     * Method used by subclasses during {@link ome.formats.importer.transfers.FileTransfer#afterTransfer(int, List)}
+     * Method used by subclasses during {@link FileTransfer#afterTransfer(int, List)}
      * if they would like to remove all the files transferred in the set.
      */
     protected void deleteTransferredFiles(int errors, List<String> srcFiles)
