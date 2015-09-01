@@ -15,7 +15,7 @@ ${thumbnailsXpath}      //ul[@id='dataIcons']//div[contains(@class, 'image')]
 
 *** Keywords ***
 
-Cleal activity
+Clear activity
     [Documentation]         Clear any activities from earlier tests etc.
     Click Element           id=launch_activities
     Click Element           id=clear_activities
@@ -25,7 +25,7 @@ Cleal activity
 Test Delete Project
     [Documentation]     Create and Delete a Project
 
-    Cleal activity
+    Clear activity
     Select Experimenter
     ${pid}=                                 Create project      robot test delete
     Click Element                           refreshButton
@@ -44,7 +44,7 @@ Test Delete Project
 Test Delete Project Dataset
     [Documentation]     Create and Delete a Project containing a Dataset
 
-    Cleal activity
+    Clear activity
     Select Experimenter
     ${pid}=                                 Create project      robot test delete
     ${did}=                                 Create Dataset      robot test deleteChildren
@@ -67,7 +67,7 @@ Test Delete Project Dataset
 Test Delete Images in Dataset
     [Documentation]     Deletes images pre-imported into a dataset named "Delete"
 
-    Cleal activity
+    Clear activity
     Select Experimenter
     # Click on Dataset, wait for thumbnails and count them
     Click Element                           xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
@@ -91,7 +91,7 @@ Test Delete Images in Dataset
 Test Delete Images in Share
     [Documentation]     Deletes pre-imported images after putting them in Share
 
-    Cleal activity
+    Clear activity
     Select Experimenter
     # Add image in 'Delete' Dataset to Share
     Click Element                               xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
