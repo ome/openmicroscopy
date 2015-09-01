@@ -415,14 +415,8 @@ class BrowserModel
         		zoomFactor = ZoomAction.getZoomFactor(pref.getZoomIndex());
         }
         
-        String interpol = (String) ImViewerAgent.getRegistry().lookup(
-                LookupNames.INTERPOLATE);
-        if (interpol != null) {
-            try {
-                this.interpolation = Boolean.parseBoolean(interpol);
-            } catch (Exception e) {
-            }
-        }
+        this.interpolation = Boolean.parseBoolean((String) ImViewerAgent.getRegistry().lookup(
+                        LookupNames.INTERPOLATE));
     }
     
     /**

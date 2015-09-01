@@ -376,16 +376,9 @@ public class DomainPane
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         	canvas = new PreviewCanvas();
         	canvas.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	
-        	String interpol = (String) MetadataViewerAgent.getRegistry().lookup(
-                    LookupNames.INTERPOLATE);
-            if (interpol != null) {
-                try {
-                    boolean interpolation = Boolean.parseBoolean(interpol);
-                    canvas.setInterpolate(interpolation);
-                } catch (Exception e) {
-                }
-            }
+        	canvas.setInterpolate(Boolean.parseBoolean((String) MetadataViewerAgent.getRegistry().lookup(
+                            LookupNames.INTERPOLATE)));
+
         }
         if (model.hasModuloT()) {
             lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
