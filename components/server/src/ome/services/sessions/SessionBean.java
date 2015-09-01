@@ -15,8 +15,6 @@ import java.util.concurrent.Future;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.ISession;
 import ome.api.ServiceInterface;
@@ -43,8 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0-Beta3
  */
 @Transactional
-@RevisionDate("$Date: 2007-06-05 15:59:33 +0200 (Tue, 05 Jun 2007) $")
-@RevisionNumber("$Revision: 1593 $")
 public class SessionBean implements ISession {
 
     private final static Logger log = LoggerFactory.getLogger(SessionBean.class);
