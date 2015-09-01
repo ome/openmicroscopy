@@ -48,7 +48,7 @@ try
     plateId = p.plateid;
     screenId = p.screenid;
     group2 = p.group2;
-    groupId = a.lookupGroup('training_group-2').getId().getValue();
+    groupId = session.getAdminService().lookupGroup('training_group-2').getId().getValue();
     %% File Annotation
     disp('File annotation');
     % Create a local file
