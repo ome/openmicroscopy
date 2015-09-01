@@ -14,9 +14,8 @@
 
 package ome.services.query;
 
-// Java imports
 import java.util.Collection;
-// Application-internal dependencies
+
 import ome.conditions.ApiUsageException;
 import ome.parameters.QueryParameter;
 
@@ -27,7 +26,6 @@ import ome.parameters.QueryParameter;
  * Collection. Also overrides validation to check that type.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 public class CollectionQueryParameterDef extends QueryParameterDef {

@@ -20,20 +20,16 @@
 *
 *------------------------------------------------------------------------------
 */
+
 package pojos;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RString;
 import omero.model.Namespace;
 import omero.model.NamespaceI;
 import omero.rtypes;
-import pojos.DataObject;
 
 /**
  * The data that makes up an <i>OME</i> worflow object.
@@ -42,10 +38,6 @@ import pojos.DataObject;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class WorkflowData

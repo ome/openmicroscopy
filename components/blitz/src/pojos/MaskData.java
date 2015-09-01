@@ -20,23 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package pojos;
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
 import omero.model.Mask;
 import omero.model.MaskI;
 import omero.model.Shape;
-
 
 /**
  * Represents an Mask in the Euclidean space <b>R</b><sup>2</sup>.
@@ -45,10 +40,6 @@ import omero.model.Shape;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class MaskData 

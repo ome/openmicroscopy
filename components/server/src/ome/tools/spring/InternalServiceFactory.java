@@ -7,14 +7,10 @@
 
 package ome.tools.spring;
 
-// Java imports
-
-// Third-party libraries
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-// Application-internal dependencies
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 
@@ -25,7 +21,6 @@ import ome.system.ServiceFactory;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
 public class InternalServiceFactory extends ServiceFactory implements

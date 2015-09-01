@@ -14,15 +14,12 @@
 
 package ome.services.query;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.Collection;
 
-// Third-party libraries
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
-// Application-internal dependencies
 import ome.parameters.Parameters;
 import ome.tools.lsid.LsidUtils;
 
@@ -32,7 +29,6 @@ import ome.tools.lsid.LsidUtils;
  * information to outgoing results.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  * @see Details#getCounts()
  */

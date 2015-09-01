@@ -20,9 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package pojos.util;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -33,12 +33,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.imageio.ImageIO;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.MaskData;
 import pojos.ROIData;
 import omero.model.RoiI;
@@ -50,10 +47,6 @@ import omero.model.RoiI;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 

@@ -7,15 +7,13 @@
 
 package ome.util.mem;
 
-// Java imports
-import org.testng.annotations.*;
 import java.io.IOException;
 
-// Third-party libraries
-import junit.framework.TestCase;
-
-// Application-internal dependencies
 import ome.util.tests.common.MockInputStream;
+
+import org.testng.annotations.*;
+
+import junit.framework.TestCase;
 
 /**
  * Tests the normal operation of <code>ByteArray</code> and possible
@@ -26,8 +24,6 @@ import ome.util.tests.common.MockInputStream;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/25 18:09:08 $) </small>
  * @since OME2.2
  */
 public class TestByteArray extends TestCase {

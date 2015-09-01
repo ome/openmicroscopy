@@ -1,13 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.blitz.impl;
 
-// Java imports
 import java.util.List;
 
 import ome.api.IRenderingSettings;
@@ -37,6 +34,7 @@ import omero.api.AMD_IRenderingSettings_setOriginalSettingsInSet;
 import omero.api._IRenderingSettingsOperations;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
+
 import Ice.Current;
 
 /**
