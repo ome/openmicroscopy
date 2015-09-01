@@ -32,7 +32,8 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
 from omero.cli import UserGroupControl
 
-from omero.plugins.prefs import WriteableConfigControl, with_config
+from omero.plugins.prefs import \
+    WriteableConfigControl, with_config, with_rw_config
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
