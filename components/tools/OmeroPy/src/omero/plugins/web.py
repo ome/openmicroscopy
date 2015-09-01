@@ -226,7 +226,7 @@ class WebControl(BaseControl):
         if settings.APPLICATION_SERVER in settings.FASTCGI_TYPES:
             self.ctx.err(
                 "WARNING: FastCGI support is deprecated and will be removed"
-                " in OMERO 5.2. Install gunicorn and update config.")
+                " in OMERO 5.2. Install Gunicorn and update config.")
 
     def _assert_config_argtype(self, argtype, settings):
         mismatch = False
