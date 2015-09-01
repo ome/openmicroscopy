@@ -1111,7 +1111,7 @@ class BrowserComponent
 			 throw new IllegalStateException("This method cannot be invoked "+
 	                "in the DISCARDED state.");
 		 PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
-		 accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+		 accept(v);
 		 view.repaint();
 	}
 

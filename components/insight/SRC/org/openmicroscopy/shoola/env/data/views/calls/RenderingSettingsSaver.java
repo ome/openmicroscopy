@@ -208,7 +208,9 @@ extends BatchCallTree
                         ids);
                 result = map;
 
-                if (rnd != null && original != null) {
+                boolean refImagePartOfSaved = ((List<Long>)map.get(Boolean.TRUE)).contains(refImage.getId());
+                
+                if (rnd != null && original != null && !refImagePartOfSaved) {
                     // reset the reference image to it's previous settings
                     rnd.resetSettings(original, true);
                     rnd.saveCurrentSettings();
@@ -244,6 +246,7 @@ extends BatchCallTree
                         element = (DataObject) i.next();
                         ids.add(element.getId());
                     }
+
                     OmeroImageService rds = context.getImageService();
                     switch (index) {
                         case PASTE:

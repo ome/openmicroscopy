@@ -76,7 +76,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     private HibernateTemplate getHibernateTemplate() {
         return new HibernateTemplate(getSessionFactory(), false);
     }
-    
+
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
@@ -236,7 +236,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 }
                 // Never reached!
                 return null;
-                
+
             }
         });
     }
@@ -427,6 +427,18 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     rv.set(i, new Object[]{obj});
                 }
             }
+        }
+        for (int i = 0; i < size; i++) {
+            Object[] x = (Object[]) rv.get(i);
+            if (x != null && x.length == 1 && x[0] instanceof Map) {
+                Map<Object, Object> y = (Map<Object, Object>) x[0];
+                for (Map.Entry<Object, Object> z : y.entrySet()) {
+                    if (z != null && z.getKey().toString().endsWith("_details_permissions")) {
+                        z.setValue(new ome.util.PermDetails((IObject) z.getValue()));
+                    }
+                }
+            }
+
         }
         return rv;
     }

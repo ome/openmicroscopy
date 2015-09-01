@@ -444,6 +444,10 @@ public class IceMapper extends ome.util.ModelMapper implements
             String str = (String) o;
             omero.RString rstr = rstring(str);
             return rstr;
+        } else if (o instanceof ome.util.PermDetails) {
+            // Implements IObject as well!
+            ome.util.PermDetails p = (ome.util.PermDetails) o;
+            return toRType(p.getDetails().getPermissions());
         } else if (o instanceof IObject) {
             IObject obj = (IObject) o;
             omero.model.IObject om = (omero.model.IObject) map(obj);
