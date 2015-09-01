@@ -1504,9 +1504,12 @@
                                 config["delete"]["_disabled"] = false;
                             }
 
-                            // Disable chGrp if no permission to change groups ('canChgrp')
+                            // Enable 'Move to group' if 'canChgrp'
                             if(OME.nodeHasPermission(node, 'canChgrp')) {
-                                config["chgrp"]["_disabled"] = false;
+                                // Can chgrp everything except Plate 'run'
+                                if (node.type !== "acquisition") {
+                                    config["chgrp"]["_disabled"] = false;
+                                }
                             }
 
                             // The only cases where 'Create' menu depends on selected node are
