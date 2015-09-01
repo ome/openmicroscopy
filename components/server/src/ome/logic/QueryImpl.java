@@ -360,10 +360,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         + "Please try findAllBy methods for queries which return Lists.");
     }
 
-    /**
-     * @see ome.api.IQuery#findAllByQuery(java.lang.String,
-     *      ome.parameters.Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     public <T extends IObject> List<T> findAllByQuery(String queryName,
             Parameters params) {
