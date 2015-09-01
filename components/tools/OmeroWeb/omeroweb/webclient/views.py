@@ -1193,10 +1193,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
     template = "webclient/data/containers_icon.html"
     if 'orphaned' in kw:
         # We need to set group context since we don't have a container Id
-        if request.session.get('active_group'):
-            conn.SERVICE_OPTS.setOmeroGroup(
-                request.session.get('active_group'))
-        load_pixels = True
+        groupId = request.session.get('active_group')
+        if groupId is None:
+            groupId = conn.getEventContext().groupId
+        conn.SERVICE_OPTS.setOmeroGroup(groupId)
         manager.listOrphanedImages(filter_user_id, page)
     elif 'dataset' in kw:
         # we need the sizeX and sizeY for these
