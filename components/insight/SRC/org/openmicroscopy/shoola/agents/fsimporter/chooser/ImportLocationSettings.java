@@ -23,8 +23,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Provides an abstract class for specialisation of use import settings.
