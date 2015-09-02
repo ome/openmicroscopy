@@ -215,7 +215,6 @@ public class ArchivedImageLoader
      * 
      * @param ctx The security context.
      * @param imageIDs The Id of the image.
-     * @param name The name of the image.
      * @param folderPath The location where to download the archived image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
