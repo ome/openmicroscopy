@@ -29,7 +29,7 @@ public interface LocalCompress {
      * @param outputStream
      *            the stream to write to.
      * @throws IOException
-     *             if there is a problem when writing to <i>stream<i>.
+     *             if there is a problem when writing to <i>stream</i>.
      */
 	void compressToStream(BufferedImage image, OutputStream outputStream)
 		throws IOException;
