@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -370,6 +370,18 @@ class MetadataViewerComponent
 		return model.getEditor().getUI();
 	}
 	
+	/** 
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#getEditor()
+     */
+    public Editor getEditor()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+        return model.getEditor();
+    }
+    
 	/** 
          * Implemented as specified by the {@link MetadataViewer} interface.
          * @see MetadataViewer#isRendererLoaded()
