@@ -348,8 +348,7 @@
                                             var node = {
                                                 'data': {'id': value.id, 'obj': value},
                                                 'text': value.value,
-                                                //TODO Shall I calculate this up front? Could be a heavy calculation
-                                                // 'children': value.childCount > 0 ? true : false,
+                                                // We don't count children for Tags (too expensive?) Assume they have children
                                                 'children': true,
                                                 'type': value.set ? 'tagset' : 'tag',
                                                 'li_attr': {
@@ -507,7 +506,7 @@
                     }
 
                 },
-                // TODO Performance of sort may not be realistic. The tree is mostly ordered correctly
+                // Performance of sort may not be realistic. The tree is mostly ordered correctly
                 // already, only insertions need to be corrected manually.
                 'sort': function(nodeId1, nodeId2) {
                     var inst = this;
@@ -600,11 +599,6 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-
-                    // TODO - this was previously moved to OME.handleDelete();
-                    // Handles split filesets etc?
-                    // OME.handleDelete();
-
 
                     var datatree = $.jstree.reference($('#dataTree'));
                     // Get the current selection
@@ -732,7 +726,6 @@
     </div>
 </div>
 
-    <!-- TODO - check this is still needed? -->
     <!-- hidden form for delete dialogs -->
         <div id="delete-dialog-form" title="Delete" style="display:none"
                 data-url="{% url 'manage_action_containers' 'deletemany' %}"

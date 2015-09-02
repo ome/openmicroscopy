@@ -23,6 +23,7 @@ import omero
 
 from omero.rtypes import rlong, unwrap, wrap
 from django.conf import settings
+from django.http import Http404
 from datetime import datetime
 from copy import deepcopy
 
@@ -83,7 +84,6 @@ def _marshal_group(conn, row):
 
 
 def marshal_groups(conn, member_id=-1, page=1, limit=settings.PAGE):
-    # TODO Add capability to list groups by owner_id?
     ''' Marshals groups
 
         @param conn OMERO gateway.
@@ -202,7 +202,7 @@ def marshal_experimenters(conn, group_id=-1, page=1, limit=settings.PAGE):
                        where grexp.parent.id = :gid
                            '''
 
-    # TODO This should probably come from the client instead
+    # Don't currently need this filtering
     # Restrict by the current user's group membership
     # else:
     #     params.add('eid', rlong(conn.getUserId()))
@@ -251,8 +251,7 @@ def marshal_experimenter(conn, experimenter_id):
         """
     rows = qs.projection(q, params, service_opts)
     if len(rows) != 1:
-        # TODO Throw exception?
-        pass
+        raise Http404("No Experimenter found with ID %s" % experimenter_id)
     return _marshal_experimenter(conn, rows[0][0:5])
 
 
@@ -594,7 +593,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         where_clause.append('dlink.parent.id = :did')
 
     # If this is a query to get images with no parent datasets (orphans)
-    # TODO At the moment the implementation assumes that a cross-linked
+    # At the moment the implementation assumes that a cross-linked
     # object is not an orphan. We may need to change that so that a user
     # see all the data that belongs to them that is not assigned to a container
     # that they own.
@@ -629,7 +628,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     # If this is a query to get images in a share
     if share_id is not None:
         # Get the contents of the blob which contains the images in the share
-        # TODO Figure out how to do this without the API, preferably as part
+        # Would be nice to do this without the ShareService, preferably as part
         # of the single query
         image_rids = [image_rid.getId().val
                       for image_rid
@@ -1067,8 +1066,9 @@ def _marshal_tag(conn, row):
     tag = dict()
     tag['id'] = unwrap(tag_id)
     tag['value'] = unwrap(text_value)
-    # TODO What about None descriptions? Should it simply be not present?
-    tag['description'] = unwrap(description)
+    desc = unwrap(description)
+    if desc:
+        tag['description'] = desc
     tag['ownerId'] = unwrap(owner_id)
     tag['permsCss'] = parse_permissions_css(permissions,
                                             unwrap(owner_id), conn)

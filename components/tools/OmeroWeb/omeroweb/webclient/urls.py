@@ -298,8 +298,6 @@ urlpatterns = patterns(
     url(r'^keepalive_ping/$', views.keepalive_ping, name="keepalive_ping"),
 
     # Load data, but with JSON.
-    # TODO The id/id/id structure of load_data is a mystery to me at present
-
     # url(r'^api/$', None, name='api'),
     url(r'^api/groups/$', views.api_group_list,
         name='api_groups'),

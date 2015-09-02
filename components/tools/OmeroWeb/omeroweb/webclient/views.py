@@ -586,7 +586,6 @@ def api_experimenter_list(request, conn=None, **kwargs):
         return HttpResponseBadRequest('Invalid parameter value')
 
     # If no group (or cross-group) is specified, use current
-    # TODO Remove this and check webclient handles it ok
     if group_id is None:
         group_id = request.session.get('active_group') or \
             conn.getEventContext().groupId
@@ -1033,7 +1032,6 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         If no tagset_id is specifed it will return tags which have no
         parent
     '''
-    # TODO This interface seems a little widely scoped?
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
@@ -1118,7 +1116,7 @@ def api_share_list(request, conn=None, **kwargs):
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
-    # TODO Like with api_container_list, this is a combination of
+    # Like with api_container_list, this is a combination of
     # results which will each be able to return up to the limit in page
     # size
 
