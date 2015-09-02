@@ -392,10 +392,8 @@ public class MetadataImpl
     	return result;
     }
     
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadInstrument(Long)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Instrument loadInstrument(long id)
@@ -473,11 +471,8 @@ public class MetadataImpl
     	}
     	return value;
     }
-    
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadChannelAcquisitionData(Set)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set loadChannelAcquisitionData(@NotNull 
@@ -579,10 +574,7 @@ public class MetadataImpl
     	return new HashSet<LogicalChannel>(list);
     }
 
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadAnnotations(Class, Set, Set, Set)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public <T extends IObject, A extends Annotation> 
@@ -666,10 +658,7 @@ public class MetadataImpl
          return map;
     }
 
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadSpecifiedAnnotations(Class, Set, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
@@ -701,11 +690,8 @@ public class MetadataImpl
 		}
     	return set;
     }
-    
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#countSpecifiedAnnotations(Class, Set, Set, Parameters)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Long countSpecifiedAnnotations(
@@ -716,11 +702,8 @@ public class MetadataImpl
     	if (list != null) return new Long(list.size());
     	return -1L;
     }
-    
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadAnnotation(Set)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public <A extends Annotation> Set<A> loadAnnotation(
@@ -752,11 +735,8 @@ public class MetadataImpl
 		}
     	return new HashSet<A>(list);
     }
-    
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadTagContent(Set, Parameters)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map<Long, Set<IObject>> 
@@ -772,11 +752,8 @@ public class MetadataImpl
 		}
     	return m;
 	}
-    
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadTagSets(Parameters)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set<IObject> loadTagSets(Parameters options)
@@ -851,10 +828,8 @@ public class MetadataImpl
 		return result;
 	}
     
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#lgetTaggedObjectsCount(Set, Parameters)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map getTaggedObjectsCount(@NotNull @Validate(Long.class) 
@@ -869,11 +844,8 @@ public class MetadataImpl
 		}
     	return counts;
     }
-    
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadAnnotationUsedNotOwned(Class, Long)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set<IObject> loadAnnotationsUsedNotOwned(@NotNull Class annotationType,
@@ -989,11 +961,8 @@ public class MetadataImpl
 		}
     	return result;
     }
-    
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#countAnnotationsUsedNotOwned(Class, Long)
-     */
+
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Long countAnnotationsUsedNotOwned(@NotNull Class annotationType, 
@@ -1004,10 +973,7 @@ public class MetadataImpl
     	return -1L;
     }
 
-    /**
-     * Implemented as specified by the {@link IMetadata} I/F
-     * @see IMetadata#loadSpecifiedAnnotationsLinkedTo(Class, Set, Set, Class, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public <A extends Annotation> Map<Long, Set<A>> loadSpecifiedAnnotationsLinkedTo(

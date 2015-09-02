@@ -111,7 +111,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     /**
      * {@link SqlAction} setter for dependency injection.
      * 
-     * @param sql
+     * @param sql the SQL action instance
      * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
      */
     /*
@@ -132,7 +132,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     /**
      * {@link PreferenceContext} setter for dependency injection.
      * 
-     * @param prefs
+     * @param prefs the preference context
      * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
      */
     public final void setPreferenceContext(PreferenceContext prefs) {
@@ -141,9 +141,9 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     }
 
     /**
-     * {@link PreferenceContext} setter for dependency injection.
+     * {@link CurrentDetails} setter for dependency injection.
      * 
-     * @param prefs
+     * @param currentDetails the details of the current thread's security context
      * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
      */
     public final void setCurrentDetails(CurrentDetails currentDetails) {

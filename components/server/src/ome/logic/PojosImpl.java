@@ -147,10 +147,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         }
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#loadContainerHierarchy(Class, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
@@ -341,10 +338,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return new HashSet<IObject>(l);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#findContainerHierarchies(Class, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set findContainerHierarchies(final Class rootNodeType,
@@ -404,10 +398,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                                 + "where pdl.parent.id in (:ids) order by dil.child.id");
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getImages(Class, Set, Map)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -467,10 +458,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return new HashSet<IObject>(l);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getImagesByOptions(Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -492,10 +480,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getImagesBySplitFilesets(Map)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<Class<? extends IObject>, List<Long>> included,
@@ -567,10 +552,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return imagesBySplitFilesets;
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getUserImages(Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -591,10 +573,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getCollectionCount(String, String, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map getCollectionCount(String type, String property, Set ids,
@@ -622,10 +601,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return results;
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#retrieveCollection(IObject, String, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Collection retrieveCollection(IObject arg0, String arg1, Parameters arg2) {
@@ -639,40 +615,28 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     // ~ WRITE
     // =========================================================================
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#createDataObject(IObject, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject createDataObject(IObject arg0, Parameters arg1) {
         return iUpdate.saveAndReturnObject(arg0);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#createDataObject(IObject[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject[] createDataObjects(IObject[] arg0, Parameters arg1) {
         return iUpdate.saveAndReturnArray(arg0);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#unlink(ILink[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void unlink(ILink[] arg0, Parameters arg1) {
         deleteDataObjects(arg0, arg1);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#link(ILink[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public ILink[] link(ILink[] arg0, Parameters arg1) {
@@ -683,20 +647,14 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return links;
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#updateDataObject(IObject, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject updateDataObject(IObject arg0, Parameters arg1) {
         return iUpdate.saveAndReturnObject(arg0);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#updateDataObject(IObject[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject[] updateDataObjects(IObject[] arg0, Parameters arg1) {
@@ -704,22 +662,20 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#deleteDataObject(IObject, Parameters)
+     * Delete a data object.
+     * @param row the object to delete
+     * @param options the parameters to apply (ignored)
      */
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public void deleteDataObject(IObject row, Parameters arg1) {
+    private void deleteDataObject(IObject row, Parameters options) {
         iUpdate.deleteObject(row);
     }
 
     /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#deleteDataObjects(IObject[], Parameters)
+     * Delete some data objects.
+     * @param rows the objects to delete
+     * @param options the parameters to apply (ignored)
      */
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public void deleteDataObjects(IObject[] rows, Parameters options) {
+    private void deleteDataObjects(IObject[] rows, Parameters options) {
         for (IObject object : rows) {
             deleteDataObject(object, options);
         }

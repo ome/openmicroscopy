@@ -64,7 +64,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * Factory method for instantiating {@link FileTransfer} objects from
      * a string. Supported values can be found in the {@link Transfers} enum.
      * Otherwise, a FQN for a class on the classpath should be passed in.
-     * @param arg non-null
+     * @param arg a type of {@link FileTransfer} instance as named among {@link Transfers}
+     * @return the new {@link FileTransfer} instance of the requested type
      */
     public static FileTransfer createTransfer(String arg) {
         Logger tmp = LoggerFactory.getLogger(AbstractFileTransfer.class);
@@ -90,9 +91,9 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * {@link TransferState#start()}, and loads the {@link RawFileStorePrx}
      * which any implementation will need.
      *
-     * @param state non-null.
-     * @return
-     * @throws ServerError
+     * @param state the transfer state
+     * @return a raw file store proxy for the upload
+     * @throws ServerError if the uploader could not be obtained
      */
     protected RawFileStorePrx start(TransferState state) throws ServerError {
         log.info("Transferring {}...", state.getFile());
@@ -106,7 +107,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * @param state non-null
      * @param offset total length transferred.
      * @return client-side digest string.
-     * @throws ServerError
+     * @throws ServerError if the upload could not be completed and checksummed
      */
     protected String finish(TransferState state, long offset) throws ServerError {
         state.start();
@@ -121,7 +122,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      *
      * @param rawFileStore possibly null
      * @param stream possibly null
-     * @throws ServerError
+     * @throws ServerError presently not at all as errors are simply logged, but possibly in the future
      */
     protected void cleanupUpload(RawFileStorePrx rawFileStore,
             FileInputStream stream) throws ServerError {
@@ -159,7 +160,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
     }
 
     /**
-     * Method used by subclasses during {@link #afterTransfer(int, List<String>)}
+     * Method used by subclasses during {@link FileTransfer#afterTransfer(int, List)}
      * if they would like to remove all the files transferred in the set.
      */
     protected void deleteTransferredFiles(int errors, List<String> srcFiles)

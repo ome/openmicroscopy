@@ -375,7 +375,7 @@ public class ErrorContainer
     /**
      * set file format for import
      *
-     * @param file_format
+     * @param file_format the file format
      */
     public void setReaderType(String file_format)
     {
@@ -385,7 +385,7 @@ public class ErrorContainer
     /**
      * get the file format for import
      *
-     * @return
+     * @return the file format
      */
     public String getFileFormat()
     {
@@ -395,7 +395,7 @@ public class ErrorContainer
     /**
      * set path for file
      *
-     * @param absolute_path
+     * @param absolute_path the file's absolute path
      */
     public void setAbsolutePath(String absolute_path)
     {
@@ -405,7 +405,7 @@ public class ErrorContainer
 
     /**
      * get path for file
-     * @return
+     * @return the file's absolute path
      */
     public String getAbsolutePath()
     {
@@ -415,7 +415,7 @@ public class ErrorContainer
 	/**
 	 * return the error status
 	 *
-	 * @return
+	 * @return the error status
 	 */
 	public int getStatus() {
 		return status;
@@ -423,7 +423,7 @@ public class ErrorContainer
 
 	/**
 	 * set the status for this error
-	 * @param status
+	 * @param status the error status
 	 */
 	public void setStatus(int status) {
 		this.status = status;
@@ -431,7 +431,7 @@ public class ErrorContainer
 
 	/**
 	 * get the index for this error container
-	 * @return
+	 * @return the error container's index
 	 */
 	public int getIndex() {
 		return index;
@@ -439,7 +439,7 @@ public class ErrorContainer
 
 	/**
 	 * Set index
-	 * @param index
+	 * @param index the error container's index
 	 */
 	public void setIndex(int index) {
 		this.index = index;
