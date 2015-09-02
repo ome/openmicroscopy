@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -26,7 +26,7 @@ import static omero.rtypes.rdouble;
 import omero.model.DoubleAnnotation;
 import omero.model.DoubleAnnotationI;
 
-/** 
+/**
  * Wraps a double annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -36,8 +36,8 @@ import omero.model.DoubleAnnotationI;
  * @version 3.0
  * @since 3.0-Beta4
  */
-public class DoubleAnnotationData 
-	extends AnnotationData
+public class DoubleAnnotationData
+    extends AnnotationData
 {
 
     /**
@@ -60,9 +60,9 @@ public class DoubleAnnotationData
     /**
      * Creates a new instance.
      * 
-     * @param annotation The {@link DoubleAnnotation} object corresponding to 
-     * 					 this <code>DataObject</code>. 
-     * 					 Mustn't be <code>null</code>.
+     * @param annotation The {@link DoubleAnnotation} object corresponding to
+     *                   this <code>DataObject</code>.
+     *                   Mustn't be <code>null</code>.
      */
     public DoubleAnnotationData(DoubleAnnotation annotation)
     {
@@ -71,8 +71,8 @@ public class DoubleAnnotationData
 
     /**
      * Sets the rating value.
-     * 
-     * @param value The value to set. 
+     *
+     * @param value The value to set.
      */
     public void setDataValue(double value)
     {
@@ -83,7 +83,7 @@ public class DoubleAnnotationData
 
     /**
      * Returns the value.
-     * 
+     *
      * @return See above.
      */
     public double getDataValue()
@@ -94,7 +94,7 @@ public class DoubleAnnotationData
 
     /**
      * Returns the value.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
@@ -106,7 +106,7 @@ public class DoubleAnnotationData
 
     /**
      * Returns the value as a string.
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
@@ -117,7 +117,7 @@ public class DoubleAnnotationData
 
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override

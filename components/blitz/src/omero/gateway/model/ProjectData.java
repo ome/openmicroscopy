@@ -73,7 +73,7 @@ public class ProjectData extends DataObject {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param project
      *            Back pointer to the {@link Project} model object. Mustn't be
      *            <code>null</code>.
@@ -89,7 +89,7 @@ public class ProjectData extends DataObject {
 
     /**
      * Sets the name of the project.
-     * 
+     *
      * @param name
      *            The name of the project. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException
@@ -105,7 +105,7 @@ public class ProjectData extends DataObject {
 
     /**
      * Returns the name of the project.
-     * 
+     *
      * @return See above.
      */
     public String getName() {
@@ -119,7 +119,7 @@ public class ProjectData extends DataObject {
 
     /**
      * Sets the description of the project.
-     * 
+     *
      * @param description
      *            The description of the project.
      */
@@ -130,7 +130,7 @@ public class ProjectData extends DataObject {
 
     /**
      * Returns the description of the project.
-     * 
+     *
      * @return See above.
      */
     public String getDescription() {
@@ -142,7 +142,7 @@ public class ProjectData extends DataObject {
      * Returns the number of annotations linked to the object, key: id of the
      * user, value: number of annotation. The map may be <code>null</code> if
      * no annotation.
-     * 
+     *
      * @return See above.
      */
     public Map<Long, Long> getAnnotationsCounts() {
@@ -152,7 +152,7 @@ public class ProjectData extends DataObject {
     // Lazy loaded Links
     /**
      * Returns the datasets contained in this project.
-     * 
+     *
      * @return See above.
      */
     public Set<DatasetData> getDatasets() {
@@ -170,7 +170,7 @@ public class ProjectData extends DataObject {
 
     /**
      * Sets the datasets contained in this project.
-     * 
+     *
      * @param newValue
      *            The set of datasets.
      */

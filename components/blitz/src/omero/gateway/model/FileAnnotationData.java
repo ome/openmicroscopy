@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -31,7 +31,7 @@ import omero.model.OriginalFile;
 
 /**
  * Annotation to upload files to the server.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -42,52 +42,52 @@ import omero.model.OriginalFile;
 public class FileAnnotationData extends AnnotationData {
 
     /**  The name space used to identify the experimenter photo. */
-    public static final String EXPERIMENTER_PHOTO_NS = 
-    	omero.constants.namespaces.NSEXPERIMENTERPHOTO.value;
-    	
+    public static final String EXPERIMENTER_PHOTO_NS =
+            omero.constants.namespaces.NSEXPERIMENTERPHOTO.value;
+
     /**
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a companion file.
      */
-    public static final String COMPANION_FILE_NS = 
-    	omero.constants.namespaces.NSCOMPANIONFILE.value;
+    public static final String COMPANION_FILE_NS =
+            omero.constants.namespaces.NSCOMPANIONFILE.value;
 
     /**
      * The name space used to indicate that the <code>FileAnnotation</code>
      * is an import log file.
      */
     public static final String LOG_FILE_NS =
-        omero.constants.namespaces.NSLOGFILE.value;
+            omero.constants.namespaces.NSLOGFILE.value;
 
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a movie.
      */
-    public static final String MOVIE_NS = 
-    	omero.constants.metadata.NSMOVIE.value;
-    
+    public static final String MOVIE_NS =
+            omero.constants.metadata.NSMOVIE.value;
+
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a <code>Measurement</code> file.
      */
-    public static final String MEASUREMENT_NS = 
-    	omero.constants.namespaces.NSMEASUREMENT.value;
-    
+    public static final String MEASUREMENT_NS =
+            omero.constants.namespaces.NSMEASUREMENT.value;
+
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a <code>Bulk Annotations</code> file.
      */
-    public static final String BULK_ANNOTATIONS_NS = 
-    	omero.constants.namespaces.NSBULKANNOTATIONS.value;
-    
+    public static final String BULK_ANNOTATIONS_NS =
+            omero.constants.namespaces.NSBULKANNOTATIONS.value;
+
     /** Identifies the FLIM namespace. */
-    public static final String FLIM_NS = 
-    	omero.constants.analysis.flim.NSFLIM.value;
-    
+    public static final String FLIM_NS =
+            omero.constants.analysis.flim.NSFLIM.value;
+
     /** The default name for the original metadata file.*/
-    public static final String ORIGINAL_METADATA_NAME = 
-    	omero.constants.annotation.file.ORIGINALMETADATA.value;
-    	
+    public static final String ORIGINAL_METADATA_NAME =
+            omero.constants.annotation.file.ORIGINALMETADATA.value;
+
     /** Identifies the <code>PDF</code> file formats. */
     public static final String PDF = "pdf";
 
@@ -111,13 +111,13 @@ public class FileAnnotationData extends AnnotationData {
 
     /** Identifies the <code>Word</code> file formats. */
     public static final String MS_WORD_X = "docx";
-    
+
     /** Identifies the <code>Excel</code> file formats. */
     public static final String MS_EXCEL = "xls";
 
     /** Identifies the <code>Power point</code> file formats. */
     public static final String MS_POWER_POINT = "ppt";
-    
+
     /** Identifies the <code>Power point</code> file formats. */
     public static final String MS_POWER_POINT_X = "pptx";
 
@@ -129,7 +129,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /** Indicates that the format is not recognized. */
     public static final String UNKNOWN = "UNKNOWN OR NULL FORMAT";
-    
+
     /**
      * The <code>PDF</code> file format as defined by specification
      * corresponding to the extension.
@@ -189,18 +189,6 @@ public class FileAnnotationData extends AnnotationData {
      */
     private static final String SERVER_OCTET_STREAM = "application/octet-stream";
 
-    /**
-     * The <code>MPEG</code> file format as defined by
-     * specification corresponding to the extension.
-     */
-    private static final String	SERVER_MPEG = "video/mpeg";
-    
-    /**
-     * The <code>QuickTime</code> file format as defined by
-     * specification corresponding to the extension.
-     */
-    private static final String	SERVER_QT = "video/quicktime";
-    
     /** The file to upload to the server. */
     private File attachedFile;
 
@@ -209,19 +197,19 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the original file if loaded, <code>null</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     private OriginalFile getFile()
     {
-    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
-    	if (f != null && f.isLoaded()) return f;
-    	return null;
+        OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+        if (f != null && f.isLoaded()) return f;
+        return null;
     }
-    
+
     /**
      * Controls if the file format is supported.
-     * 
+     *
      * @param path
      *            The absolute path.
      */
@@ -240,7 +228,7 @@ public class FileAnnotationData extends AnnotationData {
         } else if (path.endsWith(HTML) || path.endsWith(HTM)) {
             format = HTML;
         } else if (path.endsWith(MS_WORD) ||
-        		path.endsWith(MS_WORD_X)) {
+                path.endsWith(MS_WORD_X)) {
             format = MS_WORD;
         } else if (path.endsWith(MS_EXCEL)) {
             format = MS_EXCEL;
@@ -251,11 +239,10 @@ public class FileAnnotationData extends AnnotationData {
         } else if (path.endsWith(RTF)) {
             format = RTF;
         } else {
-        	format = "";
-            //throw new IllegalArgumentException("Format not supported.");
+            format = "";
         }
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -273,7 +260,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param annotation
      *            The annotation to wrap.
      */
@@ -285,46 +272,46 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the format of the original file.
-     * 
+     *
      * @return See above.
      */
     public String getOriginalMimetype()
     {
-    	OriginalFile f = getFile();
+        OriginalFile f = getFile();
         String unknown = UNKNOWN;
         String format = f == null ? unknown : (f.getMimetype() == null ? unknown
                 : (f.getMimetype().getValue()));
         return format;
     }
-    
+
     /**
      * Sets the description of the annotation.
-     * 
+     *
      * @param description The value to set.
      */
     public void setDescription(String description)
     {
-    	 if (description == null || description.trim().length() == 0) return;
-    	 setDirty(true);
-         asAnnotation().setDescription(rstring(description));
+        if (description == null || description.trim().length() == 0) return;
+        setDirty(true);
+        asAnnotation().setDescription(rstring(description));
     }
-    
+
     /**
      * Returns the description of the annotation.
-     * 
+     *
      * @return See above.
      */
     public String getDescription()
     {
-    	RString value = asAnnotation().getDescription();
-    	if (value == null) return "";
+        RString value = asAnnotation().getDescription();
+        if (value == null) return "";
         return value.getValue();
     }
-    
+
     /**
      * Returns the file format as defined by the specification, corresponding to
      * the file extension.
-     * 
+     *
      * @return See above.
      */
     public String getServerFileMimetype() {
@@ -355,18 +342,17 @@ public class FileAnnotationData extends AnnotationData {
         if (format.equals(MS_EXCEL)) {
             return SERVER_MS_EXCEL;
         }
-        if (format.equals(MS_POWER_POINT) || 
-        		format.equals(MS_POWER_POINT_SHOW) || 
-        		format.equals(MS_POWER_POINT_X)) {
+        if (format.equals(MS_POWER_POINT) ||
+                format.equals(MS_POWER_POINT_SHOW) ||
+                format.equals(MS_POWER_POINT_X)) {
             return SERVER_MS_POWERPOINT;
         }
         return SERVER_OCTET_STREAM;
     }
 
-
     /**
      * Returns the format of the uploaded file.
-     * 
+     *
      * @return See above.
      */
     public String getFileFormat() {
@@ -398,7 +384,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns a user readable description of the file.
-     * 
+     *
      * @return See above.
      */
     public String getFileKind() {
@@ -429,7 +415,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the file to upload to the server.
-     * 
+     *
      * @return See above.
      */
     public File getAttachedFile() {
@@ -438,7 +424,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the name of the file.
-     * 
+     *
      * @return See above.
      */
     public String getFileName() 
@@ -450,22 +436,22 @@ public class FileAnnotationData extends AnnotationData {
         String name = "";
         if (f != null) {
             if (f.getName() != null) {
-            	name = f.getName().getValue();
+                name = f.getName().getValue();
             }
             if (name != null && name.trim().length() != 0)
-            	return name;
+                return name;
             if (f.getPath() != null) {
-            	name = f.getPath().getValue();
+                name = f.getPath().getValue();
             }
             if (name != null && name.trim().length() != 0)
-            	return name;
+                return name;
         }
         return ""+getFileID();
     }
 
     /**
      * Returns the absolute path to the file.
-     * 
+     *
      * @return See above.
      */
     public String getFilePath()
@@ -484,7 +470,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the size of the file.
-     * 
+     *
      * @return See above.
      */
     public long getFileSize()
@@ -497,7 +483,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the id of the file.
-     * 
+     *
      * @return See above.
      */
     public long getFileID()
@@ -510,7 +496,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the original file.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
@@ -520,7 +506,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns the absolute path to the file
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
@@ -531,21 +517,21 @@ public class FileAnnotationData extends AnnotationData {
     /**
      * Returns <code>true</code> if it is a movie file.
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isMovieFile() 
     {
-    	String ns = getNameSpace();
-    	if (MOVIE_NS.equals(ns)) 
-    		return true;
-    	String format = getOriginalMimetype();
-    	return (format.contains("video"));
+        String ns = getNameSpace();
+        if (MOVIE_NS.equals(ns)) 
+            return true;
+        String format = getOriginalMimetype();
+        return (format.contains("video"));
     }
-    
+
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override
@@ -555,7 +541,7 @@ public class FileAnnotationData extends AnnotationData {
                     + "Original file");
         }
         if (content instanceof OriginalFile) {
-        	setDirty(true);
+            setDirty(true);
             ((FileAnnotation) asAnnotation()).setFile((OriginalFile) content);
         } else {
             throw new IllegalArgumentException("Content must be an "

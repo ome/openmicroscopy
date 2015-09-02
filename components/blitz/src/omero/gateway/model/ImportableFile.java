@@ -22,10 +22,6 @@ package omero.gateway.model;
 
 import java.io.File;
 
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-
 /** 
  * Store information about the file or folder to import.
  *
@@ -52,7 +48,7 @@ public class ImportableFile
     private ImportCallback status;
 
     /** Indicate where to import the file, either a project or screen. */
-    private pojos.DataObject parent;
+    private DataObject parent;
 
     /** Indicate where to import the images. */
     private DatasetData dataset;
@@ -99,7 +95,7 @@ public class ImportableFile
      * @param parent The parent either a project or a screen.
      * @param dataset The dataset where to import the images.
      */
-    public void setLocation(pojos.DataObject parent, DatasetData dataset)
+    public void setLocation(DataObject parent, DatasetData dataset)
     {
         this.parent = parent;
         this.dataset = dataset;
@@ -110,7 +106,7 @@ public class ImportableFile
      *
      * @return See above.
      */
-    public pojos.DataObject getParent() { return parent; }
+    public DataObject getParent() { return parent; }
 
     /**
      * Returns the dataset.

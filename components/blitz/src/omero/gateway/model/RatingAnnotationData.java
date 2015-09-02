@@ -61,9 +61,9 @@ public class RatingAnnotationData extends AnnotationData {
     public static final int LEVEL_FIVE = 5;
 
     /**
-     * Checks if the passed value is one of the rating contants defined by this
+     * Checks if the passed value is one of the rating constants defined by this
      * class.
-     * 
+     *
      * @param v
      *            The value to handle.
      */
@@ -88,9 +88,9 @@ public class RatingAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param value
-     *            The rating value. One of the contants defined by this class.
+     *            The rating value. One of the constants defined by this class.
      */
     public RatingAnnotationData(int value) {
         super(LongAnnotationI.class);
@@ -100,7 +100,7 @@ public class RatingAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param annotation
      *            The {@link LongAnnotation} object corresponding to this
      *            <code>DataObject</code>. Mustn't be <code>null</code>.
@@ -114,7 +114,7 @@ public class RatingAnnotationData extends AnnotationData {
 
     /**
      * Returns the rating value.
-     * 
+     *
      * @return See above.
      */
     public int getRating() {
@@ -124,7 +124,7 @@ public class RatingAnnotationData extends AnnotationData {
 
     /**
      * Sets the rating value.
-     * 
+     *
      * @param value
      *            The value to set. Must be One of the constants defined by this
      *            class.
@@ -138,7 +138,7 @@ public class RatingAnnotationData extends AnnotationData {
 
     /**
      * Returns the rating value.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
@@ -149,7 +149,7 @@ public class RatingAnnotationData extends AnnotationData {
 
     /**
      * Returns the rating value as a string.
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
@@ -159,7 +159,7 @@ public class RatingAnnotationData extends AnnotationData {
 
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override

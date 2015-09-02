@@ -81,7 +81,7 @@ public abstract class DataObject {
     /**
      * Converts the collection of {@link IObject}s into the corresponding
      * {@link DataObject}s
-     * 
+     *
      * @param iObjects
      *            The map to handle.
      * @return See above.
@@ -99,7 +99,7 @@ public abstract class DataObject {
     /**
      * Converts the map of {@link IObject}s into the corresponding
      * {@link DataObject}s
-     * 
+     *
      * @param iObjects
      *            The map to handle.
      * @return See above.
@@ -137,7 +137,7 @@ public abstract class DataObject {
 
     /**
      * Converts the passed {@link IObject} into its corresponding Pojo object.
-     * 
+     *
      * @param obj
      *            The object to convert.
      * @return See above.
@@ -197,7 +197,7 @@ public abstract class DataObject {
 
     /**
      * Sets the {@link IObject}.
-     * 
+     *
      * @param value
      *            The value to set.
      */
@@ -213,7 +213,7 @@ public abstract class DataObject {
     /**
      * Returns <code>true</code> if setter value has modified the value of the
      * stored IObject, <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isDirty() {
@@ -223,7 +223,7 @@ public abstract class DataObject {
     /**
      * Sets to <code>true</code> if the value has been modified, <false>
      * otherwise.
-     * 
+     *
      * @param dirty
      *            The value to set.
      */
@@ -236,7 +236,7 @@ public abstract class DataObject {
     /**
      * Returns the database id of the IObject or <code>-1</code> if
      * <code>null</code>
-     * 
+     *
      * @return See above.
      */
     public long getId() {
@@ -246,7 +246,7 @@ public abstract class DataObject {
 
     /**
      * Sets the database id.
-     * 
+     *
      * @param id
      *            The value to set.
      */
@@ -258,7 +258,7 @@ public abstract class DataObject {
     /**
      * Returns the version of the object if the object is immutable,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     protected int getVersion() {
@@ -271,7 +271,7 @@ public abstract class DataObject {
 
     /**
      * Sets the version of the object if it is immutable.
-     * 
+     *
      * @param version
      *            The value to set.
      */
@@ -286,7 +286,7 @@ public abstract class DataObject {
     /**
      * Returns <code>true</code> if the object is loaded, <code>false</code>
      * otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isLoaded() {
@@ -295,20 +295,20 @@ public abstract class DataObject {
 
     /**
      * Returns the owner of the object.
-     * 
+     *
      * @return See above.
      */
     public ExperimenterData getOwner() {
         if (owner == null) {
-			Experimenter experimenter = asIObject().getDetails().getOwner();
-			owner = experimenter != null ? new ExperimenterData(experimenter) : null;
+            Experimenter experimenter = asIObject().getDetails().getOwner();
+            owner = experimenter != null ? new ExperimenterData(experimenter) : null;
         }
         return owner;
     }
 
     /**
      * Returns the permission of the object.
-     * 
+     *
      * @return See above.
      */
     public PermissionData getPermissions() {
@@ -320,7 +320,7 @@ public abstract class DataObject {
 
     /**
      * Overridden to return the name of the class and the object id.
-     * 
+     *
      * @see Object#toString()
      */
     @Override
@@ -354,7 +354,6 @@ public abstract class DataObject {
     protected float nullSafe(omero.RFloat f) {
         return f == null ? 0.0f : f.getValue();
     }
-    
 
     protected double nullSafe(omero.RDouble d) {
         return d == null ? 0.0d : d.getValue();
@@ -374,7 +373,7 @@ public abstract class DataObject {
     /**
      * Returns <code>true</code> if the details are <code>null</code>
      * otherwise <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     protected boolean nullDetails() {
@@ -383,7 +382,7 @@ public abstract class DataObject {
 
     /**
      * Returns the details of the object.
-     * 
+     *
      * @return See above.
      */
     protected Details getDetails() {
@@ -392,34 +391,34 @@ public abstract class DataObject {
 
     /**
      * Returns the creation time of the object.
-     * 
+     *
      * @return See above.
      */
     public Timestamp getCreated() {
-    	if (nullDetails()) return null;
+        if (nullDetails()) return null;
         return timeOfEvent(getDetails().getCreationEvent());
     }
-    
+
     /**
      * Returns the updated time of the object.
-     * 
+     *
      * @return See above.
      */
     public Timestamp getUpdated() {
-    	if (nullDetails()) return null;
+        if (nullDetails()) return null;
         return timeOfEvent(getDetails().getUpdateEvent());
     }
-    
+
     /**
      * Returns the id of the group.
-     * 
+     *
      * @return See above.
      */
     public long getGroupId() {
-    	Details d = getDetails();
-    	if (d == null) return -1;
-    	if (d.getGroup() == null) return -1;
-    	return d.getGroup().getId().getValue();
+        Details d = getDetails();
+        if (d == null) return -1;
+        if (d.getGroup() == null) return -1;
+        return d.getGroup().getId().getValue();
     }
     // ~ VIEWS
     // =========================================================================
@@ -428,7 +427,7 @@ public abstract class DataObject {
 
     /**
      * not null; no exceptions.
-     * 
+     *
      * @return not null IObject
      */
     public IObject asIObject() {
@@ -437,7 +436,7 @@ public abstract class DataObject {
 
     /**
      * not null; may through class-cast exception
-     * 
+     *
      * @throws ClassCastException
      * @return not null IObject
      */
@@ -448,8 +447,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as an Experimenter. Not null; may through
      * class-cast exception
-     * 
-     * 
+     *
      * @throws ClassCastException
      * @return not null IObject
      */
@@ -460,7 +458,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as an Experimenter Group. Not null; may
      * through class-cast exception
-     * 
+     *
      * @throws ClassCastException
      * @return not null IObject
      */
@@ -471,7 +469,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as an Annotation. Not null; may through
      * class-cast exception
-     * 
+     *
      * @throws ClassCastException
      * @return not null IObject
      */
@@ -482,7 +480,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as an Image. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return not null IObject
      */
@@ -493,7 +491,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Dataset. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return not null IObject
      */
@@ -504,7 +502,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Project. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return See above
      */
@@ -515,7 +513,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Pixels. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return See above
      */
@@ -526,7 +524,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Screen. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return See above
      */
@@ -537,7 +535,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Plate. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return See above
      */
@@ -548,7 +546,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Well. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return See above
      */
@@ -559,7 +557,7 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Well. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return See above
      */
@@ -570,70 +568,70 @@ public abstract class DataObject {
     /**
      * Returns the hosted IObject as a Well. Not null; may through class-cast
      * exception
-     * 
+     *
      * @throws ClassCastException
      * @return See above
      */
     public Channel asChannel() {
         return (Channel) asIObject();
     }
-    
+
     /**
      * Returns <code>true</code> if the object can be annotated 
      * <code>false</code> otherwise, depending on permissions level.
-     * 
+     *
      * @return See above.
      */
     public boolean canAnnotate()
     {
-    	Permissions p = asIObject().getDetails().getPermissions();
-    	if (p == null) return false;
-    	return p.canAnnotate();
+        Permissions p = asIObject().getDetails().getPermissions();
+        if (p == null) return false;
+        return p.canAnnotate();
     }
-    
+
     /**
      * Returns <code>true</code> if the object can be edited by the user
      * currently logged in <code>false</code> otherwise,
      * depending on permissions level.
-     * 
+     *
      * @return See above.
      */
     public boolean canEdit()
     {
-    	Permissions p = asIObject().getDetails().getPermissions();
-    	if (p == null) return false;
-    	return p.canEdit();
+        Permissions p = asIObject().getDetails().getPermissions();
+        if (p == null) return false;
+        return p.canEdit();
     }
-    
+
     /**
      * Returns <code>true</code> if the object can be linked e.g. image
      * add to dataset, by the user currently logged in,
      * <code>false</code> otherwise, depending on
      * permissions level.
-     * 
+     *
      * @return See above.
      */
     public boolean canLink()
     {
-    	Permissions p = asIObject().getDetails().getPermissions();
-    	if (p == null) return false;
-    	return p.canLink();
+        Permissions p = asIObject().getDetails().getPermissions();
+        if (p == null) return false;
+        return p.canLink();
     }
-    
+
     /**
      * Returns <code>true</code> if the object can be deleted by the user 
      * currently logged in,
      * <code>false</code> otherwise, depending on permissions level.
-     * 
+     *
      * @return See above.
      */
     public boolean canDelete()
     {
-    	Permissions p = asIObject().getDetails().getPermissions();
-    	if (p == null) return false;
-    	return p.canDelete();
+        Permissions p = asIObject().getDetails().getPermissions();
+        if (p == null) return false;
+        return p.canDelete();
     }
-    
+
 }
 
 /**

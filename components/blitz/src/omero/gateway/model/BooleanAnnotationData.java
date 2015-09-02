@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -27,7 +27,7 @@ import omero.model.BooleanAnnotationI;
 
 /**
  * Boolean annotation.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -38,14 +38,13 @@ import omero.model.BooleanAnnotationI;
  */
 public class BooleanAnnotationData extends AnnotationData {
 
-	
-	/**
+    /**
      * The name space used to indicate that the tag is used a tag set.
      */
-    public static final String INSIGHT_PUBLISHED_NS = 
-    	"openmicroscopy.org/omero/insight/published";
-    
-    
+    public static final String INSIGHT_PUBLISHED_NS =
+            "openmicroscopy.org/omero/insight/published";
+
+
     /** Creates a new instance. */
     public BooleanAnnotationData() {
         super(BooleanAnnotationI.class);
@@ -54,7 +53,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param value
      *            The value to set.
      */
@@ -65,7 +64,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param annotation
      *            The {@link BooleanAnnotation} object corresponding to this
      *            <code>DataObject</code>. Mustn't be <code>null</code>.
@@ -76,7 +75,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /**
      * Returns the text.
-     * 
+     *
      * @param value
      *            The value to set.
      */
@@ -86,7 +85,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /**
      * Returns the text of this annotation.
-     * 
+     *
      * @return See above.
      */
     public Boolean getValue() {
@@ -95,7 +94,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
@@ -106,7 +105,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
@@ -117,7 +116,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override

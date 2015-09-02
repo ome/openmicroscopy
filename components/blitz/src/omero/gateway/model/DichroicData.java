@@ -33,72 +33,72 @@ import omero.model.Dichroic;
  * @version 3.0
  * @since 3.0-Beta4
  */
-public class DichroicData 
-	extends DataObject
+public class DichroicData
+    extends DataObject
 {
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param dichroic The dichroic to host. Mustn't be <code>null</code>.
-	 */
-	public DichroicData(Dichroic dichroic)
-	{
+    /**
+     * Creates a new instance.
+     *
+     * @param dichroic The dichroic to host. Mustn't be <code>null</code>.
+     */
+    public DichroicData(Dichroic dichroic)
+    {
         if (dichroic == null)
             throw new IllegalArgumentException("Dichroic cannot null.");
         setValue(dichroic);
-	}
-	
-	/**
-	 * Returns the manufacturer.
-	 * 
-	 * @return See above.
-	 */
-	public String getManufacturer()
-	{
-		Dichroic f = (Dichroic) asIObject();
-		RString value = f.getManufacturer();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the model.
-	 * 
-	 * @return See above.
-	 */
-	public String getModel()
-	{
-		Dichroic f = (Dichroic) asIObject();
-		RString value = f.getModel();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the lot number.
-	 * 
-	 * @return See above.
-	 */
-	public String getLotNumber()
-	{
-		Dichroic f = (Dichroic) asIObject();
-		RString value = f.getLotNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the serial number.
-	 * 
-	 * @return See above.
-	 */
-	public String getSerialNumber()
-	{
-		Dichroic f = (Dichroic) asIObject();
-		RString value = f.getSerialNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
+    }
+
+    /**
+     * Returns the manufacturer.
+     *
+     * @return See above.
+     */
+    public String getManufacturer()
+    {
+        Dichroic f = (Dichroic) asIObject();
+        RString value = f.getManufacturer();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Returns the model.
+     *
+     * @return See above.
+     */
+    public String getModel()
+    {
+        Dichroic f = (Dichroic) asIObject();
+        RString value = f.getModel();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Returns the lot number.
+     *
+     * @return See above.
+     */
+    public String getLotNumber()
+    {
+        Dichroic f = (Dichroic) asIObject();
+        RString value = f.getLotNumber();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Returns the serial number.
+     *
+     * @return See above.
+     */
+    public String getSerialNumber()
+    {
+        Dichroic f = (Dichroic) asIObject();
+        RString value = f.getSerialNumber();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
 }

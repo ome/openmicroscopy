@@ -37,127 +37,126 @@ import omero.model.LabelI;
  * @version 3.0
  * @since 3.0-Beta4
  */
-public class TextData 
-	extends ShapeData
+public class TextData
+    extends ShapeData
 {
 
-	/**
-	 * Creates a new instance of Text data from an existing shape.
-	 * 
-	 * @param shape The shape this object represents.
-	 */
-	public TextData(Shape shape)
-	{
-		super(shape);
-	}
-	
-	/** Creates a new instance of TextData, creating a new TextI Object. */
-	public TextData()
-	{
-		this("String", 0.0, 0.0);
-	}
-	
-	/**
-	 * Creates a new instance of the TextData, sets the centre and major, minor
-	 * axes.
-	 * 
-	 * @param text Object text.
-	 * @param x X-Coordinate of the text.
-	 * @param y Y-Coordinate of the text.
-	 */
-	public TextData(String text, double x, double y)
-	{
-		super(new LabelI(), true);
-		setX(x);
-		setY(y);
-		setText(text);
-	}
-	
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Label shape = (Label) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Label shape = (Label) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
+    /**
+     * Creates a new instance of Text data from an existing shape.
+     *
+     * @param shape The shape this object represents.
+     */
+    public TextData(Shape shape)
+    {
+        super(shape);
+    }
 
-	
-	/**
-	 * Returns the x-coordinate text field.
-	 * 
-	 * @return See above.
-	 */
-	public double getX()
-	{
-		Label shape = (Label) asIObject();
-		RDouble value = shape.getX();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the x-coordinate of the text field.
-	 * 
-	 * @param x See above.
-	 */
-	public void setX(double x)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Label shape = (Label) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setX(rtypes.rdouble(x));
-	}
+    /** Creates a new instance of TextData, creating a new TextI Object. */
+    public TextData()
+    {
+        this("String", 0.0, 0.0);
+    }
 
-	/**
-	 * Returns the y-coordinate text field.
-	 * 
-	 * @return See above.
-	 */
-	public double getY()
-	{
-		Label shape = (Label) asIObject();
-		RDouble value = shape.getY();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the y-coordinate of the text field.
-	 * 
-	 * @param y See above.
-	 */
-	public void setY(double y)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Label shape = (Label) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setY(rtypes.rdouble(y));
-	}
-	
+    /**
+     * Creates a new instance of the TextData, sets the centre and major, minor
+     * axes.
+     *
+     * @param text Object text.
+     * @param x X-Coordinate of the text.
+     * @param y Y-Coordinate of the text.
+     */
+    public TextData(String text, double x, double y)
+    {
+        super(new LabelI(), true);
+        setX(x);
+        setY(y);
+        setText(text);
+    }
+
+    /**
+     * Returns the text of the shape.
+     *
+     * @return See above.
+     */
+    public String getText()
+    {
+        Label shape = (Label) asIObject();
+        RString value = shape.getTextValue();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Sets the text of the shape.
+     *
+     * @param text See above.
+     */
+    public void setText(String text)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Label shape = (Label) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setTextValue(rtypes.rstring(text));
+    }
+
+    /**
+     * Returns the x-coordinate text field.
+     *
+     * @return See above.
+     */
+    public double getX()
+    {
+        Label shape = (Label) asIObject();
+        RDouble value = shape.getX();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * Sets the x-coordinate of the text field.
+     *
+     * @param x See above.
+     */
+    public void setX(double x)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Label shape = (Label) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setX(rtypes.rdouble(x));
+    }
+
+    /**
+     * Returns the y-coordinate text field.
+     *
+     * @return See above.
+     */
+    public double getY()
+    {
+        Label shape = (Label) asIObject();
+        RDouble value = shape.getY();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * Sets the y-coordinate of the text field.
+     *
+     * @param y See above.
+     */
+    public void setY(double y)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Label shape = (Label) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setY(rtypes.rdouble(y));
+    }
+
 }
 
 

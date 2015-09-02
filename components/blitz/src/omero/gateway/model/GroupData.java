@@ -37,7 +37,7 @@ import omero.model.GroupExperimenterMap;
 /**
  * The data that makes up an <i>OME</i> Group along with the various members of
  * the Group
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author <br>
@@ -48,57 +48,56 @@ import omero.model.GroupExperimenterMap;
  */
 public class GroupData extends DataObject {
 
-	
-	/** Indicates that the group is <code>Private</code> i.e. RW----. */
-	public static final int PERMISSIONS_PRIVATE = 0;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final int PERMISSIONS_GROUP_READ = 1;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
-	public static final int PERMISSIONS_GROUP_READ_LINK = 2;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final int PERMISSIONS_GROUP_READ_WRITE = 3;
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
-	public static final int PERMISSIONS_PUBLIC_READ = 4;
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
-	public static final int PERMISSIONS_PUBLIC_READ_WRITE = 5;
-	
-	/** Indicates that the group is <code>Private</code> i.e. RW----. */
-	public static final String PERMISSIONS_PRIVATE_TEXT = "Private Group";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final String PERMISSIONS_GROUP_READ_TEXT = 
-		"Collaborators can only read your data.";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
-	public static final String PERMISSIONS_GROUP_READ_LINK_TEXT = 
-		"Collaborators can read and annotate your data.";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final String PERMISSIONS_GROUP_READ_WRITE_TEXT = 
-		"Collaborators can read, annotate, delete, etc., your data.";
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
-	public static final String PERMISSIONS_PUBLIC_READ_TEXT = "Public";
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
-	public static final String PERMISSIONS_PUBLIC_READ_WRITE_TEXT = "Public";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final String PERMISSIONS_GROUP_READ_SHORT_TEXT = "Read-Only";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
-	public static final String PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT = 
-		"Read-Annotate";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final String PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT = 
-		"Read-Write";
-	
+    /** Indicates that the group is <code>Private</code> i.e. RW----. */
+    public static final int PERMISSIONS_PRIVATE = 0;
+
+    /** Indicates that the group is <code>Group</code> i.e. RWR---. */
+    public static final int PERMISSIONS_GROUP_READ = 1;
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+    public static final int PERMISSIONS_GROUP_READ_LINK = 2;
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+    public static final int PERMISSIONS_GROUP_READ_WRITE = 3;
+
+    /** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
+    public static final int PERMISSIONS_PUBLIC_READ = 4;
+
+    /** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
+    public static final int PERMISSIONS_PUBLIC_READ_WRITE = 5;
+
+    /** Indicates that the group is <code>Private</code> i.e. RW----. */
+    public static final String PERMISSIONS_PRIVATE_TEXT = "Private Group";
+
+    /** Indicates that the group is <code>Group</code> i.e. RWR---. */
+    public static final String PERMISSIONS_GROUP_READ_TEXT = 
+            "Collaborators can only read your data.";
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+    public static final String PERMISSIONS_GROUP_READ_LINK_TEXT = 
+            "Collaborators can read and annotate your data.";
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+    public static final String PERMISSIONS_GROUP_READ_WRITE_TEXT = 
+            "Collaborators can read, annotate, delete, etc., your data.";
+
+    /** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
+    public static final String PERMISSIONS_PUBLIC_READ_TEXT = "Public";
+
+    /** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
+    public static final String PERMISSIONS_PUBLIC_READ_WRITE_TEXT = "Public";
+
+    /** Indicates that the group is <code>Group</code> i.e. RWR---. */
+    public static final String PERMISSIONS_GROUP_READ_SHORT_TEXT = "Read-Only";
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+    public static final String PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT = 
+            "Read-Annotate";
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+    public static final String PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT = 
+            "Read-Write";
+
     /** Identifies the {@link ExperimenterGroup#NAME} field. */
     public final static String NAME = ExperimenterGroupI.NAME;
 
@@ -107,26 +106,26 @@ public class GroupData extends DataObject {
 
     /** Identifies the {@link ExperimenterGroup#GROUPEXPERIMENTERMAP} field. */
     public final static String GROUP_EXPERIMENTER_MAP = 
-    	ExperimenterGroupI.GROUPEXPERIMENTERMAP;
+            ExperimenterGroupI.GROUPEXPERIMENTERMAP;
 
     /** Identifies the <code>User</code> group. */
     public static final String USER = "user";
-    
-	/** Identifies the <code>System</code> group. */
-	public static final String SYSTEM = "system";
-	
-	/** Identifies the <code>Guest</code> group. */
-	public static final String GUEST = "guest";
-	
-	/** Identifies the <code>default</code> group. */
-	public static final String DEFAULT = "default";
+
+    /** Identifies the <code>System</code> group. */
+    public static final String SYSTEM = "system";
+
+    /** Identifies the <code>Guest</code> group. */
+    public static final String GUEST = "guest";
+
+    /** Identifies the <code>default</code> group. */
+    public static final String DEFAULT = "default";
 
     /** All experimenters in this group */
     private Set<ExperimenterData> experimenters;
 
     /** The leaders of the group. */
     private Set<ExperimenterData> leaders;
-    
+
     /** Creates a new instance. */
     public GroupData() {
         setDirty(true);
@@ -135,7 +134,7 @@ public class GroupData extends DataObject {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param group
      *            Back pointer to the {@link ExperimenterGroup} model object.
      *            Mustn't be <code>null</code>.
@@ -152,7 +151,7 @@ public class GroupData extends DataObject {
     // Immutables
     /**
      * Returns the name of the group.
-     * 
+     *
      * @return See above.
      */
     public String getName() {
@@ -166,7 +165,7 @@ public class GroupData extends DataObject {
 
     /**
      * Sets the name of the group.
-     * 
+     *
      * @param name
      *            The name of the group. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException
@@ -182,7 +181,7 @@ public class GroupData extends DataObject {
 
     /**
      * Returns the description of the group.
-     * 
+     *
      * @return See above.
      */
     public String getDescription() {
@@ -193,7 +192,7 @@ public class GroupData extends DataObject {
 
     /**
      * Sets the name of the group.
-     * 
+     *
      * @param description
      *            The description of the group. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException
@@ -204,32 +203,32 @@ public class GroupData extends DataObject {
         setDirty(true);
         asGroup().setDescription(rstring(description));
     }
-    
+
     // Lazy loaded links
-    
+
     /**
      * Returns the experimenters contained in this group.
-     * 
+     *
      * @return See above.
      */
     public Set<ExperimenterData> getLeaders() {
         if (leaders == null
                 && asGroup().sizeOfGroupExperimenterMap() >= 0) {
-        	leaders = new HashSet<ExperimenterData>();
+            leaders = new HashSet<ExperimenterData>();
             List<GroupExperimenterMap> links = asGroup()
                     .copyGroupExperimenterMap();
             for (GroupExperimenterMap link : links) {
-            	if (link.getOwner().getValue())
-            		leaders.add(new ExperimenterData(link.getChild()));
+                if (link.getOwner().getValue())
+                    leaders.add(new ExperimenterData(link.getChild()));
             }
         }
 
         return leaders == null ? null : new HashSet<ExperimenterData>(leaders);
     }
-    
+
     /**
      * Returns the experimenters contained in this group.
-     * 
+     *
      * @return See above.
      */
     public Set<ExperimenterData> getExperimenters() {
@@ -248,42 +247,42 @@ public class GroupData extends DataObject {
 
     /**
      * Returns the list of experimenters that are not owners of the group.
-     * 
+     *
      * @return See above.
      */
     public Set<ExperimenterData> getMembersOnly() {
-    	Set<ExperimenterData> leaders = getLeaders();
-    	Set<ExperimenterData> experimenters = getExperimenters();
-    	if (leaders == null || leaders.size() == 0) return experimenters;
-    	if (experimenters == null || experimenters.size() == 0)
-    		return leaders;
-    	List<Long> ids = new ArrayList<Long>(leaders.size());
-    	Iterator<ExperimenterData> i = leaders.iterator();
-    	while (i.hasNext()) {
-			ids.add(((ExperimenterData) i.next()).getId());
-		}
-    	Set<ExperimenterData> members = new HashSet<ExperimenterData>();
-    	i = experimenters.iterator();
-    	ExperimenterData exp;
-    	while (i.hasNext()) {
-    		exp = (ExperimenterData) i.next();
-			if (!ids.contains(exp.getId()))
-				members.add(exp);
-		}
-    	return members;
+        Set<ExperimenterData> leaders = getLeaders();
+        Set<ExperimenterData> experimenters = getExperimenters();
+        if (leaders == null || leaders.size() == 0) return experimenters;
+        if (experimenters == null || experimenters.size() == 0)
+            return leaders;
+        List<Long> ids = new ArrayList<Long>(leaders.size());
+        Iterator<ExperimenterData> i = leaders.iterator();
+        while (i.hasNext()) {
+            ids.add(((ExperimenterData) i.next()).getId());
+        }
+        Set<ExperimenterData> members = new HashSet<ExperimenterData>();
+        i = experimenters.iterator();
+        ExperimenterData exp;
+        while (i.hasNext()) {
+            exp = (ExperimenterData) i.next();
+            if (!ids.contains(exp.getId()))
+                members.add(exp);
+        }
+        return members;
     }
-     /**
+    /**
      * Overridden to return the id of the object.
      * @see DataObject#getGroupId()
      */
     public long getGroupId() {
-    	return getId();
+        return getId();
     }
     // Link mutations
 
     /**
      * Sets the experimenters contained in this group.
-     * 
+     *
      * @param newValue
      *            The set of experimenters.
      */

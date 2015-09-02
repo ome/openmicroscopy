@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -27,7 +27,7 @@ import omero.model.LongAnnotationI;
 
 /**
  * Wraps a long annotation.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -39,7 +39,7 @@ public class LongAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param value
      *            The value to set. 
      */
@@ -55,7 +55,7 @@ public class LongAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param annotation
      *            The {@link LongAnnotation} object corresponding to this
      *            <code>DataObject</code>. Mustn't be <code>null</code>.
@@ -66,19 +66,19 @@ public class LongAnnotationData extends AnnotationData {
 
     /**
      * Sets the rating value.
-     * 
+     *
      * @param value
      *            The value to set. 
      */
     public void setDataValue(long value) {
-    	setDirty(true);
+        setDirty(true);
         omero.RLong l = rlong(value);
         ((LongAnnotation) asAnnotation()).setLongValue(l);
     }
 
     /**
      * Returns the value.
-     * 
+     *
      * @return See above.
      */
     public long getDataValue() {
@@ -88,7 +88,7 @@ public class LongAnnotationData extends AnnotationData {
 
     /**
      * Returns the rating value.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
@@ -99,7 +99,7 @@ public class LongAnnotationData extends AnnotationData {
 
     /**
      * Returns the value as a string.
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
@@ -109,7 +109,7 @@ public class LongAnnotationData extends AnnotationData {
 
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override

@@ -113,16 +113,16 @@ public class ImageData extends DataObject {
 
     /** The path to the image file, for a single image. */
     private String pathToFile;
-    
+
     /** The index of the image if the image belongs to a multi-images file. */
-    private int 	index;
-    
+    private int index;
+
     /** The path to the multi-images file. */
-    private String	parentFilePath;
-  
+    private String parentFilePath;
+
     /** Reference to the original file when the image is not registered. */
     private OriginalFile reference;
-    
+
     /** Creates a new instance. */
     public ImageData() {
         setDirty(true);
@@ -132,7 +132,7 @@ public class ImageData extends DataObject {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param image
      *            Back pointer to the {@link Image} model object. Mustn't be
      *            <code>null</code>.
@@ -146,38 +146,38 @@ public class ImageData extends DataObject {
         setValue(image);
         index = -1;
     }
-    
+
     /**
      * Sets the path to the file.
-     * 
+     *
      * @param path The value to set.
      */
     public void setPathToFile(String path)
     {
-    	if (path == null) pathToFile = getName();
-    	else pathToFile = path;
+        if (path == null) pathToFile = getName();
+        else pathToFile = path;
     }
 
     /**
      * Sets the reference to the file to register.
-     * 
+     *
      * @param reference The value to set.
      */
     public void setReference(OriginalFile reference)
     {
-    	this.reference = reference;
+        this.reference = reference;
     }
-    
+
     /**
      * Returns the reference to the file to register.
-     * 
+     *
      * @return See above.
      */
     public OriginalFile getReference() { return reference; }
-    
+
     /**
      * Returns the path to the file.
-     * 
+     *
      * @return See above.
      */
     public String getPathToFile() { return pathToFile ;}
@@ -186,27 +186,27 @@ public class ImageData extends DataObject {
      * Sets the path to the file hosting the image. This should only
      * be used to handle multi-images file e.g. some <code>Leica</code> files.
      * Sets the index of the image within that file.
-     * 
+     *
      * @param path The path to set.
      * @param index The index to set.
      */
     public void setParentFilePath(String path, int index)
     {
-    	parentFilePath = path;
-    	this.index = index;
+        parentFilePath = path;
+        this.index = index;
     }
-    
+
     /**
      * Returns the path to the file hosting the image. This should only
      * be used to handle multi-images file e.g. some <code>Leica</code> files.
-     * 
+     *
      * @return See above.
      */
     public String getParentFilePath() { return parentFilePath; }
-    
+
     /**
      * Returns the index of the image within the multi-images file.
-     * 
+     *
      * @return See above.
      */
     public int getIndex() { return index; }
@@ -226,36 +226,36 @@ public class ImageData extends DataObject {
 
     /**
      * Returns the format of the image.
-     * 
+     *
      * @return See above.
      */
     public String getFormat()
     {
-    	Image image = asImage();
-    	Format format = image.getFormat();
-    	if (format == null) return null;
-    	return format.getValue().getValue();
+        Image image = asImage();
+        Format format = image.getFormat();
+        if (format == null) return null;
+        return format.getValue().getValue();
     }
-    
-	/**
-	 * Sets the registered file.
-	 * 
-	 * @param object The object to store.
-	 */
-	public void setRegisteredFile(Image object)
-	{
-		if (object == null) return;
-		if (!(object instanceof Image))
-			throw new IllegalArgumentException("Image not supported.");
-		Image img = asImage();
-		img.setId(object.getId());
-	}
-	
+
+    /**
+     * Sets the registered file.
+     *
+     * @param object The object to store.
+     */
+    public void setRegisteredFile(Image object)
+    {
+        if (object == null) return;
+        if (!(object instanceof Image))
+            throw new IllegalArgumentException("Image not supported.");
+        Image img = asImage();
+        img.setId(object.getId());
+    }
+
     // Immutables
 
     /**
      * Sets the name of the image.
-     * 
+     *
      * @param name
      *            The name of the image. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException
@@ -271,7 +271,7 @@ public class ImageData extends DataObject {
 
     /**
      * Returns the name of the image.
-     * 
+     *
      * @return See above.
      */
     public String getName() {
@@ -285,7 +285,7 @@ public class ImageData extends DataObject {
 
     /**
      * Sets the description of the image.
-     * 
+     *
      * @param description
      *            The description of the image.
      */
@@ -297,7 +297,7 @@ public class ImageData extends DataObject {
 
     /**
      * Returns the description of the image.
-     * 
+     *
      * @return See above.
      */
     public String getDescription() {
@@ -308,24 +308,24 @@ public class ImageData extends DataObject {
     /**
      * Returns <code>true</code> if the image has been archived,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isArchived() {
-    	omero.RBool value = asImage().getArchived();
-    	if (value == null) {
-    		//Add FS check
-    		Fileset fs = asImage().getFileset();
-    		return (fs != null);
-    	}
-    	return value.getValue();
+        omero.RBool value = asImage().getArchived();
+        if (value == null) {
+            //Add FS check
+            Fileset fs = asImage().getFileset();
+            return (fs != null);
+        }
+        return value.getValue();
     }
-    
+
     /**
      * Returns the number of annotations linked to the object, key: id of the
      * user, value: number of annotation. The map may be <code>null</code> if
      * no annotation.
-     * 
+     *
      * @return See above.
      */
     public Map<Long, Long> getAnnotationsCounts() {
@@ -334,7 +334,7 @@ public class ImageData extends DataObject {
 
     /**
      * Returns the insertion time of the image.
-     * 
+     *
      * @return See above.
      */
     public Timestamp getInserted() {
@@ -343,32 +343,32 @@ public class ImageData extends DataObject {
 
     /**
      * Returns the acquisition date.
-     * 
+     *
      * @return See above.
      */
     public Timestamp getAcquisitionDate()
     {
-    	RTime time = asImage().getAcquisitionDate();
-    	if (time == null) return null;
-    	return new Timestamp(time.getValue());
+        RTime time = asImage().getAcquisitionDate();
+        if (time == null) return null;
+        return new Timestamp(time.getValue());
     }
-    
+
     // Single-valued objects.
 
     /**
      * Returns the default set of pixels.
-     * 
+     *
      * @return See above.
      */
     public PixelsData getDefaultPixels() {
-    	List<PixelsData> list = getAllPixels();
-    	if (list == null || list.size() == 0) return null;
+        List<PixelsData> list = getAllPixels();
+        if (list == null || list.size() == 0) return null;
         return list.get(0);
     }
 
     /**
      * Sets the default set of pixels.
-     * 
+     *
      * @param defaultPixels
      *            The default set of pixels.
      */
@@ -385,7 +385,7 @@ public class ImageData extends DataObject {
 
     /**
      * Returns all the sets of pixels related to this image.
-     * 
+     *
      * @return See above.
      */
     @SuppressWarnings("unchecked")
@@ -402,7 +402,7 @@ public class ImageData extends DataObject {
 
     /**
      * Sets the set of pixels related to this image.
-     * 
+     *
      * @param newValue
      *            The set of pixels' set.
      */
@@ -426,7 +426,7 @@ public class ImageData extends DataObject {
 
     /**
      * Returns the datasets containing this image.
-     * 
+     *
      * @return See above.
      */
     public Set getDatasets() {
@@ -442,7 +442,7 @@ public class ImageData extends DataObject {
 
     /**
      * Sets the datasets containing the image.
-     * 
+     *
      * @param newValue
      *            The set of datasets.
      */
@@ -466,7 +466,7 @@ public class ImageData extends DataObject {
 
     /**
      * Returns the annotations
-     * 
+     *
      * @return See above.
      */
     public Set getAnnotations() {
@@ -494,7 +494,7 @@ public class ImageData extends DataObject {
 
     /**
      * Sets the image's annotations.
-     * 
+     *
      * @param newValue
      *            The set of annotations.
      */
@@ -520,40 +520,40 @@ public class ImageData extends DataObject {
         annotations = new HashSet<AnnotationData>(m.result());
     }
 
-	/**
-	 * Returns <code>true</code> if the image is a lifetime image,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
+    /**
+     * Returns <code>true</code> if the image is a lifetime image,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
     public boolean isLifetime()
     {
-    	String name = getName();
-    	return (name != null && name.endsWith(".sdt"));
+        String name = getName();
+        return (name != null && name.endsWith(".sdt"));
     }
-    
+
     /**
      * Returns the id of the instrument if any.
-     * 
+     *
      * @return See above.
      */
     public long getInstrumentId()
     {
-    	Instrument instrument = asImage().getInstrument();
-    	if (instrument == null) return -1;
-    	return instrument.getId().getValue();
+        Instrument instrument = asImage().getInstrument();
+        if (instrument == null) return -1;
+        return instrument.getId().getValue();
     }
 
     /**
      * Returns <code>true</code> is the image has been imported the new
      * import strategy known as FS import, <code>false</code> if imported
      * using the previous import approach (data duplication).
-     * 
+     *
      * @return See above.
      */
     public boolean isFSImage()
     {
-    	return asImage().getFileset() != null;
+        return asImage().getFileset() != null;
     }
 
     /**

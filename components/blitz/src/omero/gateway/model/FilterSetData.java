@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -40,129 +40,129 @@ import omero.model.FilterSet;
  * @version 3.0
  * @since 3.0-Beta4
  */
-public class FilterSetData 
-	extends DataObject
+public class FilterSetData
+    extends DataObject
 {
 
-	/** The collection of emission filters. */
-	private List<FilterData> emissionFilters;
-	
-	/** The collection of excitation filters. */
-	private List<FilterData> excitationFilters;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param filterSet The filterSet to host. Mustn't be <code>null</code>.
-	 */
-	public FilterSetData(FilterSet filterSet)
-	{
+    /** The collection of emission filters. */
+    private List<FilterData> emissionFilters;
+
+    /** The collection of excitation filters. */
+    private List<FilterData> excitationFilters;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param filterSet The filterSet to host. Mustn't be <code>null</code>.
+     */
+    public FilterSetData(FilterSet filterSet)
+    {
         if (filterSet == null)
             throw new IllegalArgumentException("filterSet cannot null.");
         setValue(filterSet);
-	}
-	
-	/**
-	 * Returns the manufacturer.
-	 * 
-	 * @return See above.
-	 */
-	public String getManufacturer()
-	{
-		FilterSet f = (FilterSet) asIObject();
-		RString value = f.getManufacturer();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the model.
-	 * 
-	 * @return See above.
-	 */
-	public String getModel()
-	{
-		FilterSet f = (FilterSet) asIObject();
-		RString value = f.getModel();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the lot number.
-	 * 
-	 * @return See above.
-	 */
-	public String getLotNumber()
-	{
-		FilterSet f = (FilterSet) asIObject();
-		RString value = f.getLotNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the serial number.
-	 * 
-	 * @return See above.
-	 */
-	public String getSerialNumber()
-	{
-		FilterSet f = (FilterSet) asIObject();
-		RString value = f.getSerialNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the collections of emission filters if any.
-	 * 
-	 * @return See above.
-	 */
-	public List<FilterData> getEmissionFilters()
-	{
-		FilterSet f = (FilterSet) asIObject();
-		if (emissionFilters == null && f.sizeOfEmissionFilterLink() > 0) {
-			emissionFilters = new ArrayList<FilterData>();
-			List<FilterSetEmissionFilterLink> l = f.copyEmissionFilterLink();
-			Iterator<FilterSetEmissionFilterLink> i = l.iterator();
-			while (i.hasNext()) {
-				emissionFilters.add(new FilterData(i.next().getChild()));
-			}
-		}
-		return emissionFilters;
-	}
-	
-	/**
-	 * Returns the collections of excitation filters if any.
-	 * 
-	 * @return See above.
-	 */
-	public List<FilterData> getExcitationFilters()
-	{
-		FilterSet f = (FilterSet) asIObject();
-		if (excitationFilters == null && f.sizeOfExcitationFilterLink() > 0) {
-			excitationFilters = new ArrayList<FilterData>();
-			List<FilterSetExcitationFilterLink> l = f.copyExcitationFilterLink();
-			Iterator<FilterSetExcitationFilterLink> i = l.iterator();
-			while (i.hasNext()) {
-				excitationFilters.add(new FilterData(i.next().getChild()));
-			}
-		}
-		return excitationFilters;
-	}
-	
-	/**
-	 * Returns the dichroic if any.
-	 * 
-	 * @return See above.
-	 */
-	public DichroicData getDichroic()
-	{
-		FilterSet f = (FilterSet) asIObject();
-		Dichroic d = f.getDichroic();
-		if (d == null) return null;
-		return new DichroicData(d);
-	}
-	
+    }
+
+    /**
+     * Returns the manufacturer.
+     *
+     * @return See above.
+     */
+    public String getManufacturer()
+    {
+        FilterSet f = (FilterSet) asIObject();
+        RString value = f.getManufacturer();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Returns the model.
+     * 
+     * @return See above.
+     */
+    public String getModel()
+    {
+        FilterSet f = (FilterSet) asIObject();
+        RString value = f.getModel();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Returns the lot number.
+     *
+     * @return See above.
+     */
+    public String getLotNumber()
+    {
+        FilterSet f = (FilterSet) asIObject();
+        RString value = f.getLotNumber();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Returns the serial number.
+     *
+     * @return See above.
+     */
+    public String getSerialNumber()
+    {
+        FilterSet f = (FilterSet) asIObject();
+        RString value = f.getSerialNumber();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Returns the collections of emission filters if any.
+     *
+     * @return See above.
+     */
+    public List<FilterData> getEmissionFilters()
+    {
+        FilterSet f = (FilterSet) asIObject();
+        if (emissionFilters == null && f.sizeOfEmissionFilterLink() > 0) {
+            emissionFilters = new ArrayList<FilterData>();
+            List<FilterSetEmissionFilterLink> l = f.copyEmissionFilterLink();
+            Iterator<FilterSetEmissionFilterLink> i = l.iterator();
+            while (i.hasNext()) {
+                emissionFilters.add(new FilterData(i.next().getChild()));
+            }
+        }
+        return emissionFilters;
+    }
+
+    /**
+     * Returns the collections of excitation filters if any.
+     *
+     * @return See above.
+     */
+    public List<FilterData> getExcitationFilters()
+    {
+        FilterSet f = (FilterSet) asIObject();
+        if (excitationFilters == null && f.sizeOfExcitationFilterLink() > 0) {
+            excitationFilters = new ArrayList<FilterData>();
+            List<FilterSetExcitationFilterLink> l = f.copyExcitationFilterLink();
+            Iterator<FilterSetExcitationFilterLink> i = l.iterator();
+            while (i.hasNext()) {
+                excitationFilters.add(new FilterData(i.next().getChild()));
+            }
+        }
+        return excitationFilters;
+    }
+
+    /**
+     * Returns the dichroic if any.
+     *
+     * @return See above.
+     */
+    public DichroicData getDichroic()
+    {
+        FilterSet f = (FilterSet) asIObject();
+        Dichroic d = f.getDichroic();
+        if (d == null) return null;
+        return new DichroicData(d);
+    }
+
 }

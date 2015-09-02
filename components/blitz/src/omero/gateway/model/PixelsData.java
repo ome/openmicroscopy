@@ -33,7 +33,7 @@ import omero.model.enums.UnitsLength;
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer
  * to the Image that owns this Pixels. A Pixels object represents a 5D raw data
  * array that stores the Image pixels.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author <br>
@@ -118,7 +118,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param pixels
      *            Back pointer to the {@link Pixels} model object. Mustn't be
      *            <code>null</code>.
@@ -134,7 +134,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the number of pixels along the X-axis.
-     * 
+     *
      * @param sizeX
      *            The number of pixels along the X-axis.
      */
@@ -145,7 +145,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Returns the number of pixels along the X-axis.
-     * 
+     *
      * @return See above.
      */
     public int getSizeX() {
@@ -154,7 +154,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the number of pixels along the Y-axis.
-     * 
+     *
      * @param sizeY
      *            The number of pixels along the Y-axis.
      */
@@ -165,7 +165,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Returns the number of pixels along the Y-axis.
-     * 
+     *
      * @return See above.
      */
     public int getSizeY() {
@@ -174,7 +174,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the number of pixels along the Z-axis.
-     * 
+     *
      * @param sizeZ
      *            The number of pixels along the Z-axis.
      */
@@ -185,7 +185,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Returns the number of pixels along the Z-axis.
-     * 
+     *
      * @return See above.
      */
     public int getSizeZ() {
@@ -194,7 +194,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the number of channels.
-     * 
+     *
      * @param sizeC
      *            The number of channels.
      */
@@ -205,7 +205,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Returns the number of channels.
-     * 
+     *
      * @return See above.
      */
     public int getSizeC() {
@@ -214,7 +214,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the number of time-points.
-     * 
+     *
      * @param sizeT
      *            The number of time-points.
      */
@@ -225,7 +225,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Returns the number of time-points.
-     * 
+     *
      * @return See above.
      */
     public int getSizeT() {
@@ -234,7 +234,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the dimension of a pixel along the X-axis, dimension is in microns.
-     * 
+     *
      * @param pixelSizeX
      *            The dimension of a pixel along the X-axis.
      * @deprecated Replaced by {@link #setPixelSizeX(Length)}
@@ -247,7 +247,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the dimension of a pixel along the X-axis
-     * 
+     *
      * @param pixelSizeX
      *            The dimension of a pixel along the X-axis.
      */
@@ -256,11 +256,11 @@ public class PixelsData extends DataObject {
         asPixels().setPhysicalSizeX(pixelSizeX);
     }
 
-    
+
     /**
      * Returns the dimension of a pixel along the X-axis, dimension is in
      * microns.
-     * 
+     *
      * @return See above.
      * @deprecated Replaced by {@link #getPixelSizeX(UnitsLength)}
      */
@@ -268,26 +268,26 @@ public class PixelsData extends DataObject {
     public double getPixelSizeX() {
         return nullSafe(asPixels().getPhysicalSizeX());
     }
-    
+
     /**
-     * Returns the dimension of a pixel along the X-axis
-     * 
+     * Returns the dimension of a pixel along the X-axis.
+     *
      * @param unit
-	 *            The unit (may be null, in which case no conversion will be
-	 *            performed)
+     *            The unit (may be null, in which case no conversion will be
+     *            performed)
      * @return See above.
      * @throws BigResult If an arithmetic under-/overflow occurred 
      */
     public Length getPixelSizeX(UnitsLength unit) throws BigResult {
-    	Length l = asPixels().getPhysicalSizeX();
+        Length l = asPixels().getPhysicalSizeX();
         if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
-    		return null;
-    	return unit == null ? l : new LengthI(l, unit);
+            return null;
+        return unit == null ? l : new LengthI(l, unit);
     }
 
     /**
      * Sets the dimension of a pixel along the Y-axis, dimension is in microns.
-     * 
+     *
      * @param pixelSizeY
      *            The dimension of a pixel along the Y-axis.
      * @deprecated Replaced by {@link #setPixelSizeY(Length)}
@@ -297,10 +297,10 @@ public class PixelsData extends DataObject {
         setDirty(true);
         asPixels().setPhysicalSizeY(new LengthI(pixelSizeY, UnitsLength.MICROMETER));
     }
-    
+
     /**
-     * Sets the dimension of a pixel along the Y-axis
-     * 
+     * Sets the dimension of a pixel along the Y-axis.
+     *
      * @param pixelSizeY
      *            The dimension of a pixel along the Y-axis.
      */
@@ -310,9 +310,8 @@ public class PixelsData extends DataObject {
     }
 
     /**
-     * Returns the dimension of a pixel along the Y-axis, dimension is in
-     * microns.
-     * 
+     * Returns the dimension of a pixel along the Y-axis.
+     *
      * @return See above.
      * @deprecated Replaced by {@link #getPixelSizeY(UnitsLength)}
      */
@@ -322,24 +321,24 @@ public class PixelsData extends DataObject {
     }
 
     /**
-     * Returns the dimension of a pixel along the Y-axis
-     * 
+     * Returns the dimension of a pixel along the Y-axis.
+     *
      * @param unit
-	 *            The unit (may be null, in which case no conversion will be
-	 *            performed)
+     *            The unit (may be null, in which case no conversion will be
+     *            performed)
      * @return See above.
      * @throws BigResult If an arithmetic under-/overflow occurred 
      */
     public Length getPixelSizeY(UnitsLength unit) throws BigResult {
-    	Length l = asPixels().getPhysicalSizeY();
-    	if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
-    		return null;
-    	return unit == null ? l : new LengthI(l, unit);
+        Length l = asPixels().getPhysicalSizeY();
+        if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
+            return null;
+        return unit == null ? l : new LengthI(l, unit);
     }
-    
+
     /**
-     * Sets the dimension of a pixel along the Z-axis, dimension is in microns.
-     * 
+     * Sets the dimension of a pixel along the Z-axis.
+     *
      * @param pixelSizeZ
      *            The dimension of a pixel along the Z-axis.
      * @deprecated Replaced by {@link #setPixelSizeZ(Length)}
@@ -352,7 +351,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the dimension of a pixel along the Z-axis
-     * 
+     *
      * @param pixelSizeZ
      *            The dimension of a pixel along the Z-axis.
      */
@@ -360,11 +359,10 @@ public class PixelsData extends DataObject {
         setDirty(true);
         asPixels().setPhysicalSizeZ(pixelSizeZ);
     }
-    
+
     /**
-     * Returns the dimension of a pixel along the Z-axis, dimension is in
-     * microns.
-     * 
+     * Returns the dimension of a pixel along the Z-axis.
+     *
      * @return See above.
      * @deprecated Replaced by {@link #getPixelSizeZ(UnitsLength)}
      */
@@ -372,26 +370,26 @@ public class PixelsData extends DataObject {
     public double getPixelSizeZ() {
         return nullSafe(asPixels().getPhysicalSizeZ());
     }
-  
+
     /**
      * Returns the dimension of a pixel along the Z-axis
-     * 
+     *
      * @param unit
-	 *            The unit (may be null, in which case no conversion will be
-	 *            performed)
+     *            The unit (may be null, in which case no conversion will be
+     *            performed)
      * @return See above.
      * @throws BigResult If an arithmetic under-/overflow occurred 
      */
     public Length getPixelSizeZ(UnitsLength unit) throws BigResult {
-    	Length l = asPixels().getPhysicalSizeZ();
-    	if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
-    		return null;
-    	return unit == null ? l : new LengthI(l, unit);
+        Length l = asPixels().getPhysicalSizeZ();
+        if (l == null || l.getUnit().equals(UnitsLength.PIXEL))
+            return null;
+        return unit == null ? l : new LengthI(l, unit);
     }
-    
+
     /**
      * Returns the pixels type.
-     * 
+     *
      * @return See above.
      */
     public String getPixelType() {
@@ -402,7 +400,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Returns the image linked to this pixels' set.
-     * 
+     *
      * @return See above.
      */
     public ImageData getImage() {
@@ -414,7 +412,7 @@ public class PixelsData extends DataObject {
 
     /**
      * Sets the image linked to this pixels' set.
-     * 
+     *
      * @param image
      *            The linked image.
      */

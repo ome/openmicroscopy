@@ -39,126 +39,126 @@ import omero.model.Shape;
  * @since 3.0-Beta4
  */
 public class PointData
-	extends ShapeData
+extends ShapeData
 {
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param shape The shape to host.
-	 */
-	public PointData(Shape shape)
-	{
-		super(shape);
-	}
-	
+    /**
+     * Creates a new instance.
+     *
+     * @param shape The shape to host.
+     */
+    public PointData(Shape shape)
+    {
+        super(shape);
+    }
 
-	/**
-	 * Create a new instance of PointData, creating a new pointI Object.
-	 */
-	public PointData()
-	{
-		this(0.0, 0.0);
-	}
-	
-	/**
-	 * Create a new instance of the PointData,
-	 * 
-	 * @param x x-coordinate of the shape.
-	 * @param y y-coordinate of the shape.
-	 */
-	public PointData(double x, double y)
-	{
-		super(new PointI(), true);
-		setX(x);
-		setY(y);
-	}
-	
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Point shape = (Point) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Point shape = (Point) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
-	
-	
-	/**
-	 * Returns the x-coordinate of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public double getX()
-	{
-		Point shape = (Point) asIObject();
-		if (shape == null) return 0;
-		RDouble value = shape.getCx();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * set the x-coordinate of the shape.
-	 * 
-	 * @param x See above.
-	 */
-	public void setX(double x)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Point shape = (Point) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setCx(rtypes.rdouble(x));
-	}
-	
-	/**
-	 * Returns the y coordinate of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public double getY()
-	{
-		Point shape = (Point) asIObject();
-		if (shape == null) return 0;
-		RDouble value = shape.getCy();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * set the y-coordinate of the shape.
-	 * 
-	 * @param y See above.
-	 */
-	public void setY(double y)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Point shape = (Point) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setCy(rtypes.rdouble(y));
-	}
-	
+
+    /**
+     * Creates a new instance of PointData, creating a new pointI Object.
+     */
+    public PointData()
+    {
+        this(0.0, 0.0);
+    }
+
+    /**
+     * Create a new instance of the PointData,
+     *
+     * @param x x-coordinate of the shape.
+     * @param y y-coordinate of the shape.
+     */
+    public PointData(double x, double y)
+    {
+        super(new PointI(), true);
+        setX(x);
+        setY(y);
+    }
+
+    /**
+     * Returns the text of the shape.
+     *
+     * @return See above.
+     */
+    public String getText()
+    {
+        Point shape = (Point) asIObject();
+        RString value = shape.getTextValue();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Sets the text of the shape.
+     *
+     * @param text See above.
+     */
+    public void setText(String text)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Point shape = (Point) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setTextValue(rtypes.rstring(text));
+    }
+
+
+    /**
+     * Returns the x-coordinate of the shape.
+     *
+     * @return See above.
+     */
+    public double getX()
+    {
+        Point shape = (Point) asIObject();
+        if (shape == null) return 0;
+        RDouble value = shape.getCx();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * set the x-coordinate of the shape.
+     *
+     * @param x See above.
+     */
+    public void setX(double x)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Point shape = (Point) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setCx(rtypes.rdouble(x));
+    }
+
+    /**
+     * Returns the y coordinate of the shape.
+     *
+     * @return See above.
+     */
+    public double getY()
+    {
+        Point shape = (Point) asIObject();
+        if (shape == null) return 0;
+        RDouble value = shape.getCy();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * set the y-coordinate of the shape.
+     *
+     * @param y See above.
+     */
+    public void setY(double y)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Point shape = (Point) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setCy(rtypes.rdouble(y));
+    }
+
 }

@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -26,7 +26,7 @@ import omero.model.CommentAnnotationI;
 
 /**
  * Basic textual annotation used to add comments to a given object.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 3.0
@@ -42,7 +42,7 @@ public class TextualAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param text
      *            The text to set.
      */
@@ -53,7 +53,7 @@ public class TextualAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param annotation
      *            The {@link CommentAnnotation} object corresponding to this
      *            <code>DataObject</code>. Mustn't be <code>null</code>.
@@ -64,7 +64,7 @@ public class TextualAnnotationData extends AnnotationData {
 
     /**
      * Sets the text.
-     * 
+     *
      * @param text
      *            The value to set.
      */
@@ -74,7 +74,7 @@ public class TextualAnnotationData extends AnnotationData {
 
     /**
      * Returns the text of this annotation.
-     * 
+     *
      * @return See above.
      */
     public String getText() {
@@ -83,7 +83,7 @@ public class TextualAnnotationData extends AnnotationData {
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
@@ -94,19 +94,19 @@ public class TextualAnnotationData extends AnnotationData {
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
     public String getContentAsString() {
-    	Object o = getContent();
-    	if (o == null) return "";
+        Object o = getContent();
+        if (o == null) return "";
         return (String) o;
     }
 
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override

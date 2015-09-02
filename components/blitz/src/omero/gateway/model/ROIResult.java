@@ -23,8 +23,6 @@ package omero.gateway.model;
 
 import java.util.Collection;
 
-import pojos.ROIData;
-
 /**
  * Hosts the results of a call loading the ROI.
  *

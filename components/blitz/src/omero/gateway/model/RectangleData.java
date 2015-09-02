@@ -37,185 +37,185 @@ import omero.model.Shape;
  * @version 3.0
  * @since 3.0-Beta4
  */
-public class RectangleData 
-	extends ShapeData
+public class RectangleData
+    extends ShapeData
 {
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param shape The shape this object represents.
-	 */
-	public RectangleData(Shape shape)
-	{
-		super(shape);
-	}
-	
-	/** Creates a new instance with a default rectangle. */
-	public RectangleData()
-	{
-		this(0.0, 0.0, 0.0, 0.0);
-	}
-	
-	/**
-	 * Creates a new instance of the RectangleData.
-	 * 
-	 * @param x The x-coordinate of the top-left corner.
-	 * @param y The y-coordinate of the top-left corner.
-	 * @param width The width of the rectangle.
-	 * @param heightThe height of the rectangle.
-	 */
-	public RectangleData(double x, double y, double width, double height)
-	{
-		super(new RectI(), true);
-		setX(x);
-		setY(y);
-		setWidth(width);
-		setHeight(height);
-	}
-	
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Rect shape = (Rect) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Rect shape = (Rect) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
+    /**
+     * Creates a new instance.
+     *
+     * @param shape The shape this object represents.
+     */
+    public RectangleData(Shape shape)
+    {
+        super(shape);
+    }
 
-	/**
-	 * Returns the x-coordinate of the top-left corner of an untransformed 
-	 * rectangle.
-	 * 
-	 * @return See above.
-	 */
-	public double getX()
-	{
-		Rect shape = (Rect) asIObject();
-		RDouble value = shape.getX();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the x-coordinate of the top-left corner of an 
-	 * untransformed rectangle.
-	 * 
-	 * @param x See above.
-	 */
-	public void setX(double x)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Rect shape = (Rect) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setX(rtypes.rdouble(x));
-	}
-	
-	/**
-	 * Returns the y-coordinate of the top-left corner of an 
-	 * untransformed rectangle.
-	 * 
-	 * @return See above.
-	 */
-	public double getY()
-	{
-		Rect shape = (Rect) asIObject();
-		RDouble value = shape.getY();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the y-coordinate of the top-left corner of an untransformed 
-	 * rectangle.
-	 * 
-	 * @param y See above.
-	 */
-	public void setY(double y)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Rect shape = (Rect) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setY(rtypes.rdouble(y));
-	}
-	
-	/**
-	 * Returns the width untransformed rectangle.
-	 * 
-	 * @return See above.
-	 */
-	public double getWidth()
-	{
-		Rect shape = (Rect) asIObject();
-		RDouble value = shape.getWidth();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets width of an untransformed rectangle.
-	 * 
-	 * @param width See above.
-	 */
-	public void setWidth(double width)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Rect shape = (Rect) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setWidth(rtypes.rdouble(width));
-	}
+    /** Creates a new instance with a default rectangle. */
+    public RectangleData()
+    {
+        this(0.0, 0.0, 0.0, 0.0);
+    }
 
-	/**
-	 * Returns the height untransformed rectangle.
-	 * 
-	 * @return See above.
-	 */
-	public double getHeight()
-	{
-		Rect shape = (Rect) asIObject();
-		RDouble value = shape.getHeight();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the height of an untransformed rectangle.
-	 * 
-	 * @param height See above.
-	 */
-	public void setHeight(double height)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Rect shape = (Rect) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setHeight(rtypes.rdouble(height));
-	}
-	
+    /**
+     * Creates a new instance of the RectangleData.
+     *
+     * @param x The x-coordinate of the top-left corner.
+     * @param y The y-coordinate of the top-left corner.
+     * @param width The width of the rectangle.
+     * @param heightThe height of the rectangle.
+     */
+    public RectangleData(double x, double y, double width, double height)
+    {
+        super(new RectI(), true);
+        setX(x);
+        setY(y);
+        setWidth(width);
+        setHeight(height);
+    }
+
+    /**
+     * Returns the text of the shape.
+     *
+     * @return See above.
+     */
+    public String getText()
+    {
+        Rect shape = (Rect) asIObject();
+        RString value = shape.getTextValue();
+        if (value == null) return "";
+        return value.getValue();
+    }
+
+    /**
+     * Sets the text of the shape.
+     *
+     * @param text See above.
+     */
+    public void setText(String text)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Rect shape = (Rect) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setTextValue(rtypes.rstring(text));
+    }
+
+    /**
+     * Returns the x-coordinate of the top-left corner of an untransformed 
+     * rectangle.
+     *
+     * @return See above.
+     */
+    public double getX()
+    {
+        Rect shape = (Rect) asIObject();
+        RDouble value = shape.getX();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * Sets the x-coordinate of the top-left corner of an 
+     * untransformed rectangle.
+     *
+     * @param x See above.
+     */
+    public void setX(double x)
+    {
+        if(isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Rect shape = (Rect) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setX(rtypes.rdouble(x));
+    }
+
+    /**
+     * Returns the y-coordinate of the top-left corner of an 
+     * untransformed rectangle.
+     *
+     * @return See above.
+     */
+    public double getY()
+    {
+        Rect shape = (Rect) asIObject();
+        RDouble value = shape.getY();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * Sets the y-coordinate of the top-left corner of an untransformed 
+     * rectangle.
+     *
+     * @param y See above.
+     */
+    public void setY(double y)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Rect shape = (Rect) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setY(rtypes.rdouble(y));
+    }
+
+    /**
+     * Returns the width untransformed rectangle.
+     *
+     * @return See above.
+     */
+    public double getWidth()
+    {
+        Rect shape = (Rect) asIObject();
+        RDouble value = shape.getWidth();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * Sets width of an untransformed rectangle.
+     *
+     * @param width See above.
+     */
+    public void setWidth(double width)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Rect shape = (Rect) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setWidth(rtypes.rdouble(width));
+    }
+
+    /**
+     * Returns the height untransformed rectangle.
+     *
+     * @return See above.
+     */
+    public double getHeight()
+    {
+        Rect shape = (Rect) asIObject();
+        RDouble value = shape.getHeight();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
+    /**
+     * Sets the height of an untransformed rectangle.
+     *
+     * @param height See above.
+     */
+    public void setHeight(double height)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Rect shape = (Rect) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+        shape.setHeight(rtypes.rdouble(height));
+    }
+
 }

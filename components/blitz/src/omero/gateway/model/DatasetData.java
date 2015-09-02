@@ -47,8 +47,7 @@ import omero.model.ProjectDatasetLink;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date: 2005/05/09
- *          19:50:41 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class DatasetData extends DataObject {
@@ -104,7 +103,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param dataset
      *            Back pointer to the {@link Dataset} model object. Mustn't be
      *            <code>null</code>.
@@ -122,7 +121,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Sets the name of the dataset.
-     * 
+     *
      * @param name
      *            The name of the dataset. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException
@@ -138,7 +137,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Returns the name of the dataset.
-     * 
+     *
      * @return See above.
      */
     public String getName() {
@@ -152,7 +151,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Sets the description of the dataset.
-     * 
+     *
      * @param description
      *            The description of the dataset.
      */
@@ -163,7 +162,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Returns the description of the dataset.
-     * 
+     *
      * @return See above.
      */
     public String getDescription() {
@@ -175,7 +174,7 @@ public class DatasetData extends DataObject {
      * Returns the number of annotations linked to the object, key: id of the
      * user, value: number of annotation. The map may be <code>null</code> if
      * no annotation.
-     * 
+     *
      * @return See above.
      */
     public Map<Long, Long> getAnnotationsCounts() {
@@ -186,7 +185,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Returns a set of images contained in the dataset.
-     * 
+     *
      * @return See above.
      */
     public Set getImages() {
@@ -202,7 +201,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Returns a set of projects containing the dataset.
-     * 
+     *
      * @return See above.
      */
     public Set getProjects() {
@@ -222,7 +221,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Sets the images contained in this dataset.
-     * 
+     *
      * @param newValue
      *            The set of images.
      */
@@ -246,7 +245,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Sets the projects containing the dataset.
-     * 
+     *
      * @param newValue
      *            The set of projects.
      */
@@ -272,7 +271,7 @@ public class DatasetData extends DataObject {
     /**
      * Returns the annotations related to this dataset. Not sure we are going to
      * keep this method.
-     * 
+     *
      * @return See Above
      */
     public Set getAnnotations() {
@@ -300,7 +299,7 @@ public class DatasetData extends DataObject {
 
     /**
      * Sets the annotations related to this dataset.
-     * 
+     *
      * @param newValue
      *            The set of annotations.
      */

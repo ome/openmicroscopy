@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,7 +32,7 @@ import omero.model.enums.UnitsLength;
 /**
  * The data that makes up an <i>OME</i> WellSample along with links to its
  * images and the Experimenter that owns this WellSample.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -53,12 +53,12 @@ public class WellSampleData extends DataObject {
     public WellSampleData() {
         setDirty(true);
         setValue(new WellSampleI());
-       
+
     }
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param wellSample
      *            Back pointer to the {@link WellSample} model object. Mustn't
      *            be <code>null</code>.
@@ -75,7 +75,7 @@ public class WellSampleData extends DataObject {
     /**
      * Returns the image related to that sample if any. Possible values are
      * <code>0</code> or <code>1</code>.
-     * 
+     *
      * @return See above.
      */
     public ImageData getImage() {
@@ -87,7 +87,7 @@ public class WellSampleData extends DataObject {
 
     /**
      * Sets the image linked to this well sample.
-     * 
+     *
      * @param newValue
      *            The image to set.
      */
@@ -101,76 +101,76 @@ public class WellSampleData extends DataObject {
 
     /**
      * Returns the position X.
-     * 
+     *
      * @param unit
-	 *            The unit (may be null, in which case no conversion will be
-	 *            performed)
+     *            The unit (may be null, in which case no conversion will be
+     *            performed)
      * @return See above.
      * @throws BigResult If an arithmetic under-/overflow occurred 
      */
     public Length getPositionX(UnitsLength unit) throws BigResult
     {
-    	Length value = asWellSample().getPosX();
-    	if (value == null) 
-    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
-    	return unit == null ? value : new LengthI(value, unit);
+        Length value = asWellSample().getPosX();
+        if (value == null) 
+            return new LengthI(0, UnitsLength.REFERENCEFRAME);
+        return unit == null ? value : new LengthI(value, unit);
     }	
-    
+
     /**
      * Returns the position X.
-     * 
+     *
      * @return See above.
      * @deprecated Replaced by {@link #getPositionX(UnitsLength)}
      */
     @Deprecated
     public double getPositionX()
     {
-    	Length value = asWellSample().getPosX();
-    	if (value == null) return 0;
-    	return value.getValue();
+        Length value = asWellSample().getPosX();
+        if (value == null) return 0;
+        return value.getValue();
     }
-    
+
     /**
      * Returns the position Y.
-     * 
+     *
      * @param unit
-	 *            The unit (may be null, in which case no conversion will be
-	 *            performed)
+     *            The unit (may be null, in which case no conversion will be
+     *            performed)
      * @return See above.
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
     public Length getPositionY(UnitsLength unit) throws BigResult
     {
-    	Length value = asWellSample().getPosY();
-    	if (value == null)
-    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
-    	return unit == null ? value : new LengthI(value, unit);
+        Length value = asWellSample().getPosY();
+        if (value == null)
+            return new LengthI(0, UnitsLength.REFERENCEFRAME);
+        return unit == null ? value : new LengthI(value, unit);
     }
-    
+
     /**
      * Returns the position Y.
-     * 
+     *
      * @return See above.
      * @deprecated Replaced by {@link #getPositionY(UnitsLength)}
      */
     @Deprecated
     public double getPositionY()
     {
-    	Length value = asWellSample().getPosY();
-    	if (value == null) return 0;
-    	return value.getValue();
+        Length value = asWellSample().getPosY();
+        if (value == null) return 0;
+        return value.getValue();
     }
-    
+
     /**
      * Returns the time at which the field was acquired.
-     * 
+     *
      * @return See above.
      */
     public long getStartTime()
     {
-    	RTime value = asWellSample().getTimepoint();
-    	if (value == null) return 0;
-    	return value.getValue();
+        RTime value = asWellSample().getTimepoint();
+        if (value == null) return 0;
+        return value.getValue();
     }
 
 }

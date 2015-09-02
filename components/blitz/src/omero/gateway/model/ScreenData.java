@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,7 +32,7 @@ import omero.model.ScreenPlateLink;
 /**
  * The data that makes up an <i>OME</i> Screen along with links to its
  * contained Plates and the Experimenter that owns this Screen.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -57,7 +57,7 @@ public class ScreenData extends DataObject {
      * Plate, then this set will be empty &#151; but never <code>null</code>.
      */
     private Set<PlateData> plates;
-    
+
     /** Creates a new instance. */
     public ScreenData() {
         setDirty(true);
@@ -66,7 +66,7 @@ public class ScreenData extends DataObject {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param screen
      *            Back pointer to the {@link Screen} model object. Mustn't be
      *            <code>null</code>.
@@ -82,7 +82,7 @@ public class ScreenData extends DataObject {
 
     /**
      * Sets the name of the screen.
-     * 
+     *
      * @param name
      *            The name of the screen. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException
@@ -98,7 +98,7 @@ public class ScreenData extends DataObject {
 
     /**
      * Returns the name of the screen.
-     * 
+     *
      * @return See above.
      */
     public String getName() {
@@ -112,7 +112,7 @@ public class ScreenData extends DataObject {
 
     /**
      * Sets the description of the screen.
-     * 
+     *
      * @param description
      *            The description of the screen.
      */
@@ -123,7 +123,7 @@ public class ScreenData extends DataObject {
 
     /**
      * Returns the description of the screen.
-     * 
+     *
      * @return See above.
      */
     public String getDescription() {
@@ -135,7 +135,7 @@ public class ScreenData extends DataObject {
      * Returns the number of annotations linked to the object, key: id of the
      * user, value: number of annotation. The map may be <code>null</code> if
      * no annotation.
-     * 
+     *
      * @return See above.
      */
     public Map<Long, Long> getAnnotationsCounts() {
@@ -145,7 +145,7 @@ public class ScreenData extends DataObject {
     // Lazy loaded Links
     /**
      * Returns the plates contained in this screen.
-     * 
+     *
      * @return See above.
      */
     public Set<PlateData> getPlates() {
@@ -163,7 +163,7 @@ public class ScreenData extends DataObject {
 
     /**
      * Sets the plates contained in this screen.
-     * 
+     *
      * @param value
      *            The set of plates.
      */
@@ -182,97 +182,97 @@ public class ScreenData extends DataObject {
         }
         plates = new HashSet<PlateData>(m.result());
     }
-    
+
     /**
      * Returns the description of the protocol.
-     * 
+     *
      * @return See above.
      */
     public String getProtocolDescription()
     {
-    	omero.RString d = asScreen().getProtocolDescription();
+        omero.RString d = asScreen().getProtocolDescription();
         return d == null ? "" : d.getValue();
     }
 
     /**
      * Sets the description of the protocol.
-     * 
+     *
      * @param value The value to set.
      * @return See above.
      */
     public void setProtocolDescription(String value)
     {
-    	if (value != null && value.trim().length() != 0)
-    		asScreen().setProtocolDescription(omero.rtypes.rstring(value));
+        if (value != null && value.trim().length() != 0)
+            asScreen().setProtocolDescription(omero.rtypes.rstring(value));
     }
 
     /**
      * Returns the identifier of the protocol.
-     * 
+     *
      * @return See above.
      */
     public String getProtocolIdentifier()
     {
-    	omero.RString d = asScreen().getProtocolIdentifier();
+        omero.RString d = asScreen().getProtocolIdentifier();
         return d == null ? "" : d.getValue();
     }
 
     /**
      * Sets the identifier of the protocol.
-     * 
+     *
      * @param value The value to set.
      * @return See above.
      */
     public void setProtocolIdentifier(String value)
     {
-    	if (value != null && value.trim().length() != 0)
-    		asScreen().setProtocolIdentifier(omero.rtypes.rstring(value));
+        if (value != null && value.trim().length() != 0)
+            asScreen().setProtocolIdentifier(omero.rtypes.rstring(value));
     }
-    
+
     /**
      * Returns the description of the reagent set.
-     * 
+     *
      * @return See above.
      */
     public String getReagentSetDescripion()
     {
-    	omero.RString d = asScreen().getReagentSetDescription();
+        omero.RString d = asScreen().getReagentSetDescription();
         return d == null ? "" : d.getValue();
     }
 
     /**
      * Sets the identifier of the reagent.
-     * 
+     *
      * @param value The value to set.
      * @return See above.
      */
     public void setReagentSetDescripion(String value)
     {
-    	if (value != null && value.trim().length() != 0)
-    		asScreen().setReagentSetDescription(omero.rtypes.rstring(value));
+        if (value != null && value.trim().length() != 0)
+            asScreen().setReagentSetDescription(omero.rtypes.rstring(value));
     }
-    
+
     /**
      * Returns the identifier of the Reagent set.
-     * 
+     *
      * @return See above.
      */
     public String getReagentSetIdentifier()
     {
-    	omero.RString d = asScreen().getReagentSetIdentifier();
+        omero.RString d = asScreen().getReagentSetIdentifier();
         return d == null ? "" : d.getValue();
     }
-    
+
     /**
      * Sets the identifier of the reagent.
-     * 
+     *
      * @param value The value to set.
      * @return See above.
      */
     public void setReagentSetIdentifier(String value)
     {
-    	if (value != null && value.trim().length() != 0)
-    		asScreen().setReagentSetIdentifier(omero.rtypes.rstring(value));
+        if (value != null && value.trim().length() != 0)
+            asScreen().setReagentSetIdentifier(omero.rtypes.rstring(value));
     }
-    
+
 }

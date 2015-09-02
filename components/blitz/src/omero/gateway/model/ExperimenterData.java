@@ -45,7 +45,7 @@ import omero.model.GroupExperimenterMap;
  * @since OME2.2
  */
 public class ExperimenterData extends DataObject {
-    
+
     /** Identifies the {@link Experimenter#FIRSTNAME} field. */
     public final static String FIRSTNAME = ExperimenterI.FIRSTNAME;
 
@@ -69,7 +69,7 @@ public class ExperimenterData extends DataObject {
 
     /** The other Groups this Experimenter belongs in. */
     private List<GroupData> groups;
-    
+
     /** Creates a new instance. */
     public ExperimenterData() {
         setDirty(true);
@@ -78,7 +78,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param experimenter
      *            Back pointer to the {@link Experimenter} model object. Mustn't
      *            be <code>null</code>.
@@ -96,7 +96,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Sets the first name of the experimenter.
-     * 
+     *
      * @param firstName
      *            The value to set.
      */
@@ -107,7 +107,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Returns the first name of the experimenter.
-     * 
+     *
      * @return see above.
      */
     public String getFirstName() {
@@ -118,7 +118,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Sets the last name of the experimenter.
-     * 
+     *
      * @param lastName
      *            The value to set.
      */
@@ -129,7 +129,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Returns the last name of the experimenter.
-     * 
+     *
      * @return see above.
      */
     public String getLastName() {
@@ -140,7 +140,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Returns the last name of the experimenter.
-     * 
+     *
      * @return see above.
      */
     public String getUserName() {
@@ -151,10 +151,10 @@ public class ExperimenterData extends DataObject {
         }
         return n.getValue();
     }
-    
+
     /**
      * Sets the e-mail of the experimenter.
-     * 
+     *
      * @param email
      *            The value to set.
      */
@@ -176,7 +176,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Sets the institution where the experimenter works.
-     * 
+     *
      * @param institution
      *            The value to set.
      */
@@ -188,7 +188,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Returns the institution where the experimenter works.
-     * 
+     *
      * @return see above.
      */
     public String getInstitution() {
@@ -200,7 +200,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Returns the groups the experimenter is a member of.
-     * 
+     *
      * @return See above.
      */
     public List<GroupData> getGroups() {
@@ -211,11 +211,11 @@ public class ExperimenterData extends DataObject {
             List<GroupExperimenterMap> links = asExperimenter()
                     .copyGroupExperimenterMap();
             for (GroupExperimenterMap link : links) {
-                    // if you somehow managed to delete a user's default group
-                    // link can be null!
-                    if (link != null) {
-                        groups.add(new GroupData(link.getParent()));
-                    }
+                // if you somehow managed to delete a user's default group
+                // link can be null!
+                if (link != null) {
+                    groups.add(new GroupData(link.getParent()));
+                }
             }
         }
 
@@ -226,7 +226,7 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Sets the groups the experimenter is a member of.
-     * 
+     *
      * @param newValue
      *            The set of groups.
      */
@@ -238,7 +238,7 @@ public class ExperimenterData extends DataObject {
         while (m.moreDeletions()) {
             setDirty(true);
             asExperimenter()
-                    .unlinkExperimenterGroup(m.nextDeletion().asGroup());
+            .unlinkExperimenterGroup(m.nextDeletion().asGroup());
         }
 
         while (m.moreAdditions()) {
@@ -251,12 +251,12 @@ public class ExperimenterData extends DataObject {
 
     /**
      * Returns the default Group for this Experimenter
-     * 
+     *
      * @return See above.
      */
     public GroupData getDefaultGroup() {
-    	List<GroupData> groups = getGroups();
-    	if (groups == null || groups.size() == 0) return null;
+        List<GroupData> groups = getGroups();
+        if (groups == null || groups.size() == 0) return null;
         return groups.get(0);
     }
 
@@ -273,10 +273,10 @@ public class ExperimenterData extends DataObject {
         }
         return n.getValue();
     }
-    
+
     /**
      * Sets the middle name of the experimenter.
-     * 
+     *
      * @param middleName
      *            The value to set.
      */
@@ -284,24 +284,24 @@ public class ExperimenterData extends DataObject {
         setDirty(true);
         asExperimenter().setMiddleName(rstring(middleName));
     }
-    
+
     /**
      * Returns <code>true</code> if the experimenter is active,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isActive()
     {
-    	List<GroupData> groups = getGroups();
-		if (groups == null || groups.size() == 0) return false;
-		Iterator<GroupData> i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = i.next();
-			if (GroupData.USER.equals(g.getName())) return true;
-		}
-		return false;
+        List<GroupData> groups = getGroups();
+        if (groups == null || groups.size() == 0) return false;
+        Iterator<GroupData> i = groups.iterator();
+        GroupData g;
+        while (i.hasNext()) {
+            g = i.next();
+            if (GroupData.USER.equals(g.getName())) return true;
+        }
+        return false;
     }
 
     /**
@@ -309,9 +309,9 @@ public class ExperimenterData extends DataObject {
      * @see DataObject#getGroupId()
      */
     public long getGroupId() {
-    	GroupData g = getDefaultGroup();
-    	if (g == null) return -1;
-    	return g.getId();
+        GroupData g = getDefaultGroup();
+        if (g == null) return -1;
+        return g.getId();
     }
 
     /**

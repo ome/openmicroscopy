@@ -3,7 +3,7 @@
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -64,8 +64,8 @@ public class TermAnnotationData extends AnnotationData {
      * @param term The value to set.
      */
     public void setTerm(String term) {
-    	if (term == null) return;
-    	setDirty(true);
+        if (term == null) return;
+        setDirty(true);
         ((TermAnnotation) asAnnotation()).setTermValue(rstring(term));
     }
 
@@ -80,19 +80,19 @@ public class TermAnnotationData extends AnnotationData {
 
     /**
      * Returns the description of the term.
-     * 
+     *
      * @return See above.
      */
     public String getTermDescription()
     {
-    	RString value = asAnnotation().getDescription();
-    	if (value == null) return "";
+        RString value = asAnnotation().getDescription();
+        if (value == null) return "";
         return value.getValue();
     }
-    
+
     /**
      * Sets the description of the tag.
-     * 
+     *
      * @param value The value to set.
      */
     public void setTermDescription(String value) {
@@ -102,7 +102,7 @@ public class TermAnnotationData extends AnnotationData {
         setDirty(true);
         asAnnotation().setDescription(rstring(value));
     }
-    
+
     /**
      * Returns the textual content of the annotation.
      *
@@ -121,14 +121,14 @@ public class TermAnnotationData extends AnnotationData {
      */
     @Override
     public String getContentAsString() {
-    	Object o = getContent();
-    	if (o == null) return "";
+        Object o = getContent();
+        if (o == null) return "";
         return (String) o;
     }
 
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override

@@ -1,11 +1,9 @@
 /*
- * pojos.TagAnnotationData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -41,7 +39,7 @@ import omero.model.TagAnnotationI;
 /**
  * A tag annotation can either be related to an image or a tag but not to both
  * at the same time.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 3.0
@@ -49,18 +47,15 @@ import omero.model.TagAnnotationI;
  */
 public class TagAnnotationData extends AnnotationData {
 
-	
-	/**
+
+    /**
      * The name space used to indicate that the tag is used a tag set.
      */
     public static final String INSIGHT_TAGSET_NS = 
-    	omero.constants.metadata.NSINSIGHTTAGSET.value;
-    
+            omero.constants.metadata.NSINSIGHTTAGSET.value;
+
     /** The descriptions of the tag. */
     private List<TextualAnnotationData> descriptions;
-
-    /** The textual description of the tag. */
-    //private TextualAnnotationData description;
 
     /** The collection of data object related to the tag. */
     private Set<DataObject> dataObjects;
@@ -70,19 +65,19 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param tag
      *            The text of the tag.
      * @param asTagSet Pass <code>true</code> to create the tag as a tag set,
-     * 					<code>false</code> otherwise.
+     *                 <code>false</code> otherwise.
      */
     public TagAnnotationData(String tag, boolean asTagSet) {
         this(tag, null, asTagSet);
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param tag
      *            The text of the tag.
      */
@@ -92,7 +87,7 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param tag
      *            The text of the tag.
      * @param description
@@ -101,17 +96,17 @@ public class TagAnnotationData extends AnnotationData {
     public TagAnnotationData(String tag, String description) {
         this(tag, description, false);
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param tag
-     *            	The text of the tag.
+     *            The text of the tag.
      * @param description
-     *            	The description of the tag.
-     * @param asTagSet 
-     * 				Pass <code>true</code> to create the tag as a tag set,
-     * 				<code>false</code> otherwise.
+     *            The description of the tag.
+     * @param asTagSet
+     *                Pass <code>true</code> to create the tag as a tag set,
+     *                <code>false</code> otherwise.
      */
     public TagAnnotationData(String tag, String description, boolean asTagSet) {
         super(TagAnnotationI.class);
@@ -119,11 +114,10 @@ public class TagAnnotationData extends AnnotationData {
         setTagDescription(description);
         if (asTagSet) setNameSpace(INSIGHT_TAGSET_NS);
     }
-    
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param tag
      *            The tag to wrap.
      */
@@ -133,7 +127,7 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param tag
      *            The tag to wrap.
      * @param value
@@ -153,38 +147,38 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Sets the collection of data objects related to that tag.
-     * 
+     *
      * @param dataObjects
      *            The value to set.
      */
     public void setDataObjects(Set<DataObject> dataObjects) {
-    	String ns = getNameSpace();
-    	if (INSIGHT_TAGSET_NS.equals(ns)) 
-    		throw new IllegalArgumentException("Cannot add dataObject to "
+        String ns = getNameSpace();
+        if (INSIGHT_TAGSET_NS.equals(ns)) 
+            throw new IllegalArgumentException("Cannot add dataObject to "
                     + "a Tag Set.");
         this.dataObjects = dataObjects;
     }
 
     /**
      * Returns the collection of tags related to this tag.
-     * 
+     *
      * @return See above.
      */
     public Set<TagAnnotationData> getTags() {
-    	String ns = getNameSpace();
-    	if (!INSIGHT_TAGSET_NS.equals(ns)) return null;
-    	TagAnnotation tagSet = (TagAnnotation) asIObject();
-    	if (tags == null && tagSet.sizeOfAnnotationLinks() >= 0) {
-    		tags = new HashSet<TagAnnotationData>();
-    		List l = tagSet.linkedAnnotationList();
-    		Iterator i = l.iterator();
-    		Annotation data;
-    		while (i.hasNext()) {
-    			data = (Annotation) i.next();
-    			if (data instanceof TagAnnotation)
-    				tags.add(new TagAnnotationData((TagAnnotation) data));
-			}
-    	}
+        String ns = getNameSpace();
+        if (!INSIGHT_TAGSET_NS.equals(ns)) return null;
+        TagAnnotation tagSet = (TagAnnotation) asIObject();
+        if (tags == null && tagSet.sizeOfAnnotationLinks() >= 0) {
+            tags = new HashSet<TagAnnotationData>();
+            List l = tagSet.linkedAnnotationList();
+            Iterator i = l.iterator();
+            Annotation data;
+            while (i.hasNext()) {
+                data = (Annotation) i.next();
+                if (data instanceof TagAnnotation)
+                    tags.add(new TagAnnotationData((TagAnnotation) data));
+            }
+        }
         return tags;
     }
 
@@ -195,32 +189,32 @@ public class TagAnnotationData extends AnnotationData {
      */
     public Set<DataObject> getDataObjects()
     { 
-    	if (dataObjects == null && asAnnotation().sizeOfAnnotationLinks() >= 0)
-    	{
-    		List l = asAnnotation().copyAnnotationLinks();
-    		dataObjects = new HashSet<DataObject>();
-    		ImageAnnotationLink iaLink;
-    		DatasetAnnotationLink daLink;
-    		ProjectAnnotationLink paLink;
-    		for (Object object : l) {
-    			if (object instanceof ImageAnnotationLink) {
-    				iaLink = (ImageAnnotationLink) object;
-    				dataObjects.add(new ImageData(iaLink.getParent()));
-    			} else if (object instanceof DatasetAnnotationLink) {
-    				daLink = (DatasetAnnotationLink) object;
-    				dataObjects.add(new DatasetData(daLink.getParent()));
-    			} else if (object instanceof ProjectAnnotationLink) {
-    				paLink = (ProjectAnnotationLink) object;
-    				dataObjects.add(new ProjectData(paLink.getParent()));
-    			}
-    		}
-    	}
-    	return dataObjects == null ? null : new HashSet<DataObject>(dataObjects);
+        if (dataObjects == null && asAnnotation().sizeOfAnnotationLinks() >= 0)
+        {
+            List l = asAnnotation().copyAnnotationLinks();
+            dataObjects = new HashSet<DataObject>();
+            ImageAnnotationLink iaLink;
+            DatasetAnnotationLink daLink;
+            ProjectAnnotationLink paLink;
+            for (Object object : l) {
+                if (object instanceof ImageAnnotationLink) {
+                    iaLink = (ImageAnnotationLink) object;
+                    dataObjects.add(new ImageData(iaLink.getParent()));
+                } else if (object instanceof DatasetAnnotationLink) {
+                    daLink = (DatasetAnnotationLink) object;
+                    dataObjects.add(new DatasetData(daLink.getParent()));
+                } else if (object instanceof ProjectAnnotationLink) {
+                    paLink = (ProjectAnnotationLink) object;
+                    dataObjects.add(new ProjectData(paLink.getParent()));
+                }
+            }
+        }
+        return dataObjects == null ? null : new HashSet<DataObject>(dataObjects);
     }  
 
     /**
      * Sets the tag's descriptions.
-     * 
+     *
      * @param value
      *            The collection to set.
      */
@@ -230,7 +224,7 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Returns the descriptions linked to that tag.
-     * 
+     *
      * @return See above.
      */
     public List getTagDescriptions() {
@@ -239,7 +233,7 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Sets the description of the tag.
-     * 
+     *
      * @param value
      *            The value to set.
      */
@@ -253,18 +247,18 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Returns the description of the tag.
-     * 
+     *
      * @return See above.
      */
     public String getTagDescription() {
-    	RString value = asAnnotation().getDescription();
-    	if (value == null) return "";
+        RString value = asAnnotation().getDescription();
+        if (value == null) return "";
         return value.getValue();
     }
 
     /**
      * Sets the value of the tag.
-     * 
+     *
      * @param tag
      *            The value to set.
      */
@@ -274,7 +268,7 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Returns the text of the tag.
-     * 
+     *
      * @return See above.
      */
     public String getTagValue() {
@@ -283,7 +277,7 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
@@ -294,19 +288,19 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
     public String getContentAsString() {
-    	Object o = getContent();
-    	if (o == null) return "";
+        Object o = getContent();
+        if (o == null) return "";
         return (String) o;
     }
 
     /**
      * Sets the text annotation.
-     * 
+     *
      * @see AnnotationData#setContent(Object)
      */
     @Override
