@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.TabularDataLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -30,9 +28,9 @@ import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import omero.gateway.model.TableResult;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
-import pojos.PlateData;
-import pojos.ScreenData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * Loads the tabular data.

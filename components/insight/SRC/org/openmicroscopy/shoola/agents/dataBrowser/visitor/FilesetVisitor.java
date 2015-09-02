@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.visitor.FilesetVisitor
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,22 +21,17 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
-
-//Java imports
 import java.awt.Color;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /**
  * Founds the siblings of the specified image.

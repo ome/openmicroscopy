@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
-
-
-//Java imports
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,14 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.gateway.model.TableResult;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ImageData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Handles the well samples related to the well.
@@ -51,9 +43,6 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta3
  */
 public class WellImageSet
