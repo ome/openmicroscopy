@@ -78,6 +78,11 @@ STANDARD_LOGFORMAT = (
     '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
     ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s')
 
+FULL_REQUEST_LOGFORMAT = (
+    '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
+    ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d'
+    ' HTTP %(status_code)d %(request)s')
+
 if platform.system() in ("Windows",):
     LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
 else:
@@ -89,6 +94,17 @@ LOGGING = {
     'formatters': {
         'standard': {
             'format': STANDARD_LOGFORMAT
+        },
+        'full_request': {
+            'format': FULL_REQUEST_LOGFORMAT
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
         },
     },
     'handlers': {
@@ -105,10 +121,11 @@ LOGGING = {
             'level': 'DEBUG',
             'class': LOGGING_CLASS,
             'filename': os.path.join(
-                LOGDIR, 'OMEROweb_request.log').replace('\\', '/'),
+                LOGDIR, 'OMEROweb_brokenrequest.log').replace('\\', '/'),
             'maxBytes': 1024*1024*5,  # 5 MB
             'backupCount': 10,
-            'formatter': 'standard',
+            'filters': ['require_debug_false'],
+            'formatter': 'full_request',
         },
         'null': {
             'level': 'DEBUG',
@@ -116,17 +133,19 @@ LOGGING = {
         },
         'console': {
             'level': 'DEBUG',
+            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
         'mail_admins': {
             'level': 'ERROR',
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         }
     },
     'loggers': {
         'django.request': {  # Stop SQL debug from logging to main logger
-            'handlers': ['request_handler', 'mail_admins'],
+            'handlers': ['default', 'request_handler', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': False
         },
