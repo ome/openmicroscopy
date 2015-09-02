@@ -288,8 +288,8 @@ public interface Editor
     /**
      * Downloads the archived files, preserving the original folder structure
      * 
-     * @param file
-     *            The folder where to download the content.
+     * @param path
+     *            The path to the folder where to download the content.
      * @param override
      *            Flag indicating to override the existing file if it exists,
      *            <code>false</code> otherwise.
