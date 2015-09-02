@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,16 +21,12 @@
  */
 package org.openmicroscopy.shoola.agents.events.metadata;
 
-
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
 import omero.gateway.SecurityContext;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /**
  * Event posted when the channels have been updated.
