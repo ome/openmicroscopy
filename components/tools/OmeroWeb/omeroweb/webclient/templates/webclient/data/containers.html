@@ -790,7 +790,7 @@
                             },
 
                             error: function(json) {
-                                console.log('failure');
+                                // Global error handling is sufficient here
                             }
                         });
                     }
@@ -1060,9 +1060,7 @@
                                     callback.call(this, data);
                                 },
                                 error: function (jqXHR, textStatus, errorThrown) {
-                                    // TODO What do we do now if there is an error from the REST API?
-                                    // Launch the Error Dialog?
-                                    console.log('ERROR IN AJAX');
+                                    // Global error handling is sufficient here
                                 },
                                 // Converter is required because the JSON format being returned is not
                                 // jstree specific.
