@@ -1,6 +1,4 @@
 /*
- * pojos.RatingAnnotationData
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -22,11 +20,7 @@
  */
 package omero.gateway.model;
 
-//Java imports
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rlong;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
@@ -36,8 +30,7 @@ import omero.model.LongAnnotationI;
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $)
- *          </small>
+ * @version 3.0
  * @since OME3.0
  */
 public class RatingAnnotationData extends AnnotationData {

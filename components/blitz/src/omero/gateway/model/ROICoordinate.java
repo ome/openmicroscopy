@@ -1,6 +1,4 @@
 /*
- * pojos.ROICoordinate
- *
  *------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
@@ -22,12 +20,7 @@
  */
 package omero.gateway.model;
 
-//Java imports
 import java.util.Comparator;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /**
  * Defines a plane.
@@ -38,9 +31,6 @@ import java.util.Comparator;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ROICoordinate

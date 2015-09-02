@@ -1,6 +1,4 @@
 /*
- * pojos.PlateData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -45,8 +43,7 @@ import omero.model.enums.UnitsLength;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $)
- *          </small>
+ * @version 3.0
  * @since 3.0-Beta3
  */
 public class PlateData extends DataObject {

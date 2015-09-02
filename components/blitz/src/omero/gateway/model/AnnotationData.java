@@ -1,19 +1,12 @@
 /*
- * pojos.AnnotationData
- *
  *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package omero.gateway.model;
 
-//Java imports
 import java.sql.Timestamp;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.Annotation;
 

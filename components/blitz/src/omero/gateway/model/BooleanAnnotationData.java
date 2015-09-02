@@ -1,6 +1,4 @@
 /*
- * pojos.BooleanAnnotationData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -22,11 +20,6 @@
  */
 package omero.gateway.model;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;

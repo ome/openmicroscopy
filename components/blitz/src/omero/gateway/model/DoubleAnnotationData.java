@@ -22,13 +22,6 @@
  */
 package omero.gateway.model;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rdouble;
 import omero.model.DoubleAnnotation;
 import omero.model.DoubleAnnotationI;
@@ -41,9 +34,6 @@ import omero.model.DoubleAnnotationI;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DoubleAnnotationData 

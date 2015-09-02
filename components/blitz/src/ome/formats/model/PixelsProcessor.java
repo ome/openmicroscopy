@@ -48,7 +48,7 @@ import omero.model.Pixels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pojos.DataObject;
+import omero,gateway.model.DataObject;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures

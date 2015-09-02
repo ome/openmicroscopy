@@ -1,6 +1,4 @@
 /*
- * pojos.PlateAcquisitionData
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
@@ -22,14 +20,10 @@
  */
 package omero.gateway.model;
 
-//Java imports
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rstring;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
@@ -42,9 +36,6 @@ import omero.model.PlateAcquisitionI;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class PlateAcquisitionData

@@ -21,7 +21,7 @@
  */
 package omero.gateway;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 import com.google.common.base.Objects;
 

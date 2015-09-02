@@ -1,6 +1,4 @@
 /*
- * pojos.ObjectiveData
- *
  *------------------------------------------------------------------------------
  * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,11 +20,6 @@
  */
 package omero.gateway.model;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import ome.model.units.BigResult;
 import omero.RBool;
 import omero.RDouble;

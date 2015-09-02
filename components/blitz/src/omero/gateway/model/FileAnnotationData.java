@@ -1,6 +1,4 @@
 /*
- * pojos.FileAnnotationData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -23,12 +21,8 @@
 package omero.gateway.model;
 
 
-//Java imports
 import java.io.File;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rstring;
 import omero.RString;
 import omero.model.FileAnnotation;
@@ -42,8 +36,7 @@ import omero.model.OriginalFile;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $)
- *          </small>
+ * @version 3.0
  * @since OME3.0
  */
 public class FileAnnotationData extends AnnotationData {

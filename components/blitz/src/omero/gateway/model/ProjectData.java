@@ -1,22 +1,32 @@
 /*
- * pojos.ProjectData
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
  */
 
 package omero.gateway.model;
 
-//Java imports
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rstring;
 import omero.model.Dataset;
 import omero.model.Project;
@@ -33,7 +43,7 @@ import omero.model.ProjectI;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class ProjectData extends DataObject {

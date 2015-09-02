@@ -1,6 +1,4 @@
 /*
- * pojos.PointData
- *
  *------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
@@ -22,11 +20,7 @@
  */
 package omero.gateway.model;
 
-//Java imports
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
@@ -42,9 +36,6 @@ import omero.model.Shape;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class PointData

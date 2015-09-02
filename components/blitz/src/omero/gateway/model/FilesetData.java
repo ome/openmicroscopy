@@ -1,6 +1,4 @@
 /*
- * pojos.FilesetData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,14 +21,10 @@
  */
 package omero.gateway.model;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.Image;

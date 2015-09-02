@@ -50,10 +50,10 @@ import omero.model.Line;
 import omero.model.Polyline;
 import omero.model.Roi;
 import omero.model.Shape;
-import pojos.ROICoordinate;
-import pojos.ROIData;
-import pojos.ShapeData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.ROICoordinate;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.util.PojoMapper;
 
 
 /**

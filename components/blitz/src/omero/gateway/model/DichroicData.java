@@ -1,6 +1,4 @@
 /*
- * pojos.DichroicData
- *
  *------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
@@ -22,11 +20,6 @@
  */
 package omero.gateway.model;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RString;
 import omero.model.Dichroic;
 
@@ -38,9 +31,6 @@ import omero.model.Dichroic;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DichroicData 

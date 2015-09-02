@@ -1,6 +1,4 @@
 /*
- * pojos.FilterSetData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
@@ -22,15 +20,10 @@
  */
 package omero.gateway.model;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.Dichroic;
 import omero.model.FilterSetEmissionFilterLink;
 import omero.model.FilterSetExcitationFilterLink;
@@ -45,9 +38,6 @@ import omero.model.FilterSet;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class FilterSetData 
