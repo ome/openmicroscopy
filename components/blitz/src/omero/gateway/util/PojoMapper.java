@@ -110,7 +110,7 @@ import omero.gateway.model.XMLAnnotationData;
  * {@link DataObject}s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ *          <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -123,9 +123,9 @@ public class PojoMapper
     /**
      * Helper method to convert the specified object into its corresponding
      * {@link DataObject} or collection of {@link DataObject}s.
-     * 
+     *
      * @param value The object to convert.
-     * @return      See above.
+     * @return See above.
      */
     private static Object convert(Object value)
     {
@@ -135,14 +135,14 @@ public class PojoMapper
         else if (value instanceof Map) return asDataObjects((Map) value);
         else return null;
     }
-    
+
     /**
-     * Converts the specified {@link IObject} into its corresponding 
+     * Converts the specified {@link IObject} into its corresponding
      * {@link DataObject}.
-     * 
-     * @param object    The object to convert.
-     * @return          See above.
-     * @throws IllegalArgumentException If the object is null or 
+     *
+     * @param object The object to convert.
+     * @return See above.
+     * @throws IllegalArgumentException If the object is null or
      * if the type {@link IObject} is unknown.
      */
     public static DataObject asDataObject(IObject object)
@@ -154,108 +154,108 @@ public class PojoMapper
         else if (object instanceof Dataset) 
             return new DatasetData((Dataset) object);
         else if (object instanceof Image) 
-        	return new ImageData((Image) object);
+            return new ImageData((Image) object);
         else if (object instanceof TermAnnotation)
-        	return new TermAnnotationData((TermAnnotation) object);
+            return new TermAnnotationData((TermAnnotation) object);
         else if (object instanceof TagAnnotation)
-        	return new TagAnnotationData((TagAnnotation) object);
+            return new TagAnnotationData((TagAnnotation) object);
         else if (object instanceof CommentAnnotation) 
-        	return new TextualAnnotationData((CommentAnnotation) object);
+            return new TextualAnnotationData((CommentAnnotation) object);
         else if (object instanceof LongAnnotation) {
-        	LongAnnotation ann = (LongAnnotation) object;
-        	RString ns = ann.getNs();
-        	if (ns != null) {
-        		if (RatingAnnotationData.INSIGHT_RATING_NS.equals(
-        			ns.getValue()))
-             		return new RatingAnnotationData(ann);	
-        		return new LongAnnotationData(ann);
-        	}
-        	return new LongAnnotationData(ann);
+            LongAnnotation ann = (LongAnnotation) object;
+            RString ns = ann.getNs();
+            if (ns != null) {
+                if (RatingAnnotationData.INSIGHT_RATING_NS.equals(
+                        ns.getValue()))
+                    return new RatingAnnotationData(ann);
+                return new LongAnnotationData(ann);
+            }
+            return new LongAnnotationData(ann);
         } else if (object instanceof DoubleAnnotation)
-        	return new DoubleAnnotationData((DoubleAnnotation) object);
+            return new DoubleAnnotationData((DoubleAnnotation) object);
         else if (object instanceof FileAnnotation) 
-        	return new FileAnnotationData((FileAnnotation) object);
+            return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof BooleanAnnotation)
-        	return new BooleanAnnotationData((BooleanAnnotation) object);
+            return new BooleanAnnotationData((BooleanAnnotation) object);
         else if (object instanceof TimestampAnnotation) 
-        	return new TimeAnnotationData((TimestampAnnotation) object);
+            return new TimeAnnotationData((TimestampAnnotation) object);
         else if (object instanceof XmlAnnotation)
-        	return new XMLAnnotationData((XmlAnnotation) object);
-        else if (object instanceof Pixels) 
+            return new XMLAnnotationData((XmlAnnotation) object);
+        else if (object instanceof Pixels)
             return new PixelsData((Pixels) object);
-        else if (object instanceof Experimenter) 
-        	return new ExperimenterData((Experimenter) object); 
+        else if (object instanceof Experimenter)
+            return new ExperimenterData((Experimenter) object);
         else if (object instanceof ExperimenterGroup) 
-            return new GroupData((ExperimenterGroup) object); 
+            return new GroupData((ExperimenterGroup) object);
         else if (object instanceof Screen)
-        	return new ScreenData((Screen) object);
+            return new ScreenData((Screen) object);
         else if (object instanceof Plate)
-        	return new PlateData((Plate) object);
+            return new PlateData((Plate) object);
         else if (object instanceof PlateAcquisition)
             return new PlateAcquisitionData((PlateAcquisition) object);
         else if (object instanceof Well)
-        	return new WellData((Well) object);
+            return new WellData((Well) object);
         else if (object instanceof WellSample)
-        	return new WellSampleData((WellSample) object);
+            return new WellSampleData((WellSample) object);
         else if (object instanceof Roi)
-        	return new ROIData((Roi) object);
+            return new ROIData((Roi) object);
         else if (object instanceof Fileset) 
-        	return new FilesetData((Fileset) object);
+            return new FilesetData((Fileset) object);
         else if (object instanceof MapAnnotation)
-        	return new MapAnnotationData((MapAnnotation)object);
+            return new MapAnnotationData((MapAnnotation)object);
         return null;
     }
-    
+
     /**
      * Converts each {@link IObject element} of the collection into its 
      * corresponding {@link DataObject}.
-     * 
-     * @param objects   The set of objects to convert.
-     * @return          A set of {@link DataObject}s.
+     *
+     * @param objects The set of objects to convert.
+     * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
     public static Set asDataObjects(Collection objects)
     {
-    	if (objects == null) return new HashSet<DataObject>();
+        if (objects == null) return new HashSet<DataObject>();
         Set<DataObject> set = new HashSet<DataObject>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
-        	data = asDataObject((IObject) i.next());
-        	if (data != null) set.add(data);
+            data = asDataObject((IObject) i.next());
+            if (data != null) set.add(data);
         }
         return set;
     }
-    
+
     /**
      * Converts each {@link IObject element} of the collection into its 
      * corresponding {@link DataObject}.
-     * 
-     * @param objects   The set of objects to convert.
-     * @return          A set of {@link DataObject}s.
+     *
+     * @param objects The set of objects to convert.
+     * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
     public static List asDataObjectsAsList(Collection objects)
     {
-    	if (objects == null) return new ArrayList<DataObject>();
+        if (objects == null) return new ArrayList<DataObject>();
         List<DataObject> set = new ArrayList<DataObject>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
-        	data = asDataObject((IObject) i.next());
-        	if (data != null) set.add(data);
+            data = asDataObject((IObject) i.next());
+            if (data != null) set.add(data);
         }
         return set;
     }
-    
+
     /**
      * Converts each {@link IObject element} of the collection into its 
      * corresponding {@link DataObject}.
-     * 
-     * @param objects   The set of objects to convert.
-     * @return          A set of {@link DataObject}s.
+     *
+     * @param objects The set of objects to convert.
+     * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
@@ -272,13 +272,13 @@ public class PojoMapper
         }
         return set;
     }
-    
+
     /**
      * Converts each {@link IObject element} of the collection into its 
      * corresponding {@link DataObject}.
-     * 
-     * @param objects   The set of objects to convert.
-     * @return          A set of {@link DataObject}s.
+     *
+     * @param objects The set of objects to convert.
+     * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
@@ -289,85 +289,84 @@ public class PojoMapper
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
-        	data = asDataObject((IObject) i.next());
-        	if (data != null) set.add(data);
-        }
-        return set;
-    }
-    
-    /**
-     * Converts each {@link IObject element} of the array into its 
-     * corresponding {@link DataObject}.
-     * 
-     * @param objects   The set of objects to convert.
-     * @return          A set of {@link DataObject}s.
-     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
-     * contain {@link IObject} or if the type {@link IObject} is unknown.
-     */
-    public static Set asDataObjects(IObject[] objects)
-    {
-    	Set<DataObject> set = new HashSet<DataObject>();
-    	if (objects == null) return set;
-    	DataObject data;
-        for (int i = 0; i < objects.length; i++) {
-        	data = asDataObject(objects[i]);
-        	set.add(data);
+            data = asDataObject((IObject) i.next());
+            if (data != null) set.add(data);
         }
         return set;
     }
 
     /**
-     * Converts each element of the list to a pair (key, value) in the map. 
-     * 
-     * The object in the list must be a IObject subclass and the key is the 
+     * Converts each {@link IObject element} of the array into its
+     * corresponding {@link DataObject}.
+     *
+     * @param objects The set of objects to convert.
+     * @return A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
+    public static Set asDataObjects(IObject[] objects)
+    {
+        Set<DataObject> set = new HashSet<DataObject>();
+        if (objects == null) return set;
+        DataObject data;
+        for (int i = 0; i < objects.length; i++) {
+            data = asDataObject(objects[i]);
+            set.add(data);
+        }
+        return set;
+    }
+
+    /**
+     * Converts each element of the list to a pair (key, value) in the map.
+     * The object in the list must be a IObject subclass and the key is the
      * ID of the object.
-     * 
+     *
      * @param keyClass The class that will be the key for the map
      * @param valueClass The class that will be the value for the map
-     * @param method The method name as a string that, using reflection, 
-     * 					will be used to get the key from the object.
-     * @param objects   The map of objects to convert.
-     * @return          A map of converted objects.
-     * @throws NoSuchMethodException 
-     * @throws SecurityException 
-     * @throws InvocationTargetException 
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
-     * @throws IllegalArgumentException If the map is <code>null</code> 
+     * @param method The method name as a string that, using reflection,
+     *               will be used to get the key from the object.
+     * @param objects The map of objects to convert.
+     * @return A map of converted objects.
+     * @throws NoSuchMethodException
+     * @throws SecurityException
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException If the map is <code>null</code>
      * or if the type {@link IObject} is unknown.
      */
     public static <K, V extends DataObject>  Map<K, V> 
-    								asDataObjectMap(Class<K> keyKlass, 
-    										Class<V> valueKlass, 
-    								String method, List objects) throws 
-    								SecurityException, 
-    								NoSuchMethodException, 
-    								IllegalArgumentException, 
-    								IllegalAccessException, 
-    								InvocationTargetException
-    {
-    	Map<K, V> map = new TreeMap<K, V>();
-    	V value;
-    	Method meth;
-    	K keyValue;
-    	for (Object obj: objects)
-    	{
-    		value = (V) asDataObject((IObject)obj);
-     		meth = (value.getClass()).getMethod(method);
-    		keyValue = (K) meth.invoke(value, (Object[]) null);
-    		map.put(keyValue, value);
-    	}
-   		return map;
+    asDataObjectMap(Class<K> keyKlass,
+            Class<V> valueKlass,
+            String method, List objects) throws
+            SecurityException,
+            NoSuchMethodException,
+            IllegalArgumentException,
+            IllegalAccessException,
+            InvocationTargetException
+            {
+        Map<K, V> map = new TreeMap<K, V>();
+        V value;
+        Method meth;
+        K keyValue;
+        for (Object obj: objects)
+        {
+            value = (V) asDataObject((IObject)obj);
+            meth = (value.getClass()).getMethod(method);
+            keyValue = (K) meth.invoke(value, (Object[]) null);
+            map.put(keyValue, value);
+        }
+        return map;
     }
-    
+
     /**
      * Converts each pair (key, value) of the map. If the key (resp. value) is
      * an {@link IObject}, the element is converted into its corresponding
      * {@link DataObject}.
-     * 
-     * @param objects   The map of objects to convert.
-     * @return          A map of converted objects.
-     * @throws IllegalArgumentException If the map is <code>null</code> 
+     *
+     * @param objects The map of objects to convert.
+     * @return A map of converted objects.
+     * @throws IllegalArgumentException If the map is <code>null</code>
      * or if the type {@link IObject} is unknown.
      */
     public static Map asDataObjects(Map objects)
@@ -375,7 +374,7 @@ public class PojoMapper
         if (objects == null) 
             throw new IllegalArgumentException("The map cannot be null.");
         Map<Object, Object> 
-        	map = new HashMap<Object, Object>(objects.size());
+        map = new HashMap<Object, Object>(objects.size());
         Set set = objects.entrySet();
         Entry entry;
         Iterator i = set.iterator();
@@ -383,7 +382,7 @@ public class PojoMapper
         Object convertedKey = null;
         Object convertedValue = null;
         while (i.hasNext()) {
-        	entry = (Entry) i.next();
+            entry = (Entry) i.next();
             key = entry.getKey();
             value = entry.getValue();
             convertedKey = convert(key);
@@ -393,7 +392,7 @@ public class PojoMapper
         }
         return map;
     }
-    
+
     /**
      * Converts the specified type to its corresponding type for search by HQL query
      *
@@ -419,54 +418,54 @@ public class PojoMapper
             return Plate.class.getSimpleName();
         throw new IllegalArgumentException("type not supported");
     }
-    
+
     public static Class<? extends DataObject> getPojoType(Class<? extends IObject> modelType) {
         if (OriginalFile.class.equals(modelType))
             return FileData.class;
         else if (Project.class.equals(modelType))
-            return  ProjectData.class;
-        else if ( Dataset.class.equals(modelType))
+            return ProjectData.class;
+        else if (Dataset.class.equals(modelType))
             return DatasetData.class;
-        else if ( Image.class.equals(modelType))
+        else if (Image.class.equals(modelType))
             return ImageData.class;
-        else if ( BooleanAnnotation.class.equals(modelType))
+        else if (BooleanAnnotation.class.equals(modelType))
             return BooleanAnnotationData.class;
         else if (LongAnnotation.class.equals(modelType))
             return LongAnnotationData.class;
-        else if ( TagAnnotation.class.equals(modelType))
+        else if (TagAnnotation.class.equals(modelType))
             return TagAnnotationData.class;
-        else if ( CommentAnnotation.class.equals(modelType))
+        else if (CommentAnnotation.class.equals(modelType))
             return TextualAnnotationData.class;
-        else if ( FileAnnotation.class.equals(modelType))
+        else if (FileAnnotation.class.equals(modelType))
             return FileAnnotationData.class;
-        else if ( TermAnnotation.class.equals(modelType))
+        else if (TermAnnotation.class.equals(modelType))
             return TermAnnotationData.class;
-        else if ( Screen.class.equals(modelType))
+        else if (Screen.class.equals(modelType))
             return ScreenData.class;
-        else if ( Plate.class.equals(modelType))
+        else if (Plate.class.equals(modelType))
             return PlateData.class;
-        else if ( Well.class.equals(modelType))
+        else if (Well.class.equals(modelType))
             return WellData.class;
-        else if ( WellSample.class.equals(modelType))
-            return  WellSampleData.class;
-        else if ( PlateAcquisition.class.equals(modelType))
-            return  PlateAcquisitionData.class;
-        else if ( ExperimenterGroup.class.equals(modelType))
+        else if (WellSample.class.equals(modelType))
+            return WellSampleData.class;
+        else if (PlateAcquisition.class.equals(modelType))
+            return PlateAcquisitionData.class;
+        else if (ExperimenterGroup.class.equals(modelType))
             return GroupData.class;
-        else if ( Experimenter.class.equals(modelType))
+        else if (Experimenter.class.equals(modelType))
             return ExperimenterData.class;
-        else if ( DoubleAnnotation.class.equals(modelType))
+        else if (DoubleAnnotation.class.equals(modelType))
             return DoubleAnnotationData.class;
-        else if ( XmlAnnotation.class.equals(modelType))
+        else if (XmlAnnotation.class.equals(modelType))
             return XMLAnnotationData.class;
-        else if ( Fileset.class.equals(modelType))
+        else if (Fileset.class.equals(modelType))
             return FilesetData.class;
-        else if ( MapAnnotation.class.equals(modelType))
+        else if (MapAnnotation.class.equals(modelType))
             return MapAnnotationData.class;
-        
+
         throw new IllegalArgumentException(modelType.getClass().getSimpleName()+" not supported");
     }
-    
+
     /**
      * Converts the specified POJO into the corresponding model.
      *
@@ -479,7 +478,7 @@ public class PojoMapper
         if (!DataObject.class.isAssignableFrom(pojoType))
             throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");
 
-        if (FileData.class.equals(pojoType) || MultiImageData.class.equals(pojoType))
+        if (FileData.class.equals(pojoType))
             return OriginalFile.class;
         else if (ProjectData.class.equals(pojoType))
             return Project.class;
@@ -510,8 +509,7 @@ public class PojoMapper
             return WellSample.class;
         else if (PlateAcquisitionData.class.equals(pojoType))
             return PlateAcquisition.class;
-        else if (FileData.class.equals(pojoType)
-                || MultiImageData.class.equals(pojoType))
+        else if (FileData.class.equals(pojoType))
             return OriginalFile.class;
         else if (GroupData.class.equals(pojoType))
             return ExperimenterGroup.class;
@@ -525,14 +523,14 @@ public class PojoMapper
             return Fileset.class;
         else if (MapAnnotationData.class.equals(pojoType))
             return MapAnnotation.class;
-        
+
         throw new IllegalArgumentException(pojoType.getClass().getSimpleName()+" not supported");
     }
-    
+
     /**
      * Returns the name of the data type which has to used for Graph actions,
      * see {@link Requests}
-     * 
+     *
      * @param dataType
      * @return See above
      */
@@ -580,7 +578,7 @@ public class PojoMapper
 
         throw new IllegalArgumentException("type not supported");
     }
-    
+
     /**
      * Converts the specified type to its corresponding type for search.
      *
@@ -589,47 +587,47 @@ public class PojoMapper
      */
     public static String convertTypeForSearch(Class nodeType)
     {
-            if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
-                    return ImageI.class.getName();
-            else if (nodeType.equals(TagAnnotation.class) ||
-                            nodeType.equals(TagAnnotationData.class))
-                    return TagAnnotationI.class.getName();
-            else if (nodeType.equals(BooleanAnnotation.class) ||
-                            nodeType.equals(BooleanAnnotationData.class))
-                    return BooleanAnnotationI.class.getName();
-            else if (nodeType.equals(TermAnnotation.class) ||
-                            nodeType.equals(TermAnnotationData.class))
-                    return TermAnnotationI.class.getName();
-            else if (nodeType.equals(FileAnnotation.class) ||
-                            nodeType.equals(FileAnnotationData.class))
-                    return FileAnnotationI.class.getName();
-            else if (nodeType.equals(CommentAnnotation.class) ||
-                            nodeType.equals(TextualAnnotationData.class))
-                    return CommentAnnotationI.class.getName();
-            else if (nodeType.equals(MapAnnotation.class) ||
-                    nodeType.equals(MapAnnotationData.class))
-                    return MapAnnotationI.class.getName();
-            else if (nodeType.equals(TimestampAnnotation.class) ||
-                            nodeType.equals(TimeAnnotationData.class))
-                    return TimestampAnnotationI.class.getName();
-            else if (nodeType.equals(Dataset.class) ||
-                    nodeType.equals(DatasetData.class))
-                return DatasetI.class.getName();
-            else if (nodeType.equals(Project.class) ||
-                    nodeType.equals(ProjectData.class))
-                return ProjectI.class.getName();
-            else if (nodeType.equals(Screen.class) ||
-                    nodeType.equals(ScreenData.class))
-                return ScreenI.class.getName();
-            else if (nodeType.equals(Well.class) ||
-                    nodeType.equals(WellData.class))
-                return WellI.class.getName();
-            else if (nodeType.equals(Plate.class) ||
-                    nodeType.equals(PlateData.class))
-                return PlateI.class.getName();
-            else if (nodeType.equals(PlateAcquisition.class) ||
-                    nodeType.equals(PlateAcquisitionData.class))
-                return PlateAcquisitionI.class.getName();
-            throw new IllegalArgumentException("type not supported");
+        if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
+            return ImageI.class.getName();
+        else if (nodeType.equals(TagAnnotation.class) ||
+                nodeType.equals(TagAnnotationData.class))
+            return TagAnnotationI.class.getName();
+        else if (nodeType.equals(BooleanAnnotation.class) ||
+                nodeType.equals(BooleanAnnotationData.class))
+            return BooleanAnnotationI.class.getName();
+        else if (nodeType.equals(TermAnnotation.class) ||
+                nodeType.equals(TermAnnotationData.class))
+            return TermAnnotationI.class.getName();
+        else if (nodeType.equals(FileAnnotation.class) ||
+                nodeType.equals(FileAnnotationData.class))
+            return FileAnnotationI.class.getName();
+        else if (nodeType.equals(CommentAnnotation.class) ||
+                nodeType.equals(TextualAnnotationData.class))
+            return CommentAnnotationI.class.getName();
+        else if (nodeType.equals(MapAnnotation.class) ||
+                nodeType.equals(MapAnnotationData.class))
+            return MapAnnotationI.class.getName();
+        else if (nodeType.equals(TimestampAnnotation.class) ||
+                nodeType.equals(TimeAnnotationData.class))
+            return TimestampAnnotationI.class.getName();
+        else if (nodeType.equals(Dataset.class) ||
+                nodeType.equals(DatasetData.class))
+            return DatasetI.class.getName();
+        else if (nodeType.equals(Project.class) ||
+                nodeType.equals(ProjectData.class))
+            return ProjectI.class.getName();
+        else if (nodeType.equals(Screen.class) ||
+                nodeType.equals(ScreenData.class))
+            return ScreenI.class.getName();
+        else if (nodeType.equals(Well.class) ||
+                nodeType.equals(WellData.class))
+            return WellI.class.getName();
+        else if (nodeType.equals(Plate.class) ||
+                nodeType.equals(PlateData.class))
+            return PlateI.class.getName();
+        else if (nodeType.equals(PlateAcquisition.class) ||
+                nodeType.equals(PlateAcquisitionData.class))
+            return PlateAcquisitionI.class.getName();
+        throw new IllegalArgumentException("type not supported");
     }
 }

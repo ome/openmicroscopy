@@ -1,6 +1,4 @@
 /*
- * pojos.DoubleAnnotationData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
