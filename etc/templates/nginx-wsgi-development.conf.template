@@ -22,7 +22,7 @@ http {
 
     keepalive_timeout 65;
 
-    upstream omeroweb_server {
+    upstream %(UPSTREAM_NAME)s {
         server %(FASTCGI_EXTERNAL)s fail_timeout=0;
     }
     
@@ -50,7 +50,7 @@ http {
             proxy_set_header Host $http_host;
             proxy_redirect off;
 
-            proxy_pass http://omeroweb_server;
+            proxy_pass http://%(UPSTREAM_NAME)s;
         }
 
         location %(FORCE_SCRIPT_NAME)s {
