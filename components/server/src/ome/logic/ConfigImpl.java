@@ -29,8 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ome.annotations.PermitAll;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IConfig;
 import ome.api.ServiceInterface;
@@ -64,8 +62,6 @@ import org.springframework.transaction.annotation.Transactional;
  * setting the subversion properties on this class file. They can be accessed
  * via ome.system.Version
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 /*
  * Developer notes: --------------- The annotations below (and on the individual
  * methods) are central to the definition of this service. They are used in

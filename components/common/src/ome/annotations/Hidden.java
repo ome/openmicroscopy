@@ -20,8 +20,6 @@ import java.lang.annotation.Target;
  * @since 3.0-M3
  * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/209">ticket:209</a>
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Hidden {

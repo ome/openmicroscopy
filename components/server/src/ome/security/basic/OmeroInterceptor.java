@@ -28,8 +28,6 @@ import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
@@ -75,8 +73,6 @@ import ome.tools.hibernate.HibernateUtils;
  * @see Interceptor
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class OmeroInterceptor implements Interceptor {
 
     static volatile String last = null;

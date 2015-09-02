@@ -9,8 +9,6 @@ package ome.logic;
 
 import java.util.List;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IRepositoryInfo;
 import ome.api.ServiceInterface;
@@ -43,8 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0
  * @see IRepositoryInfo
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 @Transactional
 public class RepositoryInfoImpl extends AbstractLevel2Service implements
         IRepositoryInfo {

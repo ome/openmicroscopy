@@ -13,8 +13,6 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.util.Set;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -48,8 +46,6 @@ import org.springframework.util.Assert;
  * @see Permissions
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class BasicACLVoter implements ACLVoter {
 
     /**

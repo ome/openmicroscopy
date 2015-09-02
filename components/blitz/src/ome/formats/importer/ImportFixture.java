@@ -33,8 +33,6 @@ import org.slf4j.LoggerFactory;
  * @see ExampleUnitTest
  * @since 3.0-M3
  */
-// @RevisionDate("$Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $")
-// @RevisionNumber("$Revision: 1167 $")
 public class ImportFixture
 {
 

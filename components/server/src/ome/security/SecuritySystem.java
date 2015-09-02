@@ -12,8 +12,6 @@ package ome.security;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -38,8 +36,6 @@ import ome.system.Roles;
  * @see ACLEventListener
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface SecuritySystem {
 
     // ~ Login/logout
