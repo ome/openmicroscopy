@@ -84,7 +84,8 @@ Test Delete Images in Dataset
     # Wait for activities to show job done, then refresh tree...
     Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
     Click Element                           refreshButton
-    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']//a[contains(@class, 'jstree-clicked')]
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']//a[contains(@class, 'jstree-clicked')]  ${WAIT}
+    Wait Until Page Contains Element        id=dataIcons    ${WAIT}
     Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
 
 
