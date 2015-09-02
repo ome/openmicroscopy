@@ -110,8 +110,6 @@ public class ROIPopupMenu
 			action = new ROIAction(controller, values[indexCnt]);
 			actions.add(action);
 			popupMenu.add(new JMenuItem(action));
-			//roiOption = ;
-			//roiOptionsParent.add(new JMenuItem(action));
 		}
 		return roiOptionsParent;
 	}
@@ -119,15 +117,8 @@ public class ROIPopupMenu
 	/** Creates the popup menu. */
 	private void createPopupMenu()
 	{
-		/*
-		popupMenu = new JPopupMenu(POPUP_MENU_DESCRIPTION);
-		popupMenu.add(new JMenuItem(POPUP_MENU_DESCRIPTION));
-		popupMenu.addSeparator();
-		popupMenu.add(createROICreationOptions());
-		*/
 		popupMenu = new JPopupMenu();
 		createROICreationOptions();
-		//popupMenu.add(createROIStatsOptions());
 	}
 
 	/**

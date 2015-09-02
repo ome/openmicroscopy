@@ -167,7 +167,7 @@ class OmeroDataServiceImpl
 	private List<DataObject> deleteTagSet(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		List l = gateway.findAnnotationLinks(ctx, Annotation.class.getName(),
+		List l = gateway.findAnnotationLinks(ctx, Annotation.class,
 				id, null);
 
 		List<Long> tagIds = new ArrayList<Long>();

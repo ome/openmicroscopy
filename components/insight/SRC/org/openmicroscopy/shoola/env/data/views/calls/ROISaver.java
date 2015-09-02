@@ -22,12 +22,16 @@
 */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
 import pojos.ROIData;
 
 /**
@@ -48,7 +52,7 @@ public class ROISaver
     private BatchCall saveCall;
 
     /** Was the save successful. */
-    private List<ROIData> result;
+    private Collection<ROIData> result;
 
     /**
      * Creates a {@link BatchCall} to load the ROIs.

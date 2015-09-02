@@ -39,11 +39,6 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
-
-
-
-
-
 //Application-internal dependencies
 import omero.RString;
 import omero.model.Annotation;
@@ -54,6 +49,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DoubleAnnotation;
+import omero.model.Ellipse;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
@@ -62,9 +58,12 @@ import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Label;
+import omero.model.Line;
 import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
+import omero.model.Mask;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
@@ -72,8 +71,12 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -92,24 +95,32 @@ import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
+import pojos.EllipseData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.LineData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
+import pojos.MaskData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
+import pojos.PointData;
+import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
+import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TextData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
@@ -216,7 +227,21 @@ public class PojoMapper
         else if (object instanceof Fileset) 
         	return new FilesetData((Fileset) object);
         else if (object instanceof MapAnnotation)
-        	return new MapAnnotationData((MapAnnotation)object);
+        	return new MapAnnotationData((MapAnnotation) object);
+        else if (object instanceof Rect)
+            return new RectangleData((Rect) object);
+        else if (object instanceof Ellipse)
+            return new EllipseData((Ellipse) object);
+        else if (object instanceof Point)
+            return new PointData((Point) object);
+        else if (object instanceof Polyline)
+            return new PolylineData((Polyline) object);
+        else if (object instanceof Polygon)
+            return new PolygonData((Polygon) object);
+        else if (object instanceof Mask)
+            return new MaskData((Mask) object);
+        else if (object instanceof Label)
+            return new TextData((Label) object);
         return null;
     }
     
@@ -492,7 +517,7 @@ public class PojoMapper
     public static Class<? extends IObject> getModelType(Class pojoType) {
         if (!DataObject.class.isAssignableFrom(pojoType))
             throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");
-
+        
         if (FileData.class.equals(pojoType) || MultiImageData.class.equals(pojoType))
             return OriginalFile.class;
         else if (ProjectData.class.equals(pojoType))
@@ -539,6 +564,22 @@ public class PojoMapper
             return Fileset.class;
         else if (MapAnnotationData.class.equals(pojoType))
             return MapAnnotation.class;
+        else if (RectangleData.class.equals(pojoType))
+            return Rect.class;
+        else if (EllipseData.class.equals(pojoType))
+            return Ellipse.class;
+        else if (LineData.class.equals(pojoType))
+            return Line.class;
+        else if (MaskData.class.equals(pojoType))
+            return Mask.class;
+        else if (PointData.class.equals(pojoType))
+            return Point.class;
+        else if (PolylineData.class.equals(pojoType))
+            return Polyline.class;
+        else if (PolygonData.class.equals(pojoType))
+            return Polygon.class;
+        else if (TextData.class.equals(pojoType))
+            return Label.class;
         
         throw new IllegalArgumentException(pojoType.getClass().getSimpleName()+" not supported");
     }

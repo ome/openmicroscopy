@@ -387,7 +387,7 @@ class MeasurementViewerUI
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
-		roiManager = new ObjectManager(this, model);
+		roiManager = new ObjectManager(this, controller, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
         if (showGraph) {
@@ -1537,7 +1537,18 @@ class MeasurementViewerUI
 		
 		roiManager.onSelectedFigures();
 	}
-	
+
+	/**
+	 * Returns the selected figures from the table. If a ROI is selected,
+	 * all the shapes hosted by that ROI
+	 *
+	 * @return See above.
+	 */
+	Collection<Figure> getSelectedFiguresFromTables()
+	{
+	    return roiManager.getSelectedFiguresFromTables();
+	}
+
 	/**
 	 * Creates a file chooser used to select where to save the results
 	 * as an Excel file.
@@ -1634,7 +1645,7 @@ class MeasurementViewerUI
 		super.setVisible(value);
 	}
 
- 	/**
+ /**
          * Opens a file chooser dialog and exports the graph as JPEG or PNG.
          */
         public void exportGraph() {
@@ -1663,4 +1674,8 @@ class MeasurementViewerUI
     
             graphPane.saveGraph(file, type);
         }
+
+    void displayAnnotations(List<ROIShape> shapes) {
+        roiInspector.setSelectedFigures(shapes);
+    }
 }

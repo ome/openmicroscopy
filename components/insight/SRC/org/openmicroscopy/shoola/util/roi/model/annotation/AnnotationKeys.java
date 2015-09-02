@@ -139,7 +139,12 @@ public class AnnotationKeys
 	 */
 	public static final AnnotationKey<String> NAMESPACE = 
 		new AnnotationKey<String>("Namespace", WorkflowData.DEFAULTWORKFLOW);
-	
+
+	   
+    /** Should the figure show the measurement text. */
+    public static final AnnotationKey<Object> TAG =
+        new AnnotationKey<Object>("Tag", null);
+    
 	/**
 	 * The keywords associated with the ROI.
 	 */
@@ -175,7 +180,8 @@ public class AnnotationKeys
         		WIDTH,
         		HEIGHT, 
         		NAMESPACE,
-        		KEYWORDS
+        		KEYWORDS,
+        		TAG
         //		ROIID, 
         //		FIGURETYPE
         		

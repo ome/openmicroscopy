@@ -508,4 +508,19 @@ public interface MetadataHandlerView
 		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 		List<String> nsExlcude, AgentEventListener observer);
 
+	/**
+	 * Saves the object, adds (resp. removes) annotations to (resp. from)
+	 * the object if any.
+	 * 
+	 * @param ctx The security context.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param userID The id of the user.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+    public CallHandle annotateData(SecurityContext ctx,
+        Map<DataObject, List<AnnotationData>> toAdd,
+        Map<DataObject, List<AnnotationData>> toRemove, long userID,
+        AgentEventListener observer);
 }
