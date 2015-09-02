@@ -157,8 +157,8 @@ public class PolygonData
      * @param points2 The points in the polygon.
      * @param maskList The points in the polygon.
      */
-    public void setPoints(List<Point2D.Double> points, 
-            List<Point2D.Double> points1, 
+    public void setPoints(List<Point2D.Double> points,
+            List<Point2D.Double> points1,
             List<Point2D.Double> points2, List<Integer> maskList)
     {
         if (isReadOnly())

@@ -21,6 +21,9 @@
 package omero.gateway.model;
 
 import static omero.rtypes.rstring;
+
+import org.apache.commons.lang.StringUtils;
+
 import omero.RString;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
@@ -65,7 +68,7 @@ extends AnnotationData
      * Creates a new instance.
      *
      * @param annotation The {@link XmlAnnotation} object corresponding to this
-     *            		 <code>DataObject</code>. Mustn't be <code>null</code>.
+     *                  <code>DataObject</code>. Mustn't be <code>null</code>.
      */
     public XMLAnnotationData(XmlAnnotation annotation)
     {
@@ -79,7 +82,7 @@ extends AnnotationData
      */
     public void setDescription(String value)
     {
-        if (value == null || value.trim().length() == 0) 
+        if (StringUtils.isBlank(value))
             return;
         setDirty(true);
         asAnnotation().setDescription(rstring(value));

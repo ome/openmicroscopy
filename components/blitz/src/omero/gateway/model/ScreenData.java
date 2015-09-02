@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
@@ -202,7 +204,7 @@ public class ScreenData extends DataObject {
      */
     public void setProtocolDescription(String value)
     {
-        if (value != null && value.trim().length() != 0)
+        if (StringUtils.isNotBlank(value))
             asScreen().setProtocolDescription(omero.rtypes.rstring(value));
     }
 
@@ -225,7 +227,7 @@ public class ScreenData extends DataObject {
      */
     public void setProtocolIdentifier(String value)
     {
-        if (value != null && value.trim().length() != 0)
+        if (StringUtils.isNotBlank(value))
             asScreen().setProtocolIdentifier(omero.rtypes.rstring(value));
     }
 
@@ -248,7 +250,7 @@ public class ScreenData extends DataObject {
      */
     public void setReagentSetDescripion(String value)
     {
-        if (value != null && value.trim().length() != 0)
+        if (StringUtils.isNotBlank(value))
             asScreen().setReagentSetDescription(omero.rtypes.rstring(value));
     }
 
@@ -271,7 +273,7 @@ public class ScreenData extends DataObject {
      */
     public void setReagentSetIdentifier(String value)
     {
-        if (value != null && value.trim().length() != 0)
+        if (StringUtils.isNotBlank(value))
             asScreen().setReagentSetIdentifier(omero.rtypes.rstring(value));
     }
 

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import static omero.rtypes.*;
 import omero.RBool;
 import omero.model.Experimenter;
@@ -256,7 +258,7 @@ public class ExperimenterData extends DataObject {
      */
     public GroupData getDefaultGroup() {
         List<GroupData> groups = getGroups();
-        if (groups == null || groups.size() == 0) return null;
+        if (CollectionUtils.isEmpty(groups)) return null;
         return groups.get(0);
     }
 
@@ -294,7 +296,7 @@ public class ExperimenterData extends DataObject {
     public boolean isActive()
     {
         List<GroupData> groups = getGroups();
-        if (groups == null || groups.size() == 0) return false;
+        if (CollectionUtils.isEmpty(groups)) return false;
         Iterator<GroupData> i = groups.iterator();
         GroupData g;
         while (i.hasNext()) {

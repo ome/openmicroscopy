@@ -24,6 +24,8 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import static omero.rtypes.rstring;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
@@ -132,7 +134,7 @@ public class PlateAcquisitionData
      */
     public void setDescription(String description)
     {
-        if (description == null || description.length() == 0) return;
+        if (StringUtils.isBlank(description)) return;
         setDirty(true);
         PlateAcquisition acq = (PlateAcquisition) asIObject();
         acq.setDescription(rstring(description));
@@ -174,12 +176,14 @@ public class PlateAcquisitionData
     public String getLabel()
     {
         String name = getName();
-        if (name != null && name.length() > 0) return name;
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
         Timestamp time = getStartTime();
         String start = "";
         String end = "";
         if (time != null) {
-            start = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
+            start = DateFormat.getDateTimeInstance(DateFormat.SHORT,
                     DateFormat.SHORT).format(time);
         }
 
@@ -192,7 +196,7 @@ public class PlateAcquisitionData
         } 
         time = getEndTime();
         if (time != null) {
-            end = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
+            end = DateFormat.getDateTimeInstance(DateFormat.SHORT,
                     DateFormat.SHORT).format(time);
         }
 

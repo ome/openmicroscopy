@@ -21,6 +21,9 @@
 package omero.gateway.model;
 
 import static omero.rtypes.rstring;
+
+import org.apache.commons.lang.StringUtils;
+
 import omero.RString;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
@@ -96,7 +99,7 @@ public class TermAnnotationData extends AnnotationData {
      * @param value The value to set.
      */
     public void setTermDescription(String value) {
-        if (value == null || value.trim().length() == 0) {
+        if (StringUtils.isBlank(value)) {
             return;
         }
         setDirty(true);
