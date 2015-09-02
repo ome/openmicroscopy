@@ -761,7 +761,6 @@ public interface OmeroMetadataService
      * @param toAdd Collection of annotations to add.
      * @param toRemove Collection of annotations to remove.
      * @param userID The id of the user.
-     * @return See above.
      * @throws DSOutOfServiceException  If the connection is broken, or logged
      *                                   in.
      * @throws DSAccessException        If an error occurred while trying to 

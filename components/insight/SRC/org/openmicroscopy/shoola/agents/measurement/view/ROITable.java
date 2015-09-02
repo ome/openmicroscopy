@@ -835,7 +835,7 @@ public class ROITable
 	/** 
      * Loads the tags. 
      * 
-     *  @see ROIActionController#loadTag()
+     *  @see ROIActionController#loadTags()
      */
     public void loadTags() {
         manager.loadTags();

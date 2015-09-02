@@ -175,8 +175,6 @@ public class ROIShape
 	/**
 	 * Sets the server side shape associated to this object or
 	 * <code>null</code>.
-	 *
-	 * @return See above.
 	 */
     public void setData(ShapeData data) { this.data = data; }
 
