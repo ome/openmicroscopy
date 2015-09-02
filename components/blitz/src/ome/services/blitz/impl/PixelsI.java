@@ -1,13 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.blitz.impl;
 
-// Java imports
 import java.util.List;
 
 import ome.api.IPixels;
@@ -30,6 +27,7 @@ import omero.api.AMD_IPixels_setChannelGlobalMinMax;
 import omero.api._IPixelsOperations;
 import omero.model.PixelsType;
 import omero.model.RenderingDef;
+
 import Ice.Current;
 
 /**

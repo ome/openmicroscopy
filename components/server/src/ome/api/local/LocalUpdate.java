@@ -7,16 +7,12 @@
 
 package ome.api.local;
 
-import ome.model.IObject;
-
 /**
  * Provides local (internal) extensions for updating
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
  * @since OMERO3.0
  */
 public interface LocalUpdate extends ome.api.IUpdate {

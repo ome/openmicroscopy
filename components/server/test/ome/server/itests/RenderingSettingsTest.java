@@ -4,6 +4,7 @@
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests;
 
 import ome.api.IRenderingSettings;
@@ -14,7 +15,6 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

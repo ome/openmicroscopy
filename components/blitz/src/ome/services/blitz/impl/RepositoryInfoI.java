@@ -1,13 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.blitz.impl;
 
-// Java imports
 import ome.api.IRepositoryInfo;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
@@ -17,6 +14,7 @@ import omero.api.AMD_IRepositoryInfo_getUsedSpaceInKilobytes;
 import omero.api.AMD_IRepositoryInfo_removeUnusedFiles;
 import omero.api.AMD_IRepositoryInfo_sanityCheckRepository;
 import omero.api._IRepositoryInfoOperations;
+
 import Ice.Current;
 
 /**

@@ -20,20 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package pojos;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.Map;
-import java.lang.Math;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.Ellipse;
 import omero.model.Image;
 import omero.model.Line;
@@ -54,10 +50,6 @@ import omero.model.Label;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ROIData 

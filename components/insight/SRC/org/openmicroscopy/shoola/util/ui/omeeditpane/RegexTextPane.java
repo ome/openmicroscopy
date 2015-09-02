@@ -20,9 +20,9 @@
   *
   *------------------------------------------------------------------------------
   */
+
 package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
-//Java imports
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.JEditorPane;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
@@ -41,23 +42,11 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.omeeditpane.OMERegexFormatter;
-import org.openmicroscopy.shoola.util.ui.omeeditpane.Position;
-import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiView;
-
 /** 
  * A Text Editor with Regular expression capability.
- *  
  *
- * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class RegexTextPane

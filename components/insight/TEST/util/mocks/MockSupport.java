@@ -23,15 +23,11 @@
 
 package util.mocks;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
 import junit.framework.Assert;
-
-//Application-internal dependencies
 
 /** 
  * Provides mocks with the means to easily implement the life-cycle required
@@ -74,10 +70,6 @@ import junit.framework.Assert;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class MockSupport
