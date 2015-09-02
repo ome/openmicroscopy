@@ -640,7 +640,7 @@ def api_container_list(request, conn=None, **kwargs):
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
-    # TODO While this interface does support paging, it does so in a
+    # While this interface does support paging, it does so in a
     # very odd way. The results per page is enforced per query so this
     # will actually get the limit for projects, datasets (without
     # parents), screens and plates (without parents). This is fine for

@@ -92,7 +92,7 @@ def marshal_groups(conn, member_id=-1, page=1, limit=settings.PAGE):
         or -1 for all
         defaults to -1
         @type member_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -105,7 +105,7 @@ def marshal_groups(conn, member_id=-1, page=1, limit=settings.PAGE):
     service_opts.setOmeroGroup(-1)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     join_clause = ''
@@ -172,7 +172,7 @@ def marshal_experimenters(conn, group_id=-1, page=1, limit=settings.PAGE):
         @param group_id The Group ID to filter by or -1 for all groups,
         defaults to -1
         @type group_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -191,7 +191,7 @@ def marshal_experimenters(conn, group_id=-1, page=1, limit=settings.PAGE):
     service_opts.setOmeroGroup(-1)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     where_clause = ''
@@ -293,7 +293,7 @@ def marshal_projects(conn, group_id=-1, experimenter_id=-1,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -310,7 +310,7 @@ def marshal_projects(conn, group_id=-1, experimenter_id=-1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     where_clause = ''
@@ -384,7 +384,7 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -401,7 +401,7 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     where_clause = []
@@ -537,7 +537,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -555,7 +555,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     from_clause = []
@@ -718,7 +718,7 @@ def marshal_screens(conn, group_id=-1, experimenter_id=-1, page=1,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -735,7 +735,7 @@ def marshal_screens(conn, group_id=-1, experimenter_id=-1, page=1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     where_clause = ''
@@ -813,7 +813,7 @@ def marshal_plates(conn, screen_id=None, orphaned=False, group_id=-1,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -830,7 +830,7 @@ def marshal_plates(conn, screen_id=None, orphaned=False, group_id=-1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     where_clause = []
@@ -926,7 +926,7 @@ def marshal_plate_acquisitions(conn, plate_id, page=1, limit=settings.PAGE):
         @type conn L{omero.gateway.BlitzGateway}
         @param plate_id The Plate ID to filter by
         @type plate_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -941,7 +941,7 @@ def marshal_plate_acquisitions(conn, plate_id, page=1, limit=settings.PAGE):
     service_opts.setOmeroGroup(-1)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     params.add('pid', rlong(plate_id))
@@ -983,7 +983,7 @@ def marshal_orphaned(conn, group_id=-1, experimenter_id=-1, page=1,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -1000,7 +1000,7 @@ def marshal_orphaned(conn, group_id=-1, experimenter_id=-1, page=1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     if experimenter_id is not None and experimenter_id != -1:
@@ -1099,7 +1099,7 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -1116,7 +1116,7 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     qs = conn.getQueryService()
@@ -1213,7 +1213,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
         @param experimenter_id The Experimenter (user) ID to filter by
         or -1 for all experimenters
         @type experimenter_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -1230,7 +1230,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     qs = conn.getQueryService()
@@ -1391,7 +1391,7 @@ def marshal_shares(conn, member_id=-1, owner_id=-1,
         @type member_id L{long}
         @param owner_id The Experimenter (user) ID ownership to filter by
         @type owner_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -1404,7 +1404,7 @@ def marshal_shares(conn, member_id=-1, owner_id=-1,
     where_clause = ''
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     if member_id is not None and member_id != -1:
@@ -1459,7 +1459,7 @@ def marshal_discussions(conn, member_id=-1, owner_id=-1,
         @type member_id L{long}
         @param owner_id The Experimenter (user) ID ownership to filter by
         @type owner_id L{long}
-        @param page The page number of results to get or `None` for no paging
+        @param page Page number of results to get. `None` or 0 for no paging
         defaults to 1
         @type page L{long}
         @param limit The limit of results per page to get
@@ -1472,7 +1472,7 @@ def marshal_discussions(conn, member_id=-1, owner_id=-1,
     where_clause = ''
 
     # Paging
-    if page is not None:
+    if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
     if member_id is not None and member_id != -1:
