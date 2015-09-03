@@ -22,12 +22,6 @@
 
 package training.util;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * A read-only slice of a given array.
  * Given a <code>base</code> array and an interval <code>[offset, offset+length]
@@ -49,9 +43,6 @@ package training.util;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class ReadOnlyByteArray 

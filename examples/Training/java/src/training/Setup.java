@@ -1,6 +1,4 @@
 /*
- * training.Setup
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.

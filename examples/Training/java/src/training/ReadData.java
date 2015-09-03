@@ -1,6 +1,4 @@
 /*
- * training.ReadData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,15 +21,11 @@
  */
 package training;
 
-//Java imports
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
@@ -39,14 +33,14 @@ import omero.gateway.facility.BrowseFacility;
 import omero.log.SimpleLogger;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.WellData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.WellData;
 
 /**
  * Sample code showing how to load data from an OMERO server.

@@ -1,6 +1,4 @@
 /*
- * training.util.DataSink 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,13 +22,7 @@
 package training.util;
 
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Encapsulates access to the image raw data.

@@ -1,6 +1,4 @@
 /*
- * training.DeleteData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -40,7 +38,7 @@ import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Sample code showing how to delete data.

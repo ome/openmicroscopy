@@ -1,6 +1,4 @@
 /*
- * training.ROIs 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -64,14 +62,14 @@ import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.enums.UnitsLength;
-import pojos.EllipseData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.LineData;
-import pojos.PointData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ShapeData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ShapeData;
 
 /** 
  * Sample code showing how interact with Region of interests.
