@@ -128,7 +128,7 @@ public class FileObject
      * @param xmlStr The string to parse.
      * @return See above.
      */
-    private Document xmlParser(String xmlStr)
+    private Document xmlParser(String xmlStr) throws SAXException
     {
         InputSource stream = new InputSource();
         stream.setCharacterStream(new StringReader(xmlStr));
@@ -141,13 +141,10 @@ public class FileObject
             doc = builder.parse(stream);
         } catch (ParserConfigurationException e) {
             e.printStackTrace(pw);
-            IJ.log(pw.toString());
-        } catch (SAXException e) {
-            e.printStackTrace(pw);
-            IJ.log(pw.toString());
+            IJ.log(sw.toString());
         } catch (IOException e) {
             e.printStackTrace(pw);
-            IJ.log(pw.toString());
+            IJ.log(sw.toString());
         } finally {
             try {
                 sw.close();
@@ -328,21 +325,54 @@ public class FileObject
             }
             String xmlStr = info.description;
             if (CommonsLangUtils.isBlank(xmlStr)) return false;
-            //Get Current Dimensions
+          //Get Current Dimensions
             int sizeC_cur = img.getNChannels();
             int sizeT_cur = img.getNFrames();
             int sizeZ_cur = img.getNSlices();
-
-            Document doc = xmlParser(xmlStr);
-            Node node = getPixelsNode(doc);
-            if (node == null) return false;
-            NamedNodeMap nnm = node.getAttributes();
             int sizeC_org = sizeC_cur;
             int sizeT_org = sizeT_cur;
             int sizeZ_org = sizeZ_cur;
-            sizeC_org = Integer.valueOf(nnm.getNamedItem("SizeC").getNodeValue());
-            sizeT_org = Integer.valueOf(nnm.getNamedItem("SizeT").getNodeValue());
-            sizeZ_org = Integer.valueOf(nnm.getNamedItem("SizeZ").getNodeValue());
+            Document doc = null;
+            boolean xml = false;
+            try {
+                if (xmlStr.startsWith("<")) {
+                    doc = xmlParser(xmlStr);
+                }
+            } catch (SAXException e) { //not XML or not possible to read it correctly
+                xml = false;
+            }
+            if (!xml) {
+              //try to parse the string
+                String[] values = xmlStr.split("\n");
+                String v;
+                for (int i = 0; i < values.length; i++) {
+                    v = values[i];
+                    if (v.startsWith("slices")) {
+                        String[] keys = v.split("=");
+                        if (keys.length > 1) {
+                            sizeZ_org = Integer.valueOf(keys[1]);
+                        }
+                    } else if (v.startsWith("channels")) {
+                        String[] keys = v.split("=");
+                        if (keys.length > 1) {
+                            sizeC_org = Integer.valueOf(keys[1]);
+                        }
+                    } else if (v.startsWith("frames")) {
+                        String[] keys = v.split("=");
+                        if (keys.length > 1) {
+                            sizeT_org = Integer.valueOf(keys[1]);
+                        }
+                    }
+                }
+            }
+            if (doc != null) { 
+                Node node = getPixelsNode(doc);
+                if (node == null) return false;
+                NamedNodeMap nnm = node.getAttributes();
+                sizeC_org = Integer.valueOf(nnm.getNamedItem("SizeC").getNodeValue());
+                sizeT_org = Integer.valueOf(nnm.getNamedItem("SizeT").getNodeValue());
+                sizeZ_org = Integer.valueOf(nnm.getNamedItem("SizeZ").getNodeValue());
+            }
             if (sizeC_cur != sizeC_org || sizeT_cur != sizeT_org ||
                     sizeZ_cur != sizeZ_org) {
                 return true;
