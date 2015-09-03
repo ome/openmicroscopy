@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.roi.io;
 
-
-
-//Java imports
 import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -74,17 +71,17 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
 
-import pojos.EllipseData;
-import pojos.LineData;
-import pojos.PointData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ShapeData;
-import pojos.PolygonData;
-import pojos.MaskData;
-import pojos.PolylineData;
-import pojos.ShapeSettingsData;
-import pojos.TextData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ShapeSettingsData;
+import omero.gateway.model.TextData;
 
 
 /** 
@@ -95,9 +92,6 @@ import pojos.TextData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class InputServerStrategy

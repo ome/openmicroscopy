@@ -50,16 +50,16 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import ome.formats.model.UnitsFactory;
 import omero.model.ImageI;
 import omero.model.LengthI;
-import pojos.EllipseData;
-import pojos.LineData;
-import pojos.PointData;
-import pojos.PolygonData;
-import pojos.PolylineData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ShapeData;
-import pojos.ShapeSettingsData;
-import pojos.TextData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.ShapeSettingsData;
+import omero.gateway.model.TextData;
 
 /**
  * Reads ROI from ImageJ.
@@ -234,7 +234,7 @@ public class ROIReader {
     {
         if (rois == null || rois.length == 0) return null;
         Roi r;
-        List<ROIData> pojos = new ArrayList<ROIData>();
+        List<ROIData> omero.gateway.model = new ArrayList<ROIData>();
         //check ij version
         String type;
         ROIData roiData;
@@ -245,7 +245,7 @@ public class ROIReader {
             if (imageID >=0) {
                 roiData.setImage(new ImageI(imageID, false));
             }
-            pojos.add(roiData);
+            omero.gateway.model.add(roiData);
             if (r.isDrawingTool()) {//Checks if the given roi is a Text box/Arrow/Rounded Rectangle
                 if (type.matches("Text")){
                     roiData.addShapeData(convertText((TextRoi) r));
@@ -293,7 +293,7 @@ public class ROIReader {
                 roiData.addShapeData(convertRectangle(r));
             }
         }
-        return pojos;
+        return omero.gateway.model;
     }
 
     /**

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.util.roi.io;
 
-//Java imports
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -32,11 +29,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
@@ -53,18 +48,18 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.EllipseData;
-import pojos.ImageData;
-import pojos.LineData;
-import pojos.MaskData;
-import pojos.PointData;
-import pojos.PolygonData;
-import pojos.PolylineData;
-import pojos.ROIData;
-import pojos.ShapeData;
-import pojos.ShapeSettingsData;
-import pojos.TextData;
-import pojos.RectangleData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.ShapeSettingsData;
+import omero.gateway.model.TextData;
+import omero.gateway.model.RectangleData;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
@@ -76,9 +71,6 @@ import omero.model.enums.UnitsLength;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class OutputServerStrategy 

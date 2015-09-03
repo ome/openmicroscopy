@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.util.roi.model.AnnotationKeys 
- *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.util.roi.model.annotation;
 
-
-//Java imports
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,13 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
-import pojos.WorkflowData;
+import omero.gateway.model.WorkflowData;
 
 /** 
  * 
@@ -48,9 +41,6 @@ import pojos.WorkflowData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class AnnotationKeys 
