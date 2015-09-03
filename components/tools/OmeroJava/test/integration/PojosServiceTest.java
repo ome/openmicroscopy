@@ -92,10 +92,10 @@ import omero.gateway.model.ScreenData;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.0
  */
-public class omero.gateway.modelServiceTest extends AbstractServerTest {
+public class PojosServiceTest extends AbstractServerTest {
 
     /** Reference to class used to create data object. */
-    Createomero.gateway.modelFixture2 fixture;
+    CreatePojosFixture2 fixture;
 
     /**
      * Makes sure that the pixels set is loaded.
@@ -130,8 +130,8 @@ public class omero.gateway.modelServiceTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        fixture = Createomero.gateway.modelFixture2.withNewUser(root);
-        fixture.createAllomero.gateway.model();
+        fixture = CreatePojosFixture2.withNewUser(root);
+        fixture.createAllPojos();
     }
 
     /**
