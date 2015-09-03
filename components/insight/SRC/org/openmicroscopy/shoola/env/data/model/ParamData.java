@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import omero.gateway.model.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;

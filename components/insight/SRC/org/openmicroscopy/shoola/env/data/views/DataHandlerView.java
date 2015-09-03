@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.model.SearchParameters;

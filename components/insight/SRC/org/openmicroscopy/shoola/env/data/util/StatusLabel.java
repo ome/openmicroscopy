@@ -53,7 +53,7 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import omero.gateway.model.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FilesetData;
 import omero.gateway.model.PixelsData;
