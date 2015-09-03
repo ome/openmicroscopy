@@ -325,8 +325,6 @@ class MeasurementViewerUI
 	private void initComponents()
 	{
 	    showGraph = !model.isBigImage() && hasStatsInfo();
-	    
-		workflowsUIMap = new HashMap<String, String>();
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
