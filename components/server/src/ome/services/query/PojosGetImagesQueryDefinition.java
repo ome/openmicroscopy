@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.query;
 
 import static ome.parameters.Parameters.CLASS;
@@ -11,7 +10,6 @@ import static ome.parameters.Parameters.IDS;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;

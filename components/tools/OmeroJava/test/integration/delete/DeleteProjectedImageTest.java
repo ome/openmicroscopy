@@ -18,7 +18,6 @@ import omero.api.IProjectionPrx;
 import omero.cmd.Delete2;
 import omero.constants.projection.ProjectionType;
 import omero.gateway.util.Requests;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.sys.EventContext;

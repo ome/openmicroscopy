@@ -25,12 +25,9 @@ import java.util.Map;
 import ome.services.messages.ContextMessage;
 import ome.system.OmeroContext;
 
-import omero.cmd.Chgrp;
-import omero.cmd.Delete;
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
-import omero.cmd.GraphModify;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;

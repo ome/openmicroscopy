@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
-import ome.services.graphs.GraphException;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;

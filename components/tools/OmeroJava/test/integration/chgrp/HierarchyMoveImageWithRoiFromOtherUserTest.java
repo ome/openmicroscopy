@@ -24,6 +24,7 @@ package integration.chgrp;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
+
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ import java.util.List;
 import omero.ServerError;
 import omero.cmd.Chgrp2;
 import omero.gateway.util.Requests;
-import omero.model.Dataset;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;

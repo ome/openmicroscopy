@@ -6,7 +6,6 @@
 package omero.cmd.admin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,6 @@ import omero.cmd.Response;
 import omero.cmd.ResetPasswordResponse;
 import omero.cmd.Status;
 import omero.cmd.HandleI.Cancel;
-import omero.cmd.admin.ResetPasswordRequestI;
 
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
