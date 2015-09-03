@@ -517,43 +517,34 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 dataType: "json",
                 type: "POST",
                 success: function(r){
-                    //TODO Makeshift error response should probably be removed?
-                    if(eval(r.bad)) {
-                        $.each(disabledNodes, function(index, node) {
-                             datatree.enable_node(node);
-                        });
-                        alert(r.errs);
-                      } else {
-                            // Update the central panel in case delete removes an icon
-                            $.each(selected, function(index, node) {
-                                var e = {'type': 'delete_node'};
-                                var data = {'node': node,
-                                            'old_parent': firstParent};
-                                update_thumbnails_panel(e, data);
-                            });
+                    // Update the central panel in case delete removes an icon
+                    $.each(selected, function(index, node) {
+                        var e = {'type': 'delete_node'};
+                        var data = {'node': node,
+                                    'old_parent': firstParent};
+                        update_thumbnails_panel(e, data);
+                    });
 
-                            datatree.delete_node(selected);
+                    datatree.delete_node(selected);
 
-                            // Update the central panel with new selection
-                            datatree.deselect_all();
-                            // Don't select plate during 'Run' delete - tries to load partially deleted data
-                            if (firstParent.type !== "plate") {
-                                datatree.select_node(firstParent);
-                            }
-                            $.each(disabledNodes, function(index, node) {
-                                //TODO Make use of server calculated update like chgrp?
-                                updateParentRemoveNode(datatree, node, firstParent);
-                                removeDuplicateNodes(datatree, node);
-                            });
+                    // Update the central panel with new selection
+                    datatree.deselect_all();
+                    // Don't select plate during 'Run' delete - tries to load partially deleted data
+                    if (firstParent.type !== "plate") {
+                        datatree.select_node(firstParent);
+                    }
+                    $.each(disabledNodes, function(index, node) {
+                        //TODO Make use of server calculated update like chgrp?
+                        updateParentRemoveNode(datatree, node, firstParent);
+                        removeDuplicateNodes(datatree, node);
+                    });
 
-                            OME.refreshActivities();
-                      }
+                    OME.refreshActivities();
                 },
                 error: function(response) {
                     $.each(disabledNodes, function(index, node) {
-                         datatree.enable_node(node);
+                        datatree.enable_node(node);
                     });
-                    alert("Internal server error. Cannot remove object.");
                 }
             });
         } else {

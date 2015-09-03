@@ -3054,7 +3054,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             logger.error(
                 'Failed to delete: %r' % {'did': ids, 'dtype': key},
                 exc_info=True)
-            rdict = {'bad': 'true', 'errs': str(x)}
+            # Ajax error handling will allow user to submit bug report
+            raise
         else:
             rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
