@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
-import omero.gateway.model.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
