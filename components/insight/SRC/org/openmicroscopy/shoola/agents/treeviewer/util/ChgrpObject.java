@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.ChgrpObject
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,19 +21,16 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
-//Java imports
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import omero.gateway.SecurityContext;
-import pojos.DataObject;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.GroupData;
 
 /**
  * Helper class used to store information about the object to transfer.

@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /**
  * Event to indicate that the user has selected one or more search result
