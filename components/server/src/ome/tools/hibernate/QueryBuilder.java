@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
-import org.springframework.aop.framework.AopProxy;
 
 /**
  * Very thin wrapper around a {@link StringBuilder} to generate HQL queries.

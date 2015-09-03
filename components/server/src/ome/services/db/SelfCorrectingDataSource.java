@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -21,7 +19,6 @@ import ome.util.messages.UserSignalMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
 

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,8 +11,6 @@ import ome.conditions.SessionTimeoutException;
 import ome.logic.HardWiredInterceptor;
 import ome.security.MethodSecurity;
 import ome.services.sessions.stats.DelegatingStats;
-import ome.services.sessions.stats.PerThreadStats;
-import ome.services.sessions.stats.SessionStats;
 import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInvocation;

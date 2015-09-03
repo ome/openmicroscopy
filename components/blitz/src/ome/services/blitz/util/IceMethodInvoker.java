@@ -1,14 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 package ome.services.blitz.util;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +16,6 @@ import omero.util.IceMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 
 /**

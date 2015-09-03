@@ -7,7 +7,6 @@
 
 package ome.tools.hibernate;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,24 +15,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
-import org.hibernate.collection.PersistentCollection;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
 
-// Application-internal dependencies
 import ome.conditions.InternalException;
-import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.tools.lsid.LsidUtils;
 
@@ -43,7 +36,6 @@ import ome.tools.lsid.LsidUtils;
  * a dehydrated Hiberante array.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @since 3.0-M3
  * @see <a
  *      href="http://trac.openmicroscopy.org.uk/ome/wiki/ObjectModel">wiki:ObjectModel</a>

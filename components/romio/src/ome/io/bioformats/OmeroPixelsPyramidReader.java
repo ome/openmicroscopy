@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,11 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import loci.common.RandomAccessInputStream;
-import loci.formats.CoreMetadata;
 import loci.formats.FormatException;
 import loci.formats.in.MinimalTiffReader;
 import loci.formats.tiff.IFD;
-import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffParser;
 
 /**

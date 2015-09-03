@@ -31,7 +31,6 @@ import java.util.Map;
 
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.model.IObjectContainerStore;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Arc;
