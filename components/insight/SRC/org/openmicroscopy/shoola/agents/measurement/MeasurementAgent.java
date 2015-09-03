@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.MeasurementAgent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,15 +20,10 @@
  */
 package org.openmicroscopy.shoola.agents.measurement;
 
-
-//Java imports
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
@@ -56,9 +49,9 @@ import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.DeleteActivity;
 
-import pojos.ChannelData;
-import pojos.ExperimenterData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * The Measurement agent. This agent displays 

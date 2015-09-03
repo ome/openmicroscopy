@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -80,15 +78,14 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.ROIData;
-import pojos.ShapeData;
-import pojos.TagAnnotationData;
-import pojos.WorkflowData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
@@ -955,26 +952,6 @@ class MeasurementViewerComponent
 										"for "+model.getImageID());
 		}
 		model.fireLoadROIServerOrClient(false);
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#createWorkflow()
-     */
-	public void createWorkflow()
-	{
-		view.createWorkflow();
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflow(String)
-     */
-	public void setWorkflow(String workflowNamespace)
-	{
-		workflowNamespace = view.getWorkflowFromDisplay(workflowNamespace);
-		model.setWorkflow(workflowNamespace);
-		view.updateWorkflow();
 	}
 
 	/** 

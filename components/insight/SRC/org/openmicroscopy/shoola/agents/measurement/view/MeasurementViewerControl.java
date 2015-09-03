@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerControl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
@@ -54,7 +51,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-//Third-party libraries
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
 import org.jhotdraw.draw.Figure;
@@ -64,7 +60,6 @@ import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 import org.jhotdraw.draw.AttributeKey;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
@@ -93,8 +88,8 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
-import pojos.AnnotationData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * The MeasurementViewer's Controller.

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.Analyser 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,15 +20,12 @@
  */
 package org.openmicroscopy.shoola.agents.measurement;
 
-//Java imports
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import omero.gateway.SecurityContext;
@@ -38,7 +33,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Analyses the collection of ROI shapes.
@@ -50,9 +45,6 @@ import pojos.PixelsData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class Analyser 
