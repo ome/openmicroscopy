@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.finder.FinderLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,12 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.finder;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.List;
 
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -37,11 +29,11 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import omero.log.LogMessage;
-import pojos.AnnotationData;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Finder}.
@@ -55,9 +47,6 @@ import pojos.ProjectData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public abstract class FinderLoader 

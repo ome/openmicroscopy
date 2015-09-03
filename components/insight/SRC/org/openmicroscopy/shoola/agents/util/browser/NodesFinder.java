@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.browser.NodesFinder 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,19 +30,18 @@ import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Finds the nodes corresponding the specified type and the identifier.

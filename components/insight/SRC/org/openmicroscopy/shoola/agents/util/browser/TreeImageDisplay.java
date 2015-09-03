@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.util.browser;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
@@ -36,25 +31,20 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateData;
-import pojos.PlateAcquisitionData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.MultiImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Represents a component in the composite structure used to visualize an
@@ -100,9 +90,6 @@ import pojos.TagAnnotationData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 7029 $ $Date: 2010-02-02 11:10:27 +0000 (Tue, 02 Feb 2010) $)
- * </small>
  * @since OME2.2
  */
 public abstract class TreeImageDisplay

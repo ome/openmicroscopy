@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -78,7 +76,7 @@ import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
 import com.google.common.collect.ListMultimap;
 
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Dialog to run the selected script. The UI is created on the fly.

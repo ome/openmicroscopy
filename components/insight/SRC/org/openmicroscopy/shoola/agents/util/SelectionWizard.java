@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.SelectionWizard 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -64,10 +62,10 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.TagAnnotationData;
 
 /**
  * A modal dialog to select collection of objects.

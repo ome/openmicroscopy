@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.SelectionTable 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,8 +21,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-//Java imports
 import java.util.List;
 import java.util.Vector;
 import javax.swing.Icon;
@@ -33,10 +29,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Customized table to display the groups/users to select.

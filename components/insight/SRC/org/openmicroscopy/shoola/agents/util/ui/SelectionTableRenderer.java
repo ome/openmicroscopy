@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.SelectionTableRenderer 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,8 +21,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-//Java imports
 import java.awt.Component;
 
 import javax.swing.Icon;
@@ -32,14 +28,11 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Displays the object added to the selection table.

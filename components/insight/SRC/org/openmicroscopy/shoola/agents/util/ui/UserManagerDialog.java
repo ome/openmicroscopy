@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.UserManagerDialog 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -49,16 +45,13 @@ import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
-//Third-party libraries
 import info.clearthought.layout.TableLayout; 
 
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
 * Modal dialog presenting the existing user groups and 
@@ -70,9 +63,6 @@ import pojos.GroupData;
 * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 * @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
 * @since OME3.0
 */
 public class UserManagerDialog 
