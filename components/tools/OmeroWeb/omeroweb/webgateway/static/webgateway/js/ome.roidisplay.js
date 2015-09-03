@@ -403,7 +403,7 @@ $.fn.roi_display = function(options) {
         // activate shape with ID 'shape_id' related to ROI with ID 'roi_id'
         this.activate_shape = function (roi_id, shape_id) {
             var roi_id = resolve_id(roi_id);
-            var shape_id = resolve_id(roi_id);
+            var shape_id = resolve_id(shape_id);
             if (active_rois.hasOwnProperty(roi_id)) {
                 if (active_rois[roi_id].indexOf(shape_id) == -1)
                     active_rois[roi_id].push(shape_id);
