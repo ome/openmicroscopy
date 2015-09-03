@@ -597,14 +597,7 @@ class BrowserUI
     		for (int i = 0; i < files.length; i++) {
     			object = files[i];
     			display = null;
-    			if (object instanceof MultiImageData) {
-					display = TreeViewerTranslator.transformMultiImage(
-    						(MultiImageData) object);
-    				if (display != null)
-    					buildTreeNode(display, 
-    						prepareSortedList(sorter.sort(
-    								display.getChildrenDisplay())), dtm);
-				} else if (object instanceof FileData) {
+    			if (object instanceof FileData) {
 					file = (FileData) object;
     				if (file.isDirectory()) {
             			if (!file.isHidden()) {
@@ -1304,8 +1297,6 @@ class BrowserUI
 				if (f.isDirectory()) top.add(object);
 				else bottom.add(object);
 			} else if (uo instanceof ImageData)
-				bottom.add(object);
-			else if (uo instanceof MultiImageData)
 				bottom.add(object);
 			else if (uo instanceof ExperimenterData)
 				bottom.add(object);

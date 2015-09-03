@@ -39,7 +39,6 @@ import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
-import omero.gateway.model.MultiImageData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.ProjectData;
@@ -457,8 +456,6 @@ public abstract class TreeImageDisplay
         	return ((FileData) obj).getName();
         else if (obj instanceof PlateAcquisitionData) 
         	return ((PlateAcquisitionData) obj).getLabel();
-        else if (obj instanceof MultiImageData) 
-        	return ((MultiImageData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
@@ -477,8 +474,6 @@ public abstract class TreeImageDisplay
         } else if (uo instanceof ExperimenterData) return name;
         else if (uo instanceof FileAnnotationData) return name;
         else if (uo instanceof File) return name; 
-        else if (uo instanceof MultiImageData) 
-        	return (name+SPACE+"["+numberItems+"]");
         else if (uo instanceof FileData) return name;
         else if (uo instanceof PlateAcquisitionData) return name;
         else if (uo instanceof String && numberItems < 0) 

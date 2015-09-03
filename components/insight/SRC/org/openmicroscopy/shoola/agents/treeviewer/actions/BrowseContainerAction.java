@@ -248,13 +248,7 @@ public class BrowseContainerAction
             			setEnabled(n > 0);
             		}
             		if (!withThumbnails) setEnabled(false);
-                } else if (ho instanceof MultiImageData) {
-                	MultiImageData mi = (MultiImageData) ho;
-            		if (!mi.isHidden()) {
-            			setEnabled(mi.getComponents().size() > 0);
-            			description = DESCRIPTION_MULTIIMAGE;
-            		} else setEnabled(false);
-            	} else if (ho instanceof FileData) {
+                } else if (ho instanceof FileData) {
             		FileData f = (FileData) ho;
             		if (f.isDirectory() && !f.isHidden()) {
             			setEnabled(true);

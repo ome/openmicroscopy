@@ -234,7 +234,7 @@ public class ROIReader {
     {
         if (rois == null || rois.length == 0) return null;
         Roi r;
-        List<ROIData> omero.gateway.model = new ArrayList<ROIData>();
+        List<ROIData> pojos = new ArrayList<ROIData>();
         //check ij version
         String type;
         ROIData roiData;
@@ -245,7 +245,7 @@ public class ROIReader {
             if (imageID >=0) {
                 roiData.setImage(new ImageI(imageID, false));
             }
-            omero.gateway.model.add(roiData);
+            pojos.add(roiData);
             if (r.isDrawingTool()) {//Checks if the given roi is a Text box/Arrow/Rounded Rectangle
                 if (type.matches("Text")){
                     roiData.addShapeData(convertText((TextRoi) r));
@@ -293,7 +293,7 @@ public class ROIReader {
                 roiData.addShapeData(convertRectangle(r));
             }
         }
-        return omero.gateway.model;
+        return pojos;
     }
 
     /**

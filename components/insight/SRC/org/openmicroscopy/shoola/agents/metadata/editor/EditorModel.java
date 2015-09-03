@@ -692,8 +692,6 @@ class EditorModel
 			if (img != null && img.getId() >= 0) name = img.getName();
 		} else if (ref instanceof FileData)
 			name = ((FileData) ref).getName();
-		else if (ref instanceof MultiImageData)
-			name = ((MultiImageData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
 	}

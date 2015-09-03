@@ -39,7 +39,6 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
-import omero.gateway.model.MultiImageData;
 import omero.gateway.model.PermissionData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
@@ -437,28 +436,7 @@ public class DataBrowserTranslator
         set.add(dataset);
         return transformDatasets(set);
     }
-    
-    /**
-     * Transforms the passed multi-image e.g. <code>.lei</code>  
-     * into its corresponding visualization object.
-     * 
-     * @param img The object to handle
-     * @return See above.
-     */
-    private static ImageDisplay transformMultiImage(MultiImageData img)
-    {
-    	ImageSet node = new ImageSet(img.getName(), img);
-    	formatToolTipFor(node);
-    	List<ImageData> images = img.getComponents();
-    	Iterator i = images.iterator();
-        ImageData child;
-        while (i.hasNext()) {
-            child = (ImageData) i.next();
-            linkImageTo(child, node);
-        }  
-    	return node;
-    }
-    
+
     /** 
      * Transforms a set of {@link DataObject}s into their corresponding 
      * visualization objects. The elements of the set can either be
@@ -612,14 +590,11 @@ public class DataBrowserTranslator
         Set results = new HashSet();
         DataObject ho;
         FileData f;
-        MultiImageData img;
         Iterator i = dataObjects.iterator();
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (ho instanceof MultiImageData) {
-            	results.add(transformMultiImage((MultiImageData) ho));
-            } else if (ho instanceof ImageData) {
-            	 results.add(linkImageTo((ImageData) ho, null));
+            if (ho instanceof ImageData) {
+                results.add(linkImageTo((ImageData) ho, null));
             }
         }
         return results;

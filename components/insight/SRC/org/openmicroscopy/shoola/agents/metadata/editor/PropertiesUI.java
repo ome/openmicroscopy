@@ -94,7 +94,6 @@ import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.ImageData;
-import omero.gateway.model.MultiImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.PlateData;
@@ -1195,8 +1194,7 @@ public class PropertiesUI
     {
         Object refObject = model.getRefObject();
         boolean b = model.canEdit();
-        if (refObject instanceof FileData ||
-                refObject instanceof MultiImageData) {
+        if (refObject instanceof FileData) {
                 b = false;
         }
         namePane.setEnabled(b);

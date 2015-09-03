@@ -570,11 +570,6 @@ public class TreeCellRenderer
         	} else {
         		icon = FILE_TEXT_ICON; 
         	}
-        } else if (usrObject instanceof MultiImageData) {
-        	MultiImageData mi = (MultiImageData) usrObject;
-        	if (mi.getId() > 0) 
-        		icon = IMAGE_DIRECTORY_ICON;
-        	else icon = IMAGE_DIRECTORY_UNREGISTERED_ICON;
         } else if (usrObject instanceof FileData) {
         	FileData f = (FileData) usrObject;
         	if (f.isDirectory()) {

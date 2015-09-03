@@ -2797,7 +2797,7 @@ class TreeViewerComponent
 		} else if (parentObject instanceof FileData) {
 			FileData f = (FileData) parentObject;
 			if (!f.isHidden()) {
-				if (f.isDirectory() || f instanceof MultiImageData) 
+				if (f.isDirectory()) 
 					db = DataBrowserFactory.getFSFolderBrowser(
 							model.getSecurityContext(parent),
 							(FileData) parentObject, leaves);
@@ -3500,7 +3500,7 @@ class TreeViewerComponent
 		} else if (uo instanceof FileData) {
 			FileData fa = (FileData) uo;
 			if (!fa.isHidden()) {
-				if (fa.isDirectory() || fa instanceof MultiImageData) {
+				if (fa.isDirectory()) {
 					model.getSelectedBrowser().loadExperimenterData(
 							BrowserFactory.getDataOwner(node), 
 		        			node);

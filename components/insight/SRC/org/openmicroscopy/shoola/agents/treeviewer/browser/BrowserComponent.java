@@ -1130,12 +1130,7 @@ class BrowserComponent
 				if (expNode == null) return;  
 				Object ho = expNode.getUserObject();
 				if (!(ho instanceof ExperimenterData)) return;
-        		if (uo instanceof MultiImageData) {
-        			MultiImageData mi = (MultiImageData) uo;
-        			model.setState(LOADING_LEAVES);
-					setLeaves(mi.getComponents(), (TreeImageSet) n, 
-							(TreeImageSet) exp);
-        		} else if (uo instanceof FileData) {
+        		if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
         			if (dir.isHidden()) return;
         			if (dir.isDirectory()) {
@@ -2082,8 +2077,6 @@ class BrowserComponent
 				if (img.getIndex() >= 0) {
 					TreeImageDisplay pd = d.getParentDisplay();
 					if (pd == null) return false;
-					if (!(pd.getUserObject() instanceof MultiImageData))
-						return false;
 					file = (DataObject) pd.getUserObject();
 				}
 			}

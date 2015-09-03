@@ -35,7 +35,6 @@ import omero.gateway.SecurityContext;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
-import omero.gateway.model.MultiImageData;
 
 /** 
  * A concrete Model for a folder accessed via FS.
@@ -74,9 +73,6 @@ class FSFolderModel
 			if (o instanceof ImageData) {
 				toTransform.add(o);
 				numberOfImages++;
-			} else if (o instanceof MultiImageData) {
-				toTransform.add(o);
-				numberOfImages += ((MultiImageData) o).getComponents().size();
 			}
 		}
 		Set visTrees = DataBrowserTranslator.transformFSFolder(toTransform);
@@ -135,10 +131,6 @@ class FSFolderModel
 						if (data instanceof ImageData) {
 							imgs.add(data);
 							imagesLoaded++;
-						} else if (data instanceof MultiImageData) {
-							list = ((MultiImageData) data).getComponents();
-							imgs.addAll(list);
-							imagesLoaded += list.size();
 						}
 					}
 				}
@@ -146,8 +138,6 @@ class FSFolderModel
 		}
 		if (imgs.size() == 0) return null;
 		return null;
-		//new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
-		//		ThumbnailLoader.FS_FILE);
 	}
 	
 	/**

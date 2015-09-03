@@ -103,8 +103,6 @@ public class NodesFinder
         	return ((FileData) obj).getName();
         else if (obj instanceof PlateAcquisitionData)
         	return ((PlateAcquisitionData) obj).getLabel();
-        else if (obj instanceof MultiImageData) 
-        	return ((MultiImageData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }

@@ -790,28 +790,6 @@ public class TreeViewerTranslator
     }
 
     /**
-     * Transforms the passed objects.
-     *
-     * @param object The object to handle.
-     * @return See above.
-     */
-    public static TreeImageDisplay transformMultiImage(MultiImageData object)
-    {
-        if (object == null) return null;
-        List<ImageData> images = object.getComponents();
-        if (CollectionUtils.isNotEmpty(images)) {
-            TreeImageSet node = new TreeImageSet(object);
-            node.setChildrenLoaded(Boolean.valueOf(true));
-            node.setNumberItems(images.size());
-            Iterator<ImageData> i = images.iterator();
-            while (i.hasNext())
-                node.addChildDisplay(transformImage(i.next()));
-            return node;
-        } 
-        return new TreeImageNode(object);
-    }
-
-    /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
      *
      * @param node The specified node. Mustn't be <code>null</code>.
