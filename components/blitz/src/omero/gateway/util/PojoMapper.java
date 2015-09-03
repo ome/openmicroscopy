@@ -89,7 +89,6 @@ import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.MapAnnotationData;
-import omero.gateway.model.MultiImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.PlateData;
