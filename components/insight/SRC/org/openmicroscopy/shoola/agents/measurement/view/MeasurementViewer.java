@@ -326,23 +326,6 @@ public interface MeasurementViewer
 	 * @param result The List of ROIData that have been saved.
 	 */
 	public void setUpdateROIComponent(Collection result);
-
-	/**
-	 * Create a new workflow
-	 */
-	public void createWorkflow();
-
-	/**
-	 * Set the current workflow to workflowNamespace. 
-	 * @param workflowNamespace The general name of the workflow. 
-	 */
-	public void setWorkflow(String workflowNamespace);
-
-	/**
-	 * Set the current keyword of the workflow to keyword. 
-	 * @param keyword The keyword of the workflow. 
-	 */
-	public void setKeyword(List<String> keyword);
 	
 	/**
 	 * Returns <code>true</code> if the specified image can be annotated
@@ -359,12 +342,6 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean canDelete();
-	
-	/**
-	 * Set the workflows in the measurement tool to be list passed.
-	 * @param workflows See above.
-	 */
-	public void setWorkflowList(List<WorkflowData> workflows);
 
 	/** 
 	 * Deletes all ROIs owned by the user currently logged in. 

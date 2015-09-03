@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import omero.romio.PlaneDef;
-import omero.gateway.model.WorkflowData;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -426,29 +425,6 @@ public interface ImageDataView
 	public CallHandle uploadScript(SecurityContext ctx, ScriptObject script,
 			AgentEventListener observer);
 
-	/**
-	 * Retrieve the users workflows.
-	 * 
-	 * @param ctx The security context.
-	 * @param userID id of the user whose workflows are to be retrieved.
-	 * @param observer Call-back handler.
-	 * @return See above.
-	 */
-	public CallHandle retrieveWorkflows(SecurityContext ctx, long userID,
-			AgentEventListener observer);
-	
-	/**
-	 * Stores the newly created  workflows.
-	 * 
-	 * @param ctx The security context.
-	 * @param workflows The new workflows.
-	 * @param userID id of the user whose workflows are to be retrieved.
-	 * @param observer Call-back handler.
-	 * @return See above.
-	 */
-	public CallHandle storeWorkflows(SecurityContext ctx, 
-		List<WorkflowData> workflows, long userID, AgentEventListener observer);
-	
 	/**
 	 * Saves the images in the specified folder as JPEG by default.
 	 * 

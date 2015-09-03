@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
-import omero.gateway.model.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
@@ -174,7 +174,6 @@ import omero.model.LabelI;
 import omero.model.Laser;
 import omero.model.LogicalChannel;
 import omero.model.MaskI;
-import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
@@ -7013,60 +7012,6 @@ class OMEROGateway
 			handleException(e, "Cannot load the required group.");
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the list of available workflows on the server.
-	 *
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List<WorkflowData> retrieveWorkflows(SecurityContext ctx, long userID)
-			throws DSOutOfServiceException, DSAccessException
-	{
-	   
-		try {
-		    IQueryPrx svc = gw.getQueryService(ctx);
-			ParametersI param = new ParametersI();
-			param.map.put("userID", omero.rtypes.rlong(userID));
-			List<Namespace> serverWorkflows =
-				(List) svc.findAllByQuery("from Namespace as n", param);
-			return PojoMapper.asDataObjectsAsList(serverWorkflows);
-		} catch(Throwable t) {
-			return new ArrayList<WorkflowData>();
-		}
-	}
-
-	/**
-	 * Returns the list of available workflows on the server.
-	 *
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	Object storeWorkflows(SecurityContext ctx, List<WorkflowData> workflows,
-			long userID)
-			throws DSOutOfServiceException, DSAccessException
-	{
-	   
-	    IUpdatePrx updateService = gw.getUpdateService(ctx);
-		for (WorkflowData workflow : workflows)
-			if (workflow.isDirty())
-			{
-				try {
-					updateService.saveObject(workflow.asIObject());
-				} catch (Throwable e) {
-					handleException(e, "Unable to save Object : "+ workflow);
-				}
-			}
-		return Boolean.valueOf(true);
 	}
 
 	/**

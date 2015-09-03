@@ -88,7 +88,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
-import omero.gateway.model.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.Resolver;
 
@@ -1741,32 +1741,7 @@ class OmeroImageServiceImpl
 		}
 		return m;
 	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#storeWorkflows(SecurityContext, List, long)
-	 */
-	public Object storeWorkflows(SecurityContext ctx,
-		List<WorkflowData> workflows, long userID)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		return gateway.storeWorkflows(ctx, workflows, userID);
-	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#retrieveWorkflows(SecurityContext, long)
-	 */
-	public List<WorkflowData> retrieveWorkflows(SecurityContext ctx,
-		long userID) 
-		throws DSAccessException, DSOutOfServiceException
-	{
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
-		if (userID < 0) userID = exp.getId();
-		return gateway.retrieveWorkflows(ctx, userID);
-	}
-	
+
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#getExperimenterThumbnailSet(SecurityContext, List, int)

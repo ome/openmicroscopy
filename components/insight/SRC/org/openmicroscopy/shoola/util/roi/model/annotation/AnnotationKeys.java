@@ -31,7 +31,6 @@ import java.util.Set;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
-import omero.gateway.model.WorkflowData;
 
 /** 
  * 
@@ -123,23 +122,10 @@ public class AnnotationKeys
 	public static final AnnotationKey<Length> HEIGHT = 
 		new AnnotationKey<Length>("measurementHeight", new LengthI(0, UnitsLength.PIXEL));
 	
-	
-	/**
-	 * The namespace associated with the ROI.
-	 */
-	public static final AnnotationKey<String> NAMESPACE = 
-		new AnnotationKey<String>("Namespace", WorkflowData.DEFAULTWORKFLOW);
-
-	   
     /** Should the figure show the measurement text. */
     public static final AnnotationKey<Object> TAG =
         new AnnotationKey<Object>("Tag", null);
-    
-	/**
-	 * The keywords associated with the ROI.
-	 */
-	public static final AnnotationKey<String> KEYWORDS = 
-		new AnnotationKey<String>("Keywords", "");
+
 	 /**
      * A set with all attributes defined by this class.
      */
@@ -168,13 +154,8 @@ public class AnnotationKeys
         		ENDPOINTX, 
         		ENDPOINTY, 
         		WIDTH,
-        		HEIGHT, 
-        		NAMESPACE,
-        		KEYWORDS,
+        		HEIGHT,
         		TAG
-        //		ROIID, 
-        //		FIGURETYPE
-        		
         }));
         
         supportedAnnotations = Collections.unmodifiableSet(as);

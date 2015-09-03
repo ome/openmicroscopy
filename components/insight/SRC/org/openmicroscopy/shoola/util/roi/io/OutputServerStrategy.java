@@ -197,12 +197,6 @@ class OutputServerStrategy
 		throws Exception
 	{
 		ROIData roiData = new ROIData();
-		String ns = (String) roi.getAnnotation(AnnotationKeys.NAMESPACE);
-		List<String> list = UIUtilities.CSVToList(
-				(String) roi.getAnnotation(AnnotationKeys.KEYWORDS));
-		String[] kw = new String[list.size()];
-		list.toArray(kw);
-		roiData.setNamespaceKeywords(ns, kw);
 		roiData.setClientSide(roi.isClientSide());
 		if (!roi.isClientSide())
 			roiData.setId(roi.getID());

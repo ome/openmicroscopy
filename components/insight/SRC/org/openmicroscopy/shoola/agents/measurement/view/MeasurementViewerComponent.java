@@ -218,7 +218,6 @@ class MeasurementViewerComponent
     void saveAndDiscard()
     {
     	model.saveROIToServer(false, false);
-    	model.saveWorkflowToServer(false);	
     	discard();
     }
     
@@ -265,16 +264,12 @@ class MeasurementViewerComponent
         		if (HCSData) {
         			if (measurements == null) {
         				model.setHCSData(false);
-        				model.fireLoadWorkflow();
                 		model.fireLoadROIServerOrClient(false);
         			} else 
         				model.fireLoadROIFromServer(measurements);
         		} else {
-        			model.fireLoadWorkflow();
             		model.fireLoadROIServerOrClient(false);
         		}
-        		//model.fireROILoading(null);
-        		//fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -956,15 +951,6 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflow(List)
-     */
-	public void setKeyword(List<String> keyword)
-	{
-		model.setKeyword(keyword);
-	}
-	
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#canAnnotate()
      */
 	public boolean canAnnotate()
@@ -1010,17 +996,6 @@ class MeasurementViewerComponent
 	public String toString()
 	{ 
 		return "ROI for: "+EditorUtil.truncate(model.getImageName());
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflowList(List)
-     */
-	public void setWorkflowList(List<WorkflowData> workflows)
-	{
-		for(WorkflowData workflow : workflows)
-			model.addWorkflow(workflow);
-		view.addedWorkflow();
 	}
 
 	/** 

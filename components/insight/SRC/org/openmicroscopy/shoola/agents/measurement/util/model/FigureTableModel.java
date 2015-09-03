@@ -163,38 +163,11 @@ public class FigureTableModel
 			if (!found)
 			{
 				key = fieldName.getKey();
-				
-				/*
-				if (figure.getROI().hasAnnotation(key.getKey()))
-				{
-					keys.add(key);
-					if (AnnotationKeys.NAMESPACE.equals(key)) {
-						values.add(EditorUtil.getWorkflowForDisplay(
-								(String) figure.getROI().getAnnotation(
-										(AnnotationKey) key)));
-					} else {
-						values.add(figure.getROI().getAnnotation(
-								(AnnotationKey) key));
-					}
-				} else {
-					keys.add(key);
-					if (AnnotationKeys.NAMESPACE.equals(key) ||
-							AnnotationKeys.KEYWORDS.equals(key))
-						values.add("");
-					else values.add(NA);
-				}
-				*/
 				keys.add(key);
-				if (AnnotationKeys.NAMESPACE.equals(key)) {
-					values.add(EditorUtil.getWorkflowForDisplay(
-							(String) figure.getROI().getAnnotation(
-									(AnnotationKey) key)));
-				} else {
-					if (key instanceof AnnotationKey)
-						values.add(figure.getROI().getAnnotation(
-							(AnnotationKey) key));
-					else values.add(NA);
-				}
+				if (key instanceof AnnotationKey)
+                    values.add(figure.getROI().getAnnotation(
+                        (AnnotationKey) key));
+                else values.add(NA);
 			}
 		}
 		fireTableDataChanged();

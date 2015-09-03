@@ -55,7 +55,6 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
-import omero.gateway.model.WorkflowData;
 
 
 /** 
@@ -478,29 +477,6 @@ public class NullRenderingService
 	public Map setOwnerRenderingSettings(SecurityContext ctx,
 		Class rootNodeType, List<Long> nodeIDs)
 			throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#retrieveWorkflows(long)
-     */
-	public List<WorkflowData> retrieveWorkflows(SecurityContext ctx,
-			long userID)
-			throws DSAccessException, DSOutOfServiceException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#storeWorkflows(List, long)
-     */
-	public Object storeWorkflows(SecurityContext ctx, 
-		List<WorkflowData> workflows, long userID)
-			throws DSAccessException, DSOutOfServiceException
 	{
 		return null;
 	}

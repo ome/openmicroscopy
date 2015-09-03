@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import omero.romio.PlaneDef;
-import omero.gateway.model.WorkflowData;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -61,7 +60,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.TileLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.WorkflowHandler;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -414,29 +412,6 @@ class ImageDataViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ScriptUploader(ctx, script);
-		return cmd.exec(observer);
-	}
-
-	/**
-     * Implemented as specified by the view interface.
-     * @see ImageDataView#retrieveWorkflows(long, AgentEventListener)
-     */
-	public CallHandle retrieveWorkflows(SecurityContext ctx,
-			long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new WorkflowHandler(ctx, userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-     * Implemented as specified by the view interface.
-     * @see ImageDataView#storeWorkflows(List, long, AgentEventListener)
-     */
-	public CallHandle storeWorkflows(SecurityContext ctx,
-			List<WorkflowData> workflows, long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new WorkflowHandler(ctx, workflows, userID);
 		return cmd.exec(observer);
 	}
 
