@@ -742,11 +742,16 @@ def api_image_list(request, conn=None, **kwargs):
         group_id = get_long_or_default(request, 'group_id', -1)
         dataset_id = get_long_or_default(request, 'id', None)
         orphaned = get_bool_or_default(request, 'orphaned', False)
-        share_id = get_long_or_default(request, 'share_id', None)
-        experimenter_id = get_long_or_default(request, 'experimenter_id',
-                                              -1)
+        experimenter_id = get_long_or_default(request,
+                                              'experimenter_id', -1)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
+
+    # Share ID is in kwargs from api/share_images/<id>/ which will create
+    # a share connection in @login_required.
+    # We don't support ?share_id in query string since this would allow a
+    # share connection to be created for ALL urls, instead of just this one.
+    share_id = 'share_id' in kwargs and long(kwargs['share_id']) or None
 
     try:
         # Get the images

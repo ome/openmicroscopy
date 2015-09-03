@@ -318,7 +318,11 @@ urlpatterns = patterns(
     # url(r'^api/datasets/(?P<pk>[0-9]+)/$', views.api_dataset_detail),
 
     url(r'^api/images/$', views.api_image_list, name='api_images'),
-    # url(r'^api/images/(?P<pk>[0-9]+)/$', views.api_image_detail),
+
+    # special case: share_id not allowed in query string since we
+    # just want to allow share connection for this url ONLY.
+    url(r'^api/share_images/(?P<share_id>[0-9]+)/$', views.api_image_list,
+        name='api_share_images'),
 
     url(r'^api/plates/$', views.api_plate_list, name='api_plates'),
     # url(r'^api/plates/(?P<pk>[0-9]+)/$', views.api_plate_detail),

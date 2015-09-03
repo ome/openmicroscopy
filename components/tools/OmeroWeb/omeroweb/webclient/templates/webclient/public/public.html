@@ -177,7 +177,7 @@
                             if (node.type === 'experimenter') {
                                 return '{% url 'api_shares' %}'
                             } else if (node.type === 'share') {
-                                return '{% url 'api_images' %}'
+                                return '{% url 'webindex' %}api/share_images/' + node.data.obj.id;
                             } else if (node.id === '#') {
                                 // root node - Always load your own shares
                                 return '{% url 'api_experimenter' ome.user.id %}';
@@ -193,11 +193,9 @@
                             // is expecting either a tagset_id or nothing as the 'id'
                             if (node.hasOwnProperty('data') && node.type != 'experimenter') {
                                 if (node.data.hasOwnProperty('obj')) {
-                                    // Listing images for a share needs to be special cased, because 'id'
-                                    // in 'api_list' is dataset. 'share_id' needs to be provided
-                                    if (node.type === 'share') {
-                                        payload['share_id'] = node.data.obj.id;
-                                    } else {
+                                    // share_id is part of the url itself, see above.
+                                    // We only need to handle other containers here:
+                                    if (node.type !== 'share') {
                                         payload['id'] = node.data.obj.id;
                                     }
                                 }
