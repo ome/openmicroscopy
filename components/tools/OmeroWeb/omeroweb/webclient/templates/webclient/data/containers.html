@@ -342,7 +342,7 @@
 
             // Return a promise
             return $.ajax({
-                url: "{% url 'api_links' %}",
+                url: "{% url 'api_link' %}",
                 type: 'POST',
                 data: JSON.stringify(payload),
                 dataType: 'json'
@@ -360,7 +360,7 @@
 
             // Return a promise
             return $.ajax({
-                url: "{% url 'api_links' %}",
+                url: "{% url 'api_link' %}",
                 type: 'DELETE',
                 data: JSON.stringify(payload),
                 dataType: 'json'

@@ -332,8 +332,9 @@ urlpatterns = patterns(
     # url(r'^api/plate_acquisitions/(?P<pk>[0-9]+)/$',
     #     views.api_plate_acquisitions_detail),
 
-    url(r'^api/links/$', views.api_link_list, name='api_links'),
-    # url(r'^api/links/(?P<pk>[0-9]+)/$', views.api_link_detail),
+    # POST to create link, DELETE to remove.
+    # parent_type, parent_id, child_type, child_id in request.body json
+    url(r'^api/link/$', views.api_link, name='api_link'),
 
     # url(r'^api/tags/$', views.api_tag_list, name='api_tags'),
     # url(r'^api/tags/(?P<pk>[0-9]+)/$', views.api_tag_detail),

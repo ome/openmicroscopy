@@ -831,14 +831,13 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
 
 
 def get_object_link(conn, parent_type, parent_id, child_type, child_id):
-    # TODO Group context?
+    """ This is just used internally by api_link DELETE below """
     link_type = None
     if parent_type == 'experimenter':
         if child_type == 'dataset' or child_type == 'plate':
             # This will be a requested link if a dataset or plate is
             # moved from the de facto orphaned datasets/plates, it isn't
             # an error, but no link actually needs removing
-            # TODO Unless it is moved to a different user.
             return None
     elif parent_type == 'project':
         if child_type == 'dataset':
@@ -851,9 +850,7 @@ def get_object_link(conn, parent_type, parent_id, child_type, child_id):
             link_type = 'ScreenPlate'
 
     if not link_type:
-        # TODO Should throw exception as the caller uses a None return
-        # type to indicate that the type of the
-        return
+        raise Http404("json data needs 'parent_type' and 'child_type'")
 
     params = omero.sys.ParametersI()
     params.add('pid', rlong(parent_id))
@@ -870,18 +867,17 @@ def get_object_link(conn, parent_type, parent_id, child_type, child_id):
     if len(res) > 0:
         return res[0]
     else:
-        return None
+        raise Http404("No link found for %s-%s to %s-%s"
+                      % (parent_type, parent_id, child_type, child_id))
 
 
-# TODO Think carefully about the request json for this interface
-# Maybe it should jsut be 1-M?
-# Maybe it should take a list of pairs of things to link?
-# Maybe it should be PUT for move?
-@login_required(setGroupContext=True)
-def api_link_list(request, conn=None, **kwargs):
-    # TODO Is it possible and valid for 2 users to create the same link?
-    # If so we'll have to take the user id into account
-    # filter_user_id = request.session.get('user_id')
+@login_required()
+def api_link(request, conn=None, **kwargs):
+    """ Creates or Deletes a link between 2 objects specified by a json
+    blob in the request body.
+    When creating a link, fails silently if ValidationException
+    (E.g. adding an image to a Dataset that already has that image).
+    """
 
     def get_link(parent_type, parent_id, child_type, child_id):
         # TODO Handle more types of link
@@ -921,66 +917,52 @@ def api_link_list(request, conn=None, **kwargs):
     # Handle link creation
     if request.method == 'POST':
         json_data = json.loads(request.body)
-        print('linking %s-%s with %s-%s' % (json_data['parent_type'],
-                                            json_data['parent_id'],
-                                            json_data['child_type'],
-                                            json_data['child_id']))
+
         try:
-            link = get_link(json_data['parent_type'],
-                            json_data['parent_id'],
+            ptype = json_data['parent_type']
+            pid = json_data['parent_id']
+            link = get_link(ptype,
+                            pid,
                             json_data['child_type'],
                             json_data['child_id'])
 
             if link:
                 if link != 'orphan':
+                    # Need to set context to correct group (E.g parent group)
+                    p = conn.getQueryService().get(ptype.title(), pid,
+                                                   conn.SERVICE_OPTS)
+                    conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
                     conn.saveObject(link)
                 response['success'] = True
 
-        # I assume that the failed creation of the link due to
+        # We assume that the failed creation of the link due to
         # a ValidationException is due to the prexisting status
         # of the link. This could be confirmed by parsing the
         # message of the exception. That is why success is marked to
         # be true
         # At worst this may wrongly report that a link already existed
         # when in-fact, one of the object in the link did not exist
-        # TODO Parse message
-        except ValidationException as e:
-            print 'ValidationException, silent for now'
+        except ValidationException:
             response['success'] = True
-        except Exception as e:
-            print e
 
     elif request.method == 'DELETE':
         json_data = json.loads(request.body)
-        print('unlinking %s-%s with %s-%s' % (json_data['parent_type'],
-                                              json_data['parent_id'],
-                                              json_data['child_type'],
-                                              json_data['child_id']))
-        try:
-            # TODO It isn't possible to delete an object without having its
-            # ID so need to query that first.
-            link = get_object_link(conn,
-                                   json_data['parent_type'],
-                                   long(json_data['parent_id']),
-                                   json_data['child_type'],
-                                   long(json_data['child_id']))
-            print('link')
-            print(link)
-            # If the link exists delete it
-            if link is not None:
-                if link != 'orphan':
-                    conn.deleteObjectDirect(link)
-                    print('Should have deleted')
-            # If it was deleted then that is a success. Equally if it
-            # didn't exist the end result is correct, so mark it as a
-            # success
-            response['success'] = True
 
-        except ValidationException as e:
-            print 'ValidationException, silent for now'
-            response['success'] = False
-        except Exception as e:
-            print e
+        # Get the parent-child link to delete (will raise 404 if not found)
+        link = get_object_link(conn,
+                               json_data['parent_type'],
+                               long(json_data['parent_id']),
+                               json_data['child_type'],
+                               long(json_data['child_id']))
+        # If the link exists delete it
+        if link is not None:
+            if link != 'orphan':
+                conn.deleteObjectDirect(link)
+        # If it was deleted then that is a success. Equally if 'orphan', it
+        # didn't exist and the end result is correct, so mark it as a
+        # success.
+        # No try/except here - exceptions will be raised and handled by client
+        response['success'] = True
 
     return HttpJsonResponse(response)
 
