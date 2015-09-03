@@ -26,7 +26,7 @@ import ome.conditions.ApiUsageException;
  * container object for {@link QueryParameter} and {@link Filter} instances.
  * 
  * The public Strings available here are used throughout this class and should
- * also be used in query strings as named parameteres. For example, the field
+ * also be used in query strings as named parameters. For example, the field
  * {@link Parameters#ID} has the value "id", and a query which would like to use
  * the {@link Parameters#addId(Long)} method, should define a named parameter of
  * the form ":id".

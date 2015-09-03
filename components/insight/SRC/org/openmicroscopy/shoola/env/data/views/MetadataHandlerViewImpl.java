@@ -245,15 +245,15 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadOriginalImage(SecurityContext, List, File,
-	 * String, boolean, AgentEventListener)
+	 * @see MetadataHandlerView#loadArchivedImage(SecurityContext, List, File,
+	 * String, boolean, boolean, boolean AgentEventListener)
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
-			File path, boolean override,
+			File path, boolean override, boolean zip, boolean keepOriginalPaths,
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageIDs, path,
-		        override);
+		        override, zip, keepOriginalPaths);
 		return cmd.exec(observer);
 	}
 
@@ -473,4 +473,19 @@ class MetadataHandlerViewImpl
 			rootIDs, annotationType, nsInclude, nsExlcude);
 		return cmd.exec(observer);
 	}
+
+	
+    /**
+     * Implemented as specified by the view interface.
+     * @see MetadataHandlerView#annotateData(SecurityContext, Map, Map, long,
+     * AgentEventListener)
+     */
+    public CallHandle annotateData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID,
+            AgentEventListener observer) {
+        BatchCallTree cmd = new StructuredAnnotationSaver(ctx, toAdd, toRemove,
+                userID);
+        return cmd.exec(observer);
+    }
 }

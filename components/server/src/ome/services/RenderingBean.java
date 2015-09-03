@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
@@ -91,8 +89,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @see RenderingEngine
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 @Transactional(readOnly = true)
 public class RenderingBean implements RenderingEngine, Serializable {
 

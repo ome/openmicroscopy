@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.utests;
 
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import ome.system.ServiceFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.Session;
 import org.jmock.MockObjectTestCase;
-import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.Test;
 
 public class SearchBeanTest extends MockObjectTestCase {

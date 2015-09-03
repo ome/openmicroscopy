@@ -11,8 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -85,8 +83,6 @@ import com.google.common.collect.Multimap;
  * @see Permissions
  * @since 3.0-M3
  */
-@RevisionDate("$Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun 2007) $")
-@RevisionNumber("$Revision: 1581 $")
 public class BasicSecuritySystem implements SecuritySystem,
         ApplicationContextAware, ApplicationListener<EventLogMessage> {
 

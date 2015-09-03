@@ -7,14 +7,6 @@
 
 package ome.security;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
-
 /**
  * action for passing to {@link SecuritySystem#runAsAdmin(AdminAction)}. All
  * external input should be <em>carefully</em> checked or even better copied
@@ -32,12 +24,9 @@ import ome.annotations.RevisionNumber;
  * </code>
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see SecuritySystem#runAsAdmin(AdminAction)
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface AdminAction {
     /**
      * executes with special privilegs within the {@link SecuritySystem}.

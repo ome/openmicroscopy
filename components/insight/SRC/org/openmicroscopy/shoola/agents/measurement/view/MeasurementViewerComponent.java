@@ -23,13 +23,13 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-//Java imports
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,21 +41,22 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
-//Third-party libraries
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
-
-//Application-internal dependencies
+import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ROIResult;
 
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
 import omero.log.LogMessage;
@@ -73,13 +74,20 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
+import pojos.ShapeData;
+import pojos.TagAnnotationData;
 import pojos.WorkflowData;
 
 /** 
@@ -842,10 +850,11 @@ class MeasurementViewerComponent
 		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
+		List<DataObject> nodes = null;
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result);
-			} 	
+			    nodes = model.setServerROI(result);
+			}
 		} catch (Exception e) {
 			String s = "Cannot convert server ROI into UI objects:";
 			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
@@ -857,6 +866,9 @@ class MeasurementViewerComponent
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
 		postEvent(MeasurementToolLoaded.ADD);
+		if (CollectionUtils.isNotEmpty(nodes)) {
+		    model.fireLoadROIAnnotations(nodes);
+		}
 	}
 
 	/** 
@@ -880,6 +892,7 @@ class MeasurementViewerComponent
 		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
+		List<DataObject> nodes = null;
 		try 
 		{
 			boolean hasResult = false;
@@ -897,7 +910,7 @@ class MeasurementViewerComponent
 			if (hasResult) {
 				//some ROI previously saved.
 				//result.ge
-				model.setServerROI(result);	
+			    nodes = model.setServerROI(result);
 			} else {
 				model.fireROILoading(null);
 				return;
@@ -917,7 +930,9 @@ class MeasurementViewerComponent
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
 		postEvent(MeasurementToolLoaded.ADD);
-		return;
+		if (CollectionUtils.isNotEmpty(nodes)) {
+		    model.fireLoadROIAnnotations(nodes);
+		}
 	}
 
 	/** 
@@ -1104,11 +1119,250 @@ class MeasurementViewerComponent
 		view.displayAnalysisResults();
 	}
 
-        /**
-         * Implemented as specified by the {@link MeasurementViewer} interface.
-         * @see MeasurementViewer#exportGraph()
-         */
-        public void exportGraph() {
-            view.exportGraph();
+	/**
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#exportGraph()
+	 */
+	public void exportGraph() {
+	    view.exportGraph();
+	}
+
+	/**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setROIAnnotations(Map)
+     */
+	public void setROIAnnotations(Map<DataObject, StructuredDataResults> result)
+	{
+	    if (model.getState() == DISCARDED ||
+	            result == null || result.size() == 0) return;
+	    //Update the UI elements
+	    Collection<ROIFigure> figures = model.getAllFigures();
+	    if (CollectionUtils.isEmpty(figures)) return;
+	    Iterator<ROIFigure> i = figures.iterator();
+	    ROIFigure f;
+	    ShapeData shape;
+	    Map<Long, StructuredDataResults> r = convertMap(result, null);
+	    if (r == null) return;
+	    while (i.hasNext()) {
+            f = i.next();
+            shape = f.getROIShape().getData();
+            if (shape != null) {
+                f.setAttribute(AnnotationKeys.TAG, r.get(shape.getId()));
+            }
         }
+	    
+	    Collection<Figure> figs = view.getSelectedFiguresFromTables();
+	    if (CollectionUtils.isNotEmpty(figs)) {
+	        List<ROIShape> shapes = new ArrayList<ROIShape>();
+	        Iterator<Figure> j = figs.iterator();
+	        while (j.hasNext()) {
+	            f = (ROIFigure) j.next();
+	            shapes.add(f.getROIShape());
+	        }
+	        view.displayAnnotations(shapes);
+	    }
+	}
+
+	/**
+	 * Converts the results map.
+	 *
+	 * @param result The map to handle
+	 * @param type The type of object to look for or <code>null</code>.
+	 * @return See above.
+	 */
+	private Map<Long, StructuredDataResults> convertMap(
+	        Map<DataObject, StructuredDataResults> result, Class<?> type) {
+	    Map<Long, StructuredDataResults> r = new HashMap<Long, StructuredDataResults>();
+	    Entry<DataObject, StructuredDataResults> e;
+	    Iterator<Entry<DataObject, StructuredDataResults>>
+	    i = result.entrySet().iterator();
+	    while (i.hasNext()) {
+            e = i.next();
+            if (type == null) {
+                r.put(e.getKey().getId(), e.getValue());
+            } else {
+                if (e.getKey().getClass().equals(type)) {
+                    r.put(e.getKey().getId(), e.getValue());
+                }
+            }
+        }
+	    return r;
+	}
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setExistingTags(Collection)
+     */
+    public void setExistingTags(Collection tags) {
+        model.setExistingTags(tags);
+        //Display the UI.
+        Collection<Figure> shapes = model.getSelectedFigures();
+        Iterator<Figure> i = shapes.iterator();
+        ROIFigure shape;
+        StructuredDataResults data;
+        List<Object> l = new ArrayList<Object>();
+        List<Long> ids = new ArrayList<Long>();
+        boolean valid = tags != null && CollectionUtils.isNotEmpty(tags);
+        TagAnnotationData d;
+        while (i.hasNext()) {
+            shape = (ROIFigure) i.next();
+            data = (StructuredDataResults) shape.getAttribute(AnnotationKeys.TAG);
+            if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
+                if (valid) {
+                    Iterator<TagAnnotationData> j = data.getTags().iterator();
+                    while (j.hasNext()) {
+                        d = j.next();
+                        ids.add(d.getId());
+                        l.add(d);
+                    }
+                } else {
+                    l.addAll(data.getTags());
+                }
+            }
+        }
+        //if tags not empty.
+        List<Object> available = new ArrayList<Object>();
+        if (valid) {
+            Iterator j = tags.iterator();
+            while (j.hasNext()) {
+                AnnotationData object = (AnnotationData) j.next();
+                if (!ids.contains(object.getId())) {
+                    available.add(object);
+                }
+            }
+        }
+        //Bring up the selection Wizard
+        SelectionWizard wizard = new SelectionWizard(
+                view, available, l, TagAnnotationData.class, true,
+                model.getCurrentUser());
+        wizard.addPropertyChangeListener(controller);
+        UIUtilities.centerAndShow(wizard);
+    }
+
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#loadTags()
+     */
+    public void loadTags() {
+        Collection tags = model.getExistingTags();
+        if (tags == null) {
+            model.fireExistingTagsLoading();
+        } else {
+            setExistingTags(tags);
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#tagSelectedFigures()
+     */
+    public void tagSelectedFigures(List<AnnotationData> tags)
+    {
+        Collection<Figure> figures = view.getSelectedFiguresFromTables();
+        if (CollectionUtils.isEmpty(figures)) {
+            return;
+        }
+        List<ROIShape> shapes = new ArrayList<ROIShape>();
+        Iterator<Figure> kk = figures.iterator();
+        ROIFigure fig;
+        while (kk.hasNext())
+        {
+            fig = (ROIFigure) kk.next();
+            shapes.add(fig.getROIShape());
+        }
+        if (CollectionUtils.isEmpty(shapes)) return;
+
+        Multimap<Long, AnnotationData> m = ArrayListMultimap.create();
+        Iterator<AnnotationData> j = tags.iterator();
+        AnnotationData an;
+        while (j.hasNext()) {
+            an = j.next();
+            m.put(an.getId(), an);
+        }
+        Iterator<ROIShape> i = shapes.iterator();
+        ROIShape shape;
+        StructuredDataResults data;
+        List<DataObject> objects = new ArrayList<DataObject>();
+        ShapeData d;
+        Map<Long, AnnotationData> mo = new HashMap<Long, AnnotationData>();
+        while (i.hasNext()) {
+            shape = i.next();
+            d = shape.getData();
+            if (d != null && d.getId() > 0) {
+                objects.add(d);
+                data = (StructuredDataResults)
+                        shape.getFigure().getAttribute(AnnotationKeys.TAG);
+                if (data != null && CollectionUtils.isNotEmpty(data.getTags())) {
+                    Collection<TagAnnotationData> t = data.getTags();
+                    Iterator<TagAnnotationData> tt = t.iterator();
+                    while (tt.hasNext()) {
+                        TagAnnotationData tag = tt.next();
+                        if (!mo.containsKey(tag.getId())) {
+                            mo.put(tag.getId(), tag);
+                        }
+                    }
+                }
+            }
+        }
+        if (objects.isEmpty()) {
+            UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("ROI Annotations",
+                    "You must save the ROI before annotating it.");
+            return;
+        }
+
+        //Now we prepare the list of annotations to add or remove
+        List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+        List<Object> toRemove = new ArrayList<Object>();
+        if (CollectionUtils.isNotEmpty(m.get(-1L))) {
+            toAdd.addAll(m.removeAll(-1L));
+        }
+        Iterator<Entry<Long, AnnotationData>> k = m.entries().iterator();
+        Entry<Long, AnnotationData> e;
+        while (k.hasNext()) {
+            e = k.next();
+            Long id = e.getKey();
+            if (!mo.containsKey(id)) {
+                toAdd.add(e.getValue());
+            }
+        }
+        k = mo.entrySet().iterator();
+        while (k.hasNext()) {
+            e = k.next();
+            Long id = e.getKey();
+            if (!m.containsKey(id)) {
+                toRemove.add(e.getValue());
+            }
+        }
+        model.fireAnnotationSaving(objects, toAdd, toRemove);
+    }
+
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#onAnnotationSaved()
+     */
+    public void onAnnotationSaved() {
+        //Load the annotation for the selected shapes.
+        //Display the UI.
+        Collection<ROIFigure> figures = model.getAllFigures();
+        if (CollectionUtils.isEmpty(figures)) {
+            return;
+        }
+        List<ROIShape> shapes = new ArrayList<ROIShape>();
+        Iterator<ROIFigure> kk = figures.iterator();
+        ROIFigure fig;
+        while (kk.hasNext())
+        {
+            fig = kk.next();
+            shapes.add(fig.getROIShape());
+        }
+        if (CollectionUtils.isEmpty(shapes)) return;
+        Iterator<ROIShape> i = shapes.iterator();
+        ROIShape shape;
+        List<DataObject> nodes = new ArrayList<DataObject>();
+        while (i.hasNext()) {
+            shape = (ROIShape) i.next();
+            nodes.add(shape.getData());
+        }
+        model.fireLoadROIAnnotations(nodes);
+    }
 }

@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -51,13 +52,15 @@ import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationSaver;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
+import org.openmicroscopy.shoola.agents.measurement.TagsLoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 
 import pojos.WorkflowData;
 
@@ -93,7 +96,9 @@ import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
+import pojos.AnnotationData;
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
@@ -224,6 +229,8 @@ class MeasurementViewerModel
     /** The sorter to order shapes.*/
     private ViewerSorter sorter;
 
+    /** Collection of existing tags if any. */
+    private Collection existingTags;
 
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary.
@@ -640,9 +647,10 @@ class MeasurementViewerModel
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois)
+	List<DataObject> setServerROI(Collection rois)
 		throws ROICreationException, NoSuchROIException
 	{
+	    List<DataObject> nodes = new ArrayList<DataObject>();
 		measurementResults = rois;
 		state = MeasurementViewer.READY;
 		List<ROI> roiList = new ArrayList<ROI>();
@@ -654,7 +662,7 @@ class MeasurementViewerModel
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
 					result.getROIs(), userID));
 		}
-		if (roiList == null) return false;
+		if (roiList == null) return nodes;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
@@ -674,16 +682,20 @@ class MeasurementViewerModel
 				entry = (Entry) j.next();
 				shape = (ROIShape) entry.getValue();
 				coord = shape.getCoord3D();
-				if (coord.getTimePoint() > sizeT) return false;
-				if (coord.getZSection() > sizeZ) return false;
-				c = coord.getChannel();
-				f = shape.getFigure();
-				if (c >= 0 && f.isVisible())
-					f.setVisible(isChannelActive(c));
+				if (coord.getTimePoint() < sizeT &&
+				        coord.getZSection() < sizeZ) {
+				    c = coord.getChannel();
+	                f = shape.getFigure();
+	                if (shape.getData() != null) {
+	                    nodes.add(shape.getData());
+	                }
+	                if (c >= 0 && f.isVisible())
+	                    f.setVisible(isChannelActive(c));
+				}
 			}
 		}
 		checkIfHasROIToDelete();
-		return true;
+		return nodes;
 	}
 
 	/**
@@ -814,6 +826,25 @@ class MeasurementViewerModel
 		}
 		return roiList;
 	}
+
+	/**
+	 * Returns a collection of the currently selected shapes in the drawing view.
+	 *
+	 * @return see above.
+	 */
+    Collection<ROIShape> getSelectedShapes()
+    {
+        Collection<Figure> selectedFigs = getDrawingView().getSelectedFigures();
+        List<ROIShape> l = new ArrayList<ROIShape>();
+        Iterator<Figure> figIterator = selectedFigs.iterator();
+        ROIFigure fig;
+        while (figIterator.hasNext())
+        {
+            fig = (ROIFigure) figIterator.next();
+            l.add(fig.getROIShape());
+        }
+        return l;
+    }
 
 	/**
 	 * Removes the <code>ROIShape</code> on the current View corresponding
@@ -1874,8 +1905,8 @@ class MeasurementViewerModel
     */
 	boolean isMember()
 	{
-		if (MetadataViewerAgent.isAdministrator()) return false;
-		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
+		if (MeasurementAgent.isAdministrator()) return false;
+		Collection groups = MeasurementAgent.getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g, gRef = null;
 		long gId = getImage().getGroupId();
@@ -1898,4 +1929,107 @@ class MeasurementViewerModel
 	 * @param channels The value to set.
 	 */
 	void setChannelData(List<ChannelData> channels) { metadata = channels; }
+
+	/**
+	 * Loads the annotations linked to rois.
+	 *
+	 * @param shapes The shapes
+	 */
+	void fireLoadROIAnnotations(List<DataObject> shapes)
+	{
+	    ROIAnnotationLoader loader = new ROIAnnotationLoader(component,
+	            getSecurityContext(), shapes);
+	    loader.load();
+	}
+
+	/**
+	 * Saves the annotations.
+	 *
+	 * @param toAnnotate The objects to annotate.
+	 * @param toAdd The annotation to add.
+	 * @param toRemove The annotation to remove.
+	 */
+	void fireAnnotationSaving(Collection<DataObject> toAnnotate,
+	        List<AnnotationData> toAdd, List<Object> toRemove)
+	{
+	    ROIAnnotationSaver saver = new ROIAnnotationSaver(component,
+	            getSecurityContext(), toAnnotate, toAdd, toRemove);
+	    saver.load();
+	}
+
+	/**
+     * Sets the collection of existing tags.
+     * 
+     * @param tags The value to set.
+     */
+    void setExistingTags(Collection tags)
+    {
+        if (tags != null) existingTags = sorter.sort(tags);
+    }
+
+    /**
+     * Returns the collection of existing tags.
+     * 
+     * @return See above.
+     */
+    Collection getExistingTags() { return existingTags; }
+
+    /** Fires an asynchronous retrieval of existing tags. */
+    void fireExistingTagsLoading()
+    {
+        TagsLoader loader = new TagsLoader(component,
+                getSecurityContext(), canRetrieveAll());
+        loader.load();
+    }
+
+    /**
+     * Indicates to load all annotations available if the user can annotate
+     * and is an administrator/group owner or to only load the user's
+     * annotation.
+     * 
+     * @return See above
+     */
+    private boolean canRetrieveAll()
+    {
+        if (!pixels.canAnnotate()) return false;
+        //check the group level
+        GroupData group = getGroup(pixels.getGroupId());
+        if (group == null) return false;
+        switch (group.getPermissions().getPermissionsLevel()) {
+            case GroupData.PERMISSIONS_GROUP_READ:
+                if (MeasurementAgent.isAdministrator()) return true;
+                Set leaders = group.getLeaders();
+                Iterator i = leaders.iterator();
+                long userID = getCurrentUser().getId();
+                ExperimenterData exp;
+                while (i.hasNext()) {
+                    exp = (ExperimenterData) i.next();
+                    if (exp.getId() == userID)
+                        return true;
+                }
+                return false;
+            case GroupData.PERMISSIONS_PRIVATE:
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns the group corresponding to the specified id or <code>null</code>.
+     * 
+     * @param groupId The identifier of the group.
+     * @return See above.
+     */
+    private GroupData getGroup(long groupId)
+    {
+        Collection groups = MeasurementAgent.getAvailableUserGroups();
+        if (groups == null) return null;
+        Iterator i = groups.iterator();
+        GroupData group;
+        while (i.hasNext()) {
+            group = (GroupData) i.next();
+            if (group.getId() == groupId) return group;
+        }
+        return null;
+    }
 }

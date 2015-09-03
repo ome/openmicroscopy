@@ -90,21 +90,21 @@ public interface IObjectContainerStore
 
     /**
      * Sets the user specified image/plate description.
-     * @param name user specified image/plate description
+     * @param description user-specified image/plate description
      */
     void setUserSpecifiedDescription(String description);
 
     /**
-     * Returns the user specified linkage target (usually a Dataset for Images
+     * Returns the user-specified linkage target (usually a Dataset for Images)
      * and a Screen for Plates).
      * @return See above.
      */
     IObject getUserSpecifiedTarget();
 
     /**
-     * Sets the user specified linkage target (usually a Dataset for Images
+     * Sets the user-specified linkage target (usually a Dataset for Images)
      * and a Screen for Plates).
-     * @param name user specified image description
+     * @param target user-specified linkage target
      */
     void setUserSpecifiedTarget(IObject target);
 

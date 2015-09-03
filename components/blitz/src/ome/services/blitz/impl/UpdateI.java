@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -22,7 +20,7 @@ import omero.api.AMD_IUpdate_saveCollection;
 import omero.api.AMD_IUpdate_saveObject;
 import omero.api._IUpdateOperations;
 import omero.model.IObject;
-import omero.util.IceMapper;
+
 import Ice.Current;
 
 /**

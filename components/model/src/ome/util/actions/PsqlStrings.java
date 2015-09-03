@@ -2,12 +2,11 @@
  *   Copyright (C) 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.util.actions;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import ome.util.SqlAction;
 
 public class PsqlStrings {
 

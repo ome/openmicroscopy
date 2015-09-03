@@ -56,7 +56,7 @@ public class ROIFacilityTest extends GatewayTest {
 
     private ImageData img;
     private ROIFacility roifac;
-    private List<ROIData> rois;
+    private Collection<ROIData> rois;
 
     @Override
     @BeforeClass(alwaysRun = true)

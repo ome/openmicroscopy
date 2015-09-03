@@ -292,6 +292,17 @@ OME.openScriptWindow = function(event, width, height) {
                 args.push(key.capitalize() + "=" + sel_types[key].join(","));
             }
         }
+        var fileAnnotationCheckboxes =
+            $("#fileanns_container input[type=checkbox]").filter(":checked");
+        if (fileAnnotationCheckboxes.length > 0) {
+            var fileAnnotationIds = [];
+            fileAnnotationCheckboxes.each(function() {
+                var li = $(this).parents("li").first();
+                var oid = li.attr('id').split('-')[1];
+                fileAnnotationIds.push(oid);
+            })
+            args.push("File_Annotation=" + fileAnnotationIds.join(","));
+        }
         script_url += "?" + args.join("&");
     }
     OME.openCenteredWindow(script_url, width, height);

@@ -7,11 +7,6 @@
 
 package ome.security;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IObject;
 
 /**
@@ -19,7 +14,6 @@ import ome.model.IObject;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
 public interface SecureAction {

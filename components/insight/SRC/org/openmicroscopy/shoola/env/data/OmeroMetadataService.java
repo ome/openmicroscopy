@@ -753,4 +753,21 @@ public interface OmeroMetadataService
 	public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
 	        Class<?> rootType, List<Long> rootIDs)
 	                throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Add (resp. removes) annotations to (resp. from) the objects if any.
+     *
+     * @param ctx The security context.
+     * @param toAdd Collection of annotations to add.
+     * @param toRemove Collection of annotations to remove.
+     * @param userID The id of the user.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                   in.
+     * @throws DSAccessException        If an error occurred while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+    public void saveAnnotationData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID)
+        throws DSOutOfServiceException, DSAccessException;
 }

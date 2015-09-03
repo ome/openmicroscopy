@@ -7,15 +7,11 @@
 
 package pojos;
 
-//Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rstring;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -36,8 +32,6 @@ import omero.model.ProjectDatasetLink;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date: 2005/05/09
- *          19:50:41 $) </small>
  * @since OME2.2
  */
 public class DatasetData extends DataObject {

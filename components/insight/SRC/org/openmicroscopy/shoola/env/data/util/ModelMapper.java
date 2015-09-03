@@ -88,12 +88,18 @@ import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Roi;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
+import omero.model.Shape;
+import omero.model.ShapeAnnotationLink;
+import omero.model.ShapeAnnotationLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
@@ -170,6 +176,10 @@ public class ModelMapper
     		return ((PlateAcquisitionAnnotationLink) link).getChild();
     	if (link instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) link).getChild();
+    	if (link instanceof ShapeAnnotationLink)
+            return ((ShapeAnnotationLink) link).getChild();
+    	if (link instanceof RoiAnnotationLink)
+            return ((RoiAnnotationLink) link).getChild();
     	return null;
     }
     
@@ -198,6 +208,10 @@ public class ModelMapper
     		return ((PlateAcquisitionAnnotationLink) link).getParent();
     	if (link instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) link).getParent();
+    	if (link instanceof ShapeAnnotationLink)
+            return ((ShapeAnnotationLink) link).getParent();
+    	if (link instanceof RoiAnnotationLink)
+            return ((RoiAnnotationLink) link).getParent();
     	return null;
     }
     
@@ -584,7 +598,17 @@ public class ModelMapper
     		l.setParent((OriginalFile) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
-    	}
+    	} else if (annotatedObject instanceof Shape) {
+    	    ShapeAnnotationLink l = new ShapeAnnotationLinkI();
+            l.setParent((Shape) annotatedObject.proxy());
+            l.setChild(annotation);
+            return l;
+    	} else if (annotatedObject instanceof Roi) {
+    	    RoiAnnotationLink l = new RoiAnnotationLinkI();
+            l.setParent((Roi) annotatedObject.proxy());
+            l.setChild(annotation);
+            return l;
+        }
     	return null;
     }
     

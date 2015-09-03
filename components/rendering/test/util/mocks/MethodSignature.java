@@ -7,13 +7,8 @@
 
 package util.mocks;
 
-// Java imports
 import java.util.HashMap;
 import java.util.Map;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Helper class to represent a method signature in a {@link MockedCall}.
@@ -30,8 +25,6 @@ import java.util.Map;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/25 18:09:24 $) </small>
  * @since OME2.2
  */
 public class MethodSignature {

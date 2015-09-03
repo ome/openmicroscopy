@@ -15,8 +15,6 @@ import java.util.Map;
 import org.hibernate.Hibernate;
 
 // Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -35,8 +33,6 @@ import ome.util.Filterable;
  * @see ome.logic.UpdateImpl
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class UpdateFilter extends ContextFilter {
 
     /**

@@ -23,12 +23,6 @@
 
 package util.mocks;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Represents a call on a mock object.
  * A <code>MockedCall</code> is composed by:
@@ -53,10 +47,6 @@ package util.mocks;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class MockedCall 

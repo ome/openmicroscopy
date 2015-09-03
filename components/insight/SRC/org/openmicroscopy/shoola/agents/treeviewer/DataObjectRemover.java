@@ -38,7 +38,7 @@ import pojos.DataObject;
 
 /** 
  * Removes data objects. Depending on the specified parameters, 
- * This class calls one of the <code>deleteDataObjects</code> methods in the
+ * This class calls one of the {@code deleteObjects} methods in the
  * <code>AdminView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

@@ -23,19 +23,25 @@
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.jhotdraw.draw.AttributeKey;
 
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+
+import pojos.TagAnnotationData;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -127,6 +133,28 @@ public class FigureTableModel
 						if (figure.isReadOnly())
 							fieldName.setEditable(false);
 						else fieldName.setEditable(figure.canEdit());
+					} else if (AnnotationKeys.TAG.equals(key)) {
+	                    
+	                    StructuredDataResults sd = (StructuredDataResults) figure.getAttribute(key);
+	                    if (sd != null) {
+	                        Collection<TagAnnotationData> tags = sd.getTags();
+	                        if (CollectionUtils.isNotEmpty(tags)) {
+	                            StringBuffer buffer = new StringBuffer();
+	                            Iterator<TagAnnotationData> k = tags.iterator();
+	                            TagAnnotationData tag;
+	                            int index = 0;
+	                            int size = tags.size()-1;
+	                            while (k.hasNext()) {
+	                                tag = k.next();
+	                                buffer.append(tag.getTagValue());
+	                                if (index < size) {
+	                                    buffer.append(", ");
+	                                }
+	                                index++;
+	                            }
+	                            value = buffer.toString();
+	                        }
+	                    }
 					}
 					keys.add(key);
 					values.add(value);

@@ -20,14 +20,11 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package pojos;
 
-//Java imports
 import java.sql.Timestamp;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rtime;
 import omero.model.TimestampAnnotation;
 
@@ -38,8 +35,6 @@ import omero.model.TimestampAnnotation;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $)
- *          </small>
  * @since 3.0-Beta3
  */
 public class TimeAnnotationData extends AnnotationData {

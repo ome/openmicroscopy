@@ -14,8 +14,6 @@ package ome.security;
 // Application-internal dependencies
 import java.util.Set;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
@@ -32,8 +30,6 @@ import org.hibernate.Session;
  * @see ACLEventListener
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface ACLVoter {
 
     /**

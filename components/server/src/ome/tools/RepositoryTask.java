@@ -1,21 +1,15 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.tools;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.IRepositoryInfo;
 import ome.util.SqlAction;
-
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  * Class implementation of various mechanised tasks, database queries, file I/O,

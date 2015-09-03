@@ -97,6 +97,10 @@ public class CommandLineImporter {
 
     /**
      * Legacy constructor which uses a {@link UploadFileTransfer}.
+     * @param config the import configuration
+     * @param paths files or directories to search
+     * @param getUsedFiles if only getting a list of used files
+     * @throws Exception if the import could not be set up
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
             boolean getUsedFiles) throws Exception {
@@ -105,6 +109,12 @@ public class CommandLineImporter {
 
     /**
      * Legacy constructor without any file exclusions.
+     * @param config the import configuration
+     * @param paths files or directories to search
+     * @param getUsedFiles if only getting a list of used files
+     * @param transfer how files are to be transferred to the server
+     * @param minutesToWait for how many minutes to wait for an import (negative for indefinitely)
+     * @throws Exception if the import could not be set up
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
             boolean getUsedFiles, FileTransfer transfer, int minutesToWait)
@@ -114,6 +124,13 @@ public class CommandLineImporter {
 
     /**
      * Main entry class for the application.
+     * @param config the import configuration
+     * @param paths files or directories to search
+     * @param getUsedFiles if only getting a list of used files
+     * @param transfer how files are to be transferred to the server
+     * @param exclusions mechanisms to be used for skipping candidates
+     * @param minutesToWait for how many minutes to wait for an import (negative for indefinitely)
+     * @throws Exception if the import could not be set up
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
             boolean getUsedFiles, FileTransfer transfer,
@@ -171,6 +188,9 @@ public class CommandLineImporter {
     /**
      * Look for all {@link ImportProcessPrx} in the current session and close
      * them if they return a non-null {@link Response} (i.e. they are done).
+     * @param config the import configuration
+     * @return how many import processes could not be accessed
+     * @throws Exception in the event of error
      */
     public static int closeCompleted(ImportConfig config) throws Exception {
         config.loadAll();
@@ -184,6 +204,9 @@ public class CommandLineImporter {
     /**
      * Look for all {@link ImportProcessPrx} in the current session and close
      * them if they return a non-null {@link Response} (i.e. they are done).
+     * @param config the import configuration
+     * @return exit code, {@code 0} for success
+     * @throws Exception in the event of error
      */
     public static int waitCompleted(ImportConfig config) throws Exception {
         long wait = 5000L;
@@ -475,6 +498,7 @@ public class CommandLineImporter {
      * </ul>
      * @param args
      *            Command line arguments.
+     * @throws Exception in the event of error
      */
     public static void main(String[] args) throws Exception {
 
@@ -884,7 +908,7 @@ public class CommandLineImporter {
 
     /**
      * Reads a list of paths from stdin.
-     * @return
+     * @return the paths
      */
     static String[] stdin() throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

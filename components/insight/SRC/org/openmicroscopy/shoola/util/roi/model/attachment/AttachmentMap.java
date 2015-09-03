@@ -20,16 +20,10 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.util.roi.model.attachment;
 
-//Java imports
 import java.util.HashMap;
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.attachment.Attachment;
-import org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentKey;
 
 /** 
  * 
@@ -38,10 +32,6 @@ import org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentKey;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class AttachmentMap 

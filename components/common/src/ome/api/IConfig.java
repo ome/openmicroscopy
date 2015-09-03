@@ -11,8 +11,6 @@ import java.util.Date;
 import java.util.Map;
 
 import ome.annotations.NotNull;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;

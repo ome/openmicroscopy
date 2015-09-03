@@ -1,14 +1,12 @@
 /*
- *   $Id: ReadSecurityTest.java 2013 2008-01-04 14:17:09Z jmoore $
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.sec.test;
 
 import ome.conditions.SecurityViolation;
 
-import omero.RString;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Dataset;
@@ -18,12 +16,9 @@ import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
-import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import omero.model.Filter;
 import omero.model.Pixels;
 import omero.model.Thumbnail;
-import omero.model.ThumbnailI;
 import omero.model.Instrument;
 import omero.model.Image;
 

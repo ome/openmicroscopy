@@ -155,13 +155,13 @@ import omero.grid.SharedResourcesPrx;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.grid.WellColumn;
-import omero.model.Annotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
+import omero.model.EllipseI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -171,24 +171,27 @@ import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.LabelI;
 import omero.model.Laser;
 import omero.model.LogicalChannel;
+import omero.model.MaskI;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
-import omero.model.PixelsI;
 import omero.model.PixelsType;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
-import omero.model.PlateI;
+import omero.model.PointI;
+import omero.model.PolygonI;
+import omero.model.PolylineI;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.RectI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -205,6 +208,7 @@ import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.EllipseData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -216,15 +220,20 @@ import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
-import pojos.PixelsData;
+import pojos.MaskData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
+import pojos.PointData;
+import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
+import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TextData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
@@ -961,70 +970,18 @@ class OMEROGateway
 		else if (WellSample.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
+		else if (RectangleData.class.equals(klass) || RectI.class.equals(klass) ||
+		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
+		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
+		        PolygonData.class.equals(klass) || PolygonI.class.equals(klass) ||
+		        PolylineData.class.equals(klass) || PolylineI.class.equals(klass) ||
+		        TextData.class.equals(klass) || LabelI.class.equals(klass) ||
+		        MaskData.class.equals(klass) || MaskI.class.equals(klass)) {
+		    table = "ShapeAnnotationLink";
+		} else if (ROIData.class.equals(klass)) {
+		    table = "RoiAnnotationLink";
+		}
 		else table = "AnnotationAnnotationLink";
-		return table;
-	}
-
-	/**
-	 * Determines the table name corresponding to the specified class.
-	 *
-	 * @param klass The class to analyze.
-	 * @return See above.
-	 */
-	private String getTableForAnnotationLink(String klass)
-	{
-		String table = null;
-		if (klass == null) return table;
-		if (klass.equals(Dataset.class.getName()))
-			table = "DatasetAnnotationLink";
-		else if (klass.equals(Project.class.getName()))
-			table = "ProjectAnnotationLink";
-		else if (klass.equals(Image.class.getName()))
-			table = "ImageAnnotationLink";
-		else if (klass.equals(Pixels.class.getName()))
-			table = "PixelAnnotationLink";
-		else if (klass.equals(Annotation.class.getName()))
-			table = "AnnotationAnnotationLink";
-		else if (klass.equals(DatasetData.class.getName()))
-			table = "DatasetAnnotationLink";
-		else if (klass.equals(ProjectData.class.getName()))
-			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageData.class.getName()))
-			table = "ImageAnnotationLink";
-		else if (klass.equals(PixelsData.class.getName()))
-			table = "PixelAnnotationLink";
-		else if (klass.equals(Screen.class.getName())) table =
-			"ScreenAnnotationLink";
-		else if (klass.equals(Plate.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(ScreenData.class.getName()))
-			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateData.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(DatasetI.class.getName()))
-			table = "DatasetAnnotationLink";
-		else if (klass.equals(ProjectI.class.getName()))
-			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageI.class.getName()))
-			table = "ImageAnnotationLink";
-		else if (klass.equals(PixelsI.class.getName()))
-			table = "PixelAnnotationLink";
-		else if (klass.equals(ScreenI.class.getName()))
-			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateI.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(ScreenData.class.getName()))
-			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateData.class.getName()))
-			table = "PlateAnnotationLink";
-		else if (klass.equals(TagAnnotationData.class.getName()))
-			table = "AnnotationAnnotationLink";
-		else if (klass.equals(PlateAcquisitionData.class.getName()))
-			table = "PlateAcquisitionAnnotationLink";
-		else if (klass.equals(PlateAcquisitionI.class.getName()))
-			table = "PlateAcquisitionAnnotationLink";
-		else if (klass.equals(PlateAcquisition.class.getName()))
-			table = "PlateAcquisitionAnnotationLink";
 		return table;
 	}
 
@@ -1807,7 +1764,7 @@ class OMEROGateway
 	{
 		try {
 		    IQueryPrx service = gw.getQueryService(ctx);
-			String table = getTableForAnnotationLink(type.getName());
+			String table = getAnnotationTableLink(type);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link";
 			sql +=" left outer join link.child as child";
@@ -2487,7 +2444,7 @@ class OMEROGateway
 	{
 		try {
 		    IQueryPrx service = gw.getQueryService(ctx);
-			String table = getTableForAnnotationLink(type.getName());
+			String table = getAnnotationTableLink(type);
 			if (table == null) return null;
 			StringBuffer buffer = new StringBuffer();
 
@@ -2527,13 +2484,13 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	List findAnnotationLinks(SecurityContext ctx, String parentType,
+	List findAnnotationLinks(SecurityContext ctx, Class parentType,
 			long parentID, List<Long> children)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 		    IQueryPrx service = gw.getQueryService(ctx);
-			String table = getTableForAnnotationLink(parentType);
+			String table = getAnnotationTableLink(parentType);
 			if (table == null) return null;
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link");
@@ -3107,31 +3064,34 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, File file, ImageData image)
+			SecurityContext ctx, File file, ImageData image, boolean keepOriginalPaths)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		return retrieveArchivedFiles(ctx, file, image);
+		return retrieveArchivedFiles(ctx, file, image, keepOriginalPaths);
 	}
-
+	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 *
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder
+	 *               structure.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	private Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, File file, ImageData image)
+			SecurityContext ctx, File file, ImageData image, boolean keepOriginalPaths)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		List<?> files = null;
@@ -3168,7 +3128,7 @@ class OMEROGateway
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (CollectionUtils.isEmpty(files)) return result;
 		Iterator<?> i;
-		List<OriginalFile> values = new ArrayList<OriginalFile>();
+		Map<OriginalFile, Fileset> values = new HashMap<OriginalFile, Fileset>();
 		if (image.isFSImage()) {
 			i = files.iterator();
 			Fileset set;
@@ -3180,10 +3140,13 @@ class OMEROGateway
 				j = entries.iterator();
 				while (j.hasNext()) {
 					FilesetEntry fs = j.next();
-					values.add(fs.getOriginalFile());
+					values.put(fs.getOriginalFile(), set);
 				}
 			}
-		} else values.addAll((List<OriginalFile>) files);
+		} else {
+		    for(Object f : files)
+		        values.put((OriginalFile)f, null);
+		}
 
 		RawFileStorePrx store = null;
 		OriginalFile of;
@@ -3195,19 +3158,62 @@ class OMEROGateway
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
 		folderPath = file.getAbsolutePath();
-		i = values.iterator();
+		Iterator<Entry<OriginalFile, Fileset>> entries = values.entrySet().iterator();
 
-		while (i.hasNext()) {
-			of = (OriginalFile) i.next();
-
+		Map<Fileset, String> filesetPaths = new HashMap<Fileset, String>();
+		
+		while (entries.hasNext()) {
+		    Entry<OriginalFile, Fileset> entry = entries.next();
+		    
+			of = entry.getKey();
+			Fileset set = entry.getValue();
+			String repoPath = set.getTemplatePrefix().getValue();
+			
+            String path = null;
+            if (keepOriginalPaths && set != null && set.sizeOfUsedFiles() > 1) {
+                // this will store multi file images within a subdirectory with
+                // the same name as the main image file
+                path = filesetPaths.get(set);
+                if (path == null) {
+                    path = folderPath.endsWith("/") ? folderPath : folderPath + "/";
+                    String imgFilename = set.getFilesetEntry(0).getOriginalFile()
+                            .getName().getValue();
+                    path += imgFilename;
+                    path = generateUniquePathname(path, false);
+                    // path should now be in the form
+                    // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]
+                    // where N is a consecutive number if the folder IMAGE_NAME
+                    // already exists
+                    filesetPaths.put(set, path);
+                }
+                path = path +"/"+ (of.getPath().getValue().replace(repoPath, ""));
+                // path should now be in the form
+                // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]/X/Y/Z
+                // where X, Y, Z are image specific subdirectories
+                // for the single image/data files
+                File origPath = new File(path);
+                if (!origPath.exists())
+                    origPath.mkdirs();
+            } else {
+                path = folderPath;
+            }
+			
 			try {
 			    store = gw.getRawFileService(ctx);
 				store.setFileId(of.getId().getValue());
-
-				if (folderPath != null) {
-				    f = new File(folderPath, of.getName().getValue());
-				} else f = file;
-				    results.add(f);
+				
+				if (path != null) 
+				    f = new File(path, of.getName().getValue());
+				else
+				    f = file;
+				
+                if (f.exists()) {
+                    String newFileName = generateUniquePathname(f.getPath(),
+                            true);
+                    f = new File(newFileName);
+                }
+				
+				results.add(f);
 
 				stream = new FileOutputStream(f);
 				size = of.getSize().getValue();
@@ -3248,6 +3254,40 @@ class OMEROGateway
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
 	}
+	
+    /**
+     * Checks if the given path already exists and if so, generates a new path
+     * name path(N), where N is a consecutive number
+     * 
+     * @param path
+     *            The path name to check
+     * @param isFile
+     *            Pass <code>true</code> if the path name represents a file
+     * @return A unique path name based on the given path or the path itself if
+     *         it doesn't exist yet
+     */
+    private String generateUniquePathname(String path, boolean isFile) {
+        File tmp = new File(path);
+        if (tmp.exists()) {
+            String fileExt = null;
+            if (isFile && path.matches(".+\\..+")) {
+                fileExt = path.substring(path.lastIndexOf('.'), path.length());
+                path = path.substring(0, path.lastIndexOf('.'));
+            }
+            if (path.matches(".+\\(\\d+\\)")) {
+                int n = Integer.parseInt(path.substring(
+                        path.lastIndexOf('(') + 1, path.lastIndexOf(')')));
+                n++;
+                path = path.substring(0, path.lastIndexOf('(')) + "(" + n + ")";
+            } else {
+                path += "(1)";
+            }
+            if (fileExt != null)
+                path += fileExt;
+            return generateUniquePathname(path, isFile);
+        }
+        return path;
+    }
 
 	/**
 	 * Downloads a file previously uploaded to the server.
@@ -6110,7 +6150,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
+	Collection<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
 			List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException
 	{

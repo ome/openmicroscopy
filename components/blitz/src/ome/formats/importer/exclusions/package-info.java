@@ -18,7 +18,7 @@
  */
 
 /**
- * {@FileExclude File exclusion} mechanism for determing
- * which potential filesets should be excluded from import.
+ * {@link ome.formats.importer.exclusions.FileExclusion} provides a mechanism
+ * for determining which potential filesets should be excluded from import.
  */
 package ome.formats.importer.exclusions;

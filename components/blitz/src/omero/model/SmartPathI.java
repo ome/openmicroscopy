@@ -1,10 +1,9 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
+
 package omero.model;
 
 import static omero.rtypes.rdouble;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.batik.parser.AWTPathProducer;
 import org.apache.batik.parser.PathHandler;
 import org.apache.batik.parser.PathParser;
 

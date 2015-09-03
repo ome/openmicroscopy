@@ -18,8 +18,8 @@
  */
 
 /**
- * {@FileTransfer File transfer} mechanism for shipping
- * client-side files to the server-side. See individual
- * implementations for details.
+ * {@link ome.formats.importer.transfers.FileTransfer} provides
+ * a mechanism for shipping client-side files to the server-side.
+ * See individual implementations for details.
  */
 package ome.formats.importer.transfers;

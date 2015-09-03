@@ -14,11 +14,6 @@
 
 package ome.services.query;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.parameters.Parameters;
 
 /**
@@ -29,7 +24,6 @@ import ome.parameters.Parameters;
  * {@link ome.services.query.ClassQueryParameterDef}.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 public abstract class AbstractClassIdsOptionsQuery extends Query {

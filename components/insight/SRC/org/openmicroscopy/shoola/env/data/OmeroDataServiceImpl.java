@@ -167,7 +167,7 @@ class OmeroDataServiceImpl
 	private List<DataObject> deleteTagSet(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		List l = gateway.findAnnotationLinks(ctx, Annotation.class.getName(),
+		List l = gateway.findAnnotationLinks(ctx, Annotation.class,
 				id, null);
 
 		List<Long> tagIds = new ArrayList<Long>();
@@ -509,16 +509,16 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getArchivedFiles(SecurityContext, File, long)
+	 * @see OmeroDataService#getArchivedFiles(SecurityContext, File, long, boolean)
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			File file, long imageID)
+			File file, long imageID, boolean keepOriginalPath)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		context.getLogger().debug(this, file.getAbsolutePath());
 		//Check the image is archived.
 		ImageData image = gateway.getImage(ctx, imageID, null);
-		return gateway.getArchivedFiles(ctx, file, image);
+		return gateway.getArchivedFiles(ctx, file, image, keepOriginalPath);
 	}
 
 	/**

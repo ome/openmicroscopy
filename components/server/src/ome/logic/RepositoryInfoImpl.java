@@ -9,8 +9,6 @@ package ome.logic;
 
 import java.util.List;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IRepositoryInfo;
 import ome.api.ServiceInterface;
@@ -43,8 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0
  * @see IRepositoryInfo
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 @Transactional
 public class RepositoryInfoImpl extends AbstractLevel2Service implements
         IRepositoryInfo {
@@ -107,8 +103,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 
     /**
      * Bean injection setter for ROMIO thumbnail service
-     * 
-     * @param rootdir
+     * @param thumbnailService the thumbnail service
      */
     public void setThumbnailService(ThumbnailService thumbnailService) {
         getBeanHelper().throwIfAlreadySet(this.thumbnailService,
@@ -118,8 +113,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 
     /**
      * Bean injection setter for ROMIO pixels service
-     * 
-     * @param rootdir
+     * @param pixelsService the pixels service
      */
     public void setPixelsService(PixelsService pixelsService) {
         getBeanHelper().throwIfAlreadySet(this.pixelsService, pixelsService);
@@ -128,8 +122,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 
     /**
      * Bean injection setter for ROMIO file service
-     * 
-     * @param rootdir
+     * @param fileService the raw file service
      */
     public void setFileService(OriginalFilesService fileService) {
         getBeanHelper().throwIfAlreadySet(this.fileService, fileService);
@@ -138,8 +131,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 
     /**
      * Bean injection setter for SQL operations
-     * 
-     * @param rootdir
+     * @param sql the SQL action instance
      */
     public void setSqlAction(SqlAction sql) {
         getBeanHelper().throwIfAlreadySet(this.sql, sql);
@@ -203,17 +195,17 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 
     /**
      * Bean injection setter for data repository directory
-     * 
-     * @param datadir
+     * @param datadir the data repository directory
      */
     public void setDatadir(String datadir) {
         this.datadir = datadir;
     }
 
     /**
-     * Calculates based on the {@link #lastUsage cached usage} and the
-     * {@link #lastCheck elapsed time} whether or not a real
+     * Calculates based on the cached usage and the
+     * elapsed time whether or not a real
      * {@link #sanityCheckRepository()} should be calculated.
+     * @return if the repository needs a sanity check
      */
     public boolean needsSanityCheck() {
 
@@ -248,7 +240,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * @see ome.api.IRepository#sanityCheckRepository()
+     * @see ome.api.IRepositoryInfo#sanityCheckRepository()
      */
     @RolesAllowed("user")
     public void sanityCheckRepository() throws InternalException {

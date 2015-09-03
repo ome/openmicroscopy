@@ -27,8 +27,6 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
 
 // Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -50,8 +48,6 @@ import ome.tools.lsid.LsidUtils;
  * @see <a
  *      href="http://trac.openmicroscopy.org.uk/ome/wiki/ObjectModel">wiki:ObjectModel</a>
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public abstract class HibernateUtils {
 
     private static Logger log = LoggerFactory.getLogger(HibernateUtils.class);
