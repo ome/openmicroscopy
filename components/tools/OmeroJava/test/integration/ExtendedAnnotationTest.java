@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -30,22 +31,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import omero.ServerError;
 import omero.api.IMetadataPrx;
-import omero.api.IQueryPrx;
-import omero.api.IUpdatePrx;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Detector;
 import omero.model.DetectorAnnotationLink;
 import omero.model.DetectorAnnotationLinkI;
-import omero.model.DetectorI;
 import omero.model.CommentAnnotation;
 import omero.model.Dichroic;
 import omero.model.Filter;
 import omero.model.IObject;
 import omero.model.Instrument;
-import omero.model.InstrumentI;
 import omero.model.Laser;
 import omero.model.Objective;
 import omero.sys.Parameters;

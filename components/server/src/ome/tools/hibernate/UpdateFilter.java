@@ -7,18 +7,14 @@
 
 package ome.tools.hibernate;
 
-// Java imports
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
 import org.hibernate.Hibernate;
 
-// Application-internal dependencies
 import ome.model.IObject;
-import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 
@@ -28,7 +24,6 @@ import ome.util.Filterable;
  * {@link ome.logic.UpdateImpl} save methods.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see ome.api.IUpdate
  * @see ome.logic.UpdateImpl
  * @since 3.0-M3

@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.impl;
 
 import java.util.List;
@@ -12,10 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ResultHolder;
-import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
-import ome.system.ServiceFactory;
 
 import omero.ServerError;
 import omero.constants.categories.PROCESSORCALLBACK;
@@ -30,8 +27,6 @@ import omero.model.Job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 

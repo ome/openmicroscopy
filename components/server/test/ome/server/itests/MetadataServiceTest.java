@@ -4,11 +4,9 @@
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests;
 
-
-//Java imports
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,7 +26,6 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
-import ome.server.itests.FileUploader;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,10 +37,6 @@ import org.testng.annotations.Test;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class MetadataServiceTest 

@@ -53,7 +53,6 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
-import ome.model.core.Pixels;
 import ome.model.fs.Fileset;
 import ome.model.screen.Plate;
 import ome.model.screen.PlateAcquisition;
@@ -71,10 +70,6 @@ import ome.services.query.Query;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class MetadataImpl 
