@@ -54,7 +54,7 @@ $(function() {
         //...while we load groups
         // Need to find which groups we can move selected objects to.
         // Object owner must be member of target group.
-        var url = webindex_url + "load_chgrp_groups?" + OME.get_tree_selection();
+        var url = webindex_url + "load_chgrp_groups/?" + OME.get_tree_selection();
         $.getJSON(url, function(data){
             data_owners = data.owners;  // save for later
             var ownernames = [];
@@ -96,7 +96,7 @@ $(function() {
         // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
         $group_chooser.hide();                      // hide group_chooser while we wait...
         var sel = OME.get_tree_selection();
-        $.get(webindex_url + "fileset_check/chgrp?" + sel, function(html){
+        $.get(webindex_url + "fileset_check/chgrp/?" + sel, function(html){
             if($('div.split_fileset', html).length > 0) {
                 $(html).appendTo($chgrpform);
                 $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("Move All");
