@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -45,12 +43,12 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.ImageAcquisitionData;
-import pojos.InstrumentData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.InstrumentData;
 
 /** 
  * Defines the interface provided by the viewer component. 

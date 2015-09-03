@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorControl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -73,7 +71,6 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import omero.log.LogMessage;
 import omero.log.Logger;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
@@ -96,18 +93,18 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 
-import pojos.BooleanAnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DoubleAnnotationData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.PixelsData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.WellSampleData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * The Editor's controller.
@@ -117,9 +114,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorControl

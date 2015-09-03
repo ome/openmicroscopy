@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.FileLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,25 +20,19 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
-//Java imports
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Loads images like PNG, TIFF etc linked to a given object.
@@ -50,9 +42,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class FileLoader 

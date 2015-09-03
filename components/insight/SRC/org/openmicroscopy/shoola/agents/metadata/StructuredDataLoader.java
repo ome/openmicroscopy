@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,24 +20,19 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
-//Java imports
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Loads the structured annotations related to a given object.
@@ -53,7 +46,7 @@ import pojos.DataObject;
  * @version 3.0
  * @since OME3.0
  */
-public class StructuredDataLoader 
+public class StructuredDataLoader
 	extends MetadataLoader
 {
 

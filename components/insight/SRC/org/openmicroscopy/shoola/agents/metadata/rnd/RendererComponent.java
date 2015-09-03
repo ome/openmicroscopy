@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.RendererComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -61,9 +57,9 @@ import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.ChannelData;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Implements the {@link RendererComponent} interface to provide the 

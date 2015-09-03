@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.UserUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,8 +21,6 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -32,19 +28,16 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
-//Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.AnnotationData;
-import pojos.ExperimenterData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Component displaying the user's details.

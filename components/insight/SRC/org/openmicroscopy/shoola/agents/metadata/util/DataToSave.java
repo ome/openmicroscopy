@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.DataToSave 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,13 +21,9 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.util;
 
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import pojos.AnnotationData;
+import omero.gateway.model.AnnotationData;
 
 /** 
  * Holds the annotation to remove. 

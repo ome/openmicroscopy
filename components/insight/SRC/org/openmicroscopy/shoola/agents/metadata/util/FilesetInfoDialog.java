@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.ImportType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
-import pojos.FilesetData;
+import omero.gateway.model.FilesetData;
 
 /**
  * A {@link TinyDialog} displaying file paths

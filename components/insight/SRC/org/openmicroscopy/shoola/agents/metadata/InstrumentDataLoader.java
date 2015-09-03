@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader
- *
  *------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
@@ -22,17 +20,11 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.InstrumentData;
+import omero.gateway.model.InstrumentData;
 
 /**
  * Loads the instrument and its components.
@@ -42,9 +34,6 @@ import pojos.InstrumentData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class InstrumentDataLoader
