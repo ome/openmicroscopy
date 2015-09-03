@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.SaveAsParam 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,16 +20,10 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.io.File;
 import java.util.List;
 import javax.swing.Icon;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -43,9 +35,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class SaveAsParam
@@ -59,7 +48,7 @@ public class SaveAsParam
 	private File folder;
 	
 	/** The collection of objects to handle. */
-	private List<pojos.DataObject> objects;
+	private List<omero.gateway.model.DataObject> objects;
 	
 	/** One of the constants defined by this class. */
 	private int index;
@@ -79,7 +68,7 @@ public class SaveAsParam
 	 * @param folder The folder where to save the data.
 	 * @param objects The collection of objects to handle.
 	 */
-	public SaveAsParam(File folder, List<pojos.DataObject> objects)
+	public SaveAsParam(File folder, List<omero.gateway.model.DataObject> objects)
 	{
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No objects specified.");
@@ -145,7 +134,7 @@ public class SaveAsParam
 	 * 
 	 * @return See above.
 	 */
-	public List<pojos.DataObject> getObjects() { return objects; }
+	public List<omero.gateway.model.DataObject> getObjects() { return objects; }
 
 	/**
 	 * Returns <code>true</code> if the the file should

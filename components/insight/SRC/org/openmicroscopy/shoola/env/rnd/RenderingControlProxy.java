@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.RenderingControlProxy
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -23,12 +21,10 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -39,13 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-
-//Third-party libraries
-
-
-
-//Application-internal dependencies
 import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
@@ -72,9 +61,9 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
-import pojos.ChannelData;
-import pojos.ExperimenterData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.

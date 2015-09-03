@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.ImageDataView
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views;
 
 
@@ -30,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import omero.romio.PlaneDef;
-import pojos.WorkflowData;
+import omero.gateway.model.WorkflowData;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -45,9 +42,9 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
-import pojos.DataObject;
-import pojos.PixelsData;
-import pojos.ROIData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 /** 
  * Provides methods to support image viewing and analyzing.

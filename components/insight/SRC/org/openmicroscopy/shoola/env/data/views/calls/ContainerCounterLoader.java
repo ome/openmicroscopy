@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -20,10 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,9 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
@@ -42,12 +35,12 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.PlateData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Command to retrieve the number of items contained in a specified collection

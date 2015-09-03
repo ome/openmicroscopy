@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.ImageSplitChecker
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,8 +21,6 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,12 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
@@ -57,9 +47,9 @@ import omero.gateway.exception.RenderingServiceException;
 
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 
 /**
  * Checks if the images in the specified containers are split between

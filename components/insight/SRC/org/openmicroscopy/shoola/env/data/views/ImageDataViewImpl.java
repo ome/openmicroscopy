@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.ImViewerViewImpl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,24 +18,15 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views;
 
-
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
-import pojos.WorkflowData;
+import omero.gateway.model.WorkflowData;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -78,9 +67,9 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
-import pojos.DataObject;
-import pojos.PixelsData;
-import pojos.ROIData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 
 /** 
@@ -93,9 +82,6 @@ import pojos.ROIData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ImageDataViewImpl

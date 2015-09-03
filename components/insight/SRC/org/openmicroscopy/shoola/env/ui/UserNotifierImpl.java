@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.UserNotifierImpl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -59,7 +57,7 @@ import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /**
  * Implements the {@link UserNotifier} interface.

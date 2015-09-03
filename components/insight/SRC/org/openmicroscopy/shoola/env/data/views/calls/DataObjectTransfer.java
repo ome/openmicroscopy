@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.DataObjectTransfer 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -36,7 +34,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Command to move between groups the passed objects.

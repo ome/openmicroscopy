@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ParamData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,12 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
-import pojos.util.PojoMapper;
+
+import omero.gateway.model.util.PojoMapper;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -112,8 +105,8 @@ public class ParamData
             type = List.class;
         } else if (o instanceof Map) {
             type = Map.class;
-        } else if (o instanceof pojos.DataObject)
-            type = pojos.DataObject.class;
+        } else if (o instanceof omero.gateway.model.DataObject)
+            type = omero.gateway.model.DataObject.class;
         Number n;
         boolean set = false;
         Object value = convertRType(param.min);
@@ -171,8 +164,8 @@ public class ParamData
             return omero.rtypes.rfloat((Float) value);
         if (value instanceof Double)
             return omero.rtypes.rdouble((Double) value);
-        if (value instanceof pojos.DataObject) {
-            IObject o = ((pojos.DataObject) value).asIObject();
+        if (value instanceof omero.gateway.model.DataObject) {
+            IObject o = ((omero.gateway.model.DataObject) value).asIObject();
             return omero.rtypes.robject(o);
         }
         return null;

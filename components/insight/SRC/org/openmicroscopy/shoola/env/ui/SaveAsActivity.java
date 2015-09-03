@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.SaveAsActivity 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,19 +20,17 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
 import java.io.File;
 import java.util.Map;
 
-//Third-party libraries
+
 import org.apache.commons.io.FilenameUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import omero.gateway.SecurityContext;
 
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * The activity associated to the Save as action i.e. save a collection of

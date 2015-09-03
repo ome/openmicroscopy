@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroImageService
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
 import java.awt.image.BufferedImage;
@@ -54,11 +51,10 @@ import omero.gateway.exception.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ROIData;
-import pojos.WorkflowData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 /** 
  * List of methods to view images or thumbnails.
