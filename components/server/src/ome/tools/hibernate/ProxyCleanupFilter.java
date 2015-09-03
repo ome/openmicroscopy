@@ -48,7 +48,7 @@ import org.hibernate.collection.AbstractPersistentCollection;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 1.0
- * @see ticket 8277
+ * @see <a href="http://trac.openmicroscopy.org/ome/ticket/8277">Trac ticket #8277</a>
  */
 public class ProxyCleanupFilter extends ContextFilter {
 
@@ -59,7 +59,7 @@ public class ProxyCleanupFilter extends ContextFilter {
     protected final CurrentDetails current;
 
     /**
-     * Passes null to {@link ProxyCleanupFilter#ProxyCleanupFilter(CurrentDetails)}
+     * Passes {@code null}s to {@link ProxyCleanupFilter#ProxyCleanupFilter(ACLVoter, CurrentDetails)}
      * such that all restricted objects will be unloaded.
      */
     public ProxyCleanupFilter() {
@@ -67,8 +67,10 @@ public class ProxyCleanupFilter extends ContextFilter {
     }
 
     /**
-     * Constructor take a {@link CurrentDetails} object in order to check
+     * Construct a proxy cleanup filter that checks
      * the security restrictions on certain objects.
+     * @param acl the ACL voter
+     * @param current the current thread's security context
      */
     public ProxyCleanupFilter(ACLVoter acl, CurrentDetails current) {
         this.acl = acl;

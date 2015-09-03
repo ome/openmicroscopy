@@ -45,12 +45,12 @@ public class UpdateFilter extends ContextFilter {
      * instead.
      * </p>
      * <p>
-     * The replacement is set by {@link MergeEventListener} and this is the
+     * The replacement is set by {@link ome.security.basic.MergeEventListener} and this is the
      * signal that that entity can be unloaded. Usually, this method is invoked
      * by {@link ome.logic.UpdateImpl}
      * </p>
      * 
-     * @see MergeEventListener
+     * @see ome.security.basic.MergeEventListener
      * @see ome.logic.UpdateImpl
      * @see IObject#unload()
      */
@@ -132,7 +132,7 @@ public class UpdateFilter extends ContextFilter {
 
     /**
      * Prevents CountPerOwner from being loaded unnecessarily.
-     * @see ticket:3978
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3978">Trac ticket #3978</a>
      */
     @Override
     public Map filter(String fieldId, Map m) {
