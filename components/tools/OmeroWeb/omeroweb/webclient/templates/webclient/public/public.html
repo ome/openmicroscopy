@@ -177,7 +177,7 @@
                             if (node.type === 'experimenter') {
                                 return '{% url 'api_shares' %}'
                             } else if (node.type === 'share') {
-                                return '{% url 'webindex' %}api/share_images/' + node.data.obj.id;
+                                return '{% url 'webindex' %}api/share_images/' + node.data.obj.id + '/';
                             } else if (node.id === '#') {
                                 // root node - Always load your own shares
                                 return '{% url 'api_experimenter' ome.user.id %}';
