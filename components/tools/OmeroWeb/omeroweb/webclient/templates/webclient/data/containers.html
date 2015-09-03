@@ -986,16 +986,17 @@
                             }
 
                             // If this is a node which can have paged results then either specify that
-                            // we want the first page or the specific page
+                            // we want the specific page, or use default first page
                             if (node.type === 'dataset' || node.type === 'orphaned') {
                                 // Attempt to get the current page desired if there is one
                                 var page = inst.get_page(node);
                                 if (page) {
                                     payload['page'] = page;
-                                // Otherwise, always get page 1
-                                } else {
-                                    payload['page'] = 1;
+                                    // Otherwise, no 'page' will give us default, first page
                                 }
+                            } else {
+                                // Disable paging for other queries
+                                payload['page'] = 0
                             }
 
                             // Specify that orphans are specifically sought

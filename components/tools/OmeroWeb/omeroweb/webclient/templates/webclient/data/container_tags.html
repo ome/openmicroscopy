@@ -33,7 +33,8 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.pagination_plugin.js" %}"></script>
 
     <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
@@ -198,7 +199,7 @@
             // Setup jstree
             .jstree({
                 'plugins': ['types', 'sort', 'locate', 'fields', 'ometools', 'conditionalselect',
-                'truncatetext', 'contextmenu'],
+                'truncatetext', 'contextmenu', 'pagination'],
                 // The jstree core
                 'core' : {
                     'themes': {
@@ -228,6 +229,20 @@
                         var path = inst.get_path(node, false, true);
                         if (path && node.type == 'experimenter') {
                             payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
+                        }
+
+                        // If this is a node which can have paged results then either specify that
+                        // we want the specific page, or use default first page
+                        if (node.type === 'dataset') {
+                            // Attempt to get the current page desired if there is one
+                            var page = inst.get_page(node);
+                            if (page) {
+                                payload['page'] = page;
+                                // Otherwise, no 'page' will give us default, first page
+                            }
+                        } else {
+                            // Disable paging for other queries
+                            payload['page'] = 0
                         }
 
                         // Always add the group_id from the current context
