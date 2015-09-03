@@ -71,8 +71,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import pojos.GroupData;
-import pojos.PermissionData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.PermissionData;
 
 import com.google.common.collect.ImmutableMap;
 

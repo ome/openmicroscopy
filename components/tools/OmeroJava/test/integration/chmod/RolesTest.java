@@ -1,6 +1,4 @@
 /*
- * integration.chmod.RolesTest 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -47,7 +45,7 @@ import omero.model.Image;
 import omero.model.Permissions;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
-import pojos.DatasetData;
+import omero.gateway.model.DatasetData;
 import integration.AbstractServerTest;
 
 /**

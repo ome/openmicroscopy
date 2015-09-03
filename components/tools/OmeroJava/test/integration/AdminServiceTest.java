@@ -46,8 +46,8 @@ import com.google.common.collect.ImmutableList;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /**
  * Collections of tests for the <code>IAdmin</code> service.

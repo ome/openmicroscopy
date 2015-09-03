@@ -72,10 +72,10 @@ import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
-import pojos.ChannelAcquisitionData;
-import pojos.ImageData;
-import pojos.InstrumentData;
-import pojos.LightSourceData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LightSourceData;
 
 /**
  */

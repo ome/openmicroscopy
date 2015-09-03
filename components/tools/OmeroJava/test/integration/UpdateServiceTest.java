@@ -103,26 +103,26 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
-import pojos.BooleanAnnotationData;
-import pojos.DatasetData;
-import pojos.EllipseData;
-import pojos.ImageData;
-import pojos.LineData;
-import pojos.LongAnnotationData;
-import pojos.MaskData;
-import pojos.PlateData;
-import pojos.PointData;
-import pojos.PolygonData;
-import pojos.PolylineData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ScreenData;
-import pojos.ShapeData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /**
  * Collections of tests for the <code>IUpdate</code> service.
