@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerUI
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -24,8 +22,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -110,10 +106,10 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.GroupData;
-import pojos.ImageData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
 
 /** 
  * The {@link ImViewer} view.
