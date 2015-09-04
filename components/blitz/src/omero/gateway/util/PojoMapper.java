@@ -54,7 +54,6 @@ import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
-import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -111,9 +110,6 @@ import omero.gateway.model.XMLAnnotationData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *          <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class PojoMapper
@@ -320,8 +316,8 @@ public class PojoMapper
      * The object in the list must be a IObject subclass and the key is the
      * ID of the object.
      *
-     * @param keyClass The class that will be the key for the map
-     * @param valueClass The class that will be the value for the map
+     * @param keyKlass The class that will be the key for the map
+     * @param valueKlass The class that will be the value for the map
      * @param method The method name as a string that, using reflection,
      *               will be used to get the key from the object.
      * @param objects The map of objects to convert.
@@ -334,9 +330,8 @@ public class PojoMapper
      * @throws IllegalArgumentException If the map is <code>null</code>
      * or if the type {@link IObject} is unknown.
      */
-    public static <K, V extends DataObject>  Map<K, V> 
-    asDataObjectMap(Class<K> keyKlass,
-            Class<V> valueKlass,
+    public static <K, V extends DataObject>  Map<K, V>
+    asDataObjectMap(Class<K> keyKlass, Class<V> valueKlass,
             String method, List objects) throws
             SecurityException,
             NoSuchMethodException,

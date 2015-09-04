@@ -105,7 +105,7 @@ public class TIFFFilter {
     /**
      * Accepts or not the file with the declared file extensions.
      * 
-     * @param file The file to handle.
+     * @param f The file to handle.
      * @return See above.
      */
     public boolean accept(File f) {

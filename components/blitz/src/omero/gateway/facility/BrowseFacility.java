@@ -263,7 +263,7 @@ public class BrowseFacility extends Facility {
      *
      * @param ctx
      *            The security context.
-     * @param loggedInUser
+     * @param user
      *            The user currently logged in.
      * @return See above.
      * @throws DSOutOfServiceException

@@ -452,10 +452,6 @@ public class ModelMapper
     /**
      * Creates a new annotation <code>IObject</code>.
      *
-     * @param annotatedObject The <code>DataObject</code> to annotate.
-     *                        Can either be a <code>DatasetData</code>
-     *                        or a <code>ImageData</code>. Mustn't be
-     *                        <code>null</code>.
      * @param data The annotation to create.
      * @return See above.
      */
