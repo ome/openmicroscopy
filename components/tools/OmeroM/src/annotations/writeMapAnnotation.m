@@ -12,6 +12,9 @@ function ma = writeMapAnnotation(session, keys, values, varargin)
 %    ma = writeMapAnnotation(session, keys, values, 'namespace', namespace)
 %    also sets the namespace of the map annotation.
 %
+%    ma = writeMapAnnotation(session, keys, values, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        map = writeMapAnnotation(session, 'key', 'value');
@@ -47,6 +50,7 @@ ip.addRequired('keys', @(x) ischar(x) || iscellstr(x));
 ip.addRequired('values', @(x) ischar(x) || iscellstr(x));
 ip.addParamValue('namespace', '', @ischar);
 ip.addParamValue('description', '', @ischar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, keys, values, varargin{:});
 
 % Convert keys and values into cell arrays
@@ -74,4 +78,9 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Save the map annotation
-ma = session.getUpdateService().saveAndReturnObject(ma);
+context = java.util.HashMap;
+if ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+end
+ma = session.getUpdateService().saveAndReturnObject(ma, context);

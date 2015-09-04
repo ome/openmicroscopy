@@ -7,33 +7,34 @@ function images = getImages(session, varargin)
 %   images = getImages(session, ids) returns all the images identified by
 %   the input ids in the context of the session group.
 %
-%   images = getImages(session, 'owner', ownerId) returns all the images
-%   owned by the input owner in the context of the session group.
+%   images = getImages(..., 'owner', owner) specifies the owner of the
+%   images. A value of -1 implies images are returned independently of
+%   the owner.
 %
-%   images = getImages(session, ids, 'owner', ownerId) returns all the
-%   images identified by the input ids and owned by the input owner in the
-%   context of the session group.
+%   images = getImages(..., 'group', groupId) specifies the group
+%   context for the images. A value of -1 means images are returned
+%   across groups.
 %
 %   images = getImages(session, 'project', projectIds) returns all the
-%   images contained in the projects identified by the input ids in the
-%   context of the session group.
+%   images contained in the projects identified by the input ids.
 %
 %   images = getImages(session, 'dataset', datasetIds) returns all the
-%   images contained in the datasets identified by the input ids in the
-%   context of the session group.
+%   images contained in the datasets identified by the input ids.
 %
 %   Examples:
 %
 %      images = getImages(session);
 %      images = getImages(session, 'owner', ownerId);
+%      images = getImages(session, 'group', groupId)
 %      images = getImages(session, ids);
 %      images = getImages(session, ids, 'owner', ownerId);
+%      images = getImages(session, ids, 'group', groupId);
 %      images = getImages(session, 'project', projectIds);
 %      images = getImages(session, 'dataset', projectIds);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETDATASETS, GETPLATES
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -62,31 +63,43 @@ ip.parse(session, varargin{:});
 
 if isempty(ip.Results.project) && isempty(ip.Results.dataset)
     % Check optional input parameters
+    parameters = omero.sys.ParametersI();
+    defaultContext = java.util.HashMap;
     if isempty(ip.Results.ids)
         % If no input id, return the objects owned by the session user by default
         defaultOwner = session.getAdminService().getEventContext().userId;
+        parameters.exp(rlong(defaultOwner));
     else
         % If ids are specified, return the objects owned by any user by default
-        defaultOwner = -1;
+        parameters.exp(rlong(-1));
+        defaultContext.put('omero.group', '-1');
     end
-    ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
+    ip.addParamValue('owner', [], @(x) isscalar(x) && isnumeric(x));
+    ip.addParamValue('context', defaultContext, @(x) isa(x, 'java.util.HashMap'));
+    ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
     ip.KeepUnmatched = false;
     ip.parse(session, varargin{:});
 
     % Add the owner user id to the loading parameters
-    parameters = omero.sys.ParametersI();
-    parameters.exp(rlong(ip.Results.owner));
-    
+    if ~isempty(ip.Results.owner)
+        parameters.exp(rlong(ip.Results.owner));
+    end
+
+    context = ip.Results.context;
+    if ~isempty(ip.Results.group)
+        context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
+    end
+
     % Create container service to load objects
     proxy = session.getContainerService();
     
     if isempty(ip.Results.ids),
         % Load all images belonging to current session user
-        imageList = proxy.getUserImages(parameters);
+        imageList = proxy.getUserImages(parameters, context);
     else
         % Load all images specified by input ids
         ids = toJavaList(ip.Results.ids, 'java.lang.Long');
-        imageList = proxy.getImages('omero.model.Image', ids, parameters);
+        imageList = proxy.getImages('omero.model.Image', ids, parameters, context);
     end
     
     % Convert java.util.ArrayList into Matlab arrays

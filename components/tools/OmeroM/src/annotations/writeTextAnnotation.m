@@ -10,6 +10,9 @@ function ann = writeTextAnnotation(session, type, text, varargin)
 %    ann = writeTextAnnotation(session, type, text, 'namespace', namespace)
 %    also sets the namespace of the annotation.
 %
+%    ann = writeTextAnnotation(session, type, text, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        ann = writeTextAnnotation(session, type, text)
@@ -48,6 +51,7 @@ ip.addRequired('type', @(x) ischar(x) && ismember(x, annotationNames));
 ip.addRequired('text', @ischar);
 ip.addParamValue('description', '', @ischar);
 ip.addParamValue('namespace', '', @ischar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, type, text, varargin{:});
 
 % Create text annotation of input type
@@ -63,4 +67,9 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Upload and return the annotation
-ann = session.getUpdateService().saveAndReturnObject(ann);
+context = java.util.HashMap;
+if ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+end
+ann = session.getUpdateService().saveAndReturnObject(ann, context);

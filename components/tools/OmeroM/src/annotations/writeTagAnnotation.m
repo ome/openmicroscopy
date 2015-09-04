@@ -10,6 +10,9 @@ function ta = writeTagAnnotation(session, tag, varargin)
 %    ta = writeTagAnnotation(session, tag, 'namespace', namespace)
 %    also sets the namespace of the tag annotation.
 %
+%    ta = writeTagAnnotation(session, tag, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        ta = writeTagAnnotation(session, tag)
