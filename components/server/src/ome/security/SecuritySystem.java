@@ -171,7 +171,7 @@ public interface SecuritySystem {
      * 
      * @param name A non-null unique name for a class of policies.
      * @param obj An instance which is to be checked against matching policies.
-     * @throws SecurityViolation if the given {@link Policy} is
+     * @throws {@link SecurityViolation} if the given {@link Policy} is
      *      considered to be restricted.
      */
     void checkRestriction(String name, IObject obj) throws SecurityViolation;
