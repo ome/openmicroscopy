@@ -350,7 +350,7 @@ JSON File Format:
                 from TagAnnotation ann where ann.id not in
                 (select distinct l.child.id from AnnotationAnnotationLink l
                     join l.parent as ts
-                    where ts.ns = 'openmicroscopy.org/omero/insight/tagset')
+                    where ts.ns = :ns)
                 and ann.ns is null
                 """
             if args.uid:
@@ -429,7 +429,7 @@ JSON File Format:
                 select a.id, a.description, a.textValue,
                 a.details.owner.id, a.details.owner.firstName,
                 a.details.owner.lastName
-                from Annotation a
+                from TagAnnotation a
                 where a.ns=:ns
                 """
 
@@ -472,9 +472,9 @@ JSON File Format:
 
         return lines
 
-    def generate_orphans(self, tags, orphans, args):
+    def generate_orphans(self, orphans, args):
         """
-        Given a dict of tags and a list of orphaned tags, return a list of
+        Given a list of orphaned tags, return a list of
         lines representing the orphan output.
         """
         lines = []
@@ -700,7 +700,7 @@ JSON File Format:
             tc = self.list_tags(args, tagset)
             lines.extend(self.generate_tagset(tc.tags, tc.mapping, args))
             if len(tc.orphans) > 0:
-                lines.extend(self.generate_orphans(tc.tags, tc.orphans, args))
+                lines.extend(self.generate_orphans(tc.orphans, args))
                 if len(tc.empties) > 0:
                     lines.append('')
             if len(tc.empties) > 0:
