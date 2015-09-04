@@ -267,4 +267,4 @@ def timeformat(value):
     elif value < 60 * 60:
         return u'%d\u00A0min\u00A0%d\u00A0s' % (value / 60, value % 60)
     else:
-        return u'%d\u00A0h\u00A0%d\u00A0min' % (value / 3600, value % 3600)
+        return u'%d\u00A0h\u00A0%d\u00A0min' % (value / 3600, round((value % 3600)/60))
