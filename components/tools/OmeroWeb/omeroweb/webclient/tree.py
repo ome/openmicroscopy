@@ -1085,7 +1085,7 @@ def _marshal_tag(conn, row):
 
 
 def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
-                 limit=settings.PAGE):
+                 orphaned=False, limit=settings.PAGE):
     ''' Marshals tags
 
         @param conn OMERO gateway.
@@ -1154,6 +1154,7 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
             '''
     # All
     else:
+        where_clause = []
         q = '''
             select new map(tag.id as id,
                    tag.textValue as textValue,
@@ -1168,15 +1169,29 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
             from TagAnnotation tag
             '''
 
+        # Orphaned tags are those not tagged by a 'tagset'
+        if orphaned:
+            where_clause.append(
+                '''
+                not exists (
+                    select aalink from AnnotationAnnotationLink as aalink
+                    where aalink.child = tag.id and aalink.parent.ns =
+                    'openmicroscopy.org/omero/insight/tagset'
+                )
+                '''
+            )
         # Restricted by the specified user
         if experimenter_id is not None and experimenter_id != -1:
             params.addId(experimenter_id)
-            q += '''
-                where tag.details.owner.id = :id
+            where_clause.append(
                 '''
-        q += '''
-            order by tag.id
-            '''
+                tag.details.owner.id = :id
+                '''
+            )
+        q += """
+        %s
+        order by tag.id
+        """ % build_clause(where_clause, 'where', 'and')
 
     for e in qs.projection(q, params, service_opts):
         e = unwrap(e)
