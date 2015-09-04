@@ -247,10 +247,13 @@ OME.doPagination = function(page) {
         containerNode = OME.getTreeBestGuess(containerType, containerId);
     }
 
+    // Deselect all
+    datatree.deselect_all(true);
+
     // Set the page for that node in the tree and reload the tree section
     datatree.change_page(containerNode, page);
-    // Reselect the same node to trigger update
-    datatree.deselect_all(true);
+
+    // and then reselect the same node again to trigger update
     datatree.select_node(containerNode);
 
     return false;
