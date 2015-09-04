@@ -413,7 +413,7 @@ class WebControl(BaseControl):
         import omeroweb.settings as settings
         self._fastcgi_deprecation(settings)  # to be removed in 5.2
 
-        link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
+        link = ("%s:%d" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
         location = self._get_python_dir() / "omeroweb"
         deploy = getattr(settings, 'APPLICATION_SERVER')
@@ -465,7 +465,7 @@ using bin\omero web start on Windows with FastCGI.
 
         if deploy == settings.FASTCGITCP:
             cmd = "python manage.py runfcgi workdir=./"
-            cmd += " method=prefork host=%(host)s port=%(port)s"
+            cmd += " method=prefork host=%(host)s port=%(port)d"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
             cmd += " maxchildren=5 minspare=1 maxspare=5"
             cmd += " maxrequests=%(maxrequests)d"
