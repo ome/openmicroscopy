@@ -471,7 +471,7 @@ class BaseContainer(BaseController):
             params.page((int(page)-1)*settings.PAGE, settings.PAGE)
         im_list = list(self.conn.listOrphans(
             "Image", eid=eid, params=params, loadPixels=True))
-        im_list.sort(key=lambda x: x.getName().lower())
+        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
         self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
 
