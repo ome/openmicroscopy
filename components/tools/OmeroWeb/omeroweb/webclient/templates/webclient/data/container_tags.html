@@ -229,6 +229,7 @@
                         var path = inst.get_path(node, false, true);
                         if (path && node.type == 'experimenter') {
                             payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
+                            payload['orphaned'] = true;     // Don't show tags that are in tagsets
                         }
 
                         // If this is a node which can have paged results then either specify that

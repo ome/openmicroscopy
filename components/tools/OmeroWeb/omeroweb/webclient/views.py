@@ -1021,6 +1021,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         group_id = get_long_or_default(request, 'group', -1)
         tag_id = get_long_or_default(request, 'id', None)
         experimenter_id = get_long_or_default(request, 'experimenter_id', -1)
+        orphaned = get_bool_or_default(request, 'orphaned', False)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1037,6 +1038,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
             tagged = {}
 
         tagged['tags'] = tree.marshal_tags(conn=conn,
+                                           orphaned=orphaned,
                                            experimenter_id=experimenter_id,
                                            tag_id=tag_id,
                                            group_id=group_id,
