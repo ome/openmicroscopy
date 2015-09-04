@@ -549,7 +549,7 @@ def group_user_content(request, url=None, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_group_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -575,20 +575,15 @@ def api_group_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'groups': groups})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_experimenter_list(request, conn=None, **kwargs):
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
-
-    # If no group (or cross-group) is specified, use current
-    if group_id is None:
-        group_id = request.session.get('active_group') or \
-            conn.getEventContext().groupId
 
     try:
         # Get the experimenters
@@ -606,7 +601,7 @@ def api_experimenter_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'experimenters': experimenters})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
     # Validate parameter
     try:
@@ -634,7 +629,7 @@ def api_container_list(request, conn=None, **kwargs):
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         experimenter_id = get_long_or_default(request, 'id', -1)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
@@ -696,13 +691,13 @@ def api_container_list(request, conn=None, **kwargs):
                              'orphaned': orphaned})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_dataset_list(request, conn=None, **kwargs):
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         project_id = get_long_or_default(request, 'id', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
@@ -724,7 +719,7 @@ def api_dataset_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'datasets': datasets})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_image_list(request, conn=None, **kwargs):
     ''' Get a list of images
         Specifiying dataset_id will return only images in that dataset
@@ -739,7 +734,7 @@ def api_image_list(request, conn=None, **kwargs):
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         dataset_id = get_long_or_default(request, 'id', None)
         orphaned = get_bool_or_default(request, 'orphaned', False)
         experimenter_id = get_long_or_default(request,
@@ -773,13 +768,13 @@ def api_image_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'images': images})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_plate_list(request, conn=None, **kwargs):
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         screen_id = get_long_or_default(request, 'id', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
@@ -801,7 +796,7 @@ def api_plate_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'plates': plates})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_plate_acquisition_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -994,7 +989,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
         acquisition_id = get_long_or_default(request, 'acquisition',
                                              acquisition_id)
         well_id = request.REQUEST.get('well', None)
-        group_id = get_long_or_default(request, 'group_id', None)
+        group_id = get_long_or_default(request, 'group', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1004,7 +999,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
     return HttpJsonResponse({'paths': paths})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_tags_and_tagged_list(request, conn=None, **kwargs):
     if request.method == 'GET':
         return api_tags_and_tagged_list_GET(request, conn, **kwargs)
@@ -1023,7 +1018,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         tag_id = get_long_or_default(request, 'id', None)
         experimenter_id = get_long_or_default(request, 'experimenter_id', -1)
     except ValueError:
@@ -1092,7 +1087,7 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
     return HttpJsonResponse('')
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_share_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -1320,7 +1315,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
