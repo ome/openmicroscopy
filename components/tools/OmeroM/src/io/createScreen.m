@@ -1,16 +1,22 @@
-function screen = createScreen(session, name)
+function screen = createScreen(session, name, varargin)
 % CREATESCREEN Create a new screen and uploads it onto the OMERO server
 %
 %   screen = createScreen(session, name) creates a new screen with the
 %   input name, uploads it onto the server and returns the loaded screen.
 %
+%   screen = createScreen(..., 'group', groupId) specifies the group
+%   context in which the screen should be created.
+%
 %   Examples:
 %
+%      % Creates a new screen in the context of the current session group
 %      screen = createScreen(session, 'my-screen')
+%      % Creates a new plate in the context of the specified group
+%      screen = createScreen(session, 'my-screen', 'group', groupId)
 %
 % See also: CREATEOBJECT, CREATEPLATE
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

@@ -10,15 +10,23 @@ function plate = createPlate(session, name, varargin)
 %   plate = createPlate(session, name, screenId) also links the plate to
 %   the screen specified by the input identifier.
 %
+%   plate = createPlate(..., 'group', groupId) specifies the group
+%   context in which the plate should be created.
+%
 %   Examples:
 %
+%      % Create a plate in the context of the current session group
 %      plate = createPlate(session, 'my-plate');
+%      % Create a plate in the context of the current session group and
+%      % links it to a screen
 %      plate = createPlate(session, 'my-plate', screen);
 %      plate = createPlate(session, 'my-plate', screenId);
+%      % Create a plate in the context of the specified group
+%      plate = createPlate(session, 'my-plate', 'group', groupId);
 %
 % See also: CREATEOBJECT, CREATESCREEN
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -36,7 +44,7 @@ function plate = createPlate(session, name, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Delegate object creation
-plate = createObject(session, 'plate', name);
+plate = createObject(session, 'plate', name, varargin);
 
 % Check if optional project is passed
 isValidScreen = @(x) isscalar(x) && ...

@@ -10,6 +10,9 @@ function dataset = createDataset(session, name, varargin)
 %   dataset = createDataset(session, name, projectId) also links the
 %   dataset to the project specified by the input identifier.
 %
+%   dataset = createDataset(..., 'group', groupId) specifies the group
+%   context in which the dataset should be created.
+%
 %   Examples:
 %
 %      dataset = createDataset(session, 'my-dataset');
@@ -18,7 +21,7 @@ function dataset = createDataset(session, name, varargin)
 %
 % See also: CREATEOBJECT, CREATEPROJECT
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -36,7 +39,7 @@ function dataset = createDataset(session, name, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Delegate object creation
-dataset = createObject(session, 'dataset', name);
+dataset = createObject(session, 'dataset', name, varargin{:});
 
 % Check if optional project is passed
 isValidProject = @(x) isscalar(x) && ...

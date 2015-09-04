@@ -1,16 +1,22 @@
-function project = createProject(session, name)
+function project = createProject(session, name, varargin)
 % CREATEPROJECT Create a new project and uploads it onto the OMERO server
 %
 %   project = createProject(session, name) creates a new project with the
 %   input name, uploads it onto the server and returns the loaded project.
 %
+%   project = createProject(..., 'group', groupId) specifies the group
+%   context in which the project should be created.
+%
 %   Examples:
 %
-%      project = createProject(session, name)
+%      % Creates a new project in the context of the current session group
+%      project = createProject(session, projectName);
+%      % Creates a new project in the context of the specified group
+%      project = createProject(session, projectName, 'group', groupId);
 %
 % See also: CREATEOBJECT, CREATEDATASET
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -28,6 +34,6 @@ function project = createProject(session, name)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Delegate object creation
-project = createObject(session, 'project', name);
+project = createObject(session, 'project', name, varargin{:});
 
 end

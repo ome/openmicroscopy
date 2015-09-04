@@ -1,17 +1,23 @@
-function newobject = createObject(session, type, name)
+function newobject = createObject(session, type, name, varargin)
 % CREATEOBJECT Create a new object of input type and uploads it onto the OMERO server
 %
 %   newobject = createObject(session, type, name) create a new object of
 %   input type with the input name, uploads it onto the server and returns
 %   the loaded object.
 %
+%   newobject = createObject(..., 'group', groupId) specifies the group
+%   context in which the
+%
 %   Examples:
 %
-%      image = createObject(session, 'image', 'my-image')
+%      %
+%      image = createObject(session, 'image', 'name');
+%      image = createObject(session, 'image', 'name', 'group', groupId);
 %
-% See also: CREATEIMAGE, CREATEPROJECT, CREATEDATASET
+% See also: CREATEIMAGE, CREATEPROJECT, CREATEDATASET, CREATEPLATE,
+% CREATESCREEN
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -35,11 +41,18 @@ ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
 ip.addRequired('name', @ischar);
+ip.addParamValue('context', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'));
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, type, name);
 
 % Create new object and upload onto the server
+context = ip.Results.context;
+if ~isempty(ip.Results.group)
+    context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
+end
+
 newobject = objectTypes(strcmp(type, objectNames)).Iobject();
 newobject.setName(rstring(ip.Results.name));
-newobject = session.getUpdateService().saveAndReturnObject(newobject);
+newobject = session.getUpdateService().saveAndReturnObject(newobject, context);
 
 end
