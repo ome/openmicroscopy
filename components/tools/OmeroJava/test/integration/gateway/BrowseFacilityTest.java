@@ -39,7 +39,7 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
-import omero.gateway.model.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 
 /**
  *
