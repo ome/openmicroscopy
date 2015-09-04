@@ -135,11 +135,14 @@ class TxAction(object):
     def go(self, ctx, args):
         raise Exception("Unimplemented")
 
-    def class_name(self):
-        kls = self.tx_cmd.type.split(":")[0]
-        if not kls.endswith("I"):
-            kls = "%sI" % kls
-        return kls
+    def class_name(self, ctx):
+        try:
+            kls = self.tx_cmd.type.split(":")[0]
+            if not kls.endswith("I"):
+                kls = "%sI" % kls
+            return kls
+        except AttributeError:
+            ctx.die(102, "No object argument provided. Use e.g. 'Image:123'")
 
     def obj_id(self):
         parts = self.tx_cmd.type.split(":")
@@ -152,7 +155,7 @@ class TxAction(object):
         import omero
         import omero.all
         try:
-            kls = getattr(omero.model, self.class_name())
+            kls = getattr(omero.model, self.class_name(ctx))
             obj = kls()
             oid = self.obj_id()
             if oid is not None:
