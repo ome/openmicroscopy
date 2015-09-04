@@ -258,7 +258,7 @@ def timeformat(value):
             return u'%s s' % str(value)
     if value == 0:
         return u'%d\u00A0s' % value
-    if value < 1.0 / 1000:
+    if value < Decimal("0.001"):
         return u'%d\u00A0\u00B5s' % (value * 1000 * 1000)
     elif value < 1:
         return u'%d\u00A0ms' % (value * 1000)
