@@ -89,13 +89,7 @@ public class ROI
      * They can only be changed by basicSetAnnotations().
      */
     private Set<AnnotationKey> forbiddenAnnotations;
-	
-    /** The namespace of the roi. */
-	private String namespace;
-	
-	/** The keyword of the namespace. */
-	private String keyword;
-	
+
 	/** The identifier of the owner. */
 	private long ownerID;
 
@@ -594,43 +588,6 @@ public class ROI
         return annotations.containsKey(key);
     }
 
-	/**
-	 * Gets the keyword for the current namespace.
-	 * 
-	 * @return See above.
-	 */
-	public String getKeyword()
-	{
-		return this.keyword;
-	}
-
-	/**
-	 * Gets the namespace for the current ROI. 
-	 * @return See above.
-	 */
-	public String getNamespace()
-	{
-		return this.namespace;
-	}
-
-	/**
-	 * Sets the keyword for the roi on the current namespace.
-	 * @param keyword
-	 */
-	public void setKeyword(String keyword)
-	{
-		this.keyword = keyword;
-	}
-
-	/**
-	 * Set the namespace for the roi.
-	 * @param namespace The value to set.
-	 */
-	public void setNamespace(String namespace)
-	{
-		this.namespace = namespace;
-	}
-	
 	/**
 	 * Sets the identifier of the owner.
 	 * 
