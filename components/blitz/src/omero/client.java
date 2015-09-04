@@ -74,7 +74,7 @@ import Ice.Current;
  * OmeroCpp omero::client class.
  *
  * In order to more closely map the destructors in Python and C++, this class
- * keeps a {@link #CLIENTS collection} of {@link omero.client} instances, which
+ * keeps a collection of {@link omero.client} instances, which
  * are destroyed on program termination.
  *
  * Typical usage: <code>
@@ -83,7 +83,7 @@ import Ice.Current;
  *   omero.client client = new omero.client(host, port); // Defines "omero.host" and "omero.port"
  *</code>
  *
- * More more information, see <a
+ * For more information, see <a
  * href="http://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign">
  * http://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign </a>
  *
@@ -213,6 +213,7 @@ public class client {
     /**
      * Creates an {@link Ice.Communicator} from a {@link Ice.InitializationData}
      * instance. Cannot be null.
+     * @param id the Ice initialization data
      */
     public client(Ice.InitializationData id) {
         insecure = false;
@@ -221,7 +222,8 @@ public class client {
 
     /**
      * Creates an {@link Ice.Communicator} pointing at the given server using
-     * the {@link #DEFAULT_PORT}.
+     * the {@link ome.system.Server#DEFAULT_PORT}.
+     * @param host the server host name
      */
     public client(String host) {
         this(defaultRouter(host, omero.constants.GLACIER2PORT.value));
@@ -230,6 +232,8 @@ public class client {
     /**
      * Creates an {@link Ice.Communicator} pointing at the given server with the
      * non-standard port.
+     * @param host the server host name
+     * @param port the server port number
      */
     public client(String host, int port) {
         this(defaultRouter(host, port));
@@ -238,6 +242,7 @@ public class client {
     /**
      * Calls {@link #client(String[], Ice.InitializationData)} with a new
      * {@link Ice.InitializationData}
+     * @param args command-line arguments
      */
     public client(String[] args) {
         this(args, new Ice.InitializationData());
@@ -247,6 +252,8 @@ public class client {
      * Creates an {@link Ice.Communicator} from command-line arguments. These
      * are parsed via Ice.Properties.parseIceCommandLineOptions(args) and
      * Ice.Properties.parseCommandLineOptions("omero", args)
+     * @param args command-line arguments
+     * @param id the Ice initialization data
      */
     public client(String[] args, Ice.InitializationData id) {
         insecure = false;
@@ -260,6 +267,7 @@ public class client {
 
     /**
      * Creates an {@link Ice.Communicator} from multiple files.
+     * @param files files from which to load properties
      */
     public client(File... files) {
         insecure = false;
@@ -276,6 +284,7 @@ public class client {
      * {@link String} representation of each member is added to the
      * {@link Ice.Properties} under the {@link String} representation of the
      * key.
+     * @param p properties
      */
     public client(Map p) {
         this(p, true);
@@ -419,9 +428,11 @@ public class client {
     }
 
     /**
-     * Sets the {@link #fastShutdown} flag. By setting this
+     * Sets the {@code fastShutdown} flag. By setting this
      * to true, you will prevent proper clean up. This should
      * only be used in the case of network loss (or similar).
+     * @param fastShutdown if shutdown should be fast
+     * @return the previous value of this property
      */
     public boolean setFastShutdown(boolean fastShutdown) {
         return this.fastShutdown.getAndSet(fastShutdown);
@@ -430,8 +441,9 @@ public class client {
     /**
      * Sets the {@link omero.model.Session#getUserAgent() user agent} string for
      * this client. Every session creation will be passed this argument. Finding
-     * open sesssions with the same agent can be done via
+     * open sessions with the same agent can be done via
      * {@link omero.api.ISessionPrx#getMyOpenAgentSessions(String)}.
+     * @param agent the user agent for sessions
      */
     public void setAgent(String agent) {
         __agent = agent;
@@ -440,8 +452,9 @@ public class client {
     /**
      * Sets the {@link omero.model.Session#getUserIP() user ip} string for
      * this client. Every session creation will be passed this argument. Finding
-     * open sesssions with the same agent can be done via
-     * {@link omero.api.ISessionPrx#getMyOpenIPSessions(String)}.
+     * open sessions with the same agent can be done via
+     * {@link omero.api.ISessionPrx#getMyOpenAgentSessions(String)}.
+     * @param ip the user IP address
      */
     public void setIP(String ip) {
         __ip = ip;
@@ -451,6 +464,7 @@ public class client {
      * Specifies whether or not this client was created via a call to
      * {@link #createClient(boolean)} with a boolean of false. If insecure, then
      * all remote calls will use the insecure connection defined by the server.
+     * @return if the client's remote calls are secure
      */
     public boolean isSecure() {
         return !insecure;
@@ -507,6 +521,7 @@ public class client {
     /**
      * Returns the {@link Ice.Communicator} for this instance or throws an
      * exception if null.
+     * @return this client's {@link Ice.Communicator}
      */
     public Ice.Communicator getCommunicator() {
         Ice.Communicator ic = __ic;
@@ -529,6 +544,7 @@ public class client {
      * Returns the current active session or throws an exception if none has
      * been {@link #createSession(String, String) created} since the last
      * {@link #closeSession()}
+     * @return the current active session
      */
     public ServiceFactoryPrx getSession() {
         ServiceFactoryPrx sf = __sf;
@@ -542,6 +558,7 @@ public class client {
      * Returns the UUID for the current session without making a remote call.
      * Uses {@link #getSession()} internally and will throw an exception if
      * no session is active.
+     * @return the current session's UUID
      */
     public String getSessionId() {
         return getSession().ice_getIdentity().name;
@@ -550,6 +567,7 @@ public class client {
     /**
      * Returns the category which should be used for all callbacks
      * passed to the server.
+     * @return the category for callbacks
      */
     public String getCategory() {
         return getRouter(getCommunicator()).getCategoryForClient();
@@ -557,7 +575,8 @@ public class client {
 
     /**
      * @see #getSession()
-     * @deprecated
+     * @return the current active session
+     * @deprecated use {@link #getSession()} instead, to be removed in 5.3
      */
     @Deprecated
     public ServiceFactoryPrx getServiceFactory() {
@@ -567,6 +586,7 @@ public class client {
     /**
      * Returns the {@link Ice.ImplicitContext} which defines what properties
      * will be sent on every method invocation.
+     * @return the {@link Ice.ImplicitContext}
      */
     public Ice.ImplicitContext getImplicitContext() {
         return getCommunicator().getImplicitContext();
@@ -574,6 +594,7 @@ public class client {
 
     /**
      * Returns the {@link Ice.Properties active properties} for this instance.
+     * @return the active properties
      */
     public Ice.Properties getProperties() {
             return getCommunicator().getProperties();
@@ -581,6 +602,8 @@ public class client {
 
     /**
      * Returns the property value for this key or the empty string if none.
+     * @param key a property key
+     * @return the key's value or the empty string if none
      */
     public String getProperty(String key) {
         return getProperties().getProperty(key);
@@ -589,6 +612,7 @@ public class client {
     /**
      * Returns all properties which are prefixed with "omero." or "Ice."
      * using the Properties from {@link #getProperties()}.
+     * @return the "omero." and "Ice." properties
      */
     public Map<String, String> getPropertyMap() {
         return getPropertyMap(getProperties());
@@ -596,6 +620,8 @@ public class client {
 
     /**
      * Returns all properties which are prefixed with "omero." or "Ice."
+     * @param properties some Ice properties
+     * @return the "omero." and "Ice." properties
      */
     public Map<String, String> getPropertyMap(Ice.Properties properties) {
         Map<String, String> rv = new HashMap<String, String>();
@@ -608,8 +634,9 @@ public class client {
     }
 
     /**
-     * Returns the user configured setting for "omero.block_size"
+     * Returns the user-configured setting for "omero.block_size"
      * or {@link omero.constants.DEFAULTBLOCKSIZE} if none is set.
+     * @return the block size (in bytes)
      */
     public int getDefaultBlockSize() {
         try {
@@ -625,9 +652,6 @@ public class client {
     /**
      * Uses the given session uuid as name and password to rejoin a running
      * session.
-     *
-     * @throws PermissionDeniedException
-     * @throws CannotCreateSessionException
      */
     public ServiceFactoryPrx joinSession(String session)
             throws CannotCreateSessionException, PermissionDeniedException,
@@ -646,15 +670,9 @@ public class client {
 
     /**
      * Performs the actual logic of logging in, which is done via the
-     * {@link #getRouter()}. Disallows an extant {@link ServiceFactoryPrx}, and
-     * tries to re-create a null {@link Ice.Communicator}. A null or empty
+     * {@link #getRouter(Ice.Communicator)}. Disallows an extant {@link ServiceFactoryPrx}
+     * and tries to re-create a null {@link Ice.Communicator}. A null or empty
      * username will throw an exception, but an empty password is allowed.
-     *
-     * @param username
-     * @param password
-     * @return
-     * @throws CannotCreateSessionException
-     * @throws PermissionDeniedException
      */
     public ServiceFactoryPrx createSession(String username, String password)
             throws CannotCreateSessionException, PermissionDeniedException,
@@ -773,6 +791,8 @@ public class client {
      * Acquires the {@link Ice.Communicator#getDefaultRouter default router},
      * and throws an exception if it is not of type {Glacier2.RouterPrx}. Also
      * sets the {@link Ice.ImplicitContext} on the router proxy.
+     * @param comm the Ice communicator
+     * @return the communicator's router
      */
     public static Glacier2.RouterPrx getRouter(Ice.Communicator comm) {
         Ice.RouterPrx prx = comm.getDefaultRouter();
@@ -795,8 +815,7 @@ public class client {
     /**
      * Resets the "omero.keep_alive" property on the current
      * {@link Ice.Communicator} which is used on initialization to determine the
-     * time-period between {@link Resources.Entry#check() checks}. If no
-     * {@link #__resources} is available currently, one is also created.
+     * time-period between {@link omero.util.Resources.Entry#check() checks}.
      */
     public void enableKeepAlive(int seconds) {
 
@@ -982,6 +1001,8 @@ public class client {
 
     /**
      * Calculates the local sha1 for a file.
+     * @param file a local file
+     * @return the file's SHA-1 hexadecimal digest
      */
     public String sha1(File file) {
         ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
@@ -1006,7 +1027,6 @@ public class client {
      *            Can be null.
      * @param blockSize
      *            Can be null.
-     * @throws IOException
      */
     public OriginalFile upload(File file, OriginalFile fileObject, Integer blockSize) throws ServerError, IOException {
         ServiceFactoryPrx sf = getSession();

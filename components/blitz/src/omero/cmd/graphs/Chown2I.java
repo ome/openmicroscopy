@@ -62,7 +62,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * Request to give model objects to a different experimenter, reimplementing {@link ChownI}.
+ * Request to give model objects to a different experimenter, replacing version 5.0's {@code ChownI}.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */

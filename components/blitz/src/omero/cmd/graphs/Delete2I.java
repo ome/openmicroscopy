@@ -56,7 +56,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * Request to delete model objects, reimplementing {@link DeleteI}.
+ * Request to delete model objects, replacing version 5.0's {@code DeleteI}.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */

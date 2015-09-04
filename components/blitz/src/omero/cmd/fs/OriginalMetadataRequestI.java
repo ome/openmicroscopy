@@ -262,8 +262,6 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
     /**
      * Read the given INI-style file and populate the maps with the properties from the corresponding sections.
      * @param file the file to read
-     * @param global the map in which to put the global metadata properties
-     * @param series the map in which to put the series metadata properties
      */
     protected void parseOriginalMetadataTxt(File file) {
         final Pattern section = Pattern.compile("\\s*\\[\\s*(.+?)\\s*\\]\\s*");
