@@ -1,4 +1,4 @@
-upstream %(UPSTREAM_NAME)s {
+upstream omeroweb%(PREFIX_NAME)s {
     server %(FASTCGI_EXTERNAL)s fail_timeout=0;
 }
 
@@ -10,7 +10,7 @@ server {
     client_max_body_size %(MAX_BODY_SIZE)s;
 
     # maintenance page serve from here
-    location @maintenance {
+    location @maintenance%(PREFIX_NAME)s {
         root %(ROOT)s/etc/templates/error;
         try_files $uri /maintainance.html =502;
     }
@@ -20,19 +20,19 @@ server {
         alias %(OMEROWEBROOT)s/static;
     }
 
-    location @proxy_to_app {
+    location @proxy_to_app%(PREFIX_NAME)s {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_redirect off;
 
-        proxy_pass http://%(UPSTREAM_NAME)s;
+        proxy_pass http://omeroweb%(PREFIX_NAME)s;
     }
 
     location %(FORCE_SCRIPT_NAME)s {
 
-        error_page 502 @maintenance;
+        error_page 502 @maintenance%(PREFIX_NAME)s;
         # checks for static file, if not found proxy to app
-        try_files $uri @proxy_to_app;
+        try_files $uri @proxy_to_app%(PREFIX_NAME)s;
     }
 
 }
