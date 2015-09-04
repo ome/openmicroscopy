@@ -340,8 +340,8 @@ class ObjGetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
 
-        if len(self.tx_cmd.arg_list) not in (3, 4):
-            ctx.die(335, "usage: get OBJ FIELD [INDEX]")
+        if len(self.tx_cmd.arg_list) != 3:
+            ctx.die(335, "usage: get OBJ FIELD")
 
         field = self.tx_cmd.arg_list[2]
         try:
@@ -350,26 +350,11 @@ class ObjGetTxAction(NonFieldTxAction):
             ctx.die(336, "Unknown field '%s' for %s:%s" % (
                 field, self.kls, self.obj.id.val))
 
-        if len(self.tx_cmd.arg_list) == 3:
-            if isinstance(current, list):
-                ctx.die(336, "Index required for field '%s' of %s:%s" % (
-                    field, self.kls, self.obj.id.val))
-            else:
-                if current is None:
-                    proxy = ""
-                else:
-                    try:
-                        proxy = current.val
-                    except AttributeError, ae:
-                        ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
-                            field, self.kls, self.obj.id.val, ae.message))
+        if current is None:
+            proxy = ""
         else:
-            index = int(self.tx_cmd.arg_list[3])
             try:
-                proxy = current[index]
-            except IndexError:
-                ctx.die(336, "Unknown index %s in field '%s' for %s:%s" % (
-                    index, field, self.kls, self.obj.id.val))
+                proxy = current.val
             except AttributeError, ae:
                 ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
                     field, self.kls, self.obj.id.val, ae.message))
