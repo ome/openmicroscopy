@@ -25,6 +25,7 @@ import pytest
 import library as lib
 
 from omero.gateway import BlitzGateway
+from omero.constants.metadata import NSINSIGHTTAGSET
 from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
     PlateAcquisitionI, TagAnnotationI, ProjectAnnotationLinkI, \
     DatasetAnnotationLinkI, ImageAnnotationLinkI, ScreenAnnotationLinkI, \
@@ -253,8 +254,7 @@ def expected_tags(user, tags):
         if tag.description is not None:
             t['description'] = tag.description.val
 
-        if tag.ns is not None and tag.ns.val == \
-                'openmicroscopy.org/omero/insight/tagset':
+        if tag.ns is not None and tag.ns.val == NSINSIGHTTAGSET:
             t['set'] = True
         else:
             t['set'] = False
@@ -1066,7 +1066,7 @@ def tagset_hierarchy_userA_groupA(request, userA, userB,
     # Create and name all the objects
     tagsetA = TagAnnotationI()
     tagsetA.textValue = rstring('TagsetA')
-    tagsetA.ns = rstring('openmicroscopy.org/omero/insight/tagset')
+    tagsetA.ns = rstring(NSINSIGHTTAGSET)
     tagA = TagAnnotationI()
     tagA.textValue = rstring('TagA')
 
@@ -1144,7 +1144,7 @@ def tagset_hierarchy_userB_groupA(request, userA,
     # Create and name all the objects
     tagsetA = TagAnnotationI()
     tagsetA.textValue = rstring('TagsetA')
-    tagsetA.ns = rstring('openmicroscopy.org/omero/insight/tagset')
+    tagsetA.ns = rstring(NSINSIGHTTAGSET)
     tagA = TagAnnotationI()
     tagA.textValue = rstring('TagA')
 

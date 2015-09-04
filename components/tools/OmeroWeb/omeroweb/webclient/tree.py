@@ -1074,7 +1074,7 @@ def _marshal_tag(conn, row):
                                             unwrap(owner_id), conn)
 
     if namespace and unwrap(namespace) == \
-            'openmicroscopy.org/omero/insight/tagset':
+            omero.constants.metadata.NSINSIGHTTAGSET:
         tag['set'] = True
     else:
         tag['set'] = False
@@ -1175,10 +1175,10 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
                 '''
                 not exists (
                     select aalink from AnnotationAnnotationLink as aalink
-                    where aalink.child = tag.id and aalink.parent.ns =
-                    'openmicroscopy.org/omero/insight/tagset'
+                    where aalink.child = tag.id
+                    and aalink.parent.ns = '%s'
                 )
-                '''
+                ''' % omero.constants.metadata.NSINSIGHTTAGSET
             )
         # Restricted by the specified user
         if experimenter_id is not None and experimenter_id != -1:
