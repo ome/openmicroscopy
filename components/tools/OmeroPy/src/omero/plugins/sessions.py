@@ -721,11 +721,13 @@ class SessionsControl(BaseControl):
             finally:
                 cb.close(True)
 
-            headers = ["name", "group", "logged in", "agent", "timeout"]
+            headers = [
+                "name", "group", "logged in", "agent", "timeout", "expiration"]
             extra = set()
             results = {"name": [], "group": [],
                        "logged in": [], "agent": [],
-                       "timeout": []}
+                       "timeout": [],
+                       "expiration": []}
 
             # Preparse data to find extra columns
             for idx, s in enumerate(rsp.sessions):
@@ -763,6 +765,8 @@ class SessionsControl(BaseControl):
                     results["agent"].append(unwrap(s.userAgent))
                     results["timeout"].append(
                         self._parse_timeout(s.timeToIdle))
+                    results["expiration"].append(
+                        self._parse_timeout(s.timeToLive))
                 else:
                     # Insufficient privileges. The EventContext
                     # will be missing fields as well.
@@ -770,6 +774,7 @@ class SessionsControl(BaseControl):
                     results["logged in"].append(msg)
                     results["agent"].append(msg)
                     results["timeout"].append(msg)
+                    results["expiration"].append(msg)
 
             from omero.util.text import Table, Column
             columns = tuple([Column(x, results[x]) for x in headers])
