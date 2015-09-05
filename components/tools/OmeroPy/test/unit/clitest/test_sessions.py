@@ -21,7 +21,31 @@
 
 from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
+from omero.rtypes import rlong
+
 import pytest
+
+
+timeouts = (
+    (1000L, "1 s"),
+    (2000L, "2 s"),
+    (59000L, "59 s"),
+    (60000L, "1 min"),
+    (120000L, "2 min"),
+    (60000L * 59, "59 min"),
+    (60000L * 60, "1 h"),
+    (60000L * 60 * 2, "2 h"),
+    (60000L * 60 * 23, "23 h"),
+    (60000L * 60 * 24, "1 d"),
+    (60000L * 60 * 24 * 2, "2 d"),
+    )
+
+
+@pytest.mark.parametrize("value,string", timeouts)
+def test_parse_timeout(value, string):
+    s = SessionsControl()
+    t = s._parse_timeout(rlong(value))
+    assert string == t
 
 
 class TestSessions(object):
