@@ -558,13 +558,13 @@ class SessionsControl(BaseControl):
             return ""
 
         val = float(timeout) / 1000
-        if val > 3600 * 24:
+        if val >= 3600 * 24:
             unit = "d"
             val = val / (3600 * 24)
-        elif val > 3600:
+        elif val >= 3600:
             unit = "h"
             val = val / 3600
-        elif val > 60:
+        elif val >= 60:
             unit = "min"
             val = val / 60
         else:
