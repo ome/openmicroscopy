@@ -557,11 +557,19 @@ class SessionsControl(BaseControl):
         if not timeout:
             return ""
 
-        unit = "min."
-        val = float(timeout) / 60 / 1000
-        if val < 5:
-            unit = "s."
-            val = val * 60
+        val = float(timeout) / 1000
+        if val > 3600 * 24:
+            unit = "d"
+            val = val / (3600 * 24)
+        elif val > 3600:
+            unit = "h"
+            val = val / 3600
+        elif val > 60:
+            unit = "min"
+            val = val / 60
+        else:
+            unit = "s"
+
         return "%s%.f %s" % (msg, val, unit)
 
     def logout(self, args):
