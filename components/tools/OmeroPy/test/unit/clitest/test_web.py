@@ -69,10 +69,10 @@ class TestWeb(object):
 
     def add_upstream_name(self, prefix, monkeypath):
         if prefix:
-            prefix = re.sub(r'\W+', '', prefix)
+            name = "omeroweb_%s" % re.sub(r'\W+', '', prefix)
         else:
-            prefix = "server"
-        return "omeroweb_%s" % prefix
+            name = "omeroweb"
+        return name
 
     def add_fastcgi_hostport(self, host, port, monkeypatch):
         if host:

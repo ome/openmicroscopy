@@ -294,10 +294,10 @@ class WebControl(BaseControl):
         try:
             d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             prefix = re.sub(r'\W+', '', d["FORCE_SCRIPT_NAME"])
-            d["UPSTREAM_NAME"] = "omeroweb_%s" % prefix
+            d["PREFIX_NAME"] = "_%s" % prefix
         except:
             d["FORCE_SCRIPT_NAME"] = "/"
-            d["UPSTREAM_NAME"] = "omeroweb_server"
+            d["PREFIX_NAME"] = ""
 
         if server in ("apache", "apache-fcgi", "apache-wsgi"):
             try:
