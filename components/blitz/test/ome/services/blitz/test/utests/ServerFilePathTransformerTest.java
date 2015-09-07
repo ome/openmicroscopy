@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
-import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;

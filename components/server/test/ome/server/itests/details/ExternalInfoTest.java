@@ -1,15 +1,9 @@
 /*
- * ome.server.itests.details.UpdateEventsTest
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.details;
-
-// Java imports
-
-// Third-party libraries
-import java.sql.Timestamp;
 
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;

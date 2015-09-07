@@ -1,24 +1,21 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.dsl.utests;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import ome.dsl.DSLTask;
+
 import ome.dsl.Property;
 import ome.dsl.SaxReader;
 import ome.dsl.SemanticType;
-import ome.dsl.VelocityHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

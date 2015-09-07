@@ -38,7 +38,6 @@ import java.util.Map;
 
 import loci.formats.IFormatReader;
 import ome.formats.Index;
-import ome.formats.model.UnitsFactory;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;
@@ -47,8 +46,6 @@ import omero.model.Pixels;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import pojos.DataObject;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures

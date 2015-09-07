@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -10,7 +8,6 @@ package ome.services.blitz.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
 import ome.api.ServiceInterface;
@@ -19,20 +16,16 @@ import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.IceMethodInvoker;
-import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.throttling.Task;
 import ome.services.throttling.ThrottlingStrategy;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
-import ome.util.messages.InternalMessage;
 import omero.ServerError;
-import omero.ShutdownInProgress;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ServiceInterfaceOperations;
-import omero.util.CloseableServant;
 import omero.util.IceMapper;
 import omero.util.ServantHolder;
 
@@ -45,7 +38,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import Ice.Current;
-import Ice.ObjectAdapterDeactivatedException;
 
 /**
  * {@link ThrottlingStrategy throttled} implementation base class which can be

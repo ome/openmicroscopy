@@ -1,19 +1,15 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.blitz.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.BlitzExecutor;
 
-import omero.RType;
 import omero.api.AMD_PyramidService_getResolutionDescriptions;
 import omero.api.AMD_PyramidService_getResolutionLevel;
 import omero.api.AMD_PyramidService_getResolutionLevels;

@@ -33,11 +33,6 @@ import java.util.Map;
 
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
-import ome.formats.model.ChannelData;
-import ome.formats.model.ColorsFactory;
-import ome.formats.model.IObjectContainerStore;
-import ome.formats.model.ModelException;
-import ome.formats.model.ModelProcessor;
 import ome.util.LSID;
 import omero.RInt;
 import omero.RString;

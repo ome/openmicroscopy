@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.mock;
 
 import java.sql.Timestamp;
@@ -13,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.sf.ehcache.Cache;
+
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.Ring;
@@ -32,7 +32,6 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.constants.CLIENTUUID;
 import omero.util.ModelObjectFactoryRegistry;
-import omero.util.ObjectFactoryRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
