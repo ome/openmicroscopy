@@ -1180,5 +1180,6 @@ class ImViewerControl
          */
         public void setInterpolation(boolean interpolation) {
             model.setInterpolation(interpolation);
+            ImViewerFactory.setInterpolation(interpolation);
         }
 }

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomCmd;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -145,7 +146,7 @@ class BrowserModel
     private boolean				init;
     
     /** Flag if interpolation should be used for upscaling images */
-    private boolean interpolation = true;
+    private boolean interpolationServerProperty = false;
     
     /**
      * Returns <code>true</code> if the active channels are mapped
@@ -422,7 +423,8 @@ class BrowserModel
         		zoomFactor = ZoomAction.getZoomFactor(pref.getZoomIndex());
         }
         
-        this.interpolation = Boolean.parseBoolean((String) ImViewerAgent.getRegistry().lookup(
+        this.interpolationServerProperty = Boolean
+                .parseBoolean((String) ImViewerAgent.getRegistry().lookup(
                         LookupNames.INTERPOLATE));
     }
     
@@ -1161,20 +1163,27 @@ class BrowserModel
 	}
 
     /**
-     * Returns if interpolation is enabled or not
+     * Returns if interpolation is enabled or not.
+     * If a value has been set by the user, this value is used; otherwise
+     * the server side default will be used; if there wasn't set one either, 
+     * <code>false</code> will be returned.
      * 
-     * @return
+     * @return See above.
      */
     boolean isInterpolation() {
-        return interpolation;
+        if (ImViewerFactory.isInterpolation() != null)
+            return ImViewerFactory.isInterpolation();
+        else
+            return interpolationServerProperty;
     }
 
     /**
-     * En-/Disables interpolation
+     * En-/Disables interpolation; value will be stored in user
+     * preferences
      * 
      * @param interpolation
      */
     void setInterpolation(boolean interpolation) {
-        this.interpolation = interpolation;
+        ImViewerFactory.setInterpolation(interpolation);
     }
 }
