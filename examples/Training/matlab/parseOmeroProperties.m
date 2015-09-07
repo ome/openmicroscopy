@@ -22,6 +22,7 @@ props.hostname = char(omeroProperties.get('omero.host'));
 props.username = char(omeroProperties.get('omero.user'));
 props.password = char(omeroProperties.get('omero.pass'));
 props.port = str2double(omeroProperties.get('omero.port'));
+props.group2 = str2double(omeroProperties.get('omero.group2'));
 props.imageid = str2double(omeroProperties.get('omero.imageid'));
 props.datasetid = str2double(omeroProperties.get('omero.datasetid'));
 props.plateid = str2double(omeroProperties.get('omero.plateid'));

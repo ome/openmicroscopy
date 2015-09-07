@@ -99,6 +99,7 @@ echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 echo "omero.imageid=${imageid}" >> "$CONFIG_FILENAME"
 echo "omero.plateid=${plateid}" >> "$CONFIG_FILENAME"
 echo "omero.screenid=${screen##*:}" >> "$CONFIG_FILENAME"
+echo "omero.group2=$GROUP_NAME_2" >> "$CONFIG_FILENAME"
 
 # Remove fake file
 rm *.fake
