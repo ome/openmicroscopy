@@ -270,7 +270,7 @@ class TestCsrf(IWebTest):
         img = self.image_with_channels()
 
         # Move image
-        request_url = reverse("api_links")
+        request_url = reverse("api_link")
         data = {
             'parent_type': 'dataset',
             'parent_id': did,
@@ -285,7 +285,7 @@ class TestCsrf(IWebTest):
                             content_type="application/json")
 
         # Delete image
-        request_url = reverse("api_links")
+        request_url = reverse("api_link")
         data = {
             'parent_type': 'dataset',
             'parent_id': did,
