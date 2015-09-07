@@ -49,6 +49,55 @@ try
     screenId = p.screenid;
     group2 = p.group2;
     groupId = session.getAdminService().lookupGroup('training_group-2').getId().getValue();
+    
+    print_object = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getName().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    
+    %% P/D/I
+    % Create a project/dataset/image
+    disp('Creating projects');
+    p1 = createProject(session, 'project-1');
+    p2 = createProject(session, 'project-1', 'group', groupId);
+    print_object(p1);
+    print_object(p2);
+    disp('Creating datasets linked to projects');
+    d1 = createDataset(session, 'dataset-1', p1);
+    d2 = createDataset(session, 'dataset-2', p1.getId().getValue());
+    d3 = createDataset(session, 'dataset-1', p2, 'group', groupId);
+    d4 = createDataset(session, 'dataset-1', p2.getId().getValue(), 'group', groupId);
+    print_object(d1);
+    print_object(d2);
+    print_object(d3);
+    print_object(d4);
+    disp('Creating orphaned datasets');
+    od1 = createDataset(session, 'orphaned dataset-1');
+    od2 = createDataset(session, 'orphaned dataset-2', 'group', groupId);
+    print_object(od1)
+    print_object(od2)
+    
+    disp('Creating screens');
+    s1 = createScreen(session, 'screen-1');
+    s2 = createScreen(session, 'screen-1', 'group', groupId);
+    print_object(s1);
+    print_object(s2);
+    disp('Creating plates linked to screens');
+    p1 = createPlate(session, 'plate-1', s1);
+    p2 = createPlate(session, 'plate-2', s1.getId().getValue());
+    p3 = createPlate(session, 'plate-1', s2, 'group', groupId);
+    p4 = createPlate(session, 'plate-2', s2.getId().getValue(), 'group', groupId);
+    print_object(p1);
+    print_object(p2);
+    print_object(p3);
+    print_object(p4);
+    disp('Creating orphaned plates');
+    op1 = createDataset(session, 'orphaned plate-1');
+    op2 = createDataset(session, 'orphaned plate-2', 'group', groupId);
+    print_object(op1)
+    print_object(op2)
+    df
+    
     %% File Annotation
     disp('File annotation');
     % Create a local file
@@ -56,6 +105,7 @@ try
     fid = fopen(filePath, 'w');
     fwrite(fid, fileContent);
     fclose(fid);
+    
     
     % Create a file annotation
     fileAnnotation = writeFileAnnotation(session, filePath,...
