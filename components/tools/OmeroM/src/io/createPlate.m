@@ -53,9 +53,8 @@ ip.addParamValue('context', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'))
 ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
 ip.parse(name, varargin{:});
 
-
 if ~isempty(ip.Results.screen)
-    % Check screen validity
+    % Retrieve the screen identifier
     if isnumeric(ip.Results.screen)
         screenId = ip.Results.screen;
     else
@@ -66,19 +65,19 @@ if ~isempty(ip.Results.screen)
     plate = omero.model.PlateI();
     plate.setName(rstring(name));
 
-    % Create new object and upload onto the server
+    % Create context for uploading
     context = ip.Results.context;
     if ~isempty(ip.Results.group)
         context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
     end
-    
-    % Create project/dataset link
+
+    % Create screen/plate link
     link = omero.model.ScreenPlateLinkI();
     link.setParent(omero.model.ScreenI(screenId, false));
     link.setChild(plate);
     link = session.getUpdateService().saveAndReturnObject(link, context);
 
-    % Retrieve plate
+    % Return the plate
     plate = link.getChild();
 else
     % Delegate object creation

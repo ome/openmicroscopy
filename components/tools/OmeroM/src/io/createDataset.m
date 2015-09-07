@@ -18,6 +18,9 @@ function dataset = createDataset(session, name, varargin)
 %      dataset = createDataset(session, 'my-dataset');
 %      dataset = createDataset(session, 'my-dataset', project);
 %      dataset = createDataset(session, 'my-dataset', projectId);
+%      dataset = createDataset(session, 'my-dataset', 'group', groupId);
+%      dataset = createDataset(session, 'my-dataset', project, 'group', groupId);
+%      dataset = createDataset(session, 'my-dataset', projectId, 'group', groupId);
 %
 % See also: CREATEOBJECT, CREATEPROJECT
 
@@ -50,18 +53,18 @@ ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
 ip.parse(name, varargin{:});
 
 if ~isempty(ip.Results.project)
-    % Check project object
+    % Retrieve project identifier
     if isnumeric(ip.Results.project)
         projectId = ip.Results.project;
     else
         projectId = ip.Results.project.getId().getValue();
     end
     
-    %
+    % Create dataset object
     dataset = omero.model.DatasetI();
     dataset.setName(rstring(name));
 
-    % Create new object and upload onto the server
+    % Create context for uploading
     context = ip.Results.context;
     if ~isempty(ip.Results.group)
         context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
@@ -73,7 +76,7 @@ if ~isempty(ip.Results.project)
     link.setChild(dataset);
     link = session.getUpdateService().saveAndReturnObject(link, context);
     
-    % Retrieve fully loaded dataset
+    % Return the dataset
     dataset = link.getChild();
 else
     % Delegate object creation
