@@ -50,7 +50,7 @@ end
 % Create object annotation link
 context = java.util.HashMap;
 group = parent.getDetails().getGroup().getId().getValue();
-context.put('omero.group', num2str(group));
+context.put('omero.group', java.lang.String(num2str(group)));
 
 link = objectType.annotationLink();
 link.setParent(parent)

@@ -56,7 +56,7 @@ context = java.util.HashMap;
 % Check if the Annotation exists on the server
 try
     group = fileAnnotation.getDetails().getGroup().getId().getValue();
-    context.put('omero.group', num2str(group));
+    context.put('omero.group', java.lang.String(num2str(group)));
     if isempty(ip.Results.group)
          index = length(varargin);
          varargin{index + 1} = 'group';
