@@ -6,12 +6,13 @@ function newobject = createObject(session, type, name, varargin)
 %   the loaded object.
 %
 %   newobject = createObject(..., 'group', groupId) specifies the group
-%   context in which the
+%   context in which the object should be created.
 %
 %   Examples:
 %
-%      %
+%      % Create an image object in the context of the session group
 %      image = createObject(session, 'image', 'name');
+%      % Create an image object in the specified group
 %      image = createObject(session, 'image', 'name', 'group', groupId);
 %
 % See also: CREATEIMAGE, CREATEPROJECT, CREATEDATASET, CREATEPLATE,

@@ -9,9 +9,9 @@ function screen = createScreen(session, name, varargin)
 %
 %   Examples:
 %
-%      % Creates a new screen in the context of the current session group
+%      % Create a new screen in the context of the current session group
 %      screen = createScreen(session, 'my-screen')
-%      % Creates a new plate in the context of the specified group
+%      % Create a new plate in the context of the specified group
 %      screen = createScreen(session, 'my-screen', 'group', groupId)
 %
 % See also: CREATEOBJECT, CREATEPLATE
