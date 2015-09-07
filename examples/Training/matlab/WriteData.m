@@ -58,45 +58,48 @@ try
     %% P/D/I
     % Create a project/dataset/image
     disp('Creating projects');
-    p1 = createProject(session, 'project-1');
-    p2 = createProject(session, 'project-1', 'group', groupId);
-    print_object(p1);
-    print_object(p2);
+    project1 = createProject(session, 'project-1');
+    project2 = createProject(session, 'project-1', 'group', groupId);
+    print_object(project1);
+    print_object(project2);
     disp('Creating datasets linked to projects');
-    d1 = createDataset(session, 'dataset-1', p1);
-    d2 = createDataset(session, 'dataset-2', p1.getId().getValue());
-    d3 = createDataset(session, 'dataset-1', p2, 'group', groupId);
-    d4 = createDataset(session, 'dataset-1', p2.getId().getValue(), 'group', groupId);
-    print_object(d1);
-    print_object(d2);
-    print_object(d3);
-    print_object(d4);
+    projectId1 = project1.getId().getValue();
+    projectId2 = project2.getId().getValue();
+    dataset1 = createDataset(session, 'dataset-1', project1);
+    dataset2 = createDataset(session, 'dataset-2', projectId1);
+    dataset3 = createDataset(session, 'dataset-1', project2, 'group', groupId);
+    dataset4 = createDataset(session, 'dataset-1', projectId2, 'group', groupId);
+    print_object(dataset1);
+    print_object(dataset2);
+    print_object(dataset3);
+    print_object(dataset4);
     disp('Creating orphaned datasets');
-    od1 = createDataset(session, 'orphaned dataset-1');
-    od2 = createDataset(session, 'orphaned dataset-2', 'group', groupId);
-    print_object(od1)
-    print_object(od2)
+    dataset5 = createDataset(session, 'orphaned dataset-1');
+    dataset6 = createDataset(session, 'orphaned dataset-2', 'group', groupId);
+    print_object(dataset5)
+    print_object(dataset6)
 
     disp('Creating screens');
-    s1 = createScreen(session, 'screen-1');
-    s2 = createScreen(session, 'screen-1', 'group', groupId);
-    print_object(s1);
-    print_object(s2);
+    screen1 = createScreen(session, 'screen-1');
+    screen2 = createScreen(session, 'screen-1', 'group', groupId);
+    print_object(screen1);
+    print_object(screen2);
     disp('Creating plates linked to screens');
-    p1 = createPlate(session, 'plate-1', s1);
-    p2 = createPlate(session, 'plate-2', s1.getId().getValue());
-    p3 = createPlate(session, 'plate-1', s2, 'group', groupId);
-    p4 = createPlate(session, 'plate-2', s2.getId().getValue(), 'group', groupId);
-    print_object(p1);
-    print_object(p2);
-    print_object(p3);
-    print_object(p4);
+    screenId1 = screen1.getId().getValue();
+    screenId2 = screen2.getId().getValue();
+    plate1 = createPlate(session, 'plate-1', screen1);
+    plate2 = createPlate(session, 'plate-2', screenId1);
+    plate3 = createPlate(session, 'plate-1', screen2, 'group', groupId);
+    plate4 = createPlate(session, 'plate-2', screenId2, 'group', groupId);
+    print_object(plate1);
+    print_object(plate2);
+    print_object(plate3);
+    print_object(plate4);
     disp('Creating orphaned plates');
-    op1 = createDataset(session, 'orphaned plate-1');
-    op2 = createDataset(session, 'orphaned plate-2', 'group', groupId);
-    print_object(op1)
-    print_object(op2)
-    df
+    plate5 = createDataset(session, 'orphaned plate-1');
+    plate6 = createDataset(session, 'orphaned plate-2', 'group', groupId);
+    print_object(plate5)
+    print_object(plate6)
 
     %% File Annotation
     disp('File annotation');
