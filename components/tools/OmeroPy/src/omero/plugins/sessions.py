@@ -119,10 +119,14 @@ Other sessions commands:
     $ bin/omero sessions group mygroup
     $ bin/omero sessions group 123
 
-    # List or change the timeToLive for the session
+    # List or change the inactivity timeout for the session
     $ bin/omero sessions timeout
     $ bin/omero sessions timeout 300.0 # Seconds
     $ bin/omero sessions timeout 300.0 --session=$UUID
+
+    # Create a token
+    $ bin/omero sessions createtoken
+    $ bin/omero sessions createtoken --expiration 3600 # Seconds
 
 Custom sessions directory:
 
@@ -243,6 +247,12 @@ class SessionsControl(BaseControl):
 
         key = parser.add(
             sub, self.key, "Print the key of the current active session")
+
+        createtoken = parser.add(
+            sub, self.createtoken, help="Create a new token")
+        createtoken.add_argument(
+            "--expiration", type=long, default=3600*24*30,
+            help="Expiration time in seconds for this token. Default: 30 days")
 
         for x in (file, key, logout, keepalive, list, clear, group):
             self._configure_dir(x)
@@ -848,6 +858,26 @@ class SessionsControl(BaseControl):
         srv, usr, uuid, port = store.get_current()
         if uuid:
             self.ctx.out(uuid)
+
+    def createtoken(self, args):
+        """Create a new token and return the key associated with it"""
+
+        client = self.ctx.conn(args)
+
+        ec = client.sf.getAdminService().getEventContext()
+        principal = omero.sys.Principal()
+        principal.name = ec.userName
+        principal.group = ec.groupName
+        principal.eventType = "User"
+
+        # A token does not idle
+        timeToIdle = 0
+        timeToLive = args.expiration * 1000
+
+        sess = client.sf.getSessionService().createSessionWithTimeouts(
+            principal, timeToLive, timeToIdle)
+
+        self.ctx.out(sess.uuid.val)
 
     def conn(self, properties=None, profile=None, args=None):
         """
