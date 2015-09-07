@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.bioformats;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
-import loci.formats.Memoizer;
 import ome.io.nio.RomioPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 

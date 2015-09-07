@@ -36,6 +36,8 @@ public interface ACLVoter {
      * test whether the given object can have its
      * {@link Details#getPermissions() Permissions} changed within the current
      * {@link EventContext security context}.
+     * @param iObject a model object
+     * @return if the object's permissions may be changed
      */
     boolean allowChmod(IObject iObject);
 
@@ -48,10 +50,11 @@ public interface ACLVoter {
      * 
      * The {@link SecuritySystem} implementors will usually call
      * {@link #throwLoadViolation(IObject)} if this method returns false.
-     * 
+
+     * @param session the Hibernate session to use for the query
      * @param klass
      *            a non-null class to test for loading
-     * @param d
+     * @param trustedDetails
      *            the non-null trusted details (usually from the db) for this
      *            instance
      * @param id
@@ -134,7 +137,7 @@ public interface ACLVoter {
      * @param iObject
      *            Non-null object which caused this violation
      * @throws SecurityViolation
-     * @see {@link ACLEventListener#onPostLoad(org.hibernate.event.PostLoadEvent)}
+     * @see ACLEventListener#onPostLoad(org.hibernate.event.PostLoadEvent)
      */
     void throwLoadViolation(IObject iObject) throws SecurityViolation;
 
@@ -145,7 +148,7 @@ public interface ACLVoter {
      * @param iObject
      *            Non-null object which caused this violation
      * @throws SecurityViolation
-     * @see {@link ACLEventListener#onPreInsert(org.hibernate.event.PreInsertEvent)}
+     * @see ACLEventListener#onPreInsert(org.hibernate.event.PreInsertEvent)
      */
     void throwCreationViolation(IObject iObject) throws SecurityViolation;
 
@@ -174,15 +177,16 @@ public interface ACLVoter {
     /**
      * Provide the active restrictions for this {@link IObject}.
      *
-     * See {@link ome.security.policy.PolicyService for further details.
-     * @param object
-     * @return
+     * See {@link ome.security.policy.PolicyService} for further details.
+     * @param object a model object
+     * @return the restrictions applying for the object
      */
     Set<String> restrictions(IObject object);
 
     /**
      * Gives the {@link ACLVoter} instance a chance to act on the {@link IObject}
      * <em>after</em> the transaction but before finishing the AOP stack.
+     * @param obj a model object
      */
     void postProcess(IObject obj);
 }

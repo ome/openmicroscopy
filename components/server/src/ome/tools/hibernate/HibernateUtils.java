@@ -82,8 +82,8 @@ public abstract class HibernateUtils {
     }
 
     /**
-     * returns the id of the {@link ExperimenterGroup group} of this entity, or
-     * null if: (1) the object is null, (2) the {@link Details} is null, (3) the
+     * returns the id of the {@link ome.model.meta.ExperimenterGroup group} of this entity,
+     * or null if: (1) the object is null, (2) the {@link Details} is null, (3) the
      * group is null.
      * 
      * @param iobject
@@ -105,21 +105,6 @@ public abstract class HibernateUtils {
 
     /**
      * loads collections which have been filtered or nulled by the user
-     * 
-     * @param entity
-     *            IObject to have its collections reloaded
-     * @param id
-     *            persistent (db) id of this entity
-     * @param currentState
-     *            the possibly changed field data for this entity
-     * @param previousState
-     *            the field data as seen in the db
-     * @param propertyNames
-     *            field names
-     * @param types
-     *            Hibernate {@link Type} for each field
-     * @param detailsIndex
-     *            the index of the {@link Details} instance (perf opt)
      */
     public static void fixNulledOrFilteredCollections(IObject entity,
             IObject target, EntityPersister persister, SessionImplementor source) {
@@ -192,12 +177,9 @@ public abstract class HibernateUtils {
     }
 
     /**
-     * 
-     * @param newD
-     *            Not null.
-     * @param oldD
-     *            Not null.
-     * @return
+     * @param new_d the new details
+     * @param old_d the old details
+     * @return if the non-permissions fields are the same
      */
     public static boolean onlyPermissionsChanged(Details new_d, Details old_d) {
         if (idEqual(new_d.getOwner(), old_d.getOwner())
@@ -211,7 +193,7 @@ public abstract class HibernateUtils {
     }
 
     /**
-     * returns true under the following circumstatnces:
+     * returns true under the following circumstances:
      * <ul>
      * <li>both arguments are null, or</li>
      * <li>both arguments are identical (==), or</li>

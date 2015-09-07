@@ -1,13 +1,11 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
-import omero.util.ModelObjectFactoryRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

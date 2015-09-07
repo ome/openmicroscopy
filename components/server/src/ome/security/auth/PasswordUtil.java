@@ -111,6 +111,7 @@ public class PasswordUtil {
      * {@link #preparePassword(String)} and prints the results on
      * {@link System#out}. This is used by the build system to define the
      * "@ROOTPASS@" placeholder in data.sql.
+     * @param args the command-line arguments
      */
     public static void main(String args[]) {
         if (args == null || args.length < 1 || args.length > 2) {
@@ -146,9 +147,11 @@ public class PasswordUtil {
     }
 
     /**
-     * Calls {@link #changeUserPasswordById(Long, String, boolean) with
+     * Calls {@link #changeUserPasswordById(Long, String, METHOD)} with
      * "false" as the value of the salt argument in order to provide backwards
      * compatibility.
+     * @param id the user ID
+     * @param password the password
      */
     public void changeUserPasswordById(Long id, String password) {
         changeUserPasswordById(id, password, METHOD.LEGACY);
@@ -160,6 +163,9 @@ public class PasswordUtil {
      * value to {@link SqlAction#setUserPassword(Long, String)}.
      * An {@link InternalException} is thrown if the modification is not
      * successful, which should only occur if the user has been deleted.
+     * @param id the user ID
+     * @param password the password
+     * @param meth how to encode the password
      */
     public void changeUserPasswordById(Long id, String password, METHOD meth) {
         String prepared = password;
@@ -218,10 +224,11 @@ public class PasswordUtil {
 
     /**
      * Creates an MD5 hash of the given clear text and base64 encodes it.
-     *
-     * @DEV.TODO This should almost certainly be configurable as to encoding,
-     *           algorithm, and possibly even the implementation in general.
+     * @param clearText the cleartext of the password
+     * @return the password hash
      */
+    // TODO This should almost certainly be configurable as to encoding,
+    // algorithm, and possibly even the implementation in general.
     public String passwordDigest(String clearText) {
         return passwordDigest(null, clearText, false);
     }
@@ -230,6 +237,9 @@ public class PasswordUtil {
      * Creates an MD5 hash of the given clear text and base64 encodes it.
      * If the provided userId argument is not null, then it will be used
      * as a salt value for the password.
+     * @param userId the user's ID, may be {@code null}
+     * @param clearText the cleartext of the password
+     * @return the password hash
      */
     public String saltedPasswordDigest(Long userId, String clearText) {
         return passwordDigest(userId, clearText, true);

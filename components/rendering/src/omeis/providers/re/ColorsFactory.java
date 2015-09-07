@@ -21,7 +21,6 @@ import ome.model.acquisition.LightSource;
 import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
-import ome.model.enums.UnitsLength;
 import ome.model.units.Length;
 
 /**
@@ -33,8 +32,6 @@ import ome.model.units.Length;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/07/05 16:13:52 $) </small>
  * @since OME2.2
  */
 public class ColorsFactory {

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -10,16 +8,11 @@ package ome.security.auth;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.conditions.ValidationException;
 import ome.security.SecuritySystem;
 
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.core.LdapRdn;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.HardcodedFilter;
-import org.springframework.util.PropertyPlaceholderHelper;
-import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
 /**
  * Handles the ":ou:" specifier from etc/omero.properties by adding the user

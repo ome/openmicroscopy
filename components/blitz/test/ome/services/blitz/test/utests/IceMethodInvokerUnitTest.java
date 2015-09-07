@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.utests;
 
 import static omero.rtypes.rbool;
@@ -43,7 +42,6 @@ import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.acquisition.Objective;
-import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;

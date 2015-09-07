@@ -1,19 +1,18 @@
 /*
- *   $Id$
- *
  *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
+
 import ome.api.IConfig;
 import ome.api.IContainer;
 import ome.api.ILdap;
