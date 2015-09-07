@@ -38,33 +38,47 @@ function dataset = createDataset(session, name, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Delegate object creation
-dataset = createObject(session, 'dataset', name, varargin{:});
 
 % Check if optional project is passed
 isValidProject = @(x) isscalar(x) && ...
     (isnumeric(x) || isa(x, 'omero.model.ProjectI'));
 ip = inputParser;
+ip.addRequired('name', @ischar);
 ip.addOptional('project', [], isValidProject);
-ip.parse(varargin{:});
+ip.addParamValue('context', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'));
+ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
+ip.parse(name, varargin{:});
 
 if ~isempty(ip.Results.project)
     % Check project object
     if isnumeric(ip.Results.project)
-        project = getProjects(session, ip.Results.project);
-        assert(~isempty(project), 'Cannot find project %g', ip.Results.project);
+        projectId = ip.Results.project;
     else
-        project = ip.Results.project;
+        projectId = ip.Results.project.getId().getValue();
     end
     
+    %
+    dataset = omero.model.DatasetI();
+    dataset.setName(rstring(name));
+
+    % Create new object and upload onto the server
+    context = ip.Results.context;
+    if ~isempty(ip.Results.group)
+        context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
+    end
+
     % Create project/dataset link
     link = omero.model.ProjectDatasetLinkI();
-    link.setParent(project);
+    link.setParent(omero.model.ProjectI(projectId, false));
     link.setChild(dataset);
-    session.getUpdateService().saveAndReturnObject(link);
+    link = session.getUpdateService().saveAndReturnObject(link, context);
     
     % Retrieve fully loaded dataset
-    dataset = getDatasets(session, dataset.getId().getValue());
+    dataset = link.getChild();
+else
+    % Delegate object creation
+    dataset = createObject(session, 'dataset', name,...
+        'context', ip.Results.context, 'group', ip.Results.group);
 end
 
 end

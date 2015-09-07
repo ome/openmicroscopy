@@ -4,7 +4,7 @@ function project = createProject(session, name, varargin)
 %   project = createProject(session, name) creates a new project with the
 %   input name, uploads it onto the server and returns the loaded project.
 %
-%   project = createProject(..., 'group', groupId) specifies the group
+%   project = createProject(..., 'group, groupId) specifies the group
 %   context in which the project should be created.
 %
 %   Examples:
