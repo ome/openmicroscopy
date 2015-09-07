@@ -74,6 +74,7 @@
     {% endif %}
 	
 	<div class="attachment_actions">
+      <input type="checkbox" style="display:none;"/>
 	    {% if can_remove and not fileann.isOriginalMetadata %}
 	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Remove File"
 	        href='{% url 'manage_action_containers' "remove" %}file/{{ fileann.id }}/'>-</a>
