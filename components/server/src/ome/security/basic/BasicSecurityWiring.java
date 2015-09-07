@@ -46,9 +46,8 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
 
     /**
      * Lookup name.
-     * 
-     * @DEV.TODO This should be replaced by a components concept
      */
+    // TODO This should be replaced by a components concept
     @Override
     public String getName() {
         return "securityWiring";

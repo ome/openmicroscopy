@@ -17,10 +17,10 @@ import ome.conditions.ResourceError;
 import ome.io.nio.OriginalFilesService;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
-import ome.tools.FileSystem;
 import ome.tools.RepositoryTask;
 import ome.util.SqlAction;
 
+import org.apache.commons.io.FileSystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,14 +145,12 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public long getFreeSpaceInKilobytes() {
-        FileSystem f;
         long result = 0L;
 
         try {
-            f = new FileSystem(datadir);
-            result = f.free(datadir);
+            result = FileSystemUtils.freeSpaceKb(datadir);
             if (log.isInfoEnabled()) {
-                log.info("Total kilobytes free: " + f.free(datadir));
+                log.info("Total kilobytes free: " + result);
             }
         } catch (Throwable t) {
             log.error("Error retrieving usage in KB.", t);

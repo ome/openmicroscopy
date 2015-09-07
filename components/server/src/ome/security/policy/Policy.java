@@ -81,7 +81,7 @@ public interface Policy {
     boolean isRestricted(IObject obj);
 
     /**
-     * Like {@link #isRestricted(Policy)} but throws an appropriate
+     * Like {@link #isRestricted(IObject)} but throws an appropriate
      * {@link SecurityViolation} subclass if the restriction is active.
      */
     void checkRestriction(IObject obj) throws SecurityViolation;

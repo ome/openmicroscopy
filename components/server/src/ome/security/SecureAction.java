@@ -10,7 +10,7 @@ package ome.security;
 import ome.model.IObject;
 
 /**
- * action for passing to {@link SecuritySystem#doAction(IObject, SecureAction)}.
+ * Action for passing to {@link SecuritySystem#doAction(SecureAction, IObject...)}.
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -18,8 +18,10 @@ import ome.model.IObject;
  */
 public interface SecureAction {
     /**
-     * executes with special privilegs within the {@link SecuritySystem}. These
-     * privileges will only be granted to the top-level objects.
+     * executes with special privileges within the {@link SecuritySystem}. These
+     * privileges will be granted only to the top-level objects.
+     * @param objs some model objects
+     * @return the updated objects
      */
     <T extends IObject> T updateObject(T... objs);
 }

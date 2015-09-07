@@ -16,10 +16,10 @@ import ome.security.SecuritySystem;
  * Provides {@link Experimenter user} and {@link ExperimenterGroup group}
  * creation, deletion, and modification for use by services. All invocations are
  * assumed "trusted" (services are responsible for authorization, and will take
- * part in the currently Hibernate {@link org.hibernate.Session session}.
+ * part in the current Hibernate {@link org.hibernate.Session session}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
- * @See ome.api.IAdmin
+ * @see ome.api.IAdmin
  * @see SecuritySystem
  * @since 4.0
  */
