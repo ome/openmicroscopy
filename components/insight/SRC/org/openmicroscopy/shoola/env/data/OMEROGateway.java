@@ -161,7 +161,6 @@ import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.grid.WellColumn;
 import omero.model.Annotation;
-import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -212,6 +211,7 @@ import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.model.WellSampleI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
@@ -1055,23 +1055,31 @@ class OMEROGateway
 	{
 		String table = null;
 		if (Dataset.class.equals(klass) ||
+		        DatasetI.class.equals(klass) ||
 			DatasetData.class.equals(klass))
 			table = "DatasetAnnotationLink";
 		else if (Project.class.equals(klass) ||
+		        ProjectI.class.equals(klass) ||
 				ProjectData.class.equals(klass))
 			table = "ProjectAnnotationLink";
 		else if (Image.class.equals(klass) ||
-				ImageData.class.equals(klass)) table = "ImageAnnotationLink";
+		        ImageI.class.equals(klass) ||
+				ImageData.class.equals(klass)) 
+		    table = "ImageAnnotationLink";
 		else if (Screen.class.equals(klass) ||
+		        ScreenI.class.equals(klass) ||
 				ScreenData.class.equals(klass))
 			table = "ScreenAnnotationLink";
 		else if (Plate.class.equals(klass) ||
+		        PlateI.class.equals(klass) ||
 				PlateData.class.equals(klass))
 			table = "PlateAnnotationLink";
 		else if (PlateAcquisition.class.equals(klass) ||
+		        PlateAcquisitionI.class.equals(klass) ||
 				PlateAcquisitionData.class.equals(klass))
 			table = "PlateAcquisitionAnnotationLink";
 		else if (WellSample.class.equals(klass) ||
+		        WellSampleI.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
 		else table = "AnnotationAnnotationLink";
