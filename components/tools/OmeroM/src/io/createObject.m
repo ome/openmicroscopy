@@ -42,8 +42,8 @@ ip.addRequired('session');
 ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
 ip.addRequired('name', @ischar);
 ip.addParamValue('context', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'));
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
-ip.parse(session, type, name);
+ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
+ip.parse(session, type, name, varargin{:});
 
 % Create new object and upload onto the server
 context = ip.Results.context;

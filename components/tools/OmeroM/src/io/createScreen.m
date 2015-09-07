@@ -34,6 +34,6 @@ function screen = createScreen(session, name, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Delegate object creation
-screen = createObject(session, 'screen', name);
+screen = createObject(session, 'screen', name, varargin{:});
 
 end

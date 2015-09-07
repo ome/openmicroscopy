@@ -43,33 +43,45 @@ function plate = createPlate(session, name, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Delegate object creation
-plate = createObject(session, 'plate', name, varargin);
-
-% Check if optional project is passed
+% Input check
 isValidScreen = @(x) isscalar(x) && ...
     (isnumeric(x) || isa(x, 'omero.model.ScreenI'));
 ip = inputParser;
+ip.addRequired('name', @ischar);
 ip.addOptional('screen', [], isValidScreen);
-ip.parse(varargin{:});
+ip.addParamValue('context', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'));
+ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
+ip.parse(name, varargin{:});
+
 
 if ~isempty(ip.Results.screen)
-    % Check project object
+    % Check screen validity
     if isnumeric(ip.Results.screen)
-        screen = getScreens(session, ip.Results.screen);
-        assert(~isempty(screen), 'Cannot find screen %g', ip.Results.screen);
+        screenId = ip.Results.screen;
     else
-        screen = ip.Results.screen;
+        screenId = ip.Results.screen.getId().getValue();
+    end
+    
+    % Create plate object
+    plate = omero.model.PlateI();
+    plate.setName(rstring(name));
+    
+    % Create new object and upload onto the server
+    context = ip.Results.context;
+    if ~isempty(ip.Results.group)
+        context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
     end
     
     % Create project/dataset link
     link = omero.model.ScreenPlateLinkI();
-    link.setParent(screen);
+    link.setParent(omero.model.ScreenI(screenId, false));
     link.setChild(plate);
-    session.getUpdateService().saveAndReturnObject(link);
-    
-    % Retrieve fully loaded plate
-    plate = getPlates(session, plate.getId().getValue());
-end
+    link = session.getUpdateService().saveAndReturnObject(link, context);
 
+    % Retrieve plate
+    plate = link.getChild();
+else
+    % Delegate object creation
+    plate = createObject(session, 'plate', name,...
+        'context', ip.Results.context, 'group', ip.Results.group);
 end
