@@ -20,7 +20,7 @@ package omero.cmd.graphs;
 import omero.cmd.IRequest;
 
 /**
- * Extension of {@link IRequest} to allow copying {@link GraphModify} objects
+ * Extension of {@link IRequest} to allow copying {@link omero.cmd.GraphModify} objects
  * during pre-processing.
  * 
  * @since 5.0.0
