@@ -58,11 +58,13 @@ class TestSessions(CLITest):
         string += ' Current group: %s\n' % ec.groupName
         return string
 
-    def check_session(self, timetoidle=None):
+    def check_session(self, timetoidle=None, timetolive=None):
         sessionUuid = self.cli.get_event_context().sessionUuid
         sess = self.sf.getSessionService().getSession(sessionUuid)
         if timetoidle:
             assert sess.getTimeToIdle().getValue() == timetoidle
+        if timetolive:
+            assert sess.getTimeToLive().getValue() == timetolive
 
     # Login subcommand
     # ========================================================================
@@ -283,6 +285,22 @@ class TestSessions(CLITest):
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         assert o == "%s\n" % self.cli.get_event_context().sessionUuid
+
+    # Createtoken subcommand
+    # ========================================================================
+    def testCreateToken(self, capsys):
+
+        user = self.new_user()
+        self.set_login_args(user)
+        self.args += ["-w", user.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["sessions", "createtoken"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "%s\n" % self.cli.get_event_context().sessionUuid
+
+        self.check_session(o, timetoidle=0, timetolive=10)
 
     # who subcommand
     # ========================================================================
