@@ -50,6 +50,7 @@ try
         x.getDetails().getOwner().getId().getValue(),...
         x.getDetails().getGroup().getId().getValue());
     
+    
     %% P/D/I
     % Create a project/dataset/image
     disp('Creating projects');
@@ -75,7 +76,7 @@ try
     print_object(dataset6)
     datasetId1 = dataset1.getId().getValue();
     datasetId2 = dataset2.getId().getValue();
-
+    
     disp('Creating screens');
     screen1 = createScreen(session, 'screen-1');
     screen2 = createScreen(session, 'screen-1', 'group', groupId);
@@ -224,18 +225,26 @@ try
     
     %% Comment Annotation
     disp('Comment annotation');
-    commentAnnotation = writeCommentAnnotation(session, 'comment',...
+    
+    disp('Creating comment annotations');
+    commentAnnotation1 = writeCommentAnnotation(session, 'comment',...
         'description', 'comment description', 'namespace', ns);
-    fprintf(1, 'Created comment annotation %g\n',...
-        commentAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving comment annotation %g\n',...
-        commentAnnotation.getId().getValue());
+    commentAnnotation2 = writeCommentAnnotation(session, 'comment',...
+        'description', 'comment description', 'namespace', ns, 'group', groupId);
+    print_long = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getTextValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_long(commentAnnotation1);
+    print_long(commentAnnotation2);
+    
+    disp('Retrieving comment annotations');
     annotation = getCommentAnnotations(session,...
-        commentAnnotation.getId().getValue());
+        commentAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ca = omero.model.CommentAnnotationI(commentAnnotation.getId().getValue(), false);
+    ca = omero.model.CommentAnnotationI(commentAnnotation1.getId().getValue(), false);
     linkAnnotation(session, ca, 'project', projectId1);
     fprintf(1, 'Linked comment annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving comment annotations attached to project %g with namespace %s\n',...
@@ -277,18 +286,26 @@ try
     
     %% Double Annotation
     disp('Double annotation');
-    doubleAnnotation = writeDoubleAnnotation(session, .5,...
+    
+    disp('Creating double annotations');
+    doubleAnnotation1 = writeDoubleAnnotation(session, .5,...
         'description', 'double description', 'namespace', ns);
-    fprintf(1, 'Created double annotation %g\n',...
-        doubleAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving double annotation %g\n',...
-        doubleAnnotation.getId().getValue());
+    doubleAnnotation2 = writeDoubleAnnotation(session, .5,...
+        'description', 'double description', 'namespace', ns, 'group', groupId);
+    print_long = @(x) fprintf(1, '  %g (id: %d, owner: %d, group: %d)\n',...
+        x.getDoubleValue().getValue(), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_long(doubleAnnotation1);
+    print_long(doubleAnnotation2);
+    
+    disp('Retrieving double annotations');
     annotation = getDoubleAnnotations(session,...
-        doubleAnnotation.getId().getValue());
+        doubleAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    da = omero.model.DoubleAnnotationI(doubleAnnotation.getId().getValue(), false);
+    da = omero.model.DoubleAnnotationI(doubleAnnotation1.getId().getValue(), false);
     linkAnnotation(session, da, 'project', projectId1);
     fprintf(1, 'Linked double annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving double annotations attached to project %g with namespace %s\n',...
@@ -330,18 +347,26 @@ try
     
     %% Long Annotation
     disp('Long annotation');
-    longAnnotation = writeLongAnnotation(session, 1,...
+    
+    disp('Creating long annotations');
+    longAnnotation1 = writeLongAnnotation(session, 1,...
         'description', 'long description', 'namespace', ns);
-    fprintf(1, 'Created long annotation %g\n',...
-        longAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving long annotation %g\n',...
-        longAnnotation.getId().getValue());
+    longAnnotation2 = writeLongAnnotation(session, 1,...
+        'description', 'long description', 'namespace', ns, 'group', groupId);
+    print_long = @(x) fprintf(1, '  %g (id: %d, owner: %d, group: %d)\n',...
+        char(x.getLongValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_long(longAnnotation1);
+    print_long(longAnnotation2);
+    
+    disp('Retrieving long annotations');
     annotation = getLongAnnotations(session,...
-        longAnnotation.getId().getValue());
+        longAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    la = omero.model.LongAnnotationI(longAnnotation.getId().getValue(), false);
+    la = omero.model.LongAnnotationI(longAnnotation1.getId().getValue(), false);
     linkAnnotation(session, la, 'project', projectId1);
     fprintf(1, 'Linked long annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving long annotations attached to project %g with namespace %s\n',...
@@ -383,18 +408,26 @@ try
     
     %% Map Annotation
     disp('Map annotation');
-    mapAnnotation = writeMapAnnotation(session, 'key', 'value',...
+    
+    disp('Creating map annotations');
+    mapAnnotation1 = writeMapAnnotation(session, 'key', 'value',...
         'description', 'map description', 'namespace', ns);
-    fprintf(1, 'Created map annotation %g\n',...
-        mapAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving map annotation %g\n',...
-        mapAnnotation.getId().getValue());
+    mapAnnotation2 = writeMapAnnotation(session, 'key', 'value',...
+        'description', 'map description', 'namespace', ns, 'group', groupId);
+    print_map = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getMapValueAsMap), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_map(mapAnnotation1);
+    print_map(mapAnnotation2);
+    
+    disp('Retrieving map annotations');
     annotation = getAnnotations(session,...
-        mapAnnotation.getId().getValue(), 'map');
+        mapAnnotation1.getId().getValue(), 'map');
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ma = omero.model.MapAnnotationI(mapAnnotation.getId().getValue(), false);
+    ma = omero.model.MapAnnotationI(mapAnnotation1.getId().getValue(), false);
     linkAnnotation(session, ma, 'project', projectId1);
     fprintf(1, 'Linked map annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving map annotations attached to project %g with namespace %s\n',...
@@ -436,18 +469,26 @@ try
     
     %% Tag Annotation
     disp('Tag annotation');
-    tagAnnotation = writeTagAnnotation(session, 'tag value',...
+    
+    disp('Creating tag annotations');
+    tagAnnotation1 = writeTagAnnotation(session, 'tag value',...
         'description', 'tag description', 'namespace', ns);
-    fprintf(1, 'Created tag annotation %g\n',...
-        tagAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving tag annotation %g\n',...
-        tagAnnotation.getId().getValue());
+    tagAnnotation2 = writeTagAnnotation(session, 'tag value',...
+        'description', 'tag description', 'namespace', ns, 'group', groupId);
+    print_tag = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getTextValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_tag(tagAnnotation1);
+    print_tag(tagAnnotation2);
+    
+    disp('Retrieving tag annotations');
     annotation = getTagAnnotations(session,...
-        tagAnnotation.getId().getValue());
+        tagAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ta = omero.model.TagAnnotationI(tagAnnotation.getId().getValue(), false);
+    ta = omero.model.TagAnnotationI(tagAnnotation1.getId().getValue(), false);
     linkAnnotation(session, ta, 'project', projectId1);
     fprintf(1, 'Linked tag annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving tag annotations attached to project %g with namespace %s\n',...
@@ -489,18 +530,26 @@ try
     
     %% Timestamp Annotation
     disp('Timestamp annotation');
-    timestampAnnotation = writeTimestampAnnotation(session, now,...
+    
+    disp('Creating timestamp annotations');
+    timestampAnnotation1 = writeTimestampAnnotation(session, now,...
         'description', 'timestamp description', 'namespace', ns);
-    fprintf(1, 'Created timestamp annotation %g\n',...
-        timestampAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving timestamp annotation %g\n',...
-        timestampAnnotation.getId().getValue());
+    timestampAnnotation2 = writeTimestampAnnotation(session, now,...
+        'description', 'timestamp description', 'namespace', ns, 'group', groupId);
+    print_ts = @(x) fprintf(1, '  %g (id: %d, owner: %d, group: %d)\n',...
+        x.getTimeValue().getValue(), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_ts(timestampAnnotation1);
+    print_ts(timestampAnnotation2);
+    
+    disp('Retrieving timestamp annotations');
     annotation = getTimestampAnnotations(session,...
-        timestampAnnotation.getId().getValue());
+        timestampAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ta = omero.model.TimestampAnnotationI(timestampAnnotation.getId().getValue(), false);
+    ta = omero.model.TimestampAnnotationI(timestampAnnotation1.getId().getValue(), false);
     linkAnnotation(session, ta, 'project', projectId1);
     fprintf(1, 'Linked timestamp annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving timestamp annotations attached to project %g with namespace %s\n',...
@@ -542,18 +591,26 @@ try
     
     %% XML Annotation
     disp('XML annotation');
-    xmlAnnotation = writeXmlAnnotation(session, 'xml value',...
+    
+    disp('Creating XML annotations');
+    xmlAnnotation1 = writeXmlAnnotation(session, 'xml value',...
         'description', 'xml description', 'namespace', ns);
-    fprintf(1, 'Created XML annotation %g\n',...
-        xmlAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving XML annotation %g\n',...
-        xmlAnnotation.getId().getValue());
+    xmlAnnotation2 = writeXmlAnnotation(session, 'xml value',...
+        'description', 'xml description', 'namespace', ns, 'group', groupId);
+    print_timestamp = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getTextValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_timestamp(xmlAnnotation1);
+    print_timestamp(xmlAnnotation2);
+    
+    disp('Retrieving XML annotations');
     annotation = getXmlAnnotations(session,...
-        xmlAnnotation.getId().getValue());
+        xmlAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    xa = omero.model.XmlAnnotationI(xmlAnnotation.getId().getValue(), false);
+    xa = omero.model.XmlAnnotationI(xmlAnnotation1.getId().getValue(), false);
     linkAnnotation(session, xa, 'project', projectId1);
     fprintf(1, 'Linked XML annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving XML annotations attached to project %g with namespace %s\n',...
