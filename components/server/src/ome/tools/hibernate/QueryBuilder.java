@@ -97,9 +97,7 @@ public class QueryBuilder {
 
     /**
      * Whether {@link Session#createSQLQuery(String)} should be used or not during
-     * {@link #__query(Session, boolean)}
-     *
-     * @param sqlQuery
+     * {@link #query(Session)} and similar.
      */
     public QueryBuilder(boolean sqlQuery) {
         this.sqlQuery = sqlQuery;
@@ -112,9 +110,8 @@ public class QueryBuilder {
 
     /**
      * Obtain a unique alias to be used in the SQL.
-     * 
-     * @param prefix
-     *            Not null
+     * @param prefix the prefix for the alias
+     * @return a unique alias
      */
     public String unique_alias(String prefix) {
         StringBuilder sb = new StringBuilder(prefix.length() + 8);
@@ -161,12 +158,6 @@ public class QueryBuilder {
 
     }
 
-    /**
-     *
-     * @param type
-     * @param alias
-     * @return
-     */
     public QueryBuilder from(String type, String alias) {
         current = from;
         if (from.length() == 0) {
@@ -219,9 +210,6 @@ public class QueryBuilder {
     /**
      * Appends "and" plus your string unless this is the first where-spec in
      * which case it is simply appended.
-     * 
-     * @param str
-     * @return
      */
     public QueryBuilder and(String str) {
         return _where("and ", str);
@@ -231,9 +219,6 @@ public class QueryBuilder {
     /**
      * Appends "or" plus your string unless this is the first where-spec in
      * which case it is simply appended.
-     * 
-     * @param str
-     * @return
      */
     public QueryBuilder or(String str) {
         return _where("or ", str);
@@ -412,6 +397,7 @@ public class QueryBuilder {
     /**
      * Returns the current query as a String. As opposed to {@link #toString()},
      * this method should return parseable HQL.
+     * @return the current HQL query
      */
     public String queryString() {
         StringBuilder sb = new StringBuilder();
@@ -469,9 +455,9 @@ public class QueryBuilder {
 
     /**
      * Similar to how skipFrom and skipWhere were previously used, this sets
-     * the current builder to {@link #where} but without prefacing the
+     * the current builder to {@link #where()} but without prefacing the
      * "where " string. Instead, it adds a space so that further calls to
-     * {@link #where} also won't add it. This can be used to create a clause
+     * {@link #where()} also won't add it. This can be used to create a clause
      * that can later be combined via {@link #subselect(QueryBuilder)}.
      */
     public QueryBuilder whereClause() {

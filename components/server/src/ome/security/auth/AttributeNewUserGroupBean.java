@@ -23,9 +23,10 @@ import org.springframework.ldap.core.LdapOperations;
  * Handles the "*_attribute" specifiers from etc/omero.properties.
  *
  * The values of the attribute equal to the string following ":*_attribute:" are
- * taken to be the names and/or DNs of {@link ExperimenterGroup} instances and
- * created if necessary. If {@link #filtered} is set to true, then the names/DNs
- * found must pass the assigned group filter.
+ * taken to be the names and/or DNs of {@link ome.model.meta.ExperimenterGroup}
+ * instances and created if necessary. If the constructor's {@code filtered}
+ * argument is set to {@code true}, then the names/DNs found must pass the
+ * assigned group filter.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @see SecuritySystem

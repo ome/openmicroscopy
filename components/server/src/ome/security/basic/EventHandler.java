@@ -34,7 +34,7 @@ import org.springframework.transaction.interceptor.TransactionAttributeSource;
 /**
  * method interceptor responsible for login and creation of Events. Calls are
  * made to the {@link BasicSecuritySystem} provided in the
- * {@link EventHandler#EventHandler(BasicSecuritySystem, HibernateTemplate)
+ * {@link EventHandler#EventHandler(SqlAction, BasicSecuritySystem, SessionFactory, TransactionAttributeSource, boolean)
  * constructor}.
  * 
  * After the method is {@link MethodInterceptor#invoke(MethodInvocation)
@@ -65,11 +65,11 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
     /**
      * only public constructor, used for dependency injection. Requires an
      * active {@link HibernateTemplate} and {@link BasicSecuritySystem}.
-     * 
-     * @param securitySystem
-     *            Not null.
-     * @param template
-     *            Not null.
+     *
+     * @param sql the SQL action
+     * @param securitySystem the security system
+     * @param factory the Hibernate session factory
+     * @param txSource the Spring transaction attribute source
      */
     public EventHandler(SqlAction sql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
@@ -89,9 +89,9 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
     }
 
     /**
-     * If a {@link ContextMessage} is received, then we either need to add a
-     * {@link ContextMessage.Push} login to the stack or
-     * {@link ContextMessage.Pop} remove one.
+     * If a {@link ContextMessage} is received then we need to either add a
+     * {@link ome.services.messages.ContextMessage.Push} login to the stack or
+     * {@link ome.services.messages.ContextMessage.Pop} remove one.
      */
     @Override
     public void onApplicationEvent(ContextMessage msg) {

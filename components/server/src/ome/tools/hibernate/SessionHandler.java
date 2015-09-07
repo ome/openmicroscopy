@@ -112,11 +112,9 @@ public class SessionHandler implements MethodInterceptor,
             + " constructor should be not null.";
 
     /**
-     * constructor taking a {@link DataSource} and a {@link SessionFactory}. A
-     * new {@link HibernateInterceptor} will be created.
-     * 
-     * @param dataSource
-     *            Not null.
+     * Constructor taking a {@link SessionFactory}.
+     * A new {@link HibernateInterceptor} will be created.
+     *
      * @param factory
      *            Not null.
      */
