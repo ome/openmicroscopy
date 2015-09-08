@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -17,7 +15,7 @@ import ome.system.Roles;
 /**
  * Start-up task which guarantees that lib/python/populateroi.py is added as a
  * script to the server. Then, users like MetadataStoreI who would like to run
- * populateroi.py scripts, can use {@link #createJob()}
+ * populateroi.py scripts, can use {@link #createJob(ServiceFactory)}
 
  * @since Beta4.1
  */

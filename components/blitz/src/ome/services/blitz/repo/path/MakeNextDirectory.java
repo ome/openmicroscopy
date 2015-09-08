@@ -26,8 +26,10 @@ import ome.services.util.SleepTimer;
 import omero.ServerError;
 
 /**
- * Abstracts a pattern for using repository template path directories in {@link ManagedRepositoryI.TemplateDirectoryCreator):
- * pinpoint the next directory to use, then try to use it while watching for conflicts from other similar threads.
+ * Abstracts a pattern for using repository template path directories in
+ * {@link ManagedRepositoryI.TemplateDirectoryCreator)}:
+ * pinpoint the next directory to use, then try to use it while watching for
+ * conflicts from other similar threads.
  *
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0.3

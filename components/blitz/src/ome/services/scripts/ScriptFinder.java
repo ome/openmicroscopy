@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
  * The strategy here is to not only check for name, but also for the sha1 of the
  * file, meaning that if a new version is published, it will be used.
  *
- * Also provides {@link #createJob()} method in order to allow simple creation
- * of processors.
+ * Also provides {@link #createJob(ServiceFactory)} method in order to allow
+ * simple creation of processors.
  *
  * @since Beta4.1
  */
