@@ -59,19 +59,19 @@ import omero.model.Pixels;
  */
 public class ImageData extends DataObject {
 
-    /** Identifies the {@link Image#NAME} field. */
+    /** Identifies the {@link ImageI#NAME} field. */
     public final static String NAME = ImageI.NAME;
 
-    /** Identifies the {@link Image#DESCRIPTION} field. */
+    /** Identifies the {@link ImageI#DESCRIPTION} field. */
     public final static String DESCRIPTION = ImageI.DESCRIPTION;
 
-    /** Identifies the {@link Image#PIXELS} field. */
+    /** Identifies the {@link ImageI#PIXELS} field. */
     public final static String PIXELS = ImageI.PIXELS;
 
-    /** Identifies the {@link Image#ANNOTATIONLINKS} field. */
+    /** Identifies the {@link ImageI#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = ImageI.ANNOTATIONLINKS;
 
-    /** Identifies the {@link Image#DATASETLINKS} field. */
+    /** Identifies the {@link ImageI#DATASETLINKS} field. */
     public final static String DATASET_LINKS = ImageI.DATASETLINKS;
 
     /**

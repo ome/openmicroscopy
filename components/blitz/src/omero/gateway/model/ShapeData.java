@@ -360,9 +360,9 @@ public abstract class ShapeData
     }
 
     /** 
-     * Sets the ROICoordinate for the ShapeData 
+     * Sets the ROICoordinate for the ShapeData.
      *
-     * @param roiCoordinate The value to set.
+     * @param coord The value to set.
      */
     public void setROICoordinate(ROICoordinate coord)
     {
@@ -410,7 +410,7 @@ public abstract class ShapeData
     /**
      * Sets the Affine transform of the shape.
      * 
-     * @param See above.
+     * @param transform The transform to set.
      */
     public void setTransform(String transform)
     {

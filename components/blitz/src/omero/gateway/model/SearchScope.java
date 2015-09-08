@@ -49,7 +49,7 @@ public enum SearchScope {
     /**
      * Get a String representation of this scope which can be used in a
      * lucene search
-     * @return
+     * @return See above.
      */
     public String getStringRepresentation() {
         return stringRepresentation;

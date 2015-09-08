@@ -52,19 +52,19 @@ import omero.model.ProjectDatasetLink;
  */
 public class DatasetData extends DataObject {
 
-    /** Identifies the {@link Dataset#NAME} field. */
+    /** Identifies the {@link DatasetI#NAME} field. */
     public final static String NAME = DatasetI.NAME;
 
-    /** Identifies the {@link Dataset#DESCRIPTION} field. */
+    /** Identifies the {@link DatasetI#DESCRIPTION} field. */
     public final static String DESCRIPTION = DatasetI.DESCRIPTION;
 
-    /** Identifies the {@link Dataset#IMAGELINKS} field. */
+    /** Identifies the {@link DatasetI#IMAGELINKS} field. */
     public final static String IMAGE_LINKS = DatasetI.IMAGELINKS;
 
-    /** Identifies the {@link Dataset#PROJECTLINKS} field. */
+    /** Identifies the {@link DatasetI#PROJECTLINKS} field. */
     public final static String PROJECT_LINKS = DatasetI.PROJECTLINKS;
 
-    /** Identifies the {@link Dataset#ANNOTATIONLINKS} field. */
+    /** Identifies the {@link DatasetI#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = DatasetI.ANNOTATIONLINKS;
 
     /**

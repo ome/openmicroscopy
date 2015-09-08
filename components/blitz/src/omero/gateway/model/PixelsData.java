@@ -44,7 +44,7 @@ import omero.model.enums.UnitsLength;
  */
 public class PixelsData extends DataObject {
 
-    /** Identifies the {@link Pixels#IMAGE} field. */
+    /** Identifies the {@link PixelsI#IMAGE} field. */
     public final static String IMAGE = PixelsI.IMAGE;
 
     /**

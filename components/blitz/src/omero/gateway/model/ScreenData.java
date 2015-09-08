@@ -44,13 +44,13 @@ import omero.model.ScreenPlateLink;
  */
 public class ScreenData extends DataObject {
 
-    /** Identifies the {@link Screen#NAME} field. */
+    /** Identifies the {@link ScreenI#NAME} field. */
     public final static String NAME = ScreenI.NAME;
 
-    /** Identifies the {@link Screen#DESCRIPTION} field. */
+    /** Identifies the {@link ScreenI#DESCRIPTION} field. */
     public final static String DESCRIPTION = ScreenI.DESCRIPTION;
 
-    /** Identifies the {@link Screen#PLATELINKS} field. */
+    /** Identifies the {@link ScreenI#PLATELINKS} field. */
     public final static String PLATE_LINKS = ScreenI.PLATELINKS;
 
     /**

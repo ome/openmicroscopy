@@ -163,10 +163,9 @@ public class PolylineData
      * Sets the points in the polyline.
      *
      * @param points The points to set.
-     * @param ponts1 The points to set.
-     * @param ponts2 The points to set.
+     * @param points1 The points to set.
+     * @param points2 The points to set.
      * @param maskList The points to set.
-     * @param points See above.
      */
     public void setPoints(List<Point2D.Double> points,
             List<Point2D.Double> points1,

@@ -395,7 +395,7 @@ public class ImportCallback
      * Returns <code>true</code> if the checksums have been calculated,
      * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean hasChecksum() { return checksumEvent != null; }
 

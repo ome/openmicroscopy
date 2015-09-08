@@ -105,7 +105,7 @@ public class SearchResultCollection extends
      * Get all results of a certain scope and/or type
      *
      * @param scopeId
-     *            The scope to filter for, see {@link SearchDataContext}
+     *            The scope to filter for.
      * @param type
      *            The type to filter for, see {@link DataObject}
      * @return See above.

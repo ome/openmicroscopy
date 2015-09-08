@@ -63,7 +63,7 @@ public class RectangleData
      * @param x The x-coordinate of the top-left corner.
      * @param y The y-coordinate of the top-left corner.
      * @param width The width of the rectangle.
-     * @param heightThe height of the rectangle.
+     * @param height The height of the rectangle.
      */
     public RectangleData(double x, double y, double width, double height)
     {

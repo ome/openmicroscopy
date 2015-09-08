@@ -60,19 +60,19 @@ public class PlateData extends DataObject {
     /** Indicates that the column or row is a letter starting from Z or P. */
     public final static int DESCENDING_LETTER = 3;
 
-    /** Identifies the {@link Plate#NAME} field. */
+    /** Identifies the {@link PlateI#NAME} field. */
     public final static String NAME = PlateI.NAME;
 
-    /** Identifies the {@link Plate#DESCRIPTION} field. */
+    /** Identifies the {@link PlateI#DESCRIPTION} field. */
     public final static String DESCRIPTION = PlateI.DESCRIPTION;
 
-    /** Identifies the {@link Plate#WELLS} field. */
+    /** Identifies the {@link PlateI#WELLS} field. */
     public final static String WELLS = PlateI.WELLS;
 
-    /** Identifies the {@link Plate#SCREENLINKS} field. */
+    /** Identifies the {@link PlateI#SCREENLINKS} field. */
     public final static String SCREEN_LINKS = PlateI.SCREENLINKS;
 
-    /** Identifies the {@link Plate#ANNOTATIONLINKS} field. */
+    /** Identifies the {@link PlateI#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = PlateI.ANNOTATIONLINKS;
 
     /** Indicates that the convention is to use <code>letter</code>. */
