@@ -17,13 +17,10 @@
 
 package ome.services.blitz.test;
 
-import java.sql.Timestamp;
 import java.util.Map;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ome.api.IAdmin;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
@@ -35,7 +32,6 @@ import omero.cmd.IRequest;
 import omero.cmd._HandleTie;
 import omero.cmd.graphs.ChmodFacadeI;
 import omero.model.PermissionsI;
-
 
 /**
  * Tests around the changing of group-based permissions.

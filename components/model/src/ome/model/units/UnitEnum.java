@@ -19,8 +19,6 @@
 
 package ome.model.units;
 
-import ome.model.internal.Primitive;
-
 /**
  * marker interface for all of ome.model.unit enums.
  * @since 5.1.2

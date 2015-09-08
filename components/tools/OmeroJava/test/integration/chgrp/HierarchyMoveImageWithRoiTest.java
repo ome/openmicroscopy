@@ -40,7 +40,6 @@ import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
-import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;

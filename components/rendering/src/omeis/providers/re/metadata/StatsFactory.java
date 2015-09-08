@@ -7,16 +7,12 @@
 
 package omeis.providers.re.metadata;
 
-import java.awt.Dimension;
-
 import loci.formats.FormatTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.TileLoopIteration;
-import ome.io.nio.Utils;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
@@ -24,8 +20,6 @@ import ome.model.stats.StatsInfo;
 
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.data.PlaneFactory;
-import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantumStrategy;
 
 /**
@@ -39,8 +33,6 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date: 2005/06/20
- *          14:11:46 $) </small>
  * @since OME2.2
  */
 public class StatsFactory {

@@ -38,7 +38,6 @@ import ome.security.SecurityFilterHolder;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.security.policy.DefaultPolicyService;
-import ome.security.policy.Policy;
 import ome.security.policy.PolicyService;
 import ome.services.messages.EventLogMessage;
 import ome.services.messages.EventLogsMessage;
@@ -75,8 +74,6 @@ import com.google.common.collect.Multimap;
  * {@link CurrentDetails} to provide the security infrastructure.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1581 $, $Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun
- *          2007) $
  * @see Token
  * @see SecuritySystem
  * @see Details

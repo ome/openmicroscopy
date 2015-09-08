@@ -75,7 +75,6 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
-import ome.services.blitz.repo.ManagedImportRequestI;
 import ome.units.quantity.ElectricPotential;
 import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
@@ -124,7 +123,6 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
-import omero.constants.namespaces.NSCOMPANIONFILE;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
@@ -152,8 +150,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.Filament;
 import omero.model.FilamentType;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
-import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 import omero.model.Filter;
 import omero.model.FilterSet;
@@ -163,9 +159,6 @@ import omero.model.GenericExcitationSource;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Immersion;
 import omero.model.Instrument;
@@ -190,7 +183,6 @@ import omero.model.MicroscopeType;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.PixelsType;
@@ -221,13 +213,11 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
-
 
 /**
  * Client side implementation of the Bio-Formats {@link MetadataStore}. It is

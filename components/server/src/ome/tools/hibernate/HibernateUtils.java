@@ -26,14 +26,13 @@ import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.internal.Details;
-import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.tools.lsid.LsidUtils;
 
 /**
  * contains methods for reloading {@link IObject#unload() unloaded} entities and
  * nulled collections as well as determining the index of certain properties in
- * a dehydrated Hiberante array.
+ * a dehydrated Hibernate array.
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-M3

@@ -21,17 +21,14 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package training;
 
-//Java imports
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;

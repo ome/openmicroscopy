@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -53,10 +51,7 @@ import omero.api.AMD_MetadataStore_saveToDB;
 import omero.api.AMD_MetadataStore_setPixelsFile;
 import omero.api.AMD_MetadataStore_updateObjects;
 import omero.api.AMD_MetadataStore_updateReferences;
-import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
-import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._MetadataStoreOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.SharedResourcesPrx;
@@ -68,14 +63,10 @@ import omero.util.IceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
-import Ice.UserException;
 
-/**
- */
 public class MetadataStoreI extends AbstractCloseableAmdServant implements
         _MetadataStoreOperations, ServiceFactoryAware, BlitzOnly {
 

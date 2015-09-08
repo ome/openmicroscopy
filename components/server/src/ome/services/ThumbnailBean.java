@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -12,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -47,7 +44,6 @@ import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.services.ThumbnailCtx.NoThumbnail;
 import ome.system.EventContext;

@@ -7,11 +7,6 @@
 
 package ome.security.sharing;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -24,7 +19,6 @@ import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.security.basic.BasicSecuritySystem;
-import ome.security.policy.Policy;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -34,7 +28,6 @@ import ome.system.Roles;
  * context should pass through an implementation of this interface.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see Token
  * @see Details
  * @see Permissions

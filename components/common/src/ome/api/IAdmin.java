@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -17,7 +15,6 @@ import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -37,7 +34,6 @@ import ome.system.Roles;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0
  * @since OME3.0
  */
 public interface IAdmin extends ServiceInterface {

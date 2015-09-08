@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.bioformats;
 
 import java.awt.Dimension;
@@ -15,8 +14,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.FormatException;

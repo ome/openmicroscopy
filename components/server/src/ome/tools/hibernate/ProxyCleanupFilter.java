@@ -5,7 +5,6 @@
 
 package ome.tools.hibernate;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.security.ACLVoter;
-import ome.security.basic.BasicACLVoter;
 import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.util.ContextFilter;

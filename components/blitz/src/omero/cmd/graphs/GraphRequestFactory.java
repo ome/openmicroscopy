@@ -44,7 +44,6 @@ import ome.system.Roles;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
 import omero.cmd.SkipHead;
-import omero.cmd.graphs.ChildOption;
 
 /**
  * Create request objects that are executed using the {@link ome.services.graphs.GraphPathBean}.

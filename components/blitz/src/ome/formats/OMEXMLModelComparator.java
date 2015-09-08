@@ -4,6 +4,7 @@
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.formats;
 
 import java.text.Collator;
@@ -17,7 +18,6 @@ import ome.util.LSID;
 import omero.model.DetectorSettings;
 import omero.model.IObject;
 import omero.model.LightPath;
-import omero.model.LightSettings;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 

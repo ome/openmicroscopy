@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -43,7 +41,6 @@ import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.basic.BasicSecuritySystem;
-import ome.security.basic.CurrentDetails;
 import ome.services.mail.MailUtil;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
@@ -59,7 +56,6 @@ import ome.util.Filterable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.springframework.mail.MailException;

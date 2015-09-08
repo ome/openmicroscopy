@@ -8,27 +8,16 @@ package ome.services.blitz.test;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.services.util.Executor;
-import ome.system.Roles;
-import ome.system.ServiceFactory;
-import ome.tools.hibernate.ExtendedMetadata;
-import omero.RLong;
 import omero.RType;
 import omero.ServerError;
 import omero.cmd.Chgrp;
-import omero.cmd.ERR;
-import omero.cmd.HandleI;
 import omero.cmd.IRequest;
 import omero.cmd._HandleTie;
-import omero.cmd.OK;
-import omero.cmd.RequestObjectFactoryRegistry;
-import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.graphs.ChgrpFacadeI;
 import omero.model.AnnotationAnnotationLink;
@@ -61,19 +50,9 @@ import omero.model.WellSample;
 import omero.model.WellSampleI;
 import omero.sys.ParametersI;
 
-import org.hibernate.Session;
-import org.jmock.Mock;
-import org.jmock.core.InvocationMatcher;
-import org.jmock.core.matcher.InvokeOnceMatcher;
-import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-
-/**
- */
 @Test(groups = { "integration", "chgrp" })
 @SuppressWarnings("deprecation")
 public class ChgrpITest extends AbstractGraphTest {

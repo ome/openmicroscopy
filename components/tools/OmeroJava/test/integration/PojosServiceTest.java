@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,6 +9,7 @@ import static omero.rtypes.rbool;
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
+
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
@@ -33,7 +32,6 @@ import java.util.UUID;
 
 import omero.RType;
 import omero.api.IAdminPrx;
-import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -89,7 +87,6 @@ import pojos.ScreenData;
  *
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.0
  */
 public class PojosServiceTest extends AbstractServerTest {

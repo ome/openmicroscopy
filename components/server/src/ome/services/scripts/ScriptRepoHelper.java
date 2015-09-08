@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -21,14 +19,12 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.local.LocalAdmin;
-import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.model.core.OriginalFile;
 import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
-import ome.services.graphs.GraphException;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;

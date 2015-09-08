@@ -35,7 +35,6 @@ import com.google.common.collect.Sets;
 
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 
 /**

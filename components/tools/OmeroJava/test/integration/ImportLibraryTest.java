@@ -19,14 +19,13 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import ome.formats.importer.IObservable;
@@ -48,7 +47,6 @@ import org.testng.annotations.Test;
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 4.5 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 4.5
  */
 @Test(groups = { "import", "integration", "fs" })
