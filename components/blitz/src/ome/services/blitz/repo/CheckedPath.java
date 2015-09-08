@@ -111,7 +111,7 @@ public class CheckedPath {
      * @param path a repository path
      * @param checksumProviderFactory a source of checksum providers,
      * may be <code>null</code> if <code>checksumAlgorithm</code> is also <code>null</code>
-     * @param checksumAlgorithm the algorithm to use in {@link hash()}'s calculations
+     * @param checksumAlgorithm the algorithm to use in {@link #hash()}'s calculations
      * @throws ValidationException if the path is empty or contains illegal components
      */
     public CheckedPath(ServerFilePathTransformer serverPaths, String path,
@@ -220,7 +220,7 @@ public class CheckedPath {
      * <code>null</code> hash.
      *
      * @param name
-     * @return
+     * @return See above.
      */
     public CheckedPath child(String name) throws ValidationException {
         if (name == null || "".equals(name)) {
@@ -247,7 +247,7 @@ public class CheckedPath {
 
     /**
      * Check if this file actually exists on the underlying filesystem.
-     * Analogous to {@link java.io.File.exists()}.
+     * Analogous to {@link java.io.File#exists()}.
      * @return <code>true</code> if the file exists, <code>false</code> otherwise
      */
     public boolean exists() {
@@ -295,7 +295,7 @@ public class CheckedPath {
 
     /**
      * Check if this file is actually readable on the underlying filesystem.
-     * Analogous to {@link java.io.File.canRead()}.
+     * Analogous to {@link java.io.File#canRead()}.
      * @return <code>true</code> if the file is readable, <code>false</code> otherwise
      */
     public boolean canRead() {
@@ -350,7 +350,7 @@ public class CheckedPath {
     /**
      * Get a {@link FileBuffer} corresponding to this instance.
      * It is the caller's responsibility to {@link FileBuffer#close()} it.
-     * @param mode as for {@link java.io.RandomAccessFile(File, String)},
+     * @param mode as for {@link java.io#RandomAccessFile(File, String)},
      * <code>"r"</code> and <code>"rw"</code> being common choices
      * @return a new {@link FileBuffer}
      */
@@ -360,7 +360,7 @@ public class CheckedPath {
 
     /**
      * Return the size of this file on the underlying filesystem.
-     * Analogous to {@link java.io.File.length()}.
+     * Analogous to {@link java.io.File#length()}.
      * @return the file size
      */
     public long size() {
@@ -369,7 +369,7 @@ public class CheckedPath {
 
     /**
      * Create this directory on the underlying filesystem.
-     * Analogous to {@link java.io.File.mkdir()}.
+     * Analogous to {@link java.io.File#mkdir()}.
      * @return <code>true</code> if the directory was created, <code>false</code> otherwise
      */
     public boolean mkdir() {
@@ -378,7 +378,7 @@ public class CheckedPath {
 
     /**
      * Create this directory, and parents if necessary, on the underlying filesystem.
-     * Analogous to {@link java.io.File.mkdirs()}.
+     * Analogous to {@link java.io.File#mkdirs()}.
      * @return <code>true</code> if the directory was created, <code>false</code> otherwise
      */
     public boolean mkdirs() {
@@ -414,8 +414,8 @@ public class CheckedPath {
      * the mimetype passed in by the user must either be null, in which case
      * "Directory" will be used, or must be that correct value.
      *
-     * @param mimetype
-     * @return
+     * @param mimetype The mimetype to handle.
+     * @return See above.
      */
     public ome.model.core.OriginalFile asOriginalFile(String mimetype) {
 

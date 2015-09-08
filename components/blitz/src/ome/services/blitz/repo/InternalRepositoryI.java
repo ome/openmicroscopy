@@ -20,7 +20,7 @@ import Ice.ObjectAdapter;
 /**
  * Standalone repository service.
  *
- * @DEV.TODO Better named "StandaloneRepositoryI"
+ * TODO Better named "StandaloneRepositoryI"
  * @since Beta4.1
  */
 public class InternalRepositoryI extends AbstractRepositoryI {
@@ -33,7 +33,7 @@ public class InternalRepositoryI extends AbstractRepositoryI {
     }
 
     /**
-     * @DEV.TODO CACHING
+     * TODO CACHING
      */
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {

@@ -32,8 +32,8 @@ import org.springframework.util.Assert;
  * <ul>
  * <li>Method names exact</li>
  * <li>Collections of the same type only (no arrays)</li>
- * <li>Primitivies use Ice primitives (long, int, bool,...)</li>
- * <li>Primitive wrapeprs all use RTypes (RLong, RInt, RBool,...)</li>
+ * <li>Primitives use Ice primitives (long, int, bool,...)</li>
+ * <li>Primitive wrappers all use RTypes (RLong, RInt, RBool,...)</li>
  * </ul>
  * 
  * It is also possible to have this class not handle mapping arguments and
@@ -42,9 +42,9 @@ import org.springframework.util.Assert;
  * Future:
  * <ul>
  * <li>Currently ignoring
- * 
- * @NotNull</li>
- *          </ul>
+ * @NotNull
+ * </li>
+ * </ul>
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
@@ -72,7 +72,7 @@ public class IceMethodInvoker {
     /**
      * Create an {@link IceMethodInvoker} instance using the {@link Class} of
      * the passed argument to call
-     * {@link IceMethodInvoker#IceMethodInvoker(Class)}.
+     * {@link IceMethodInvoker#IceMethodInvoker(Class, OmeroContext)}.
      * 
      * @param srv
      *            A Non-null {@link ServiceInterface} instance.
@@ -91,7 +91,7 @@ public class IceMethodInvoker {
      * 
      * @param <S>
      *            A type which subclasses {@link ServiceInterface}
-     * @param c
+     * @param context
      *            A non-null {@link ServiceInterface} {@link Class}
      */
     public <S extends ServiceInterface> IceMethodInvoker(Class<S> k,
@@ -176,7 +176,7 @@ public class IceMethodInvoker {
             throw mapper.handleException(t, ctx);
         }
 
-        // Handling case of generics (.e.g Search.next())
+        // Handling case of generics (e.g. Search.next())
         // in which case we cannot properly handle the mapping.
         Class<?> retType = info.retType;
         if (retType == Object.class && retVal != null) {

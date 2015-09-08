@@ -28,16 +28,16 @@ public interface RepositoryDao {
     /**
      * Create a {@link RawFileBean} (i.e. an implementation of
      * {@link ome.api.RawFileStore} which can be passed to
-     * {@link RepoRawFileStore} for performing internal functions. The primary
+     * {@link RepoRawFileStoreI} for performing internal functions. The primary
      * difference to an instance created via the ServiceFactory is that
-     * the {@link RawFileBean#setFileIdWithBuffer(FileBuffer)} method is called
-     * pointing to a non-romio file path, e.g. /OMERO/Files/x.
+     * the {@link RawFileBean#setFileIdWithBuffer(long, FileBuffer)} method is
+     * called pointing to a non-romio file path, e.g. /OMERO/Files/x.
      *
      * @param fileId ID of an {@link OriginalFile}
      * @param checked Not null. Normalized path from the repository.
      * @param mode FileChannel mode, "r", "rw", etc.
      * @return An instance with
-     *      {@link RawFileBean#setFileIdWithBuffer(FileBuffer)} called.
+     *      {@link RawFileBean#setFileIdWithBuffer(long, FileBuffer)} called.
      */
     RawFileStore getRawFileStore(long fileId, CheckedPath checked, String mode,
             final Ice.Current current) throws SecurityViolation;
@@ -47,10 +47,10 @@ public interface RepositoryDao {
      * for looking up the id of the file, and then load it normally via
      * IQuery. This will enforce any read security checks.
      * @param uuid
-     * @param dirname
-     * @param basename
+     * @param checked
      * @param mimetype
-     * @return
+     * @param current
+     * @return See above.
      */
     OriginalFile findRepoFile(String uuid, CheckedPath checked,
             String mimetype, Ice.Current current) throws ServerError;
@@ -88,11 +88,11 @@ public interface RepositoryDao {
 
     /**
      * Delegates to IAdmin#canUpdate
-     * @param fileId
+     * @param obj
      * @param current
      * @throws an {@link omero.SecurityViolation} if the currentUser is not
      *      allowed to access the given file.
-     * @return
+     * @return See above.
      */
     boolean canUpdate(IObject obj, Ice.Current current);
 
@@ -100,7 +100,7 @@ public interface RepositoryDao {
      * Find the original file IDs among those given that are in the given repository.
      * @param repo a repository UUID
      * @param ids IDs of original files
-     * @param Ice method invocation context
+     * @param current Ice method invocation context
      * @return those IDs among those given whose original files are in the given repository
      */
     List<Long> filterFilesByRepository(String repo, List<Long> ids, Ice.Current current);
@@ -121,7 +121,7 @@ public interface RepositoryDao {
      * directory which they are associated with is not also readable by the
      * current user, then a {@link SecurityViolation} will be thrown.
      *
-     * @param uuid for the repository in question.
+     * @param repoUuid for the repository in question.
      * @param checked normalized path which can be found as the value of
      *      {@link OriginalFile#getPath()} in the database.
      * @param current
@@ -135,11 +135,12 @@ public interface RepositoryDao {
      *
      * @param repoUuid for the repository in question.
      * @param fs a user provided {@link Fileset} that must minimally have the
-     *    {@link FilesetEntry} objects present with their clientPath set. The rest
+     *    {@link omero.model.FilesetEntry} objects present with their clientPath set. The rest
      *    of the fields will be filled here.
+     * @param checksumAlgorithm The algorithm to use.
      * @param paths a List of the same size as the number of entries in fs
-     *    one per {@link FilesetEntry}.
-     * @param currentUser
+     *    one per {@link omero.model.FilesetEntry}.
+     * @param current Current context
      */
     Fileset saveFileset(String repoUuid, Fileset fs, ChecksumAlgorithm checksumAlgorithm,
             List<CheckedPath> paths, Ice.Current current) throws ServerError;
@@ -148,7 +149,7 @@ public interface RepositoryDao {
      * Load filesets by id.
      * @param ids
      * @param current
-     * @return
+     * @return See above.
      */
     List<Fileset> loadFilesets(List<Long> ids, Ice.Current current)
             throws ServerError;
@@ -174,7 +175,7 @@ public interface RepositoryDao {
             final Ice.Current current) throws ServerError;
 
     /**
-     * Like {@link #register(String, CheckedPath, String, Ice.Current) but
+     * Like {@link #register(String, CheckedPath, String, Ice.Current)} but
      * does not create a new transaction. Instead, the {@link ServiceFactory}
      * and {@link SqlAction} must be passed in. The returned OriginalFile
      * instance is still connected to Hibernate.
@@ -184,7 +185,7 @@ public interface RepositoryDao {
      * @param mimetype
      * @param sf
      * @param sql
-     * @return
+     * @return See above.
      * @throws ServerError
      */
     public ome.model.core.OriginalFile register(String repoUuid, CheckedPath checked,
@@ -211,7 +212,7 @@ public interface RepositoryDao {
      *
      * @param job Not null.
      * @param current Not null.
-     * @return
+     * @return See above.
      * @throws ServerError
      */
     <T extends Job> T saveJob(T job, Ice.Current current) throws ServerError;
@@ -222,6 +223,7 @@ public interface RepositoryDao {
      * @param job Not null.
      * @param message If null, no modification will be made for the message
      * @param status If null, no modification will be made for the status.
+     * @param current Not null.
      */
     void updateJob(Job job, String message, String status, Ice.Current current)
         throws ServerError;
@@ -249,7 +251,7 @@ public interface RepositoryDao {
     String getUserInstitution(long userId, ServiceFactory sf);
 
     /**
-     * Call {@link SqlAction.findRepoDeleteLogs(DeleteLog)} with the current
+     * Call {@link SqlAction#findRepoDeleteLogs(DeleteLog)} with the current
      * context.
      *
      * @param template not null.
@@ -259,7 +261,7 @@ public interface RepositoryDao {
     List<DeleteLog> findRepoDeleteLogs(DeleteLog template, final Ice.Current current);
 
     /**
-     * As {@link #findRepoDeleteLogs(DeleteLog, Current)} but for a collection
+     * As {@link #findRepoDeleteLogs(DeleteLog, Ice.Current)} but for a collection
      * of templates.
      *
      * @param templates not null.
@@ -269,7 +271,7 @@ public interface RepositoryDao {
     List<List<DeleteLog>> findRepoDeleteLogs(List<DeleteLog> templates, final Ice.Current current);
 
     /**
-     * Call {@link SqlAction.deleteRepoDeleteLogs(DeleteLog)} with the current
+     * Call {@link SqlAction#deleteRepoDeleteLogs(DeleteLog)} with the current
      * context.
      *
      * @param template not null.
@@ -279,7 +281,7 @@ public interface RepositoryDao {
     int deleteRepoDeleteLogs(DeleteLog template, final Ice.Current current);
 
     /**
-     * Call {@link SqlAction.deleteRepoDeleteLogs(DeleteLog)} with the current
+     * Call {@link SqlAction#deleteRepoDeleteLogs(DeleteLog)} with the current
      * context for a number of templates.
      *
      * @param templates not null.
@@ -300,7 +302,7 @@ public interface RepositoryDao {
     /**
      * Retrieve the checksum algorithm of the given name.
      * @param name a checksum algorithm name, must exist
-     * @param Ice method invocation context
+     * @param current Ice method invocation context
      * @return the corresponding checksum algorithm model object
      */
     ome.model.enums.ChecksumAlgorithm getChecksumAlgorithm(String name, Ice.Current current);
@@ -308,7 +310,7 @@ public interface RepositoryDao {
     /**
      * Retrieve the original file of the given ID.
      * @param id the ID of an original file, must exist
-     * @param Ice method invocation context
+     * @param current Ice method invocation context
      * @return the corresponding original file model object
      */
     ome.model.core.OriginalFile getOriginalFileWithHasher(long id, Ice.Current current);
@@ -316,8 +318,7 @@ public interface RepositoryDao {
     /**
      * Save the given model object.
      * @param object a model object
-     * @param Ice method invocation context
-     * @return {@code null}
+     * @param current Ice method invocation context
      */
     void saveObject(ome.model.IObject object, Ice.Current current);
 }

@@ -41,7 +41,7 @@ public interface Redirector {
          * String representation of the proxy to the local node which may be
          * contacted to create new sessions.
          * 
-         * @return
+         * @return See above.
          */
         String getDirectProxy();
 

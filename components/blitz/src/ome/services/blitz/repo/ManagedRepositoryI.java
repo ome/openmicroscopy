@@ -551,7 +551,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
     /**
      * From a list of paths, calculate the common root path that all share. In
      * the worst case, that may be "/". May not include the last element, the filename.
-     * @param some paths
+     * @param paths some paths
      * @return the paths' common root
      */
     protected FsFile commonRoot(List<FsFile> paths) {
@@ -1398,7 +1398,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Checks for the top-level user directory restriction before calling
-     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, boolean, Current)}
+     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList, boolean, Session, ServiceFactory, SqlAction, ome.system.EventContext)}
      */
     @Override
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
