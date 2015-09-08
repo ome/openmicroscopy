@@ -6,6 +6,7 @@ ${projectIcon}                  webclient/image/folder16.png
 ${datasetIcon}                  webclient/image/folder_image16.png
 ${imageIcon}                    webclient/image/image16.png
 ${shareIcon}                    webclient/image/left_sidebar_icon_public.png
+${screenIcon}                   webclient/image/folder_screen16.png
 
 *** Keywords ***
 
@@ -176,6 +177,10 @@ Select First Share
     ${shareId}=                     Select Node By Icon    ${shareIcon}
     [Return]                        ${shareId}
 
+Select First Screen
+    ${screenId}=                     Select Node By Icon    ${screenIcon}
+    [Return]                        ${screenId}
+
 
 # Methods for querying nodes by TEXT
 
@@ -227,6 +232,11 @@ Wait For Image Node
 Wait For Share Node
     [Arguments]                     ${shareId}
     ${nodeId}=                      Get NodeId By Icon And Id       ${shareIcon}        ${shareId}
+    [Return]                        ${nodeId}
+
+Wait For Screen Node
+    [Arguments]                     ${screenId}
+    ${nodeId}=                      Get NodeId By Icon And Id       ${screenIcon}        ${screenId}
     [Return]                        ${nodeId}
 
 # Or checking Nodes don't exist by ID (only checks what's loaded in jsTree)
