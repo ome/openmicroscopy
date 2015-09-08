@@ -37,9 +37,9 @@ import omero.model.ExperimenterGroupI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.Roles;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.util.PojoMapper;
 
 /**
  * {@link Facility} for handling admin issues, e.g. creating users, groups,

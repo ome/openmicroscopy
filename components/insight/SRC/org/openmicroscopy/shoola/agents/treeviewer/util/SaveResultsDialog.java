@@ -20,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
-//Java imports
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -33,7 +32,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Box;
@@ -63,7 +61,7 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 
 /** 

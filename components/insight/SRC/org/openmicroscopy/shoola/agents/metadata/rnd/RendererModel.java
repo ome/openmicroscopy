@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.RendererModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -35,14 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -63,10 +53,10 @@ import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
-import pojos.ChannelData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * The Model component in the <code>Renderer</code> MVC triad.

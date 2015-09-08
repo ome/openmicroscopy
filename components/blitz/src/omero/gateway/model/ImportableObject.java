@@ -45,11 +45,6 @@ import org.apache.commons.lang.StringUtils;
 import omero.gateway.SecurityContext;
 import omero.gateway.util.TIFFFilter;
 import omero.gateway.util.Utils;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
 
 /**
  * Helper class where parameters required for the imports are stored.
@@ -69,26 +64,22 @@ public class ImportableObject
     /** The default name for the dataset. */
     public static final String DEFAULT_DATASET_NAME;
 
-    /** 
+    /**
      * The collection of HCS files extensions to check before importing.
      */
     public static final Set<String> HCS_FILES_EXTENSION;
 
-    /** 
+    /**
      * The collection of arbitrary files extensions to check
      * before importing. If a file has one of the extensions, we need
      * to check the import candidates.
      */
     private static final List<String> ARBITRARY_FILES_EXTENSION;
 
-    /** 
-     * The collection of HCS format.
-     */
+    /** The collection of HCS format. */
     public static final List<String> HCS_DOMAIN;
 
-    /** 
-     * The collection of OME suffices.
-     */
+    /** The collection of OME suffices.*/
     public static final List<String> OME_SUFFIXES;
 
     /** The filter used to exclude extensions.*/
@@ -143,7 +134,7 @@ public class ImportableObject
 
     /**
      * Adds the specified suffixes to the list.
-     * 
+     *
      * @param suffixes The values to handle.
      */
     private static void populateExtensions(String[] suffixes)
@@ -196,7 +187,7 @@ public class ImportableObject
     private double[] pixelsSize;
 
     /** The type to create if the folder has to be saved as a container. */
-    private Class type;
+    private Class<?> type;
 
     /** Flag indicating to load the thumbnails. */ 
     private boolean loadThumbnail;
@@ -297,7 +288,7 @@ public class ImportableObject
 
     /**
      * Sets the depth used scanning a folder.
-     * 
+     *
      * @param scanningDepth The value to set.
      */
     public void setScanningDepth(int scanningDepth)
@@ -426,7 +417,7 @@ public class ImportableObject
     /**
      * Returns <code>true</code> if new tags were created, <code>false</code>
      * otherwise.
-     *s
+     *
      * @return See above.
      */
     public boolean hasNewTags()
@@ -479,7 +470,7 @@ public class ImportableObject
     /**
      * Returns <code>true</code> if the passed format is a HCS format,
      * <code>false</code> otherwise.
-     * 
+     *
      * @param format The format to handle.
      * @return See above.
      */
@@ -590,7 +581,7 @@ public class ImportableObject
 
     /**
      * Registers the dataset.
-     * 
+     *
      * @param projectID The id of the project.
      * @param dataset The dataset to register.
      */

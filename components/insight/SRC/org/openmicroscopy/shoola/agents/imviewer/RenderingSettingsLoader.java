@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -23,24 +21,21 @@
 package org.openmicroscopy.shoola.agents.imviewer;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Retrieves all the rendering settings related to the specified set 

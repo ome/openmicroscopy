@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.FileUploader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,25 +20,18 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-//Java imports
 import java.io.File;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import omero.model.IObject;
 import omero.model.OriginalFile;
 
-
-//Third-party libraries
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import com.google.common.io.Files;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import omero.gateway.SecurityContext;
@@ -56,9 +47,9 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 
-import pojos.AnnotationData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
 
 /**
  * Uploads files to the QA system.
@@ -68,9 +59,6 @@ import pojos.FilesetData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class FileUploader

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -36,7 +34,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Handles the rendering settings.

@@ -26,7 +26,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.cache.CacheService;
 import omero.gateway.exception.DataSourceException;
 import omero.util.ReadOnlyByteArray;
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 /** 
 * Encapsulates access to the image raw data.

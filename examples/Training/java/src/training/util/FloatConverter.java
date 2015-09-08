@@ -1,6 +1,4 @@
 /*
- * training.util.FloatConverter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
@@ -22,12 +20,6 @@
  */
 package training.util;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Packs a sequence of bytes representing a big-endian float into 

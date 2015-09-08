@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.util.ui.search.GroupContext 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,17 +21,11 @@
  */
 package org.openmicroscopy.shoola.util.ui.search;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
-import pojos.GroupData;
-import pojos.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ExperimenterData;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

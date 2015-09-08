@@ -74,13 +74,13 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /**
  * Collections of tests for the <code>IContainer</code> service.
@@ -1137,7 +1137,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Entry entry;
         Iterator k;
         while (i.hasNext()) {
-            // use pojos
+            // use omero.gateway.model
             project = new ProjectData((Project) i.next());
             count = project.getAnnotationsCounts();
             assertEquals(1, count.size());
@@ -1238,7 +1238,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Entry entry;
         Iterator k;
         while (i.hasNext()) {
-            // use pojos
+            // use omero.gateway.model
             screen = new ScreenData((Screen) i.next());
             count = screen.getAnnotationsCounts();
             assertEquals(1, count.size());

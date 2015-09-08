@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.examples.Gateway 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.examples.data;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -37,9 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
@@ -54,8 +47,8 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
-import pojos.DatasetData;
-import pojos.ImageData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Entry point to access the services. Code should be provided to keep those
@@ -66,9 +59,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class Gateway 

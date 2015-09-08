@@ -121,17 +121,17 @@ import omero.sys.Roles;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pojos.BooleanAnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.DoubleAnnotationData;
-import pojos.FileAnnotationData;
-import pojos.InstrumentData;
-import pojos.LightSourceData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LightSourceData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
@@ -202,7 +202,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         while (i.hasNext()) {
             annotation = i.next();
             if (annotation instanceof FileAnnotation) { // test creation of
-                                                        // pojos
+                                                        // omero.gateway.model
                 faData = new FileAnnotationData((FileAnnotation) annotation);
                 assertNotNull(faData);
                 assertEquals(faData.getFileID(), of.getId().getValue());
@@ -237,7 +237,7 @@ public class MetadataServiceTest extends AbstractServerTest {
 		while (i.hasNext()) {
 			annotation = i.next();
 			if (annotation instanceof MapAnnotation) { // test creation of
-														// pojos
+														// omero.gateway.model
 				maData = new MapAnnotationData((MapAnnotation) annotation);
 				assertNotNull(maData);
 
@@ -504,7 +504,7 @@ public class MetadataServiceTest extends AbstractServerTest {
     /**
      * Tests the retrieval of annotations of different types i.e. tag, comment,
      * boolean, long and the conversion into the corresponding
-     * <code>POJOS</code> object.
+     * <code>omero.gateway.model</code> object.
      *
      * @throws Exception
      *             Thrown if an error occurred.

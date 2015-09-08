@@ -23,9 +23,9 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Provides a Null implementation of import settings, should NEVER be returned.

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroImageServiceImpl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java import
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,7 +88,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
-import pojos.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.Resolver;
 
@@ -115,17 +110,16 @@ import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ROIData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WorkflowData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
 * Implementation of the {@link OmeroImageService} I/F.
@@ -1747,32 +1741,7 @@ class OmeroImageServiceImpl
 		}
 		return m;
 	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#storeWorkflows(SecurityContext, List, long)
-	 */
-	public Object storeWorkflows(SecurityContext ctx,
-		List<WorkflowData> workflows, long userID)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		return gateway.storeWorkflows(ctx, workflows, userID);
-	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#retrieveWorkflows(SecurityContext, long)
-	 */
-	public List<WorkflowData> retrieveWorkflows(SecurityContext ctx,
-		long userID) 
-		throws DSAccessException, DSOutOfServiceException
-	{
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
-		if (userID < 0) userID = exp.getId();
-		return gateway.retrieveWorkflows(ctx, userID);
-	}
-	
+
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#getExperimenterThumbnailSet(SecurityContext, List, int)

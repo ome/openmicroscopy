@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.ToolBar 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-//Java imports
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -49,15 +46,11 @@ import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.DrawingEditor;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction;
-import org.openmicroscopy.shoola.agents.measurement.util.workflow.CreateWorkflowDialog;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
@@ -78,8 +71,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingPoint
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolBarButtonFactory;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
-import pojos.ShapeSettingsData;
-import pojos.WorkflowData;
+import omero.gateway.model.ShapeSettingsData;
 
 /** 
  * UI component acting as toolbar. Used to create Region of Interest.
@@ -89,9 +81,6 @@ import pojos.WorkflowData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class ToolBar 
@@ -194,14 +183,6 @@ class ToolBar
     
     /** The component to show/hide the text. */
     private JCheckBox					showTextButton;
-    
-    /** The workflow panel controls what workflow elements will be added to the 
-     * created figure. 
-     */
-    private WorkflowPanel				workflowPanel;
-    
-    /** Dialog used to create the workflow. */
-    private CreateWorkflowDialog 		createWorkflowDialog;
    
     /** Menu offering the delete option for Admin/group owner.*/
     private PermissionMenu deleteMenu;
@@ -360,7 +341,6 @@ class ToolBar
 				setUpToggleButton(button);	
 			}
 		}
-		workflowPanel = new WorkflowPanel(view, model, controller);
 	}
 	
 	/**
@@ -526,42 +506,7 @@ class ToolBar
 		int size = view.getDrawingView().getSelectedFigures().size();
 		assistantButton.getAction().setEnabled(size == 1);
 	}
-	
-	/**
-	 * Updates the workflow in the toolbar UI.
-	 */
-	void updateWorkflow()
-	{
-		workflowPanel.updateWorkflow();
-	}
-	
-	/**
-	 * Returns the workflow panel.
-	 * 
-	 * @return See above.
-	 */
-	WorkflowPanel getWorkflowPanel()
-	{
-		return workflowPanel;
-	}
 
-	/** Shows the create workflow menu. */
-	void createWorkflow() 
-	{ 
-		createWorkflowDialog = 
-			new CreateWorkflowDialog(model.getWorkflowDataList());
-		List<WorkflowData> newWorkflows = createWorkflowDialog.show();
-		if (newWorkflows != null)
-		{
-			model.resetWorkflows(newWorkflows);
-			model.saveWorkflowToServer(false);
-			model.retrieveWorkflowsFromServer();
-		}
-	}
-
-	/** Adds the workflows. */
-	void addedWorkflow() { workflowPanel.addedWorkflow(); }
-	
  	/**
  	 * Indicates any on-going analysis.
  	 * 

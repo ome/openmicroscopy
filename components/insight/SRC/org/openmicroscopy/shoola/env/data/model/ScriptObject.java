@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ScriptObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -40,12 +38,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.RType;
 import omero.grid.JobParams;
 import omero.grid.Param;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * Hosts the information about a given script.
@@ -667,7 +665,7 @@ public class ScriptObject
      * @param data
      * @return See above.
      */
-    public boolean isSupportedType(pojos.DataObject data)
+    public boolean isSupportedType(omero.gateway.model.DataObject data)
     {
         return getDataTypes().contains(data.getClass());
     }

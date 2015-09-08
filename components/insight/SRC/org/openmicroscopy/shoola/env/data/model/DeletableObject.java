@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.DeletableObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,26 +20,21 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.util.List;
 
 import omero.gateway.SecurityContext;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import pojos.DatasetData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.MapAnnotationData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
 
 /** 
  * Hosts the parameters to delete. 
@@ -60,7 +53,7 @@ public class DeletableObject
 {
 
 	/** The data object to delete. */
-	private pojos.DataObject	objectToDelete;
+	private omero.gateway.model.DataObject	objectToDelete;
 	
 	/** 
 	 * Flag indicating to delete the objects contained in the object to delete,
@@ -89,7 +82,7 @@ public class DeletableObject
 	 * 							contained in the object to delete, 
 	 * 							<code>false</code> otherwise.
 	 */
-	public DeletableObject(pojos.DataObject objectToDelete, boolean content)
+	public DeletableObject(omero.gateway.model.DataObject objectToDelete, boolean content)
 	{
 		if (objectToDelete == null) 
 			throw new IllegalArgumentException("No object to delete.");
@@ -102,7 +95,7 @@ public class DeletableObject
 	 * 
 	 * @param objectToDelete The object to delete.
 	 */
-	public DeletableObject(pojos.DataObject objectToDelete)
+	public DeletableObject(omero.gateway.model.DataObject objectToDelete)
 	{
 		this(objectToDelete, false);
 	}
@@ -138,7 +131,7 @@ public class DeletableObject
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getObjectToDelete() { return objectToDelete; }
+	public omero.gateway.model.DataObject getObjectToDelete() { return objectToDelete; }
 	
 	/**
 	 * Returns the identifier of the group.

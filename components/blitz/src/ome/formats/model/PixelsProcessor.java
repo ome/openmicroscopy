@@ -1,6 +1,4 @@
 /*
- * ome.formats.model.PixelsProcessor
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -23,13 +21,10 @@
 
 package ome.formats.model;
 
-import static omero.rtypes.rdouble;
 import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 
 import static ome.formats.model.UnitsFactory.makeLength;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

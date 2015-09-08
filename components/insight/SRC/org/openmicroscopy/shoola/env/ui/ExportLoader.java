@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ExportLoader
- *
  *------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
@@ -22,18 +20,13 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import java.io.File;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /**
  * Exports the passed image.
@@ -43,9 +36,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ExportLoader 

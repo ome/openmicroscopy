@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.FilesetLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,17 +21,12 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
-//Java imports
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.FilesetData;
+import omero.gateway.model.FilesetData;
 
 /** 
  * Loads the file set associated to the specified image.

@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pojos.DatasetData;
-import pojos.ImageData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 
 /**
  * A container holding the results of a pre-delete check; in particular 

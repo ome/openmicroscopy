@@ -44,7 +44,7 @@ import omero.model.Well;
 
 import org.testng.annotations.Test;
 
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Collections of tests for the handling ROIs.

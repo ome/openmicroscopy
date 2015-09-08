@@ -29,7 +29,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.ROIData;
+import omero.gateway.model.ROIData;
 
 
 /**

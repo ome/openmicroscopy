@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -32,7 +30,7 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Retrieves the structures annotations related to a given object.

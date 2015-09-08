@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.databrowser.actions.ActivatedUserAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee. All rights reserved.
  *
@@ -22,23 +20,18 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
 import java.util.Collection;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Indicates to activate or not a user.

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,15 +21,10 @@
  */
 package org.openmicroscopy.shoola.agents.events.metadata;
 
-
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Event indicating that the objects have been annotated.
