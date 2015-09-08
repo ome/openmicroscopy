@@ -257,7 +257,7 @@ Test Owners Rdef
 
     # Bit more reliable with this, but try to remove it if possible...
 
-    Go To                                   ${WELCOME URL}img_detail/${imageId}
+    Go To                                   ${WELCOME URL}img_detail/${imageId}/
     Wait Until Page Contains Element        id=wblitz-ch0
     ${checked1}=                            Checkbox Should Be Selected  id=wblitz-rmodel
     Click Element                           id=wblitz-rmodel

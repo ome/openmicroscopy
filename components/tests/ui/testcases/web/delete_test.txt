@@ -120,7 +120,7 @@ Test Delete Images in Share
     Wait Until Keyword Succeeds     10   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
 
     # Check share has 'Object Deleted' for deleted image
-    Go To                                       ${WELCOME URL}public
+    Go To                                       ${WELCOME URL}public/
     Select First Share
     # Should be image with id='image-123', with 'Object Deleted' in Tree and icons
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@data-id='${imageId}']/a[contains(text(), 'Object deleted')]
