@@ -1,6 +1,4 @@
 /*
- * training.CreateImage 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,8 +21,6 @@
  */
 package training;
 
-
-//Java imports
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,14 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-
-
-
-
-//Application-internal dependencies
 import omero.RLong;
 import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
@@ -58,9 +46,9 @@ import omero.model.LengthI;
 import omero.model.PixelsType;
 import ome.model.enums.UnitsLength;
 import omero.sys.ParametersI;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Sample code showing how to create new image.

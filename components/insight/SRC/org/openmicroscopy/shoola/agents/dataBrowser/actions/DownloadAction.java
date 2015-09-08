@@ -39,8 +39,8 @@ import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 
 /**

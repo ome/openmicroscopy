@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.util.ui.search.SearchComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -53,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 

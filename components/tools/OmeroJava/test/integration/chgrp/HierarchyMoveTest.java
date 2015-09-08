@@ -61,7 +61,7 @@ import omero.sys.ParametersI;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Collection of test to move hierarchies between groups.

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -84,15 +82,15 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.PixelsData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Component hosting the file to import and displaying the status of the 

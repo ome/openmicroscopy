@@ -91,8 +91,8 @@ public abstract class rtypes {
      * Limitation: All map keys will be converted to strings!
      *
      * Calls {@link #wrap(Object, Map)} with a new cache argument.
-     * @param value
-     * @return
+     * @param value the value to wrap
+     * @return the wrapped value
      */
     public static omero.RType wrap(final Object value) {
         if (value == null) {
@@ -107,7 +107,9 @@ public abstract class rtypes {
      * Limitation: All map keys will be converted to strings!
      *
      * The cache argument is used to prevent cycles.
-     * @param value
+     * @param value the value to wrap
+     * @param cache a cache of wrapped values (to be expanded by misses)
+     * @return the wrapped value
      * @throws omero.ClientError if all else fails.
      */
     public static omero.RType wrap(final Object value, final Map<Object, RType> cache) {
@@ -157,9 +159,9 @@ public abstract class rtypes {
      * Descends into data structures unwrapping all RType objects as it goes.
      * Limitation: RArrays are turned into {@link List} instances!
      *
-     * Calls {@link #unwrap(Object, Map)} with a new cache argument.
-     * @param value
-     * @return
+     * Calls {@link #unwrap(RType, Map)} with a new cache argument.
+     * @param value the wrapped value
+     * @return the value unwrapped
      */
     public static Object unwrap(final RType value) {
         if (value == null) {
@@ -174,7 +176,9 @@ public abstract class rtypes {
      * Limitation: RArrays are turned into {@link List} instances!
      *
      * The cache argument is used to prevent cycles.
-     * @param value
+     * @param value the wrapped value
+     * @param cache a cache of unwrapped values (to be expanded by misses)
+     * @return the value unwrapped
      */
     public static Object unwrap(final RType value, final Map<RType, Object> cache) {
         if (cache.containsKey(value)) {
@@ -1036,18 +1040,12 @@ public abstract class rtypes {
         /**
          * Specifies the type that can be expected from the
          * {@link #convert(IceMapper)} method.
-         * 
-         * @return
          */
         public Class<?> type();
 
         /**
          * Convert the "val" field on the given RType instance to an ome.model.*
          * representation.
-         * 
-         * @param mapper
-         * @return
-         * @throws ApiUsageException
          */
         public Object convert(IceMapper mapper) throws ApiUsageException;
 

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.roi.PointIterator 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,25 +20,16 @@
  */
 package org.openmicroscopy.shoola.env.rnd.roi;
 
-//Java imports
 import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-
-
-
-
-
-
 import java.util.concurrent.ExecutionException;
 
 import omero.gateway.Gateway;
-//Application-internal dependencies
+
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
@@ -50,7 +39,7 @@ import omero.gateway.rnd.Plane2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Iterates over the pixels contained in an <code>ROIShape</code> or an 

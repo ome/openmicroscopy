@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.utests.sessions;
 
 import java.sql.Timestamp;
@@ -11,25 +10,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import junit.framework.TestCase;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import ome.conditions.DatabaseBusyException;
-import ome.conditions.InternalException;
+
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
-import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;

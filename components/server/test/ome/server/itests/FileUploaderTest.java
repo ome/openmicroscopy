@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests;
 
 import java.io.File;
@@ -11,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 import junit.framework.TestCase;
+
 import ome.conditions.ApiUsageException;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
@@ -18,9 +18,7 @@ import ome.model.meta.Experimenter;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
-import ome.server.itests.FileUploader;
 import ome.tools.spring.ManagedServiceFactory;
-import ome.util.checksum.ChecksumProviderFactory;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.BeforeClass;

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.ParentLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -28,7 +26,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Loads the parents of the specified annotation.

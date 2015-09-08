@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.util;
 
 import java.util.Set;
@@ -24,8 +25,6 @@ import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
-import ome.util.Filter;
-import ome.util.Validation;
 
 import org.hibernate.Hibernate;
 

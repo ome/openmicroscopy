@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.PermissionsPane 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-//Java import
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -42,18 +38,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.GroupData;
-import pojos.PermissionData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.PermissionData;
 
 /** 
  * Displays the permissions options.
@@ -63,9 +55,6 @@ import pojos.PermissionData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class PermissionsPane 

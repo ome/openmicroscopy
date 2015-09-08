@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.ImViewerAgent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,21 +21,16 @@
 
 package org.openmicroscopy.shoola.agents.imviewer;
 
-//Java imports
 import java.awt.Rectangle;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
-
-
 import ome.model.units.BigResult;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
@@ -73,12 +66,12 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.WellSampleData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * The ImViewer agent. This agent displays an <code>Image</code> and the 

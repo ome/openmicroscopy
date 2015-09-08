@@ -1,11 +1,9 @@
-import java.util.List;
-
 import static omero.rtypes.*;
 
 import omero.api.ServiceFactoryPrx;
 import omero.api.IUpdatePrx;
-import omero.model.ImageI;
 import omero.model.Image;
+import omero.model.ImageI;
 
 public class updates {
 

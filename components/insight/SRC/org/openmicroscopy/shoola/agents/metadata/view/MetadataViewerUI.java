@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,9 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-//Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -39,10 +35,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
@@ -50,10 +42,10 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 
 /** 
  * The View.
@@ -63,9 +55,6 @@ import pojos.ProjectData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class MetadataViewerUI 

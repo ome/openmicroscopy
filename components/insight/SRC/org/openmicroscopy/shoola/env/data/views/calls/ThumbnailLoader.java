@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -48,9 +46,9 @@ import omero.log.LogMessage;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Command to load a given set of thumbnails.

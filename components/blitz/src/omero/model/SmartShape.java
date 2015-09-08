@@ -46,7 +46,7 @@ public interface SmartShape {
          * 
          * in all the implementations of {@link SmartShape#asPoints()}.
          * 
-         * @param points
+         * @param points the points
          * @return false if iterating through the points list and dereferencing
          *         the cx and cy fields would cause a
          *         {@link NullPointerException}
@@ -242,28 +242,27 @@ public interface SmartShape {
     /**
      * Calls the {@link PointCallback} with all of the x/y coordinates which are
      * within the shape.
+     * @param action the callback to call
      */
     void areaPoints(PointCallback action);
 
     /**
-     * Converst the current {@link SmartShape} to a {@link java.awt.Shape}. This
+     * Converts the current {@link SmartShape} to a {@link java.awt.Shape}. This
      * is useful for determining paths and included points.
-     * 
-     * @return
+     * @return the AWT shape
      */
     java.awt.Shape asAwtShape();
 
     /**
      * Provides some, possibly lossy, bounding polygon of this
      * {@link SmartShape} via points.
-     * 
-     * @return
+     * @return the bounding polygon
      */
     List<Point> asPoints();
 
     /**
-     * Initializes this shape with completely random data. This is useful for 
-     * @param random
+     * Initializes this shape with completely random data.
+     * @param random a random number generator
      */
     void randomize(Random random);
 

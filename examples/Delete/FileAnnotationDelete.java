@@ -7,12 +7,11 @@ import omero.gateway.util.Requests;
 import omero.api.ServiceFactoryPrx;
 import omero.model.*;
 import static omero.rtypes.*;
+
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

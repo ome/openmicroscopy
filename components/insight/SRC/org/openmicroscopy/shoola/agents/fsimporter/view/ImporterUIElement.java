@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterUIElement 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-
-//Java imports
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
 
@@ -82,12 +78,12 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * Component displaying an import.
@@ -97,9 +93,6 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class ImporterUIElement 

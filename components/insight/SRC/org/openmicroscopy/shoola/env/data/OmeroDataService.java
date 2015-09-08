@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroDataService
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -32,16 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-//Third-party libraries
-
-
-
-
-
-
-
-//Application-internal dependencies
 import omero.api.StatefulServiceInterfacePrx;
 
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -52,10 +37,10 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.SearchResultCollection;
 import omero.gateway.model.SearchParameters;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PlateData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
 
 /**
  * List of methods to retrieve data using OMERO.
@@ -63,9 +48,6 @@ import pojos.PlateData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface OmeroDataService

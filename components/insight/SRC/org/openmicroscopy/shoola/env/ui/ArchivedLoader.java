@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ArchivedLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -35,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Loads the image.

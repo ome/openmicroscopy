@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.ImageChecker
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,21 +21,17 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-
-//Java imports
 import java.util.List;
 import java.util.Map;
-//Third-party libraries
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
-import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
+
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 /**
  * Checks if the images in the specified containers are split between
  * or not all selected.

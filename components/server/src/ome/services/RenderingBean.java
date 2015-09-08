@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -40,7 +38,6 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.model.internal.Permissions;
 import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
@@ -85,7 +82,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Chris Allan, callan at blackcat.ca
  * @author Jean-Marie Burel, j.burel at dundee.ac.uk
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see RenderingEngine
  * @since 3.0-M3
  */

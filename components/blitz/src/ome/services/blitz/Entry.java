@@ -1,12 +1,10 @@
-/*   $Id$
- *
+/*
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.blitz;
 
-import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ome.system.OmeroContext;
@@ -15,8 +13,6 @@ import ome.util.messages.UserSignalMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.springframework.util.ResourceUtils;
 
 import sun.misc.Signal;
 import sun.misc.SignalHandler;

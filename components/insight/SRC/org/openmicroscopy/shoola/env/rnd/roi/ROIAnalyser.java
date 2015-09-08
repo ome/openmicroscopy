@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -38,7 +36,7 @@ import omero.gateway.exception.DataSourceException;
 
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Does some basic statistic analysis on a collection of {@link ROIShape} 

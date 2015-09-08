@@ -31,9 +31,9 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.Channel;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
-import pojos.ChannelData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
 
 
 /**

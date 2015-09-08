@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.DocComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -81,17 +79,17 @@ import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.LongAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TimeAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TimeAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Component displaying the annotation, either <code>FileAnnotationData</code>
@@ -102,9 +100,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class DocComponent 

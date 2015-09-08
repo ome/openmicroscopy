@@ -33,7 +33,6 @@ import com.google.common.collect.ImmutableSet;
 
 import ome.model.IObject;
 import ome.services.graphs.GraphPathBean;
-import omero.cmd.graphs.ChildOption;
 
 /**
  * Child options adjust how child objects are treated according to their type and, if annotations, namespace,

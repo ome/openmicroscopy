@@ -76,7 +76,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     private final Ice.Identity id;
 
     /**
-     * Latch which is released once {@link #finished(Response, Current)} is
+     * Latch which is released once {@link #finished(Response, Status, Current)} is
      * called. Other methods will block on this value.
      */
     private final CountDownLatch latch = new CountDownLatch(1);
@@ -170,7 +170,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     /**
      * Subclasses which must perform their own initialization before
      * {@link #onFinished(Response, Status, Current)} is called should
-     * call {@link #waitOnInitialization() before accessing any initialized
+     * call {@link #waitOnInitialization()} before accessing any initialized
      * state.
      */
     protected void waitOnInitialization() {
@@ -201,6 +201,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      * Returns possibly null Response value. If null, then neither has
      * the remote server nor the local poll method called finish with
      * non-null values.
+     * @return the response, may be {@code null}
      */
     public Response getResponse() {
         return state.get().rsp;
@@ -210,6 +211,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      * Returns possibly null Status value. If null, then neither has
      * the remote server nor the local poll method called finish with
      * non-null values.
+     * @return the status, may be {@code null}
      */
     public Status getStatus() {
         return state.get().status;
@@ -227,6 +229,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      * Returns whether Status::CANCELLED is contained in
      * the flags variable of the Status instance. If no
      * Status is available, a ClientError will be thrown.
+     * @return if {@link omero.cmd.State#CANCELLED} has been flagged
      */
     public boolean isCancelled() {
         Status s = getStatusOrThrow();
@@ -237,6 +240,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      * Returns whether Status::FAILURE is contained in
      * the flags variable of the Status instance. If no
      * Status is available, a ClientError will be thrown.
+     * @return if {@link omero.cmd.State#FAILURE} has been flagged
      */
     public boolean isFailure() {
         Status s = getStatusOrThrow();
@@ -251,6 +255,8 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      *
      * @param loops Number of times to call block(long)
      * @param ms Number of milliseconds to pass to block(long
+     * @return the response
+     * @throws InterruptedException if the thread was interrupted
      * @throws omero.LockTimeout if block(long) does not return
      * a non-null value after loops calls.
      */
@@ -284,8 +290,8 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      * was reached.
      *
      * @param ms Milliseconds which this method should block for.
-     * @return
-     * @throws InterruptedException
+     * @return if the the thread finished before the timeout was reached
+     * @throws InterruptedException if the thread was interrupted
      */
     public boolean block(long ms) throws InterruptedException {
         return latch.await(ms, TimeUnit.MILLISECONDS);
@@ -331,6 +337,9 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     /**
      * Method intended to be overridden by subclasses. Default logic does
      * nothing.
+     * @param rsp the response
+     * @param status the status
+     * @param __current regarding the current method invocation
      */
     public void onFinished(Response rsp, Status status, Current __current) {
         // no-op
@@ -339,6 +348,7 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     /**
      * First removes self from the adapter so as to no longer receive
      * notifications, and the calls close on the remote handle if requested.
+     * @param closeHandle if the handle should be closed
      */
     public void close(boolean closeHandle) {
          adapter.remove(id); // OK ADAPTER USAGE

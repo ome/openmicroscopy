@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.ModelMapper
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -109,23 +107,23 @@ import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.ProjectData;
-import pojos.RatingAnnotationData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Helper class to map {@link DataObject}s into their corresponding

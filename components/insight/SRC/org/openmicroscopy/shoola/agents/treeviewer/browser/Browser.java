@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.browser.Browser
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 import java.awt.Component;
@@ -42,10 +39,10 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Defines the interface provided by the browser component.

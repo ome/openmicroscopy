@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -17,7 +15,6 @@ import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.system.ServiceFactory;
-import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;

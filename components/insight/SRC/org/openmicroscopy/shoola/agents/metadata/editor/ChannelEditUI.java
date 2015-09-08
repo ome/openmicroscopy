@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.ChannelEditUI
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,7 +21,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-//Java imports
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -47,17 +44,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TextFieldLimit;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ChannelData;
-import pojos.DatasetData;
-import pojos.PlateData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.PlateData;
 
 /**
  * Edits the channels.

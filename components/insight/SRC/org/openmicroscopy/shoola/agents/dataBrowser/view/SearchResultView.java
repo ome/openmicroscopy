@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTableView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Point;
@@ -41,12 +38,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /**
  * A View for displaying a {@link SearchResultCollection}

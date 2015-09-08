@@ -1,19 +1,14 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package omero.cmd;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -341,7 +336,7 @@ public class SessionI implements _SessionOperations {
 
     /**
      * Called if this isn't a kill-everything event.
-     * @see ticket 9330
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/9330">Trac ticket #9330</a>
      */
     public void cleanupSelf() {
         if (log.isInfoEnabled()) {
@@ -352,8 +347,8 @@ public class SessionI implements _SessionOperations {
 
     /**
      * Performs the actual cleanup operation on all the resources shared between
-     * this and other {@link ServiceFactoryI} instances in the same
-     * {@link Session}. Since {@link #destroy()} is called regardless by the
+     * this and other {@link ome.services.blitz.impl.ServiceFactoryI} instances in the
+     * same {@link Session}. Since {@link #destroy(Current)} is called regardless by the
      * router, even when a client has just died, we have this internal method
      * for handling the actual closing of resources.
      *
@@ -364,7 +359,7 @@ public class SessionI implements _SessionOperations {
      * the entire instance, then we should still close down the stateless
      * services for this instance as well as remove ourselves from the adapter.
      *
-     * @see ticket 9330
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/9330">Trac ticket #9330</a>
      */
     public void doDestroy() {
 
@@ -378,7 +373,7 @@ public class SessionI implements _SessionOperations {
      * Use {@link #cleanServants(boolean, String, ServantHolder, Ice.ObjectAdapter)}
      * to clean up.
      *
-     * @param all
+     * @param all if stateful sessions should be shut down such that other clients cannot reattach (the servant is cleaned up)
      */
     public void cleanServants(boolean all) {
         cleanServants(all, clientId, holder, adapter);
@@ -390,7 +385,7 @@ public class SessionI implements _SessionOperations {
      * processed. Otherwise, only servants that a) belong to this clientId and
      * b) are not stateful (since stateful services may be used by other clients).
      *
-     * @param all
+     * @param all if stateful sessions should be shut down such that other clients cannot reattach (the servant is cleaned up)
      * @param clientId Only used if all is false.
      * @param holder {@link ServantHolder} to be cleaned.
      * @param adapter from which the servants should be removed.
@@ -492,8 +487,8 @@ public class SessionI implements _SessionOperations {
     }
 
     /**
-     * Creates a proxy according to the {@link ServantDefinition} for the given
-     * name. Injects the {@link #helper} instance for this session so that all
+     * Creates a proxy according to the servant definition for the given
+     * name. Injects the instance for this session so that all
      * services are linked to a single session.
      *
      * Creates an ome.api.* service (mostly managed by Spring), wraps it with
@@ -532,10 +527,10 @@ public class SessionI implements _SessionOperations {
 
     /**
      * Apply proper AOP and call setters for any known injection properties.
-     * @param servant
-     * @throws ServerError
+     * @param servant the servant
+     * @throws ServerError if the configuration or tying failed
      */
-    public void configureServant(Ice. Object servant) throws ServerError {
+    public void configureServant(Ice.Object servant) throws ServerError {
         // Now setup the servant
         // ---------------------------------------------------------------------
         internalServantConfig(servant);
@@ -626,10 +621,10 @@ public class SessionI implements _SessionOperations {
 
     /**
      * Reverts all the additions made by
-     * {@link #registerServant(ServantInterface, Ice.Current, Ice.Identity)}
+     * {@link #registerServant(Ice.Identity, Ice.Object)}
      *
      * Now called by {@link ome.services.blitz.fire.SessionManagerI} in response
-     * to an {@link UnregisterServantMessage}
+     * to an {@link ome.services.blitz.util.UnregisterServantMessage}.
      */
     public static void unregisterServant(Ice.Identity id, Ice.ObjectAdapter adapter,
         ServantHolder holder) {
@@ -678,7 +673,7 @@ public class SessionI implements _SessionOperations {
     }
 
     /**
-     * Definition of session ids: "session-<CLIENTID>/<UUID>"
+     * Definition of session ids: {@code "session-<CLIENTID>/<UUID>"}
      */
     public static Ice.Identity sessionId(String clientId, String uuid) {
         Ice.Identity id = new Ice.Identity();
@@ -690,8 +685,6 @@ public class SessionI implements _SessionOperations {
     /**
      * Returns the {@link Ice.Identity} for this instance as defined by
      * {@link #sessionId(String, String)}
-     *
-     * @return
      */
     public Ice.Identity sessionId() {
         return sessionId(clientId, principal.getName());

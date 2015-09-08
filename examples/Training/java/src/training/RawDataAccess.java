@@ -1,6 +1,4 @@
 /*
- * training.RawDataAccess 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,14 +21,9 @@
  */
 package training;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
@@ -39,9 +32,9 @@ import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.rnd.Plane2D;
 import omero.log.SimpleLogger;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Sample code showing how to access raw data.

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,20 +20,15 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-
 import ome.model.units.BigResult;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
@@ -56,10 +49,10 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import pojos.ChannelData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
 
 
 /** 
@@ -71,9 +64,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class MetadataViewerAgent 

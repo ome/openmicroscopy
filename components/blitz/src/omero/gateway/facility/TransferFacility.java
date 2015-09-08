@@ -33,7 +33,7 @@ import omero.gateway.exception.ImportException;
 import omero.gateway.model.ImportCallback;
 import omero.gateway.model.ImportableFile;
 import omero.gateway.model.ImportableObject;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /**
  * {@link Facility} which provides data transfer functionality, i.e. download

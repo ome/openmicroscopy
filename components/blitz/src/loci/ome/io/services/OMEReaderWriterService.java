@@ -27,7 +27,6 @@ package loci.ome.io.services;
 
 import loci.common.services.Service;
 import loci.formats.IFormatReader;
-import loci.formats.IFormatWriter;
 
 /**
  *

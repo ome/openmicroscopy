@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OMEROGateway
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -61,7 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
-import pojos.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
@@ -176,7 +174,6 @@ import omero.model.LabelI;
 import omero.model.Laser;
 import omero.model.LogicalChannel;
 import omero.model.MaskI;
-import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
@@ -203,42 +200,42 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.Roles;
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.EllipseData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.FilesetData;
-import pojos.GroupData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.InstrumentData;
-import pojos.LightSourceData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.MaskData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.PointData;
-import pojos.PolygonData;
-import pojos.PolylineData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.RatingAnnotationData;
-import pojos.RectangleData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextData;
-import pojos.TextualAnnotationData;
-import pojos.TimeAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
-import pojos.WorkflowData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LightSourceData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.TimeAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
+
 
 /**
  * Unified access point to the various <i>OMERO</i> services.
@@ -248,9 +245,6 @@ import pojos.WorkflowData;
  * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -7018,60 +7012,6 @@ class OMEROGateway
 			handleException(e, "Cannot load the required group.");
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the list of available workflows on the server.
-	 *
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List<WorkflowData> retrieveWorkflows(SecurityContext ctx, long userID)
-			throws DSOutOfServiceException, DSAccessException
-	{
-	   
-		try {
-		    IQueryPrx svc = gw.getQueryService(ctx);
-			ParametersI param = new ParametersI();
-			param.map.put("userID", omero.rtypes.rlong(userID));
-			List<Namespace> serverWorkflows =
-				(List) svc.findAllByQuery("from Namespace as n", param);
-			return PojoMapper.asDataObjectsAsList(serverWorkflows);
-		} catch(Throwable t) {
-			return new ArrayList<WorkflowData>();
-		}
-	}
-
-	/**
-	 * Returns the list of available workflows on the server.
-	 *
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	Object storeWorkflows(SecurityContext ctx, List<WorkflowData> workflows,
-			long userID)
-			throws DSOutOfServiceException, DSAccessException
-	{
-	   
-	    IUpdatePrx updateService = gw.getUpdateService(ctx);
-		for (WorkflowData workflow : workflows)
-			if (workflow.isDirty())
-			{
-				try {
-					updateService.saveObject(workflow.asIObject());
-				} catch (Throwable e) {
-					handleException(e, "Unable to save Object : "+ workflow);
-				}
-			}
-		return Boolean.valueOf(true);
 	}
 
 	/**

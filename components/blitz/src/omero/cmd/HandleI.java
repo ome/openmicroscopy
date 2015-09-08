@@ -132,8 +132,9 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     /**
-     * Create a {@link HandleI} in the {@link State#CREATED} state with the
-     * given cancel timeout in milliseconds.
+     * Create a {@link HandleI} (at {@code CREATED} in the state diagram)
+     * with the given cancel timeout in milliseconds.
+     * @param cancelTimeoutMs the cancel timeout (in milliseconds)
      */
     public HandleI(int cancelTimeoutMs) {
         this.cancelTimeoutMs = cancelTimeoutMs;
@@ -175,8 +176,8 @@ public class HandleI implements _HandleOperations, IHandle,
 
     /**
      * Calls the proper notification on all callbacks based on the current
-     * {@link #state}. If the {@link State} is anything other than
-     * {@link State#CANCELLED} or {@link State#FINISHED} then
+     * position in the state diagram. If that is anything other than
+     * {@code CANCELLED} or {@code FINISHED} then
      * {@link CmdCallbackPrx#step(int, int)} is called.
      */
     public void notifyCallbacks() {
@@ -341,7 +342,7 @@ public class HandleI implements _HandleOperations, IHandle,
 
     /**
      *
-     * NB: only executes if {@link #state} is {@link State#CREATED}.
+     * NB: Executes only if at {@code CREATED} in the state diagram.
      */
     public void run() {
 
@@ -482,7 +483,7 @@ public class HandleI implements _HandleOperations, IHandle,
     }
 
     /**
-     * Signals that {@link HandleI#run()} has noticed that {@link HandleI#state}
+     * Signals that {@link HandleI#run()} has noticed that the state diagram
      * wants a cancellation or that the {@link Request} implementation wishes to
      * stop execution.
      */

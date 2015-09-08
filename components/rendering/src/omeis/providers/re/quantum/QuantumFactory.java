@@ -12,7 +12,6 @@ import java.util.List;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
 
 import omeis.providers.re.data.PlaneFactory;
 
@@ -27,8 +26,6 @@ import omeis.providers.re.data.PlaneFactory;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/10 17:37:26 $) </small>
  * @since OME2.2
  */
 public class QuantumFactory {

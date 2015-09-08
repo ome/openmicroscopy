@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.EditorDialog
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.util.ui;
 
 import java.awt.BorderLayout;
@@ -58,17 +55,17 @@ import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.LongAnnotationData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.AnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Basic modal dialog brought up to create a new container.

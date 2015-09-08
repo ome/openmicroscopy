@@ -5,17 +5,6 @@
 
 package ome.security;
 
-import java.util.List;
-import java.util.Map;
-
-import org.hibernate.Session;
-
-import ome.model.internal.Details;
-import ome.security.basic.AllGroupsSecurityFilter;
-import ome.security.basic.CurrentDetails;
-import ome.security.basic.OneGroupSecurityFilter;
-import ome.system.EventContext;
-
 /**
  * Responsible for determining which users
  * can modify which objects in which contexts.

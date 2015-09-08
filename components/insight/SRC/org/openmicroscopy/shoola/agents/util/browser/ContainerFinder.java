@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.browser.ContainerFinder
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -28,11 +26,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Finds the {@link TreeImageSet} representing {@link TagAnnotationData},

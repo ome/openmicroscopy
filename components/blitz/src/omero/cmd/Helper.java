@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
-import ome.services.graphs.GraphException;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -89,8 +88,9 @@ public class Helper {
     /**
      * Run {@link IRequest#init(Helper)} on a sub-command by creating a new
      * Helper instance.
-     * @param ireq
-     * @param substatus
+     * @param req the request
+     * @param substatus its status for its new helper
+     * @return the new helper
      */
     public Helper subhelper(Request req, Status substatus) {
         return new Helper(req, substatus, sql, session, sf);
@@ -129,10 +129,8 @@ public class Helper {
     /**
      * Set the response if there is not currently run, in which case true
      * is returned. Otherwise, false.
-     *
-     * @param rsp
-     *            Can be null.
-     * @return
+     * @param rsp the response
+     * @return if the setting was successful
      */
     public boolean setResponseIfNull(Response rsp) {
         return this.rsp.compareAndSet(null, rsp);
@@ -200,6 +198,8 @@ public class Helper {
     /**
      * Converts pairs of values from the varargs list into a map. Any leftover
      * value will be ignored.
+     * @param paramList a list of parameters
+     * @return a map with entries constructed from consecutive pairs of the parameters
      */
     public Map<String, String> params(final String... paramList) {
         Map<String, String> params = new HashMap<String, String>();
@@ -213,12 +213,8 @@ public class Helper {
     }
 
     /**
-     * Calls {@link #fail(ERR, String, Map)} with the output of
+     * Calls {@link #fail(ERR, Throwable, String, Map)} with the output of
      * {@link #params(String...)}.
-     *
-     * @param err
-     * @param name
-     * @param paramList
      */
     public void fail(ERR err, Throwable t, final String name, final String... paramList) {
         fail(err, t, name, params(paramList));
@@ -227,10 +223,6 @@ public class Helper {
     /**
      * Sets the status.flags and the ERR properties appropriately and also
      * stores the message and stacktrace of the throwable in the parameters.
-     *
-     * @param err
-     * @param name
-     * @param params
      */
     public void fail(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
@@ -260,15 +252,10 @@ public class Helper {
     }
 
     /**
-     * Calls {@link #cancel(ERR, Throwable, String, Map<String, String>)} with
+     * Calls {@link #cancel(ERR, Throwable, String, Map)} with
      * the output of {@link #params(String...)}.
      *
      * See the statement about the return value.
-     *
-     * @param err
-     * @param t
-     * @param name
-     * @param paramList
      */
     public Cancel cancel(ERR err, Throwable t, final String name,
             final String... paramList) {
@@ -276,7 +263,7 @@ public class Helper {
     }
 
     /**
-     * Like {@link #fail(ERR, String, String...)} throws a
+     * Like {@link #fail(ERR, Throwable, String, String...)} throws a
      * {@link Cancel} exception.
      *
      * A {@link Cancel} is thrown, even though one is also specified as the
@@ -288,11 +275,6 @@ public class Helper {
      * </pre>
      * since omitting the "throw" within the catch clauses forces one to enter
      * a number of "return null; // Never reached" lines.
-     *
-     * @param err
-     * @param t
-     * @param name
-     * @param params
      */
     public Cancel cancel(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
@@ -315,10 +297,8 @@ public class Helper {
      *         return null;
      *     }
      * </pre>
-     *
-     * @param i
-     * @param step
-     * @return
+     * @param i the expected step number
+     * @param step the actual step number
      */
     public void assertStep(int i, int step) {
         if (step != i) {
@@ -331,6 +311,7 @@ public class Helper {
     /**
      * Checks the given steps against the number of times that this method
      * has been called on this instance and then increments the call count.
+     * @param step the new step number
      */
     public void assertStep(int step) {
         assertStep(this.assertSteps, step);
@@ -340,6 +321,7 @@ public class Helper {
     /**
      * Checks the given steps against the number of times that this method
      * has been called on this instance and then increments the call count.
+     * @param step the step number for the new response
      */
     public void assertResponse(int step) {
         assertStep(this.assertResponses, step);
@@ -348,6 +330,8 @@ public class Helper {
 
     /**
      * Returns true if this is the last step for the given request.
+     * @param step the step number
+     * @return if the given step is the last
      */
     public boolean isLast(int step) {
         return step == (status.steps - 1);
@@ -356,6 +340,7 @@ public class Helper {
     /**
      * Provides an {@link EventContext} instance without reloading the session,
      * via {@link LocalAdmin#getEventContextQuiet()}.
+     * @return the event context
      */
     public EventContext getEventContext() {
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();

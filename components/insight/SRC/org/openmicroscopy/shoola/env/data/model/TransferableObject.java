@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.TransferableObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,15 +21,9 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 import omero.gateway.SecurityContext;
 /** 
@@ -48,10 +40,10 @@ public class TransferableObject
 	private SecurityContext targetContext;
 	
 	/** The destination of the change group action.*/
-	private List<pojos.DataObject> target;
+	private List<omero.gateway.model.DataObject> target;
 	
 	/** The elements to move.*/
-	private Map<SecurityContext, List<pojos.DataObject>> source;
+	private Map<SecurityContext, List<omero.gateway.model.DataObject>> source;
 	
 	/** The name of the target group.*/
 	private String groupName;
@@ -65,8 +57,8 @@ public class TransferableObject
 	 * @param source The elements to move. Mustn't be <code>null</code>.
 	 */
 	public TransferableObject(SecurityContext targetContext, 
-			pojos.DataObject target, 
-			Map<SecurityContext, List<pojos.DataObject>> source)
+			omero.gateway.model.DataObject target, 
+			Map<SecurityContext, List<omero.gateway.model.DataObject>> source)
 	{
 		if (targetContext == null)
 			throw new IllegalArgumentException("No context specified.");
@@ -86,8 +78,8 @@ public class TransferableObject
 	 * @param source The elements to move. Mustn't be <code>null</code>.
 	 */
 	public TransferableObject(SecurityContext targetContext, 
-			List<pojos.DataObject> target, 
-			Map<SecurityContext, List<pojos.DataObject>> source)
+			List<omero.gateway.model.DataObject> target, 
+			Map<SecurityContext, List<omero.gateway.model.DataObject>> source)
 	{
 		if (targetContext == null)
 			throw new IllegalArgumentException("No context specified.");
@@ -124,7 +116,7 @@ public class TransferableObject
 	 * 
 	 * @return See above.
 	 */
-	public List<pojos.DataObject> getTarget() { return target; }
+	public List<omero.gateway.model.DataObject> getTarget() { return target; }
 	
 	
 	/**
@@ -132,7 +124,7 @@ public class TransferableObject
 	 * 
 	 * @return See above.
 	 */
-	public Map<SecurityContext, List<pojos.DataObject>> getSource()
+	public Map<SecurityContext, List<omero.gateway.model.DataObject>> getSource()
 	{
 		return source;
 	}

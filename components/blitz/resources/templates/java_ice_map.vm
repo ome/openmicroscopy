@@ -1,13 +1,9 @@
 #*
- *   $Id$
- * 
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  * 
  *#
 /*
- *   $$Id$$
- * 
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  * 
@@ -15,16 +11,13 @@
 
 package omero.util;
 
-//Java imports
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-//Application-internal dependencies
 import ome.util.Filterable;
 
 /**

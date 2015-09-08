@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,6 +9,7 @@ import static omero.rtypes.rbool;
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
+
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
@@ -33,7 +32,6 @@ import java.util.UUID;
 
 import omero.RType;
 import omero.api.IAdminPrx;
-import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -76,20 +74,19 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /**
  * Collections of tests for the <code>IContainer</code> service.
  *
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.0
  */
 public class PojosServiceTest extends AbstractServerTest {
@@ -1140,7 +1137,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Entry entry;
         Iterator k;
         while (i.hasNext()) {
-            // use pojos
+            // use omero.gateway.model
             project = new ProjectData((Project) i.next());
             count = project.getAnnotationsCounts();
             assertEquals(1, count.size());
@@ -1241,7 +1238,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Entry entry;
         Iterator k;
         while (i.hasNext()) {
-            // use pojos
+            // use omero.gateway.model
             screen = new ScreenData((Screen) i.next());
             count = screen.getAnnotationsCounts();
             assertEquals(1, count.size());

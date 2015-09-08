@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import ome.services.blitz.impl.ShareI;
 import ome.services.blitz.impl.UpdateI;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.RegisterServantMessage;
-import ome.services.scheduler.ThreadPool;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.EventContext;

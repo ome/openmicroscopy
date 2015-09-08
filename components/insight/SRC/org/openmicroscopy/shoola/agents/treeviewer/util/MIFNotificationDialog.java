@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.MIFNotificationDialog
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,7 +22,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
-//Java imports
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
 
@@ -52,11 +49,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ThumbnailLabel;
@@ -66,9 +61,9 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.GroupData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
 
 /**
  * Notifies the user that MIF could not be deleted or moved.

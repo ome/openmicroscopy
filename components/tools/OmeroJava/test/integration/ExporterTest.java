@@ -1,33 +1,26 @@
 /*
- * $Id$
- *
  *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import integration.PermissionsTestAll.TestParam;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -37,7 +30,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -48,7 +40,6 @@ import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 import ome.services.blitz.util.CurrentPlatform;
 import ome.specification.OmeValidator;
-import ome.specification.SchemaResolver;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import omero.api.ExporterPrx;
@@ -86,7 +77,6 @@ import org.w3c.dom.NodeList;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk"
  *         >donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
 public class ExporterTest extends AbstractServerTest {

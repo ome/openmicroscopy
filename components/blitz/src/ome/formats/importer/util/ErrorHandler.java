@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -14,9 +12,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,22 +23,15 @@ import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
-import omero.ServerError;
 import omero.client;
 import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Fileset;
-import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.sys.ParametersI;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 /**
  * Top of the error handling hierarchy. Will add errors to a queue

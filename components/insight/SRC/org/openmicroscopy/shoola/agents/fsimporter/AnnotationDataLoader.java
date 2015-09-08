@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -35,8 +33,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
 
 /**
  * Loads the annotations of a given type linked to the specified image.

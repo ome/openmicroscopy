@@ -30,18 +30,12 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import omero.gateway.facility.SearchFacility;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
 
 
 /**
  * Holds all parameters needed to perform a search operation;
  * See {@link SearchFacility#search(omero.gateway.SecurityContext, SearchParameters)}
- * 
+ *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.0

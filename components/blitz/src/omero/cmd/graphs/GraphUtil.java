@@ -39,7 +39,6 @@ import ome.services.graphs.GraphOpts.Op;
 import ome.services.graphs.ModelObjectSequencer;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
-import omero.cmd.graphs.ChildOption;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.LinkedHashMultimap;

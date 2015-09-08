@@ -65,16 +65,16 @@ class AbstractTagTest(CLITest):
     def create_tagset(self, tag_ids, name):
         tagset = omero.model.TagAnnotationI()
         tagset.textValue = omero.rtypes.rstring(name)
+        tagset.ns = rstring(NSINSIGHTTAGSET)
         tagset = self.update.saveAndReturnObject(tagset)
-
-        tagset.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
-        links = []
-        for tag_id in tag_ids:
-            link = omero.model.AnnotationAnnotationLinkI()
-            link.parent = tagset
-            link.child = omero.model.TagAnnotationI(tag_id, False)
-            links.append(link)
-        self.update.saveArray(links)
+        if tag_ids:
+            links = []
+            for tag_id in tag_ids:
+                link = omero.model.AnnotationAnnotationLinkI()
+                link.parent = tagset
+                link.child = omero.model.TagAnnotationI(tag_id, False)
+                links.append(link)
+            self.update.saveArray(links)
 
         return tagset.id.val
 
@@ -327,7 +327,9 @@ class TestTagList(AbstractTagTest):
     def setup_class(cls):
         super(TestTagList, cls).setup_class()
         cls.tag_ids = cls.create_tags(2, 'list_tag')
-        cls.tagset_id = cls.create_tagset(cls.tag_ids, '')
+        cls.tagset_id = cls.create_tagset(cls.tag_ids, 'list_set')
+        cls.orphan_ids = cls.create_tags(2, 'orphan_tag')
+        cls.empty_id = cls.create_tagset([], 'empty_set')
 
     # Tag list commands
     # ========================================================================
@@ -341,7 +343,10 @@ class TestTagList(AbstractTagTest):
 
         out, err = capsys.readouterr()
         assert str(self.tagset_id) in out
+        assert str(self.empty_id) in out
         for tag_id in self.tag_ids:
+            assert str(tag_id) in out
+        for tag_id in self.orphan_ids:
             assert str(tag_id) in out
 
     # Tag listsets commands
@@ -356,5 +361,8 @@ class TestTagList(AbstractTagTest):
 
         out, err = capsys.readouterr()
         assert str(self.tagset_id) in out
+        assert str(self.empty_id) in out
         for tag_id in self.tag_ids:
+            assert str(tag_id) not in out
+        for tag_id in self.orphan_ids:
             assert str(tag_id) not in out

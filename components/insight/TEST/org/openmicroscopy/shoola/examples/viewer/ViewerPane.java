@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.examples.viewer.ViewerPane 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.examples.viewer;
 
-
-//Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -51,15 +47,11 @@ import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 import sun.awt.image.IntegerInterleavedRaster;
 
 /** 
@@ -72,9 +64,6 @@ import sun.awt.image.IntegerInterleavedRaster;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class ViewerPane 

@@ -65,15 +65,17 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
     final SqlAction sql;
 
     /**
-     * default constructor which calls all the necessary setters for this
-     * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
+     * Default constructor which calls all the necessary setters for this
+     * {@link FactoryBean}. Also calls {@link #setDefaultFilterCondition(String)}.
      * This query clause must be kept in sync with
-     * {@link #passesFilter(Details, Long, Collection, Collection, boolean)}
+     * {@link #passesFilter(Session, Details, EventContext)}.
      *
-     * @see #passesFilter(Details, Long, Collection, Collection, boolean)
+     * @see #passesFilter(Session, Details, EventContext)
      * @see FilterDefinitionFactoryBean#setFilterName(String)
-     * @see FilterDefinitionFactoryBean#setParameterTypes(Properties)
+     * @see FilterDefinitionFactoryBean#setParameterTypes(java.util.Map)
      * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
+     *
+     * @param sql an SQL action instance
      */
     public AllGroupsSecurityFilter(SqlAction sql) {
         this(sql, new Roles());

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -66,14 +64,14 @@ import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.ScreenData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * The Model component in the <code>Importer</code> MVC triad.
@@ -89,9 +87,6 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class ImporterModel

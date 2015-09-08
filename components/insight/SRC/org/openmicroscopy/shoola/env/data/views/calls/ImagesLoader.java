@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
@@ -20,27 +18,20 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.DatasetData;
-import pojos.ImageData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 
 
 /** 
@@ -49,9 +40,7 @@ import pojos.ImageData;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * @version 2.2al version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */

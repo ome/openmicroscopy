@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.AdminLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -40,9 +38,9 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Retrieves the available user groups other than system.

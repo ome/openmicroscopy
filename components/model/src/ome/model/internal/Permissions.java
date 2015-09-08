@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.internal;
 
 import java.io.IOException;
@@ -29,7 +30,6 @@ import javax.persistence.Column;
 import javax.persistence.Transient;
 
 import ome.conditions.ApiUsageException;
-import ome.model.IObject;
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 import static ome.model.internal.Permissions.Flag.*;

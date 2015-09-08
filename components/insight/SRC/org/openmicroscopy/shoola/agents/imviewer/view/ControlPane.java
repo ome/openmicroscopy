@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.view.ControlPane
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -58,11 +55,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -74,7 +69,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /**
  * Presents variable controls.

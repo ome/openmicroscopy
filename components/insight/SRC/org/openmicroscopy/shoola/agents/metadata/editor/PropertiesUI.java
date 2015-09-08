@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.editor.PropertiesUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-
-//Java imports
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -92,22 +87,21 @@ import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Displays the properties of the selected object.
@@ -1200,8 +1194,7 @@ public class PropertiesUI
     {
         Object refObject = model.getRefObject();
         boolean b = model.canEdit();
-        if (refObject instanceof FileData ||
-                refObject instanceof MultiImageData) {
+        if (refObject instanceof FileData) {
                 b = false;
         }
         namePane.setEnabled(b);

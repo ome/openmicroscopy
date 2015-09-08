@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,7 +11,6 @@ import ome.annotations.RolesAllowed;
 import ome.api.ITypes;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;

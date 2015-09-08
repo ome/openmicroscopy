@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -31,10 +29,6 @@ import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.ImageNameMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
-import omero.model.Pixels;
-import omero.model.PixelsI;
-import omero.model.PixelsType;
-import omero.model.PixelsTypeI;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;

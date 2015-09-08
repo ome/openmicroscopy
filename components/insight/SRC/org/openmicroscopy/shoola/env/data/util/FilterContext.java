@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.FilterContext 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -29,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
 
 /** 
  * Helper class storing the filtering parameters.

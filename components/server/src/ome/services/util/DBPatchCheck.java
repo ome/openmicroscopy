@@ -1,20 +1,16 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.util;
 
-import ome.api.local.LocalConfig;
 import ome.conditions.InternalException;
 import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Hook run by the context. This hook tests the database version against the

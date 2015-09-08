@@ -42,16 +42,16 @@ import omero.model.Image;
 import omero.model.Well;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.WellData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.WellData;
+import omero.gateway.util.PojoMapper;
 
 /**
  * A {@link Facility} for browsing the data hierarchy and retrieving
@@ -263,7 +263,7 @@ public class BrowseFacility extends Facility {
      *
      * @param ctx
      *            The security context.
-     * @param loggedInUser
+     * @param user
      *            The user currently logged in.
      * @return See above.
      * @throws DSOutOfServiceException

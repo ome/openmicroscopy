@@ -17,7 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 package org.openmicroscopy.package.ClassName;
 
 //follow the pattern below for imports
@@ -32,7 +31,7 @@ import org.open.source.lib.ClassY;
 import org.openmicroscopy.pkg.ClassX;
 
 //REMEMBER:
-// * line length is 80 chars (may be more occasionally for long string litterals)
+// * line length is 80 chars (may be more occasionally for long string literals)
 // * no hard-tabs; use soft-tabs of 4 spaces
 
 /**

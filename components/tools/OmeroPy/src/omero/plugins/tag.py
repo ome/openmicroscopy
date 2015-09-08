@@ -50,6 +50,7 @@ class TagCollection(object):
         self.owners = dict()
         self.mapping = dict()
         self.orphans = []
+        self.empties = []
 
 
 def exec_command(cmd):
@@ -249,6 +250,48 @@ JSON File Format:
         return width, lines
 
     # Data gathering methods
+    def list_tags(self, args, tagset=None):
+        """
+        Returns a TagCollection object
+        """
+        # Get all tags except empty tagsets recursively
+        tc = self.list_tags_recursive(args, tagset=tagset)
+
+        # Now add the empty tagsets to the collection
+        params = omero.sys.ParametersI()
+        params.addString('ns', omero.constants.metadata.NSINSIGHTTAGSET)
+        ice_map = dict()
+        if args.admin:
+            ice_map["omero.group"] = "-1"
+
+        client = self.ctx.conn(args)
+        session = client.getSession()
+        q = session.getQueryService()
+
+        sql = """
+            select ann.id, ann.description, ann.textValue
+            from TagAnnotation ann where ann.id not in
+            (select distinct l.parent.id from AnnotationAnnotationLink l)
+            and ann.ns=:ns
+            """
+
+        if args.uid:
+            params.map["eid"] = rlong(long(args.uid))
+            sql += " and ann.details.owner.id = :eid"
+
+        if tagset:
+            sql += " and ann.id = :tid"
+            params.map['tid'] = rlong(long(tagset))
+
+        for element in q.projection(sql, params, ice_map):
+            tag_id, description, text = map(unwrap, element)
+            tc.empties.append(Tag(
+                tag_id=tag_id,
+                name=text,
+                description=description))
+
+        return tc
+
     def list_tags_recursive(self, args, tagset=None):
         """
         Returns a TagCollection object
@@ -307,7 +350,7 @@ JSON File Format:
                 from TagAnnotation ann where ann.id not in
                 (select distinct l.child.id from AnnotationAnnotationLink l
                     join l.parent as ts
-                    where ts.ns = 'openmicroscopy.org/omero/insight/tagset')
+                    where ts.ns = :ns)
                 and ann.ns is null
                 """
             if args.uid:
@@ -386,7 +429,7 @@ JSON File Format:
                 select a.id, a.description, a.textValue,
                 a.details.owner.id, a.details.owner.firstName,
                 a.details.owner.lastName
-                from Annotation a
+                from TagAnnotation a
                 where a.ns=:ns
                 """
 
@@ -429,9 +472,9 @@ JSON File Format:
 
         return lines
 
-    def generate_orphans(self, tags, orphans, args):
+    def generate_orphans(self, orphans, args):
         """
-        Given a dict of tags and a list of orphaned tags, return a list of
+        Given a list of orphaned tags, return a list of
         lines representing the orphan output.
         """
         lines = []
@@ -440,6 +483,20 @@ JSON File Format:
             lines.append("> %s:'%s'" % (str(orphan.tag_id), orphan.name))
             if args.desc:
                 lines.append("   '%s'" % orphan.description)
+                lines.append('')
+        return lines
+
+    def generate_empties(self, empties, args):
+        """
+        Given a list of empty tagsets, return a list of
+        lines representing the empty tagset output.
+        """
+        lines = []
+        lines.append('Empty tagsets:')
+        for empty in empties:
+            lines.append("> %s:'%s'" % (str(empty.tag_id), empty.name))
+            if args.desc:
+                lines.append("   '%s'" % empty.description)
                 lines.append('')
         return lines
 
@@ -640,10 +697,14 @@ JSON File Format:
                 tagsets = [args.tagset]
 
         for tagset in tagsets:
-            tc = self.list_tags_recursive(args, tagset)
+            tc = self.list_tags(args, tagset)
             lines.extend(self.generate_tagset(tc.tags, tc.mapping, args))
             if len(tc.orphans) > 0:
-                lines.extend(self.generate_orphans(tc.tags, tc.orphans, args))
+                lines.extend(self.generate_orphans(tc.orphans, args))
+                if len(tc.empties) > 0:
+                    lines.append('')
+            if len(tc.empties) > 0:
+                lines.extend(self.generate_empties(tc.empties, args))
         self.pagetext(lines)
 
     def listsets(self, args):

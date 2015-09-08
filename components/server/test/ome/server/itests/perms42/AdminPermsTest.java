@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.perms42;
 
 import java.util.Arrays;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
-import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -20,12 +18,10 @@ import ome.model.meta.GroupExperimenterMap;
 
 import org.testng.annotations.Test;
 
-
 /**
  * Tests the new functionality added to IAdmin as a part of #1434
  *
  * @since Beta-4.2.0
- *
  */
 @Test(groups = "ticket:1434")
 public class AdminPermsTest extends PermissionsTest {

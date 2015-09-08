@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.ImportResultLoader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,20 +21,14 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter;
 
-
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -46,9 +38,9 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
-import pojos.DataObject;
-import pojos.PixelsData;
-import pojos.PlateData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateData;
 
 /**
  * Loads the result of the import.

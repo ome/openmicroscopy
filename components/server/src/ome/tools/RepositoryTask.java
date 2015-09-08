@@ -12,7 +12,7 @@ import ome.api.IRepositoryInfo;
 import ome.util.SqlAction;
 
 /**
- * Class implementation of various mechanised tasks, database queries, file I/O,
+ * Class implementation of various mechanized tasks, database queries, file I/O,
  * etc. This class is used by the public services provided by IRepositoryInfo
  * 
  * @since 3.0
@@ -22,9 +22,6 @@ public class RepositoryTask {
 
 	final private SqlAction sql;
 
-	/**
-	 * Constructor
-	 */
 	public RepositoryTask(SqlAction sql) {
 	    this.sql = sql;
 	}
@@ -58,23 +55,4 @@ public class RepositoryTask {
 	public List<Long> getThumbnailIds() {
 	    return sql.getDeletedIds("ome.model.display.Thumbnail");
 	}
-
-	/**
-	 * Private method used for testing only. Will be removed later.
-	 * 
-	 * @return
-	 */
-	public List<Long> getTestIds() {
-		ArrayList<Long> list = new ArrayList<Long>();
-		Long var1 = new Long(63);
-		Long var2 = new Long(2613);
-		Long var3 = new Long(3331);
-
-		list.add(var1);
-		list.add(var2);
-		list.add(var3);
-
-		return list;
-	}
-
 }

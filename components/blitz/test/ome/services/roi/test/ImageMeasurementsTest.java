@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *   
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -19,8 +17,6 @@ import omero.api.RoiResult;
 import omero.constants.namespaces.NSMEASUREMENT;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
-import omero.model.Format;
-import omero.model.FormatI;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;

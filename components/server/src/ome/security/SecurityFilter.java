@@ -74,7 +74,7 @@ public interface SecurityFilter {
      * Enables this filter with the settings from this filter. The intent is
      * that after this call, no Hibernate queries will return any objects that
      * would fail a call to
-     * {@link #passesFilter(Details, Long, Long, boolean, boolean, boolean, List)}.
+     * {@link #passesFilter(Session, Details, EventContext)}.
      *
      * @param sess Non-null.
      * @param ec Non-null.

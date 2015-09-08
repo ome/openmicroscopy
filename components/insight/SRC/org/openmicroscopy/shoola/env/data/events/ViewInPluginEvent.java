@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -28,7 +26,7 @@ import java.util.Collection;
 
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * View the image in the specified plug-in.

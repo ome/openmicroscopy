@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.dnd.DnDTree 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -70,8 +68,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.IconManager;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Adds Drag and Drop facility to the tree.

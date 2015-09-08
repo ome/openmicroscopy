@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,10 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
@@ -65,18 +59,18 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.WellSampleData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * The Model component in the <code>MetadataViewer</code> MVC triad.

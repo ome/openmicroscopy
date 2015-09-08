@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.StructuredDataResults 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -28,15 +26,15 @@ import java.util.Map;
 
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.RatingAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Helper class storing the various data related to a given object.

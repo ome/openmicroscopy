@@ -58,8 +58,8 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
 
     /**
      * If true, this implementation should return a null on
-     * {@link #checkPassword(String, String)} if the user is unknown, otherwise
-     * a {@link Boolean#FALSE}. Default value: false
+     * {@link #checkPassword(String, String, boolean)} if the user is unknown,
+     * otherwise a {@link Boolean#FALSE}. Default value: false
      */
     protected final boolean ignoreUnknown;
 
@@ -76,7 +76,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     /**
      * Call {@link #ConfigurablePasswordProvider(PasswordUtil, boolean)}
      * with "ignoreUnknown" equal to false.
-     * @param util
+     * @param util an instance of the password utility class
      */
     public ConfigurablePasswordProvider(PasswordUtil util) {
         this(util, false);
@@ -85,6 +85,9 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     /**
      * Call {@link #ConfigurablePasswordProvider(PasswordUtil, boolean, boolean)}
      * with "salt" equal to false.
+     * @param util an instance of the password utility class
+     * @param ignoreUnknown if {@link #checkPassword(String, String, boolean)} should
+     * return {@code null} rather than {@link Boolean#FALSE} for unknown users
      */
     public ConfigurablePasswordProvider(PasswordUtil util, boolean ignoreUnknown) {
         this(util, ignoreUnknown, false);
@@ -124,8 +127,9 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     }
 
     /**
-     * If {@link #ignoreUnknown} is true, returns null, since the base class
-     * knows no users. Otherwise, return {@link Boolean#FALSE} specifying that
+     * If this was constructed with the {@code ignoreUnknown} argument set to
+     * {@code true}, returns {@code null}, since the base class knows no users.
+     * Otherwise, returns {@link Boolean#FALSE} specifying that
      * authentication should fail.
      */
     public Boolean checkPassword(String user, String password, boolean readOnly) {
@@ -158,6 +162,9 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * Encodes the password as it would be encoded for a check by
      * {@link #comparePasswords(String, String)} salting the password
      * with the given userId if it's provided.
+     * @param userId a user ID (may be {@code null})
+     * @param newPassword a password
+     * @return the encoded password
      */
     public String encodeSaltedPassword(Long userId, String newPassword) {
         return encodePassword(userId, newPassword, salt, util);
@@ -179,8 +186,8 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * {@link #checkPassword(String, String, boolean)}.
      *
      * For this implementation, if the trusted password is null, return
-     * {@link Boolean.FALSE}. If the trusted password is empty (only
-     * whitespace), return {@link Boolean.TRUE}. Otherwise return the results of
+     * {@link Boolean#FALSE}. If the trusted password is empty (only
+     * whitespace), return {@link Boolean#TRUE}. Otherwise return the result of
      * {@link String#equals(Object)}.
      */
     public Boolean comparePasswords(String trusted, String provided) {
@@ -190,11 +197,16 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     /**
      * Compares the password provided by the user (unhashed) against the given
      * trusted password. In general, if the trusted password is null, return
-     * {@link Boolean.FALSE}. If the trusted password is empty (only
-     * whitespace), return {@link Boolean.TRUE}. Otherwise return the results of
+     * {@link Boolean#FALSE}. If the trusted password is empty (only
+     * whitespace), return {@link Boolean#TRUE}. Otherwise return the results of
      * {@link String#equals(Object)}.
      *
-     * If {@link #legacyUtil} is non-null, and {@link #util} return
+     * If necessary, falls back to using a legacy password utility class if one was set by {@link #setLegacyUtil(PasswordUtil)}.
+
+     * @param userId a user ID
+     * @param trusted the user's trusted password
+     * @param provided the provided password
+     * @return if the provided password matches the trusted password (for which blank matches anything)
      */
     public Boolean comparePasswords(Long userId, String trusted, String provided) {
         if(comparePasswords(userId, trusted, provided, util)) {

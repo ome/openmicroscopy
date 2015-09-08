@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ActivityComponent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-
-//Java imports
 import info.clearthought.layout.TableLayout;
 
 import java.awt.Color;
@@ -71,7 +66,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Top class that each action should extend.

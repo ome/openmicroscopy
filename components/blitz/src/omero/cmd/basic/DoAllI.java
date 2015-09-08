@@ -25,12 +25,9 @@ import java.util.Map;
 import ome.services.messages.ContextMessage;
 import ome.system.OmeroContext;
 
-import omero.cmd.Chgrp;
-import omero.cmd.Delete;
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
-import omero.cmd.GraphModify;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
@@ -181,9 +178,9 @@ public class DoAllI extends DoAll implements IRequest {
      * If login is true, then {@link X#login()} and {@link X#logout} will be
      * called as appropriate.
      *
-     * @param step
-     * @param login
-     * @return
+     * @param step the overall step number
+     * @param login if {@link X#login()} and {@link X#logout} should be called
+     * @return the current substep information
      */
     private X substep(final int step, final boolean login) {
         X x = null;

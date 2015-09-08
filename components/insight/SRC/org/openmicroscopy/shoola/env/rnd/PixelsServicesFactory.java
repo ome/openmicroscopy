@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.RenderingControlFactory
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -52,8 +50,8 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
 import omero.gateway.rnd.DataSink;
 import omero.log.Logger;
-import pojos.ChannelData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.PixelsData;
 
 
 /** 

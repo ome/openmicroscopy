@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -23,7 +21,6 @@ import ome.conditions.RootException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.model.meta.Session;
-import ome.security.SecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.services.util.Executor;
 import ome.system.EventContext;

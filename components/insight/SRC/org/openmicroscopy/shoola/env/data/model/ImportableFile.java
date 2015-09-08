@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ImportableFile 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,17 +20,12 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.io.File;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Store information about the file or folder to import.
@@ -42,9 +35,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ImportableFile
@@ -63,7 +53,7 @@ public class ImportableFile
 	private StatusLabel status;
 	
 	/** Indicate where to import the file, either a project or screen. */
-	private pojos.DataObject parent;
+	private omero.gateway.model.DataObject parent;
 	
 	/** Indicate where to import the images. */
 	private DatasetData dataset;
@@ -110,7 +100,7 @@ public class ImportableFile
 	 * @param parent The parent either a project or a screen.
 	 * @param dataset The dataset where to import the images.
 	 */
-	public void setLocation(pojos.DataObject parent, DatasetData dataset)
+	public void setLocation(omero.gateway.model.DataObject parent, DatasetData dataset)
 	{
 		this.parent = parent;
 		this.dataset = dataset;
@@ -121,7 +111,7 @@ public class ImportableFile
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getParent() { return parent; }
+	public omero.gateway.model.DataObject getParent() { return parent; }
 	
 	/**
 	 * Returns the dataset.

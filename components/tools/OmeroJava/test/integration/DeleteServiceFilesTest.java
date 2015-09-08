@@ -64,7 +64,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Collections of tests for the <code>Delete</code> service.

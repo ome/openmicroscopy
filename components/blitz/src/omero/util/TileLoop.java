@@ -14,15 +14,21 @@ public abstract class TileLoop {
 
     /**
      * Subclasses must provide a fresh instance of {@link TileData}.
-     * The instance will be closed after the run of forEachTile.
+     * The instance will be closed after the run of
+     * {@link #forEachTile(int, int, int, int, int, int, int, TileLoopIteration)}.
+     * @return the new instance
      */
     public abstract TileData createData();
 
     /**
      * Iterates over every tile in a given pixel based on the
      * over arching dimensions and a requested maximum tile width and height.
+     * @param sizeX the size of the plane's X dimension
+     * @param sizeY the size of the plane's Y dimension
+     * @param sizeZ the size of the plane's Z dimension
+     * @param sizeC the size of the plane's C dimension
+     * @param sizeT the size of the plane's T dimension
      * @param iteration Invoker to call for each tile.
-     * @param pixel Pixel instance
      * @param tileWidth <b>Maximum</b> width of the tile requested. The tile
      * request itself will be smaller than the original tile width requested if
      * <code>x + tileWidth > sizeX</code>.

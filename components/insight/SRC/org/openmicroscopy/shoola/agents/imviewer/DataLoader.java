@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.DataLoader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,13 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -41,7 +32,7 @@ import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import omero.log.LogMessage;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link ImViewer}.
