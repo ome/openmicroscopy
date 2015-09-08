@@ -927,16 +927,6 @@ class TestShow(IWebTest):
         screen.linkPlate(plate)
         return self.update.saveAndReturnObject(screen)
 
-    @pytest.fixture
-    def empty_request(self):
-        """
-        Returns a simple GET request object with no 'path' query string.
-        """
-        return {
-            'request': self.request_factory.get(self.path),
-            'initially_select': list(),
-            'initially_open': None
-        }
 
     @pytest.fixture
     def project_path_request(self, project):
@@ -1706,57 +1696,8 @@ class TestShow(IWebTest):
         assert show.initially_select == \
             screen_plate_run_illegal_run_request['initially_select']
 
-
-class TestShow2(IWebTest):
-    """
-    Tests to ensure that OMERO.web "show" infrastructure is working
-    correctly.
-
-    These tests make __extensive__ use of pytest fixtures.  In particular
-    the scoping semantics allowing re-use of instances populated by the
-    *request fixtures.  It is recommended that the pytest fixture
-    documentation be studied in detail before modifications or attempts to
-    fix failing tests are made:
-
-     * https://pytest.org/latest/fixture.html
-    """
     @pytest.fixture
-    def client(self):
-        """Returns a new user client."""
-        return self.new_client()
-
-    @pytest.fixture
-    def conn(self, client):
-        """Returns a new OMERO gateway."""
-        return BlitzGateway(client_obj=client)
-
-    @pytest.fixture
-    def image(self, update_service):
-        """
-        Returns a new OMERO Image populated by an
-        L{test.integration.library.ITest} instance.
-        """
-        image = self.new_image(name=self.uuid())
-        return update_service.saveAndReturnObject(image)
-
-    @pytest.fixture()
-    def project_dataset_image(self, update_service):
-        """
-        Returns a new OMERO Project, linked Dataset and linked Image populated
-        by an L{test.integration.library.ITest} instance with required fields
-        set.
-        """
-        project = ProjectI()
-        project.name = rstring(self.uuid())
-        dataset = DatasetI()
-        dataset.name = rstring(self.uuid())
-        image = self.new_image(name=self.uuid())
-        dataset.linkImage(image)
-        project.linkDataset(dataset)
-        return update_service.saveAndReturnObject(project)
-
-    @pytest.fixture
-    def project_dataset_image_multi_link(self, conn, update_service):
+    def project_dataset_image_multi_link(self):
 
         # Create a project and dataset and link them
         project1 = ProjectI()
@@ -1776,7 +1717,7 @@ class TestShow2(IWebTest):
         project1.linkDataset(dataset2)
 
         # Save project and all its children
-        project1 = update_service.saveAndReturnObject(project1)
+        project1 = self.update.saveAndReturnObject(project1)
 
         # Create another project and attempt to link the same project
         project2 = ProjectI()
@@ -1785,7 +1726,7 @@ class TestShow2(IWebTest):
         # Get the dataset1 from the saved project item
         dataset1, dataset2 = project1.linkedDatasetList()
         project2.linkDataset(dataset1)
-        project2 = update_service.saveAndReturnObject(project2)
+        project2 = self.update.saveAndReturnObject(project2)
 
         # As dataset1 has been resaved, need to use that version
         dataset1, = project2.linkedDatasetList()
@@ -1797,101 +1738,12 @@ class TestShow2(IWebTest):
         image1, = dataset1.linkedImageList()
         dataset3.linkImage(image1)
 
-        # This always works
-        # dataset3.linkImage(ImageI(image1.id.val, False))
-
-        dataset3 = update_service.saveAndReturnObject(dataset3)
-
-        # # Print project1
-        # qs = conn.getQueryService()
-        # params = omero.sys.ParametersI()
-        # params.add('pid', rlong(project1.id.val))
-        # q = '''
-        #     select project.id,
-        #            pdlink.child.id,
-        #            dilink.child.id
-        #     from Project project
-        #     left outer join project.datasetLinks pdlink
-        #     left outer join pdlink.child.imageLinks dilink
-        #     where project.id = :pid
-        # '''
-        # print 'project1: project, dataset, image'
-        # for e in qs.projection(q, params, conn.SERVICE_OPTS):
-        #     print e[0].val, e[1].val, e[2].val
-
-        # # Print project2
-        # qs = conn.getQueryService()
-        # params = omero.sys.ParametersI()
-        # params.add('pid', rlong(project2.id.val))
-        # q = '''
-        #     select project.id,
-        #            pdlink.child.id,
-        #            dilink.child.id
-        #     from Project project
-        #     left outer join project.datasetLinks pdlink
-        #     left outer join pdlink.child.imageLinks dilink
-        #     where project.id = :pid
-        # '''
-        # print 'project2: project, dataset, image'
-        # for e in qs.projection(q, params, conn.SERVICE_OPTS):
-        #     print e[0].val, e[1].val, e[2].val
-
-        # # Print dataset3
-        # qs = conn.getQueryService()
-        # params = omero.sys.ParametersI()
-        # params.add('did', rlong(dataset3.id.val))
-        # q = '''
-        #     select dataset.id,
-        #            dilink.child.id
-        #     from Dataset dataset
-        #     left outer join dataset.imageLinks dilink
-        #     where dataset.id = :did
-        # '''
-        # print 'dataset3: dataset, image'
-        # for e in qs.projection(q, params, conn.SERVICE_OPTS):
-        #     print e[0].val, e[1].val
+        dataset3 = self.update.saveAndReturnObject(dataset3)
 
         return [project1, project2, dataset1, dataset2, dataset3, image1]
 
     @pytest.fixture
-    def screen_plate_run_well(self, update_service):
-        """
-        Returns a new OMERO Screen, linked Plate, linked Well, linked
-        WellSample, linked Image populate by an
-        L{test.integration.library.ITest} instance and
-        linked PlateAcquisition with all required fields set.
-        """
-        screen = ScreenI()
-        screen.name = rstring(self.uuid())
-        plate = PlateI()
-        plate.name = rstring(self.uuid())
-        # Well A10 (will have two WellSamples)
-        well_a = WellI()
-        well_a.row = rint(0)
-        well_a.column = rint(9)
-        # Well A11 (will not have a WellSample)
-        well_b = WellI()
-        well_b.row = rint(0)
-        well_b.column = rint(10)
-        ws_a = WellSampleI()
-        image_a = self.new_image(name=self.uuid())
-        ws_a.image = image_a
-        ws_b = WellSampleI()
-        image_b = self.new_image(name=self.uuid())
-        ws_b.image = image_b
-        plate_acquisition = PlateAcquisitionI()
-        plate_acquisition.plate = plate
-        ws_a.plateAcquisition = plate_acquisition
-        ws_b.plateAcquisition = plate_acquisition
-        well_a.addWellSample(ws_a)
-        well_a.addWellSample(ws_b)
-        plate.addWell(well_a)
-        plate.addWell(well_b)
-        screen.linkPlate(plate)
-        return update_service.saveAndReturnObject(screen)
-
-    @pytest.fixture
-    def screen_plate_run_well_multi(self, update_service):
+    def screen_plate_run_well_multi(self):
         """
         Returns a new OMERO Screen, linked Plate, linked Well, linked
         WellSample, linked Image populate by an
@@ -1973,39 +1825,20 @@ class TestShow2(IWebTest):
         ws_c1.plateAcquisition = plate_acquisition1
         well_c.addWellSample(ws_c1)
 
-        return update_service.saveAndReturnObject(screen)
+        return self.update.saveAndReturnObject(screen)
 
-    @pytest.fixture
-    def screen_plate(self, update_service):
-        """
-        Returns a new OMERO Screen and linked Plate with required fields set.
-        """
-        screen = ScreenI()
-        screen.name = rstring(self.uuid())
-        plate = PlateI()
-        plate.name = rstring(self.uuid())
-        screen.linkPlate(plate)
-        return update_service.saveAndReturnObject(screen)
-
-    @pytest.fixture
-    def screen(self, update_service):
-        """Returns a new OMERO Screen with required fields set."""
-        screen = ScreenI()
-        screen.name = rstring(self.uuid())
-        return update_service.saveAndReturnObject(screen)
-
-    def test_empty_path(self, conn):
+    def test_path_to_no_objects(self):
         """
         Test empty path
         """
 
-        paths = paths_to_object(conn)
+        paths = paths_to_object(self.conn)
 
         expected = []
 
         assert paths == expected
 
-    def test_project_dataset_image(self, conn, project_dataset_image):
+    def test_project_dataset_image(self, project_dataset_image):
         """
         Test project/dataset/image path
         """
@@ -2013,7 +1846,8 @@ class TestShow2(IWebTest):
         dataset, = project.linkedDatasetList()
         image, = dataset.linkedImageList()
 
-        paths = paths_to_object(conn, None, project.id.val, dataset.id.val,
+        print "PDI", project.id.val, dataset.id.val, image.id.val
+        paths = paths_to_object(self.conn, None, project.id.val, dataset.id.val,
                                 image.id.val)
 
         expected = [
@@ -2024,7 +1858,7 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_image(self, conn, project_dataset_image):
+    def test_image(self, project_dataset_image):
         """
         Test image path
         """
@@ -2032,7 +1866,7 @@ class TestShow2(IWebTest):
         dataset, = project.linkedDatasetList()
         image, = dataset.linkedImageList()
 
-        paths = paths_to_object(conn, None, None, None, image.id.val)
+        paths = paths_to_object(self.conn, None, None, None, image.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
@@ -2042,11 +1876,11 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_image_orphan(self, conn, image):
+    def test_image_orphan(self, image):
         """
         Test image path for orphaned Image
         """
-        paths = paths_to_object(conn, None, None, None, image.id.val)
+        paths = paths_to_object(self.conn, None, None, None, image.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': image.details.owner.id.val},
@@ -2055,14 +1889,14 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_image_multi_link(self, conn, project_dataset_image_multi_link):
+    def test_image_multi_link(self, project_dataset_image_multi_link):
         """
         Test image path in multi-link environment
         """
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(conn, None, None, None, image1.id.val)
+        paths = paths_to_object(self.conn, None, None, None, image1.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
@@ -2090,14 +1924,14 @@ class TestShow2(IWebTest):
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
     def test_image_multi_link_restrict_dataset(
-            self, conn, project_dataset_image_multi_link):
+            self, project_dataset_image_multi_link):
         """
         Test image path with dataset restriciton in multi-link environment
         """
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(conn, None, None, dataset2.id.val,
+        paths = paths_to_object(self.conn, None, None, dataset2.id.val,
                                 image1.id.val)
 
         expected = [
@@ -2109,7 +1943,7 @@ class TestShow2(IWebTest):
         assert paths == expected
 
     def test_image_multi_link_restrict_dataset_project(
-            self, conn, project_dataset_image_multi_link):
+            self, project_dataset_image_multi_link):
         """
         Test image path with dataset and project restriction in multi-link
         environment
@@ -2117,7 +1951,7 @@ class TestShow2(IWebTest):
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(conn, None, project1.id.val, dataset2.id.val,
+        paths = paths_to_object(self.conn, None, project1.id.val, dataset2.id.val,
                                 image1.id.val)
 
         expected = [
@@ -2129,14 +1963,14 @@ class TestShow2(IWebTest):
         assert paths == expected
 
     def test_image_multi_link_restrict_project(
-            self, conn, project_dataset_image_multi_link):
+            self, project_dataset_image_multi_link):
         """
         Test image path with project restriction in multi-link enviroment
         """
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(conn, None, project2.id.val, None,
+        paths = paths_to_object(self.conn, None, project2.id.val, None,
                                 image1.id.val)
 
         expected = [
@@ -2147,14 +1981,14 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_dataset(self, conn, project_dataset_image):
+    def test_dataset(self, project_dataset_image):
         """
         Test dataset path
         """
         project = project_dataset_image
         dataset, = project.linkedDatasetList()
 
-        paths = paths_to_object(conn, None, None, dataset.id.val)
+        paths = paths_to_object(self.conn, None, None, dataset.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
@@ -2163,14 +1997,14 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_dataset_multi_link(self, conn, project_dataset_image_multi_link):
+    def test_dataset_multi_link(self, project_dataset_image_multi_link):
         """
         Test dataset path in multi-link environment
         """
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(conn, None, None, dataset1.id.val)
+        paths = paths_to_object(self.conn, None, None, dataset1.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
@@ -2189,7 +2023,7 @@ class TestShow2(IWebTest):
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
     def test_dataset_multi_link_restrict_project(
-            self, conn, project_dataset_image_multi_link):
+            self, project_dataset_image_multi_link):
         """
         Test dataset/image path with project restriction in multi-link
         environment
@@ -2197,7 +2031,7 @@ class TestShow2(IWebTest):
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(conn, None, project1.id.val, dataset2.id.val)
+        paths = paths_to_object(self.conn, None, project1.id.val, dataset2.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
@@ -2207,14 +2041,14 @@ class TestShow2(IWebTest):
         assert paths == expected
 
     def test_dataset_orphan(
-            self, conn, project_dataset_image_multi_link):
+            self, project_dataset_image_multi_link):
         """
         Test dataset path for orphan dataset
         """
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(conn, None, None, dataset3.id.val)
+        paths = paths_to_object(self.conn, None, None, dataset3.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': dataset3.details.owner.id.val},
@@ -2222,13 +2056,13 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_project(self, conn, project_dataset_image):
+    def test_project(self, project_dataset_image):
         """
         Test dataset path
         """
         project = project_dataset_image
 
-        paths = paths_to_object(conn, None, project.id.val)
+        paths = paths_to_object(self.conn, None, project.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
@@ -2236,7 +2070,7 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_acquisition(self, conn, screen_plate_run_well):
+    def test_acquisition(self, screen_plate_run_well):
         """
         Test acquisition path
         """
@@ -2247,7 +2081,7 @@ class TestShow2(IWebTest):
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None, None,
                                 plate_acquisition.id.val)
 
         expected = [
@@ -2258,7 +2092,7 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_acquisition_restrict_plate(self, conn, screen_plate_run_well):
+    def test_acquisition_restrict_plate(self, screen_plate_run_well):
         """
         Test acquisition path with plate restriction
         """
@@ -2269,7 +2103,7 @@ class TestShow2(IWebTest):
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None,
                                 plate.id.val,
                                 plate_acquisition.id.val)
 
@@ -2281,7 +2115,7 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_acquisition_restrict_screen(self, conn,
+    def test_acquisition_restrict_screen(self,
                                          screen_plate_run_well):
         """
         Test acquisition path with plate restriction
@@ -2293,7 +2127,7 @@ class TestShow2(IWebTest):
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None,
                                 screen.id.val,
                                 None,
                                 plate_acquisition.id.val)
@@ -2306,7 +2140,7 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_acquisition_restrict_plate_screen(self, conn,
+    def test_acquisition_restrict_plate_screen(self,
                                                screen_plate_run_well):
         """
         Test acquisition path with plate and screen restrictions
@@ -2318,7 +2152,7 @@ class TestShow2(IWebTest):
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None,
                                 screen.id.val,
                                 plate.id.val,
                                 plate_acquisition.id.val)
@@ -2331,7 +2165,7 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_well(self, conn, screen_plate_run_well):
+    def test_well(self, screen_plate_run_well):
         """
         Test well path
         """
@@ -2342,7 +2176,7 @@ class TestShow2(IWebTest):
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None, None,
                                 None, well_a.id.val)
 
         expected = [
@@ -2367,7 +2201,7 @@ class TestShow2(IWebTest):
     # screen_plate_run_well as it is the same with some additional stuff?
     # It's not really 'multi' as the multi-links idea does not really apply
 
-    def test_well_multi(self, conn, screen_plate_run_well_multi):
+    def test_well_multi(self, screen_plate_run_well_multi):
         """
         Test well path in multi-link environment
         """
@@ -2383,7 +2217,7 @@ class TestShow2(IWebTest):
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None, None,
                                 None, well_a.id.val)
 
         expected = [
@@ -2412,7 +2246,7 @@ class TestShow2(IWebTest):
 
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
-    def test_well_restrict_acquisition_multi(self, conn,
+    def test_well_restrict_acquisition_multi(self,
                                              screen_plate_run_well_multi):
         """
         Test well path with acquisition restriction in multi-link environment
@@ -2428,7 +2262,7 @@ class TestShow2(IWebTest):
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None, None,
                                 plate_acquisition1.id.val, well_a.id.val)
 
         expected = [
@@ -2450,7 +2284,7 @@ class TestShow2(IWebTest):
 
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
-    def test_well_restrict_plate_multi(self, conn,
+    def test_well_restrict_plate_multi(self,
                                        screen_plate_run_well_multi):
         """
         Test well path with plate restriction in multi-link environment
@@ -2467,7 +2301,7 @@ class TestShow2(IWebTest):
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None,
                                 plate.id.val, None, well_a.id.val)
 
         expected = [
@@ -2496,7 +2330,7 @@ class TestShow2(IWebTest):
 
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
-    def test_well_restrict_screen_multi(self, conn,
+    def test_well_restrict_screen_multi(self,
                                         screen_plate_run_well_multi):
         """
         Test well path with screen restriction in multi-link environment
@@ -2513,7 +2347,7 @@ class TestShow2(IWebTest):
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
                                 None, None, well_a.id.val)
 
         expected = [
@@ -2543,7 +2377,7 @@ class TestShow2(IWebTest):
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
     def test_well_restrict_acquisition_plate_multi(
-            self, conn, screen_plate_run_well_multi):
+            self, screen_plate_run_well_multi):
         """
         Test well path with acquisition and plate restriction in multi-link
         environment
@@ -2559,7 +2393,7 @@ class TestShow2(IWebTest):
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None,
                                 plate.id.val, plate_acquisition1.id.val,
                                 well_a.id.val)
 
@@ -2582,7 +2416,7 @@ class TestShow2(IWebTest):
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
     def test_well_restrict_acquisition_screen_multi(
-            self, conn, screen_plate_run_well_multi):
+            self, screen_plate_run_well_multi):
         """
         Test well path with acquisition and screen restriction in multi-link
         environment
@@ -2598,7 +2432,7 @@ class TestShow2(IWebTest):
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
                                 None, plate_acquisition1.id.val,
                                 well_a.id.val)
 
@@ -2621,7 +2455,7 @@ class TestShow2(IWebTest):
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
     def test_well_restrict_acquisition_plate_screen_multi(
-            self, conn, screen_plate_run_well_multi):
+            self, screen_plate_run_well_multi):
         """
         Test well path with acquisition, plate and screen restriction in
         multi-link environment
@@ -2637,7 +2471,7 @@ class TestShow2(IWebTest):
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
                                 plate.id.val, plate_acquisition1.id.val,
                                 well_a.id.val)
 
@@ -2662,7 +2496,7 @@ class TestShow2(IWebTest):
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
     def test_well_restrict_plate_screen_multi(
-            self, conn, screen_plate_run_well_multi):
+            self, screen_plate_run_well_multi):
         """
         Test well path with plate and screen restriction in multi-link
         environment
@@ -2679,7 +2513,7 @@ class TestShow2(IWebTest):
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
-        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
                                 plate.id.val, None,
                                 well_a.id.val)
 
@@ -2711,7 +2545,7 @@ class TestShow2(IWebTest):
 
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
-    # def test_well_restrict_plate(self, conn, screen_plate_well):
+    # def test_well_restrict_plate(self, screen_plate_well):
     #     """
     #     Test well path
     #     """
@@ -2719,7 +2553,7 @@ class TestShow2(IWebTest):
     #     plate, = screen.linkedPlateList()
     #     well, = plate.copyWells()
 
-    #     paths = paths_to_object(conn, None, None, None, None, None,
+    #     paths = paths_to_object(self.conn, None, None, None, None, None,
     #                             plate.id.val,
     #                             None, well.id.val)
 
@@ -2731,7 +2565,7 @@ class TestShow2(IWebTest):
 
     #     assert paths == expected
 
-    # def test_well_restrict_screen(self, conn, screen_plate_well):
+    # def test_well_restrict_screen(self, screen_plate_well):
     #     """
     #     Test well path
     #     """
@@ -2739,7 +2573,7 @@ class TestShow2(IWebTest):
     #     plate, = screen.linkedPlateList()
     #     well, = plate.copyWells()
 
-    #     paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+    #     paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
     #                             None, None, well.id.val)
 
     #     expected = [
@@ -2750,7 +2584,7 @@ class TestShow2(IWebTest):
 
     #     assert paths == expected
 
-    # def test_well_restrict_plate_screen(self, conn, screen_plate_well):
+    # def test_well_restrict_plate_screen(self, screen_plate_well):
     #     """
     #     Test well path
     #     """
@@ -2758,7 +2592,7 @@ class TestShow2(IWebTest):
     #     plate, = screen.linkedPlateList()
     #     well, = plate.copyWells()
 
-    #     paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+    #     paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
     #                             plate.id.val, None, well.id.val)
 
     #     expected = [
@@ -2769,14 +2603,14 @@ class TestShow2(IWebTest):
 
     #     assert paths == expected
 
-    def test_plate(self, conn, screen_plate):
+    def test_plate(self, screen_plate):
         """
         Test plate path
         """
         screen = screen_plate
         plate, = screen.linkedPlateList()
 
-        paths = paths_to_object(conn, None, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None, None,
                                 plate.id.val)
 
         expected = [
@@ -2786,14 +2620,14 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_plate_restrict_screen(self, conn, screen_plate):
+    def test_plate_restrict_screen(self, screen_plate):
         """
         Test plate path
         """
         screen = screen_plate
         plate, = screen.linkedPlateList()
 
-        paths = paths_to_object(conn, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None,
                                 screen.id.val,
                                 plate.id.val)
 
@@ -2804,11 +2638,11 @@ class TestShow2(IWebTest):
 
         assert paths == expected
 
-    def test_screen(self, conn, screen):
+    def test_screen(self, screen):
         """
         Test screen path
         """
-        paths = paths_to_object(conn, None, None, None, None,
+        paths = paths_to_object(self.conn, None, None, None, None,
                                 screen.id.val)
 
         expected = [
