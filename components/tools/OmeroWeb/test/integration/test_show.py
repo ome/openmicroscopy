@@ -29,348 +29,18 @@ def cmp_well_column(x, y):
     return cmp(x.column.val, y.column.val)
 
 
-@pytest.fixture(scope='module')
-def path():
-    """Returns the root OMERO.web webclient path."""
-    return '/webclient'
-
-
-@pytest.fixture(scope='module')
-def request_factory():
-    """Returns a fresh Django request factory."""
-    return RequestFactory()
-
-
-@pytest.fixture(scope='function')
-def update_service(request, client):
-    """Returns a new OMERO update service."""
-    return client.getSession().getUpdateService()
-
-
-@pytest.fixture(scope='function')
-def project(request, itest, update_service):
-    """Returns a new OMERO Project with required fields set."""
-    project = ProjectI()
-    project.name = rstring(itest.uuid())
-    return update_service.saveAndReturnObject(project)
-
-
-@pytest.fixture(scope='function')
-def projects(request, itest, update_service):
-    """Returns 2 new OMERO Projects with required fields set."""
-    project = ProjectI()
-    project.name = rstring(itest.uuid())
-    project = update_service.saveAndReturnObject(project)
-    proj = ProjectI()
-    proj.name = rstring(itest.uuid())
-    proj = update_service.saveAndReturnObject(proj)
-    return [project, proj]
-
-
-@pytest.fixture(scope='function')
-def project_dataset(request, itest, update_service):
-    """
-    Returns a new OMERO Project and linked Dataset with required fields set.
-    """
-    project = ProjectI()
-    project.name = rstring(itest.uuid())
-    dataset = DatasetI()
-    dataset.name = rstring(itest.uuid())
-    project.linkDataset(dataset)
-    return update_service.saveAndReturnObject(project)
-
-
-@pytest.fixture(scope='function')
-def empty_request(request, request_factory, path):
-    """
-    Returns a simple GET request object with no 'path' query string.
-    """
-    return {
-        'request': request_factory.get(path),
-        'initially_select': list(),
-        'initially_open': None
-    }
-
-
-@pytest.fixture(scope='function')
-def project_path_request(request, project, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("project=id") form.
-    """
-    as_string = 'project=%d' % project.id.val
-    initially_select = ['project-%d' % project.id.val]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_select
-    }
-
-
-@pytest.fixture(scope='function')
-def projects_show_request(request, projects, request_factory, path):
-    """
-    Returns a simple GET request object with the 'show' query string
-    variable set in the legacy ("project=id") form.
-    """
-    as_string = 'project-%d|project-%d' % \
-        (projects[0].id.val, projects[1].id.val)
-    initially_select = [
-        'project-%d' % projects[0].id.val,
-        'project-%d' % projects[1].id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'show': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_select
-    }
-
-
-@pytest.fixture(scope='function')
-def project_dataset_path_request(
-        request, project_dataset, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("project=id|dataset=id") form.
-    """
-    dataset, = project_dataset.linkedDatasetList()
-    as_string = 'project=%d|dataset=%d' % \
-        (project_dataset.id.val, dataset.id.val)
-    initially_select = ['dataset-%d' % dataset.id.val]
-    initially_open = [
-        'project-%d' % project_dataset.id.val,
-        'dataset-%d' % dataset.id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def project_dataset_image_path_request(
-        request, project_dataset_image, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("project=id|dataset=id|image=id") form.
-    """
-    dataset, = project_dataset_image.linkedDatasetList()
-    image, = dataset.linkedImageList()
-    as_string = 'project=%d|dataset=%d|image=%d' % \
-        (project_dataset_image.id.val, dataset.id.val, image.id.val)
-    initially_select = ['image-%d' % image.id.val]
-    initially_open = [
-        'project-%d' % project_dataset_image.id.val,
-        'dataset-%d' % dataset.id.val,
-        'image-%d' % image.id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def tag_path_request(request, tag, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("tag=id") form.
-    """
-    as_string = 'tag=%d' % tag.id.val
-    initially_select = ['tag-%d' % tag.id.val]
-    initially_open = ['tag-%d' % tag.id.val]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def tagset_tag_path_request(request, tagset_tag, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("tag=id|tag=id") form.
-    """
-    tag, = tagset_tag.linkedAnnotationList()
-    as_string = 'tag=%d|tag=%d' % (tagset_tag.id.val, tag.id.val)
-    initially_select = ['tag-%d' % tag.id.val]
-    initially_open = [
-        'tag-%d' % tagset_tag.id.val,
-        'tag-%d' % tag.id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def image_path_request(request, image, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("image=id") form.  Also handles the
-    'orphaned-0' container.
-    """
-    as_string = 'image=%d' % image.id.val
-    initially_select = ['image-%d' % image.id.val]
-    initially_open = ['orphaned-0', 'image-%d' % image.id.val]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def screen_path_request(request, screen, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("screen=id") form.
-    """
-    as_string = 'screen=%d' % screen.id.val
-    initially_select = ['screen-%d' % screen.id.val]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_select
-    }
-
-
-@pytest.fixture(scope='function')
-def screen_plate_path_request(request, screen_plate, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("screen=id|plate=id") form.
-    """
-    plate, = screen_plate.linkedPlateList()
-    as_string = 'screen=%d|plate=%d' % (screen_plate.id.val, plate.id.val)
-    initially_select = ['plate-%d' % plate.id.val]
-    initially_open = [
-        'screen-%d' % screen_plate.id.val,
-        'plate-%d' % plate.id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def screen_plate_well_show_request(
-        request, screen_plate_well, request_factory, path):
-    """
-    Returns a simple GET request object with the 'show' query string
-    variable set in the new ("well-id") form without a PlateAcquisition 'run'.
-    """
-    plate, = screen_plate_well.linkedPlateList()
-    well, = plate.copyWells()
-    as_string = 'well-%d' % well.id.val
-    initially_select = [
-        'plate-%d' % plate.id.val,
-        'well-%d' % well.id.val
-    ]
-    initially_open = [
-        'screen-%d' % screen_plate_well.id.val,
-        'plate-%d' % plate.id.val,
-        'well-%d' % well.id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'show': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def project_dataset_image_show_request(
-        request, project_dataset_image, request_factory, path):
-    """
-    Returns a simple GET request object with the 'show' query string
-    variable set in the new ("image-id") form.
-    """
-    dataset, = project_dataset_image.linkedDatasetList()
-    image, = dataset.linkedImageList()
-    as_string = 'image-%d' % image.id.val
-    initially_select = ['image-%d' % image.id.val]
-    initially_open = [
-        'project-%d' % project_dataset_image.id.val,
-        'dataset-%d' % dataset.id.val,
-        'image-%d' % image.id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'show': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
-@pytest.fixture(scope='function')
-def project_by_id_path_request(request, project, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the key / value ("project.key=value") form.
-    """
-    as_string = 'project.id=%d' % project.id.val
-    initially_select = ['project-%d' % project.id.val]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_select
-    }
-
-
-@pytest.fixture(scope='function')
-def project_by_name_path_request(request, project, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the key / value ("project.key=value") form.
-    """
-    as_string = 'project.name=%s' % project.name.val
-    initially_select = ['project-%d' % project.id.val]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_select
-    }
-
-
-@pytest.fixture(scope='function')
-def tag_by_textvalue_path_request(request, tag, request_factory, path):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the key / value ("tag.key=value") form.
-    """
-    as_string = 'tag.textValue=%s' % tag.textValue.val
-    initially_select = ['tag-%d' % tag.id.val]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_select
-    }
-
-
-@pytest.fixture(scope='module', params=['A10', '1J'])
-def well_name(request):
-    return request.param
-
-
-@pytest.fixture(scope='module', params=[
-    'plate.name=%(plate_name)s|well.name=%(well_name)s',
-    'run=%(plate_acquisition_id)s|well.name=%(well_name)s'
-])
-def as_string_well_by_name(request):
-    return request.param
-
-
 class TestShow(IWebTest):
     """
-    Tests to ensure that OMERO.web "show" infrastructure is working
-    correctly.
+    Tests to ensure that OMERO.web "show" and "paths_to_objects" infrastructure
+    is working correctly.
+
+    The Show() class is used when loading main webclient page to indentify
+    objects specified in the request. E.g. ?show=image-123 and to switch to
+    the correct User and Group, based on the parent containers.
+
+    The paths_to_objects() method in show.py is used by AJAX requests from the
+    jsTree to query the hierarchy of specified objects and is used by the jsTree
+    to traverse down to the object.
 
     These tests make __extensive__ use of pytest fixtures.  In particular
     the scoping semantics allowing re-use of instances populated by the
@@ -398,6 +68,17 @@ class TestShow(IWebTest):
     def conn(self, client):
         """Returns a new OMERO gateway."""
         return BlitzGateway(client_obj=client)
+
+    @pytest.fixture
+    def empty_request(self, request):
+        """
+        Returns a simple GET request object with no 'path' query string.
+        """
+        return {
+            'request': self.request_factory.get(self.path),
+            'initially_select': list(),
+            'initially_open': None
+        }
 
     @pytest.fixture
     def project(self):
@@ -843,6 +524,17 @@ class TestShow(IWebTest):
             'initially_select': initially_select,
             'initially_open': initially_select
         }
+
+    @pytest.fixture(params=['A10', '1J'])
+    def well_name(self, request):
+        return request.param
+
+    @pytest.fixture(scope='module', params=[
+        'plate.name=%(plate_name)s|well.name=%(well_name)s',
+        'run=%(plate_acquisition_id)s|well.name=%(well_name)s'
+    ])
+    def as_string_well_by_name(self, request):
+        return request.param
 
     @pytest.fixture
     def wells_by_id_show_request(
@@ -1321,6 +1013,9 @@ class TestShow(IWebTest):
         assert show.initially_select == \
             screen_plate_run_illegal_run_request['initially_select']
 
+    # Fixtures and tests below are for AJAX json requests to
+    # paths_to_objects which jsTree uses to find hierarchy of objects
+    # to display and traverse down to them.
     @pytest.fixture
     def project_dataset_image_multi_link(self):
 
