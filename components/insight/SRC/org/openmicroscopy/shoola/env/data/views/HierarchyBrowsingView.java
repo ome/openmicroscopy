@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,21 +18,15 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.util.Collection;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Provides methods to support browsing of image hierarchies.
@@ -45,9 +37,6 @@ import pojos.DataObject;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface HierarchyBrowsingView

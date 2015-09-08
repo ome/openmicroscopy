@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.DownloadAndZipActivity 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,22 +20,18 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.io.FileUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
 import omero.gateway.SecurityContext;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Downloads the files and creates a zip.

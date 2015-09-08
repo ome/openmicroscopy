@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.ThumbnailWindow 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ * This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
-
-//Java imports
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -33,12 +28,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * A floating window to display a thumbnail at its maximum scaling size.

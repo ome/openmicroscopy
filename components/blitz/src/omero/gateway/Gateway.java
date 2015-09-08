@@ -72,9 +72,9 @@ import omero.grid.SharedResourcesPrx;
 import omero.log.LogMessage;
 import omero.log.Logger;
 import omero.model.ExperimenterGroupI;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.util.PojoMapper;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;

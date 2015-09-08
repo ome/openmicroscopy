@@ -1,6 +1,4 @@
 /*
- * training.HowToUseTables 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,20 +21,12 @@
  */
 package training;
 
-
-
-//Java imports
 import java.util.UUID;
-
-//Third-party libraries
-
-
-
 
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
-//Application-internal dependencies
+
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.LongColumn;
@@ -45,7 +35,7 @@ import omero.grid.TablePrx;
 import omero.log.SimpleLogger;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Follow samples code indicating how to use OMERO.tables

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -39,10 +35,8 @@ import javax.swing.JComponent;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
@@ -50,9 +44,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.FilesetVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.WellData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.WellData;
 
 /** 
  * Implements {@link Browser} to maintain presentation state, thus acting

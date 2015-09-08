@@ -44,11 +44,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pojos.ChannelData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-
-//Java imports
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
 
 /**
  *

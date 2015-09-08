@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * 

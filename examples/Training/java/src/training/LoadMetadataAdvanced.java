@@ -1,6 +1,4 @@
 /*
- * training.LoadMetadataAdvanced
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,21 +21,16 @@
  */
 package training;
 
-
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.MetadataFacility;
 import omero.log.SimpleLogger;
-import pojos.ChannelData;
-import pojos.ExperimenterData;
-import pojos.ImageAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageAcquisitionData;
 
 /** 
  * Sample code showing how to load image metadata

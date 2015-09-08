@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroDataServiceImpl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -37,14 +32,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-
-
-
-
-
-
-
-//Application-internal dependencies
 import omero.cmd.Request;
 import omero.cmd.graphs.ChildOption;
 import omero.model.Annotation;
@@ -79,7 +66,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
-import pojos.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
@@ -91,22 +78,22 @@ import omero.gateway.model.SearchResultCollection;
 import omero.gateway.model.SearchParameters;
 import omero.gateway.util.Requests;
 import omero.log.LogMessage;
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PermissionData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
-//Third-party libraries
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PermissionData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
+
 import omero.api.StatefulServiceInterfacePrx;
 
 /**
@@ -115,9 +102,6 @@ import omero.api.StatefulServiceInterfacePrx;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 class OmeroDataServiceImpl

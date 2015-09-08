@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.EditorUtil
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -70,30 +68,30 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import com.google.common.math.DoubleMath;
 
-import pojos.AnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DetectorData;
-import pojos.DichroicData;
-import pojos.ExperimenterData;
-import pojos.FilterData;
-import pojos.FilterSetData;
-import pojos.GroupData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.InstrumentData;
-import pojos.LightSourceData;
-import pojos.ObjectiveData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DetectorData;
+import omero.gateway.model.DichroicData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FilterData;
+import omero.gateway.model.FilterSetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LightSourceData;
+import omero.gateway.model.ObjectiveData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /**
  * Collection of helper methods to format data objects.

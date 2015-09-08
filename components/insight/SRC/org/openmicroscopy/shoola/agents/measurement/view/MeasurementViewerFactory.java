@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,16 +32,13 @@ import javax.swing.JMenuItem;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.ActivationAction;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import pojos.ChannelData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Factory to create {@link MeasurementViewer} components.
@@ -60,9 +53,6 @@ import pojos.PixelsData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class MeasurementViewerFactory

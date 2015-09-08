@@ -39,11 +39,9 @@ import omero.model.PixelsType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
-
-//Java imports
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 
 /**
  *

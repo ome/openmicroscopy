@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.ChannelDataSaver
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -34,8 +32,8 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import pojos.ChannelData;
-import pojos.DataObject;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
 
 /**
  * Updates the channels for images related to the specified data object.

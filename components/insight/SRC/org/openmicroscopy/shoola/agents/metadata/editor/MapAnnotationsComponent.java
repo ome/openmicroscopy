@@ -68,8 +68,8 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ToolTipGenerator;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ExperimenterData;
-import pojos.MapAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.MapAnnotationData;
 
 /**
  * A Component handling the {@link MapAnnotationData}s

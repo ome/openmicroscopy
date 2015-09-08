@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroMetadataService 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -21,8 +19,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.env.data;
-
-
 
 import java.io.File;
 import java.util.Collection;
@@ -59,10 +55,10 @@ import omero.gateway.exception.DSOutOfServiceException;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * List of methods to retrieve metadata.

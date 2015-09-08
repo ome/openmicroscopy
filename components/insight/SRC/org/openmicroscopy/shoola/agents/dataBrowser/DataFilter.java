@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DataFilter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -40,8 +38,8 @@ import omero.gateway.model.SearchParameters;
 
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /** 
  * Filters the data.
@@ -53,9 +51,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataFilter

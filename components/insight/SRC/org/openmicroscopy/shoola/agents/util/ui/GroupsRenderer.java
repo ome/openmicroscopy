@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,18 +20,12 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-//Java imports
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
-import pojos.GroupData;
-
-//Third-party libraries
-
-//Application-internal dependencies
+import omero.gateway.model.GroupData;
 
 /** 
  * Customized list renderer displaying the users groups. 
@@ -43,9 +35,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class GroupsRenderer 

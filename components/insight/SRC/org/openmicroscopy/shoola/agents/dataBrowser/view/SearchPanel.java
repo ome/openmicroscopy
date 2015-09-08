@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.util.ui.search.SearchPanel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -66,7 +64,7 @@ import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /**
  * The Component hosting the various fields used to collect the context of the
@@ -77,7 +75,7 @@ import pojos.ExperimenterData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk"
  *         >donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
+ * @version 3.0
  * @since OME3.0
  */
 public class SearchPanel extends JPanel {

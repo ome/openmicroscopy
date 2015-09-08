@@ -39,11 +39,9 @@ import omero.model.PixelsType;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pojos.ImageData;
-import pojos.ROIData;
-import pojos.RectangleData;
-
-//Java imports
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
 
 /**
  *

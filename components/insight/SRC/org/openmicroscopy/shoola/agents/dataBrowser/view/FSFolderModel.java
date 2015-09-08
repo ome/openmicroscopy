@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.FSFolderModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,16 +20,12 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
@@ -39,9 +33,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import omero.gateway.SecurityContext;
 
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.MultiImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /** 
  * A concrete Model for a folder accessed via FS.
@@ -51,9 +44,6 @@ import pojos.MultiImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class FSFolderModel 
@@ -83,9 +73,6 @@ class FSFolderModel
 			if (o instanceof ImageData) {
 				toTransform.add(o);
 				numberOfImages++;
-			} else if (o instanceof MultiImageData) {
-				toTransform.add(o);
-				numberOfImages += ((MultiImageData) o).getComponents().size();
 			}
 		}
 		Set visTrees = DataBrowserTranslator.transformFSFolder(toTransform);
@@ -144,10 +131,6 @@ class FSFolderModel
 						if (data instanceof ImageData) {
 							imgs.add(data);
 							imagesLoaded++;
-						} else if (data instanceof MultiImageData) {
-							list = ((MultiImageData) data).getComponents();
-							imgs.addAll(list);
-							imagesLoaded += list.size();
 						}
 					}
 				}
@@ -155,8 +138,6 @@ class FSFolderModel
 		}
 		if (imgs.size() == 0) return null;
 		return null;
-		//new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
-		//		ThumbnailLoader.FS_FILE);
 	}
 	
 	/**

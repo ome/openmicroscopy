@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ViewedByItem 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
@@ -35,13 +32,10 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /**
  * Displays the name of the experimenter who viewed the image and how he/she

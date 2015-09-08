@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.fsimporter.chooser.FileSelectionTable
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-
-//Java imports
 import ij.IJ;
 import ij.ImagePlus;
 import info.clearthought.layout.TableLayout;
@@ -61,9 +57,9 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
 import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
 
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /**
  * Component displaying the files to import.

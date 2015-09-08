@@ -121,7 +121,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Collections of tests for the <code>Delete</code> service.
@@ -1138,7 +1138,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.acquisitionData();
         List<Long> ids = new ArrayList<Long>();
         ids.add(img.getId().getValue());
-        // method already tested in PojosService test
+        // method already tested in omero.gateway.modelService test
         List<Image> results = factory.getContainerService().getImages(
                 Image.class.getName(), ids, param);
         img = results.get(0);
@@ -2540,7 +2540,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.acquisitionData();
         List<Long> ids = new ArrayList<Long>();
         ids.add(img.getId().getValue());
-        // method already tested in PojosService test
+        // method already tested in omero.gateway.modelService test
         List<Image> results = factory.getContainerService().getImages(
                 Image.class.getName(), ids, param);
         img = results.get(0);
@@ -2695,7 +2695,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.acquisitionData();
         List<Long> ids = new ArrayList<Long>();
         ids.add(img.getId().getValue());
-        // method already tested in PojosService test
+        // method already tested in omero.gateway.modelService test
         List<Image> results = factory.getContainerService().getImages(
                 Image.class.getName(), ids, param);
         img = results.get(0);

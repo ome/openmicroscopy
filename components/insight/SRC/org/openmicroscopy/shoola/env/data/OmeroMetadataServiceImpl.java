@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -85,7 +83,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
-import pojos.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -94,28 +92,28 @@ import omero.gateway.model.TableResult;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.RatingAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -128,9 +126,6 @@ import com.google.common.collect.Multimap;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class OmeroMetadataServiceImpl 

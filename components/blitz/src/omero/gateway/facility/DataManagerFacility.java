@@ -42,10 +42,10 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.sys.Parameters;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.util.PojoMapper;
 
 /**
  * A {@link Facility} for saving, deleting and updating data objects
@@ -155,7 +155,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
             Map options) throws DSOutOfServiceException, DSAccessException {
@@ -183,7 +183,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public DataObject saveAndReturnObject(SecurityContext ctx, DataObject object)
             throws DSOutOfServiceException, DSAccessException {
@@ -203,7 +203,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object)
             throws DSOutOfServiceException, DSAccessException {
@@ -234,7 +234,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
             Map options, String userName) throws DSOutOfServiceException,
@@ -266,14 +266,14 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public DataObject saveAndReturnObject(SecurityContext ctx,
             DataObject object, String userName) throws DSOutOfServiceException,
             DSAccessException {
         return PojoMapper.asDataObject(saveAndReturnObject(ctx, object.asIObject(), userName));
     }
-    
+
     /**
      * Updates the specified object.
      *
@@ -289,7 +289,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx,
             IObject object, String userName) throws DSOutOfServiceException,
@@ -319,7 +319,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public List<IObject> saveAndReturnObject(SecurityContext ctx,
             List<IObject> objects, Map options, String userName)
@@ -348,7 +348,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObject(IObject, Map)
+     * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject updateObject(SecurityContext ctx, IObject object,
             Parameters options) throws DSOutOfServiceException,
@@ -379,7 +379,7 @@ public class DataManagerFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see IPojos#updateDataObjects(IObject[], Map)
+     * @see IContainerPrx#updateDataObjects(List, Parameters)
      */
     public List<IObject> updateObjects(SecurityContext ctx,
             List<IObject> objects, Parameters options)

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,22 +21,15 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
-
-//Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Indicates to move the data to the selected group.

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.LogOffAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,13 +21,9 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-//Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -39,7 +33,7 @@ import org.openmicroscopy.shoola.env.data.events.LogOff;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 /** 
  * Logs off from the current server.
  *

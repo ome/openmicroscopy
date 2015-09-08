@@ -36,7 +36,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 /**
  *

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSImporter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -38,9 +36,9 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Defines the interface provided by the importer component.

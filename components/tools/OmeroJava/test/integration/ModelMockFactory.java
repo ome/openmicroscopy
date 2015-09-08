@@ -30,12 +30,12 @@ import omero.api.IPixelsPrx;
 import omero.model.*;
 import omero.model.enums.UnitsLength;
 import omero.model.enums.UnitsTime;
-import pojos.DatasetData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.ScreenData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ScreenData;
 
 /**
  * Helper class.

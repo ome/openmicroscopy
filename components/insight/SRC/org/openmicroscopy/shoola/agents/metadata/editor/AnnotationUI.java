@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.AnnotationUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,20 +20,14 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.Color;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.AnnotationData;
+import omero.gateway.model.AnnotationData;
 
 /** 
  * Super class that all UI components displaying annotation should extend.

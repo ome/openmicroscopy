@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel 
- *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -41,7 +39,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
-import pojos.TagAnnotationData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -165,38 +163,11 @@ public class FigureTableModel
 			if (!found)
 			{
 				key = fieldName.getKey();
-				
-				/*
-				if (figure.getROI().hasAnnotation(key.getKey()))
-				{
-					keys.add(key);
-					if (AnnotationKeys.NAMESPACE.equals(key)) {
-						values.add(EditorUtil.getWorkflowForDisplay(
-								(String) figure.getROI().getAnnotation(
-										(AnnotationKey) key)));
-					} else {
-						values.add(figure.getROI().getAnnotation(
-								(AnnotationKey) key));
-					}
-				} else {
-					keys.add(key);
-					if (AnnotationKeys.NAMESPACE.equals(key) ||
-							AnnotationKeys.KEYWORDS.equals(key))
-						values.add("");
-					else values.add(NA);
-				}
-				*/
 				keys.add(key);
-				if (AnnotationKeys.NAMESPACE.equals(key)) {
-					values.add(EditorUtil.getWorkflowForDisplay(
-							(String) figure.getROI().getAnnotation(
-									(AnnotationKey) key)));
-				} else {
-					if (key instanceof AnnotationKey)
-						values.add(figure.getROI().getAnnotation(
-							(AnnotationKey) key));
-					else values.add(NA);
-				}
+				if (key instanceof AnnotationKey)
+                    values.add(figure.getROI().getAnnotation(
+                        (AnnotationKey) key));
+                else values.add(NA);
 			}
 		}
 		fireTableDataChanged();

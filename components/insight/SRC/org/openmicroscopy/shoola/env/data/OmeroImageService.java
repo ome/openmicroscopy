@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroImageService
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
 import java.awt.image.BufferedImage;
@@ -54,11 +51,10 @@ import omero.gateway.exception.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ROIData;
-import pojos.WorkflowData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 /** 
  * List of methods to view images or thumbnails.
@@ -741,37 +737,6 @@ public interface OmeroImageService
 	public Map<DataObject, BufferedImage> getFSThumbnailSet(SecurityContext ctx,
 		List<DataObject> files, int maxLength, long userID)
 		throws DSAccessException, DSOutOfServiceException, FSAccessException;
-	
-	/**
-	 * Returns all the available workflows from the server for the user.
-	 * 
-	 * @param ctx The security context.
-	 * @param userID The users id.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public List<WorkflowData> retrieveWorkflows(SecurityContext ctx,
-		long userID)
-		throws DSAccessException, DSOutOfServiceException;
-	
-	/**
-	 * Adds the workflows to the server for the user.
-	 * 
-	 * @param ctx The security context.
-	 * @param workflows See above.
-	 * @param userID The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public  Object storeWorkflows(SecurityContext ctx,
-		List<WorkflowData> workflows, long userID) 
-		throws DSAccessException, DSOutOfServiceException;
 
 	/**
 	 * Retrieves the thumbnails corresponding to the passed collection of

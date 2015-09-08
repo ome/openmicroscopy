@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerControl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
@@ -54,7 +51,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-//Third-party libraries
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
 import org.jhotdraw.draw.Figure;
@@ -64,19 +60,16 @@ import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 import org.jhotdraw.draw.AttributeKey;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ExportGraphAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -93,8 +86,8 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
-import pojos.AnnotationData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * The MeasurementViewer's Controller.
@@ -147,25 +140,7 @@ class MeasurementViewerControl
      * the menu.
      */
     static final Integer     CREATE_MULTIPLE_FIGURES =  Integer.valueOf(9);
-    
 
-    /** 
-     * Identifies the <code>selectWorkFlow</code> action in 
-     * the menu.
-     */
-    static final Integer     SELECT_WORKFLOW =  Integer.valueOf(10);
-   
-    /** 
-     * Identifies the <code>createWorkflow</code> action in 
-     * the menu.
-     */
-    static final Integer     CREATE_WORKFLOW =  Integer.valueOf(11);
-    
-    /** 
-     * Identifies the <code>keywordSelection</code> action in 
-     * the keyword combobox.
-     */
-    static final Integer     KEYWORD_SELECTION =  Integer.valueOf(12);
     
     /** Identifies the <code>DELETE</code> action in the menu. */
     static final Integer     DELETE = Integer.valueOf(13);
@@ -200,9 +175,6 @@ class MeasurementViewerControl
     			new CreateFigureAction(model, true));
     	actionsMap.put(CREATE_MULTIPLE_FIGURES, new CreateFigureAction(model, 
     												false));
-    	actionsMap.put(SELECT_WORKFLOW, new WorkflowAction(model, false));
-    	actionsMap.put(CREATE_WORKFLOW, new WorkflowAction(model, true));
-    	actionsMap.put(KEYWORD_SELECTION, new KeywordSelectionAction(model));
     	actionsMap.put(DELETE, new DeleteROIAction(model));
     	actionsMap.put(EXPORT_GRAPH, new ExportGraphAction(model));
     }

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DatasetsLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,20 +20,15 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-
-//Java imports
 import java.util.Collection;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
 
 
 /** 
@@ -46,9 +39,6 @@ import pojos.ExperimenterData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DatasetsLoader

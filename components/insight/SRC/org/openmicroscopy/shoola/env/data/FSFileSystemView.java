@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.FSFileSystemView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,9 +30,9 @@ import java.util.Map.Entry;
 import javax.swing.filechooser.FileSystemView;
 
 import omero.grid.RepositoryPrx;
-import pojos.DataObject;
-import pojos.FileData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileData;
+import omero.gateway.model.ImageData;
 
 
 /** 
@@ -102,110 +100,7 @@ public class FSFileSystemView
     	}
     	return null;
     }
-    
-    /**
-     * Populates the collections of files.
-     * 
-     * @param files 	The files to handle.
-     * @param elements  The elements from the <code>FileSystem</code>
-     */
-    /*
-    private void populate(FileData root, 
-    		Vector<DataObject> files, List<FileSet> elements)
-    {
-    	if (elements == null) return;
-		Iterator<FileSet> i = elements.iterator();
-		File f;
-		MultiImageData multiImg;
-		Iterator j;
-		List<ImageData> components;
-		FileSet fs;
-		String name;
-		int count = 0;
-		OriginalFile of;
-		List<Image> images;
-		OriginalFile file = null;
-		ImageData image;
-		String parentName;
-		int index;
-		boolean dir;
-		FileData data;
-		while (i.hasNext()) {
-			fs = i.next();
-			dir = fs.dir;
-			file = fs.parentFile;
-			name = fs.fileName;
-			count = fs.imageCount;
-			if (count == 0) {
-				if (file == null) {
-					of = new OriginalFileI();
-					of.setName(omero.rtypes.rstring(name));
-					file = of;
-				} 
-				data = new FileData(file, dir);
-				data.setRepositoryPath(root.getAbsolutePath());
-				files.addElement(data);
-			} else {
-				images = fs.imageList;
-				count = images.size();
-				if (count == 1) {
-					image = new ImageData(images.get(0));
-					data = new FileData(file);
-					data.setRepositoryPath(root.getAbsolutePath());
-					if (image.getId() < 0)
-						image.setName(data.getName());
-					image.setPathToFile(data.getAbsolutePath());
-					image.setReference(file);
-					files.addElement(image);
-				} else if (count > 1) {
-					multiImg = new MultiImageData(file);
-					multiImg.setRepositoryPath(root.getAbsolutePath());
-					parentName = multiImg.getName();
-					j = images.iterator();
-					components = new ArrayList<ImageData>();
-					index = 0;
-					while (j.hasNext()) {
-						image = new ImageData((Image) j.next()); 
-						image.setParentFilePath(multiImg.getAbsolutePath(), 
-								index);
-						name = image.getName();
-						if (name == null || name.length() == 0 || 
-								name.equals(NO_NAME)) {
-							image.setName(parentName+"_"+index);
-						}
-						components.add(image);
-						index++;
-					}
-					multiImg.setComponents(components);
-					files.addElement(multiImg);
-				}
-			}
-		}
-    }
-   */
-    /**
-     * Sorts the passed images by index. This should only be invoked to 
-     * handle.
-     * 
-     * @param images The images to handle.
-     */
-    private void sortImageByIndex(List<ImageData> images)
-    {
-    	if (images == null || images.size() == 0) return;
-    	Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-                int i1 = ((ImageData) o1).getIndex(),
-                          i2 = ((ImageData) o2).getIndex();
-                int v = 0;
-                if (i1 < i2) v = -1;
-                else if (i1 > i2) v = 1;
-                return -v;
-            }
-        };
-        Collections.sort(images, c);
-    }
-    
+
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -218,7 +113,6 @@ public class FSFileSystemView
 			throw new IllegalArgumentException("No repositories specified.");
 		this.userID = userID;
 		this.repositories = repositories;
-		//config = new RepositoryListConfig(1, true, true, false, true, false);
 	}
 
 	/**

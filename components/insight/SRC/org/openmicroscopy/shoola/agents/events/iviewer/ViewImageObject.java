@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,9 +21,9 @@
 package org.openmicroscopy.shoola.agents.events.iviewer;
 
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.WellSampleData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Helper class indicating the object to view.

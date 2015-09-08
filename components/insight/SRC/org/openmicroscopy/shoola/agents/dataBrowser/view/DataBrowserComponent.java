@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -39,12 +36,8 @@ import java.util.regex.PatternSyntaxException;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
@@ -86,14 +79,14 @@ import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellSampleData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Implements the {@link DataBrowser} interface to provide the functionality
@@ -108,9 +101,6 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class DataBrowserComponent 

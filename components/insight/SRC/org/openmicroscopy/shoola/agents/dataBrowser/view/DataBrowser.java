@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -45,8 +43,8 @@ import omero.gateway.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
 
 
 /** 

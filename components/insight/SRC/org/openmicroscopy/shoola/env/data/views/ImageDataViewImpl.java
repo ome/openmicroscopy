@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.ImViewerViewImpl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,24 +18,14 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views;
 
-
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
-import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -72,15 +60,14 @@ import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.TileLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.WorkflowHandler;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
-import pojos.DataObject;
-import pojos.PixelsData;
-import pojos.ROIData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 
 /** 
@@ -93,9 +80,6 @@ import pojos.ROIData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ImageDataViewImpl
@@ -428,29 +412,6 @@ class ImageDataViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ScriptUploader(ctx, script);
-		return cmd.exec(observer);
-	}
-
-	/**
-     * Implemented as specified by the view interface.
-     * @see ImageDataView#retrieveWorkflows(long, AgentEventListener)
-     */
-	public CallHandle retrieveWorkflows(SecurityContext ctx,
-			long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new WorkflowHandler(ctx, userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-     * Implemented as specified by the view interface.
-     * @see ImageDataView#storeWorkflows(List, long, AgentEventListener)
-     */
-	public CallHandle storeWorkflows(SecurityContext ctx,
-			List<WorkflowData> workflows, long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new WorkflowHandler(ctx, workflows, userID);
 		return cmd.exec(observer);
 	}
 

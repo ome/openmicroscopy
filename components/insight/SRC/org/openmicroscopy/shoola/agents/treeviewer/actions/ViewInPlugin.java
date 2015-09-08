@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.ViewInPlugin
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,17 +21,10 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
-
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
@@ -43,7 +34,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Opens the image using the specified viewer.

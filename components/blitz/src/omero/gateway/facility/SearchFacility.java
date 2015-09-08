@@ -46,10 +46,10 @@ import omero.model.Details;
 import omero.model.DetailsI;
 import omero.model.Experimenter;
 import omero.model.IObject;
-import pojos.DataObject;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.util.PojoMapper;
 
 /**
  * A {@link Facility} for performing searches

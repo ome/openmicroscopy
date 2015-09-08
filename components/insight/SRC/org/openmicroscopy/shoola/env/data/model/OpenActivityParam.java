@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.OpenActivityParam 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,14 +20,8 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import javax.swing.Icon;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
@@ -41,9 +33,6 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class OpenActivityParam
@@ -53,7 +42,7 @@ public class OpenActivityParam
 	private ApplicationData application;
 	
 	/** The object to open. */
-	private pojos.DataObject object; 
+	private omero.gateway.model.DataObject object; 
 	
 	/** The path to the folder. */
 	private String folderPath;
@@ -65,7 +54,7 @@ public class OpenActivityParam
 	 * @param object The object to open.
 	 */
 	public OpenActivityParam(ApplicationData application, 
-			pojos.DataObject object, String folderPath)
+			omero.gateway.model.DataObject object, String folderPath)
 	{
 		this.application = application;
 		this.object = object;
@@ -113,6 +102,6 @@ public class OpenActivityParam
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getObject() { return object; }
+	public omero.gateway.model.DataObject getObject() { return object; }
 	
 }

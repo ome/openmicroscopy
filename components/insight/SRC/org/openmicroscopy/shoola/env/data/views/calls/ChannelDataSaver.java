@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.ChannelDataSaver
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,22 +21,16 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-
-//Java imports
 import java.util.List;
 
-
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.ChannelData;
-import pojos.DataObject;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
 
 /**
  * Command to save the channels.

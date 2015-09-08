@@ -1,6 +1,4 @@
 /*
- * training.RenderImages
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,8 +21,6 @@
  */
 package training;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
@@ -35,10 +31,6 @@ import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.Gateway;
@@ -47,9 +39,9 @@ import omero.gateway.SecurityContext;
 import omero.gateway.facility.BrowseFacility;
 import omero.log.SimpleLogger;
 import omero.romio.PlaneDef;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 
 /** 

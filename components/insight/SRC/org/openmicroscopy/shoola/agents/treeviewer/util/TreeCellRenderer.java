@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
@@ -48,19 +45,18 @@ import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.PlateAcquisitionData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Determines and sets the icon corresponding to a data object.
@@ -71,9 +67,6 @@ import pojos.TagAnnotationData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class TreeCellRenderer
@@ -577,11 +570,6 @@ public class TreeCellRenderer
         	} else {
         		icon = FILE_TEXT_ICON; 
         	}
-        } else if (usrObject instanceof MultiImageData) {
-        	MultiImageData mi = (MultiImageData) usrObject;
-        	if (mi.getId() > 0) 
-        		icon = IMAGE_DIRECTORY_ICON;
-        	else icon = IMAGE_DIRECTORY_UNREGISTERED_ICON;
         } else if (usrObject instanceof FileData) {
         	FileData f = (FileData) usrObject;
         	if (f.isDirectory()) {

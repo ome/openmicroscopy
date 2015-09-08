@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
@@ -39,12 +37,12 @@ import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ProjectData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.TagAnnotationData;
 
 /**
  * Determines and sets the icon corresponding to a data object.

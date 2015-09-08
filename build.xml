@@ -645,7 +645,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <group title="B. Model"
                         packages="ome.model*"/>
                 <group title="C. Client Packages"
-                        packages="ome.client*:ome.adapters*:pojos*"/>
+                        packages="ome.client*:ome.adapters*:omero.gateway*"/>
                 <group title="D. Server Packages"
                         packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
                 <group title="E. Blitz Server"

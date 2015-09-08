@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.IntensityView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -57,12 +53,9 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.Figure;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
@@ -92,7 +85,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import omero.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Displays statistics computed on the pixels intensity value of a given 
@@ -103,9 +96,6 @@ import pojos.ChannelData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class IntensityView

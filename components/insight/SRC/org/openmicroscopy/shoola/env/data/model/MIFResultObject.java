@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.MIFResultObject
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -34,7 +32,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import omero.gateway.SecurityContext;
 
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /**
  * Hosts result of MIF delete/chgrp check.

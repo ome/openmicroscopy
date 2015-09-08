@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.WellsModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -37,10 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
@@ -64,11 +58,11 @@ import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WellGridElement;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * A concrete model for a plate.

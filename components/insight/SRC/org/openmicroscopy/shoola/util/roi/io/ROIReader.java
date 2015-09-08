@@ -50,16 +50,16 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import ome.formats.model.UnitsFactory;
 import omero.model.ImageI;
 import omero.model.LengthI;
-import pojos.EllipseData;
-import pojos.LineData;
-import pojos.PointData;
-import pojos.PolygonData;
-import pojos.PolylineData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ShapeData;
-import pojos.ShapeSettingsData;
-import pojos.TextData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.ShapeSettingsData;
+import omero.gateway.model.TextData;
 
 /**
  * Reads ROI from ImageJ.

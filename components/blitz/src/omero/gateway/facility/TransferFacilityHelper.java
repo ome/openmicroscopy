@@ -76,14 +76,14 @@ import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FilesetData;
-import pojos.ImageData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.util.PojoMapper;
 
 /**
  * Encapsulates some functionality needed by the {@link TransferFacility}
