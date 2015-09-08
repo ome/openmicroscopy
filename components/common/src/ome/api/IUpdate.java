@@ -49,7 +49,6 @@ import ome.model.IObject;
  * @version 3.0
  * @since OMERO3.0
  * @see ome.util.Validation
- * @see ome.logic.UpdateImpl
  * @see ome.model.internal.Details
  */
 public interface IUpdate extends ServiceInterface {
