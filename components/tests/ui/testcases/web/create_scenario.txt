@@ -1,0 +1,164 @@
+*** Settings ***
+Documentation     Tests copying, pasting and applying Rendering settings.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}" 
+# Suite Teardown      Close all browsers
+
+*** Variables ***
+
+${treeRootId}                   	j1_1
+${CtxDatasetName}                   TestDataset
+${CtxProjectName}					TestProject
+${CtxScreenName}					TestScreen
+${XPathNoData}						xpath=//p[contains(@class, 'no_data')]
+# ${XPathOrphanedDataset}				xpath=//
+
+*** Keywords ***
+Right Click Image Create P/D/S
+    [Arguments]            					${imageIds}      ${optionText}			${P/D/S Name}
+    : FOR    		${iid}      IN   		${imageIds}
+    \    ${treeId}=                       	Wait For Image Node           ${iid}
+    Open Context Menu                       xpath=//li[@id='${treeId}']/a
+    Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
+    Input Text  							id=id_name  			${P/D/S Name}
+    Click Dialog Button                     OK
+
+Right Click Project Create Dataset
+    [Arguments]            					${projectId}			${P/D/S Name}    
+    ${treeId}=                       		Wait For Project Node   ${projectId}
+    Open Context Menu                       xpath=//li[@id='${treeId}']/a
+    Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Dataset')]
+    Input Text  							id=id_name  			${P/D/S Name}
+    Click Dialog Button                     OK
+
+Right Click Experimenter Create P/D/S
+	[Arguments]			   					${optionText}	${P/D/S Name}	
+	Select Experimenter
+	Open Context Menu						xpath=//li[@id='${treeRootId}']/a
+	Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
+    Input Text  							id=id_name  			${P/D/S Name}
+    Click Dialog Button 					OK
+
+Right Click Screen Create P/D/S
+	[Arguments]								${screenId}		${optionText}			${P/D/S Name}
+	${treeId}=                       		Wait For Screen Node   ${screenId}
+	Open Context Menu                       xpath=//li[@id='${treeId}']/a
+    Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
+    Input Text  							id=id_name  			${P/D/S Name}
+    Click Dialog Button                     OK
+
+P/D/S Should Be Clicked And Visible
+	[Arguments]			 					${NodeName}
+	Wait Until Page Contains Element		xpath=//a[contains(text(),${NodeName})][contains(@class, 'jstree-clicked')]
+	Wait Until Page Contains Element		xpath=//div[contains(@class, 'data_heading')]//span[contains(text(),${NodeName})]
+
+Check Right And Center Panels For Active Container
+	[Arguments]								${containerOption}		${containerName}
+	P/D/S Should Be Clicked And Visible		${containerName}
+    Wait Until Page Contains Element		xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${containerOption} ID:')]
+    Run Keyword If    						'${containerOption}' == 'Dataset'		Wait Until Page Contains Element		${XPathNoData}
+    ${newId}    							Get Text                css=tr.data_heading_id strong
+    [Return]								${newId}
+
+Dataset Exists and Is Orphaned
+	[Arguments]								${datasetId}	
+	${nodeId}=								Wait for Dataset Node  					${datasetId}
+    Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
+
+Dataset Exists and Is Not Orphaned
+	[Arguments]								${datasetId}		${projectId}
+	${datasetnodeId}=						Wait for Dataset Node 					${datasetId}
+	${projectnodeId}=						Wait for Project Node 					${projectId}
+	Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${projectnodeId}']/ul/li[@id='${datasetnodeId}']
+
+Project Should Exist
+	[Arguments]								${projectId}	
+	${nodeId}=								Wait for Project Node  					${projectId}
+    Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
+
+Screen Should Exist
+	[Arguments]								${screenId}
+	${nodeId}=								Wait for Screen Node  					${screenId}
+    Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
+
+*** Test Cases ***
+# Test Right Click Image and Create Dataset
+#     [Documentation]
+#     ${imageId}    							Select And Expand Image
+#     Right Click Image Create P/D/S 			${imageId}            Dataset 		${CtxDatasetName}
+#     ${datasetId}=								Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
+#     Dataset Exists and Is Orphaned 			${datasetId}
+
+# Test Right Click Image and Create Project
+# 	[Documentation]
+#     ${imageId} 							    Select And Expand Image
+#     Right Click Image Create P/D/S 			${imageId}            Project 		${CtxProjectName}
+#     ${projectId}=								Check Right And Center Panels For Active Container		Project 	${CtxProjectName}
+#     Project Should Exist						${projectId}    
+
+# Test Right Click Image and Create Screen
+# 	[Documentation]
+#     ${imageId}							    Select And Expand Image
+#     Right Click Image Create P/D/S 			${imageId}            Screen 		${CtxScreenName}
+#     ${screenId}=								Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
+#     Screen Should Exist						${screenId}
+
+# Test Right Click Experimenter and Create Dataset
+# 	[Documentation]
+#     Right Click Experimenter Create P/D/S 	Dataset  		${CtxDatasetName}
+#     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
+#     Dataset Exists and Is Orphaned 		 	${datasetId}
+
+# Test Right Click Experimenter and Create Project
+# 	[Documentation]
+# 	Right Click Experimenter Create P/D/S	Project 		${CtxProjectName}
+#     ${projectId}=							Check Right And Center Panels For Active Container		Project 	${CtxProjectName}
+#     Project Should Exist					${projectId}
+
+# Test Right Click Experimenter and Create Screen
+# 	[Documentation]
+# 	Right Click Experimenter Create P/D/S	Screen 			${CtxScreenName}
+#     ${screenId}=							Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
+#     Screen Should Exist						${screenId}
+
+# Test Right Click Project And Create Dataset
+# 	[Documentation]
+# 	${projectId}=                       	Select First Project With Children
+# 	Right Click Project Create Dataset 		${projectId}	${CtxDatasetName}
+#     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
+#     Dataset Exists and Is Not Orphaned		${datasetId}	${projectId}					
+
+# Test Right Click Screen And Create Dataset
+# 	[Documentation]
+# 	${screenId}=                       			Select First Screen
+# 	Right Click Screen Create P/D/S 			${screenId}				Dataset 	${CtxDatasetName}
+#   	${datasetId}=								Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
+#   	Dataset Exists and Is Orphaned 				${datasetId}
+
+# Test Right Click Screen And Create Project
+# 	[Documentation]
+# 	${screenId}=                       			Select First Screen
+# 	Right Click Screen Create P/D/S 			${screenId}				Project		${CtxProjectName}
+#     ${projectId}=								Check Right And Center Panels For Active Container		Project 	${CtxProjectName}
+#     Project Should Exist 						${projectId}
+
+# Test Right Click Screen And Create Screen
+# 	[Documentation]
+# 	${screenId}=                       			Select First Screen
+# 	Right Click Screen Create P/D/S 			${screenId}				Screen		${CtxScreenName}
+#   	${screenId}=								Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
+#   	Screen Should Exist 						${screenId}
+
+
+
+
+
+
