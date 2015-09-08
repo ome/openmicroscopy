@@ -228,8 +228,7 @@ public class Quantization_float extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         try {
-            double v = getMiddleRange(value);
-            return values.get(v);
+            return values.get(getMiddleRange(value));
         } catch (ExecutionException e) {
             throw new QuantizationException(e);
         }
