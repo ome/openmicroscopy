@@ -403,6 +403,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         return new File(buffer.getPath()).exists();
     }
 
+    /*
+     * {@inheritDoc}
+     * @see ome.io.nio.FileBuffer#read(java.nio.ByteBuffer, long)
+     */
     @RolesAllowed("user")
     public byte[] read(long position, int length) {
         errorIfNotLoaded();
