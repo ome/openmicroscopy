@@ -33,6 +33,7 @@ import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -50,6 +51,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 //Third-party libraries
+import org.apache.commons.lang.time.DateUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
@@ -478,6 +480,51 @@ class ChannelAcquisitionComponent
 		}
 	}
 	
+    /**
+     * Formats time into a more human readable format
+     * 
+     * @param tInS
+     *            The time in seconds
+     * @return See above.
+     */
+    private String getReadableTime(double tInS) {
+        if (tInS == 0.0)
+            return "0s";
+
+        Calendar date = Calendar.getInstance();
+        date = DateUtils.truncate(date, Calendar.YEAR);
+        date.add(Calendar.MILLISECOND, (int) (tInS * 1000));
+
+        int d, h, m, s, ms;
+
+        if (tInS > (23 * 60 * 60)) {
+            date = DateUtils.round(date, Calendar.MINUTE);
+            d = date.get(Calendar.DAY_OF_YEAR) - 1;
+            h = date.get(Calendar.HOUR_OF_DAY);
+            m = date.get(Calendar.MINUTE);
+            return d + "d " + (h > 0 ? h + "h " : "")
+                    + (m > 0 ? m + "min " : "");
+        } else if (tInS > (59 * 60)) {
+            date = DateUtils.round(date, Calendar.MINUTE);
+            h = date.get(Calendar.HOUR_OF_DAY);
+            m = date.get(Calendar.MINUTE);
+            return h + "h " + (m > 0 ? m + "min" : "");
+        } else if (tInS > 59) {
+            date = DateUtils.round(date, Calendar.SECOND);
+            m = date.get(Calendar.MINUTE);
+            s = date.get(Calendar.SECOND);
+            return m + "m " + (s > 0 ? s + "s" : "");
+        } else if (tInS > 0.9) {
+            date = DateUtils.round(date, Calendar.MILLISECOND);
+            s = date.get(Calendar.SECOND);
+            ms = date.get(Calendar.MILLISECOND);
+            return s + "s " + (ms > 0 ? ms + "ms" : "");
+        } else {
+            double milis = UIUtilities.round((tInS * 1000), 2);
+            return String.format("%.2g", milis) + "ms";
+        }
+    }
+	
 	/**
 	 * Sets the plane info for the specified channel.
 	 * 
@@ -507,8 +554,8 @@ class ChannelAcquisitionComponent
 			        MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T) , EditorUtil.DELTA_T);
 			        values[0][i] = "N/A";
 			    } else {
-				values[0][i] = details.get(EditorUtil.DELTA_T)
-						+ EditorUtil.TIME_UNIT;
+			        double tInS = ((Double)details.get(EditorUtil.DELTA_T));
+			        values[0][i] = getReadableTime(tInS);
 			    }
 			}
 			else
@@ -519,8 +566,8 @@ class ChannelAcquisitionComponent
                     MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.EXPOSURE_TIME) , EditorUtil.EXPOSURE_TIME);
                     values[1][i] = "N/A";
                 } else {
-				values[1][i] = details.get(EditorUtil.EXPOSURE_TIME)
-						+ EditorUtil.TIME_UNIT;
+                    double tInS = ((Double)details.get(EditorUtil.EXPOSURE_TIME));
+                    values[1][i] = getReadableTime(tInS);
                 }
 			}
 			else
