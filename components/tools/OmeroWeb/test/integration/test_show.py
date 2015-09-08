@@ -39,8 +39,8 @@ class TestShow(IWebTest):
     the correct User and Group, based on the parent containers.
 
     The paths_to_objects() method in show.py is used by AJAX requests from the
-    jsTree to query the hierarchy of specified objects and is used by the jsTree
-    to traverse down to the object.
+    jsTree to query the hierarchy of specified objects and is used by the
+    jsTree to traverse down to the object.
 
     These tests make __extensive__ use of pytest fixtures.  In particular
     the scoping semantics allowing re-use of instances populated by the
@@ -1166,9 +1166,8 @@ class TestShow(IWebTest):
         dataset, = project.linkedDatasetList()
         image, = dataset.linkedImageList()
 
-        print "PDI", project.id.val, dataset.id.val, image.id.val
-        paths = paths_to_object(self.conn, None, project.id.val, dataset.id.val,
-                                image.id.val)
+        paths = paths_to_object(self.conn, None, project.id.val,
+                                dataset.id.val, image.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
@@ -1271,8 +1270,8 @@ class TestShow(IWebTest):
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(self.conn, None, project1.id.val, dataset2.id.val,
-                                image1.id.val)
+        paths = paths_to_object(self.conn, None, project1.id.val,
+                                dataset2.id.val, image1.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
@@ -1351,7 +1350,8 @@ class TestShow(IWebTest):
         project1, project2, dataset1, dataset2, dataset3, image1 = \
             project_dataset_image_multi_link
 
-        paths = paths_to_object(self.conn, None, project1.id.val, dataset2.id.val)
+        paths = paths_to_object(self.conn, None, project1.id.val,
+                                dataset2.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
@@ -1667,8 +1667,8 @@ class TestShow(IWebTest):
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
-        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
-                                None, None, well_a.id.val)
+        paths = paths_to_object(self.conn, None, None, None, None,
+                                screen.id.val, None, None, well_a.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
@@ -1752,9 +1752,9 @@ class TestShow(IWebTest):
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
 
-        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
-                                None, plate_acquisition1.id.val,
-                                well_a.id.val)
+        paths = paths_to_object(self.conn, None, None, None, None,
+                                screen.id.val, None,
+                                plate_acquisition1.id.val, well_a.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
@@ -1791,9 +1791,9 @@ class TestShow(IWebTest):
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
 
-        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
-                                plate.id.val, plate_acquisition1.id.val,
-                                well_a.id.val)
+        paths = paths_to_object(self.conn, None, None, None, None,
+                                screen.id.val, plate.id.val,
+                                plate_acquisition1.id.val, well_a.id.val)
 
         expected = [
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
@@ -1833,8 +1833,8 @@ class TestShow(IWebTest):
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
-        paths = paths_to_object(self.conn, None, None, None, None, screen.id.val,
-                                plate.id.val, None,
+        paths = paths_to_object(self.conn, None, None, None, None,
+                                screen.id.val, plate.id.val, None,
                                 well_a.id.val)
 
         expected = [
