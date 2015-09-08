@@ -218,6 +218,9 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         return rv;
     }
 
+    /*
+     * @see ome.model.internal.Permissions#bit(Role, Right)
+     */
     protected static String isGranted(Role role, Right right) {
         String bit = "" + Permissions.bit(role, right);
         String isGranted = String
