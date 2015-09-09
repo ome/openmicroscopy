@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -79,7 +77,6 @@ import Ice.Current;
  * @author Donald MacDonald, donald@lifesci.dundee.ac.uk
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see ome.api.IScript
  */
 public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         ServiceFactoryAware, BlitzOnly {
@@ -173,13 +170,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Get the id of the official script with given path.
-     * 
+     *
+     * @param __cb The script context.
      * @param scriptPath
      *            {@link OriginalFile#getPath()} of the script to find id for.
      * @param __current
      *            ice context.
-     * @return The id of the script, -1 if no script found, or more than one
-     *         script with that name.
      */
     public void getScriptID_async(final AMD_IScript_getScriptID __cb,
             final String scriptPath, final Current __current)
@@ -199,11 +195,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Upload script to the server.
-     * 
+     *
+     * @param path Path to the script.
      * @param scriptText
      * @param __current
      *            ice context.
-     * @return id of the script.
      */
     public void uploadScript_async(final AMD_IScript_uploadScript __cb,
             final String path, final String scriptText, final Current __current) throws ServerError {
@@ -300,11 +296,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     /**
      * Return the script with the name to the user.
      * 
-     * @param name
+     * @param id
      *            see above.
      * @param __current
      *            ice context.
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */
@@ -371,12 +366,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Return the script with the name to the user.
-     * 
-     * @param name
+     *
+     * @param id
      *            see above.
      * @param __current
      *            ice context.
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */
@@ -398,12 +392,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Get the Parameters of the script.
-     * 
+     *
      * @param id
      *            see above.
      * @param __current
      *            Ice context
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */
@@ -426,7 +419,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * 
      * @param __current
      *            ice context,
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */

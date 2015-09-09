@@ -117,7 +117,6 @@ public class ImportException
      * Constructs a new exception with the specified detail message.
      *
      * @param message Short explanation of the problem.
-     * @param readerType The type of reader used while trying to import an image.
      */
     public ImportException(String message)
     {

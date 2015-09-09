@@ -27,7 +27,7 @@ import omero.ServerError;
 
 /**
  * Abstracts a pattern for using repository template path directories in
- * {@link ome.services.blitz.repo.ManagedRepositoryI.TemplateDirectoryCreator)}:
+ * {@link ome.services.blitz.repo.ManagedRepositoryI#TemplateDirectoryCreator)}:
  * pinpoint the next directory to use, then try to use it while watching for
  * conflicts from other similar threads.
  *

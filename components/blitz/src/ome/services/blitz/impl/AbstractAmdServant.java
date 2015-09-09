@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import ome.api.ServiceInterface;
-import ome.api.StatefulServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.BlitzExecutor;
@@ -75,7 +74,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
 
     /**
      * Sets the {@link ServantHolder} for the current session so that on
-     * {@link #close_async(AMD_StatefulServiceInterface_close, Current)}
+     * {@link AbstractCloseableAmdServant#close_async(AMD_StatefulServiceInterface_close, Current)}
      * it will be possible to cleanup the resources.
      * @param holder
      */
@@ -86,7 +85,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
     /**
      * Creates an {@link IceMethodInvoker} for this instance if {@link #service}
      * is non-null. Otherwise gives subclasses a chance to use the {@link OmeroContext}
-     * via {@link #onSetContext(OmeroContext)}
+     * via {@link #onSetOmeroContext(OmeroContext)}
      */
     public final void setApplicationContext(ApplicationContext ctx)
             throws BeansException {

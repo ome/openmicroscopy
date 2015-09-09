@@ -66,7 +66,7 @@ public class MaskData
      *
      * @param x The x-coordinate of the top-left corner of the image.
      * @param y The y-coordinate of the top-left corner of the image.
-     * @param widht The width of the image.
+     * @param width The width of the image.
      * @param height The height of the image.
      * @param mask The mask image.
      */

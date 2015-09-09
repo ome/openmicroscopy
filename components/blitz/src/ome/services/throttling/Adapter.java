@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -17,9 +15,9 @@ import omero.util.IceMapper;
 import org.springframework.util.Assert;
 
 /**
- * Simple adapter which takes a {@link Executor.Work} instance and executes it
+ * Simple adapter which takes a {@link Executor#Work} instance and executes it
  * as a {@link BlitzExecutor} task. All exceptions are caught and routed to via
- * the {@link #exception(Exception)} method to the provided callback.
+ * the {@link #exception(Exception, OmeroContext)} method to the provided callback.
  */
 public class Adapter extends Task {
 
