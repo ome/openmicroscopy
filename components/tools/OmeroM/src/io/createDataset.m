@@ -60,14 +60,9 @@ if ~isempty(ip.Results.project)
     else
         project = ip.Results.project;
     end
-    
+
+    % Determine group from the parent project
     groupId = project.getDetails().getGroup().getId().getValue();
-
-    % Create dataset object
-    dataset = omero.model.DatasetI();
-    dataset.setName(rstring(name));
-
-    % Create context for uploading
     if ~isempty(ip.Results.group)
         if ~isempty(groupId)
             assert(isequal(groupId, ip.Results.group),...
@@ -76,6 +71,11 @@ if ~isempty(ip.Results.project)
         groupId = ip.Results.group;
     end
 
+    % Create dataset object
+    dataset = omero.model.DatasetI();
+    dataset.setName(rstring(name));
+
+    % Create context for uploading
     context = ip.Results.context;
     context.put('omero.group', java.lang.String(num2str(groupId)));
 
