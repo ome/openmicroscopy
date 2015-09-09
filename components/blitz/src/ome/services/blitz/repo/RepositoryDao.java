@@ -261,7 +261,7 @@ public interface RepositoryDao {
     List<DeleteLog> findRepoDeleteLogs(DeleteLog template, final Current current);
 
     /**
-     * As {@link #findRepoDeleteLogs(DeleteLog, Current)} but for a collection
+     * As <code>findRepoDeleteLogs(DeleteLog, Current)</code> but for a collection
      * of templates.
      *
      * @param templates not null.
