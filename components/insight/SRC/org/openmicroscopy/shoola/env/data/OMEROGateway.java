@@ -169,6 +169,7 @@ import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.LabelI;
 import omero.model.Laser;
@@ -183,6 +184,7 @@ import omero.model.PixelsType;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
+import omero.model.PlateI;
 import omero.model.PointI;
 import omero.model.PolygonI;
 import omero.model.PolylineI;
@@ -196,6 +198,7 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.model.WellSampleI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
@@ -945,23 +948,31 @@ class OMEROGateway
 	{
 		String table = null;
 		if (Dataset.class.equals(klass) ||
+		        DatasetI.class.equals(klass) ||
 			DatasetData.class.equals(klass))
 			table = "DatasetAnnotationLink";
 		else if (Project.class.equals(klass) ||
+		        ProjectI.class.equals(klass) ||
 				ProjectData.class.equals(klass))
 			table = "ProjectAnnotationLink";
 		else if (Image.class.equals(klass) ||
-				ImageData.class.equals(klass)) table = "ImageAnnotationLink";
+		        ImageI.class.equals(klass) ||
+				ImageData.class.equals(klass)) 
+		    table = "ImageAnnotationLink";
 		else if (Screen.class.equals(klass) ||
+		        ScreenI.class.equals(klass) ||
 				ScreenData.class.equals(klass))
 			table = "ScreenAnnotationLink";
 		else if (Plate.class.equals(klass) ||
+		        PlateI.class.equals(klass) ||
 				PlateData.class.equals(klass))
 			table = "PlateAnnotationLink";
 		else if (PlateAcquisition.class.equals(klass) ||
+		        PlateAcquisitionI.class.equals(klass) ||
 				PlateAcquisitionData.class.equals(klass))
 			table = "PlateAcquisitionAnnotationLink";
 		else if (WellSample.class.equals(klass) ||
+		        WellSampleI.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
 		else if (RectangleData.class.equals(klass) || RectI.class.equals(klass) ||
