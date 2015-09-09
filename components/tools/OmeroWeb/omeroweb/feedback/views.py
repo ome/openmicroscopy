@@ -32,6 +32,7 @@ import sys
 import datetime
 import traceback
 import logging
+import warnings
 
 from django.conf import settings
 from django.template import loader as template_loader
@@ -141,6 +142,9 @@ def custom_server_error(request, error500):
     Templates: `500.html`
     Context: ErrorForm
     """
+    warnings.warn(
+        "Deprecated handler. Will be removed in 5.2",
+        DeprecationWarning)
     form = ErrorForm(initial={'error': error500})
     context = {'form': form}
     t = template_loader.get_template('500.html')
