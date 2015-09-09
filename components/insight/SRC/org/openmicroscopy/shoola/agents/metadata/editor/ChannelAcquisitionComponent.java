@@ -28,6 +28,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -89,6 +90,9 @@ class ChannelAcquisitionComponent
 
 	/** Action ID to show or hide the unset general data. */
 	private static final int	GENERAL = 0;
+	
+	/** Format used for displaying time in ms */
+	private static final DecimalFormat msFormat = new DecimalFormat("#ms");
 	
 	/** Reference to the parent of this component. */
 	private AcquisitionDataUI					parent;
@@ -511,8 +515,7 @@ class ChannelAcquisitionComponent
             ms = date.get(Calendar.MILLISECOND);
             return s + "s " + (ms > 0 ? ms + "ms" : "");
         } else {
-            double milis = UIUtilities.round((tInS * 1000), 2);
-            return String.format("%.2g", milis) + "ms";
+            return msFormat.format((tInS * 1000));
         }
     }
 	
