@@ -4,23 +4,23 @@ function dataset = createDataset(session, name, varargin)
 %   dataset = createDataset(session, name) create a new dataset with the
 %   input name, uploads it onto the server and returns the loaded dataset.
 %
-%   dataset = createDataset(session, name, project) also links the dataset
-%   to the input project.
+%   dataset = createDataset(session, name, 'group', groupId) specifies the
+%   group context in which the dataset should be created.
 %
-%   dataset = createDataset(session, name, projectId) also links the
-%   dataset to the project specified by the input identifier.
+%   dataset = createDataset(session, name, project) creates a dataset and
+%   links it to the input project. The group context is specified by the
+%   project group.
 %
-%   dataset = createDataset(..., 'group', groupId) specifies the group
-%   context in which the dataset should be created.
+%   dataset = createDataset(session, name, projectId) creates a new dataset
+%   and links it to the project specified by the input identifier. The
+%   group context is specified by the project group.
 %
 %   Examples:
 %
 %      dataset = createDataset(session, 'my-dataset');
+%      dataset = createDataset(session, 'my-dataset', 'group', groupId);
 %      dataset = createDataset(session, 'my-dataset', project);
 %      dataset = createDataset(session, 'my-dataset', projectId);
-%      dataset = createDataset(session, 'my-dataset', 'group', groupId);
-%      dataset = createDataset(session, 'my-dataset', project, 'group', groupId);
-%      dataset = createDataset(session, 'my-dataset', projectId, 'group', groupId);
 %
 % See also: CREATEOBJECT, CREATEPROJECT
 
@@ -53,26 +53,35 @@ ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
 ip.parse(name, varargin{:});
 
 if ~isempty(ip.Results.project)
-    % Retrieve project identifier
+    % Retrieve loaded project
     if isnumeric(ip.Results.project)
-        projectId = ip.Results.project;
+        project = getProjects(session, ip.Results.project);
+        assert(~isempty(project), 'Cannot find project %g', ip.Results.project);
     else
-        projectId = ip.Results.project.getId().getValue();
+        project = ip.Results.project;
     end
     
+    groupId = project.getDetails().getGroup().getId().getValue();
+
     % Create dataset object
     dataset = omero.model.DatasetI();
     dataset.setName(rstring(name));
 
     % Create context for uploading
-    context = ip.Results.context;
     if ~isempty(ip.Results.group)
-        context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
+        if ~isempty(groupId)
+            assert(isequal(groupId, ip.Results.group),...
+                'Input group is different from the project group.');
+        end
+        groupId = ip.Results.group;
     end
+
+    context = ip.Results.context;
+    context.put('omero.group', java.lang.String(num2str(groupId)));
 
     % Create project/dataset link
     link = omero.model.ProjectDatasetLinkI();
-    link.setParent(omero.model.ProjectI(projectId, false));
+    link.setParent(omero.model.ProjectI(project.getId().getValue(), false));
     link.setChild(dataset);
     link = session.getUpdateService().saveAndReturnObject(link, context);
     
