@@ -5,8 +5,8 @@ function newobject = createObject(session, type, name, varargin)
 %   input type with the input name, uploads it onto the server and returns
 %   the loaded object.
 %
-%   newobject = createObject(..., 'group', groupId) specifies the group
-%   context in which the object should be created.
+%   newobject = createObject(session, type, name, 'group', groupId)
+%   specifies the group context in which the object should be created.
 %
 %   Examples:
 %
@@ -54,6 +54,20 @@ end
 
 newobject = objectTypes(strcmp(type, objectNames)).Iobject();
 newobject.setName(rstring(ip.Results.name));
-newobject = session.getUpdateService().saveAndReturnObject(newobject, context);
-
+try
+    newobject = session.getUpdateService().saveAndReturnObject(newobject, context);
+catch e
+    try
+        serverException = char(e.ExceptionObject.serverExceptionClass);
+    catch
+        serverException = '';
+    end
+    if isequal(serverException, 'ome.conditions.SecurityViolation'),
+        throw(MException('OMERO:SecurityViolation', char(e.ExceptionObject.message)));
+    elseif isequal(serverException, 'ome.conditions.ValidationException'),
+        throw(MException('OMERO:ValidationException', char(e.ExceptionObject.message)));
+    else
+        throw(e)
+    end
+end
 end
