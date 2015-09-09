@@ -63,8 +63,8 @@ try
     projectId2 = project2.getId().getValue();
     dataset1 = createDataset(session, 'dataset-1', project1);
     dataset2 = createDataset(session, 'dataset-2', projectId1);
-    dataset3 = createDataset(session, 'dataset-1', project2, 'group', groupId);
-    dataset4 = createDataset(session, 'dataset-1', projectId2, 'group', groupId);
+    dataset3 = createDataset(session, 'dataset-1', project2);
+    dataset4 = createDataset(session, 'dataset-1', projectId2);
     print_object(dataset1);
     print_object(dataset2);
     print_object(dataset3);
@@ -87,8 +87,8 @@ try
     screenId2 = screen2.getId().getValue();
     plate1 = createPlate(session, 'plate-1', screen1);
     plate2 = createPlate(session, 'plate-2', screenId1);
-    plate3 = createPlate(session, 'plate-1', screen2, 'group', groupId);
-    plate4 = createPlate(session, 'plate-2', screenId2, 'group', groupId);
+    plate3 = createPlate(session, 'plate-1', screen2);
+    plate4 = createPlate(session, 'plate-2', screenId2);
     print_object(plate1);
     print_object(plate2);
     print_object(plate3);
