@@ -69,12 +69,18 @@ Project Should Exist
 
 Create Dataset Using Icon and Check If Orphaned
 	[Arguments]								${isOrphaned}
-	Log 									${isOrphaned}
-	Log 									${notOrphaned}
 	${projectId}= 							Run Keyword If						'${isOrphaned}' == '${notOrphaned}'	Get Text    		css=tr.data_heading_id strong
 	${datasetId}=							Create Dataset 						${CtxDatasetName}
 	Run Keyword If 							'${isOrphaned}' == '${orphaned}'	Dataset Exists and Is Orphaned		${datasetId}
 	Run Keyword If 							'${isOrphaned}' == '${notOrphaned}'	Dataset Exists and Is Not Orphaned 	${datasetId}		${projectId}
+
+Create Dataset Using Right Click and Check If Orphaned
+	[Arguments]								${RootId}		${DatasetName}		${isOrphaned}
+	${projectId}= 							Run Keyword If						'${isOrphaned}' == '${notOrphaned}'	Get Text    		css=tr.data_heading_id strong
+	Right Click Create P/D/S 				${RootId}		Dataset				${DatasetName}
+	${datasetId}=							Check Right And Center Panels For Active Container 					Dataset 				${DatasetName}
+	Run Keyword If 							'${isOrphaned}' == '${orphaned}'	Dataset Exists and Is Orphaned		${datasetId}
+	Run Keyword If 							'${isOrphaned}' == '${notOrphaned}'	Dataset Exists and Is Not Orphaned 	${datasetId}		${projectId}	
 
 Dataset Exists and Is Orphaned
 	[Arguments]								${datasetId}	
@@ -92,69 +98,7 @@ Screen Should Exist
 	${nodeId}=								Wait for Screen Node  				${screenId}
     Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 *** Test Cases ***
-# Test Right Click Image and Create Dataset
-#     [Documentation]
-#     ${imageId}    							Select And Expand Image
-#     Right Click Image Create P/D/S 			${imageId}            Dataset 		${CtxDatasetName}
-#     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
-#     Dataset Exists and Is Orphaned 			${datasetId}
-
-# Test Right Click Image and Create Project
-# 	[Documentation]
-#     ${imageId} 							    Select And Expand Image
-#     Right Click Image Create P/D/S 			${imageId}            Project 		${CtxProjectName}
-#     ${projectId}=							Check Right And Center Panels For Active Container		Project 	${CtxProjectName}
-#     Project Should Exist					${projectId}    
-
-# Test Right Click Image and Create Screen
-# 	[Documentation]
-#     ${imageId}							    Select And Expand Image
-#     Right Click Image Create P/D/S 			${imageId}            Screen 		${CtxScreenName}
-#     ${screenId}=							Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
-#     Screen Should Exist						${screenId}
-
-# # Test Right Click Experimenter and Create Dataset
-# # 	[Documentation]
-# #     Right Click Experimenter Create P/D/S 	Dataset  		${CtxDatasetName}
-# #     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
-# #     Dataset Exists and Is Orphaned 		 	${datasetId}
-
-# Test Right Click Experimenter and Create Project
-# 	[Documentation]
-# 	Right Click Experimenter Create P/D/S	Project 		${CtxProjectName}
-#     ${projectId}=							Check Right And Center Panels For Active Container		Project 	${CtxProjectName}
-#     Project Should Exist					${projectId}
-
-# Test Right Click Experimenter and Create Screen
-# 	[Documentation]
-# 	Right Click Experimenter Create P/D/S	Screen 			${CtxScreenName}
-#     ${screenId}=							Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
-#     Screen Should Exist						${screenId}
-
-# Test Right Click Project And Create Dataset
-# 	[Documentation]
-# 	${projectId}=                       	Select First Project With Children
-# 	Right Click Project Create Dataset 		${projectId}	${CtxDatasetName}
-#     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
-#     Dataset Exists and Is Not Orphaned		${datasetId}	${projectId}					
 
 # Test Right Click Screen And Create Dataset
 # 	[Documentation]
@@ -217,26 +161,43 @@ Test Create Project Using Right Click
 Test Create Dataset Using Icon
 	
 	Select Experimenter
-	Create Dataset Using Icon and Check If Orphaned	 		${orphaned}
+	Create Dataset Using Icon and Check If Orphaned	 			${orphaned}
 
 	Select First Project
-	Create Dataset Using Icon and Check If Orphaned			${notOrphaned}
+	Create Dataset Using Icon and Check If Orphaned				${notOrphaned}
 
 	Select First Dataset
-	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+	Create Dataset Using Icon and Check If Orphaned 			${orphaned}
 
 	Select First Screen
-	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+	Create Dataset Using Icon and Check If Orphaned 			${orphaned}
 
 	Select And Expand Image
-	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+	Create Dataset Using Icon and Check If Orphaned 			${orphaned}
 
 	Select Orphaned Images Section
-	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+	Create Dataset Using Icon and Check If Orphaned 			${orphaned}
 
 
+Test Create Dataset Using Right Click
 
+	Select Experimenter
+	Create Dataset Using Right Click and Check If Orphaned  	${treeRootId}    			${CtxDatasetName}				${orphaned}
 
+	${projectId}=												Select First Project
+	${treeId}=                       						   	Wait For Project Node       ${projectId}
+	Create Dataset Using Right Click and Check If Orphaned     	${treeId}    				${CtxDatasetName}				${notOrphaned}
+
+	${imageId}=							    				   	Select And Expand Image
+	${treeId}=                       						   	Wait For Image Node         ${imageId}
+	Create Dataset Using Right Click and Check If Orphaned     	${treeId}    				${CtxDatasetName}				${orphaned}
+
+	${screenId}=   											   	Select First Screen
+	${treeId}=                       						   	Wait For Screen Node        ${screenId}
+	Create Dataset Using Right Click and Check If Orphaned     	${treeId}    				${CtxDatasetName}				${orphaned}
+
+	${treeId}=												   Select Orphaned Images Section
+	Create Dataset Using Right Click and Check If Orphaned     ${treeId} 		   			${CtxDatasetName}				${orphaned}
 
 
 
