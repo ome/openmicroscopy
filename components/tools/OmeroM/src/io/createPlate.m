@@ -4,25 +4,28 @@ function plate = createPlate(session, name, varargin)
 %   plate = createPlate(session, name) create a new plate with the
 %   input name, uploads it onto the server and returns the loaded plate.
 %
-%   plate = createPlate(session, name, screen) also links the plate
-%   to the input screen.
+%   plate = createPlate(session, name, 'group', groupId) specifies the
+%   group context in which the plate should be created.
 %
-%   plate = createPlate(session, name, screenId) also links the plate to
-%   the screen specified by the input identifier.
+%   plate = createPlate(session, name, screen) creates a plate and
+%   links it to the input screen. The group context is specified by the
+%    screen group.
 %
-%   plate = createPlate(..., 'group', groupId) specifies the group
-%   context in which the plate should be created.
+%   plate = createPlate(session, name, screenId) creates a plate and
+%   links it to the screen specified by the input identifier. The group
+%   context is specified by the screen group.
+
 %
 %   Examples:
 %
 %      % Create a plate in the context of the current session group
 %      plate = createPlate(session, 'my-plate');
-%      % Create a plate in the context of the current session group and
-%      % links it to a screen
-%      plate = createPlate(session, 'my-plate', screen);
-%      plate = createPlate(session, 'my-plate', screenId);
 %      % Create a plate in the context of the specified group
 %      plate = createPlate(session, 'my-plate', 'group', groupId);
+%      % Create a plate and link it to an existing screen
+%      plate = createPlate(session, 'my-plate', screen);
+%      plate = createPlate(session, 'my-plate', screenId);
+
 %
 % See also: CREATEOBJECT, CREATESCREEN
 
@@ -54,26 +57,35 @@ ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
 ip.parse(name, varargin{:});
 
 if ~isempty(ip.Results.screen)
-    % Retrieve the screen identifier
+    % Retrieve the screen
     if isnumeric(ip.Results.screen)
-        screenId = ip.Results.screen;
+        screen = getScreens(session, ip.Results.screen);
+        assert(~isempty(screen), 'Cannot find screen %g', ip.Results.screen);
     else
-        screenId = ip.Results.screen.getId().getValue();
+        screen = ip.Results.screen;
     end
+
+    % Determine group from the parent screen
+    groupId = screen.getDetails().getGroup().getId().getValue();
+    if ~isempty(ip.Results.group)
+        if ~isempty(groupId)
+            assert(isequal(groupId, ip.Results.group),...
+                'Input group is different from the screen group.');
+        end
+        groupId = ip.Results.group;
+    end
+
+    % Create context for uploading
+    context = ip.Results.context;
+    context.put('omero.group', java.lang.String(num2str(groupId)));
 
     % Create plate object
     plate = omero.model.PlateI();
     plate.setName(rstring(name));
 
-    % Create context for uploading
-    context = ip.Results.context;
-    if ~isempty(ip.Results.group)
-        context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
-    end
-
     % Create screen/plate link
     link = omero.model.ScreenPlateLinkI();
-    link.setParent(omero.model.ScreenI(screenId, false));
+    link.setParent(omero.model.ScreenI(screen.getId().getValue(), false));
     link.setChild(plate);
     link = session.getUpdateService().saveAndReturnObject(link, context);
 
