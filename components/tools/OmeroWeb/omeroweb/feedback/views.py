@@ -134,6 +134,19 @@ def send_comment(request):
     return HttpResponse(t.render(c))
 
 
+def custom_server_error(request, error500):
+    """
+    Custom 500 error handler.
+
+    Templates: `500.html`
+    Context: ErrorForm
+    """
+    form = ErrorForm(initial={'error': error500})
+    context = {'form': form}
+    t = template_loader.get_template('500.html')
+    c = RequestContext(request, context)
+    return HttpResponse(t.render(c))
+
 ##############################################################################
 # handlers
 
