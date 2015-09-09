@@ -4,14 +4,14 @@ function screen = createScreen(session, name, varargin)
 %   screen = createScreen(session, name) creates a new screen with the
 %   input name, uploads it onto the server and returns the loaded screen.
 %
-%   screen = createScreen(..., 'group', groupId) specifies the group
-%   context in which the screen should be created.
+%   screen = createScreen(session, name, 'group', groupId) specifies the
+%   group context in which the screen should be created.
 %
 %   Examples:
 %
 %      % Create a new screen in the context of the current session group
 %      screen = createScreen(session, 'my-screen')
-%      % Create a new plate in the context of the specified group
+%      % Create a new screen in the context of the specified group
 %      screen = createScreen(session, 'my-screen', 'group', groupId)
 %
 % See also: CREATEOBJECT, CREATEPLATE
