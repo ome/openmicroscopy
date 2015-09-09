@@ -15,6 +15,8 @@ ${CtxDatasetName}                   TestDataset
 ${CtxProjectName}					TestProject
 ${CtxScreenName}					TestScreen
 ${XPathNoData}						xpath=//p[contains(@class, 'no_data')]
+${orphaned}							True
+${notOrphaned}						False
 # ${XPathOrphanedDataset}				xpath=//
 
 *** Keywords ***
@@ -28,32 +30,14 @@ Right Click Image Create P/D/S
     Input Text  							id=id_name  			${P/D/S Name}
     Click Dialog Button                     OK
 
-Right Click Project Create Dataset
-    [Arguments]            					${projectId}			${P/D/S Name}    
-    ${treeId}=                       		Wait For Project Node   ${projectId}
-    Open Context Menu                       xpath=//li[@id='${treeId}']/a
-    Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
-    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Dataset')]
-    Input Text  							id=id_name  			${P/D/S Name}
-    Click Dialog Button                     OK
-
-Right Click Experimenter Create P/D/S
-	[Arguments]			   					${optionText}	${P/D/S Name}	
-	Select Experimenter
-	Open Context Menu						xpath=//li[@id='${treeRootId}']/a
+Right Click Create P/D/S
+	[Arguments]			   					${rootId}    ${optionText}	${P/D/S Name}
+	# Select Experimenter
+	Open Context Menu						xpath=//li[@id='${rootId}']/a
 	Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
     Input Text  							id=id_name  			${P/D/S Name}
     Click Dialog Button 					OK
-
-Right Click Screen Create P/D/S
-	[Arguments]								${screenId}		${optionText}			${P/D/S Name}
-	${treeId}=                       		Wait For Screen Node   ${screenId}
-	Open Context Menu                       xpath=//li[@id='${treeId}']/a
-    Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
-    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
-    Input Text  							id=id_name  			${P/D/S Name}
-    Click Dialog Button                     OK
 
 P/D/S Should Be Clicked And Visible
 	[Arguments]			 					${NodeName}
@@ -68,54 +52,90 @@ Check Right And Center Panels For Active Container
     ${newId}    							Get Text                css=tr.data_heading_id strong
     [Return]								${newId}
 
-Dataset Exists and Is Orphaned
-	[Arguments]								${datasetId}	
-	${nodeId}=								Wait for Dataset Node  					${datasetId}
-    Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
+Create Project Using Icon and Check If It Exists
+	${projectId}=							Create Project 			${CtxProjectName}
+	Project Should Exist					${projectId}
 
-Dataset Exists and Is Not Orphaned
-	[Arguments]								${datasetId}		${projectId}
-	${datasetnodeId}=						Wait for Dataset Node 					${datasetId}
-	${projectnodeId}=						Wait for Project Node 					${projectId}
-	Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${projectnodeId}']/ul/li[@id='${datasetnodeId}']
+Create Project Using Right Click and Check If It Exists
+	[Arguments]								${RootId}		${ProjectName}
+	Right Click Create P/D/S 				${RootId}		Project				${ProjectName}
+	${projectId}=							Check Right And Center Panels For Active Container 					Project 				${ProjectName}
+	Project Should Exist					${projectId}
 
 Project Should Exist
 	[Arguments]								${projectId}	
-	${nodeId}=								Wait for Project Node  					${projectId}
+	${nodeId}=								Wait for Project Node  				${projectId}
     Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
+
+Create Dataset Using Icon and Check If Orphaned
+	[Arguments]								${isOrphaned}
+	Log 									${isOrphaned}
+	Log 									${notOrphaned}
+	${projectId}= 							Run Keyword If						'${isOrphaned}' == '${notOrphaned}'	Get Text    		css=tr.data_heading_id strong
+	${datasetId}=							Create Dataset 						${CtxDatasetName}
+	Run Keyword If 							'${isOrphaned}' == '${orphaned}'	Dataset Exists and Is Orphaned		${datasetId}
+	Run Keyword If 							'${isOrphaned}' == '${notOrphaned}'	Dataset Exists and Is Not Orphaned 	${datasetId}		${projectId}
+
+Dataset Exists and Is Orphaned
+	[Arguments]								${datasetId}	
+	${nodeId}=								Wait for Dataset Node  				${datasetId}
+    Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
+
+Dataset Exists and Is Not Orphaned
+	[Arguments]								${datasetId}			${projectId}
+	${datasetnodeId}=						Wait for Dataset Node 				${datasetId}
+	${projectnodeId}=						Wait for Project Node 				${projectId}
+	Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${projectnodeId}']/ul/li[@id='${datasetnodeId}']
 
 Screen Should Exist
 	[Arguments]								${screenId}
-	${nodeId}=								Wait for Screen Node  					${screenId}
+	${nodeId}=								Wait for Screen Node  				${screenId}
     Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 *** Test Cases ***
 # Test Right Click Image and Create Dataset
 #     [Documentation]
 #     ${imageId}    							Select And Expand Image
 #     Right Click Image Create P/D/S 			${imageId}            Dataset 		${CtxDatasetName}
-#     ${datasetId}=								Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
+#     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
 #     Dataset Exists and Is Orphaned 			${datasetId}
 
 # Test Right Click Image and Create Project
 # 	[Documentation]
 #     ${imageId} 							    Select And Expand Image
 #     Right Click Image Create P/D/S 			${imageId}            Project 		${CtxProjectName}
-#     ${projectId}=								Check Right And Center Panels For Active Container		Project 	${CtxProjectName}
-#     Project Should Exist						${projectId}    
+#     ${projectId}=							Check Right And Center Panels For Active Container		Project 	${CtxProjectName}
+#     Project Should Exist					${projectId}    
 
 # Test Right Click Image and Create Screen
 # 	[Documentation]
 #     ${imageId}							    Select And Expand Image
 #     Right Click Image Create P/D/S 			${imageId}            Screen 		${CtxScreenName}
-#     ${screenId}=								Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
+#     ${screenId}=							Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
 #     Screen Should Exist						${screenId}
 
-# Test Right Click Experimenter and Create Dataset
-# 	[Documentation]
-#     Right Click Experimenter Create P/D/S 	Dataset  		${CtxDatasetName}
-#     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
-#     Dataset Exists and Is Orphaned 		 	${datasetId}
+# # Test Right Click Experimenter and Create Dataset
+# # 	[Documentation]
+# #     Right Click Experimenter Create P/D/S 	Dataset  		${CtxDatasetName}
+# #     ${datasetId}=							Check Right And Center Panels For Active Container		Dataset 	${CtxDatasetName}
+# #     Dataset Exists and Is Orphaned 		 	${datasetId}
 
 # Test Right Click Experimenter and Create Project
 # 	[Documentation]
@@ -156,6 +176,65 @@ Screen Should Exist
 # 	Right Click Screen Create P/D/S 			${screenId}				Screen		${CtxScreenName}
 #   	${screenId}=								Check Right And Center Panels For Active Container		Screen 		${CtxScreenName}
 #   	Screen Should Exist 						${screenId}
+
+Test Create Project Using Icon
+	
+	Select Experimenter
+	Create Project Using Icon and Check If It Exists
+
+	Select First Project
+	Create Project Using Icon and Check If It Exists
+
+	Select First Dataset
+	Create Project Using Icon and Check If It Exists
+
+	Select First Screen
+	Create Project Using Icon and Check If It Exists
+
+	Select And Expand Image
+	Create Project Using Icon and Check If It Exists
+
+	Select Orphaned Images Section
+	Create Project Using Icon and Check If It Exists
+
+Test Create Project Using Right Click
+	
+	Select Experimenter
+	Create Project Using Right Click and Check If It Exists    ${treeRootId}    			${CtxProjectName}
+
+	${imageId}=							    				   Select And Expand Image
+	${treeId}=                       						   Wait For Image Node          ${imageId}
+	Create Project Using Right Click and Check If It Exists    ${treeId}   					${CtxProjectName}
+
+	${screenId}=   											   Select First Screen
+	${treeId}=                       						   Wait For Screen Node         ${screenId}
+	Create Project Using Right Click and Check If It Exists	   ${treeId}   					${CtxProjectName}
+
+	${treeId}=												   Select Orphaned Images Section
+	Create Project Using Right Click and Check If It Exists	   ${treeId}   					${CtxProjectName}
+
+
+Test Create Dataset Using Icon
+	
+	Select Experimenter
+	Create Dataset Using Icon and Check If Orphaned	 		${orphaned}
+
+	Select First Project
+	Create Dataset Using Icon and Check If Orphaned			${notOrphaned}
+
+	Select First Dataset
+	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+
+	Select First Screen
+	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+
+	Select And Expand Image
+	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+
+	Select Orphaned Images Section
+	Create Dataset Using Icon and Check If Orphaned 		${orphaned}
+
+
 
 
 
