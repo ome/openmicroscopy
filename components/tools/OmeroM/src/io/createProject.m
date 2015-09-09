@@ -4,14 +4,14 @@ function project = createProject(session, name, varargin)
 %   project = createProject(session, name) creates a new project with the
 %   input name, uploads it onto the server and returns the loaded project.
 %
-%   project = createProject(..., 'group', groupId) specifies the group
-%   context in which the project should be created.
+%   project = createProject(session, name, 'group', groupId) specifies the
+%   group context in which the project should be created.
 %
 %   Examples:
 %
-%      % Creates a new project in the context of the current session group
+%      % Create a new project in the context of the current session group
 %      project = createProject(session, projectName);
-%      % Creates a new project in the context of the specified group
+%      % Create a new project in the context of the specified group
 %      project = createProject(session, projectName, 'group', groupId);
 %
 % See also: CREATEOBJECT, CREATEDATASET

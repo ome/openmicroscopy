@@ -57,7 +57,7 @@ newobject.setName(rstring(ip.Results.name));
 try
     newobject = session.getUpdateService().saveAndReturnObject(newobject, context);
 catch e
-    try 
+    try
         serverException = char(e.ExceptionObject.serverExceptionClass);
     catch
         serverException = '';

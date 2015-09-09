@@ -17,8 +17,11 @@ function dataset = createDataset(session, name, varargin)
 %
 %   Examples:
 %
+%      % Create a new dataset in the context of the current session group
 %      dataset = createDataset(session, 'my-dataset');
+%      % Create a new dataset in the context of the specified group
 %      dataset = createDataset(session, 'my-dataset', 'group', groupId);
+%      % Create a new dataset and link it to the specified project
 %      dataset = createDataset(session, 'my-dataset', project);
 %      dataset = createDataset(session, 'my-dataset', projectId);
 %
