@@ -258,17 +258,17 @@ public interface RepositoryDao {
      * @param current not null.
      * @return all the rows found which match the non-null fields on templates
      */
-    List<DeleteLog> findRepoDeleteLogs(DeleteLog template, final Ice.Current current);
+    List<DeleteLog> findRepoDeleteLogs(DeleteLog template, final Current current);
 
     /**
-     * As {@link #findRepoDeleteLogs(DeleteLog, Ice.Current)} but for a collection
+     * As {@link #findRepoDeleteLogs(DeleteLog, Current)} but for a collection
      * of templates.
      *
      * @param templates not null.
      * @param current not null.
      * @return all the rows found which match the non-null fields on templates
      */
-    List<List<DeleteLog>> findRepoDeleteLogs(List<DeleteLog> templates, final Ice.Current current);
+    List<List<DeleteLog>> findRepoDeleteLogs(List<DeleteLog> templates, final Current current);
 
     /**
      * Call {@link SqlAction#deleteRepoDeleteLogs(DeleteLog)} with the current
@@ -278,7 +278,7 @@ public interface RepositoryDao {
      * @param current not null.
      * @return the number of rows deleted
      */
-    int deleteRepoDeleteLogs(DeleteLog template, final Ice.Current current);
+    int deleteRepoDeleteLogs(DeleteLog template, final Current current);
 
     /**
      * Call {@link SqlAction#deleteRepoDeleteLogs(DeleteLog)} with the current
@@ -288,7 +288,7 @@ public interface RepositoryDao {
      * @param current not null.
      * @return A list containing the number of rows deleted
      */
-    List<Integer> deleteRepoDeleteLogs(List<DeleteLog> templates, final Ice.Current current);
+    List<Integer> deleteRepoDeleteLogs(List<DeleteLog> templates, final Current current);
 
     /**
      * Create a number of directories in a single transaction, using the
@@ -297,7 +297,7 @@ public interface RepositoryDao {
      * within a {@link PublicRepositoryI#sudo(Current, String)}.
      */
     void makeDirs(PublicRepositoryI repo, List<CheckedPath> dirs, boolean parents,
-            Ice.Current c) throws ServerError;
+            Current c) throws ServerError;
 
     /**
      * Retrieve the checksum algorithm of the given name.
@@ -305,7 +305,7 @@ public interface RepositoryDao {
      * @param current Ice method invocation context
      * @return the corresponding checksum algorithm model object
      */
-    ome.model.enums.ChecksumAlgorithm getChecksumAlgorithm(String name, Ice.Current current);
+    ome.model.enums.ChecksumAlgorithm getChecksumAlgorithm(String name, Current current);
 
     /**
      * Retrieve the original file of the given ID.
@@ -313,12 +313,12 @@ public interface RepositoryDao {
      * @param current Ice method invocation context
      * @return the corresponding original file model object
      */
-    ome.model.core.OriginalFile getOriginalFileWithHasher(long id, Ice.Current current);
+    ome.model.core.OriginalFile getOriginalFileWithHasher(long id, Current current);
 
     /**
      * Save the given model object.
      * @param object a model object
      * @param current Ice method invocation context
      */
-    void saveObject(ome.model.IObject object, Ice.Current current);
+    void saveObject(ome.model.IObject object, Current current);
 }

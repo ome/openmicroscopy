@@ -350,7 +350,7 @@ public class CheckedPath {
     /**
      * Get a {@link FileBuffer} corresponding to this instance.
      * It is the caller's responsibility to {@link FileBuffer#close()} it.
-     * @param mode as for {@link java.io#RandomAccessFile(File, String)},
+     * @param mode as for {@link java.io.RandomAccessFile#RandomAccessFile(File, String)},
      * <code>"r"</code> and <code>"rw"</code> being common choices
      * @return a new {@link FileBuffer}
      */

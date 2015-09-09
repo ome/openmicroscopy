@@ -73,7 +73,7 @@ public class Entry {
      * used as the name for the {@link OmeroContext} via
      * {@link Main2#Main(String)}. Other options include:
      * 
-     * -s Check status (all args passed to {@link Ice.Util.initialize(String[])}
+     * -s Check status (all args passed to {@link Ice.Util#initialize(String[])}
      * 
      */
     public static void main(final String[] args) {

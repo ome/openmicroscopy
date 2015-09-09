@@ -15,9 +15,9 @@ import omero.util.IceMapper;
 import org.springframework.util.Assert;
 
 /**
- * Simple adapter which takes a {@link Executor#Work} instance and executes it
+ * Simple adapter which takes a {@link Executor.Work} instance and executes it
  * as a {@link BlitzExecutor} task. All exceptions are caught and routed to via
- * the {@link #exception(Exception, OmeroContext)} method to the provided callback.
+ * the {@link #exception(Throwable, OmeroContext)} method to the provided callback.
  */
 public class Adapter extends Task {
 
