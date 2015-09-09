@@ -7,6 +7,7 @@ ${datasetIcon}                  webclient/image/folder_image16.png
 ${imageIcon}                    webclient/image/image16.png
 ${shareIcon}                    webclient/image/left_sidebar_icon_public.png
 ${screenIcon}                   webclient/image/folder_screen16.png
+${orphanedIcon}                 webclient/image/folder_yellow16.png
 
 *** Keywords ***
 
@@ -93,11 +94,12 @@ Create Container
     Element Should Be Visible   new-container-form
     Input Text                  name    ${newName}
     # Make sure we pick 'OK' button from visible dialog
+
     Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
     # Wait until metadata panel reloads based on status.
     # This is work arround as unfortunately there is no Wait Until Page NOT Contains Element
     # This is important when two the same objects are created in a row.
-    Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element    xpath=//tr[contains(@class,'data_heading_id')]/td/strong[not(contains(text(), '${oldId}'))]  ${WAIT}
+    Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element    xpath=//tr[contains(@class,'data_heading_id')]/td/strong[not(text() = '${oldId}')]  ${WAIT}
     Wait Until Page Contains            ${dType.title()} ID:  ${WAIT}
     Wait Until Element Is Visible       css=tr.data_heading_id  ${WAIT}
     ${newId}    Get Text                css=tr.data_heading_id strong
@@ -152,35 +154,51 @@ Select Node With Children By Icon
     [Return]                        ${objId}
 
 Select First Project
-    ${projectId}=                   Select Node By Icon    ${projectIcon}
+    ${projectId}=                   Select Node By Icon      ${projectIcon}
+    Wait Until Right Panel Loads    Project                  ${projectId}
     [Return]                        ${projectId}
 
 Select First Project With Children
     ${projectId}=                   Select Node With Children By Icon    ${projectIcon}
     Wait Until Element Is Visible   xpath=//li[@data-id='${projectId}']/ul/li
+    Wait Until Right Panel Loads    Project                  ${projectId}
     [Return]                        ${projectId}
 
 Select First Dataset
-    ${datasetId}=                   Select Node By Icon    ${datasetIcon}
+    ${datasetId}=                   Select Node By Icon      ${datasetIcon}
+    Wait Until Right Panel Loads    Dataset                  ${datasetId}
     [Return]                        ${datasetId}
 
 Select First Dataset With Children
     ${datasetId}=                   Select Node With Children By Icon    ${datasetIcon}
     Wait Until Element Is Visible   xpath=//li[@data-id='${datasetId}']/ul/li
+    Wait Until Right Panel Loads    Dataset                  ${datasetId}
     [Return]                        ${datasetId}
 
 Select First Image
-    ${imageId}=                     Select Node By Icon    ${imageIcon}
+    ${imageId}=                     Select Node By Icon      ${imageIcon}
+    Wait Until Right Panel Loads    Image                    ${imageId}
     [Return]                        ${imageId}
 
 Select First Share
-    ${shareId}=                     Select Node By Icon    ${shareIcon}
+    ${shareId}=                     Select Node By Icon      ${shareIcon}
     [Return]                        ${shareId}
 
 Select First Screen
-    ${screenId}=                     Select Node By Icon    ${screenIcon}
-    [Return]                        ${screenId}
+    ${screenId}=                    Select Node By Icon      ${screenIcon}
+    Wait Until Right Panel Loads    Screen                   ${screenId}
+    [Return]                         ${screenId}
 
+Select Orphaned Images Section
+    ${firstNodeId}=                 Get NodeId By Icon       ${orphanedIcon}
+    Click Node                      ${firstNodeId}
+    Wait Until Page Contains Element                         xpath=//p[contains(@class,"description")][contains(text(),'This is a virtual container with orphaned images.')]
+    [Return]                        ${firstNodeId}
+
+Wait Until Right Panel Loads
+    [Arguments]                     ${containerType}         ${containerId}
+    Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${containerType} ID:')]
+    Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]/td/strong[(text() = '${containerId}')]
 
 # Methods for querying nodes by TEXT
 
