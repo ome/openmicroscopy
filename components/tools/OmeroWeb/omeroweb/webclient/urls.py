@@ -30,7 +30,7 @@ from omeroweb.webgateway import views as webgateway
 from omeroweb.webclient.webclient_gateway import defaultThumbnail
 
 urlpatterns = patterns(
-    'django.views.generic.simple',
+    '',
 
     # Home page is the main 'Data' page
     url(r'^$', views.load_template, {'menu': 'userdata'}, name="webindex"),
