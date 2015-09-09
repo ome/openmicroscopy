@@ -261,7 +261,7 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
     }
 
     /**
-     * Called after some number of Passes the {@link #savedPixels} to a
+     * Called after some number of Passes the {@link #savedPlates} to a
      * background processor for further work. This happens on
      * {@link #close_async(AMD_StatefulServiceInterface_close, Current)} since
      * no further pixels can be created, but also on
