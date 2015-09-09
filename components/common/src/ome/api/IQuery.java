@@ -32,6 +32,9 @@ import ome.parameters.QueryParameter;
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 3.0
  * @since 3.0
+ * @see Filter
+ * @see Parameters
+ * @see QueryParameter
  */
 public interface IQuery extends ServiceInterface {
 

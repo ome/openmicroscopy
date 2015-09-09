@@ -83,7 +83,7 @@ public abstract class SemanticType {
     /**
      * Database profile, i.e. ${omero.db.profile}.
      *
-     * @see "ticket:73"
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/73">ticket 73</a>
      */
     public final String profile;
 

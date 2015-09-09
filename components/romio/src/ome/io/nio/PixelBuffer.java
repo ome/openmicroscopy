@@ -25,6 +25,7 @@ import ome.util.PixelData;
  *         &nbsp;<a href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
  * @version $Revision$
  * @since 3.0
+ * @see PixelData
  * 
  */
 public interface PixelBuffer extends Closeable

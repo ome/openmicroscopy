@@ -538,7 +538,7 @@ public abstract class Property { // TODO need to define equality so that two
 
     /**
      * @return the database definition for the property's type, or an empty string
-     * @see "ticket:803"
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/803">ticket 803</a>
      */
     public String getDef() {
         final String def = DBTYPES.get(type);
