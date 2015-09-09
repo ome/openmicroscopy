@@ -2522,6 +2522,8 @@ class _BlitzGateway (object):
                 query += " and ws.details.owner.id=:eid "
             query += ")"
 
+        query += " order by lower(obj.name), obj.id"
+
         result = self.getQueryService().findAllByQuery(
             query, params, self.SERVICE_OPTS)
         for r in result:
