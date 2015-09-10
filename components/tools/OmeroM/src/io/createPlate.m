@@ -9,7 +9,7 @@ function plate = createPlate(session, name, varargin)
 %
 %   plate = createPlate(session, name, screen) creates a plate and
 %   links it to the input screen. The group context is specified by the
-%    screen group.
+%   screen group.
 %
 %   plate = createPlate(session, name, screenId) creates a plate and
 %   links it to the screen specified by the input identifier. The group
