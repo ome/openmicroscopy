@@ -42,7 +42,7 @@ import org.springframework.util.Assert;
  * Future:
  * <ul>
  * <li>Currently ignoring
- * @NotNull
+ * {@link ome.annotations.NotNull} annotations
  * </li>
  * </ul>
  * 
@@ -136,10 +136,8 @@ public class IceMethodInvoker {
      * Calls the method named in {@link Ice.Current#operation} with the
      * arguments provided mapped via the {@link IceMapper} instance. The return
      * value or any method which is thrown is equally mapped and returned.
-     * Clients of this method must check the return value for exceptions.
-     * {@link ServantHelper#throwIfNecessary(Object)} does just this, but is
-     * also called internally by {@link ServantHelper#checkVoid(Object)} and
-     * {@link ServantHelper#returnValue(Class, Object)}.
+     * Exceptions are handled by
+     * {@link IceMapper#handleException(Throwable, OmeroContext)}.
      * 
      * @param obj
      *            Instance for the call to
