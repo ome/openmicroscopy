@@ -53,7 +53,7 @@ try
     delete(t);
     
     %% Admin service
-    % Retrieve  the identifier of the groups the user is member/owner of
+    % Retrieve the identifier of the groups the user is member/owner of
     user = adminService.getExperimenter(userId);
     groupIds1 = toMatlabList(adminService.getMemberOfGroupIds(user));
     groupIds2 = toMatlabList(adminService.getLeaderOfGroupIds(user));

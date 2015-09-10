@@ -42,13 +42,68 @@ try
         char(eventContext.groupName), eventContext.groupId);
     
     % Information to edit
-    imageId = p.imageid;
-    datasetId = p.datasetid;
-    projectId = p.projectid;
-    plateId = p.plateid;
-    screenId = p.screenid;
     group2 = p.group2;
     groupId = session.getAdminService().lookupGroup('training_group-2').getId().getValue();
+    
+    print_object = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getName().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    
+    
+    %% P/D/I
+    % Create a project/dataset/image
+    disp('Creating projects');
+    project1 = createProject(session, 'project-1');
+    project2 = createProject(session, 'project-1', 'group', groupId);
+    print_object(project1);
+    print_object(project2);
+    disp('Creating datasets linked to projects');
+    projectId1 = project1.getId().getValue();
+    projectId2 = project2.getId().getValue();
+    dataset1 = createDataset(session, 'dataset-1', project1);
+    dataset2 = createDataset(session, 'dataset-2', projectId1);
+    dataset3 = createDataset(session, 'dataset-1', project2);
+    dataset4 = createDataset(session, 'dataset-1', projectId2);
+    print_object(dataset1);
+    print_object(dataset2);
+    print_object(dataset3);
+    print_object(dataset4);
+    disp('Creating orphaned datasets');
+    dataset5 = createDataset(session, 'orphaned dataset-1');
+    dataset6 = createDataset(session, 'orphaned dataset-2', 'group', groupId);
+    print_object(dataset5)
+    print_object(dataset6)
+    datasetId1 = dataset1.getId().getValue();
+    datasetId2 = dataset2.getId().getValue();
+    
+    disp('Creating screens');
+    screen1 = createScreen(session, 'screen-1');
+    screen2 = createScreen(session, 'screen-1', 'group', groupId);
+    print_object(screen1);
+    print_object(screen2);
+    disp('Creating plates linked to screens');
+    screenId1 = screen1.getId().getValue();
+    screenId2 = screen2.getId().getValue();
+    plate1 = createPlate(session, 'plate-1', screen1);
+    plate2 = createPlate(session, 'plate-2', screenId1);
+    plate3 = createPlate(session, 'plate-1', screen2);
+    plate4 = createPlate(session, 'plate-2', screenId2);
+    print_object(plate1);
+    print_object(plate2);
+    print_object(plate3);
+    print_object(plate4);
+    disp('Creating orphaned plates');
+    plate5 = createDataset(session, 'orphaned plate-1');
+    plate6 = createDataset(session, 'orphaned plate-2', 'group', groupId);
+    print_object(plate5)
+    print_object(plate6)
+    plateId1 = plate1.getId().getValue();
+    
+    image1 = createObject(session, 'image', 'image-1');
+    image2 = createObject(session, 'image', 'image-1', 'group', groupId);
+    imageId1 = image1.getId().getValue();
+    
     %% File Annotation
     disp('File annotation');
     % Create a local file
@@ -56,6 +111,7 @@ try
     fid = fopen(filePath, 'w');
     fwrite(fid, fileContent);
     fclose(fid);
+    
     
     % Create a file annotation
     fileAnnotation = writeFileAnnotation(session, filePath,...
@@ -128,415 +184,470 @@ try
     
     % Project - Annotation link
     fa = omero.model.FileAnnotationI(fileAnnotation.getId().getValue(), false);
-    linkAnnotation(session, fa, 'project', projectId);
-    fprintf(1, 'Linked file annotation to project %g\n', projectId);
+    linkAnnotation(session, fa, 'project', projectId1);
+    fprintf(1, 'Linked file annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving file annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    fas = getProjectFileAnnotations(session, projectId, 'include', ns);
+        projectId1, ns);
+    fas = getProjectFileAnnotations(session, projectId1, 'include', ns);
     assert(hasAnnotation(fa, fas), 'WriteData: Could not find annotation');
     
-    
     % Dataset - Annotation link
-    linkAnnotation(session, fa, 'dataset', datasetId);
-    fprintf(1, 'Linked file annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, fa, 'dataset', datasetId1);
+    fprintf(1, 'Linked file annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving file annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    fas = getDatasetFileAnnotations(session, datasetId, 'include', ns);
+        datasetId1, ns);
+    fas = getDatasetFileAnnotations(session, datasetId1, 'include', ns);
     assert(hasAnnotation(fa, fas), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, fa, 'image', imageId);
-    fprintf(1, 'Linked file annotation to image %g\n', imageId);
+    linkAnnotation(session, fa, 'image', imageId1);
+    fprintf(1, 'Linked file annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving file annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    fas = getImageFileAnnotations(session, imageId, 'include', ns);
+        imageId1, ns);
+    fas = getImageFileAnnotations(session, imageId1, 'include', ns);
     assert(hasAnnotation(fa, fas), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, fa, 'plate', plateId);
-    fprintf(1, 'Linked file annotation to plate %g\n', plateId);
+    linkAnnotation(session, fa, 'plate', plateId1);
+    fprintf(1, 'Linked file annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving file annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    fas = getPlateFileAnnotations(session, plateId, 'include', ns);
+        plateId1, ns);
+    fas = getPlateFileAnnotations(session, plateId1, 'include', ns);
     assert(hasAnnotation(fa, fas), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, fa, 'screen', screenId);
-    fprintf(1, 'Linked file annotation to screen %g\n', screenId);
+    linkAnnotation(session, fa, 'screen', screenId1);
+    fprintf(1, 'Linked file annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving file annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    fas = getScreenFileAnnotations(session, screenId, 'include', ns);
+        screenId1, ns);
+    fas = getScreenFileAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(fa, fas), 'WriteData: Could not find annotation');
     
     %% Comment Annotation
     disp('Comment annotation');
-    commentAnnotation = writeCommentAnnotation(session, 'comment',...
+    
+    disp('Creating comment annotations');
+    commentAnnotation1 = writeCommentAnnotation(session, 'comment',...
         'description', 'comment description', 'namespace', ns);
-    fprintf(1, 'Created comment annotation %g\n',...
-        commentAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving comment annotation %g\n',...
-        commentAnnotation.getId().getValue());
+    commentAnnotation2 = writeCommentAnnotation(session, 'comment',...
+        'description', 'comment description', 'namespace', ns, 'group', groupId);
+    print_long = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getTextValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_long(commentAnnotation1);
+    print_long(commentAnnotation2);
+    
+    disp('Retrieving comment annotations');
     annotation = getCommentAnnotations(session,...
-        commentAnnotation.getId().getValue());
+        commentAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ca = omero.model.CommentAnnotationI(commentAnnotation.getId().getValue(), false);
-    linkAnnotation(session, ca, 'project', projectId);
-    fprintf(1, 'Linked comment annotation to project %g\n', projectId);
+    ca = omero.model.CommentAnnotationI(commentAnnotation1.getId().getValue(), false);
+    linkAnnotation(session, ca, 'project', projectId1);
+    fprintf(1, 'Linked comment annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving comment annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    cas = getProjectCommentAnnotations(session, projectId, 'include', ns);
+        projectId1, ns);
+    cas = getProjectCommentAnnotations(session, projectId1, 'include', ns);
     assert(hasAnnotation(ca, cas), 'WriteData: Could not find annotation');
     
     % Dataset - Annotation link
-    linkAnnotation(session, ca, 'dataset', datasetId);
-    fprintf(1, 'Linked comment annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, ca, 'dataset', datasetId1);
+    fprintf(1, 'Linked comment annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving comment annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    cas = getDatasetCommentAnnotations(session, datasetId, 'include', ns);
+        datasetId1, ns);
+    cas = getDatasetCommentAnnotations(session, datasetId1, 'include', ns);
     assert(hasAnnotation(ca, cas), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, ca, 'image', imageId);
-    fprintf(1, 'Linked comment annotation to image %g\n', imageId);
+    linkAnnotation(session, ca, 'image', imageId1);
+    fprintf(1, 'Linked comment annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving comment annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    cas = getImageCommentAnnotations(session, imageId, 'include', ns);
+        imageId1, ns);
+    cas = getImageCommentAnnotations(session, imageId1, 'include', ns);
     assert(hasAnnotation(ca, cas), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, ca, 'plate', plateId);
-    fprintf(1, 'Linked comment annotation to plate %g\n', plateId);
+    linkAnnotation(session, ca, 'plate', plateId1);
+    fprintf(1, 'Linked comment annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving comment annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    cas = getPlateCommentAnnotations(session, plateId, 'include', ns);
+        plateId1, ns);
+    cas = getPlateCommentAnnotations(session, plateId1, 'include', ns);
     assert(hasAnnotation(ca, cas), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, ca, 'screen', screenId);
-    fprintf(1, 'Linked comment annotation to screen %g\n', screenId);
+    linkAnnotation(session, ca, 'screen', screenId1);
+    fprintf(1, 'Linked comment annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving comment annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    cas = getScreenCommentAnnotations(session, screenId, 'include', ns);
+        screenId1, ns);
+    cas = getScreenCommentAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(ca, cas), 'WriteData: Could not find annotation');
     
     %% Double Annotation
     disp('Double annotation');
-    doubleAnnotation = writeDoubleAnnotation(session, .5,...
+    
+    disp('Creating double annotations');
+    doubleAnnotation1 = writeDoubleAnnotation(session, .5,...
         'description', 'double description', 'namespace', ns);
-    fprintf(1, 'Created double annotation %g\n',...
-        doubleAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving double annotation %g\n',...
-        doubleAnnotation.getId().getValue());
+    doubleAnnotation2 = writeDoubleAnnotation(session, .5,...
+        'description', 'double description', 'namespace', ns, 'group', groupId);
+    print_long = @(x) fprintf(1, '  %g (id: %d, owner: %d, group: %d)\n',...
+        x.getDoubleValue().getValue(), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_long(doubleAnnotation1);
+    print_long(doubleAnnotation2);
+    
+    disp('Retrieving double annotations');
     annotation = getDoubleAnnotations(session,...
-        doubleAnnotation.getId().getValue());
+        doubleAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    da = omero.model.DoubleAnnotationI(doubleAnnotation.getId().getValue(), false);
-    linkAnnotation(session, da, 'project', projectId);
-    fprintf(1, 'Linked double annotation to project %g\n', projectId);
+    da = omero.model.DoubleAnnotationI(doubleAnnotation1.getId().getValue(), false);
+    linkAnnotation(session, da, 'project', projectId1);
+    fprintf(1, 'Linked double annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving double annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    das = getProjectDoubleAnnotations(session, projectId, 'include', ns);
+        projectId1, ns);
+    das = getProjectDoubleAnnotations(session, projectId1, 'include', ns);
     assert(hasAnnotation(da, das), 'WriteData: Could not find annotation');
     
     % Dataset - Annotation link
-    linkAnnotation(session, da, 'dataset', datasetId);
-    fprintf(1, 'Linked double annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, da, 'dataset', datasetId1);
+    fprintf(1, 'Linked double annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving double annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    das = getDatasetDoubleAnnotations(session, datasetId, 'include', ns);
+        datasetId1, ns);
+    das = getDatasetDoubleAnnotations(session, datasetId1, 'include', ns);
     assert(hasAnnotation(da, das), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, da, 'image', imageId);
-    fprintf(1, 'Linked double annotation to image %g\n', imageId);
+    linkAnnotation(session, da, 'image', imageId1);
+    fprintf(1, 'Linked double annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving double annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    das = getImageDoubleAnnotations(session, imageId, 'include', ns);
+        imageId1, ns);
+    das = getImageDoubleAnnotations(session, imageId1, 'include', ns);
     assert(hasAnnotation(da, das), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, da, 'plate', plateId);
-    fprintf(1, 'Linked double annotation to plate %g\n', plateId);
+    linkAnnotation(session, da, 'plate', plateId1);
+    fprintf(1, 'Linked double annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving double annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    das = getPlateDoubleAnnotations(session, plateId, 'include', ns);
+        plateId1, ns);
+    das = getPlateDoubleAnnotations(session, plateId1, 'include', ns);
     assert(hasAnnotation(da, das), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, da, 'screen', screenId);
-    fprintf(1, 'Linked double annotation to screen %g\n', screenId);
+    linkAnnotation(session, da, 'screen', screenId1);
+    fprintf(1, 'Linked double annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving double annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    das = getScreenDoubleAnnotations(session, screenId, 'include', ns);
+        screenId1, ns);
+    das = getScreenDoubleAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(da, das), 'WriteData: Could not find annotation');
     
     %% Long Annotation
     disp('Long annotation');
-    longAnnotation = writeLongAnnotation(session, 1,...
+    
+    disp('Creating long annotations');
+    longAnnotation1 = writeLongAnnotation(session, 1,...
         'description', 'long description', 'namespace', ns);
-    fprintf(1, 'Created long annotation %g\n',...
-        longAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving long annotation %g\n',...
-        longAnnotation.getId().getValue());
+    longAnnotation2 = writeLongAnnotation(session, 1,...
+        'description', 'long description', 'namespace', ns, 'group', groupId);
+    print_long = @(x) fprintf(1, '  %g (id: %d, owner: %d, group: %d)\n',...
+        char(x.getLongValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_long(longAnnotation1);
+    print_long(longAnnotation2);
+    
+    disp('Retrieving long annotations');
     annotation = getLongAnnotations(session,...
-        longAnnotation.getId().getValue());
+        longAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    la = omero.model.LongAnnotationI(longAnnotation.getId().getValue(), false);
-    linkAnnotation(session, la, 'project', projectId);
-    fprintf(1, 'Linked long annotation to project %g\n', projectId);
+    la = omero.model.LongAnnotationI(longAnnotation1.getId().getValue(), false);
+    linkAnnotation(session, la, 'project', projectId1);
+    fprintf(1, 'Linked long annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving long annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    las = getProjectLongAnnotations(session, projectId, 'include', ns);
+        projectId1, ns);
+    las = getProjectLongAnnotations(session, projectId1, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
     
     % Dataset - Annotation link
-    linkAnnotation(session, la, 'dataset', datasetId);
-    fprintf(1, 'Linked long annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, la, 'dataset', datasetId1);
+    fprintf(1, 'Linked long annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving long annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    las = getDatasetLongAnnotations(session, datasetId, 'include', ns);
+        datasetId1, ns);
+    las = getDatasetLongAnnotations(session, datasetId1, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, la, 'image', imageId);
-    fprintf(1, 'Linked long annotation to image %g\n', imageId);
+    linkAnnotation(session, la, 'image', imageId1);
+    fprintf(1, 'Linked long annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving long annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    las = getImageLongAnnotations(session, imageId, 'include', ns);
+        imageId1, ns);
+    las = getImageLongAnnotations(session, imageId1, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, la, 'plate', plateId);
-    fprintf(1, 'Linked long annotation to plate %g\n', plateId);
+    linkAnnotation(session, la, 'plate', plateId1);
+    fprintf(1, 'Linked long annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving long annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    las = getPlateLongAnnotations(session, plateId, 'include', ns);
+        plateId1, ns);
+    las = getPlateLongAnnotations(session, plateId1, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, la, 'screen', screenId);
-    fprintf(1, 'Linked long annotation to screen %g\n', screenId);
+    linkAnnotation(session, la, 'screen', screenId1);
+    fprintf(1, 'Linked long annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving long annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    las = getScreenLongAnnotations(session, screenId, 'include', ns);
+        screenId1, ns);
+    las = getScreenLongAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
     
     %% Map Annotation
     disp('Map annotation');
-    mapAnnotation = writeMapAnnotation(session, 'key', 'value',...
+    
+    disp('Creating map annotations');
+    mapAnnotation1 = writeMapAnnotation(session, 'key', 'value',...
         'description', 'map description', 'namespace', ns);
-    fprintf(1, 'Created map annotation %g\n',...
-        mapAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving map annotation %g\n',...
-        mapAnnotation.getId().getValue());
+    mapAnnotation2 = writeMapAnnotation(session, 'key', 'value',...
+        'description', 'map description', 'namespace', ns, 'group', groupId);
+    print_map = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getMapValueAsMap), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_map(mapAnnotation1);
+    print_map(mapAnnotation2);
+    
+    disp('Retrieving map annotations');
     annotation = getAnnotations(session,...
-        mapAnnotation.getId().getValue(), 'map');
+        mapAnnotation1.getId().getValue(), 'map');
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ma = omero.model.MapAnnotationI(mapAnnotation.getId().getValue(), false);
-    linkAnnotation(session, ma, 'project', projectId);
-    fprintf(1, 'Linked map annotation to project %g\n', projectId);
+    ma = omero.model.MapAnnotationI(mapAnnotation1.getId().getValue(), false);
+    linkAnnotation(session, ma, 'project', projectId1);
+    fprintf(1, 'Linked map annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving map annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    mas = getObjectAnnotations(session, 'map', 'project', projectId, 'include', ns);
+        projectId1, ns);
+    mas = getObjectAnnotations(session, 'map', 'project', projectId1, 'include', ns);
     assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
     
     % Dataset - Annotation link
-    linkAnnotation(session, ma, 'dataset', datasetId);
-    fprintf(1, 'Linked map annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, ma, 'dataset', datasetId1);
+    fprintf(1, 'Linked map annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving map annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    mas = getObjectAnnotations(session, 'map', 'dataset', datasetId, 'include', ns);
+        datasetId1, ns);
+    mas = getObjectAnnotations(session, 'map', 'dataset', datasetId1, 'include', ns);
     assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, ma, 'image', imageId);
-    fprintf(1, 'Linked map annotation to image %g\n', imageId);
+    linkAnnotation(session, ma, 'image', imageId1);
+    fprintf(1, 'Linked map annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving map annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    mas = getObjectAnnotations(session, 'map', 'image', imageId, 'include', ns);
+        imageId1, ns);
+    mas = getObjectAnnotations(session, 'map', 'image', imageId1, 'include', ns);
     assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, ma, 'plate', plateId);
-    fprintf(1, 'Linked map annotation to plate %g\n', plateId);
+    linkAnnotation(session, ma, 'plate', plateId1);
+    fprintf(1, 'Linked map annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving map annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    mas = getObjectAnnotations(session, 'map', 'plate', plateId, 'include', ns);
+        plateId1, ns);
+    mas = getObjectAnnotations(session, 'map', 'plate', plateId1, 'include', ns);
     assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, ma, 'screen', screenId);
-    fprintf(1, 'Linked map annotation to screen %g\n', screenId);
+    linkAnnotation(session, ma, 'screen', screenId1);
+    fprintf(1, 'Linked map annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving map annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    mas = getObjectAnnotations(session, 'map', 'screen', screenId, 'include', ns);
+        screenId1, ns);
+    mas = getObjectAnnotations(session, 'map', 'screen', screenId1, 'include', ns);
     assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
     
     %% Tag Annotation
     disp('Tag annotation');
-    tagAnnotation = writeTagAnnotation(session, 'tag value',...
+    
+    disp('Creating tag annotations');
+    tagAnnotation1 = writeTagAnnotation(session, 'tag value',...
         'description', 'tag description', 'namespace', ns);
-    fprintf(1, 'Created tag annotation %g\n',...
-        tagAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving tag annotation %g\n',...
-        tagAnnotation.getId().getValue());
+    tagAnnotation2 = writeTagAnnotation(session, 'tag value',...
+        'description', 'tag description', 'namespace', ns, 'group', groupId);
+    print_tag = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getTextValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_tag(tagAnnotation1);
+    print_tag(tagAnnotation2);
+    
+    disp('Retrieving tag annotations');
     annotation = getTagAnnotations(session,...
-        tagAnnotation.getId().getValue());
+        tagAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ta = omero.model.TagAnnotationI(tagAnnotation.getId().getValue(), false);
-    linkAnnotation(session, ta, 'project', projectId);
-    fprintf(1, 'Linked tag annotation to project %g\n', projectId);
+    ta = omero.model.TagAnnotationI(tagAnnotation1.getId().getValue(), false);
+    linkAnnotation(session, ta, 'project', projectId1);
+    fprintf(1, 'Linked tag annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving tag annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    tas = getProjectTagAnnotations(session, projectId, 'include', ns);
+        projectId1, ns);
+    tas = getProjectTagAnnotations(session, projectId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Dataset - Annotation link
-    linkAnnotation(session, ta, 'dataset', datasetId);
-    fprintf(1, 'Linked tag annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, ta, 'dataset', datasetId1);
+    fprintf(1, 'Linked tag annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving tag annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    tas = getDatasetTagAnnotations(session, datasetId, 'include', ns);
+        datasetId1, ns);
+    tas = getDatasetTagAnnotations(session, datasetId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, ta, 'image', imageId);
-    fprintf(1, 'Linked tag annotation to image %g\n', imageId);
+    linkAnnotation(session, ta, 'image', imageId1);
+    fprintf(1, 'Linked tag annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving tag annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    tas = getImageTagAnnotations(session, imageId, 'include', ns);
+        imageId1, ns);
+    tas = getImageTagAnnotations(session, imageId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, ta, 'plate', plateId);
-    fprintf(1, 'Linked tag annotation to plate %g\n', plateId);
+    linkAnnotation(session, ta, 'plate', plateId1);
+    fprintf(1, 'Linked tag annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving tag annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    tas = getPlateTagAnnotations(session, plateId, 'include', ns);
+        plateId1, ns);
+    tas = getPlateTagAnnotations(session, plateId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, ta, 'screen', screenId);
-    fprintf(1, 'Linked tag annotation to screen %g\n', screenId);
+    linkAnnotation(session, ta, 'screen', screenId1);
+    fprintf(1, 'Linked tag annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving tag annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    tas = getScreenTagAnnotations(session, screenId, 'include', ns);
+        screenId1, ns);
+    tas = getScreenTagAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     %% Timestamp Annotation
     disp('Timestamp annotation');
-    timestampAnnotation = writeTimestampAnnotation(session, now,...
+    
+    disp('Creating timestamp annotations');
+    timestampAnnotation1 = writeTimestampAnnotation(session, now,...
         'description', 'timestamp description', 'namespace', ns);
-    fprintf(1, 'Created timestamp annotation %g\n',...
-        timestampAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving timestamp annotation %g\n',...
-        timestampAnnotation.getId().getValue());
+    timestampAnnotation2 = writeTimestampAnnotation(session, now,...
+        'description', 'timestamp description', 'namespace', ns, 'group', groupId);
+    print_ts = @(x) fprintf(1, '  %g (id: %d, owner: %d, group: %d)\n',...
+        x.getTimeValue().getValue(), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_ts(timestampAnnotation1);
+    print_ts(timestampAnnotation2);
+    
+    disp('Retrieving timestamp annotations');
     annotation = getTimestampAnnotations(session,...
-        timestampAnnotation.getId().getValue());
+        timestampAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    ta = omero.model.TimestampAnnotationI(timestampAnnotation.getId().getValue(), false);
-    linkAnnotation(session, ta, 'project', projectId);
-    fprintf(1, 'Linked timestamp annotation to project %g\n', projectId);
+    ta = omero.model.TimestampAnnotationI(timestampAnnotation1.getId().getValue(), false);
+    linkAnnotation(session, ta, 'project', projectId1);
+    fprintf(1, 'Linked timestamp annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving timestamp annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    tas = getProjectTimestampAnnotations(session, projectId, 'include', ns);
+        projectId1, ns);
+    tas = getProjectTimestampAnnotations(session, projectId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Dataset - Annotation link
-    linkAnnotation(session, ta, 'dataset', datasetId);
-    fprintf(1, 'Linked timestamp annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, ta, 'dataset', datasetId1);
+    fprintf(1, 'Linked timestamp annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving timestamp annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    tas = getDatasetTimestampAnnotations(session, datasetId, 'include', ns);
+        datasetId1, ns);
+    tas = getDatasetTimestampAnnotations(session, datasetId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, ta, 'image', imageId);
-    fprintf(1, 'Linked timestamp annotation to image %g\n', imageId);
+    linkAnnotation(session, ta, 'image', imageId1);
+    fprintf(1, 'Linked timestamp annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving timestamp annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    tas = getImageTimestampAnnotations(session, imageId, 'include', ns);
+        imageId1, ns);
+    tas = getImageTimestampAnnotations(session, imageId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, ta, 'plate', plateId);
-    fprintf(1, 'Linked timestamp annotation to plate %g\n', plateId);
+    linkAnnotation(session, ta, 'plate', plateId1);
+    fprintf(1, 'Linked timestamp annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving timestamp annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    tas = getPlateTimestampAnnotations(session, plateId, 'include', ns);
+        plateId1, ns);
+    tas = getPlateTimestampAnnotations(session, plateId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, ta, 'screen', screenId);
-    fprintf(1, 'Linked timestamp annotation to screen %g\n', screenId);
+    linkAnnotation(session, ta, 'screen', screenId1);
+    fprintf(1, 'Linked timestamp annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving timestamp annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    tas = getScreenTimestampAnnotations(session, screenId, 'include', ns);
+        screenId1, ns);
+    tas = getScreenTimestampAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
     
     %% XML Annotation
     disp('XML annotation');
-    xmlAnnotation = writeXmlAnnotation(session, 'xml value',...
+    
+    disp('Creating XML annotations');
+    xmlAnnotation1 = writeXmlAnnotation(session, 'xml value',...
         'description', 'xml description', 'namespace', ns);
-    fprintf(1, 'Created XML annotation %g\n',...
-        xmlAnnotation.getId().getValue());
-    fprintf(1, 'Retrieving XML annotation %g\n',...
-        xmlAnnotation.getId().getValue());
+    xmlAnnotation2 = writeXmlAnnotation(session, 'xml value',...
+        'description', 'xml description', 'namespace', ns, 'group', groupId);
+    print_timestamp = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
+        char(x.getTextValue().getValue()), x.getId().getValue(),...
+        x.getDetails().getOwner().getId().getValue(),...
+        x.getDetails().getGroup().getId().getValue());
+    print_timestamp(xmlAnnotation1);
+    print_timestamp(xmlAnnotation2);
+    
+    disp('Retrieving XML annotations');
     annotation = getXmlAnnotations(session,...
-        xmlAnnotation.getId().getValue());
+        xmlAnnotation1.getId().getValue());
     assert(~isempty(annotation), 'WriteData: Could not find annotation');
     
     % Project - Annotation link
-    xa = omero.model.XmlAnnotationI(xmlAnnotation.getId().getValue(), false);
-    linkAnnotation(session, xa, 'project', projectId);
-    fprintf(1, 'Linked XML annotation to project %g\n', projectId);
+    xa = omero.model.XmlAnnotationI(xmlAnnotation1.getId().getValue(), false);
+    linkAnnotation(session, xa, 'project', projectId1);
+    fprintf(1, 'Linked XML annotation to project %g\n', projectId1);
     fprintf(1, 'Retrieving XML annotations attached to project %g with namespace %s\n',...
-        projectId, ns);
-    xas = getProjectXmlAnnotations(session, projectId, 'include', ns);
+        projectId1, ns);
+    xas = getProjectXmlAnnotations(session, projectId1, 'include', ns);
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
     
     % Dataset - Annotation link
-    linkAnnotation(session, xa, 'dataset', datasetId);
-    fprintf(1, 'Linked XML annotation to dataset %g\n', datasetId);
+    linkAnnotation(session, xa, 'dataset', datasetId1);
+    fprintf(1, 'Linked XML annotation to dataset %g\n', datasetId1);
     fprintf(1, 'Retrieving XML annotations attached to dataset %g with namespace %s\n',...
-        datasetId, ns);
-    xas = getDatasetXmlAnnotations(session, datasetId, 'include', ns);
+        datasetId1, ns);
+    xas = getDatasetXmlAnnotations(session, datasetId1, 'include', ns);
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
     
     % Image - Annotation link
-    linkAnnotation(session, xa, 'image', imageId);
-    fprintf(1, 'Linked XML annotation to image %g\n', imageId);
+    linkAnnotation(session, xa, 'image', imageId1);
+    fprintf(1, 'Linked XML annotation to image %g\n', imageId1);
     fprintf(1, 'Retrieving XML annotations attached to image %g with namespace %s\n',...
-        imageId, ns);
-    xas = getImageXmlAnnotations(session, imageId, 'include', ns);
+        imageId1, ns);
+    xas = getImageXmlAnnotations(session, imageId1, 'include', ns);
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
     
     % Plate - Annotation link
-    linkAnnotation(session, xa, 'plate', plateId);
-    fprintf(1, 'Linked XML annotation to plate %g\n', plateId);
+    linkAnnotation(session, xa, 'plate', plateId1);
+    fprintf(1, 'Linked XML annotation to plate %g\n', plateId1);
     fprintf(1, 'Retrieving XML annotations attached to plate %g with namespace %s\n',...
-        plateId, ns);
-    xas = getPlateXmlAnnotations(session, plateId, 'include', ns);
+        plateId1, ns);
+    xas = getPlateXmlAnnotations(session, plateId1, 'include', ns);
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
     
     % Screen - Annotation link
-    linkAnnotation(session, xa, 'screen', screenId);
-    fprintf(1, 'Linked XML annotation to screen %g\n', screenId);
+    linkAnnotation(session, xa, 'screen', screenId1);
+    fprintf(1, 'Linked XML annotation to screen %g\n', screenId1);
     fprintf(1, 'Retrieving XML annotations attached to screen %g with namespace %s\n',...
-        screenId, ns);
-    xas = getScreenXmlAnnotations(session, screenId, 'include', ns);
+        screenId1, ns);
+    xas = getScreenXmlAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
     
 catch err
