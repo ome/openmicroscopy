@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -53,7 +51,7 @@ public interface SessionContext extends EventContext {
      * Synchronized counter which can be passed between {@link SessionContext}
      * instances as they are recreated.
      *
-     * @see ticket:2804
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2804">ticket:2804</a>
      */
     public class Count {
         private final Logger log = LoggerFactory.getLogger(Count.class);
@@ -75,7 +73,7 @@ public interface SessionContext extends EventContext {
         }
 
         /**
-         * Increment the current {@link #refCount() reference count} and return the
+         * Increment the current {@link #ref reference count} and return the
          * new value atomically.
          */
         public int increment() {
@@ -99,7 +97,7 @@ public interface SessionContext extends EventContext {
         }
 
         /**
-         * Decrement the current {@link #refCount() reference count} and return the
+         * Decrement the current {@link #ref reference count} and return the
          * new value atomically.
          */
         public int decrement() {

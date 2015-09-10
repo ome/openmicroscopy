@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -16,7 +14,7 @@ import ome.services.sessions.SessionManager;
 import ome.util.messages.InternalMessage;
 
 /**
- * {@link InteralMessage} published by the {@link SessionManager} when
+ * {@link InternalMessage} published by the {@link SessionManager} when
  * setSecurityContext() is called.
  *
  * @author Josh Moore, josh at glencoesoftware.com

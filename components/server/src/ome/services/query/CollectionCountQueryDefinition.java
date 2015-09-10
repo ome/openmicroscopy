@@ -25,12 +25,11 @@ import ome.tools.lsid.LsidUtils;
 
 /**
  * counts the number of members in a collection. This query is used by the
- * {@link ome.api.IContainer IContainer} interface (possbly among others) to add
+ * {@link ome.api.IContainer IContainer} interface (possibly among others) to add
  * information to outgoing results.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @since OMERO 3.0
- * @see Details#getCounts()
  */
 public class CollectionCountQueryDefinition extends Query {
 

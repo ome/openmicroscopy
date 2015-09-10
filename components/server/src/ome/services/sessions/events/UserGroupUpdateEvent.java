@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -15,7 +13,7 @@ import ome.services.sessions.SessionManager;
 import ome.util.messages.InternalMessage;
 
 /**
- * {@link InteralMessage} published by the {@link SecuritySystem} when an
+ * {@link InternalMessage} published by the {@link SecuritySystem} when an
  * {@link Experimenter}, {@link ExperimenterGroup}, or
  * {@link GroupExperimenterMap} is inserted or updated.
  * 

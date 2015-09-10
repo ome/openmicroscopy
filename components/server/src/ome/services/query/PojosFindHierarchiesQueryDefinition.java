@@ -32,8 +32,7 @@ import static ome.parameters.Parameters.*;
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @since OMERO 3.0
- * @see IContainer#findContainerHierarchies(java.lang.Class, java.util.Set,
- *      java.util.Map)
+ * @see ome.api.IContainer#findContainerHierarchies(Class, java.util.Set, Parameters)
  */
 
 public class PojosFindHierarchiesQueryDefinition extends

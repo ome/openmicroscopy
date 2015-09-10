@@ -19,8 +19,7 @@ import ome.parameters.Parameters;
 /**
  * simple abstract class that provides a common
  * {@link ome.services.query.Definitions} containing:
- * {@link ome.services.query.IdsQueryParameterDef},
- * {@link ome.services.query.OptionsQueryParameterDef}, and
+ * {@link ome.services.query.IdsQueryParameterDef} and
  * {@link ome.services.query.ClassQueryParameterDef}.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>

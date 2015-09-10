@@ -73,7 +73,7 @@ public abstract class SearchAction implements Serializable,
      * chained in this search. See the documentation on each by* method in
      * {@link ome.api.Search} to know how chained ids will be used, if at all.
      * 
-     * @param idList
+     * @param chainedList
      *            Can be null to disabled chaining.
      */
     public void chainedSearch(List<IObject> chainedList) {

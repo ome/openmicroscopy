@@ -64,7 +64,7 @@ public interface Executor extends ApplicationContextAware {
         SYSTEM,
 
         /**
-         * Uses the limited {@link ThreadPool} configured via etc/omero.properties
+         * Uses the limited thread pool configured via etc/omero.properties
          * with omero.threads.max_threads, etc.
          */
         USER;
@@ -83,7 +83,7 @@ public interface Executor extends ApplicationContextAware {
     public Principal principal();
 
     /**
-     * Call {@link #execute(Map<String, String>, Principal, Work)} with
+     * Call {@link #execute(Map, Principal, Work)} with
      * a null call context.
      */
     public Object execute(final Principal p, final Work work);
@@ -95,7 +95,7 @@ public interface Executor extends ApplicationContextAware {
      * {@link OmeroContext}, and the second performs all the standard service
      * actions for any normal method call.
      *
-     * If the {@link Map<String, String>} argument is not null, then additionally,
+     * If the {@link Map} argument is not null, then additionally,
      * setContext will be called in a try/finally block. The first login
      * within this thread will then pick up this delayed context.
      *
@@ -111,15 +111,15 @@ public interface Executor extends ApplicationContextAware {
      *            Possibly null.
      * @param work
      *            Not null.
+     * @return See above.
      */
     public Object execute(final Map<String, String> callContext,
             final Principal p, final Work work);
 
     /**
      * Call {@link #submit(Map, Callable)} with a null callContext.
-     * @param <T>
      * @param callable
-     * @return
+     * @return See above.
      */
     public <T> Future<T> submit(final Callable<T> callable);
 
@@ -129,19 +129,18 @@ public interface Executor extends ApplicationContextAware {
      *
      * @param callContext Possibly null. See {@link CurrentDetails#setContext(Map)}
      * @param callable. Not null. Action to be taken.
+     * @return See above.
      */
-
     public <T> Future<T> submit(final Map<String, String> callContext,
             final Callable<T> callable);
-
 
     /**
      * Simple submission method with a {@link Priority}.
      *
      * @param prio Possibly null. See {@link #submit(Priority, Map, Callable)}
      * @param callable. Not null. Action to be taken.
+     * @return See above.
      */
-
     public <T> Future<T> submit(final Priority prio,
             final Callable<T> callable);
 
@@ -152,8 +151,8 @@ public interface Executor extends ApplicationContextAware {
      * @param prio Possibly null. Priority for execution. Default: {@link Priority#USER}
      * @param callContext Possibly null. See {@link CurrentDetails#setContext(Map)}
      * @param callable. Not null. Action to be taken.
+     * @return See above.
      */
-
     public <T> Future<T> submit(Priority prio,
             final Map<String, String> callContext,
             final Callable<T> callable);
@@ -207,8 +206,6 @@ public interface Executor extends ApplicationContextAware {
          * Work method. Must return all results coming from Hibernate via the
          * {@link Object} return method.
          *
-         * @param status
-         *            non null.
          * @param session
          *            non null.
          * @param sf
@@ -242,8 +239,9 @@ public interface Executor extends ApplicationContextAware {
      * </ul>
      * 
      * Before the JTA fixes of 4.0, this interface provided a
-     * {@link org.hibernate.StatelessSession. However, as mentioned in
-     * http://jira.springframework.org/browse/SPR-2495, that interface is not
+     * {@link org.hibernate.StatelessSession}. However, as mentioned in
+     * <a href="http://jira.springframework.org/browse/SPR-2495">jira:SPR-2495</a>,
+     * that interface is not
      * currently supported in Spring's transaction management.
      */
     public interface SqlWork {
@@ -381,7 +379,7 @@ public interface Executor extends ApplicationContextAware {
         }
 
         /**
-         * Call {@link #execute(Map<String, String>, Principal, Work)}
+         * Call {@link #execute(Map, Principal, Work)}
          * with a null call context.
          */
         public Object execute(final Principal p, final Work work) {
@@ -521,11 +519,11 @@ public interface Executor extends ApplicationContextAware {
         }
 
         /**
-         * Executes a {@link SqkWork} in transaction.
+         * Executes a {@link SqlWork} in transaction.
          * 
          * @param work
          *            Non-null.
-         * @return
+         * @return See above.
          */
         public Object executeSql(final SqlWork work) {
 

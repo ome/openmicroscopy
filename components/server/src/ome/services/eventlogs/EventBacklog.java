@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -28,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * state. A newly created {@link EventBacklog} is in the adding state. The
  * popping state is entered the first time that {@link #remove()} is called. And
  * the adding state will only be re-entered, once {@link #remove()} has returned
- * null and {@link #flipIfEmpty()} has been invoked at the end of a batch.
+ * null and {@link #logs} is empty.
  * 
  * All calls to {@link #add(EventLog)} while in the popping state will return
  * false.
@@ -109,7 +107,7 @@ public class EventBacklog {
      * present. Also cleans up any tracking information for the given
      * {@link EventLog}.
      * 
-     * @return
+     * @return See above.
      */
     public synchronized EventLog remove() {
 
@@ -139,7 +137,8 @@ public class EventBacklog {
     /**
      * Flips the {@link EventBacklog} to the "adding" state if it is empty,
      * otherwise to the "removing" state. This is necessary since the indexing
-     * happens only at flush time in the {@link FullTextIndexer}. This
+     * happens only at flush time in the
+     * {@link ome.services.fulltext.FullTextIndexer}.This
      * restriction means in any one batch only either backlog or new event logs
      * will be processed.
      * 

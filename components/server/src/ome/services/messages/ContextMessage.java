@@ -35,7 +35,7 @@ public class ContextMessage extends InternalMessage {
     /**
      * Published when an internal service would like to
      * modify the current {@link ome.system.EventContext}.
-     * A {@link PopContextMessage} should be used once
+     * A {@link ContextMessage.Pop PopContextMessage} should be used once
      * the temporary login is complete.
      */
     public static class Push extends ContextMessage {

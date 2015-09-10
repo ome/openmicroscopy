@@ -145,7 +145,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /**
      * Disk Space Usage service Bean injector
      * @param iRepositoryInfo
-     *   		  	an <code>IRepositoryInfo</code>
+     *                      an <code>IRepositoryInfo</code>
      */
     public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
         getBeanHelper().throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
@@ -159,7 +159,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /**
      * ChecksumProviderFactory Bean injector
-     * @param cpf a <code>ChecksumProviderFactory</code>
+     * @param checksumProviderFactory a <code>ChecksumProviderFactory</code>
      */
     public final void setChecksumProviderFactory(
             ChecksumProviderFactory checksumProviderFactory) {
@@ -490,18 +490,18 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /**
      * getter disk overflow checking
-     * @return
+     * @return See above.
      */
-	public boolean isDiskSpaceChecking() {
-		return diskSpaceChecking;
-	}
+    public boolean isDiskSpaceChecking() {
+        return diskSpaceChecking;
+    }
 
-	/**
-	 * setter disk overflow checking
-	 * @param diskSpaceChecking
-	 *   a <code>boolean</code>
-	 */
-	public void setDiskSpaceChecking(boolean diskSpaceChecking) {
-		this.diskSpaceChecking = diskSpaceChecking;
-	}
+    /**
+     * setter disk overflow checking
+     * @param diskSpaceChecking
+     *   a <code>boolean</code>
+     */
+    public void setDiskSpaceChecking(boolean diskSpaceChecking) {
+        this.diskSpaceChecking = diskSpaceChecking;
+    }
 }

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -35,7 +33,7 @@ public class RepoFile {
      * rooted at "/".
      *
      * @param path Non-null;
-     * @return
+     * @return See above.
      */
     public static String norm(String path) {
         String s2u = separatorsToUnix(path);

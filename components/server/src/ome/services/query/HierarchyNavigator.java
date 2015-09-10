@@ -155,7 +155,7 @@ public class HierarchyNavigator {
      * Caches results, and one may bulk-cache results in advance using {@link #prepareLookups(String, String, Collection)}.
      * @param toType the type of the objects to which the query object may be related, not <code>null</code>
      * @param fromType the query object's type, not <code>null</code>
-     * @param fromIds the query object's database ID, not <code>null</code>
+     * @param fromId the query object's database ID, not <code>null</code>
      * @return the related objects' database IDs, never <code>null</code>
      */
     protected ImmutableSet<Long> doLookup(String toType, String fromType, Long fromId) {

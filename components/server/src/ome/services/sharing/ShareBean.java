@@ -134,9 +134,9 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
      * leakage (8037). Using the omero.group functionality (3529), this method
      * no longer needs to be public.
      *
-     * @see ticket:2219
-     * @see ticket:3529
-     * @see ticket:8037
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2219">ticket:2219</a>
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3529">ticket:3529</a>
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/8037">ticket:8037</a>
      */
     private Long setShareId(Long shareId) {
         String sessId = getSecuritySystem().getEventContext().getCurrentSessionUuid();
@@ -149,7 +149,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
 
     /**
-     * @see ticket:2219
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2219">ticket:2219</a>
      */
     public void resetReadFilter(org.hibernate.Session s) {
         // ticket:2397 and ticket:2219

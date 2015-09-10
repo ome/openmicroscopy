@@ -372,10 +372,10 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
-     * Pixels service Bean injector.
+     * Pixels data service Bean injector.
      *
-     * @param iPixels
-     *            an <code>IPixels</code>.
+     * @param pixelDataService
+     *            a <code>PixelsService</code>.
      */
     public void setPixelDataService(PixelsService pixelDataService) {
         getBeanHelper().throwIfAlreadySet(this.pixelDataService, pixelDataService);

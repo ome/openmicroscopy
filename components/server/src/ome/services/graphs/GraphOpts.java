@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -14,7 +12,7 @@ import ome.system.EventContext;
 /**
  * Manager for option instances for an entire action graph. As method calls are
  * made, this instance gets passed around and the appropriate {@link Op ops}
- * are {@link #push(Op) pushed} or {@link #pop() popped} changing the current
+ * are {@link #push(Op, boolean, EventContext) pushed} or {@link #pop() popped} changing the current
  * state of affairs.
  *
  * @author Josh Moore, josh at glencoesoftware.com
@@ -39,7 +37,7 @@ public class GraphOpts {
 
         /**
          * Graph is attempted, but the exceptions which would make a
-         * {@link #HARD} operation fail lead only to warnings.
+         * {@link #HARD(boolean)} operation fail lead only to warnings.
          */
         SOFT(false),
 
@@ -59,9 +57,9 @@ public class GraphOpts {
         FORCE(true),
 
         /**
-         * If more than one step points at the same {@link REAP} {@link GraphSpec}
-         * then only the last one will be interpreted as {@link HARD}, all
-         * others will be interpreted as {@link SOFT}. This gives earlier objects
+         * If more than one step points at the same {@link REAP(boolean)} {@link GraphSpec}
+         * then only the last one will be interpreted as {@link HARD(boolean)}, all
+         * others will be interpreted as {@link SOFT(boolean)}. This gives earlier objects
          * in the graph a chance to let later objects cleanup for them.
          */
         REAP(false),
@@ -96,7 +94,7 @@ public class GraphOpts {
      *
      * @param op Current {@link Op} to add to the stack
      * @param modified Whether or not the value was changed by the user
-     * @param details Active user login
+     * @param ec The event context.Active user login
      */
     public void push(Op op, boolean modified, EventContext ec) throws GraphException {
         if (op.restricted && modified && ! ec.isCurrentUserAdmin()) {

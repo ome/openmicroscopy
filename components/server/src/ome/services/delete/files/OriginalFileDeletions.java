@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Deletes all repository files immediately. Other files which are considered
- * "local" are handled later by a call to @{link {@link #deleteLocal(java.util.Map)}.
+ * "local" are handled later by a call to @{link {@link #deleteLocal()}.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 5.1.0-m3
