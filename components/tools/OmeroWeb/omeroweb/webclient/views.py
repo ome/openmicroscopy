@@ -827,6 +827,8 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
 
 def get_object_link(conn, parent_type, parent_id, child_type, child_id):
     """ This is just used internally by api_link DELETE below """
+    if parent_type == 'orphaned':
+        return None
     link_type = None
     if parent_type == 'experimenter':
         if child_type == 'dataset' or child_type == 'plate':
@@ -951,8 +953,7 @@ def api_link(request, conn=None, **kwargs):
                                long(json_data['child_id']))
         # If the link exists delete it
         if link is not None:
-            if link != 'orphan':
-                conn.deleteObjectDirect(link)
+            conn.deleteObjectDirect(link)
         # If it was deleted then that is a success. Equally if 'orphan', it
         # didn't exist and the end result is correct, so mark it as a
         # success.
