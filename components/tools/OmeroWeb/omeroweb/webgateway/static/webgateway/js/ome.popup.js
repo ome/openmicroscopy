@@ -849,6 +849,10 @@ OME.login_dialog = function(login_url, callback) {
                                     $header.addClass('sorted-desc');
                                 }
                             });
+                        // In this case, we sort by this column during plugin init.
+                        if ($header.is('.sort-init')) {
+                            $header.click();
+                        }
                     }
                 });
 

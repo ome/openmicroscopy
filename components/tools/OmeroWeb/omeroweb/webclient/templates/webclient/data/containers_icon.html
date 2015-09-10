@@ -395,6 +395,7 @@
             $("#filtersearch label").inFieldLabels();
 
             // simple emulation of table-sorter for other elements...
+            // performs sort when intialised on 'sort-init' column
             $(".element_sorter").elementsorter({
                 head: '.thead div',             // Selector for the equivalent of 'table head'
                 body: 'li.row',                 // Selector for the equivalent of 'table rows'
@@ -448,8 +449,8 @@
     <ul id="dataIcons" class="element_sorter iconLayout">
         <li class="thead"> 
             <div></div> 
-            <!-- 'sorted-asc' since data is already sorted by name -->
-            <div class='sort-alpha sorted-asc'>{% trans "Name" %}</div>
+            <!-- 'sort-init' will perform sort on this column when element_sorter plugin inits -->
+            <div class='sort-alpha sort-init'>{% trans "Name" %}</div>
             <div class='sort-date'>{% trans "Date" %}</div> 
             <div class='sort-numeric'>{% trans "Size X" %}</div> 
             <div class='sort-numeric'>{% trans "Size Y" %}</div> 
