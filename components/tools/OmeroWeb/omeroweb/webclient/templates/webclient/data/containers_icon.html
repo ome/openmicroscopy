@@ -208,6 +208,8 @@
                         }
                         var selectedNode = datatree.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
                         datatree.select_node(selectedNode, true);
+                        // we also focus the node, so that hotkey events come from the node
+                        $("#" + selectedNode.id).children('.jstree-anchor').focus();
                     });
                 } else {
                     console.log('jstree may need to be refreshed');
