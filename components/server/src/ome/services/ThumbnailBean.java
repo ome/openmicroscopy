@@ -127,7 +127,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** If the renderer is dirty. */
     private Boolean dirty = true;
 
-    /** If the settings {@link metadata} is dirty. */
+    /** If the settings {@link #ctx} is dirty. */
     private Boolean dirtyMetadata = false;
 
     /** The pixels instance that the service is currently working on. */

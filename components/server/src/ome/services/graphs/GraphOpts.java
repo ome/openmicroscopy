@@ -29,7 +29,7 @@ public class GraphOpts {
 
         /**
          * Default operation. If an action is not possible, i.e. it fails with a
-         * {@link org.hibernate.exception.ConstraintViolationException} or
+         * {@code ConstraintViolationException} or
          * similar, then the failure will cause the entire command to fail as an
          * error.
          */
@@ -37,7 +37,7 @@ public class GraphOpts {
 
         /**
          * Graph is attempted, but the exceptions which would make a
-         * {@link #HARD(boolean)} operation fail lead only to warnings.
+         * {@link ome.services.graphs.GraphOpts.Op#HARD} operation fail lead only to warnings.
          */
         SOFT(false),
 
@@ -57,10 +57,15 @@ public class GraphOpts {
         FORCE(true),
 
         /**
-         * If more than one step points at the same {@link REAP(boolean)} {@link GraphSpec}
-         * then only the last one will be interpreted as {@link HARD(boolean)}, all
-         * others will be interpreted as {@link SOFT(boolean)}. This gives earlier objects
-         * in the graph a chance to let later objects cleanup for them.
+         * If more than one step points at the same
+         * {@link ome.services.graphs.GraphOpts.Op#REAP}
+         * {@link GraphSpec}
+         * then only the last one will be interpreted as
+         * {@link ome.services.graphs.GraphOpts.Op#HARD}, all
+         * others will be interpreted as
+         * {@link ome.services.graphs.GraphOpts.Op#SOFT}.
+         * This gives earlier objects in the graph a chance to let later objects
+         * cleanup for them.
          */
         REAP(false),
 

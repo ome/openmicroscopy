@@ -127,7 +127,7 @@ public class FullTextThread extends ExecutionThread {
 
     /**
      * Passes the {@link FullTextIndexer} instance to
-     * {@link Executor.Work#doWork(org.hibernate.Session, ome.system.ServiceFactory)}
+     * {@link ome.services.util.Executor.Work#doWork(Session, ServiceFactory)}
      * between calls to {@link DetailsFieldBridge#lock()} and
      * {@link DetailsFieldBridge#unlock()} in order to guarantee that no other
      * {@link org.hibernate.search.bridge.FieldBridge} can edit the property.

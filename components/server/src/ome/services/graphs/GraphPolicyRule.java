@@ -74,7 +74,7 @@ public class GraphPolicyRule {
     }
 
     /**
-     * @param change the changes caused by this policy rule, comma-separated
+     * @param changes the changes caused by this policy rule, comma-separated
      */
     public void setChanges(String changes) {
         this.changes = ImmutableList.copyOf(changes.split(",\\s*"));

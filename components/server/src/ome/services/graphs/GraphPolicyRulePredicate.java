@@ -35,7 +35,7 @@ public interface GraphPolicyRulePredicate {
     String getName();
 
     /**
-     * Once this instance is submitted to {@link GraphPolicy#registerPredicate(GraphPolicyPredicate)} then this method is called by
+     * Once this instance is submitted to {@link GraphPolicy#registerPredicate(GraphPolicyRulePredicate)} then this method is called by
      * {@link GraphPolicy#noteDetails(org.hibernate.Session, IObject, String, long)}.
      * @param session the Hibernate session, for obtaining more information about the object
      * @param object an unloaded model object that may satisfy this predicate

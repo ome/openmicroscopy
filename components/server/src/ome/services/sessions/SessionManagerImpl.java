@@ -489,9 +489,9 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     /**
      * Takes a snapshot as from
-     * {@link #executeSessionContextLookup(ServiceFactory, Principal)} and turns
-     * it into a {@link SessionContext} instance. List argument should never be
-     * null. Abort if
+     * {@link #executeSessionContextLookup(ServiceFactory, Principal, Session)}
+     * and turns it into a {@link SessionContext} instance.
+     * List argument should never be null. Abort if
      * {@link #executeSessionContextLookup(ServiceFactory, Principal, Session)}
      * returns null.
      */

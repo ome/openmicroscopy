@@ -126,9 +126,10 @@ public interface Executor extends ApplicationContextAware {
     /**
      * Simple submission method which can be used in conjunction with a call to
      * {@link #execute(Principal, Work)} to overcome the no-multiple-login rule.
-     *
+     * 
+     * @param <T>
      * @param callContext Possibly null. See {@link CurrentDetails#setContext(Map)}
-     * @param callable. Not null. Action to be taken.
+     * @param callable Not null. Action to be taken.
      * @return See above.
      */
     public <T> Future<T> submit(final Map<String, String> callContext,
@@ -138,7 +139,7 @@ public interface Executor extends ApplicationContextAware {
      * Simple submission method with a {@link Priority}.
      *
      * @param prio Possibly null. See {@link #submit(Priority, Map, Callable)}
-     * @param callable. Not null. Action to be taken.
+     * @param callable Not null. Action to be taken.
      * @return See above.
      */
     public <T> Future<T> submit(final Priority prio,
@@ -150,7 +151,7 @@ public interface Executor extends ApplicationContextAware {
      *
      * @param prio Possibly null. Priority for execution. Default: {@link Priority#USER}
      * @param callContext Possibly null. See {@link CurrentDetails#setContext(Map)}
-     * @param callable. Not null. Action to be taken.
+     * @param callable Not null. Action to be taken.
      * @return See above.
      */
     public <T> Future<T> submit(Priority prio,
@@ -183,7 +184,7 @@ public interface Executor extends ApplicationContextAware {
      *
      * @param work
      *            Non-null.
-     * @return
+     * @return See above.
      */
     public Object executeSql(final SqlWork work);
 
@@ -389,7 +390,7 @@ public interface Executor extends ApplicationContextAware {
         /**
          * Executes a {@link Work} instance wrapped in two layers of AOP. The
          * first is intended to acquire the proper arguments for
-         * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} for
+         * {@link Work#doWork(Session, ServiceFactory)} for
          * the {@link OmeroContext}, and the second performs all the standard
          * service actions for any normal method call.
          *
