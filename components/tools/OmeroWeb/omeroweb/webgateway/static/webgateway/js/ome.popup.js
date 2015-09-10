@@ -300,7 +300,7 @@ OME.openScriptWindow = function(event, width, height) {
                 var li = $(this).parents("li").first();
                 var oid = li.attr('id').split('-')[1];
                 fileAnnotationIds.push(oid);
-            })
+            });
             args.push("File_Annotation=" + fileAnnotationIds.join(","));
         }
         script_url += "?" + args.join("&");
@@ -361,15 +361,16 @@ OME.getParentId = function() {
 
     var selected = datatree.get_selected(true);
     if (selected.length == 1) {
-        var node = selected[0];
+        var node = selected[0],
+            parentNode;
 
         if (node.type === 'acquisition') {
-            var parentNode = datatree.get_node(datatree.get_parent(node));
+            parentNode = datatree.get_node(datatree.get_parent(node));
             return parentNode.type + '-' + parentNode.data.obj.id;
         } else if (node.type === 'plate') {
             return node.type + '-' + node.data.obj.id;
         } else if  (node.type === 'image') {
-            var parentNode = datatree.get_node(datatree.get_parent(node));
+            parentNode = datatree.get_node(datatree.get_parent(node));
             if (parentNode.type === 'dataset') {
                 return parentNode.type + '-' + parentNode.data.obj.id;
             }
@@ -501,7 +502,7 @@ OME.feedback_dialog = function(error, feedbackUrl) {
 OME.setupAjaxError = function(feedbackUrl){
 
     $(document).ajaxError(function(e, req, settings, exception) {
-
+        var error;
         if (req.status == 404) {
             var msg = "Url: " + settings.url + "<br/>" + req.responseText;
             OME.confirm_dialog(msg, null, "404 Error", ["OK"], 360, 200);
@@ -510,13 +511,13 @@ OME.setupAjaxError = function(feedbackUrl){
             window.location.reload();
         } else if (req.status == 500) {
             // Our 500 handler returns only the stack-trace if request.is_json()
-            var error = req.responseText;
+            error = req.responseText;
             OME.feedback_dialog(error, feedbackUrl);
         } else if (req.status == 400) {
             // 400 Bad Request. Usually indicates some invalid parameter, e.g. an invalid group id
             // Usually indicates a problem with the webclient rather than the server as the webclient
             // requested something invalid
-            var error = req.responseText;
+            error = req.responseText;
             OME.feedback_dialog(error, feedbackUrl);
         }
     });
@@ -797,7 +798,7 @@ OME.login_dialog = function(login_url, callback) {
                     };
                     if ($header.is('.sort-alpha')) {
                         findSortKey = function($cell) {
-                            return findSortText($cell).toUpperCase();
+                            return findSortText($cell).toLowerCase();
                         };
                     } else if ($header.is('.sort-numeric')) {
                         findSortKey = function($cell) {
@@ -822,18 +823,17 @@ OME.login_dialog = function(login_url, callback) {
                                 var rows = $(options.body, $this).get();
                                 // populate each row with current sort key
                                 $.each(rows, function(index, row) {
-                                    var $cell = $(row).children().eq(column);
+                                    var $row = $(row),
+                                        $cell = $row.children().eq(column);
                                     row.sortKey = findSortKey($cell);
+                                    row.dataId = $row.attr('data-id');
                                 });
                                 // Do the sorting...
                                 rows.sort(function(a, b){
-                                    if (a.sortKey < b.sortKey) {
-                                        return -sortDirection;
+                                    if (a.sortKey === b.sortKey) {
+                                        return a.dataId <= b.dataId ? -sortDirection : sortDirection;
                                     }
-                                    if (a.sortKey > b.sortKey) {
-                                        return sortDirection;
-                                    }
-                                    return 0;
+                                    return a.sortKey < b.sortKey ? -sortDirection : sortDirection;
                                 });
                                 // add rows to DOM in order
                                 $.each(rows, function(index, row) {
