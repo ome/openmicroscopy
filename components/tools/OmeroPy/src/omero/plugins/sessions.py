@@ -552,10 +552,14 @@ class SessionsControl(BaseControl):
         host = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
 
-        msg = "%s session %s (%s@%s:%s)." \
-            % (action, uuid, ec.userName, host, port)
-        msg += self._parse_timeout(idle, " Idle timeout: ")
-        msg += self._parse_timeout(live, " Expires in : ")
+        msg = ("%s session %s (%s@%s:%s)." %
+               (action, uuid, ec.userName, host, port))
+        idlemsg = self._parse_timeout(idle, " Idle timeout: ")
+        if idlemsg:
+            msg += idlemsg + "."
+        livemsg = self._parse_timeout(live, " Expires in: ")
+        if livemsg:
+            msg += livemsg + "."
 
         msg += (" Current group: %s" % ec.groupName)
 
