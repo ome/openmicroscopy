@@ -23,6 +23,7 @@ from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
 import pytest
+import getpass
 
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
@@ -58,9 +59,10 @@ class TestSessions(CLITest):
         string += ' Current group: %s\n' % ec.groupName
         return string
 
-    def check_session(self, timetoidle=None, timetolive=None):
-        sessionUuid = self.cli.get_event_context().sessionUuid
-        sess = self.sf.getSessionService().getSession(sessionUuid)
+    def check_session(self, uuid=None, timetoidle=None, timetolive=None):
+        if not uuid:
+            uuid = self.cli.get_event_context().sessionUuid
+        sess = self.sf.getSessionService().getSession(uuid)
         if timetoidle:
             assert sess.getTimeToIdle().getValue() == timetoidle
         if timetolive:
@@ -290,17 +292,37 @@ class TestSessions(CLITest):
     # ========================================================================
     def testCreateToken(self, capsys):
 
-        user = self.new_user()
-        self.set_login_args(user)
-        self.args += ["-w", user.omeName.val]
-        self.cli.invoke(self.args, strict=True)
+        username = self.user.omeName.val
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+
+        # Token creation requires a password input
+        self.setup_mock()
+        self.mox.StubOutWithMock(getpass, 'getpass')
+        getpass.getpass('Password:').AndReturn(username)
+        self.mox.ReplayAll()
 
         self.args = ["sessions", "createtoken"]
+        self.args += ["-s", host, "-p", port, "-u", username]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-        assert o == "%s\n" % self.cli.get_event_context().sessionUuid
-
         self.check_session(o, timetoidle=0, timetolive=10)
+
+    def testCreateTokenFailsWithKey(self, capsys):
+
+        # Test basic connection logic using credentials
+        self.set_login_args(self.user)
+        self.args += ["-w", self.user.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Token creation requires a password input
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        ec = self.cli.get_event_context()
+
+        self.args = ["sessions", "createtoken"]
+        self.args += ["-s", host, "-p", port, "-k", ec.sessionUuid]
+        self.cli.invoke(self.args, strict=True)
 
     # who subcommand
     # ========================================================================
