@@ -22,7 +22,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
  * Methods for dealing with the preparation of JavaMail MIME messages.
  * The corresponding send methods of JavaMailSender will take care of the actual
  * creation of a MimeMessage instance. Used primarily by asynchronous Ice
- * services: {@link omero.cmd.mail.SendEmailRequestI}.
+ * services: {@code omero.cmd.mail.SendEmailRequestI}.
  *
  * @author Aleksandra Tarkowska, A (dot) Tarkowska at dundee.ac.uk
  * @since 5.1.0

@@ -32,14 +32,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 
 /**
  * Base class for building custom {@link FieldBridge} implementations.
- * 
- * To force handling of null values, the
- * {@link #add(Document, String, String, LuceneOptions)}
- * methods throw {@link NullValueException} which can convert itself to a
- * {@link RuntimeException} via {@link NullValueException#convert(Object)} if
- * that is the simplest course of action. Alternatively, you could re-add the
- * value with a null-token like "null".
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -51,9 +44,8 @@ public abstract class BridgeHelper implements FieldBridge,
      * also the default search field, so users need not append the value to
      * search the full index. A field name need only be added to a search to
      * eliminate other fields.
-     * 
-     * TODO add to constants
      */
+    //TODO add to constants
     public final static String COMBINED = "combined_fields";
 
     /**

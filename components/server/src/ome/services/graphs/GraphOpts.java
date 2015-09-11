@@ -17,7 +17,6 @@ import ome.system.EventContext;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
- * @see IGraph
  * @deprecated will be removed in OMERO 5.3, so use the
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
@@ -44,8 +43,8 @@ public class GraphOpts {
         /**
          * Prevents the action from being carried out. If an entry has a subspec,
          * then the entire subgraph will not be processed. In some cases,
-         * specifically {@link AnnotationGraphSpec} this value may be
-         * vetoed by {@link GraphSpec#overrideKeep()}.
+         * specifically when traversing the annotations graph, this value may be
+         * vetoed and the annotations will be kept.
          */
         KEEP(false),
 
@@ -59,7 +58,6 @@ public class GraphOpts {
         /**
          * If more than one step points at the same
          * {@link ome.services.graphs.GraphOpts.Op#REAP}
-         * {@link GraphSpec}
          * then only the last one will be interpreted as
          * {@link ome.services.graphs.GraphOpts.Op#HARD}, all
          * others will be interpreted as
