@@ -1036,10 +1036,7 @@ public class OMEROMetadataStoreClient
      */
     public RInt toRType(Color value)
     {
-        java.awt.Color javaColor = new java.awt.Color(
-                value.getRed(), value.getGreen(), value.getBlue(),
-                value.getAlpha());
-        return toRType(javaColor.getRGB());
+        return toRType(value.getValue());
     }
 
     //
