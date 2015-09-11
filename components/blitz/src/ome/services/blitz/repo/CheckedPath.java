@@ -79,11 +79,12 @@ public class CheckedPath {
 
     /**
      * Adjust an FsFile to remove "." components and to remove ".." components with the previous component.
-     * TODO: May not actually be necessary.
+     *
      * @param fsFile a file path
      * @return a file path with "." and ".." processed away
      * @throws ValidationException if ".." components rise above root
      */
+    // TODO: May not actually be necessary.
     private FsFile processSpecialDirectories(FsFile fsFile) throws ValidationException {
         final List<String> oldComponents = fsFile.getComponents();
         final Deque<String> newComponents = new ArrayDeque<String>(oldComponents.size());

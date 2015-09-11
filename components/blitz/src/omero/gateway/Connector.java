@@ -21,7 +21,6 @@
  */
 package omero.gateway;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -101,8 +100,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.Session;
 import omero.sys.Principal;
 
-
-
 /** 
  * Manages the various services and entry points.
  *
@@ -172,10 +169,9 @@ class Connector
     /**
      * The map of derived connector. This will be only used when
      * performing action for other users e.g. import as.
-     *
-     * TODO: this should be reviewed, since if getConnector(String) is used
-     * outside of the import process there could be a race condition.
      */
+    //TODO: this should be reviewed, since if getConnector(String) is used
+    //outside of the import process there could be a race condition.
     private final Cache<String, Connector> derived;
 
     /** The name of the group. To be removed when we can use groupId.*/
@@ -612,10 +608,10 @@ class Connector
     }
 
     /**
-     * Closes the services initialized by the importer
-     * TODO: along with the TODO on derived, this will need to be reviewed
-     * for race conditions.
-     **/
+     * Closes the services initialized by the importer.
+     */
+     //TODO: along with the TODO on derived, this will need to be reviewed
+     //for race conditions.
      void closeImport()
     {
         shutdownImports();

@@ -20,9 +20,9 @@ import Ice.ObjectAdapter;
 /**
  * Standalone repository service.
  *
- * TODO Better named "StandaloneRepositoryI"
  * @since Beta4.1
  */
+//TODO Better named "StandaloneRepositoryI"
 public class InternalRepositoryI extends AbstractRepositoryI {
 
     private final static Logger log = LoggerFactory.getLogger(InternalRepositoryI.class);
@@ -32,9 +32,7 @@ public class InternalRepositoryI extends AbstractRepositoryI {
         super(oa, reg, ex, p, repoDir, servant);
     }
 
-    /**
-     * TODO CACHING
-     */
+    //TODO CACHING
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {
 

@@ -483,10 +483,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     /**
      * Set the repository of the given original file to be this one.
-     * TODO: Should be refactored elsewhere.
      * @param originalFile the ID of the log file
      * @param current the Ice method invocation context
      */
+    //TODO: Should be refactored elsewhere.
     @Deprecated
     protected ome.model.core.OriginalFile persistLogFile(final ome.model.core.OriginalFile originalFile, Ice.Current current)
                 throws ServerError {
