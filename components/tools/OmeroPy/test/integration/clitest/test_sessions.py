@@ -322,7 +322,8 @@ class TestSessions(CLITest):
 
         self.args = ["sessions", "createtoken"]
         self.args += ["-s", host, "-p", port, "-k", ec.sessionUuid]
-        self.cli.invoke(self.args, strict=True)
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     # who subcommand
     # ========================================================================

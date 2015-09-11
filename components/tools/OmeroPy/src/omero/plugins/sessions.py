@@ -869,6 +869,8 @@ class SessionsControl(BaseControl):
 
         # Force password beased authentication
         args.create = True
+        if args.key:
+            self.ctx.die(22, "Tokens cannot be created using a session key")
         client = self.ctx.conn(args)
 
         # Create a token with the input expiration time
