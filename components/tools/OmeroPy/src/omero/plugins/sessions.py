@@ -253,6 +253,7 @@ class SessionsControl(BaseControl):
         createtoken.add_argument(
             "--expiration", type=long, default=3600*24*30,
             help="Expiration time in seconds for this token. Default: 30 days")
+        createtoken.add_login_arguments()
 
         for x in (file, key, logout, keepalive, list, clear, group):
             self._configure_dir(x)
