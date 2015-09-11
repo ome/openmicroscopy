@@ -869,14 +869,11 @@ class SessionsControl(BaseControl):
         # Force password beased authentication
         args.create = True
         client = self.ctx.conn(args)
+
+        # Create a token with the input expiration time
         ec = client.sf.getAdminService().getEventContext()
-
-        # A token does not idle
-        timeToIdle = 0
-        timeToLive = args.expiration * 1000
-
-        sess = client.sf.getSessionService().createUserSession(
-            timeToLive, timeToIdle, ec.groupName)
+        sess = client.sf.getSessionService().createToken(
+            args.expiration * 1000, ec.groupName)
 
         self.ctx.out(sess.uuid.val)
 
