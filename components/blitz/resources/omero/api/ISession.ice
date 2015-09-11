@@ -36,6 +36,9 @@ module omero {
                 omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds, string defaultGroup)
                 throws ServerError, Glacier2::CannotCreateSessionException;
 
+                omero::model::Session createToken(long timeToLiveMilliseconds, string defaultGroup)
+                throws ServerError, Glacier2::CannotCreateSessionException;
+
                 //
                 // System users
                 //

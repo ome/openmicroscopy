@@ -53,7 +53,18 @@ public interface ISession extends ServiceInterface {
             long timeToIdleMillisecond, String defaultGroup);
 
     /**
-     * Allows an admin to create a {@link Session} for the give
+     * Allows a user to create a token, i.e. a session which does not timeout
+     * due to inactivity, for himself.
+     *
+     * @param timeToLiveMillseconds
+     *            The time that this {@link Session} has until destruction.
+     * @param defaultGroup
+     *            The default group associated with the token.
+     */
+    Session createToken(long timeToLiveMilliseconds, String defaultGroup);
+
+    /**
+     * Allows an admin to create a {@link Session} for the given
      * {@link Principal}
      * 
      * @param principal
