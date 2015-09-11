@@ -42,7 +42,7 @@ from omero.rtypes import rlong
 from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
-from omero.cli import BaseControl, CLI
+from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero_ext.argparse import SUPPRESS
 
 HELP = """Control and create user sessions
@@ -192,6 +192,8 @@ class SessionsControl(BaseControl):
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
+        self.exc = ExceptionHandler()
+
         parser.add_login_arguments()
         sub = parser.sub()
         parser.add(sub, self.help, "Extended help")
@@ -875,8 +877,11 @@ class SessionsControl(BaseControl):
 
         # Create a token with the input expiration time
         ec = client.sf.getAdminService().getEventContext()
-        sess = client.sf.getSessionService().createToken(
-            args.expiration * 1000, ec.groupName)
+        try:
+            sess = client.sf.getSessionService().createToken(
+                args.expiration * 1000, ec.groupName)
+        except Ice.RequestFailedException as rfe:
+            self.ctx.die(535, self.exc.handle_failed_request(rfe))
 
         self.ctx.out(sess.uuid.val)
 
