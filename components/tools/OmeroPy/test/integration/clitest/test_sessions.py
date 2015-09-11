@@ -23,7 +23,6 @@ from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
 import pytest
-import getpass
 
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
@@ -59,7 +58,7 @@ class TestSessions(CLITest):
         string += ' Current group: %s\n' % ec.groupName
         return string
 
-    def check_session(self, uuid=None, timetoidle=None, timetolive=None):
+    def check_session(self, uuid=None, timetoidle=None, timetolive=0):
         if not uuid:
             uuid = self.cli.get_event_context().sessionUuid
         sess = self.sf.getSessionService().getSession(uuid)
@@ -290,23 +289,28 @@ class TestSessions(CLITest):
 
     # Createtoken subcommand
     # ========================================================================
-    def testCreateToken(self, capsys):
+    @pytest.mark.parametrize('expiration', [None, 1000])
+    def testCreateToken(self, capsys, expiration):
 
-        username = self.user.omeName.val
+        user = self.new_user()
+        username = user.omeName.val
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
 
         # Token creation requires a password input
-        self.setup_mock()
-        self.mox.StubOutWithMock(getpass, 'getpass')
-        getpass.getpass('Password:').AndReturn(username)
-        self.mox.ReplayAll()
-
         self.args = ["sessions", "createtoken"]
-        self.args += ["-s", host, "-p", port, "-u", username]
+        self.args += ["-s", host, "-p", port, "-u", username, "-w", username]
+        if expiration:
+            self.args += ["--expiration", "%s" % expiration]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-        self.check_session(o, timetoidle=0, timetolive=10)
+        token_key = o.split('\n')[0]
+
+        if expiration:
+            timetolive = 1000L * expiration
+        else:
+            timetolive = 1000L * 3600 * 24 * 30
+        self.check_session(token_key, timetoidle=0, timetolive=timetolive)
 
     def testCreateTokenFailsWithKey(self, capsys):
 
