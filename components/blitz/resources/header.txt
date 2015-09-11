@@ -9,13 +9,13 @@
 TITLE
         </title>
         <style media="screen" type="text/css">
-@import "http://hudson.openmicroscopy.org.uk/userContent/styleForAPI.css";
+@import "http://downloads.openmicroscopy.org/resources/styleForAPI.css";
         </style>
     </head>
     <body>
        <div id="wrapper">
           <div id="banner">
-             <img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME-XML">
+             <img src="http://downloads.openmicroscopy.org/resources/ome_docs_trac_banner.png" alt="OME-XML">
           </div>
           <div id="version-top"><p>Version: @VERSION@</p></div>
           <div id="doc-name-right" style="position: absolute;top: 117px;right: 25px;font-size: 24px;font-weight: bold;"><b>OmeroBlitz API</b></div>

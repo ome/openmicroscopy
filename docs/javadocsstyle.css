@@ -92,7 +92,7 @@ div#omero-spacer table tbody tr td.NavBarCell1 table tbody tr td.NavBarCell1{
 body table tbody tr td.NavBarCell1 {
 	padding-top:71px;
 	background-color: #000066;
-	background-image: url(http://ci.openmicroscopy.org/userContent/ome_trac_back_top.png);
+	background-image: url(http://downloads.openmicroscopy.org/resources/ome_trac_back_top.png);
 	background-repeat: no-repeat;
 	background-position: top right;
 margin: 2px 0px 2px 0px;
@@ -129,7 +129,7 @@ div#doc-name-right {
 .topNav {
 	padding-top:71px;
 	background-color: #000066;
-	background-image: url(http://ci.openmicroscopy.org/userContent/ome_trac_back_top.png);
+	background-image: url(http://downloads.openmicroscopy.org/resources/ome_trac_back_top.png);
 	background-repeat: no-repeat;
 	background-position: top right;
 margin: 2px 0px 2px 0px;
