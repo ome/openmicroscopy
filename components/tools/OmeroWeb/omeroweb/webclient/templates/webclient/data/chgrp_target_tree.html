@@ -22,9 +22,6 @@
 -->
 {% endcomment %}
 
-
-<link rel="stylesheet" href="{% static "3rdparty/jquery.jstree-1.0-rc3/themes/default/style.css" %}" type="text/css" media="screen"/>
-
 {% if manager.containers.projects or manager.containers.datasets %}
 <h1>Choose target {{ target_type|capfirst }} in new Group:</h1>
 
@@ -65,7 +62,6 @@
 
     <!-- Orphaned datasets (if target=='dataset') -->
     {% ifequal target_type 'dataset' %}
-        
         {% for c in manager.containers.datasets %}
             <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last">
                 <ins class="jstree-icon" style="height:10px"></ins>

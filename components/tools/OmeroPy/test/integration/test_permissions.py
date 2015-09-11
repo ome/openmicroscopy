@@ -127,9 +127,10 @@ class TestPermissions(lib.ITest):
 
         # But can the user write anything?
         tag = TagAnnotationI()
-        sf.getUpdateService().saveObject(tag)
+        tag = sf.getUpdateService().saveAndReturnObject(tag)
         # And link?
         # And edit? cF. READ-ONLY & READ-LINK
+        sf.getUpdateService().deleteObject(tag)
 
     def testLinkingInPrivateGroup(self):
 

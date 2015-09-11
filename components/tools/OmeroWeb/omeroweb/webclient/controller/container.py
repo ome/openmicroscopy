@@ -393,12 +393,14 @@ class BaseContainer(BaseController):
         pa_list = list(self.conn.getObjectsByAnnotations(
             'PlateAcquisition', [self.tag.id]))
 
-        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        im_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        pa_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        def sortKeys(x):
+            return (x.getName() and x.getName().lower() or " ", x.id)
+        pr_list.sort(key=lambda x: sortKeys(x))
+        ds_list.sort(key=lambda x: sortKeys(x))
+        im_list.sort(key=lambda x: sortKeys(x))
+        sc_list.sort(key=lambda x: sortKeys(x))
+        pl_list.sort(key=lambda x: sortKeys(x))
+        pa_list.sort(key=lambda x: sortKeys(x))
 
         self.containers = {
             'projects': pr_list,
@@ -415,11 +417,12 @@ class BaseContainer(BaseController):
         if eid is not None:
             if eid == -1:       # Load data for all users
                 eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
+            # else:
+            #     self.experimenter = self.conn.getObject("Experimenter", eid)
         im_list = list(self.conn.listImagesInDataset(
             oid=did, eid=eid, page=page, load_pixels=load_pixels))
-        im_list.sort(key=lambda x: x.getName().lower())
+        # List is already sorted by name, id in query
+        # im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
         self.containers = {'images': im_list}
         self.c_size = self.conn.getCollectionCount(
             "Dataset", "imageLinks", [long(did)])[long(did)]
@@ -468,7 +471,7 @@ class BaseContainer(BaseController):
             params.page((int(page)-1)*settings.PAGE, settings.PAGE)
         im_list = list(self.conn.listOrphans(
             "Image", eid=eid, params=params, loadPixels=True))
-        im_list.sort(key=lambda x: x.getName().lower())
+        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
         self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
 

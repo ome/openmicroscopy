@@ -55,11 +55,12 @@ Wait For Toolbar Button Disabled
     Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}      Element Should Be Disabled     id=${buttonId}
     Page Should Contain Element     xpath=//button[@id='${buttonId}'][contains(@class, 'button-disabled')]
 
-Right Click Rendering Settings
-    [Arguments]            ${treeId}        ${optionText}
+Right Click Image Rendering Settings
+    [Arguments]            ${imageId}       ${optionText}
+    ${treeId}=                              Wait For Image Node           ${imageId}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
-    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
-    Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "${optionText}")]
+    Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Rendering Settings...')]
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
     Click Dialog Button                     OK
 
 *** Test Cases ***
@@ -128,7 +129,7 @@ Test Rdef Copy Paste Save
     Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image
-    Click Element                           xpath=//li[@id='image-${imageId}']/following-sibling::li/a
+    Click Next Thumbnail
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
 
     # Images should be compatible, so 'Paste' should become enabled.
@@ -170,8 +171,8 @@ Test Owners Rdef
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
 
-    # Get Id for next Image
-    Click Element                           xpath=//li[@id='image-${imageId}']/following-sibling::li/a
+    # Click next thumbnail and get the image ID
+    Click Next Thumbnail
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Click Link                              General
     ${imageId_2}=                           Wait For General Panel And Return Id      Image
@@ -223,7 +224,7 @@ Test Owners Rdef
     # Test 'Paste and Save' with right-click on different Image in tree
     # (check thumb refresh by change of src)
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/img@src
-    Right Click Rendering Settings          image-${imageId_2}            Paste and Save
+    Right Click Image Rendering Settings    ${imageId_2}            Paste and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId_2}
@@ -233,7 +234,7 @@ Test Owners Rdef
 
     # Test Set Owner's in same way on first Image
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img@src
-    Right Click Rendering Settings          image-${imageId}            Set Owner's and Save
+    Right Click Image Rendering Settings    ${imageId}            Set Owner's and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
@@ -243,7 +244,7 @@ Test Owners Rdef
 
     # Test "Set Imported" on first Image
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img@src
-    Right Click Rendering Settings          image-${imageId}            Set Imported and Save
+    Right Click Image Rendering Settings    ${imageId}            Set Imported and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
@@ -256,7 +257,7 @@ Test Owners Rdef
 
     # Bit more reliable with this, but try to remove it if possible...
 
-    Go To                                   ${WELCOME URL}img_detail/${imageId}
+    Go To                                   ${WELCOME URL}img_detail/${imageId}/
     Wait Until Page Contains Element        id=wblitz-ch0
     ${checked1}=                            Checkbox Should Be Selected  id=wblitz-rmodel
     Click Element                           id=wblitz-rmodel

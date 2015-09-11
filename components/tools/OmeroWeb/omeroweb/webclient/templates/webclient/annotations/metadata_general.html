@@ -21,7 +21,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 {% endcomment %}
-
     <script type="text/javascript">
         
         $(document).ready(function()
@@ -430,9 +429,17 @@
 
                 // Channel name editing
             {% if manager.image or manager.well.getWellSample.image %}
+
                 var $chNameForm = $("#channel_names_edit");
                 // set up form with Parent
-                var pid = OME.getParentId();    // E.g. dataset-123 OR plate-456
+                {% if manager.well %}
+                // If we're looking at a well we know parent is plate
+                  var pid = "plate-{{ manager.well.plate.id.val }}";
+                {% else %}
+                  // For images in Datasets, we get parent from jsTree, using selected image
+                  // E.g. dataset-123
+                  var pid = OME.getParentId();
+                {% endif %}
                 if (typeof pid === "undefined") {
                     $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
                 } else {
@@ -696,26 +703,6 @@
                 {% with obj=manager.acquisition nameText=manager.acquisition.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-                
-
-                <h2 class="data_heading_id">
-                    Plate Run ID: <strong>{{ manager.acquisition.id }}</strong>
-                    <!-- open link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Acquisition">
-                        <span></span>
-                    </button>
-                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                        <input type="text" size="30">
-                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                    </div>
-                </h2>
-                <table style="float:left; width:100px; clear:left">
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
-                    </tr>
-                </table>
-                <div style="clear: both"></div>
 
                 <hr/>
                 

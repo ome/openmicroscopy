@@ -33,22 +33,30 @@
     <script type="text/javascript">
 
         function changeField(field) {
+            var datatree = $.jstree.reference('#dataTree');
             var $container = $("#content_details");
-            var rel = $container.attr('rel').split("-");
-            var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
-            // let the parent node keep track of current index
-            $parent.data("well_index", field);
-            // If a well is selected, add this data to the parent node too
-            // (handled in center_plugin.thumbs.js.html)
-            var $selWell = $('td.ui-selected:first');
-            if ($selWell.length > 0) {
-                $parent.data("well_id", $selWell.attr('id').replace('well-', ''));
+
+            var containerType = $container.data('type');
+            var containerId = $container.data('id');
+            var containerPath = $container.data('path');
+            containerPath = JSON.parse(containerPath);
+            var containerNode = datatree.find_omepath(containerPath);
+
+            if (!containerNode) {
+                console.log('WARNING: Had to guess container');
+                containerNode = OME.getTreeBestGuess(containerType, containerId);
             }
-            // this will cause center and right panels to update
-            $parent.children("a:eq(0)").click();
+
+            // Set the field for that node in the tree and reload the tree section
+            datatree.set_field(containerNode, field);
+
+            // Reselect the same node to trigger update
+            datatree.deselect_all(true);
+            datatree.select_node(containerNode);
+
             return false;
         }
-        
+
         var primaryIndex = -1;
         var handleClickSelection = function(event, target) {
             
@@ -90,13 +98,26 @@
         }
         
         $(document).ready(function() {
+
+            var syncTreeSelection = function(selected, idx, perms) {
+                // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
+                var datatree = $.jstree.reference('#dataTree');
+                datatree.deselect_all(true);
+                // Update the buttons in the jstree
+                if (buttonsShowHide) {
+                    buttonsShowHide(datatree.get_selected(true), datatree);
+                }
+                // Calls to ome.webclient.actions.js
+                OME.well_selection_changed(selected, idx, perms);
+            };
+
             wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
                 handleClickSelection(event);
                 var $selected = $('td.ui-selected', wpv.self);
-                OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
+                syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
             });
             $( '#spw' ).on( "dblclick", "td.well img", function(event) {
                 OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
@@ -107,7 +128,7 @@
                 distance: 2,
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
-                    OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                    syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
                 },
                 start: function(){
                 }
@@ -115,7 +136,7 @@
             {% if select_wells %}
                 wpv.self.bind('_resetLoaded', function(){
                     var sel_well_ids = [{{ select_wells }}],
-                        well_id,
+                        well_id, $well
                         selected_wells = $("");
                     for (var s=0;s<sel_well_ids.length;s++){
                         well_id = sel_well_ids[s];
@@ -129,7 +150,7 @@
                     if (selected_wells.length > 0) {
                         handleClickSelection(undefined, selected_wells.children("img"));
                         $selected = $('td.ui-selected', wpv.self);
-                        OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                        syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
                     }
                 });
             {% endif %}

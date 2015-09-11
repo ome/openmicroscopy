@@ -1,4 +1,8 @@
-/* jsTree default theme */
+/* This is a slightly modified version of the jsTree default theme 
+ * If there are updates to the jsTree default, diff against this and
+ * make the necessary corrections.
+*/
+
 .jstree-node,
 .jstree-children,
 .jstree-container-ul {
@@ -18,6 +22,13 @@
   padding: 0 4px 0 1px;
   margin: 0;
   vertical-align: top;
+  /* Don't allow to select text */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .jstree-anchor:focus {
   outline: 0;
@@ -196,6 +207,12 @@
   border: 0;
   box-shadow: 0 0 0;
 }
+
+/* We want the icons to appear disabled too */
+.vakata-context .vakata-contextmenu-disabled i {
+  opacity: 0.5;
+}
+
 .vakata-context li > a > i {
   text-decoration: none;
   display: inline-block;
@@ -308,10 +325,42 @@
   box-shadow: inset 0 0 1px #ccc;
 }
 .jstree-default .jstree-clicked {
-  background: #beebff;
+/*  background: #beebff;
   border-radius: 2px;
-  box-shadow: inset 0 0 1px #999;
+  box-shadow: inset 0 0 1px #999;*/
+  background: #B3BDCC;
+  background: hsl(215,20%,75%);
+  border: solid 1px #8596AD;
+  border: solid 1px hsl(215,20%,60%);
+  text-shadow: 0 1px 0 rgba(255,255,255,.4);
+  color: #242E42;
+  color: hsl(220,30%,20%) !important;
+  -webkit-transition: 1s background linear;
+  -moz-transition: 1s background linear;
+  -o-transition: 1s background linear;
+  transition: 1s background linear;
 }
+
+.jstree-default ul li ul li a {
+  opacity: .9;
+}
+
+.jstree-default a {
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  text-shadow: 0 1px 0 white;
+  border: solid 1px transparent;
+  color: #3D475C;
+  color: hsl(220,20%,30%) !important;
+  font-family: "HelveticaNeue-Medium", Helvetica, Arial, sans-serif;
+  padding: 0 1px !important;
+  left: -4px;
+  position: relative;
+  cursor: pointer;
+  font-size: 120%;
+}
+
 .jstree-default .jstree-no-icons .jstree-anchor > .jstree-themeicon {
   display: none;
 }
@@ -358,7 +407,7 @@
 }
 #jstree-dnd.jstree-default .jstree-ok,
 #jstree-dnd.jstree-default .jstree-er {
-  background-image: url("32px.png");
+  background-image: url("../../3rdparty/jquery.jstree/themes/default/32px.png");
   background-repeat: no-repeat;
   background-color: transparent;
 }
@@ -428,7 +477,7 @@
 }
 .jstree-default .jstree-node,
 .jstree-default .jstree-icon {
-  background-image: url("32px.png");
+  background-image: url("../../3rdparty/jquery.jstree/themes/default/32px.png");
 }
 .jstree-default .jstree-node {
   background-position: -292px -4px;
@@ -522,13 +571,13 @@
   background-position: 0 0;
 }
 .jstree-default > .jstree-container-ul .jstree-loading > .jstree-ocl {
-  background: url("throbber.gif") center center no-repeat;
+  background: url("../../3rdparty/jquery.jstree/themes/default/throbber.gif") center center no-repeat;
 }
 .jstree-default .jstree-file {
-  background: url("32px.png") -100px -68px no-repeat;
+  background: url("../../3rdparty/jquery.jstree/themes/default/32px.png") -100px -68px no-repeat;
 }
 .jstree-default .jstree-folder {
-  background: url("32px.png") -260px -4px no-repeat;
+  background: url("../../3rdparty/jquery.jstree/themes/default/32px.png") -260px -4px no-repeat;
 }
 .jstree-default.jstree-rtl .jstree-node {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAACAQMAAAB49I5GAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMOBgAAGAAJMwQHdQAAAABJRU5ErkJggg==");
@@ -536,276 +585,142 @@
 .jstree-default.jstree-rtl .jstree-last {
   background: transparent;
 }
-.jstree-default-small .jstree-node {
+.jstree-default-ome .jstree-node {
   min-height: 18px;
   line-height: 18px;
   margin-left: 18px;
   min-width: 18px;
 }
-.jstree-default-small .jstree-anchor {
+.jstree-default-ome .jstree-anchor {
   line-height: 18px;
   height: 18px;
 }
-.jstree-default-small .jstree-icon {
+.jstree-default-ome .jstree-icon {
   width: 18px;
   height: 18px;
   line-height: 18px;
 }
-.jstree-default-small .jstree-icon:empty {
+.jstree-default-ome .jstree-icon:empty {
   width: 18px;
   height: 18px;
   line-height: 18px;
 }
-.jstree-default-small.jstree-rtl .jstree-node {
+.jstree-default-ome.jstree-rtl .jstree-node {
   margin-right: 18px;
 }
-.jstree-default-small .jstree-wholerow {
+.jstree-default-ome .jstree-wholerow {
   height: 18px;
 }
-.jstree-default-small .jstree-node,
-.jstree-default-small .jstree-icon {
-  background-image: url("32px.png");
+.jstree-default-ome .jstree-node,
+.jstree-default-ome .jstree-icon {
+  background-image: url("../../3rdparty/jquery.jstree/themes/default/32px.png");
 }
-.jstree-default-small .jstree-node {
+.jstree-default-ome .jstree-node {
   background-position: -295px -7px;
   background-repeat: repeat-y;
 }
-.jstree-default-small .jstree-last {
+.jstree-default-ome .jstree-last {
   background: transparent;
 }
-.jstree-default-small .jstree-open > .jstree-ocl {
+.jstree-default-ome .jstree-open > .jstree-ocl {
   background-position: -135px -7px;
 }
-.jstree-default-small .jstree-closed > .jstree-ocl {
+.jstree-default-ome .jstree-closed > .jstree-ocl {
   background-position: -103px -7px;
 }
-.jstree-default-small .jstree-leaf > .jstree-ocl {
+.jstree-default-ome .jstree-leaf > .jstree-ocl {
   background-position: -71px -7px;
 }
-.jstree-default-small .jstree-themeicon {
+.jstree-default-ome .jstree-themeicon {
   background-position: -263px -7px;
 }
-.jstree-default-small > .jstree-no-dots .jstree-node,
-.jstree-default-small > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+.jstree-default-ome > .jstree-no-dots .jstree-node,
+.jstree-default-ome > .jstree-no-dots .jstree-leaf > .jstree-ocl {
   background: transparent;
 }
-.jstree-default-small > .jstree-no-dots .jstree-open > .jstree-ocl {
-  background-position: -39px -7px;
+.jstree-default-ome > .jstree-no-dots .jstree-open > .jstree-ocl {
+  background-position: 7px 7px;
+  background-image: url("../img/folder_open.png");
 }
-.jstree-default-small > .jstree-no-dots .jstree-closed > .jstree-ocl {
-  background-position: -7px -7px;
+.jstree-default-ome > .jstree-no-dots .jstree-closed > .jstree-ocl {
+  background-position: 7px 7px;
+  background-image: url("../img/folder_closed.png");
 }
-.jstree-default-small .jstree-disabled {
+.jstree-default-ome .jstree-disabled {
   background: transparent;
 }
-.jstree-default-small .jstree-disabled.jstree-hovered {
+.jstree-default-ome .jstree-disabled.jstree-hovered {
   background: transparent;
 }
-.jstree-default-small .jstree-disabled.jstree-clicked {
+.jstree-default-ome .jstree-disabled.jstree-clicked {
   background: #efefef;
 }
-.jstree-default-small .jstree-checkbox {
+.jstree-default-ome .jstree-checkbox {
   background-position: -167px -7px;
 }
-.jstree-default-small .jstree-checkbox:hover {
+.jstree-default-ome .jstree-checkbox:hover {
   background-position: -167px -39px;
 }
-.jstree-default-small .jstree-clicked > .jstree-checkbox {
+.jstree-default-ome .jstree-clicked > .jstree-checkbox {
   background-position: -231px -7px;
 }
-.jstree-default-small .jstree-clicked > .jstree-checkbox:hover {
+.jstree-default-ome .jstree-clicked > .jstree-checkbox:hover {
   background-position: -231px -39px;
 }
-.jstree-default-small .jstree-anchor > .jstree-undetermined {
+.jstree-default-ome .jstree-anchor > .jstree-undetermined {
   background-position: -199px -7px;
 }
-.jstree-default-small .jstree-anchor > .jstree-undetermined:hover {
+.jstree-default-ome .jstree-anchor > .jstree-undetermined:hover {
   background-position: -199px -39px;
 }
-.jstree-default-small > .jstree-striped {
+.jstree-default-ome > .jstree-striped {
   background-size: auto 36px;
 }
-.jstree-default-small.jstree-rtl .jstree-node {
+.jstree-default-ome.jstree-rtl .jstree-node {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAACAQMAAAB49I5GAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMOBgAAGAAJMwQHdQAAAABJRU5ErkJggg==");
   background-position: 100% 1px;
   background-repeat: repeat-y;
 }
-.jstree-default-small.jstree-rtl .jstree-last {
+.jstree-default-ome.jstree-rtl .jstree-last {
   background: transparent;
 }
-.jstree-default-small.jstree-rtl .jstree-open > .jstree-ocl {
+.jstree-default-ome.jstree-rtl .jstree-open > .jstree-ocl {
   background-position: -135px -39px;
 }
-.jstree-default-small.jstree-rtl .jstree-closed > .jstree-ocl {
+.jstree-default-ome.jstree-rtl .jstree-closed > .jstree-ocl {
   background-position: -103px -39px;
 }
-.jstree-default-small.jstree-rtl .jstree-leaf > .jstree-ocl {
+.jstree-default-ome.jstree-rtl .jstree-leaf > .jstree-ocl {
   background-position: -71px -39px;
 }
-.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-node,
-.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+.jstree-default-ome.jstree-rtl > .jstree-no-dots .jstree-node,
+.jstree-default-ome.jstree-rtl > .jstree-no-dots .jstree-leaf > .jstree-ocl {
   background: transparent;
 }
-.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-open > .jstree-ocl {
+.jstree-default-ome.jstree-rtl > .jstree-no-dots .jstree-open > .jstree-ocl {
   background-position: -39px -39px;
 }
-.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-closed > .jstree-ocl {
+.jstree-default-ome.jstree-rtl > .jstree-no-dots .jstree-closed > .jstree-ocl {
   background-position: -7px -39px;
 }
-.jstree-default-small .jstree-themeicon-custom {
+.jstree-default-ome .jstree-themeicon-custom {
   background-color: transparent;
   background-image: none;
   background-position: 0 0;
 }
-.jstree-default-small > .jstree-container-ul .jstree-loading > .jstree-ocl {
-  background: url("throbber.gif") center center no-repeat;
+.jstree-default-ome > .jstree-container-ul .jstree-loading > .jstree-ocl {
+  background: url("../../3rdparty/jquery.jstree/themes/default/throbber.gif") center center no-repeat;
 }
-.jstree-default-small .jstree-file {
-  background: url("32px.png") -103px -71px no-repeat;
+.jstree-default-ome .jstree-file {
+  background: url("../../3rdparty/jquery.jstree/themes/default/32px.png") -103px -71px no-repeat;
 }
-.jstree-default-small .jstree-folder {
-  background: url("32px.png") -263px -7px no-repeat;
+.jstree-default-ome .jstree-folder {
+  background: url("../../3rdparty/jquery.jstree/themes/default/32px.png") -263px -7px no-repeat;
 }
-.jstree-default-small.jstree-rtl .jstree-node {
+.jstree-default-ome.jstree-rtl .jstree-node {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAACAQMAAABv1h6PAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMHBgAAiABBI4gz9AAAAABJRU5ErkJggg==");
 }
-.jstree-default-small.jstree-rtl .jstree-last {
-  background: transparent;
-}
-.jstree-default-large .jstree-node {
-  min-height: 32px;
-  line-height: 32px;
-  margin-left: 32px;
-  min-width: 32px;
-}
-.jstree-default-large .jstree-anchor {
-  line-height: 32px;
-  height: 32px;
-}
-.jstree-default-large .jstree-icon {
-  width: 32px;
-  height: 32px;
-  line-height: 32px;
-}
-.jstree-default-large .jstree-icon:empty {
-  width: 32px;
-  height: 32px;
-  line-height: 32px;
-}
-.jstree-default-large.jstree-rtl .jstree-node {
-  margin-right: 32px;
-}
-.jstree-default-large .jstree-wholerow {
-  height: 32px;
-}
-.jstree-default-large .jstree-node,
-.jstree-default-large .jstree-icon {
-  background-image: url("32px.png");
-}
-.jstree-default-large .jstree-node {
-  background-position: -288px 0px;
-  background-repeat: repeat-y;
-}
-.jstree-default-large .jstree-last {
-  background: transparent;
-}
-.jstree-default-large .jstree-open > .jstree-ocl {
-  background-position: -128px 0px;
-}
-.jstree-default-large .jstree-closed > .jstree-ocl {
-  background-position: -96px 0px;
-}
-.jstree-default-large .jstree-leaf > .jstree-ocl {
-  background-position: -64px 0px;
-}
-.jstree-default-large .jstree-themeicon {
-  background-position: -256px 0px;
-}
-.jstree-default-large > .jstree-no-dots .jstree-node,
-.jstree-default-large > .jstree-no-dots .jstree-leaf > .jstree-ocl {
-  background: transparent;
-}
-.jstree-default-large > .jstree-no-dots .jstree-open > .jstree-ocl {
-  background-position: -32px 0px;
-}
-.jstree-default-large > .jstree-no-dots .jstree-closed > .jstree-ocl {
-  background-position: 0px 0px;
-}
-.jstree-default-large .jstree-disabled {
-  background: transparent;
-}
-.jstree-default-large .jstree-disabled.jstree-hovered {
-  background: transparent;
-}
-.jstree-default-large .jstree-disabled.jstree-clicked {
-  background: #efefef;
-}
-.jstree-default-large .jstree-checkbox {
-  background-position: -160px 0px;
-}
-.jstree-default-large .jstree-checkbox:hover {
-  background-position: -160px -32px;
-}
-.jstree-default-large .jstree-clicked > .jstree-checkbox {
-  background-position: -224px 0px;
-}
-.jstree-default-large .jstree-clicked > .jstree-checkbox:hover {
-  background-position: -224px -32px;
-}
-.jstree-default-large .jstree-anchor > .jstree-undetermined {
-  background-position: -192px 0px;
-}
-.jstree-default-large .jstree-anchor > .jstree-undetermined:hover {
-  background-position: -192px -32px;
-}
-.jstree-default-large > .jstree-striped {
-  background-size: auto 64px;
-}
-.jstree-default-large.jstree-rtl .jstree-node {
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAACAQMAAAB49I5GAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMOBgAAGAAJMwQHdQAAAABJRU5ErkJggg==");
-  background-position: 100% 1px;
-  background-repeat: repeat-y;
-}
-.jstree-default-large.jstree-rtl .jstree-last {
-  background: transparent;
-}
-.jstree-default-large.jstree-rtl .jstree-open > .jstree-ocl {
-  background-position: -128px -32px;
-}
-.jstree-default-large.jstree-rtl .jstree-closed > .jstree-ocl {
-  background-position: -96px -32px;
-}
-.jstree-default-large.jstree-rtl .jstree-leaf > .jstree-ocl {
-  background-position: -64px -32px;
-}
-.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-node,
-.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-leaf > .jstree-ocl {
-  background: transparent;
-}
-.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-open > .jstree-ocl {
-  background-position: -32px -32px;
-}
-.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-closed > .jstree-ocl {
-  background-position: 0px -32px;
-}
-.jstree-default-large .jstree-themeicon-custom {
-  background-color: transparent;
-  background-image: none;
-  background-position: 0 0;
-}
-.jstree-default-large > .jstree-container-ul .jstree-loading > .jstree-ocl {
-  background: url("throbber.gif") center center no-repeat;
-}
-.jstree-default-large .jstree-file {
-  background: url("32px.png") -96px -64px no-repeat;
-}
-.jstree-default-large .jstree-folder {
-  background: url("32px.png") -256px 0px no-repeat;
-}
-.jstree-default-large.jstree-rtl .jstree-node {
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAACAQMAAAAD0EyKAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjgIIGBgABCgCBvVLXcAAAAABJRU5ErkJggg==");
-}
-.jstree-default-large.jstree-rtl .jstree-last {
+.jstree-default-ome.jstree-rtl .jstree-last {
   background: transparent;
 }
 @media (max-width: 768px) {
@@ -821,12 +736,12 @@
     height: 40px;
   }
   #jstree-dnd.jstree-dnd-responsive > .jstree-ok {
-    background-image: url("40px.png");
+    background-image: url("../../3rdparty/jquery.jstree/themes/default/40px.png");
     background-position: 0 -200px;
     background-size: 120px 240px;
   }
   #jstree-dnd.jstree-dnd-responsive > .jstree-er {
-    background-image: url("40px.png");
+    background-image: url("../../3rdparty/jquery.jstree/themes/default/40px.png");
     background-position: -40px -200px;
     background-size: 120px 240px;
   }
@@ -840,12 +755,12 @@
 @media (max-width: 768px) {
   .jstree-default-responsive {
     /*
-		.jstree-open > .jstree-ocl,
-		.jstree-closed > .jstree-ocl { border-radius:20px; background-color:white; }
-		*/
+        .jstree-open > .jstree-ocl,
+        .jstree-closed > .jstree-ocl { border-radius:20px; background-color:white; }
+        */
   }
   .jstree-default-responsive .jstree-icon {
-    background-image: url("40px.png");
+    background-image: url("../../3rdparty/jquery.jstree/themes/default/40px.png");
   }
   .jstree-default-responsive .jstree-node,
   .jstree-default-responsive .jstree-leaf > .jstree-ocl {
@@ -945,7 +860,7 @@
   .jstree-default-responsive .jstree-node > .jstree-ocl,
   .jstree-default-responsive .jstree-themeicon,
   .jstree-default-responsive .jstree-checkbox {
-    background-image: url("40px.png");
+    background-image: url("../../3rdparty/jquery.jstree/themes/default/40px.png");
     background-size: 120px 240px;
   }
   .jstree-default-responsive .jstree-node {
@@ -967,15 +882,30 @@
     background-position: 0 0;
   }
   .jstree-default-responsive .jstree-file {
-    background: url("40px.png") 0 -160px no-repeat;
+    background: url("../../3rdparty/jquery.jstree/themes/default/40px.png") 0 -160px no-repeat;
     background-size: 120px 240px;
   }
   .jstree-default-responsive .jstree-folder {
-    background: url("40px.png") -40px -40px no-repeat;
+    background: url("../../3rdparty/jquery.jstree/themes/default/40px.png") -40px -40px no-repeat;
     background-size: 120px 240px;
   }
 }
 .jstree-default > .jstree-container-ul > .jstree-node {
   margin-left: 0;
   margin-right: 0;
+}
+
+.jstree-contextmenu {
+    z-index: 10;
+}
+
+.children_count {
+    opacity:.6;
+    background-color:rgba(0,0,0,.05);
+    -webkit-border-radius:2px;
+    -webkit-border-radius:2px; /* Saf3+, Chrome */
+       -moz-border-radius:2px; /* FF1+ */
+            border-radius:2px; /* Opera 10.5, IE 9 */
+    display:inline-block;
+    padding:0 3px;
 }

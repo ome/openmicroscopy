@@ -22,15 +22,22 @@
 -->
 {% endcomment %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.jstree_theme.css" %}" type="text/css" />
+{% endblock %}
+
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys-0.8.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-1.0-rc3/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
+   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
 
-    <!-- set-up left-panel tabs, jsTree, toolbar etc -->
     <script type="text/javascript">
 
-        $(document).ready(function() 
+        $(document).ready(function()
         {
 
             // Disable the groups/users dropdown menu and scripts menu.
@@ -49,239 +56,369 @@
 
     </script>
 
+    <!-- set-up jsTree, toolbar etc -->
     <script type="text/javascript">
 
-        $(function() 
-            {
+        function enableToolbarButton(name, enabled) {
+            if (enabled) {
+                $('input#'+name+'Button').removeClass('button-disabled').prop('disabled', false);
+            } else {
+                $('input#'+name+'Button').addClass('button-disabled').prop('disabled', true);
+            }
+        };
 
-                // We truncate images when the left panel resizes...
-                $("#left_panel").on('resize', OME.truncateNames);
-                // and also when we load new data in the tree
-                $("#dataTree").on('load_node.jstree', function() {
-                    // wait for images to render, then truncate:
-                    setTimeout(OME.truncateNames, 30);
-                });
+        function buttonsShowHide(selected, inst) {
 
-                var buttonsShowHide = function(selected) {
-                    var toolbar_config = new Object();
-                    if(selected.length > 0) {
-                        if((typeof selected.attr("rel") === 'undefined') ||
-                            !selected.parent().parent().hasClass("isOwned")) {
-                            toolbar_config = {"adddiscussion":false, 'removecontent':false};
-                        } else {
-                            if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {"adddiscussion":true, 'removecontent':false};
-                            } else if(selected.attr("id").indexOf("share")>=0) {
-                                toolbar_config = {"adddiscussion":false, 'removecontent':false};
-                            } else if(selected.attr("id").indexOf("discussion")>=0) {
-                               toolbar_config = {"adddiscussion":false, 'removecontent':false};
-                            } else if(selected.attr("id").indexOf("image")>=0) {
-                               toolbar_config = {"adddiscussion":false, 'removecontent':true};
-                            }
-                        }
-                    }
-                    
-                    if (selected.length > 1) toolbar_config['annotation'] = true;
-                    for (var sIndex in toolbar_config) { 
-                        if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled').prop('disabled', false);
-                        } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled').prop('disabled', true);
-                        }
+            // Disable all unless explicitly enabled below
+            var toolbar_config = {
+                'removecontent': false
+            };
+
+            if (selected.length > 0) {
+                // Can only remove images from share that you own
+                var node = inst.get_node(selected[0]);
+                if (node.type === 'image') {
+                    var share = inst.get_node(node.parent);
+                    if (share.data.obj.ownerId === {{ ome.user.id }}) {
+                        toolbar_config['removecontent'] = true;
                     }
                 }
-                
-                $("#dataTree").jstree({
-                        // the list of plugins to include
-                        "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
-                        // Plugin configuration
+            }
 
-                        // I usually configure the plugin that handles the data first - in this case JSON as it is most common
-                        "html_data" : { 
-                            // I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
-                            // All the options are the same as jQuery's except for `data` which CAN (not should) be a function
-                            "ajax" : {
-                                // the URL to fetch the data
-                                "url" : function(n) {
-                                    return n.attr ? ("{% url 'load_public' %}"+n.attr("id").split("-")[1]+"/") : "{% url 'load_public' %}";
-                                    },
-                                // this function is executed in the instance's scope (this refers to the tree instance)
-                                // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
-                                "data" : function (n) {
-                                    return { 
-                                        "view" : "tree"
-                                    };
-                                }
-                            }
-                        },
-                        // Using types - most of the time this is an overkill
-                        // Still meny people use them - here is how
-                        "types" : {
-                            // I want only `drive` nodes to be root nodes 
-                            // This will prevent moving or creating any other type as a root node
-                            "max_depth" : -1,
-                            "max_children" : -1,
-                            "valid_children" : [ "experimenter" ],
-                            "types" : {
-                                "experimenter" : {
-                                    "valid_children" : [ "share", "discussion" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/icon_user.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "share" : {
-                                    "valid_children" : [ "image" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_public.png" %}'
-                                    },
-                                    "select_node" : function(obj){
-                                        if (!obj.hasClass('isOwned')) {
-                                            return !obj.hasClass('isDisabled');
-                                        }
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "discussion" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/wp_protocol16.png" %}'
-                                    },
-                                    "select_node" : function(obj){
-                                        if (!obj.hasClass('isOwned')) {
-                                            return !obj.hasClass('isDisabled');
-                                        }
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "image" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/image16.png" %}'
-                                    },
-                                    "select_node" : function(obj){return !obj.hasClass('isDisabled')},
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : function(obj){return obj.hasClass('isOwned');}
-                                }
-                            }
-                        },
-                        // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
-                        // the UI plugin - it handles selecting/deselecting/hovering nodes
-                        "ui" : {
-                            "select_limit" : 1,
-                            "select_multiple_modifier" : false,
-                            "select_range_modifier" : false,
-                            "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
-                        },
-                        // the core plugin - not many options here
-                        "core" : { 
-                            // just open those two nodes up
-                            // as this is an AJAX enabled tree, both will be downloaded from the server
-                            "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
-                        },
-                        "contextmenu" : {
-                            "select_node":true,
-                            "items" : function(obj){
-                                var config = {};        
-                                
-                                return config;
-                            }
-                        },
-                        
-                        // include hotkeys plugin code
-                        {% include 'webclient/data/includes/hotkeys.js' %}
-                        
-                })
-                .delegate("a", "click.jstree", function (event) {
-                    var data = $.jstree._focused();
-                    if(!data.is_open()) {
-                        data.open_node(data.get_selected());
-                    }
-                })
-                .delegate("a", "dblclick", function(e) {
-                    var $this = $(this),
-                        obj_rel = $this.parent().attr('rel'),
-                        ob_id = $this.parent().attr('id'),
-                        share_id = $this.parent().attr('data-share'),
-                        popup_url = "{% url 'webindex' %}",
-                        iid;
-                    if (obj_rel=='image') {
-                        iid = ob_id.split("-")[1];
-                        // Share-id will only be there if share is not owned.
-                        if (share_id) {
-                            popup_url += share_id + "/img_detail/" + iid;
+            for (var btnName in toolbar_config) {
+                enableToolbarButton(btnName, toolbar_config[btnName]);
+            }
+        };
+
+        function removeImage(selected, inst) {
+
+            // Disable the nodes
+            inst.disable_node(selected);
+
+            // This interface does not support multiple remove, so iterate
+            // over deleted images
+            $.each(selected, function(index, sel) {
+                var node = inst.get_node(sel);
+
+                // Get the parent share id
+                var shareId = inst.get_node(inst.get_parent(node)).data.obj.id;
+                // Get the image id
+                var imageId = node.data.obj.id;
+
+                // AJAX Query to remove the images from the share
+                $.ajax({
+                    url: '{% url 'manage_action_containers' "removefromshare" "share" %}' + shareId + '/',
+                    data : {'source': imageId},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(r){
+                        if(eval(r.bad)) {
+                            inst.enable_node(node);
+                            alert(r.errs);
                         } else {
-                            popup_url += "img_detail/" + iid;
+                            inst.delete_node(node);
                         }
-                        OME.openPopup(popup_url);
+                    },
+                    error: function(response) {
+                        inst.enable_node(node);
+                        console.log('Ajax error');
                     }
-                })
-                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
-                    buttonsShowHide(data.rslt.obj);
-                    OME.tree_selection_changed(data);
-                })
-                .bind("remove.jstree", function (e, data) {
-                    var pr = $(data.args[1]);
-                    
-                    data.args[0].each(function (i) {
-                        url = '{% url 'manage_action_containers' "removefromshare" "share" %}'+pr.attr('id').split('-')[1]+'/'
-                        $.ajax({
-                            async : false,
-                            url: url,
-                            data : {'source':$(this).attr('id').split("-")[1]},
-                            dataType: "json",
-                            type: "POST",
-                            success: function(r){
-                                if(eval(r.bad)) {
-                                      $.jstree.rollback(data.rlbk);
-                                      alert(r.errs);
-                                  }
-                            },
-                            error: function(response) {
-                                $.jstree.rollback(data.rlbk);
-                            }
-                        });
-                    });
-                    
                 });
-                
             });
-        
+        };
+
+        $(function() {
+            // Select jstree and then cascade handle events and setup the tree.
+            var jstree = $("#dataTree")
+            .on('changed.jstree', function (e, data) {
+                var inst = data.instance;
+                buttonsShowHide(inst.get_selected(true), inst);
+                OME.tree_selection_changed(data, e);
+            })
+            .on("click.jstree", ".jstree-anchor", function (e) {
+                e.preventDefault();
+                var datatree = $.jstree.reference($('#dataTree'));
+                // Expand on click (not select because of key navigation)
+                if (datatree.is_parent(this)) {
+                    datatree.open_node(this);
+                }
+            })
+            .on("dblclick.jstree", ".jstree-anchor", function (e) {
+                e.preventDefault();
+                var datatree = $.jstree.reference($('#dataTree'));
+                var node = datatree.get_node(this);
+                if (node) {
+                    if (node.type === 'image') {
+                        //Open the image viewer for this image
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
+                    }
+                }
+            })
+            .on('loaded.jstree', function(e, data) {
+                // Select root node
+                data.instance.select_node('ul > li:first');
+            })
+
+            // Setup jstree
+            .jstree({
+                'plugins': ['types', 'sort', 'locate', 'ometools', 'conditionalselect', 'truncatetext', 'contextmenu'],
+                // The jstree core
+                'core' : {
+                    'themes': {
+                        'dots': false,
+                        'variant': 'ome'
+                    },
+                    'data' : {
+                        // Configure URL for request
+                        'url' : function(node) {
+                            // Get the type of the node being expanded
+                            // Figure out what type of children it should have
+                            // Request the list of children from that url, adding any relevant filters
+                            if (node.type === 'experimenter') {
+                                return '{% url 'api_shares' %}'
+                            } else if (node.type === 'share') {
+                                return '{% url 'webindex' %}api/share_images/' + node.data.obj.id + '/';
+                            } else if (node.id === '#') {
+                                // root node - Always load your own shares
+                                return '{% url 'api_experimenter' ome.user.id %}';
+                            }
+                        },
+                        // Gather data for request
+                        'data' : function(node) {
+
+                            var payload = {};
+
+                            // Get the data for this query, special case for experimenter as this
+                            // data is being passed as 'experimenter_id' below and the tag interface
+                            // is expecting either a tagset_id or nothing as the 'id'
+                            if (node.hasOwnProperty('data') && node.type != 'experimenter') {
+                                if (node.data.hasOwnProperty('obj')) {
+                                    // share_id is part of the url itself, see above.
+                                    // We only need to handle other containers here:
+                                    if (node.type !== 'share') {
+                                        payload['id'] = node.data.obj.id;
+                                    }
+                                }
+                            }
+
+                            if (node.hasOwnProperty('data') && node.type === 'experimenter') {
+                                payload['member_id'] = node.data.obj.id
+                            }
+
+                            return payload;
+                        },
+                        'cache': false,
+                        // Converter is required because the JSON format being returned is not
+                        // jstree specific.
+                        'converters' : {
+                            "text json": function (json) {
+                                var data = JSON.parse(json);
+                                var jstree_data = [];
+
+                                // Add experimenter to the jstree data structure
+                                if (data.hasOwnProperty('experimenter')) {
+                                    var value = data.experimenter;
+                                    var node = {
+                                        'data': {'id': value.id, 'obj': value},
+                                        'text': value.firstName + ' ' + value.lastName,
+                                        'children': true,
+                                        'type': 'experimenter',
+                                        'state': {
+                                        },
+                                        'li_attr': {
+                                            // 'class': 'experimenter',
+                                            'data-id': value.id
+                                        }
+                                    };
+
+                                    // Add 'state' opened by default
+                                    node.state['opened'] = true;
+
+                                    jstree_data.push(node);
+
+                                }
+
+                                // Add images to the jstree data structure
+                                if (data.hasOwnProperty('shares')) {
+                                    $.each(data.shares, function(index, value) {
+                                        var node = {
+                                            'data': {'id': value.id, 'obj': value},
+                                            'text': value.id.toString(),
+                                            'children': value.childCount > 0 ? true : false,
+                                            'type': 'share',
+                                            'li_attr': {
+                                                // 'class': 'share',
+                                                'data-id': value.id
+                                            }
+                                        };
+                                        jstree_data.push(node);
+                                    });
+                                }
+
+                                // Add images to the jstree data structure
+                                if (data.hasOwnProperty('discussions')) {
+                                    $.each(data.discussions, function(index, value) {
+                                        var node = {
+                                            'data': {'id': value.id, 'obj': value},
+                                            'text': value.id.toString(),
+                                            'children': false,
+                                            'type': 'discussion',
+                                            'li_attr': {
+                                                // 'class': 'discussion',
+                                                'data-id': value.id
+                                            }
+                                        };
+                                        jstree_data.push(node);
+                                    });
+                                }
+
+                                // Add images to the jstree data structure
+                                if (data.hasOwnProperty('images')) {
+                                    $.each(data.images, function(index, value) {
+                                        if (value.hasOwnProperty('deleted')){
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': 'Object deleted',
+                                                'children': false,
+                                                'type': 'deleted',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                            };
+                                        } else {
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': false,
+                                                'type': 'image',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                            };
+                                        }
+                                        jstree_data.push(node);
+                                    });
+                                }
+
+                                return jstree_data;
+                            }
+
+                        }
+                    },
+                    'check_callback': function(operation, node, node_parent, node_position, more) {
+                        var inst = $.jstree.reference(node);
+                        // Allow 'delete_node' on images only
+                        if (operation === 'delete_node' && inst.get_node(node).type === 'image') {
+                            return true;
+                        }
+                        return false
+                    }
+                },
+                'types' : {
+                    '#' : {
+                        'valid_children': ['experimenter']
+                    },
+                    'default': {
+                        'draggable': false
+                    },
+                    'experimenter': {
+                        'icon' : '{% static "webclient/image/icon_user.png" %}',
+                        'valid_children': ['share', 'discussion']
+                    },
+                    'share': {
+                        'icon' : '{% static "webclient/image/left_sidebar_icon_public.png" %}',
+                        'valid_children': ['image']
+                    },
+                    'discussion': {
+                        'icon' : '{% static "webclient/image/wp_protocol16.png" %}'
+                    },
+                    'image': {
+                        'icon': '{% static "webclient/image/image16.png" %}',
+                    },
+                    'deleted': {
+                        'icon': false
+                    }
+
+                },
+                'sort': function(nodeId1, nodeId2) {
+                    var inst = this;
+                    var node1 = inst.get_node(nodeId1);
+                    var node2 = inst.get_node(nodeId2);
+                    if (node2.type == 'image') {
+                        return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
+                    }
+                    // Nodes are 2 types, "Shares" and "Discussions", but we sort by IDs
+                    return parseInt(node2.data.obj.id) <= parseInt(node1.data.obj.id) ? -1 : 1;
+                },
+                'locate' : {
+                    // Returns a key for this node
+                    'locate_function': function(node) {
+                        // In some cases, this function is called before the data attribute exists
+                        // These should be ignored, this will be called again later when it is
+                        // populated.
+                        if (!node.hasOwnProperty('data') ||
+                            node.data === undefined ||
+                            node.data === null) {
+                            return false;
+                        }
+                        return node.type + '-' + node.data.obj.id;
+                    }
+                },
+                'conditionalselect' : {
+                    // Checks if a selection should be allowed
+                    'conditionalselect_function': function(node) {
+                        // Disable deleted object nodes
+                        if (node.type === 'deleted') {
+                            return false;
+                        }
+
+                        // Disable multi-type selection of shares AND images
+                        var inst = this;
+                        var selected = inst.get_selected(true);
+                        if (selected.length > 0) {
+                            return false;
+                        }
+                        return true;
+                    }
+                },
+                // disable the browser context menu
+                'contextmenu' : {
+                    "select_node":true,
+                    "items" : function(obj){
+                        var config = {};
+                        return config;
+                    }
+                },
+            });
+        });
     </script>
 
     <!-- handle toolbar clicks -->
     <script type="text/javascript">
-    $(function () { 
-        $(".toolbar input").click(function () {
-            switch(this.id) {
-                case "removecontentButton":
-                    var confirm_remove = OME.confirm_dialog('Remove Image?',
-                        function() {
-                            if(confirm_remove.data("clicked_button") == "OK") {
-                                var jstree = $.jstree._focused();
-                                $("#dataTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
-                            }
-                        }
-                    );
-                    break;
-                case "refreshButton":
-                    $("#dataTree").jstree("refresh");
-                    break;
-                default:
-                    break;
-            }
+    $(function () {
+
+        $('#removecontentButton').click(function() {
+            var confirm_remove = OME.confirm_dialog('Remove Image?',
+                function() {
+                    if(confirm_remove.data("clicked_button") == "OK") {
+                        var inst = $.jstree.reference('#dataTree');
+                        removeImage(inst.get_selected(), inst);
+                    }
+                }
+            );
         });
+
+        $('#refreshButton').click(function() {
+            var inst = $.jstree.reference('#dataTree');
+            inst.refresh();
+        });
+
+        // We (un)truncate images when the left panel resizes...
+        $("#left_panel").on('resize', function(event) {
+            var inst = $.jstree.reference('#dataTree');
+            inst.redraw(true);
+        });
+
     });
     </script>
 
@@ -312,17 +449,17 @@
     <div id="Public">
         <div class="toolbar">
             <ul id="buttons">
-				
+
                 <li>
-					<input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Remove content" title="Remove content" /> 
-				</li>
-				
-				<li class=seperator></li>
-				
+                    <input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Remove content" title="Remove content" /> 
+                </li>
+
+                <li class=seperator></li>
+
                 <li>
-				<input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> 
-				</li>
-                
+                <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> 
+                </li>
+
             </ul>
         </div>
 
@@ -334,4 +471,28 @@
 {% endblock %}
 
 
+{% block center %}
 
+<div id="content_details"> </div>
+
+{% endblock %}
+
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul id="annotation_tabs_list">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in ome.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general" class="right_tab_content" ></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in ome.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="right_tab_content"></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

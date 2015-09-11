@@ -303,6 +303,16 @@
 					background-color:#F0F2F5;
                 }
 
+
+    /* Left Panel Tree */
+
+    #tree_details {
+        top:59px;
+        padding:0;
+        padding-top:6px;
+    }
+
+
     .hiddenField {
         display: none;
     }
@@ -549,7 +559,7 @@
 	        color: hsl(210,10%,50%);
 	    }
 
-        #chgrp_split_filesets .split_fileset {
+        .split_filesets_info .split_fileset {
             font-size: 13px;
             line-height: 15px;
         }
@@ -1280,21 +1290,10 @@
 	
 	/* Center Panel Toolbar */  
 	
-	#center_panel_header .toolbar{
-		display:inline-block;
-		border:none;
-		background:none;
-		-webkit-box-shadow:none;
-		
-		-webkit-box-shadow:none; /* Saf3.0+, Chrome */
-		   -moz-box-shadow:none; /* FF3.5+ */
-		        box-shadow:none; /* Opera 10.5, IE 9.0 */
-		
-		position:absolute;
-		right:10px;
-		top:0;
-		background:none;
-		overflow:hidden !important;
+	#content_details .toolbar{
+		border-bottom: solid 1px hsl(210,10%,90%);
+		overflow: hidden;
+		background: none repeat scroll 0 0 #EFF1F4;
 	}
 
 

@@ -36,13 +36,12 @@ $(function () {
 
     // this is called on change in jstree selection, or switching tabs
     var update_metadata_general_tab = function() {
-
         var selected = $("body").data("selected_objects.ome");
 
         var prefix = '{% url 'webindex' %}';
-        
+
         if(selected.length == 0) {
-            return
+            return;
         }
         if (selected.length > 1) {
             // handle batch annotation...
@@ -101,8 +100,8 @@ $(function () {
                 // everything else
                 } else {
                     if(orel=="image") {
-                        if (selected[0]["share"]) {
-                            url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["share"]+'/';
+                        if (selected[0]["shareId"]) {
+                            url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["shareId"]+'/';
                         } else {
                             url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                         }
@@ -135,6 +134,8 @@ $(function () {
     // update tabs when tabs switch
     $("#annotation_tabs").on( "tabsactivate", function(event, ui){
         // we get a "tabsactivate" event, but need to check if 'this' tab was chosen...
+        console.log('indexTab: ' + ui.newTab.index());
+        console.log('general_tab_index: ' + general_tab_index);
         if (ui.newTab.index() == general_tab_index) {
             // sometimes this doesn't get shown until too late, so the :visible check above failed
             $metadata_general.show();
@@ -143,8 +144,7 @@ $(function () {
     });
 
     // on selection change, clear tab contents then update
-    $("body").bind("selection_change.ome", function(event) {
-
+    $("body").on("selection_change.ome", function(event) {
         // clear contents of panel
         $("#metadata_general").empty();
 

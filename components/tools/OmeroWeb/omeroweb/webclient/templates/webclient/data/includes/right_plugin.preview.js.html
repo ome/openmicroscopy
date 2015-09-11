@@ -43,8 +43,8 @@ $(document).ready(function() {
         load_plugin_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
             var url;
             var well_index = selected[0]["index"] || 0;
-            if (selected[0]["share"]) {
-                url = '{% url 'webindex' %}metadata_preview/'+obj_dtype+'/'+obj_id+'/'+selected[0]["share"] + '/';
+            if (selected[0]["shareId"]) {
+                url = '{% url 'webindex' %}metadata_preview/'+obj_dtype+'/'+obj_id+'/'+selected[0]["shareId"] + '/';
             } else {
                 url = '{% url 'webindex' %}metadata_preview/'+obj_dtype+'/'+obj_id + '/';
             }

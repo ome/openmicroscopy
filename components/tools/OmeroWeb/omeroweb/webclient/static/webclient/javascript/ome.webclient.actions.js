@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+// Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 // All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,6 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// Events
+// 1) Item removed from the view (either deleted/moved in the tree or in the centre)
+// 2) Item added to the view (either created/copied/moved in the tree or in the centre)
+// 3) Selection changed in the tree or in the centre
+
 /*global OME:true */
 if (typeof OME === "undefined") {
     OME = {};
@@ -29,6 +34,32 @@ OME.multi_key = function() {
     }
 };
 
+OME.getURLParameter = function(key) {
+    /* Return single value for parameter with specified key
+     * Does not handle multi-value parameters
+     * Returns false if there are no parameters or it is not present
+    */
+
+    // If there are no parameters, just return false
+    if (window.location.search.length === 0) {
+        return false;
+    }
+
+    // Remove the leading '?'
+    var search = window.location.search.substring(1);
+
+    // Break them up
+    var searchParams = search.split('&');
+
+    for (var i = 0; i < searchParams.length; i++) {
+        var paramSplit = searchParams[i].split('=');
+        if (paramSplit[0] === key) {
+            return paramSplit[1];
+        }
+    }
+    return false;
+};
+
 jQuery.fn.hide_if_empty = function() {
     if ($(this).children().length === 0) {
         $(this).hide();
@@ -38,43 +69,42 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
+// Function to enable measuring of a specific text element in jquery
+$.fn.textWidth = function(text, font) {
+    if (!$.fn.textWidth.fakeEl) $.fn.textWidth.fakeEl = $('<span>').appendTo(document.body);
+    var htmlText = text || this.val() || this.text();
+    htmlText = $.fn.textWidth.fakeEl.text(htmlText).html(); //encode to Html
+    htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+    $.fn.textWidth.fakeEl.html(htmlText).css('font', font || this.css('font'));
+    return $.fn.textWidth.fakeEl.width();
+};
+
 // called from OME.tree_selection_changed() below
-OME.handle_tree_selection = function(data) {
-    var selected_objs = [];
+OME.handle_tree_selection = function(data, event) {
 
-    if (typeof data != 'undefined' && typeof data.inst != 'undefined') {
-
-        var selected = data.inst.get_selected();
-        var share_id = null;
-        if (selected.length == 1) {
-            var pr = selected.parent().parent();
-            if (pr.length>0 && pr.attr('rel') && pr.attr('rel')==="share") {
-                share_id = pr.attr("id").split("-")[1];
-            }
-        }
-        selected.each(function(){
-            var $this = $(this),
-                oid = $this.attr('id');
-            if (typeof oid !== "undefined") {
-                // after copy & paste, node will have id E.g. copy_dataset-123
-                if (oid.substring(0,5) == "copy_") {
-                    oid = oid.substring(5, oid.length);
-                }
-                var selected_obj = {"id":oid, "rel":$this.attr('rel')};
-                selected_obj["class"] = $this.attr('class');
-                if ($this.attr('data-fileset')) {
-                    selected_obj["fileset"] = $this.attr('data-fileset');
-                }
-                if (share_id) {
-                    selected_obj["share"] = share_id;
-                }
-                selected_objs.push(selected_obj);
-            }
-        });
+    var selected;
+    if (typeof data != 'undefined') {
+        selected = data.selected;
     }
-    $("body")
-        .data("selected_objects.ome", selected_objs)
-        .trigger("selection_change.ome");
+
+    // Update the DOM recorded selection
+    OME.writeSelectedObjs(selected);
+
+    // Trigger selection changed event
+    $("body").trigger("selection_change.ome", data);
+
+    // Instead of using selection_change.ome to trigger syncThumbSelection
+    // and update_thumbnails_panel, just run them instead
+
+    // Check the functions exist, they might not if the central panel has not been loaded
+    if (typeof(syncThumbSelection) === "function") {
+        // safe to use the function
+        syncThumbSelection(data, event);
+    }
+    if (typeof(update_thumbnails_panel) === "function") {
+        // safe to use the function
+        update_thumbnails_panel(event, data);
+    }
 };
 
 // called on selection and deselection changes in jstree
@@ -84,7 +114,7 @@ OME.tree_selection_changed = function(data, evt) {
         clearTimeout(OME.select_timeout);
     }
     OME.select_timeout = setTimeout(function() {
-        OME.handle_tree_selection(data);
+        OME.handle_tree_selection(data, evt);
     }, 10);
 };
 
@@ -97,21 +127,15 @@ OME.clear_selected = function(force_refresh) {
         .trigger("selection_change.ome", [refresh]);
 };
 
-// called when we change the index of a plate or acquisition
-OME.field_selection_changed = function(field) {
-
-    var datatree = $.jstree._focused();
-    $("body")
-        .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
-        .trigger("selection_change.ome", $(this).attr('id'));
-};
-
 // select all images from the specified fileset (if currently visible)
 OME.select_fileset_images = function(filesetId) {
-    var datatree = $.jstree._focused();
-    $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
-        datatree.select_node(this);
-    });
+    var datatree = $.jstree.reference('#dataTree');
+    // This is only used for chgrp of filesets to select them all
+    // It only selects images that have been loaded in the tree,
+    // in preparation for removing them from the tree on "OK".
+    // However, it will not update child counts on datasets that
+    // have not been loaded in tree.
+    datatree.select_fileset_nodes(filesetId);
 };
 
 // actually called when share is edited, to refresh right-hand panel
@@ -123,6 +147,7 @@ OME.share_selection_changed = function(share_id) {
 // Standard ids are in the form TYPE-ID, web extensions may add an
 // additional -SUFFIX
 OME.table_selection_changed = function($selected) {
+    // This is for search and such where there is no tree
     var selected_objs = [];
     if (typeof $selected != 'undefined') {
         $selected.each(function(i){
@@ -191,6 +216,7 @@ OME.handleTableClickSelection = function(event) {
 
 // called from click events on plate. Selected wells
 OME.well_selection_changed = function($selected, well_index, plate_class) {
+
     var selected_objs = [];
     $selected.each(function(i){
         selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
@@ -206,20 +232,30 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 
 
 // This is called by the Pagination controls at the bottom of icon or table pages.
-// We simply update the 'page' data on the parent (E.g. dataset node in tree) and refresh
-OME.doPagination = function(view, page) {
-    var $container;
-    if (view == "icon") {
-        $container = $("#content_details");
+OME.doPagination = function(page) {
+    var datatree = $.jstree.reference('#dataTree');
+
+    var $container = $("#content_details");
+    var containerId = $container.data('id');
+    var containerType = $container.data('type');
+    var containerPath = $container.data('path');
+    containerPath = JSON.parse(containerPath);
+    var containerNode = datatree.find_omepath(containerPath);
+
+    if (!containerNode) {
+        console.log('WARNING: Had to guess container');
+        containerNode = OME.getTreeBestGuess(containerType, containerId);
     }
-    else if (view == "table") {
-        $container = $("#image_table");
-    }
-    var rel = $container.attr('rel').split("-");
-    var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
-    $parent.data("page", page);     // let the parent node keep track of current page
-    $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
-    $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
+
+    // Deselect all
+    datatree.deselect_all(true);
+
+    // Set the page for that node in the tree and reload the tree section
+    datatree.change_page(containerNode, page);
+
+    // and then reselect the same node again to trigger update
+    datatree.select_node(containerNode);
+
     return false;
 };
 
@@ -388,6 +424,7 @@ OME.refreshThumbnails = function(options) {
     }
 };
 
+
 OME.truncateNames = (function(){
     var insHtml;
     // Resizing of left panel dynamically truncates image names
@@ -435,9 +472,9 @@ OME.truncateNames = (function(){
 }());
 
 // Handle deletion of selected objects in jsTree in container_tags.html and containers.html
-OME.handleDelete = function() {
-    var datatree = $.jstree._focused();
-    var selected = datatree.get_selected();
+OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
+    var datatree = $.jstree.reference($('#dataTree'));
+    var selected = datatree.get_selected(true);
 
     var del_form = $( "#delete-dialog-form" );
     del_form.dialog( "open" )
@@ -450,81 +487,127 @@ OME.handleDelete = function() {
 
     // set up form - process all the objects for data-types and children
     var ajax_data = [];
-    var q = false;
+    var askDeleteContents = false;
     var dtypes = {};
-    var first_parent;   // select this when we're done deleting
+    // Parent to select after deletion
+    var firstParent = datatree.get_node(datatree.get_parent(selected[0]));
+
+    var disabledNodes = [];
+
+    function traverse(state) {
+        // Check if this state is one that we are looking for
+        var n = datatree.get_node(state);
+        disabledNodes.push(n);
+
+        if (n.children) {
+            $.each(n.children, function(index, child) {
+                 traverse(child);
+            });
+        }
+        datatree.disable_node(n);
+
+    }
     var notOwned = false;
-    selected.each(function (i) {
-        if (!first_parent) first_parent = datatree._get_parent(this);
-        var $this = $(this);
-        ajax_data[i] = $this.attr('id').replace("-","=");
-        var dtype = $this.attr('rel');
-        if (dtype in dtypes) dtypes[dtype] += 1;
-        else dtypes[dtype] = 1;
-        if (!q && $this.attr('rel').indexOf('image')<0) q = true;
-        console.log($this, $this.hasClass('isOwned'));
-        if (!$this.hasClass('isOwned')) notOwned = true;
+    $.each(selected, function(index, node) {
+        // Add the nodes that are to be deleted
+        ajax_data.push(node.type + '=' + node.data.obj.id);
+        // What types are being deleted and how many (for pluralization)
+        var dtype = node.type;
+        if (dtype in dtypes) {
+            dtypes[dtype] += 1;
+        } else {
+            dtypes[dtype] = 1;
+        }
+        // If the node type is not 'image' then ask about deleting contents
+        if (!askDeleteContents && node.type != 'image') {
+            askDeleteContents = true;
+        }
+        if (node.data.obj.ownerId !== userId) {
+            notOwned = true;
+        }
+
+        // Disable the nodes marked for deletion
+        // Record them so they can easily be removed/re-enabled later
+        disabledNodes.push(node);
+        if (node.children) {
+            $.each(node.children, function(index, child) {
+                 traverse(child);
+            });
+        }
+        datatree.disable_node(node);
     });
+
     if (notOwned) {
         $("#deleteOthersWarning").show();
     } else {
         $("#deleteOthersWarning").hide();
     }
+
     var type_strings = [];
     for (var key in dtypes) {
-        if (key === "acquisition") key = "Plate Run";
-        type_strings.push(key.capitalize() + (dtypes[key]>1 && "s" || ""));
+        type_strings.push(key.replace("acquisition", "Run").capitalize() + (dtypes[key]>1 && "s" || ""));
     }
     var type_str = type_strings.join(" & ");    // For delete dialog: E.g. 'Project & Datasets'
     $("#delete_type").text(type_str);
-    if (!q) $("#delete_contents_form").hide();  // don't ask about deleting contents
+    if (!askDeleteContents) $("#delete_contents_form").hide();  // don't ask about deleting contents
 
     // callback when delete dialog is closed
     del_form.bind("dialogclose", function(event, ui) {
         if (del_form.data("clicked_button") == "Yes") {
             var delete_anns = $("#delete_anns").prop('checked');
             var delete_content = true;      // $("#delete_content").prop('checked');
-            if (delete_content) ajax_data[ajax_data.length] = 'child=true';
-            if (delete_anns) ajax_data[ajax_data.length] = 'anns=true';
-            var url = del_form.attr('data-url');
-            datatree.deselect_all();
+            if (delete_content) ajax_data[ajax_data.length] = 'child=on';
+            if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
+            var url = deleteUrl;
+
             $.ajax({
-                async : false,
                 url: url,
                 data : ajax_data.join("&"),
                 dataType: "json",
                 type: "POST",
                 success: function(r){
-                    if(eval(r.bad)) {
-                          $.jstree.rollback(data.rlbk);
-                          alert(r.errs);
-                      } else {
-                          // If deleting 'Plate Run', clear selection
-                          if (type_str.indexOf('Plate Run') > -1) {
-                            OME.clear_selected(true);
-                          } else {
-                            // otherwise, select parent
-                            OME.tree_selection_changed();   // clear center and right panels etc
-                            first_parent.children("a").click();
-                          }
-                          // remove node from tree
-                          datatree.delete_node(selected);
-                          OME.refreshActivities();
-                      }
+                    // Update the central panel in case delete removes an icon
+                    $.each(selected, function(index, node) {
+                        var e = {'type': 'delete_node'};
+                        var data = {'node': node,
+                                    'old_parent': firstParent};
+                        update_thumbnails_panel(e, data);
+                    });
+
+                    datatree.delete_node(selected);
+
+                    // Update the central panel with new selection
+                    datatree.deselect_all();
+                    // Don't select plate during 'Run' delete - tries to load partially deleted data
+                    if (firstParent.type !== "plate") {
+                        datatree.select_node(firstParent);
+                    }
+                    $.each(disabledNodes, function(index, node) {
+                        //TODO Make use of server calculated update like chgrp?
+                        updateParentRemoveNode(datatree, node, firstParent);
+                        removeDuplicateNodes(datatree, node);
+                    });
+
+                    OME.refreshActivities();
                 },
                 error: function(response) {
-                    $.jstree.rollback(data.rlbk);
-                    alert("Internal server error. Cannot remove object.");
+                    $.each(disabledNodes, function(index, node) {
+                        datatree.enable_node(node);
+                    });
                 }
+            });
+        } else {
+            // Cancelled, re-enable nodes
+            $.each(disabledNodes, function(index, node) {
+                 datatree.enable_node(node);
             });
         }
     });
 
     // Check if delete will attempt to partially delete a Fileset.
     var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
-        $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span'),
-        filesetCheckUrl = del_form.attr('data-fileset-check-url');
-    $.get(filesetCheckUrl + "?" + OME.get_tree_selection(), function(html){
+        $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
+    $.get(filesetCheckUrl + OME.get_tree_selection(), function(html){
         if($('div.split_fileset', html).length > 0) {
             var $del_form_content = del_form.children().hide();
             del_form.append(html);
@@ -534,11 +617,243 @@ OME.handleDelete = function() {
             del_form.bind("dialogclose", function(event, ui) {
                 $deleteYesBtn.show();
                 $deleteNoBtn.text("No");
-                $("#chgrp_split_filesets", del_form).remove();
+                $(".split_filesets_info", del_form).remove();
                 $del_form_content.show();
             });
         }
     });
+};
+
+OME.nodeHasPermission = function(node, permission) {
+    /*
+    * Check the permissions on a node
+    */
+
+    // Require that all nodes have the necessary permissions
+    if ($.isArray(node)) {
+        for (var index in node) {
+            if (!OME.nodeHasPermission(node[index], permission)) {
+                return false;
+            }
+        }
+        // All must have had the permission
+        return true;
+    }
+
+    if (permission === 'isOwned') {
+        if (node.data.obj.hasOwnProperty('ownerId') && node.data.obj.ownerId === currentUserId()) {
+            return node.data.obj.isOwned;
+        } else if (node.type === 'experimenter' && node.data.id == currentUserId()) {
+            return true;
+        }
+        return false;
+    }
+
+    // Check if the node data has permissions data
+    if (node.data.obj.hasOwnProperty('permsCss')) {
+        var perms = node.data.obj.permsCss;
+        // Determine if this node has this permission
+        if (perms.indexOf(permission) > -1) {
+            return true;
+        }
+    }
+    return false;
+};
+
+
+OME.writeSelectedObjs = function(selected_tree_nodes, selected_icons) {
+/***
+ * Write the current selection to the dom
+*/
+
+    // Here we handle data coming from jsTree. Nodes have data object from json
+    var selected_objs = [];
+    if (selected_tree_nodes !== undefined && selected_tree_nodes.length > 0) {
+        var inst = $.jstree.reference('#dataTree');
+        $.each(selected_tree_nodes, function(index, val) {
+            var node = inst.get_node(val);
+            var oid = node.type + '-' + node.data.obj.id;
+            var selected_obj = {
+                'id': oid,
+                'rel': node.type,
+                'class': node.data.obj.permsCss
+            };
+            if (node.data.obj.shareId) {
+                selected_obj.shareId = node.data.obj.shareId;
+            }
+            // If it's an image it will have a filesetId
+            if (node.type === 'image') {
+                selected_obj.fileset = node.data.obj.filesetId;
+            }
+
+            selected_objs.push(selected_obj);
+        });
+    // Or we have data from thumbnails. Data is from data-attr on DOM
+    } else if (selected_icons !== undefined && selected_icons.length > 0) {
+        selected_icons.each(function(index, el) {
+            var $el = $(el);
+            var oid = $el.data('type') + '-' + $el.data('id');
+            var selected_obj = {
+                'id': oid,
+                'rel': $el.data('type'),
+                'class': $el.data('perms')
+            };
+            if ($el.data("share")) {
+                selected_obj.shareId = $el.data("share");
+            }
+            // If it's an image it will have a filesetId
+            if ($el.data('type') === 'image') {
+                selected_obj.fileset = $el.data('fileset');
+            }
+
+            selected_objs.push(selected_obj);
+        });
+    }
+
+    $("body").data("selected_objects.ome", selected_objs);
+};
+
+OME.getTreeBestGuess = function(targetType, targetId) {
+    /***
+    * Get a tree node that is of the correct type and id
+    * that is in the current selection hierarchy
+    * This can mean that the target is selected, an ancestor is selected,
+    * or that it has a selected descendant
+    ***/
+    var datatree = $.jstree.reference('#dataTree');
+
+    // Find the matching child nodes from the tree
+    // Locate any matching nodes and then find the one (or take the first
+    // as there could be multiple) that has the currently selected parent
+    var locatedNodes = datatree.locate_node(targetType + '-' + targetId);
+
+    if (!locatedNodes) {
+        datatree.deselect_all();
+        return;
+    }
+
+    // Get the current jstree selection
+    var selectedNodes = datatree.get_selected();
+    var node;
+    var parentNodeIds = [];
+
+    var traverseUp = function(nodeId) {
+        // Got to the root, give up
+        if (nodeId === '#') {
+            return false;
+        } else {
+            // Found a node that was selected
+            if (selectedNodes.indexOf(nodeId) != -1) {
+                return true;
+            // Not found, recurse upwards
+            } else {
+                return traverseUp(datatree.get_parent(nodeId));
+            }
+        }
+    };
+
+    var traverseDown = function(nodeId) {
+        if (selectedNodes.indexOf(nodeId) != -1) {
+            return true;
+        }
+
+        var n = datatree.get_node(nodeId);
+        // Got to a leaf, give up
+        if (n.type === 'image'){
+            return false;
+        // Not found, recurse downwards
+        } else {
+            var ret = false;
+            $.each(n.children, function(index, val) {
+                 if (traverseDown(val)) {
+                    ret = true;
+                    // Breat out of each
+                    return false;
+                 }
+            });
+            return ret;
+        }
+    };
+
+    // Find a node that matches our target that has a selected parent
+    // Keep in mind that this will return the first potential node which
+    // has a selected parent.
+    // WARNING: This may not give expected results with multiselects
+    $.each(locatedNodes, function(index, val) {
+         if (traverseUp(val.id)) {
+            node = val;
+            // Break out of each
+            return false;
+         }
+         // It is possible that the selection is below the item we are looking for
+         // so look for a selection below as well to indicate the best guess
+         if (val.type != 'image' && traverseDown(val.id)) {
+            node = val;
+            // Break out of each
+            return false;
+         }
+    });
+
+    return node;
+
+};
+
+OME.getTreeImageContainerBestGuess = function(imageId) {
+
+    var datatree = $.jstree.reference('#dataTree');
+    var selectType = 'image';
+
+    // Find the matching child nodes from the tree
+    // Locate any matching nodes and then find the one (or take the first
+    // as there could be multiple) that has the currently selected parent
+    var locatedNodes = datatree.locate_node(selectType + '-' + imageId);
+
+    if (!locatedNodes) {
+        datatree.deselect_all();
+        return;
+    }
+
+    // Get the current jstree selection
+    var selectedNodes = datatree.get_selected(true);
+    var containerNode;
+    var parentNodeIds = [];
+
+    // Double check that it is either a single dataset selection or a multi
+    // image selection. Get all the possible parent nodes
+    if (selectedNodes.length === 1 && selectedNodes[0].type === 'dataset') {
+        parentNodeIds.push(selectedNodes[0].id);
+    } else if (selectedNodes.length >= 1 && selectedNodes[0].type === 'image') {
+        // Get the parents of the selected nodes
+        $.each(selectedNodes, function(index, selectedNode) {
+            parentNodeIds.push(datatree.get_parent(selectedNode));
+        });
+    }
+
+    // webclient allows multiselect which is not bounded by a
+    // single container. Take the first located node that has a correct
+    // parent and has a selection.
+
+    // Get the first of the located nodes that has one of these selected nodes as a parent
+    $.each(locatedNodes, function(index, locatedNode) {
+        var locatedNodeParentId = datatree.get_parent(locatedNode);
+
+        // If there was no selection, just guess that the first parent we come to is ok
+        if (parentNodeIds.length === 0) {
+            containerNode = datatree.get_node(locatedNodeParentId);
+            // Break out of $.each
+            return false;
+
+        // If this located node's parent is valid
+        } else if ($.inArray(locatedNodeParentId, parentNodeIds) != -1) {
+            // This is the container we need
+            containerNode = datatree.get_node(locatedNodeParentId);
+            // Break out of $.each
+            return false;
+        }
+
+    });
+
+    return containerNode;
 };
 
 OME.formatScriptName = function(name) {
@@ -547,7 +862,7 @@ OME.formatScriptName = function(name) {
     if (name.indexOf(".") > 0) {
         name = name.slice(0, name.indexOf(".")) + "...";
     }
-    return name
+    return name;
 };
 
 OME.showScriptList = function(event) {
@@ -557,7 +872,7 @@ OME.showScriptList = function(event) {
     // show menu - load if empty
     // $('#scriptList').css('visibility', 'visible');
     $('#scriptList').show();
-    if ($("#scriptList li").length == 0){  // if none loaded yet...
+    if ($("#scriptList li").length === 0){  // if none loaded yet...
         var $scriptLink = $(this);
         var $scriptSpinner = $("#scriptSpinner").show();
         var script_list_url = $(this).attr('href');
@@ -579,7 +894,7 @@ OME.showScriptList = function(event) {
                     }
                 }
                 return html;
-            }
+            };
 
             var html = "<ul class='menulist'>" + build_ul(data) + "</ul>";
 
@@ -593,17 +908,17 @@ OME.showScriptList = function(event) {
 
 OME.hideScriptList = function() {
     $("#scriptList").hide();
-}
+};
 
 OME.toggleFileAnnotationCheckboxes = function(event) {
     var checkboxes = $("#fileanns_container input[type=checkbox]");
     checkboxes.toggle().prop("checked", false);
     checkboxes.parents("li").toggleClass("selected", false);
-}
+};
 
 OME.fileAnnotationCheckboxChanged = function(event) {
     $(event.target).parents("li").toggleClass("selected");
-}
+};
 
 OME.fileAnnotationCheckboxDynamicallyAdded = function() {
     var checkboxesAreVisible = $(
@@ -612,7 +927,7 @@ OME.fileAnnotationCheckboxDynamicallyAdded = function() {
     if (checkboxesAreVisible) {
         $("#fileanns_container input[type=checkbox]:not(:visible)").toggle();
     }
-}
+};
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({

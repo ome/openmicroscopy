@@ -201,5 +201,8 @@ class BaseShare(BaseController):
         for ex in content:
             imageInShare.append(ex)
 
+        imageInShare.sort(
+            # Sort deleted items to the end of the list
+            key=lambda x: hasattr(x, 'getName') and x.getName() or "~")
         self.containers = {'images': imageInShare}
         self.c_size = len(imageInShare)

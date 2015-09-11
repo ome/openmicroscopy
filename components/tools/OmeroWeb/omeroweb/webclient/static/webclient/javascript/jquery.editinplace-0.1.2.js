@@ -97,14 +97,15 @@
                                                         $("#"+objId+" div.desc").text(new_name);
                                                         $("#"+objId+" div.image img").attr('title', new_name);  // tooltip
                                                         // And in jsTree
-                                                        var node = $.jstree._focused().get_selected();
-                                                        if (new_name.length > 30) {
-                                                            new_name = '...' + new_name.substring(new_name.length-30, new_name.length);
-                                                        }
-                                                        $("#dataTree").jstree('set_text', $.jstree._focused().get_selected(), new_name);
-                                                        // For images, set data and truncate if needed
-                                                        node.children('a').attr('data-name', new_name);
-                                                        OME.truncateNames();
+                                                        var dataTree = $.jstree.reference('#dataTree');
+                                                        var node = dataTree.get_selected(true)[0];
+
+                                                        // Update the names of all instances of this object currently existing in jstree
+                                                        var identicalNodes = dataTree.locate_node(node.type + '-' + node.data.obj.id);
+                                                        $.each(identicalNodes, function(index, identicalNode) {
+                                                             dataTree.rename_node(identicalNode, new_name);
+                                                        });
+
                                                     } else {
                                                         // OR we may be in the search page: Update image name in table...
                                                         var objId = field_id.replace("name","");    // E.g. imagename-123

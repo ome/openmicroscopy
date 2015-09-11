@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2014 Glencoe Software, Inc.
+# Copyright (C) 2014-2015 Glencoe Software, Inc.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -25,26 +25,1175 @@ import pytest
 import library as lib
 
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
-    PlateAcquisitionI
-from omero.rtypes import rstring
-from omeroweb.webclient.tree import marshal_datasets, marshal_plates, \
-    marshal_projects, marshal_screens
+from omero.constants.metadata import NSINSIGHTTAGSET
+from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
+    PlateAcquisitionI, TagAnnotationI, ProjectAnnotationLinkI, \
+    DatasetAnnotationLinkI, ImageAnnotationLinkI, ScreenAnnotationLinkI, \
+    PlateAnnotationLinkI, PlateAcquisitionAnnotationLinkI
+from omero.rtypes import rstring, rtime
+from omeroweb.webclient.tree import marshal_experimenter, \
+    marshal_projects, marshal_datasets, marshal_images, marshal_plates, \
+    marshal_screens, marshal_plate_acquisitions, marshal_orphaned, \
+    marshal_tags, marshal_tagged, marshal_shares, marshal_discussions
+
+from datetime import datetime
+
+
+def unwrap(x):
+    """Handle case where there is no value because attribute is None"""
+    if x is not None:
+        return x.val
+    return None
 
 
 def cmp_id(x, y):
     """Identifier comparator."""
-    return cmp(x.id.val, y.id.val)
+    return cmp(unwrap(x.id), unwrap(y.id))
 
 
 def cmp_name(x, y):
     """Name comparator."""
-    return cmp(x.name.val, y.name.val)
+    return cmp(unwrap(x.name), unwrap(y.name))
+
+
+def lower_or_none(x):
+    """ Lower the case or `None`"""
+    if x is not None:
+        return x.lower()
+    return None
 
 
 def cmp_name_insensitive(x, y):
     """Case-insensitive name comparator."""
-    return cmp(x.name.val.lower(), y.name.val.lower())
+    return cmp(lower_or_none(unwrap(x.name)),
+               lower_or_none(unwrap(y.name)))
+
+
+def cmp_omename_insensitive(x, y):
+    """Case-insensitive omeName comparator."""
+    return cmp(lower_or_none(unwrap(x.omeName)),
+               lower_or_none(unwrap(y.omeName)))
+
+
+def cmp_textValue_insensitive(x, y):
+    """Case-insensitive textValue comparator."""
+    return cmp(lower_or_none(unwrap(x.textValue)),
+               lower_or_none(unwrap(y.textValue)))
+
+
+def get_connection(user, group_id=None):
+    """
+    Get a BlitzGateway connection for the given user's client
+    """
+    connection = BlitzGateway(client_obj=user[0])
+    # Refresh the session context
+    connection.getEventContext()
+    if group_id is not None:
+        connection.SERVICE_OPTS.setOmeroGroup(group_id)
+    return connection
+
+
+def get_update_service(user):
+    """
+    Get the update_service for the given user's client
+    """
+    return user[0].getSession().getUpdateService()
+
+
+def get_perms(user, obj, dtype):
+    """
+    Get the permissions as a string from this list and in this order:
+    'canEdit canAnnotate canLink canDelete canChgrp'
+    according to the specified user (client, user)
+    """
+    qs = user[0].getSession().getQueryService()
+    # user reloads obj so that permissions apply correctly
+    obj = qs.get(dtype, obj.id.val, {'omero.group': '-1'})
+    permissions = obj.details.permissions
+    perms = []
+    if permissions.canEdit():
+        perms.append('canEdit')
+    if permissions.canAnnotate():
+        perms.append('canAnnotate')
+    if permissions.canLink():
+        perms.append('canLink')
+    if permissions.canDelete():
+        perms.append('canDelete')
+    if obj.details.owner.id.val == user[1].id.val:
+        perms.append('isOwned')
+    # TODO Add chgrp permission to an admin user
+    if obj.details.owner.id.val == user[1].id.val:
+        perms.append('canChgrp')
+
+    return ' '.join(perms)
+
+
+def expected_experimenter(user):
+    expected = {
+        'id': user[1].id.val,
+        'omeName': user[1].omeName.val,
+        'firstName': user[1].firstName.val,
+        'lastName': user[1].lastName.val
+    }
+    if user[1].email is not None:
+        expected['email'] = user[1].email.val
+    return expected
+
+
+def expected_projects(user, projects):
+    """ Marshal projects with permissions according to user """
+    expected = []
+    for project in projects:
+        expected.append({
+            'id': project.id.val,
+            'name': project.name.val,
+            'ownerId': project.details.owner.id.val,
+            'childCount': len(project.linkedDatasetList()),
+            'permsCss': get_perms(user, project, "Project")
+        })
+    return expected
+
+
+def expected_datasets(user, datasets):
+    expected = []
+    for dataset in datasets:
+        expected.append({
+            'id': dataset.id.val,
+            'name': dataset.name.val,
+            'ownerId': dataset.details.owner.id.val,
+            'childCount': len(dataset.linkedImageList()),
+            'permsCss': get_perms(user, dataset, "Dataset")
+        })
+    return expected
+
+
+# TODO Is there a way to test load_pixels when these fake images don't
+# actually have any pixels?
+def expected_images(user, images, shareId=None):
+    expected = []
+    for image in images:
+        i = {
+            'id': image.id.val,
+            'name': image.name.val,
+            'ownerId': image.details.owner.id.val,
+            'permsCss': get_perms(user, image, "Image"),
+        }
+        if shareId is not None:
+            i['shareId'] = shareId
+        if image.fileset is not None:
+            i['filesetId'] = image.fileset.id.val
+        expected.append(i)
+    return expected
+
+
+def expected_screens(user, screens):
+    expected = []
+    for screen in screens:
+        expected.append({
+            'id': screen.id.val,
+            'name': screen.name.val,
+            'ownerId': screen.details.owner.id.val,
+            'childCount': len(screen.linkedPlateList()),
+            'permsCss': get_perms(user, screen, "Screen")
+        })
+    return expected
+
+
+def expected_plates(user, plates):
+    expected = []
+    for plate in plates:
+        expected.append({
+            'id': plate.id.val,
+            'name': plate.name.val,
+            'ownerId': plate.details.owner.id.val,
+            'childCount': len(plate.copyPlateAcquisitions()),
+            'permsCss': get_perms(user, plate, "Plate")
+        })
+    return expected
+
+
+def expected_plate_acquisitions(user, plate_acquisitions):
+    expected = []
+    for acq in plate_acquisitions:
+
+        if acq.name is not None:
+            acq_name = acq.name.val
+        elif acq.startTime is not None and acq.endTime is not None:
+            start_time = datetime.utcfromtimestamp(acq.startTime.val / 1000.0)
+            end_time = datetime.utcfromtimestamp(acq.endTime.val / 1000.0)
+            acq_name = '%s - %s' % (start_time, end_time)
+        else:
+            acq_name = 'Run %d' % acq.id.val
+
+        expected.append({
+            'id': acq.id.val,
+            'name': acq_name,
+            'ownerId': acq.details.owner.id.val,
+            'permsCss': get_perms(user, acq, "PlateAcquisition")
+        })
+    return expected
+
+
+def expected_orphaned(user, images):
+    return {
+        'id': user[1].id.val,
+        'childCount': len(images)
+    }
+
+
+def expected_tags(user, tags):
+    expected = []
+    for tag in tags:
+        t = {
+            'id': tag.id.val,
+            'value': tag.textValue.val,
+            'ownerId': tag.details.owner.id.val,
+            'childCount': len(tag.linkedAnnotationList()),
+            'permsCss': get_perms(user, tag, "TagAnnotation")
+        }
+        if tag.description is not None:
+            t['description'] = tag.description.val
+
+        if tag.ns is not None and tag.ns.val == NSINSIGHTTAGSET:
+            t['set'] = True
+        else:
+            t['set'] = False
+        expected.append(t)
+    return expected
+
+
+def expected_tagged(user, projects, datasets, images, screens, plates,
+                    plate_acquisitions):
+    return {
+        'projects': expected_projects(user, projects),
+        'datasets': expected_datasets(user, datasets),
+        'images': expected_images(user, images),
+        'screens': expected_screens(user, screens),
+        'plates': expected_plates(user, plates),
+        'acquisitions': expected_plate_acquisitions(user, plate_acquisitions)
+    }
+
+
+def expected_shares(user, shares):
+    expected = []
+    for share in shares:
+        expected.append({
+            'id': share.id.val,
+            'ownerId': share.owner.id.val,
+            'childCount': share.getItemCount().val
+        })
+    return expected
+
+
+def expected_discussions(user, discussions):
+    expected = []
+    for discussion in discussions:
+        expected.append({
+            'id': discussion.id.val,
+            'ownerId': discussion.owner.id.val
+        })
+    return expected
+
+
+# Some names
+@pytest.fixture(scope='module')
+def names1(request):
+    return ('Apple', 'bat')
+
+
+@pytest.fixture(scope='module')
+def names2(request):
+    return ('Axe',)
+
+
+@pytest.fixture(scope='module')
+def names3(request):
+    return ('Bark', 'custard')
+
+
+@pytest.fixture(scope='module')
+def names4(request):
+    return ('Butter',)
+
+
+# Projects
+@pytest.fixture(scope='function')
+def projects_userA_groupA(request, names1, userA,
+                          project_hierarchy_userA_groupA):
+    """
+    Returns new OMERO Projects with required fields set and with names
+    that can be used to exercise sorting semantics.
+    """
+    to_save = []
+    for name in names1:
+        project = ProjectI()
+        project.name = rstring(name)
+        to_save.append(project)
+    projects = get_update_service(userA).saveAndReturnArray(to_save)
+    projects.extend(project_hierarchy_userA_groupA[:2])
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
+@pytest.fixture(scope='function')
+def projects_userB_groupA(request, names2, userB):
+    """
+    Returns a new OMERO Project with required fields set and with a name
+    that can be used to exercise sorting semantics.
+    """
+    to_save = []
+    for name in names2:
+        project = ProjectI()
+        project.name = rstring(name)
+        to_save.append(project)
+    projects = get_update_service(userB).saveAndReturnArray(
+        to_save)
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
+@pytest.fixture(scope='function')
+def projects_userA_groupB(request, names3, userA, groupB):
+    """
+    Returns new OMERO Projects with required fields set and with names
+    that can be used to exercise sorting semantics.
+    """
+    to_save = []
+    for name in names3:
+        project = ProjectI()
+        project.name = rstring(name)
+        to_save.append(project)
+    conn = get_connection(userA, groupB.id.val)
+    projects = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                          conn.SERVICE_OPTS)
+
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
+@pytest.fixture(scope='function')
+def projects_groupA(request, projects_userA_groupA,
+                    projects_userB_groupA):
+    """
+    Returns OMERO Projects for userA and userB in groupA
+    """
+    projects = projects_userA_groupA + projects_userB_groupA
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
+@pytest.fixture(scope='function')
+def projects_groupB(request, projects_userA_groupB):
+    """
+    Returns OMERO Projects for userA and userB in groupB
+    """
+    projects = projects_userA_groupB
+    # projects.sort(cmp_name_insensitive)
+    return projects
+
+
+@pytest.fixture(scope='function')
+def projects_userA(request, projects_userA_groupA,
+                   projects_userA_groupB):
+    """
+    Returns OMERO Projects for userA in both groupA and groupB
+    """
+    projects = projects_userA_groupA + projects_userA_groupB
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
+@pytest.fixture(scope='function')
+def projects(request, projects_groupA,
+             projects_groupB):
+    """
+    Returns OMERO Projects for both users in read-only group
+    """
+    projects = projects_groupA + projects_groupB
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
+# Datasets
+@pytest.fixture(scope='function')
+def datasets_userA_groupA(request, userA):
+    """
+    Returns new OMERO Datasets without project parents for userA in groupA
+    """
+    to_save = []
+    for name in ['Tiger', 'sparrow']:
+        dataset = DatasetI()
+        dataset.name = rstring(name)
+        to_save.append(dataset)
+    datasets = get_update_service(userA).saveAndReturnArray(to_save)
+    datasets.sort(cmp_name_insensitive)
+    return datasets
+
+
+@pytest.fixture(scope='function')
+def datasets_userB_groupA(request, userB):
+    """
+    Returns new OMERO Datasets without project parents for userB in groupA
+    """
+    to_save = []
+    for name in ['lion', 'Zebra']:
+        dataset = DatasetI()
+        dataset.name = rstring(name)
+        to_save.append(dataset)
+    datasets = get_update_service(userB).saveAndReturnArray(to_save)
+    datasets.sort(cmp_name_insensitive)
+    return datasets
+
+
+@pytest.fixture(scope='function')
+def datasets_userA_groupB(request, userA, groupB):
+    """
+    Returns new OMERO Datasets without project parents for userA in groupB
+    """
+    to_save = []
+    for name in ['Meerkat', 'anteater']:
+        dataset = DatasetI()
+        dataset.name = rstring(name)
+        to_save.append(dataset)
+    conn = get_connection(userA, groupB.id.val)
+    datasets = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                          conn.SERVICE_OPTS)
+
+    datasets.sort(cmp_name_insensitive)
+    return datasets
+
+
+@pytest.fixture(scope='function')
+def datasets_groupA(request, datasets_userA_groupA,
+                    datasets_userB_groupA):
+    """
+    Returns OMERO Datasets for userA and userB in groupA
+    """
+    datasets = datasets_userA_groupA + datasets_userB_groupA
+    datasets.sort(cmp_name_insensitive)
+    return datasets
+
+
+@pytest.fixture(scope='function')
+def datasets_groupB(request, datasets_userA_groupB):
+    """
+    Returns OMERO Datasets for userA and userB in groupB
+    """
+    datasets = datasets_userA_groupB
+    # datasets.sort(cmp_name_insensitive)
+    return datasets
+
+
+@pytest.fixture(scope='function')
+def datasets_userA(request, datasets_userA_groupA,
+                   datasets_userA_groupB):
+    """
+    Returns OMERO Datasets for userA in groupA and groupB
+    """
+    datasets = datasets_userA_groupA + datasets_userA_groupB
+    datasets.sort(cmp_name_insensitive)
+    return datasets
+
+
+@pytest.fixture(scope='function')
+def datasets(request, datasets_groupA,
+             datasets_groupB):
+    """
+    Returns OMERO Datasets for all users in all groups
+    """
+    datasets = datasets_groupA + datasets_groupB
+    datasets.sort(cmp_name_insensitive)
+    return datasets
+
+
+# ### Images ###
+@pytest.fixture(scope='function')
+def images_groupA(request, images_userA_groupA,
+                  images_userB_groupA):
+    """
+    Returns OMERO Images for userA and userB in groupA
+    """
+    images = images_userA_groupA + images_userB_groupA
+    images.sort(cmp_name_insensitive)
+    return images
+
+
+@pytest.fixture(scope='function')
+def images_groupB(request, images_userA_groupB):
+    """
+    Returns OMERO Images for userA and userB in groupB
+    """
+    images = images_userA_groupB
+    # images.sort(cmp_name_insensitive)
+    return images
+
+
+@pytest.fixture(scope='function')
+def images_userA(request, images_userA_groupA, images_userA_groupB):
+    """
+    Returns OMERO Images for userA in groupA and groupB
+    """
+    images = images_userA_groupA + images_userA_groupB
+    images.sort(cmp_name_insensitive)
+    return images
+
+
+@pytest.fixture(scope='function')
+def images(request, images_groupA, images_groupB):
+    """
+    Returns OMERO Images for all users in all groups
+    """
+    images = images_groupA + images_groupB
+    images.sort(cmp_name_insensitive)
+    return images
+
+
+# Shares
+@pytest.fixture(scope='function')
+def shares_userA_owned(request, userA, userB, images_userA_groupA):
+    """
+    Returns OMERO Shares with Image Children for userA
+    """
+    conn = get_connection(userA)
+    shares = []
+    for name in ['ShareB', 'ShareA']:
+        # It seems odd that unlike most services, createShare returns the id
+        # of what was created instead of the share itself
+        sid = conn.getShareService().createShare(name, rtime(None),
+                                                 images_userA_groupA,
+                                                 [userB[1]],
+                                                 [], True)
+        sh = conn.getShareService().getShare(sid)
+        shares.append(sh)
+    shares.sort(cmp_id)
+    return shares
+
+
+@pytest.fixture(scope='function')
+def shares_userB_owned(request, userA, userB, images_userB_groupA):
+    """
+    Returns new OMERO Shares with Image Children for userB
+    """
+    conn = get_connection(userB)
+    shares = []
+    for name in ['ShareD', 'ShareC']:
+        sid = conn.getShareService().createShare(name, rtime(None),
+                                                 images_userB_groupA,
+                                                 [userA[1]],
+                                                 [], True)
+        sh = conn.getShareService().getShare(sid)
+        shares.append(sh)
+    shares.sort(cmp_id)
+    return shares
+
+
+@pytest.fixture(scope='function')
+def shares(request, shares_userA_owned, shares_userB_owned):
+    """
+    Returns OMERO Shares for userA and userB
+    """
+    shares = shares_userA_owned + shares_userB_owned
+    shares.sort(cmp_id)
+    return shares
+
+
+# Discussions
+@pytest.fixture(scope='function')
+def discussions_userA_owned(request, userA, userB):
+    """
+    Returns OMERO Shares with Image Children for userA
+    """
+    conn = get_connection(userA)
+    discussions = []
+    for name in ['DiscussionB', 'DiscussionA']:
+        sid = conn.getShareService().createShare(name, rtime(None),
+                                                 [],
+                                                 [userB[1]],
+                                                 [], True)
+        sh = conn.getShareService().getShare(sid)
+        discussions.append(sh)
+    discussions.sort(cmp_id)
+    return discussions
+
+
+@pytest.fixture(scope='function')
+def discussions_userB_owned(request, userA, userB):
+    """
+    Returns new OMERO Shares with Image Children for userB
+    """
+    conn = get_connection(userB)
+    discussions = []
+    for name in ['DiscussionD', 'DiscussionC']:
+        sid = conn.getShareService().createShare(name, rtime(None),
+                                                 [],
+                                                 [userA[1]],
+                                                 [], True)
+        sh = conn.getShareService().getShare(sid)
+        discussions.append(sh)
+    discussions.sort(cmp_id)
+    return discussions
+
+
+@pytest.fixture(scope='function')
+def discussions(request, discussions_userA_owned, discussions_userB_owned):
+    """
+    Returns OMERO Shares for userA and userB
+    """
+    discussions = discussions_userA_owned + discussions_userB_owned
+    discussions.sort(cmp_id)
+    return discussions
+
+
+# Screens
+@pytest.fixture(scope='function')
+def screens_userA_groupA(request, userA):
+    """
+    Returns new OMERO Screens for userA in groupA
+    """
+    to_save = []
+    for name in ['France', 'albania']:
+        screen = ScreenI()
+        screen.name = rstring(name)
+        to_save.append(screen)
+
+    screens = get_update_service(userA).saveAndReturnArray(to_save)
+    screens.sort(cmp_name_insensitive)
+    return screens
+
+
+@pytest.fixture(scope='function')
+def screens_userB_groupA(request, userB):
+    """
+    Returns new OMERO Screens for userB in groupA
+    """
+    to_save = []
+    for name in ['Canada', 'Australia']:
+        screen = ScreenI()
+        screen.name = rstring(name)
+        to_save.append(screen)
+
+    screens = get_update_service(userB).saveAndReturnArray(to_save)
+    screens.sort(cmp_name_insensitive)
+    return screens
+
+
+@pytest.fixture(scope='function')
+def screens_userA_groupB(request, userA, groupB):
+    """
+    Returns new OMERO Screens for userA in groupB
+    """
+    to_save = []
+    for name in ['United States of America', 'United Kingom']:
+        screen = ScreenI()
+        screen.name = rstring(name)
+        to_save.append(screen)
+
+    conn = get_connection(userA, groupB.id.val)
+    screens = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                         conn.SERVICE_OPTS)
+    screens.sort(cmp_name_insensitive)
+    return screens
+
+
+@pytest.fixture(scope='function')
+def screens_groupA(request, screens_userA_groupA, screens_userB_groupA):
+    """
+    Returns OMERO Screens for userA and userB in groupA
+    """
+    screens = screens_userA_groupA + screens_userB_groupA
+    screens.sort(cmp_name_insensitive)
+    return screens
+
+
+@pytest.fixture(scope='function')
+def screens_groupB(request, screens_userA_groupB):
+    """
+    Returns OMERO Screens for userA and userB in groupB
+    """
+    screens = screens_userA_groupB
+    # screens.sort(cmp_name_insensitive)
+    return screens
+
+
+@pytest.fixture(scope='function')
+def screens_userA(request, screens_userA_groupA, screens_userA_groupB):
+    """
+    Returns OMERO Screens for userA in groupA and groupB
+    """
+    screens = screens_userA_groupA + screens_userA_groupB
+    screens.sort(cmp_name_insensitive)
+    return screens
+
+
+@pytest.fixture(scope='function')
+def screens(request, screens_groupA, screens_groupB):
+    """
+    Returns OMERO Screens for all users in all groups
+    """
+    screens = screens_groupA + screens_groupB
+    screens.sort(cmp_name_insensitive)
+    return screens
+
+
+# Plates
+@pytest.fixture(scope='function')
+def plates_userA_groupA(request, userA):
+    """
+    Returns new OMERO Plates for userA in groupA
+    """
+    to_save = []
+    for name in ['New York', 'New Amsterdam']:
+        plate = PlateI()
+        plate.name = rstring(name)
+        to_save.append(plate)
+
+    plates = get_update_service(userA).saveAndReturnArray(to_save)
+    plates.sort(cmp_name_insensitive)
+    return plates
+
+
+@pytest.fixture(scope='function')
+def plates_userB_groupA(request, userB):
+    """
+    Returns new OMERO Plates for userB in groupA
+    """
+    to_save = []
+    for name in ['Istanbul', 'Constantinople']:
+        plate = PlateI()
+        plate.name = rstring(name)
+        to_save.append(plate)
+
+    plates = get_update_service(userB).saveAndReturnArray(to_save)
+    plates.sort(cmp_name_insensitive)
+    return plates
+
+
+@pytest.fixture(scope='function')
+def plates_userA_groupB(request, userA, groupB):
+    """
+    Returns new OMERO Plates for userA in groupB
+    """
+    to_save = []
+    for name in ['Mumbai', 'Bombay']:
+        plate = PlateI()
+        plate.name = rstring(name)
+        to_save.append(plate)
+
+    conn = get_connection(userA, groupB.id.val)
+    plates = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                        conn.SERVICE_OPTS)
+    plates.sort(cmp_name_insensitive)
+    return plates
+
+
+@pytest.fixture(scope='function')
+def plates_groupA(request, plates_userA_groupA, plates_userB_groupA):
+    """
+    Returns OMERO Plates for userA and userB in groupA
+    """
+    plates = plates_userA_groupA + plates_userB_groupA
+    plates.sort(cmp_name_insensitive)
+    return plates
+
+
+@pytest.fixture(scope='function')
+def plates_groupB(request, plates_userA_groupB):
+    """
+    Returns OMERO Plates for userA and userB in groupB
+    """
+    plates = plates_userA_groupB
+    # plates.sort(cmp_name_insensitive)
+    return plates
+
+
+@pytest.fixture(scope='function')
+def plates_userA(request, plates_userA_groupA, plates_userA_groupB):
+    """
+    Returns OMERO Plates for userA in groupA and groupB
+    """
+    plates = plates_userA_groupA + plates_userA_groupB
+    plates.sort(cmp_name_insensitive)
+    return plates
+
+
+@pytest.fixture(scope='function')
+def plates(request, plates_groupA, plates_groupB):
+    """
+    Returns OMERO Plates for all users in all groups
+    """
+    plates = plates_groupA + plates_groupB
+    plates.sort(cmp_name_insensitive)
+    return plates
+
+
+@pytest.fixture(scope='function')
+def screen_hierarchy_userA_groupA(request, userA):
+    """
+    Returns OMERO Screens with Plate Children with Plate Acquisition Children
+
+    Note: This returns a list of mixed objects in a specified order
+    """
+
+    # Create and name all the objects
+    screenA = ScreenI()
+    screenA.name = rstring('ScreenA')
+    screenB = ScreenI()
+    screenB.name = rstring('ScreenB')
+    plateA = PlateI()
+    plateA.name = rstring('PlateA')
+    acqA = PlateAcquisitionI()
+    acqA.name = rstring('AcqA')
+    # No name for acqB
+    acqNone = PlateAcquisitionI()
+    # Only set startTime and endTime for acqC
+    acqTime = PlateAcquisitionI()
+    acqTime.startTime = rtime(0)
+    acqTime.endTime = rtime(1)
+
+    # Link them together like so:
+    # screenA
+    #   plateA
+    #       acqA
+    #       acqNone
+    #       acqTime
+    # screenB
+    #   plateA
+    #       acqA
+    #       acqNone
+    #       acqTime
+    screenA.linkPlate(plateA)
+    screenB.linkPlate(plateA)
+
+    plateA.addPlateAcquisition(acqA)
+    plateA.addPlateAcquisition(acqNone)
+    plateA.addPlateAcquisition(acqTime)
+
+    to_save = [screenA, screenB]
+    screens = get_update_service(userA).saveAndReturnArray(to_save)
+    screens.sort(cmp_name_insensitive)
+
+    plates = screens[0].linkedPlateList()
+    plates.sort(cmp_name_insensitive)
+
+    acqs = plates[0].copyPlateAcquisitions()
+
+    acqs.sort(cmp_id)
+
+    return screens + plates + acqs
+
+
+@pytest.fixture(scope='function')
+def screen_hierarchy_userB_groupA(request, userB):
+    """
+    Returns OMERO Screens with Plate Children with Plate Acquisition Children
+
+    Note: This returns a list of mixed objects in a specified order
+    """
+
+    # Create and name all the objects
+    screenC = ScreenI()
+    screenC.name = rstring('ScreenC')
+    plateB = PlateI()
+    plateB.name = rstring('PlateB')
+    acqB = PlateAcquisitionI()
+    acqB.name = rstring('AcqB')
+
+    # Link them together like so:
+    # screenC
+    #   plateB
+    #       acqB
+
+    screenC.linkPlate(plateB)
+
+    plateB.addPlateAcquisition(acqB)
+
+    to_save = [screenC]
+    screens = get_update_service(userB).saveAndReturnArray(to_save)
+    screens.sort(cmp_name_insensitive)
+
+    plates = screens[0].linkedPlateList()
+
+    acqs = plates[0].copyPlateAcquisitions()
+
+    return screens + plates + acqs
+
+
+@pytest.fixture(scope='function')
+def screen_hierarchy_userA_groupB(request, userA, groupB):
+    """
+    Returns OMERO Screens with Plate Children with Plate Acquisition Children
+
+    Note: This returns a list of mixed objects in a specified order
+    """
+
+    # Create and name all the objects
+    screenD = ScreenI()
+    screenD.name = rstring('ScreenD')
+    plateC = PlateI()
+    plateC.name = rstring('PlateC')
+    acqC = PlateAcquisitionI()
+    acqC.name = rstring('AcqC')
+
+    # Link them together like so:
+    # screenD
+    #   plateC
+    #       acqC
+
+    screenD.linkPlate(plateC)
+
+    plateC.addPlateAcquisition(acqC)
+
+    to_save = [screenD]
+    conn = get_connection(userA, groupB.id.val)
+    screens = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                         conn.SERVICE_OPTS)
+    screens.sort(cmp_name_insensitive)
+
+    plates = screens[0].linkedPlateList()
+
+    acqs = plates[0].copyPlateAcquisitions()
+
+    return screens + plates + acqs
+
+
+@pytest.fixture(scope='function')
+def tags_userA_groupA(request, userA, tagset_hierarchy_userA_groupA):
+    """
+    Returns new OMERO Tags
+    """
+    to_save = []
+    for name in ['Jupiter', 'mars']:
+        tag = TagAnnotationI()
+        tag.textValue = rstring(name)
+        to_save.append(tag)
+    tags = get_update_service(userA).saveAndReturnArray(to_save)
+    tags.extend(tagset_hierarchy_userA_groupA[:2])
+    tags.sort(cmp_id)
+    return tags
+
+
+@pytest.fixture(scope='function')
+def tags_userB_groupA(request, userB):
+    """
+    Returns new OMERO Tags for userB in groupA
+    """
+    to_save = []
+    for name in ['venus', 'Earth']:
+        tag = TagAnnotationI()
+        tag.textValue = rstring(name)
+        to_save.append(tag)
+
+    tags = get_update_service(userB).saveAndReturnArray(to_save)
+    tags.sort(cmp_id)
+    return tags
+
+
+@pytest.fixture(scope='function')
+def tags_userA_groupB(request, userA, groupB):
+    """
+    Returns new OMERO Tags for userA in groupB
+    """
+    to_save = []
+    for name in ['Saturn', 'Mercury']:
+        tag = TagAnnotationI()
+        tag.textValue = rstring(name)
+        to_save.append(tag)
+
+    conn = get_connection(userA, groupB.id.val)
+    tags = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                      conn.SERVICE_OPTS)
+    tags.sort(cmp_id)
+    return tags
+
+
+@pytest.fixture(scope='function')
+def tags_groupA(request, tags_userA_groupA, tags_userB_groupA):
+    """
+    Returns OMERO Tags for userA and userB in groupA
+    """
+    tags = tags_userA_groupA + tags_userB_groupA
+    tags.sort(cmp_id)
+    return tags
+
+
+@pytest.fixture(scope='function')
+def tags_groupB(request, tags_userA_groupB):
+    """
+    Returns OMERO Tags for userA and userB in groupB
+    """
+    tags = tags_userA_groupB
+    # tags.sort(cmp_name_insensitive)
+    return tags
+
+
+@pytest.fixture(scope='function')
+def tags_userA(request, tags_userA_groupA, tags_userA_groupB):
+    """
+    Returns OMERO Tags for userA in groupA and groupB
+    """
+    tags = tags_userA_groupA + tags_userA_groupB
+    tags.sort(cmp_id)
+    return tags
+
+
+@pytest.fixture(scope='function')
+def tags(request, tags_groupA, tags_groupB):
+    """
+    Returns OMERO Tags for all users in all groups
+    """
+    tags = tags_groupA + tags_groupB
+    tags.sort(cmp_id)
+    return tags
+
+
+@pytest.fixture(scope='function')
+def tagset_hierarchy_userA_groupA(request, userA, userB,
+                                  project_hierarchy_userA_groupA,
+                                  screen_hierarchy_userA_groupA):
+    """
+    Returns OMERO TagSets with Tag Children with Project Children
+
+    Note: This returns a list of mixed objects in a specified order
+    """
+
+    project = project_hierarchy_userA_groupA[0]
+    dataset = project_hierarchy_userA_groupA[2]
+    image = project_hierarchy_userA_groupA[4]
+    screen = screen_hierarchy_userA_groupA[0]
+    plate = screen_hierarchy_userA_groupA[2]
+    acq = screen_hierarchy_userA_groupA[3]
+
+    # Create and name all the objects
+    tagsetA = TagAnnotationI()
+    tagsetA.textValue = rstring('TagsetA')
+    tagsetA.ns = rstring(NSINSIGHTTAGSET)
+    tagA = TagAnnotationI()
+    tagA.textValue = rstring('TagA')
+
+    # Link them together like so:
+    # tagsetA
+    #   tagA
+    #       projectA
+
+    tagsetA.linkAnnotation(tagA)
+
+    to_save = [tagsetA]
+    conn = get_connection(userA)
+    tagsets = conn.getUpdateService().saveAndReturnArray(to_save)
+    tagsets.sort(cmp_id)
+
+    tags = tagsets[0].linkedAnnotationList()
+    tags.sort(cmp_id)
+
+    project_link = ProjectAnnotationLinkI()
+    project_link.parent = project
+    project_link.child = tags[0]
+
+    dataset_link = DatasetAnnotationLinkI()
+    dataset_link.parent = dataset
+    dataset_link.child = tags[0]
+
+    image_link = ImageAnnotationLinkI()
+    image_link.parent = image
+    image_link.child = tags[0]
+
+    screen_link = ScreenAnnotationLinkI()
+    screen_link.parent = screen
+    screen_link.child = tags[0]
+
+    plate_link = PlateAnnotationLinkI()
+    plate_link.parent = plate
+    plate_link.child = tags[0]
+
+    acq_link = PlateAcquisitionAnnotationLinkI()
+    acq_link.parent = acq
+    acq_link.child = tags[0]
+
+    to_save = [project_link, dataset_link, image_link, screen_link, plate_link,
+               acq_link]
+
+    links = conn.getUpdateService().saveAndReturnArray(to_save)
+
+    # User B also links tag to image
+    image_link = ImageAnnotationLinkI()
+    image_link.parent = ImageI(image.id.val, False)
+    image_link.child = TagAnnotationI(tags[0].id.val, False)
+    get_connection(userB).getUpdateService().saveObject(image_link)
+
+    # links is: project, dataset, image, screen, plate, acquisition
+    return tagsets + tags + [link.parent for link in links]
+
+
+@pytest.fixture(scope='function')
+def tagset_hierarchy_userB_groupA(request, userA,
+                                  project_hierarchy_userA_groupA,
+                                  screen_hierarchy_userA_groupA):
+    """
+    Returns OMERO TagSets with Tag Children with Project Children
+
+    Note: This returns a list of mixed objects in a specified order
+    """
+
+    project = project_hierarchy_userA_groupA[0]
+    dataset = project_hierarchy_userA_groupA[2]
+    image = project_hierarchy_userA_groupA[4]
+    screen = screen_hierarchy_userA_groupA[0]
+    plate = screen_hierarchy_userA_groupA[2]
+    acq = screen_hierarchy_userA_groupA[3]
+
+    # Create and name all the objects
+    tagsetA = TagAnnotationI()
+    tagsetA.textValue = rstring('TagsetA')
+    tagsetA.ns = rstring(NSINSIGHTTAGSET)
+    tagA = TagAnnotationI()
+    tagA.textValue = rstring('TagA')
+
+    # Link them together like so:
+    # tagsetA
+    #   tagA
+    #       projectA
+
+    tagsetA.linkAnnotation(tagA)
+
+    to_save = [tagsetA]
+    conn = get_connection(userA)
+    tagsets = conn.getUpdateService().saveAndReturnArray(to_save)
+    tagsets.sort(cmp_id)
+
+    tags = tagsets[0].linkedAnnotationList()
+    tags.sort(cmp_id)
+
+    project_link = ProjectAnnotationLinkI()
+    project_link.parent = project
+    project_link.child = tags[0]
+
+    dataset_link = DatasetAnnotationLinkI()
+    dataset_link.parent = dataset
+    dataset_link.child = tags[0]
+
+    image_link = ImageAnnotationLinkI()
+    image_link.parent = image
+    image_link.child = tags[0]
+
+    screen_link = ScreenAnnotationLinkI()
+    screen_link.parent = screen
+    screen_link.child = tags[0]
+
+    plate_link = PlateAnnotationLinkI()
+    plate_link.parent = plate
+    plate_link.child = tags[0]
+
+    acq_link = PlateAcquisitionAnnotationLinkI()
+    acq_link.parent = acq
+    acq_link.child = tags[0]
+
+    to_save = [project_link, dataset_link, image_link, screen_link, plate_link,
+               acq_link]
+
+    links = conn.getUpdateService().saveAndReturnArray(to_save)
+
+    # links is: project, dataset, image, screen, plate, acquisition
+    return tagsets + tags + [link.parent for link in links]
 
 
 class TestTree(lib.ITest):
@@ -61,742 +1210,1045 @@ class TestTree(lib.ITest):
      * https://pytest.org/latest/fixture.html
     """
 
-    @classmethod
-    def setup_class(cls):
-        """Returns a logged in Django test client."""
-        super(TestTree, cls).setup_class()
-        cls.names = ('Apple', 'bat', 'atom', 'Butter')
+    # Create a read-only group
+    @pytest.fixture(scope='function')
+    def groupA(self):
+        """Returns a new read-only group."""
+        return self.new_group(perms='rwra--')
 
-    def setup_method(self, method):
-        self.client = self.new_client(perms='rwr---')
-        self.conn = BlitzGateway(client_obj=self.client)
-        self.update = self.client.getSession().getUpdateService()
+    # Create a read-only group
+    @pytest.fixture(scope='function')
+    def groupB(self):
+        """Returns a new read-only group."""
+        return self.new_group(perms='rwr---')
 
-    @pytest.fixture
-    def projects(self):
-        """
-        Returns four new OMERO Projects with required fields set and with
-        names that can be used to exercise sorting semantics.
-        """
-        to_save = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
-        for index, project in enumerate(to_save):
-            project.name = rstring(self.names[index])
-        return self.update.saveAndReturnArray(to_save)
+    # Create a read-write group
+    @pytest.fixture()
+    def groupC(self):
+        """Returns a new read-only group."""
+        return self.new_group(perms='rwrw--')
 
-    @pytest.fixture
-    def project_dataset(self):
-        """
-        Returns a new OMERO Project and linked Dataset with required fields
-        set.
-        """
-        project = ProjectI()
-        project.name = rstring(self.uuid())
-        dataset = DatasetI()
-        dataset.name = rstring(self.uuid())
-        project.linkDataset(dataset)
-        return self.update.saveAndReturnObject(project)
+    # Create users in the read-only group
+    @pytest.fixture()
+    def userA(self, groupA, groupB):
+        """Returns a new user in the groupA group and also add to groupB"""
+        user = self.new_client_and_user(group=groupA)
+        self.add_groups(user[1], [groupB])
+        return user
 
-    @pytest.fixture
-    def project_dataset_image(self):
-        """
-        Returns a new OMERO Project, linked Dataset and linked Image populated
-        by an L{test.integration.library.ITest} instance with required fields
-        set.
-        """
-        project = ProjectI()
-        project.name = rstring(self.uuid())
-        dataset = DatasetI()
-        dataset.name = rstring(self.uuid())
-        image = self.new_image(name=self.uuid())
-        dataset.linkImage(image)
-        project.linkDataset(dataset)
-        return self.update.saveAndReturnObject(project)
+    @pytest.fixture()
+    def userB(self, groupA):
+        """Returns another new user in the read-only group."""
+        return self.new_client_and_user(group=groupA)
 
-    @pytest.fixture
-    def projects_datasets(self):
-        """
-        Returns four new OMERO Projects and four linked Datasets with required
-        fields set and with names that can be used to exercise sorting
-        semantics.
-        """
-        projects = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
-        for index, project in enumerate(projects):
-            project.name = rstring(self.names[index])
-            datasets = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
-            for index, dataset in enumerate(datasets):
-                dataset.name = rstring(self.names[index])
-                project.linkDataset(dataset)
-        return self.update.saveAndReturnArray(projects)
+    @pytest.fixture()
+    def userC(self, groupC):
+        """Returns a new user in the read-write group."""
+        return self.new_client_and_user(group=groupC)
 
-    @pytest.fixture
-    def datasets(self):
-        """
-        Returns four new OMERO Datasets with required fields set and with
-        names that can be used to exercise sorting semantics.
-        """
-        to_save = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
-        for index, dataset in enumerate(to_save):
-            dataset.name = rstring(self.names[index])
-        # Non-orphaned Dataset to catch issues with queries where non-orphaned
-        # datasets are included in the results.
-        project = ProjectI()
-        project.name = rstring(self.uuid())
-        dataset = DatasetI()
-        dataset.name = rstring(self.uuid())
-        project.linkDataset(dataset)
-        self.update.saveAndReturnObject(project)
-        return self.update.saveAndReturnArray(to_save)
+    @pytest.fixture()
+    def userD(self, groupC):
+        """Returns another new user in the read-write group."""
+        return self.new_client_and_user(group=groupC)
 
-    @pytest.fixture
-    def datasets_different_users(self):
-        """
-        Returns two new OMERO Datasets created by different users with
-        required fields set.
-        """
-        client = self.conn.c
-        group = self.conn.getGroupFromContext()._obj
-        datasets = list()
-        # User that has already been created by the "client" fixture
-        user, name = self.user_and_name(client)
-        self.add_experimenters(group, [user])
-        for name in (rstring(self.uuid()), rstring(self.uuid())):
-            client, user = self.new_client_and_user(group=group)
-            try:
-                dataset = DatasetI()
-                dataset.name = name
-                update_service = client.getSession().getUpdateService()
-                datasets.append(update_service.saveAndReturnObject(dataset))
-            finally:
-                client.closeSession()
-        return datasets
+    # @pytest.fixture()
+    # def projects_userA_groupA(self, names1, userA,
+    #                           project_hierarchy_userA_groupA):
+    #     """
+    #     Returns new OMERO Projects with required fields set and with names
+    #     that can be used to exercise sorting semantics.
+    #     """
+    #     to_save = []
+    #     for name in names1:
+    #         project = ProjectI()
+    #         project.name = rstring(name)
+    #         to_save.append(project)
+    #     projects = get_update_service(userA).saveAndReturnArray(to_save)
+    #     projects.extend(project_hierarchy_userA_groupA[:2])
+    #     projects.sort(cmp_name_insensitive)
+    #     return projects
 
-    @pytest.fixture
-    def screens(self):
-        """
-        Returns four new OMERO Screens with required fields set and with names
-        that can be used to exercise sorting semantics.
-        """
-        to_save = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
-        for index, screen in enumerate(to_save):
-            screen.name = rstring(self.names[index])
-        return self.update.saveAndReturnArray(to_save)
+    # @pytest.fixture()
+    # def projects_userB_groupA(self, names2, userB):
+    #     """
+    #     Returns a new OMERO Project with required fields set and with a name
+    #     that can be used to exercise sorting semantics.
+    #     """
+    #     to_save = []
+    #     for name in names2:
+    #         project = ProjectI()
+    #         project.name = rstring(name)
+    #         to_save.append(project)
+    #     projects = get_update_service(userB).saveAndReturnArray(
+    #         to_save)
+    #     projects.sort(cmp_name_insensitive)
+    #     return projects
 
-    @pytest.fixture
-    def screens_different_users(self):
+    # Images ###
+    @pytest.fixture()
+    def images_userA_groupA(self, userA):
         """
-        Returns two new OMERO Screens created by different users with
-        required fields set.
+        Returns new OMERO Images for userA in groupA
         """
-        client = self.conn.c
-        group = self.conn.getGroupFromContext()._obj
-        screens = list()
-        # User that has already been created by the "client" fixture
-        user, name = self.user_and_name(client)
-        self.add_experimenters(group, [user])
-        for name in (rstring(self.uuid()), rstring(self.uuid())):
-            client, user = self.new_client_and_user(group=group)
-            try:
-                screen = ScreenI()
-                screen.name = name
-                update_service = client.getSession().getUpdateService()
-                screens.append(update_service.saveAndReturnObject(screen))
-            finally:
-                client.closeSession()
-        return screens
+        to_save = []
+        for name in ['Neon', 'hydrogen', 'Helium', 'boron']:
+            image = self.new_image(name=name)
+            to_save.append(image)
 
-    @pytest.fixture
-    def screen_plate_run(self):
-        """
-        Returns a new OMERO Screen, linked Plate, and linked PlateAcquisition
-        with all required fields set.
-        """
-        screen = ScreenI()
-        screen.name = rstring(self.uuid())
-        plate = PlateI()
-        plate.name = rstring(self.uuid())
-        plate_acquisition = PlateAcquisitionI()
-        plate.addPlateAcquisition(plate_acquisition)
-        screen.linkPlate(plate)
-        return self.update.saveAndReturnObject(screen)
+        images = get_update_service(userA).saveAndReturnArray(to_save)
+        images.sort(cmp_name_insensitive)
+        return images
 
-    @pytest.fixture
-    def screens_plates_runs(self):
+    @pytest.fixture()
+    def image_pixels_userA(self, userA):
         """
-        Returns a two new OMERO Screens, two linked Plates, and two linked
-        PlateAcquisitions with all required fields set.
+        Returns a new image with pixels of fixed dimensions
         """
-        screens = [ScreenI(), ScreenI()]
-        for screen in screens:
-            screen.name = rstring(self.uuid())
-            plates = [PlateI(), PlateI()]
-            for plate in plates:
-                plate.name = rstring(self.uuid())
-                plate_acquisitions = [
-                    PlateAcquisitionI(), PlateAcquisitionI()]
-                for plate_acquisition in plate_acquisitions:
-                    plate.addPlateAcquisition(plate_acquisition)
-                screen.linkPlate(plate)
-        return self.update.saveAndReturnArray(screens)
+        sf = userA[0].sf
+        image = self.createTestImage(sizeX=50, sizeY=50, sizeZ=5, session=sf)
+        return image
 
-    @pytest.fixture
-    def screen_plate(self):
+    @pytest.fixture(scope='function')
+    def images_userB_groupA(self, userB):
         """
-        Returns a new OMERO Screen and linked Plate with required fields set.
+        Returns new OMERO Images for userB in groupA
         """
-        screen = ScreenI()
-        screen.name = rstring(self.uuid())
-        plate = PlateI()
-        plate.name = rstring(self.uuid())
-        screen.linkPlate(plate)
-        return self.update.saveAndReturnObject(screen)
+        to_save = []
+        for name in ['Oxygen', 'nitrogen']:
+            image = self.new_image(name=name)
+            to_save.append(image)
 
-    @pytest.fixture
-    def screens_plates(self):
-        """
-        Returns four new OMERO Screens and four linked Plates with required
-        fields set and with names that can be used to exercise sorting
-        semantics.
-        """
-        screens = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
-        for index, screen in enumerate(screens):
-            screen.name = rstring(self.names[index])
-            plates = [PlateI(), PlateI(), PlateI(), PlateI()]
-            for index, plate in enumerate(plates):
-                plate.name = rstring(self.names[index])
-                screen.linkPlate(plate)
-        return self.update.saveAndReturnArray(screens)
+        images = get_update_service(userB).saveAndReturnArray(to_save)
+        images.sort(cmp_name_insensitive)
+        return images
 
-    @pytest.fixture
-    def plates_runs(self):
+    @pytest.fixture()
+    def images_userA_groupB(self, userA, groupB):
         """
-        Returns a four new Plates, and two linked PlateAcquisitions with
-        required fields set and with names that can be used to exercise
-        sorting semantics.
+        Returns new OMERO Images for userA in groupB
         """
-        plates = [PlateI(), PlateI(), PlateI(), PlateI()]
-        for index, plate in enumerate(plates):
-            plate.name = rstring(self.names[index])
-            plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
-            for plate_acquisition in plate_acquisitions:
-                plate.addPlateAcquisition(plate_acquisition)
-        # Non-orphaned Plate to catch issues with queries where non-orphaned
-        # plates are included in the results.
-        screen = ScreenI()
-        screen.name = rstring(self.uuid())
-        plate = PlateI()
-        plate.name = rstring(self.uuid())
-        screen.linkPlate(plate)
-        self.update.saveAndReturnObject(screen)
-        return self.update.saveAndReturnArray(plates)
+        to_save = []
+        for name in ['Zinc', 'aluminium']:
+            image = self.new_image(name=name)
+            to_save.append(image)
 
-    @pytest.fixture
-    def plate_run(self):
-        """
-        Returns a new OMERO Plate and linked PlateAcquisition with all
-        required fields set.
-        """
-        plate = PlateI()
-        plate.name = rstring(self.uuid())
-        plate_acquisition = PlateAcquisitionI()
-        plate.addPlateAcquisition(plate_acquisition)
-        return self.update.saveAndReturnObject(plate)
+        conn = get_connection(userA, groupB.id.val)
+        images = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                            conn.SERVICE_OPTS)
+        images.sort(cmp_name_insensitive)
+        return images
 
-    @pytest.fixture
-    def plate(self):
+    @pytest.fixture()
+    def project_hierarchy_userA_groupA(self, userA):
         """
-        Returns a new OMERO Plate with all required fields set.
-        """
-        plate = PlateI()
-        plate.name = rstring(self.uuid())
-        return self.update.saveAndReturnObject(plate)
+        Returns OMERO Projects with Dataset Children with Image Children
 
-    @pytest.fixture
-    def plates_different_users(self):
+        Note: This returns a list of mixed objects in a specified order
         """
-        Returns two new OMERO Plates created by different users with
-        required fields set.
-        """
-        client = self.conn.c
-        group = self.conn.getGroupFromContext()._obj
-        plates = list()
-        # User that has already been created by the "client" fixture
-        user, name = self.user_and_name(client)
-        self.add_experimenters(group, [user])
-        for name in (rstring(self.uuid()), rstring(self.uuid())):
-            client, user = self.new_client_and_user(group=group)
-            try:
-                plate = PlateI()
-                plate.name = name
-                update_service = client.getSession().getUpdateService()
-                plates.append(update_service.saveAndReturnObject(plate))
-            finally:
-                client.closeSession()
-        return plates
 
-    @pytest.fixture
-    def projects_different_users(self):
-        """
-        Returns two new OMERO Projects created by different users with
-        required fields set.
-        """
-        client = self.conn.c
-        group = self.conn.getGroupFromContext()._obj
-        projects = list()
-        # User that has already been created by the "client" fixture
-        user, name = self.user_and_name(client)
-        self.add_experimenters(group, [user])
-        for name in (rstring(self.uuid()), rstring(self.uuid())):
-            client, user = self.new_client_and_user(group=group)
-            try:
-                project = ProjectI()
-                project.name = name
-                update_service = client.getSession().getUpdateService()
-                projects.append(update_service.saveAndReturnObject(project))
-            finally:
-                client.closeSession()
-        return projects
+        # Create and name all the objects
+        projectA = ProjectI()
+        projectA.name = rstring('ProjectA')
+        projectB = ProjectI()
+        projectB.name = rstring('ProjectB')
+        datasetA = DatasetI()
+        datasetA.name = rstring('DatasetA')
+        datasetB = DatasetI()
+        datasetB.name = rstring('DatasetB')
+        imageA = self.new_image(name='ImageA')
+        imageB = self.new_image(name='ImageB')
 
-    def test_marshal_project_dataset(self, project_dataset):
-        project_id = project_dataset.id.val
-        dataset, = project_dataset.linkedDatasetList()
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = [{
-            'id': project_id,
-            'childCount': 1L,
-            'name': project_dataset.name.val,
-            'datasets': [{
-                'childCount': 0L,
-                'id': dataset.id.val,
-                'name': dataset.name.val,
-                'permsCss': perms_css
-            }],
-            'permsCss': perms_css
-        }]
+        # Link them together like so:
+        # projectA
+        #   datasetA
+        #       imageA
+        #       imageB
+        #   datasetB
+        #       imageB
+        # projectB
+        #   datasetB
+        #       imageB
+        projectA.linkDataset(datasetA)
+        projectA.linkDataset(datasetB)
+        projectB.linkDataset(datasetB)
+        datasetA.linkImage(imageA)
+        datasetA.linkImage(imageB)
+        datasetB.linkImage(imageB)
 
-        marshaled = marshal_projects(self.conn, self.conn.getUserId())
+        to_save = [projectA, projectB]
+        projects = get_update_service(userA).saveAndReturnArray(to_save)
+        projects.sort(cmp_name_insensitive)
+
+        datasets = projects[0].linkedDatasetList()
+        datasets.sort(cmp_name_insensitive)
+
+        images = datasets[0].linkedImageList()
+        images.sort(cmp_name_insensitive)
+
+        return projects + datasets + images
+
+    # Cross-linked project hierarchy
+    @pytest.fixture(scope='function')
+    def project_hierarchy_crosslink(self, groupC, userC, userD):
+        """
+        Returns OMERO Projects with Dataset Children with Image Children
+
+        Note: This returns a list of mixed objects in a specified order
+        """
+
+        # Create and name a project as userC
+        projectA = ProjectI()
+        projectA.name = rstring('ProjectA')
+        projectA = get_update_service(userC).saveAndReturnObject(projectA)
+
+        # Create and name a dataset as userD
+        datasetA = DatasetI()
+        datasetA.name = rstring('DatasetA')
+        datasetA = get_update_service(userD).saveAndReturnObject(datasetA)
+
+        # Create and name an image as userC
+        imageA = self.new_image(name='ImageA')
+        imageA = get_update_service(userC).saveAndReturnObject(imageA)
+
+        # Link them together like so:
+        # projectA
+        #   datasetA
+        #       imageA
+
+        # Link the project with the dataset
+        # link = ProjectDatasetLinkI()
+        # link.setParent(ProjectI(projectA.getId(), False))
+        # link.setChild(DatasetI(datasetA.getId(), False))
+        # get_update_service(userC).saveObject(link)
+
+        # Link the dataset with the image
+        # link = DatasetImageLinkI()
+        # link.setParent(DatasetI(datasetA.getId(), False))
+        # link.setChild(ImageI(imageA.getId(), False))
+        # get_update_service(userD).saveObject(link)
+
+        # In order that we have child objects loaded, add links like this...
+        projectA.linkDataset(datasetA)
+        projectA = get_update_service(userC).saveAndReturnObject(projectA)
+        # datasetA = projectA.linkedDatasetList()[0]
+
+        datasetA.linkImage(imageA)
+        datasetA = get_update_service(userD).saveAndReturnObject(datasetA)
+        imageA = datasetA.linkedImageList()[0]
+
+        return [projectA, datasetA, imageA]
+
+    # TESTS ###
+    def test_marshal_experimenter(self, userA):
+        """
+        Test marshalling experimenter
+        """
+        conn = get_connection(userA)
+        expected = expected_experimenter(userA)
+        marshaled = marshal_experimenter(conn, userA[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_projects_datasets(self, projects_datasets):
-        project_a, project_b, project_c, project_d = projects_datasets
-        expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        # The underlying query explicitly orders the Projects list by
-        # case-insensitive name.
-        for project in sorted(projects_datasets, cmp_name_insensitive):
-            expected.append({
-                'id': project.id.val,
-                'name': project.name.val,
-                'childCount': 4,
-                'permsCss': perms_css
-            })
-            # The underlying query explicitly orders the Datasets list by
-            # case-insensitive name.
-            source = project.linkedDatasetList()
-            source.sort(cmp_name_insensitive)
-            datasets = list()
-            for dataset in source:
-                datasets.append({
-                    'childCount': 0L,
-                    'id': dataset.id.val,
-                    'name': dataset.name.val,
-                    'permsCss': perms_css
-                })
-            expected[-1]['datasets'] = datasets
+    # TODO Testing experimenters is difficult because the database of users
+    # is a moving target
 
-        marshaled = marshal_projects(self.conn, self.conn.getUserId())
-        assert marshaled == expected
+    # def test_marshal_experimenters(self, userA):
+    #     conn = get_connection(userA)
+    #     marshaled = marshal_experimenters(conn)
+    #     for x in marshaled:
+    #         print x
+    #     assert False
 
-    def test_marshal_projects_datasets_duplicates(self, projects_datasets):
+    # TODO Testing groups is difficult for the same reason as experimenters
+
+    # def test_marshal_groups(self, userA):
+    #     conn = get_connection(userA)
+    #     marshaled = marshal_groups(conn, member_id=userA[1].id.val)
+    #     for x in marshaled:
+    #         print x
+    #     assert False
+
+    def test_marshal_projects_no_results(self, userA):
         """
-        Test that same-named Projects are not duplicated in marshaled data.
-        See https://trac.openmicroscopy.org/ome/ticket/12771
+        Test marshalling projects where there are none
         """
-        # Re-name projects with all the same name
-        for p in projects_datasets:
-            p.name = rstring("Test_Duplicates")
-        projects_datasets = self.update.saveAndReturnArray(projects_datasets)
-        marshaled = marshal_projects(self.conn, self.conn.getUserId())
-        assert len(marshaled) == len(projects_datasets)
+        conn = get_connection(userA)
+        assert marshal_projects(conn=conn, experimenter_id=-2) == []
 
-    def test_marshal_projects_different_users_as_other_user(
-            self, projects_different_users):
-        project_a, project_b = projects_different_users
-        expected = list()
-        perms_css = ''
-        # The underlying query explicitly orders the Projects list by
-        # case-insensitive name.
-        for project in sorted(projects_different_users, cmp_name_insensitive):
-            expected.append({
-                'id': project.id.val,
-                'name': project.name.val,
-                'childCount': 0,
-                'permsCss': perms_css,
-                'datasets': list()
-            })
-
-        self.conn.SERVICE_OPTS.setOmeroGroup(project_a.details.group.id.val)
-        marshaled = marshal_projects(self.conn, None)
+    def test_marshal_projects_user(self, userA, projects_userA_groupA):
+        """
+        Test marshalling user's own projects in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_projects(userA, projects_userA_groupA)
+        marshaled = marshal_projects(conn=conn,
+                                     experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_projects_no_results(self):
-        assert marshal_projects(self.conn, -1) == []
-
-    def test_marshal_datasets(self, datasets):
-        dataset_a, dataset_b, dataset_c, dataset_d = datasets
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        # Order is important to test desired HQL sorting semantics.
-        expected = [{
-            'id': dataset_a.id.val,
-            'name': 'Apple',
-            'childCount': 0L,
-            'permsCss': perms_css
-        }, {
-            'id': dataset_c.id.val,
-            'name': 'atom',
-            'childCount': 0L,
-            'permsCss': perms_css
-        }, {
-            'id': dataset_b.id.val,
-            'name': 'bat',
-            'childCount': 0L,
-            'permsCss': perms_css
-        }, {
-            'id': dataset_d.id.val,
-            'name': 'Butter',
-            'childCount': 0L,
-            'permsCss': perms_css
-        }]
-
-        marshaled = marshal_datasets(self.conn, self.conn.getUserId())
+    def test_marshal_projects_another_user(self, userA, userB,
+                                           projects_userB_groupA):
+        """
+        Test marshalling another user's projects in current group
+        Project is Owned by userB. We are testing userA's perms.
+        """
+        conn = get_connection(userA)
+        expected = expected_projects(userA, projects_userB_groupA)
+        marshaled = marshal_projects(conn=conn,
+                                     experimenter_id=userB[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_datasets_different_users_as_other_user(
-            self, datasets_different_users):
-        dataset_a, dataset_b = datasets_different_users
-        expected = list()
-        perms_css = ''
-        # The underlying query explicitly orders the Screens list by
-        # case-insensitive name.
-        for dataset in sorted(datasets_different_users, cmp_name_insensitive):
-            expected.append({
-                'id': dataset.id.val,
-                'name': dataset.name.val,
-                'childCount': 0L,
-                'permsCss': perms_css,
-            })
-
-        self.conn.SERVICE_OPTS.setOmeroGroup(dataset_a.details.group.id.val)
-        marshaled = marshal_datasets(self.conn, None)
+    def test_marshal_projects_another_group(self, userA, groupB,
+                                            projects_userA_groupB):
+        """
+        Test marshalling user's projects in another group
+        """
+        conn = get_connection(userA)
+        expected = expected_projects(userA, projects_userA_groupB)
+        marshaled = marshal_projects(conn=conn,
+                                     group_id=groupB.id.val,
+                                     experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_datasets_no_results(self):
-        assert marshal_datasets(self.conn, -1L) == []
-
-    def test_marshal_screen_plate_run(self, screen_plate_run):
-        screen_id = screen_plate_run.id.val
-        plate, = screen_plate_run.linkedPlateList()
-        plate_acquisition, = plate.copyPlateAcquisitions()
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = [{
-            'id': screen_id,
-            'childCount': 1,
-            'name': screen_plate_run.name.val,
-            'permsCss': perms_css,
-            'plates': [{
-                'id': plate.id.val,
-                'name': plate.name.val,
-                'plateAcquisitions': [{
-                    'id': plate_acquisition.id.val,
-                    'name': 'Run %d' % plate_acquisition.id.val,
-                    'permsCss': perms_css
-                    }],
-                'plateAcquisitionCount': 1,
-                'permsCss': perms_css
-            }],
-        }]
-
-        marshaled = marshal_screens(self.conn, self.conn.getUserId())
+    def test_marshal_projects_all_groups(self, userA, projects_userA):
+        """
+        Test marshalling all projects for a user regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_projects(userA, projects_userA)
+        marshaled = marshal_projects(conn=conn,
+                                     group_id=-1,
+                                     experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_screens_plates_runs(self, screens_plates_runs):
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = []
-        # The underlying query explicitly orders the Screens by name.
-        for screen in sorted(screens_plates_runs, cmp_name):
-            expected_screen = {
-                'id': screen.id.val,
-                'name': screen.name.val,
-                'permsCss': perms_css,
-                'childCount': 2,
-                'plates': list()
-            }
-            # The underlying query explicitly orders the Plates by name.
-            for plate in sorted(screen.linkedPlateList(), cmp_name):
-                expected_plates = expected_screen['plates']
-                expected_plates.append({
-                    'id': plate.id.val,
-                    'name': plate.name.val,
-                    'plateAcquisitions': list(),
-                    'plateAcquisitionCount': 2,
-                    'permsCss': perms_css
-                })
-                # The underlying query explicitly orders the PlateAcquisitions
-                # by id.
-                plate_acquisitions = \
-                    sorted(plate.copyPlateAcquisitions(), cmp_id)
-                for plate_acquisition in plate_acquisitions:
-                    expected_plates[-1]['plateAcquisitions'].append({
-                        'id': plate_acquisition.id.val,
-                        'name': 'Run %d' % plate_acquisition.id.val,
-                        'permsCss': perms_css
-                    })
-            expected.append(expected_screen)
-        marshaled = marshal_screens(self.conn, self.conn.getUserId())
+    def test_marshal_projects_all_users(self, userA, groupA, projects_groupA):
+        """
+        Test marshalling all projects for a group regardless of user
+        """
+        conn = get_connection(userA)
+        expected = expected_projects(userA, projects_groupA)
+        marshaled = marshal_projects(conn=conn,
+                                     group_id=groupA.id.val,
+                                     experimenter_id=-1)
         assert marshaled == expected
 
-    def test_marshal_screens_no_results(self):
-        assert marshal_screens(self.conn, -1L) == []
-
-    def test_marshal_screen_plate(self, screen_plate):
-        plate, = screen_plate.linkedPlateList()
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = [
-            {
-                'id': screen_plate.id.val,
-                'name': screen_plate.name.val,
-                'permsCss': perms_css,
-                'childCount': 1,
-                'plates': [{
-                    'id': plate.id.val,
-                    'name': plate.name.val,
-                    'plateAcquisitions': list(),
-                    'plateAcquisitionCount': 0,
-                    'permsCss': perms_css
-                }],
-            }
-        ]
-
-        marshaled = marshal_screens(self.conn, self.conn.getUserId())
+    def test_marshal_projects_all_groups_all_users(self, userA, projects):
+        """
+        Test marshalling all projects for all users regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_projects(userA, projects)
+        marshaled = marshal_projects(conn=conn,
+                                     group_id=-1,
+                                     experimenter_id=-1)
         assert marshaled == expected
 
-    def test_marshal_plate_run(self, plate_run):
-        plate_id = plate_run.id.val
-        plate_acquisition, = plate_run.copyPlateAcquisitions()
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = [{
-            'id': plate_id,
-            'name': plate_run.name.val,
-            'plateAcquisitions': [{
-                'id': plate_acquisition.id.val,
-                'name': 'Run %d' % plate_acquisition.id.val,
-                'permsCss': perms_css
-            }],
-            'plateAcquisitionCount': 1,
-            'permsCss': perms_css
-        }]
+    # Datasets
+    def test_marshal_datasets_no_results(self, userA):
+        '''
+        Test marshalling datasets where there are none
+        '''
+        conn = get_connection(userA)
+        assert marshal_datasets(conn, -1) == []
 
-        marshaled = marshal_plates(self.conn, self.conn.getUserId())
+    def test_marshal_datasets_user(self, userA, datasets_userA_groupA):
+        """
+        Test marshalling user's own datasets without project parents
+        in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_datasets(userA, datasets_userA_groupA)
+        marshaled = marshal_datasets(conn=conn,
+                                     experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_plates_runs(self, plates_runs):
-        plate_a, plate_b, plate_c, plate_d = plates_runs
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = list()
-        # The underlying query explicitly orders the Plates by name.
-        for plate in sorted(plates_runs, cmp_name_insensitive):
-            plate_id = plate.id.val
-            expected.append({
-                'id': plate_id,
-                'name': plate.name.val,
-                'plateAcquisitions': list(),
-                'plateAcquisitionCount': 2,
-                'permsCss': perms_css
-            })
-            # The underlying query explicitly orders the PlateAcquisitions
-            # by id.
-            plate_acquisitions = \
-                sorted(plate.copyPlateAcquisitions(), cmp_id)
-            for plate_acquisition in plate_acquisitions:
-                expected[-1]['plateAcquisitions'].append({
-                    'id': plate_acquisition.id.val,
-                    'name': 'Run %d' % plate_acquisition.id.val,
-                    'permsCss': perms_css
-                })
-
-        marshaled = marshal_plates(self.conn, self.conn.getUserId())
+    def test_marshal_datasets_another_user(self, userA, userB,
+                                           datasets_userB_groupA):
+        """
+        Test marshalling another user's datasets without project parents
+        in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_datasets(userA, datasets_userB_groupA)
+        marshaled = marshal_datasets(conn=conn,
+                                     experimenter_id=userB[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_plates_different_users_as_other_user(
-            self, plates_different_users):
-        plate_a, plate_b = plates_different_users
-        expected = list()
-        perms_css = ''
-        # The underlying query explicitly orders the Plates list by
-        # case-insensitive name.
-        for plate in sorted(plates_different_users, cmp_name_insensitive):
-            expected.append({
-                'id': plate.id.val,
-                'name': plate.name.val,
-                'plateAcquisitions': list(),
-                'plateAcquisitionCount': 0,
-                'permsCss': perms_css,
-            })
-
-        self.conn.SERVICE_OPTS.setOmeroGroup(plate_a.details.group.id.val)
-        marshaled = marshal_plates(self.conn, None)
+    def test_marshal_datasets_another_group(self, userA, groupB,
+                                            datasets_userA_groupB):
+        """
+        Test marshalling user's own datasets without project parents
+        in another group
+        """
+        conn = get_connection(userA)
+        expected = expected_datasets(userA, datasets_userA_groupB)
+        marshaled = marshal_datasets(conn=conn,
+                                     experimenter_id=userA[1].id.val,
+                                     group_id=groupB.id.val)
         assert marshaled == expected
 
-    def test_marshal_plates_no_results(self):
-        assert marshal_plates(self.conn, -1L) == []
-
-    def test_marshal_plate(self, plate):
-        plate_id = plate.id.val
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = [{
-            'id': plate_id,
-            'name': plate.name.val,
-            'plateAcquisitions': list(),
-            'plateAcquisitionCount': 0,
-            'permsCss': perms_css
-        }]
-
-        marshaled = marshal_plates(self.conn, self.conn.getUserId())
+    def test_marshal_datasets_all_groups(self, userA, datasets_userA):
+        """
+        Test marshalling all datasets without project parents for a
+        user regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_datasets(userA, datasets_userA)
+        marshaled = marshal_datasets(conn=conn,
+                                     experimenter_id=userA[1].id.val,
+                                     group_id=-1)
         assert marshaled == expected
 
-    def test_marshal_project_dataset_image(self, project_dataset_image):
-        project_id = project_dataset_image.id.val
-        dataset, = project_dataset_image.linkedDatasetList()
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        expected = [{
-            'id': project_id,
-            'name': project_dataset_image.name.val,
-            'datasets': [{
-                'childCount': 1L,
-                'id': dataset.id.val,
-                'name': dataset.name.val,
-                'permsCss': perms_css
-            }],
-            'childCount': 1,
-            'permsCss': perms_css
-        }]
-
-        marshaled = marshal_projects(self.conn, self.conn.getUserId())
+    def test_marshal_datasets_all_users(self, userA, groupA, datasets_groupA):
+        """
+        Test marshalling all datasets for a group regardless of user
+        """
+        conn = get_connection(userA)
+        expected = expected_datasets(userA, datasets_groupA)
+        marshaled = marshal_datasets(conn=conn,
+                                     group_id=groupA.id.val)
         assert marshaled == expected
 
-    def test_marshal_projects(self, projects):
-        project_a, project_b, project_c, project_d = projects
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        # Order is important to test desired HQL sorting semantics.
-        expected = [{
-            'id': project_a.id.val,
-            'name': 'Apple',
-            'datasets': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }, {
-            'id': project_c.id.val,
-            'name': 'atom',
-            'datasets': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }, {
-            'id': project_b.id.val,
-            'name': 'bat',
-            'datasets': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }, {
-            'id': project_d.id.val,
-            'name': 'Butter',
-            'datasets': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }]
-
-        marshaled = marshal_projects(self.conn, self.conn.getUserId())
-        print marshaled
+    def test_marshal_datasets_all_groups_all_users(self, userA, datasets):
+        """
+        Test marshalling all datasets for all users regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_datasets(userA, datasets)
+        marshaled = marshal_datasets(conn=conn,
+                                     group_id=-1)
         assert marshaled == expected
 
-    def test_marshal_screens(self, screens):
-        screen_a, screen_b, screen_c, screen_d = screens
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        # Order is important to test desired HQL sorting semantics.
-        expected = [{
-            'id': screen_a.id.val,
-            'name': 'Apple',
-            'plates': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }, {
-            'id': screen_c.id.val,
-            'name': 'atom',
-            'plates': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }, {
-            'id': screen_b.id.val,
-            'name': 'bat',
-            'plates': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }, {
-            'id': screen_d.id.val,
-            'name': 'Butter',
-            'plates': list(),
-            'childCount': 0,
-            'permsCss': perms_css
-        }]
-
-        marshaled = marshal_screens(self.conn, self.conn.getUserId())
+    def test_marshal_datasets_project(self, userA,
+                                      project_hierarchy_userA_groupA):
+        """
+        Test marshalling datasets for userA, groupA, projectA
+        """
+        conn = get_connection(userA)
+        project = project_hierarchy_userA_groupA[0]
+        datasets = project_hierarchy_userA_groupA[2:4]
+        expected = expected_datasets(userA, datasets)
+        marshaled = marshal_datasets(conn=conn,
+                                     project_id=project.id.val)
         assert marshaled == expected
 
-    def test_marshal_screens_plates(self, screens_plates):
-        screen_a, screen_b, screen_c, screen_d = screens_plates
-        expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
-        # The underlying query explicitly orders the Screens list by
-        # case-insensitive name.
-        for screen in sorted(screens_plates, cmp_name_insensitive):
-            expected.append({
-                'id': screen.id.val,
-                'name': screen.name.val,
-                'childCount': 4,
-                'permsCss': perms_css
-            })
-            # The underlying query explicitly orders the Plate list by
-            # case-insensitive name.
-            source = screen.linkedPlateList()
-            source.sort(cmp_name_insensitive)
-            plates = list()
-            for plate in source:
-                plates.append({
-                    'id': plate.id.val,
-                    'name': plate.name.val,
-                    'permsCss': perms_css,
-                    'plateAcquisitions': list(),
-                    'plateAcquisitionCount': 0
-                })
-            expected[-1]['plates'] = plates
-
-        marshaled = marshal_screens(self.conn, self.conn.getUserId())
+    def test_marshal_datasets_project_crosslink(self, userC,
+                                                project_hierarchy_crosslink):
+        """
+        Test marshalling crosslinked datasets
+        """
+        conn = get_connection(userC)
+        project = project_hierarchy_crosslink[0]
+        dataset = project_hierarchy_crosslink[1]
+        expected = expected_datasets(userC, [dataset])
+        marshaled = marshal_datasets(conn=conn,
+                                     project_id=project.id.val)
         assert marshaled == expected
 
-    def test_marshal_screens_different_users_as_other_user(
-            self, screens_different_users):
-        screen_a, screen_b = screens_different_users
-        expected = list()
-        perms_css = ''
-        # The underlying query explicitly orders the Screens list by
-        # case-insensitive name.
-        for screen in sorted(screens_different_users, cmp_name_insensitive):
-            expected.append({
-                'id': screen.id.val,
-                'name': screen.name.val,
-                'childCount': 0,
-                'permsCss': perms_css,
-                'plates': list()
-            })
+    # Images
+    def test_marshal_images_no_results(self, userA):
+        '''
+        Test marshalling images where there are none
+        '''
+        conn = get_connection(userA)
+        assert marshal_images(conn, -1) == []
 
-        self.conn.SERVICE_OPTS.setOmeroGroup(screen_a.details.group.id.val)
-        marshaled = marshal_screens(self.conn, None)
+    def test_marshal_images_user(self, userA, images_userA_groupA):
+        # TODO Add fixture to create plate images to ensure these are not
+        # being returned as orphans
+        """
+        Test marshalling user's own orphaned images in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, images_userA_groupA)
+        marshaled = marshal_images(conn=conn,
+                                   experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_images_user_pixels(self, userA, image_pixels_userA):
+        """
+        Test marshalling image, loading pixels
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, [image_pixels_userA])
+        expected[0]['sizeX'] = 50
+        expected[0]['sizeY'] = 50
+        expected[0]['sizeZ'] = 5
+        marshaled = marshal_images(conn=conn,
+                                   load_pixels=True,
+                                   experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_images_another_user(self, userA, userB,
+                                         images_userB_groupA):
+        """
+        Test marshalling another user's orphaned images in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, images_userB_groupA)
+        marshaled = marshal_images(conn=conn,
+                                   experimenter_id=userB[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_images_another_group(self, userA, groupB,
+                                          images_userA_groupB):
+        """
+        Test marshalling user's own orphaned images in another group
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, images_userA_groupB)
+        marshaled = marshal_images(conn=conn,
+                                   experimenter_id=userA[1].id.val,
+                                   group_id=groupB.id.val)
+        assert marshaled == expected
+
+    def test_marshal_images_all_groups(self, userA, images_userA):
+        """
+        Test marshalling all orphaned images for a user regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, images_userA)
+        marshaled = marshal_images(conn=conn,
+                                   experimenter_id=userA[1].id.val,
+                                   group_id=-1)
+        assert marshaled == expected
+
+    def test_marshal_images_all_users(self, userA, groupA, images_groupA):
+        """
+        Test marshalling all orphaned images for a group regardless of user
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, images_groupA)
+        marshaled = marshal_images(conn=conn,
+                                   group_id=groupA.id.val)
+        assert marshaled == expected
+
+    def test_marshal_images_all_groups_all_users(self, userA, images):
+        """
+        Test marshalling all orphaned images for all users regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_images(userA, images)
+        marshaled = marshal_images(conn=conn,
+                                   group_id=-1)
+        assert marshaled == expected
+
+    def test_marshal_images_dataset(self, userA,
+                                    project_hierarchy_userA_groupA):
+        """
+        Test marshalling images for userA, groupA, datasetA
+        """
+        conn = get_connection(userA)
+        dataset = project_hierarchy_userA_groupA[2]
+        images = project_hierarchy_userA_groupA[4:6]
+        expected = expected_images(userA, images)
+        marshaled = marshal_images(conn=conn,
+                                   dataset_id=dataset.id.val)
+        assert marshaled == expected
+
+    def test_marshal_images_dataset_crosslink(self, userC,
+                                              project_hierarchy_crosslink):
+        """
+        Test marshalling crosslinked images
+        """
+        conn = get_connection(userC)
+        dataset = project_hierarchy_crosslink[1]
+        image = project_hierarchy_crosslink[2]
+        expected = expected_images(userC, [image])
+        marshaled = marshal_images(conn=conn,
+                                   dataset_id=dataset.id.val)
+        assert marshaled == expected
+
+    def test_marshal_images_share(self, userA, shares_userA_owned,
+                                  images_userA_groupA):
+        """
+        Test marshalling images for shareA
+        """
+        conn = get_connection(userA)
+        share = shares_userA_owned[0]
+        images = images_userA_groupA
+        expected = expected_images(userA, images, share.id.val)
+        marshaled = marshal_images(conn=conn,
+                                   share_id=share.id.val)
+        assert marshaled == expected
+
+    # Screens
+    def test_marshal_screens_no_results(self, userA):
+        '''
+        Test marshalling screens where there are none
+        '''
+        conn = get_connection(userA)
+        assert marshal_screens(conn, -1) == []
+
+    def test_marshal_screens_user(self, userA, screens_userA_groupA):
+        """
+        Test marshalling user's own orphaned screens in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_screens(userA, screens_userA_groupA)
+        marshaled = marshal_screens(conn=conn,
+                                    experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_screens_another_user(self, userA, userB,
+                                          screens_userB_groupA):
+        """
+        Test marshalling another user's orphaned screens in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_screens(userA, screens_userB_groupA)
+        marshaled = marshal_screens(conn=conn,
+                                    experimenter_id=userB[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_screens_another_group(self, userA, groupB,
+                                           screens_userA_groupB):
+        """
+        Test marshalling user's own orphaned screens in another group
+        """
+        conn = get_connection(userA)
+        expected = expected_screens(userA, screens_userA_groupB)
+        marshaled = marshal_screens(conn=conn,
+                                    experimenter_id=userA[1].id.val,
+                                    group_id=groupB.id.val)
+        assert marshaled == expected
+
+    def test_marshal_screens_all_groups(self, userA, screens_userA):
+        """
+        Test marshalling all orphaned screens for a user regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_screens(userA, screens_userA)
+        marshaled = marshal_screens(conn=conn,
+                                    experimenter_id=userA[1].id.val,
+                                    group_id=-1)
+        assert marshaled == expected
+
+    def test_marshal_screens_all_users(self, userA, groupA, screens_groupA):
+        """
+        Test marshalling all orphaned screens for a group regardless of user
+        """
+        conn = get_connection(userA)
+        expected = expected_screens(userA, screens_groupA)
+        marshaled = marshal_screens(conn=conn,
+                                    group_id=groupA.id.val)
+        assert marshaled == expected
+
+    def test_marshal_screens_all_groups_all_users(self, userA, screens):
+        """
+        Test marshalling all orphaned screens for all users regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_screens(userA, screens)
+        marshaled = marshal_screens(conn=conn,
+                                    group_id=-1)
+        assert marshaled == expected
+
+    # Plates
+    def test_marshal_plates_no_results(self, userA):
+        '''
+        Test marshalling plates where there are none
+        '''
+        conn = get_connection(userA)
+        assert marshal_plates(conn=conn,
+                              screen_id=-1) == []
+
+    def test_marshal_plates_user(self, userA, plates_userA_groupA):
+        """
+        Test marshalling user's own orphaned plates in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_plates(userA, plates_userA_groupA)
+        marshaled = marshal_plates(conn=conn,
+                                   experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_plates_another_user(self, userA, userB,
+                                         plates_userB_groupA):
+        """
+        Test marshalling another user's orphaned plates in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_plates(userA, plates_userB_groupA)
+        marshaled = marshal_plates(conn=conn,
+                                   experimenter_id=userB[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_plates_another_group(self, userA, groupB,
+                                          plates_userA_groupB):
+        """
+        Test marshalling user's own orphaned plates in another group
+        """
+        conn = get_connection(userA)
+        expected = expected_plates(userA, plates_userA_groupB)
+        marshaled = marshal_plates(conn=conn,
+                                   experimenter_id=userA[1].id.val,
+                                   group_id=groupB.id.val)
+        assert marshaled == expected
+
+    def test_marshal_plates_all_groups(self, userA, plates_userA):
+        """
+        Test marshalling all orphaned plates for a user regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_plates(userA, plates_userA)
+        marshaled = marshal_plates(conn=conn,
+                                   experimenter_id=userA[1].id.val,
+                                   group_id=-1)
+        assert marshaled == expected
+
+    def test_marshal_plates_all_users(self, userA, groupA, plates_groupA):
+        """
+        Test marshalling all orphaned plates for a group regardless of user
+        """
+        conn = get_connection(userA)
+        expected = expected_plates(userA, plates_groupA)
+        marshaled = marshal_plates(conn=conn,
+                                   group_id=groupA.id.val)
+        assert marshaled == expected
+
+    def test_marshal_plates_all_groups_all_users(self, userA, plates):
+        """
+        Test marshalling all orphaned plates for all users regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_plates(userA, plates)
+        marshaled = marshal_plates(conn=conn,
+                                   group_id=-1)
+        assert marshaled == expected
+
+    # PlateAcquisitions
+    # There are no orphan PlateAcquisitions so all the tests are conducted
+    # on data from hierarchies and there are fewer because querying cross-user
+    # and cross-group have no real meaning here. Thus there is no need for
+    # separate tests of the hierarchy either.
+
+    def test_marshal_plate_acquisitions_no_results(self, userA):
+        """
+        Test marshalling plate acquisitions where there are none
+        """
+        conn = get_connection(userA)
+        assert marshal_plate_acquisitions(conn, -1) == []
+
+    def test_marshal_plate_acquisitions_user(self, userA,
+                                             screen_hierarchy_userA_groupA):
+        """
+        Test marshalling user's own plate acquisitions in current group for
+        plateA
+        """
+        conn = get_connection(userA)
+        plate = screen_hierarchy_userA_groupA[2]
+        acqs = screen_hierarchy_userA_groupA[3:6]
+        expected = expected_plate_acquisitions(userA, acqs)
+        marshaled = marshal_plate_acquisitions(conn=conn,
+                                               plate_id=plate.id.val)
+        assert marshaled == expected
+
+    def test_marshal_plate_acquisitions_another_user(
+            self, userA, screen_hierarchy_userB_groupA):
+        """
+        Test marshalling another user's plate acquisitions in current group
+        for plateB
+        """
+        conn = get_connection(userA)
+        plate = screen_hierarchy_userB_groupA[1]
+        acqs = [screen_hierarchy_userB_groupA[2]]
+        expected = expected_plate_acquisitions(userA, acqs)
+        marshaled = marshal_plate_acquisitions(conn=conn,
+                                               plate_id=plate.id.val)
+        assert marshaled == expected
+
+    def test_marshal_plate_acquisitions_another_group(
+            self, userA, groupB, screen_hierarchy_userA_groupB):
+        """
+        Test marshalling user's own orphaned plate acquisitions in another
+        group for plateC
+        """
+        conn = get_connection(userA)
+        plate = screen_hierarchy_userA_groupB[1]
+        acqs = [screen_hierarchy_userA_groupB[2]]
+        expected = expected_plate_acquisitions(userA, acqs)
+        marshaled = marshal_plate_acquisitions(conn=conn,
+                                               plate_id=plate.id.val)
+        assert marshaled == expected
+
+    # Orphaned
+    def test_marshal_orphaned_no_results(self, userA):
+        '''
+        Test marshalling orphaned container for unknown user
+        '''
+        conn = get_connection(userA)
+        expected = {
+            'id': -2L,
+            'childCount': 0
+        }
+        marshaled = marshal_orphaned(conn=conn,
+                                     experimenter_id=-2)
+        assert marshaled == expected
+
+    def test_marshal_orphaned(self, userA, images_userA_groupA):
+        """
+        Test marshalling user's orphaned container
+        """
+        conn = get_connection(userA)
+        expected = expected_orphaned(userA, images_userA_groupA)
+        marshaled = marshal_orphaned(conn=conn,
+                                     experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_orphaned_another_user(self, userA, userB,
+                                           images_userB_groupA):
+        """
+        Test marshalling another user's orphaned container
+        """
+        conn = get_connection(userA)
+        expected = expected_orphaned(userB, images_userB_groupA)
+        marshaled = marshal_orphaned(conn=conn,
+                                     experimenter_id=userB[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_orphaned_another_group(self, userA, groupB,
+                                            images_userA_groupB):
+        """
+        Test marshalling user's orphaned container
+        """
+        conn = get_connection(userA)
+        expected = expected_orphaned(userA, images_userA_groupB)
+        marshaled = marshal_orphaned(conn=conn,
+                                     experimenter_id=userA[1].id.val,
+                                     group_id=groupB.id.val)
+        assert marshaled == expected
+
+    def test_marshal_orphaned_all_groups(self, userA, groupB,
+                                         images_userA):
+        """
+        Test marshalling user's orphaned container
+
+        """
+        conn = get_connection(userA)
+        expected = expected_orphaned(userA, images_userA)
+        marshaled = marshal_orphaned(conn=conn,
+                                     experimenter_id=userA[1].id.val,
+                                     group_id=-1)
+        assert marshaled == expected
+
+    # Tags
+    def test_marshal_tags_no_results(self, userA):
+        conn = get_connection(userA)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=-2)
+        assert marshaled == []
+
+    def test_marshal_tags_user(self, userA, tags_userA_groupA):
+        """
+        Test marshalling user's own tags in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_tags(userA, tags_userA_groupA)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_tags_another_user(self, userA, userB,
+                                       tags_userB_groupA):
+        """
+        Test marshalling another user's tags in current group
+        """
+        conn = get_connection(userA)
+        expected = expected_tags(userA, tags_userB_groupA)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=userB[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_tags_another_group(self, userA, groupB,
+                                        tags_userA_groupB):
+        """
+        Test marshalling user's tags in another group
+        """
+        conn = get_connection(userA)
+        expected = expected_tags(userA, tags_userA_groupB)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=userA[1].id.val,
+                                 group_id=groupB.id.val)
+        assert marshaled == expected
+
+    def test_marshal_tags_all_groups(self, userA, tags_userA):
+        """
+        Test marshalling all tags for a user regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_tags(userA, tags_userA)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=userA[1].id.val,
+                                 group_id=-1)
+        assert marshaled == expected
+
+    def test_marshal_tags_all_users(self, userA, groupA, tags_groupA):
+        """
+        Test marshalling all tags for a group regardless of user
+        """
+        conn = get_connection(userA)
+        expected = expected_tags(userA, tags_groupA)
+        marshaled = marshal_tags(conn=conn,
+                                 group_id=groupA.id.val)
+        assert marshaled == expected
+
+    def test_marshal_tags_all_groups_all_users(self, userA, tags):
+        """
+        Test marshalling all tags for all users regardless of group
+        """
+        conn = get_connection(userA)
+        expected = expected_tags(userA, tags)
+        marshaled = marshal_tags(conn=conn,
+                                 group_id=-1)
+        assert marshaled == expected
+
+    def test_marshal_tags_orphaned(self, userA, tagset_hierarchy_userA_groupA):
+        """
+        Test marshalling orphaned tags not in a tagset
+        """
+        conn = get_connection(userA)
+        tagset = tagset_hierarchy_userA_groupA[0]
+        tags = [tagset_hierarchy_userA_groupA[1]]
+        # with no 'orphaned' filter, we get all tags
+        allTags = [tagset] + tags
+        expected = expected_tags(userA, allTags)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+        # if 'orphaned', we won't get tag
+        expected = expected_tags(userA, [tagset])
+        marshaled = marshal_tags(conn=conn,
+                                 orphaned=True,
+                                 experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_tags_tagset(self, userA, tagset_hierarchy_userA_groupA):
+        """
+        Test marshalling tags for userA in groupA in tagsetA
+        """
+        conn = get_connection(userA)
+        tagset = tagset_hierarchy_userA_groupA[0]
+        tags = [tagset_hierarchy_userA_groupA[1]]
+        expected = expected_tags(userA, tags)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=userA[1].id.val,
+                                 tag_id=tagset.id.val)
+        assert marshaled == expected
+
+    # Tagged
+    def test_marshal_tagged_no_results(self, userA):
+        '''
+        Test marshalling tagged where there are none
+        '''
+        conn = get_connection(userA)
+        assert marshal_tagged(conn=conn, tag_id=-2) == {
+            'projects': [],
+            'datasets': [],
+            'images': [],
+            'screens': [],
+            'plates': [],
+            'acquisitions': []
+        }
+
+    def test_marshal_tagged_user(self, userA, tagset_hierarchy_userA_groupA):
+        """
+        Test marshalling tagged data for userA in groupA in tagsetA
+        """
+        conn = get_connection(userA)
+        tag = tagset_hierarchy_userA_groupA[1]
+        projects = [tagset_hierarchy_userA_groupA[2]]
+        datasets = [tagset_hierarchy_userA_groupA[3]]
+        images = [tagset_hierarchy_userA_groupA[4]]
+        screens = [tagset_hierarchy_userA_groupA[5]]
+        plates = [tagset_hierarchy_userA_groupA[6]]
+        acqs = [tagset_hierarchy_userA_groupA[7]]
+        expected = expected_tagged(userA, projects, datasets, images,
+                                   screens, plates, acqs)
+        marshaled = marshal_tagged(conn=conn,
+                                   experimenter_id=userA[1].id.val,
+                                   tag_id=tag.id.val)
+        assert marshaled == expected
+
+    # Share
+    def test_marshal_shares_user(self, userA, shares):
+        """
+        Test marshalling shares a user is a member of
+        """
+        conn = get_connection(userA)
+        expected = expected_shares(userA, shares)
+        marshaled = marshal_shares(conn=conn,
+                                   member_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_shares_another_user(self, userA, userB, shares):
+        """
+        Test marshalling shares another user is a member of
+        """
+        conn = get_connection(userA)
+        expected = expected_shares(userA, shares)
+        marshaled = marshal_shares(conn=conn,
+                                   member_id=userB[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_shares_user_owned(self, userA, shares_userA_owned):
+        """
+        Test marshalling shares owned by a user
+        """
+        conn = get_connection(userA)
+        expected = expected_shares(userA, shares_userA_owned)
+        marshaled = marshal_shares(conn=conn,
+                                   owner_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_shares_another_user_owned(self, userA, userB,
+                                               shares_userB_owned):
+        """
+        Test marshalling shares owned by another user
+        """
+        conn = get_connection(userA)
+        expected = expected_shares(userA, shares_userB_owned)
+        marshaled = marshal_shares(conn=conn,
+                                   owner_id=userB[1].id.val)
+        assert marshaled == expected
+
+    # Discussion #
+    def test_marshal_discussions_user(self, userA, discussions):
+        """
+        Test marshalling discussions a user is a member of
+        """
+        conn = get_connection(userA)
+        expected = expected_discussions(userA, discussions)
+        marshaled = marshal_discussions(conn=conn,
+                                        member_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_discussions_another_user(self, userA, userB, discussions):
+        """
+        Test marshalling discussions another user is a member of
+        """
+        conn = get_connection(userA)
+        expected = expected_discussions(userA, discussions)
+        marshaled = marshal_discussions(conn=conn,
+                                        member_id=userB[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_discussions_user_owned(self, userA,
+                                            discussions_userA_owned):
+        """
+        Test marshalling discussions owned by a user
+        """
+        conn = get_connection(userA)
+        expected = expected_discussions(userA, discussions_userA_owned)
+        marshaled = marshal_discussions(conn=conn,
+                                        owner_id=userA[1].id.val)
+        assert marshaled == expected
+
+    def test_marshal_discussions_another_user_owned(self, userA, userB,
+                                                    discussions_userB_owned):
+        """
+        Test marshalling discussions owned by another user
+        """
+        conn = get_connection(userA)
+        expected = expected_discussions(userA, discussions_userB_owned)
+        marshaled = marshal_discussions(conn=conn,
+                                        owner_id=userB[1].id.val)
         assert marshaled == expected

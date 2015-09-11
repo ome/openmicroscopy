@@ -21,13 +21,49 @@
 -->
 {% endcomment %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.jstree_theme.css" %}" type="text/css" />
+{% endblock %}
+
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys-0.8.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-1.0-rc3/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.pagination_plugin.js" %}"></script>
 
     <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
+
+        function enableToolbarButton(name, enabled) {
+            if (enabled) {
+                $('input#'+name+'Button').removeClass('button-disabled').prop('disabled', false);
+            } else {
+                $('input#'+name+'Button').addClass('button-disabled').prop('disabled', true);
+            }
+        };
+
+        function buttonsShowHide(selected, inst) {
+            // Disable all unless explicitly enabled below
+            var toolbar_config = {
+                'delete':false
+            };
+            if (selected.length > 0) {
+                // If the current selection(s) can be deleted and is a tag or tagset
+                if (OME.nodeHasPermission(selected, 'canDelete', {{ active_group.id }}) &&
+                    (selected[0].type === 'tag' || selected[0].type === 'tagset')) {
+                    toolbar_config['delete'] = true;
+                }
+            }
+            for (var btnName in toolbar_config) {
+                enableToolbarButton(btnName, toolbar_config[btnName]);
+            }
+        };
+
         $(function() {
 
             // This is duplicated in containers.html
@@ -51,272 +87,571 @@
                 }
             });
 
-            // We truncate images when the left panel resizes...
-            $("#left_panel").on('resize', OME.truncateNames);
-            // and also when we load new data in the tree
-            $("#dataTree").on('load_node.jstree', function() {
-                // wait for images to render, then truncate:
-                setTimeout(OME.truncateNames, 30);
+
+            // We (un)truncate images when the left panel resizes...
+            $("#left_panel").on('resize', function(event) {
+                var inst = $.jstree.reference('#dataTree');
+                inst.redraw(true);
             });
 
-                var buttonsShowHide = function(selected) { 
-                    var toolbar_config = new Object();
-                    
-                    toolbar_config = {'delete':true};
-                    // Can't delete if missing 'canDelete' flag or not a Tag
-                    selected.each(function(){
-                        if(this.id.indexOf("tag")>=0) {
-                            if(!$(this).hasClass('canDelete')) {
-                                toolbar_config = {'delete':false};
-                            }
-                        } else {
-                            toolbar_config = {'delete':false};
-                        }
-                    });
-                    
-                    if (selected.length > 1) toolbar_config['annotation'] = true;
-                    for (var sIndex in toolbar_config) { 
-                        if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled').prop('disabled', false);
-                        } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled').prop('disabled', true);
-                        }
+            // Select jstree and then cascade handle events and setup the tree.
+            var jstree = $("#dataTree")
+            .on('changed.jstree', function (e, data) {
+                var inst = data.instance;
+                buttonsShowHide(inst.get_selected(true), inst);
+
+                // Load on selection, but not open because that breaks key navigation
+                if (data.node &&
+                    inst.is_parent(data.node) &&
+                    !inst.is_loaded(data.node) &&
+                    !inst.is_loading(data.node)) {
+                    inst.load_node(data.node);
+                }
+
+                OME.tree_selection_changed(data, e);
+            })
+            .on("click.jstree", ".jstree-anchor", function (e) {
+                e.preventDefault();
+                var datatree = $.jstree.reference($('#dataTree'));
+                // Expand on click (not select because of key navigation)
+                if (datatree.is_parent(this)) {
+                    datatree.open_node(this);
+                }
+            })
+            .on("dblclick.jstree", ".jstree-anchor", function (e) {
+                e.preventDefault();
+                var datatree = $.jstree.reference($('#dataTree'));
+                var node = datatree.get_node(this);
+                if (node) {
+                    if (node.type === 'image') {
+                        //Open the image viewer for this image
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
                     }
                 }
-                
-                $("#dataTree").jstree({ 
-                        // the list of plugins to include
-                        "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
-                        // Plugin configuration
+            })
 
-                        // I usually configure the plugin that handles the data first - in this case JSON as it is most common
-                        "html_data" : { 
-                            // I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
-                            // All the options are the same as jQuery's except for `data` which CAN (not should) be a function
-                            "ajax" : {
-                                // the URL to fetch the data
-                                "url" : function(n) {
-                                    var url;
-                                    if (n.attr) {
-                                        var parent = this._get_parent(n);
-                                        if ($.inArray($(parent).attr("rel"), ["project", "screen"]) > -1) {
-                                            url = "{% url 'load_data' %}"+$(parent).attr("rel")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
-                                        } else if ($.inArray($(parent).attr("rel"), ["image"]) > -1){
-                                            url = "{% url 'load_data' %}"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
-                                        } else {
-                                            url = "{% url 'load_data_by_tag' %}"+n.attr("rel")+"/"+n.attr("id").split("-")[1]+"/";
-                                        }
-                                    } else {
-                                        url = "{% url 'load_data_by_tag' %}";
+            // Support ?show=tag-123
+            // NB: we only support a single level of tree traversal (not recursive as on containers.html)
+            .on('loaded.jstree', function(e, data) {
+                var inst = data.instance;
+                var param = OME.getURLParameter('show');
+                if (!param) {
+                    // If not found, just select root node
+                    inst.select_node('ul > li:first');
+                } else {
+                    // Tree root may be experimenter or 'All members' (this supports both)
+                    var root = inst.get_node('ul > li:first');
+                    inst.open_node(root, function() {
+                        var node = inst.locate_node(param, root)[0];
+                        inst.select_node(node);
+                    });
+                }
+            })
+            // hotkeys... NB: same code as on containers.html
+            .on('keydown.jstree', '.jstree-anchor', function (e) {
+                var datatree = $.jstree.reference($('#dataTree'));
+
+                switch(e.which) {
+                    // Up
+                    case 38:
+                        e.preventDefault();
+                        var prev = datatree.get_prev_dom(this);
+                        if(prev && prev.length) {
+                            datatree.deselect_all();
+                            datatree.select_node(prev);
+                        }
+                        break;
+                    // Down
+                    case 40:
+                        e.preventDefault();
+                        var next = datatree.get_next_dom(this);
+                        if(next && next.length) {
+                            datatree.deselect_all();
+                            datatree.select_node(next);
+                        }
+                        break;
+                    // Left
+                    case 37:
+                        e.preventDefault();
+                        if(!datatree.is_open(this)) {
+                            var prev = datatree.get_parent(this);
+                            if(prev && prev.length) {
+                                datatree.deselect_all();
+                                datatree.select_node(prev);
+                            }
+                        }
+                        break;
+                    // Right
+                    case 39:
+                        e.preventDefault();
+                        // opening of node is handled by jsTree, we just select...
+                        if(!datatree.is_closed(this)) {
+                            var next = datatree.get_next_dom(this);
+                            if(next && next.length) {
+                                datatree.deselect_all();
+                                datatree.select_node(next);
+                            }
+                        }
+                        break;
+                }
+            })
+
+            // Setup jstree
+            .jstree({
+                'plugins': ['types', 'sort', 'locate', 'fields', 'ometools', 'conditionalselect',
+                'truncatetext', 'contextmenu', 'pagination'],
+                // The jstree core
+                'core' : {
+                    'themes': {
+                        'dots': false,
+                        'variant': 'ome'
+                    },
+                    'data' : function(node, callback){
+                        // Gather data for request
+                        var payload = {};
+                        // Get the data for this query, special case for experimenter as this
+                        // data is being passed as 'experimenter_id' below and the tag interface
+                        // is expecting either a tagset_id or nothing as the 'id'
+                        if (node.hasOwnProperty('data') && node.type != 'experimenter') {
+                            if (node.data.hasOwnProperty('obj')) {
+                                payload['id'] = node.data.obj.id;
+                            }
+                        }
+
+                        // Work back up the tree to obtain the id of the user we are viewing,
+                        // this is useful in the case of orphaned image listing in particular.
+                        // It may also be appropriate to use it to filter the queries in other
+                        // places as well.
+                        var inst = this;
+
+                        // This path does not include the root node so the first entry is always
+                        // the experimenter node except on inital load in which case it is false
+                        var path = inst.get_path(node, false, true);
+                        if (path && node.type == 'experimenter') {
+                            payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
+                            payload['orphaned'] = true;     // Don't show tags that are in tagsets
+                        }
+
+                        // If this is a node which can have paged results then either specify that
+                        // we want the specific page, or use default first page
+                        if (node.type === 'dataset') {
+                            // Attempt to get the current page desired if there is one
+                            var page = inst.get_page(node);
+                            if (page) {
+                                payload['page'] = page;
+                                // Otherwise, no 'page' will give us default, first page
+                            }
+                        } else {
+                            // Disable paging for other queries
+                            payload['page'] = 0
+                        }
+
+                        // Always add the group_id from the current context
+                        payload['group'] = {{ active_group.id }};
+
+                        // Configure the url
+                        var url;
+                        // Get the type of the node being expanded
+                        // Figure out what type of children it should have
+                        // Request the list of children from that url, adding any relevant filters
+                        if (node.type === 'experimenter') {
+                            url = '{% url 'api_tags_and_tagged' %}'
+                        } else if (node.type === 'tagset') {
+                            url = '{% url 'api_tags_and_tagged' %}'
+                        } else if (node.type === 'tag') {
+                            url = '{% url 'api_tags_and_tagged' %}'
+                        } else if (node.type === 'project') {
+                            url = '{% url 'api_datasets' %}'
+                        } else if (node.type === 'dataset') {
+                            url = '{% url 'api_images' %}'
+                        } else if (node.type === 'screen') {
+                            url = '{% url 'api_plates' %}'
+                        } else if (node.type === 'plate') {
+                            url = '{% url 'api_plate_acquisitions' %}'
+                        } else if (node.id === '#') {
+                            // This handles multiple experimenters in the tree
+                            // url = '{% url 'api_experimenters' %}';
+                            {% if active_user and active_user.id and active_user.id != -1 %}
+                                url = '{% url 'api_experimenter' active_user.id %}';
+                            {% else %}
+                                var node = {
+                                    'data': {'id': -1, 'obj': {'id': -1}},
+                                    'text': 'All members',
+                                    'children': true,
+                                    'type': 'experimenter',
+                                    'state': {
+                                        'opened': true
+                                    },
+                                    'li_attr': {
+                                        'data-id': -1
                                     }
-                                    return url;
-                                },
-                                // this function is executed in the instance's scope (this refers to the tree instance)
-                                // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
-                                "data" : function (n) {
-                                    var r = { "view" : "tree" };
-                                    if (n.attr && $.inArray(n.attr("rel"), ["dataset"]) > -1) {
-                                        if($("div#content_details").has("#page").length > 0) {
-                                            r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
-                                        }
-                                    }
-                                    return r;
-                                }
-                            }
-                        },
-                        // Using types - most of the time this is an overkill
-                        // Still many people use them - here is how
-                        "types" : {
-                            // I want only `drive` nodes to be root nodes 
-                            // This will prevent moving or creating any other type as a root node
-                            "max_depth" : -1,
-                            "max_children" : -1,
-                            "valid_children" : [ "experimenter" ],
-                            "types" : {
-                                "experimenter" : {
-                                    "valid_children" : [ "tagset", "tag" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/icon_user.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "tagset" : {
-                                    "valid_children" : [ "tag" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_tags.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "tag" : {
-                                    "valid_children" : [ "project", "dataset", "image", "screen", "plate" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_tag.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "project" : {
-                                    "valid_children" : [ "dataset" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "dataset" : {
-                                    "valid_children" : [ "image" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder_image16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "image" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/image16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "screen" : {
-                                    "valid_children" : [ "plate" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder_screen16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "plate" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/folder_plate16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                },
-                                "acquisition" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/image16.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "delete_node" : false,
-                                    "remove" : false
-                                }
-                            }
-                        },
-                        // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
-                        // the UI plugin - it handles selecting/deselecting/hovering nodes
-                        "ui" : {
-                            "select_limit" : -1,
-                            "select_multiple_modifier": OME.multi_key(),
-                            "disable_selecting_children": true,
-                            "initially_select" : [ {% if init.initially_select %}{% for s in init.initially_select%}"{{s}}",{% endfor %}""{% else %}"experimenter-0"{% endif %}  ],
-                        },
-                        // the core plugin - not many options here
-                        "core" : { 
-                            // just open those two nodes up
-                            // as this is an AJAX enabled tree, both will be downloaded from the server
-                            "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
-                        },
-                        "contextmenu" : {
-                            "select_node":true,
-                            "items" : function(obj){
-                                var config = {};        
-                                
-                                return config;
-                            }
-                        },
-                        
-                        // include hotkeys plugin code
-                        {% include 'webclient/data/includes/hotkeys.js' %}
-                        
-                })
-                .delegate("a", "click.jstree", function (event) {
-                    var data = $.jstree._focused();
-                    if(!data.is_open() && data.get_selected().length < 2) {
-                        data.open_node(data.get_selected());
-                    }
-                })
-                .delegate("a", "dblclick", function(e, data) {
-                    var $this = $(this),
-                        obj_rel = $this.parent().attr('rel'),
-                        ob_id = $this.parent().attr('id'),
-                        iid;
-                    if (obj_rel=='image') {
-                        iid = ob_id.split("-")[1];
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/" + iid + "/"));
-                    }
-                })
-                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
-                    var selected = data.inst.get_selected();
-                    buttonsShowHide(selected);
-                    OME.tree_selection_changed(data);
-                })
-                .bind("remove.jstree", function (e, data) {
-                    data.args[0].each(function (i) {
-                        var url = '{% url 'manage_action_containers' "delete" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+                                };
+
+                                callback.call(this, [node]);
+                                return;
+                            {% endif %}
+                        }
+
+                        if (url === undefined) {
+                            return;
+                        }
 
                         $.ajax({
-                            async : false,
                             url: url,
-                            dataType: "json",
-                            type: "POST",
-                            success: function(r){
-                                if(eval(r.bad)) {
-                                      $.jstree.rollback(data.rlbk);
-                                      alert(r.errs);
-                                  } else {
-                                      // change in tree selection will update panels etc.
-                                      OME.refreshActivities();
-                                  }
+                            data: payload,
+                            cache: false,
+                            success: function (data, textStatus, jqXHR) {
+                                callback.call(this, data);
                             },
-                            error: function(response) {
-                                $.jstree.rollback(data.rlbk);
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                // Global error hanlding is sufficient here
+                            },
+                            // Converter is required because the JSON format being returned is not
+                            // jstree specific.
+                            'converters' : {
+                                "text json": function (json) {
+                                    var data = JSON.parse(json);
+                                    var jstree_data = [];
+
+                                    // Add experimenters to the jstree data structure
+                                    // if (data.hasOwnProperty('experimenters')) {
+                                    //     $.each(data.experimenters, function(index, value) {
+                                    //         var node = {
+                                    //             'data': {'id': value.id, 'obj': value},
+                                    //             'text': value.firstName + ' ' + value.lastName,
+                                    //             'children': true,
+                                    //             'type': 'experimenter',
+                                    //             'state': {
+                                    //             },
+                                    //             'li_attr': {
+                                    //                 // 'class': 'experimenter',
+                                    //                 'data-id': value.id
+                                    //             }
+                                    //         };
+
+                                    //         // Add 'state' opened for the current user by default
+                                    //         {% if active_user %}
+                                    //             if (value.id == {{ active_user.getId }}) {
+                                    //                 node.state['opened'] = true;
+                                    //             }
+                                    //         {% endif %}
+
+                                    //         jstree_data.push(node);
+                                    //     });
+                                    // }
+
+                                    if (data.hasOwnProperty('experimenter')) {
+                                        var value = data.experimenter;
+                                        var node = {
+                                            'data': {'id': value.id, 'obj': value},
+                                            'text': value.firstName + ' ' + value.lastName,
+                                            'children': true,
+                                            'type': 'experimenter',
+                                            'state': {
+                                                'opened': true
+                                            },
+                                            'li_attr': {
+                                                'data-id': value.id
+                                            }
+                                        };
+
+                                        jstree_data.push(node);
+                                    }
+
+                                    // Add tags to the jstree data structure
+                                    if (data.hasOwnProperty('tags')) {
+                                        $.each(data.tags, function(index, value) {
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.value,
+                                                // We don't count children for Tags (too expensive?) Assume they have children
+                                                'children': true,
+                                                'type': value.set ? 'tagset' : 'tag',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                            };
+                                            jstree_data.push(node);
+                                        });
+                                    }
+
+                                    // Add projects to the jstree data structure
+                                    if (data.hasOwnProperty('projects')) {
+                                        $.each(data.projects, function(index, value) {
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': value.childCount > 0 ? true : false,
+                                                'type': 'project',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                            };
+                                            jstree_data.push(node);
+                                        });
+                                    }
+
+                                    // Add datasets to the jstree data structure
+                                    if (data.hasOwnProperty('datasets')) {
+                                        $.each(data.datasets, function(index, value) {
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': value.childCount > 0 ? true : false,
+                                                'type': 'dataset',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                            };
+                                            jstree_data.push(node);
+                                        });
+                                    }
+
+                                    // Add images to the jstree data structure
+                                    if (data.hasOwnProperty('images')) {
+                                        $.each(data.images, function(index, value) {
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': false,
+                                                'type': 'image',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                            };
+                                            jstree_data.push(node);
+                                        });
+                                    }
+
+                                    // Add screens to the jstree data structure
+                                    if (data.hasOwnProperty('screens')) {
+                                        $.each(data.screens, function(index, value) {
+                                             var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': value.childCount > 0 ? true : false,
+                                                'type': 'screen',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                             };
+                                             jstree_data.push(node);
+                                        });
+                                    }
+
+                                    // Add plates to the jstree data structure
+                                    if (data.hasOwnProperty('plates')) {
+                                        $.each(data.plates, function(index, value) {
+                                             var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': value.childCount > 0 ? true : false,
+                                                'type': 'plate',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                             };
+                                             jstree_data.push(node);
+                                        });
+                                    }
+
+                                    // Add plates to the jstree data structure
+                                    if (data.hasOwnProperty('acquisitions')) {
+                                        $.each(data.acquisitions, function(index, value) {
+                                             var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': false,
+                                                'type': 'acquisition',
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                             };
+                                             jstree_data.push(node);
+                                        });
+                                    }
+
+                                    return jstree_data;
+                                }
+
                             }
                         });
-                    });
-                });                
+                    },
+                    'check_callback': true
+                },
+                'types' : {
+                    '#' : {
+                        'valid_children': ['experimenter']
+                    },
+                    'default': {
+                        'draggable': false
+                    },
+                    'experimenter': {
+                        'icon' : '{% static "webclient/image/icon_user.png" %}',
+                        'valid_children': ['tagset','tag']
+                    },
+                    'tagset': {
+                        'icon': '{% static "webclient/image/left_sidebar_icon_tags.png" %}',
+                        'valid_children': ['tagset','tag']
+                    },
+                    'tag': {
+                        'icon': '{% static "webclient/image/left_sidebar_icon_tag.png" %}',
+                        'valid_children': ['project, dataset, image, screen, plate, acquisition']
+                    },
+                    'project': {
+                        'icon': '{% static "webclient/image/folder16.png" %}',
+                        'valid_children': ['dataset']
+                    },
+                    'dataset': {
+                        'icon': '{% static "webclient/image/folder_image16.png" %}',
+                        'valid_children': ['image']
+                    },
+                    'image': {
+                        'icon': '{% static "webclient/image/image16.png" %}'
+                    },
+                    'screen': {
+                        'icon': '{% static "webclient/image/folder_screen16.png" %}',
+                        'valid_children': ['plate']
+                    },
+                    'plate': {
+                        'icon': '{% static "webclient/image/folder_plate16.png" %}',
+                        'valid_children': ['acquisition']
+                    },
+                    'acquisition': {
+                        'icon': '{% static "webclient/image/image16.png" %}',
+                    }
+
+                },
+                // Performance of sort may not be realistic. The tree is mostly ordered correctly
+                // already, only insertions need to be corrected manually.
+                'sort': function(nodeId1, nodeId2) {
+                    var inst = this;
+                    var node1 = inst.get_node(nodeId1);
+                    var node2 = inst.get_node(nodeId2);
+                    // If the nodes are the same type then just compare lexicographically
+                    if (node1.type === node2.type && node1.text != undefined && node2.text != undefined) {
+                        // Unless they are experimenters and one of them is the current user.
+                        if(node1.type === 'experimenter') {
+                            if (node1.data.obj.id === {{ ome.user_id }}) {
+                                return -1;
+                            } else if (node2.data.obj.id === {{ ome.user_id}}) {
+                                return 1;
+                            }
+                        }
+                        return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
+                    // Otherwise explicitly order the type that might be siblings
+                    } else {
+
+                        function getRanking(node) {
+                            if (node.type === 'tagset') {
+                                return 1;
+                            } else if (node.type === 'tag') {
+                                return 2;
+                            }
+                        }
+
+                        var ranking1 = getRanking(node1);
+                        var ranking2 = getRanking(node2);
+                        return ranking1 <= ranking2 ? -1 : 1;
+                    }
+                },
+                'locate' : {
+                    // Returns a key for this node
+                    'locate_function': function(node) {
+                        // In some cases, this function is called before the data attribute exists
+                        // These should be ignored, this will be called again later when it is
+                        // populated.
+                        if (!node.hasOwnProperty('data') ||
+                            node.data === undefined ||
+                            node.data === null) {
+                            return false;
+                        }
+                        return node.type + '-' + node.data.obj.id;
+                    }
+                },
+                'conditionalselect' : {
+                    // Checks if a selection should be allowed
+                    'conditionalselect_function': function(node) {
+                        var inst = this;
+                        var selected = inst.get_selected(true);
+                        // As this function will previously have prevented cross-select, just
+                        // check the first selection instead.
+                        if (selected.length > 0 && selected[0].type !== node.type) {
+                            return false;
+                        }
+
+                        // Also disallow the selection if it is a multi-select and the new target
+                        // is already selected
+                        var selected = inst.get_selected(true);
+                        var allowSelect = true;
+                        $.each(selected, function(index, sel) {
+                             if (sel.type === node.type && sel.data.obj.id === node.data.obj.id) {
+                                allowSelect = false;
+                                // Break out of each
+                                return false;
+                             }
+                        });
+
+                        return allowSelect;
+
+                    }
+                },
+                // disable the browser context menu
+                'contextmenu' : {
+                    "select_node":true,
+                    "items" : function(obj){
+                        var config = {};
+                        return config;
+                    }
+                }
             });
-        
+        });
+
     </script>
-    
+
     <!-- handle toolbar button clicks -->
     <script type="text/javascript">
     $(function () {
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-                    OME.handleDelete();
+
+                    var datatree = $.jstree.reference($('#dataTree'));
+                    // Get the current selection
+                    var selected = datatree.get_selected(true);
+
+                    var ajax_data = new Array();
+                    $.each(selected, function(index, node) {
+                        // Add the nodes that are to be deleted
+                        ajax_data.push('id' + '=' + node.data.obj.id);
+                        // Disable the node in the jstree
+                        datatree.disable_node(node);
+                    });
+
+                    var confirm_delete = OME.confirm_dialog('Delete selected Tags?',
+                        function() {
+                            if(confirm_delete.data("clicked_button") == "OK") {
+                                var url = '{% url 'api_tags_and_tagged' %}';
+
+                                $.ajax({
+                                    url: url + '?' + ajax_data.join("&"),
+                                    dataType: "json",
+                                    type: "DELETE",
+                                    success: function(r){
+                                        // change in tree selection will update panels etc.
+                                        datatree.delete_node(selected);
+                                    },
+                                    error: function(response) {
+                                        datatree.enable_node(selected);
+                                    }
+                                });
+
+                            } else {
+                                // Re-enable the nodes if delete cancelled
+                                datatree.enable_node(selected);
+                            }
+                        }
+                    );
                     break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
@@ -387,26 +722,27 @@
         <li id="public_tab" class="ui-state-default"><a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Public" %}</a></li>
     </ul>
     
-    
-    
+
+
     <div id="Tags">
         <ul class="toolbar">
-                
-				<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"><li>
-				
-				<li class="seperator"></li>
-				
-				<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
-				
+            <li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh" /></li>
+
+            <li class="seperator"></li>
+
+            <li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /></li>
         </ul>
 
+        <div class="clear"></div>
 
         <div id="tree_details" class="left_panel_inner">
             <div class="dataTree" id="dataTree"></div>
         </div>
+
     </div>
 </div>
-        <!-- hidden form for delete dialogs -->
+
+    <!-- hidden form for delete dialogs -->
         <div id="delete-dialog-form" title="Delete" style="display:none"
                 data-url="{% url 'manage_action_containers' 'deletemany' %}"
                 data-fileset-check-url="{% url 'fileset_check' 'delete' %}">
@@ -422,7 +758,48 @@
             </fieldset>
             </form>
         </div>
+{% endblock %}
 
+{% block center %}
+
+<div id="center_panel_header">
+    <div id="center_panel_chooser">
+        {% if ome.center_plugins|length > 0 %}
+            <select id="source">
+                <option value="#content_details">Thumbnails</option>
+                {% for cp in ome.center_plugins %}
+                    <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
+</div>
+
+<div id="content_details" class="center_panel_content"> </div>
+
+{% for cp in ome.center_plugins %}
+    <div id="{{ cp.plugin_id }}" class="center_panel_content"></div>
+{% endfor %}
+
+{% endblock %}
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul id="annotation_tabs_list">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in ome.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general" class="right_tab_content" ></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in ome.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="right_tab_content" ></div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
 
 

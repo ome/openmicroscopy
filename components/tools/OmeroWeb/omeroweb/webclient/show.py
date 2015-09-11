@@ -27,8 +27,9 @@ in the OMERO.web tree view.
 import omero
 import re
 
-from omero.rtypes import rint
+from omero.rtypes import rint, rlong
 from django.core.urlresolvers import reverse
+from copy import deepcopy
 
 
 class IncorrectMenuError(Exception):
@@ -328,9 +329,10 @@ class Show(object):
         first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
         if first_obj == "tag" and self.menu != "usertags":
+            # redirect to usertags/?show=tag-123
             raise IncorrectMenuError(
                 reverse(viewname="load_template", args=['usertags']) +
-                "?show=" + self._initially_select[0]
+                "?show=" + self._initially_select[0].replace(".id", "")
             )
         first_selected = None
         try:
@@ -402,3 +404,403 @@ class Show(object):
         after first retrieval of the L{Show.first_selected} property.
         """
         return self._initially_open_owner
+
+
+def paths_to_object(conn, experimenter_id=None, project_id=None,
+                    dataset_id=None, image_id=None, screen_id=None,
+                    plate_id=None, acquisition_id=None, well_id=None,
+                    group_id=None):
+
+    # Set any of the parameters present and find the lowest type to find
+    # If path components are specified for incompatible paths, e.g. a dataset
+    # id and a screen id then the following priority is enforced for the
+    # object to find:
+    # image->dataset->project->well->acquisition->plate->screen->experimenter
+
+    # Note on wells:
+    # Selecting a 'well' is really for selecting well_sample paths
+    # if a well is specified on its own, we return all the well_sample paths
+    # than match
+
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    lowest_type = None
+    if experimenter_id is not None:
+        params.add('eid', rlong(experimenter_id))
+        lowest_type = 'experimenter'
+    if screen_id is not None:
+        params.add('sid', rlong(screen_id))
+        lowest_type = 'screen'
+    if plate_id is not None:
+        params.add('plid', rlong(plate_id))
+        lowest_type = 'plate'
+    if acquisition_id is not None:
+        params.add('aid', rlong(acquisition_id))
+        lowest_type = 'acquisition'
+    if well_id is not None:
+        params.add('wid', rlong(well_id))
+        lowest_type = 'well'
+    if project_id is not None:
+        params.add('pid', rlong(project_id))
+        lowest_type = 'project'
+    if dataset_id is not None:
+        params.add('did', rlong(dataset_id))
+        lowest_type = 'dataset'
+    if image_id is not None:
+        params.add('iid', rlong(image_id))
+        lowest_type = 'image'
+    # If none of these parameters are set then there is nothing to find
+    if lowest_type is None:
+        return []
+
+    if group_id is not None:
+        service_opts.setOmeroGroup(group_id)
+
+    qs = conn.getQueryService()
+
+    # Hierarchies for this object
+    paths = []
+
+    # It is probably possible to write a more generic query instead
+    # of special casing each type, but it will be less readable and
+    # maintainable than these
+
+    if lowest_type == 'image':
+        q = '''
+            select coalesce(powner.id, downer.id, iowner.id),
+                   pdlink.parent.id,
+                   dilink.parent.id,
+                   image.id
+            from Image image
+            left outer join image.details.owner iowner
+            left outer join image.datasetLinks dilink
+            left outer join dilink.parent.details.owner downer
+            left outer join dilink.parent.projectLinks pdlink
+            left outer join pdlink.parent.details.owner powner
+            where image.id = :iid
+            '''
+        where_clause = []
+        if dataset_id is not None:
+            where_clause.append('dilink.parent.id = :did')
+        if project_id is not None:
+            where_clause.append('pdlink.parent.id = :pid')
+        if experimenter_id is not None:
+            where_clause.append(
+                'coalesce(powner.id, downer.id, iowner.id) = :eid')
+        if len(where_clause) > 0:
+            q += ' and ' + ' and '.join(where_clause)
+
+        q += '''
+             order by coalesce(powner.id, downer.id, iowner.id),
+                      pdlink.parent.id,
+                      dilink.parent.id,
+                      image.id
+             '''
+
+        for e in qs.projection(q, params, service_opts):
+            path = []
+
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+
+            # If it is experimenter->project->dataset->image
+            if e[1] is not None:
+                path.append({
+                    'type': 'project',
+                    'id': e[1].val
+                })
+
+            # If it is experimenter->dataset->image or
+            # experimenter->project->dataset->image
+            if e[2] is not None:
+                path.append({
+                    'type': 'dataset',
+                    'id': e[2].val
+                })
+
+            # If it is orphaned->image
+            if e[2] is None:
+                path.append({
+                    'type': 'orphaned',
+                    'id': e[0].val
+                })
+
+            # Image always present
+            path.append({
+                'type': 'image',
+                'id': e[3].val
+            })
+            paths.append(path)
+
+    elif lowest_type == 'dataset':
+        q = '''
+            select coalesce(powner.id, downer.id),
+                   pdlink.parent.id,
+                   dataset.id
+            from Dataset dataset
+            left outer join dataset.details.owner downer
+            left outer join dataset.projectLinks pdlink
+            left outer join pdlink.parent.details.owner powner
+            where dataset.id = :did
+            '''
+        where_clause = []
+        if project_id is not None:
+            where_clause.append('pdlink.parent.id = :pid')
+        if experimenter_id is not None:
+            where_clause.append('coalesce(powner.id, downer.id) = :eid')
+        if len(where_clause) > 0:
+            q += ' and ' + ' and '.join(where_clause)
+
+        for e in qs.projection(q, params, service_opts):
+            path = []
+
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+
+            # If it is experimenter->project->dataset
+            if e[1] is not None:
+                path.append({
+                    'type': 'project',
+                    'id': e[1].val
+                })
+
+            # Dataset always present
+            path.append({
+                'type': 'dataset',
+                'id': e[2].val
+            })
+
+            paths.append(path)
+
+    elif lowest_type == 'project':
+        q = '''
+            select project.details.owner.id,
+                   project.id
+            from Project project
+            where project.id = :pid
+            '''
+
+        for e in qs.projection(q, params, service_opts):
+            path = []
+
+            # Always experimenter->project
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+
+            path.append({
+                'type': 'project',
+                'id': e[1].val
+            })
+
+            paths.append(path)
+
+    # This is basically the same as WellSample except that it is not
+    # restricted by a particular WellSample id
+    # May not have acquisition (load plate from well)
+    # We don't need to load the wellsample (not in tree)
+    elif lowest_type == 'well':
+        q = '''
+            select coalesce(sowner.id, plowner.id, aowner.id, wsowner.id),
+                   slink.parent.id,
+                   plate.id,
+                   acquisition.id
+            from WellSample wellsample
+            left outer join wellsample.details.owner wsowner
+            left outer join wellsample.plateAcquisition acquisition
+            left outer join wellsample.details.owner aowner
+            join wellsample.well well
+            left outer join well.plate plate
+            left outer join plate.details.owner plowner
+            left outer join plate.screenLinks slink
+            left outer join slink.parent.details.owner sowner
+            where wellsample.well.id = :wid
+            '''
+        where_clause = []
+        if acquisition_id is not None:
+            where_clause.append('acquisition.id = :aid')
+        if plate_id is not None:
+            where_clause.append('plate.id = :plid')
+        if screen_id is not None:
+            where_clause.append('slink.parent.id = :sid')
+        if experimenter_id is not None:
+            where_clause.append(
+                'coalesce(sowner.id, plowner.id, aoener.id, wowner.id) = :eid')
+        if len(where_clause) > 0:
+            q += ' and ' + ' and '.join(where_clause)
+
+        for e in qs.projection(q, params, service_opts):
+            path = []
+
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+
+            # If it is experimenter->screen->plate->acquisition->wellsample
+            if e[1] is not None:
+                path.append({
+                    'type': 'screen',
+                    'id': e[1].val
+                })
+
+            # Plate should always present
+            path.append({
+                'type': 'plate',
+                'id': e[2].val
+            })
+
+            # Acquisition not present if plate created via API (not imported)
+            if e[3] is not None:
+                path.append({
+                    'type': 'acquisition',
+                    'id': e[3].val
+                })
+
+            paths.append(path)
+
+    elif lowest_type == 'acquisition':
+        q = '''
+            select coalesce(sowner.id, plowner.id, aowner.id),
+                   slink.parent.id,
+                   plate.id,
+                   acquisition.id
+            from PlateAcquisition acquisition
+            left outer join acquisition.details.owner aowner
+            left outer join acquisition.plate plate
+            left outer join plate.details.owner plowner
+            left outer join plate.screenLinks slink
+            left outer join slink.parent.details.owner sowner
+            where acquisition.id = :aid
+            '''
+        where_clause = []
+        if plate_id is not None:
+            where_clause.append('plate.id = :plid')
+        if screen_id is not None:
+            where_clause.append('slink.parent.id = :sid')
+        if experimenter_id is not None:
+            where_clause.append(
+                'coalesce(sowner.id, plowner.id, aowner.id) = :eid')
+        if len(where_clause) > 0:
+            q += ' and ' + ' and '.join(where_clause)
+
+        for e in qs.projection(q, params, service_opts):
+            path = []
+
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+
+            # If it is experimenter->screen->plate->acquisition
+            if e[1] is not None:
+                path.append({
+                    'type': 'screen',
+                    'id': e[1].val
+                })
+
+            # If it is experimenter->plate->acquisition or
+            # experimenter->screen->plate->acquisition
+            if e[2] is not None:
+                path.append({
+                    'type': 'plate',
+                    'id': e[2].val
+                })
+
+            # Acquisition always present
+            path.append({
+                'type': 'acquisition',
+                'id': e[3].val
+            })
+
+            paths.append(path)
+
+    elif lowest_type == 'plate':
+        q = '''
+            select coalesce(sowner.id, plowner.id),
+                   splink.parent.id,
+                   plate.id
+            from Plate plate
+            left outer join plate.details.owner sowner
+            left outer join plate.screenLinks splink
+            left outer join splink.parent.details.owner plowner
+            where plate.id = :plid
+            '''
+        where_clause = []
+        if screen_id is not None:
+            where_clause.append('splink.parent.id = :sid')
+        if experimenter_id is not None:
+            where_clause.append('coalesce(sowner.id, plowner.id) = :eid')
+        if len(where_clause) > 0:
+            q += ' and ' + ' and '.join(where_clause)
+
+        for e in qs.projection(q, params, service_opts):
+            path = []
+
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+
+            # If it is experimenter->screen->plate
+            if e[1] is not None:
+                path.append({
+                    'type': 'screen',
+                    'id': e[1].val
+                })
+
+            # Plate always present
+            path.append({
+                'type': 'plate',
+                'id': e[2].val
+            })
+
+            paths.append(path)
+
+    elif lowest_type == 'screen':
+        q = '''
+            select screen.details.owner.id,
+                   screen.id
+            from Screen screen
+            where screen.id = :sid
+            '''
+
+        for e in qs.projection(q, params, service_opts):
+            path = []
+
+            # Always experimenter->screen
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+
+            path.append({
+                'type': 'screen',
+                'id': e[1].val
+            })
+
+            paths.append(path)
+
+    elif lowest_type == 'experimenter':
+        path = []
+
+        # No query required here as this is the highest level container
+        path.append({
+            'type': 'experimenter',
+            'id': experimenter_id
+        })
+
+        paths.append(path)
+
+    return paths
