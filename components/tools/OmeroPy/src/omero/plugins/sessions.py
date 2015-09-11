@@ -866,20 +866,17 @@ class SessionsControl(BaseControl):
     def createtoken(self, args):
         """Create a new token and return the key associated with it"""
 
+        # Force password beased authentication
+        args.create = True
         client = self.ctx.conn(args)
-
         ec = client.sf.getAdminService().getEventContext()
-        principal = omero.sys.Principal()
-        principal.name = ec.userName
-        principal.group = ec.groupName
-        principal.eventType = "User"
 
         # A token does not idle
         timeToIdle = 0
         timeToLive = args.expiration * 1000
 
-        sess = client.sf.getSessionService().createSessionWithTimeouts(
-            principal, timeToLive, timeToIdle)
+        sess = client.sf.getSessionService().createUserSession(
+            timeToLive, timeToIdle, ec.groupName)
 
         self.ctx.out(sess.uuid.val)
 
