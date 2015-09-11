@@ -171,9 +171,9 @@ public class EventLogQueue extends PersistentEventLogLoader {
      * consumption by the FullTextIndexer.
      *
      * @since 5.0.3
-     * @TODO Unfortunately this {@link EventLog} subclass needlessly creates a
-     *       Details object.
      */
+    //Unfortunately this {@link EventLog} subclass needlessly creates a
+    //       Details object.
     private static class WrappedEventLog extends EventLog {
 
         private static final long serialVersionUID = 1L;

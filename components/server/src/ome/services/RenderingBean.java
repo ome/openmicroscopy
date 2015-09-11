@@ -424,7 +424,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /**
-     * Implemented as specified by the {@link RenderingEngine} interface. TODO
+     * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#getCurrentEventContext()
      */

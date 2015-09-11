@@ -44,14 +44,13 @@ import org.hibernate.search.bridge.builtin.DateBridge;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * TODO insert/update OR delete regular type OR annotated type OR
- *           originalfile
  * @see <a href="http://trac.openmicroscopy.org.uk/ome/FileParsers">Parsers</a
  *      href>
  * @see <a href="http://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
  *      href>
  */
 public class FullTextBridge extends BridgeHelper {
+// TODO insert/update OR delete regular type OR annotated type OR originalfile
 
     final protected OriginalFilesService files;
     final protected Map<String, FileParser> parsers;

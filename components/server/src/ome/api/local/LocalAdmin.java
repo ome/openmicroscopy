@@ -1,13 +1,10 @@
 /*
- * ome.api.local.LocalAdmin
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.api.local;
 
-// Java imports
 import java.util.List;
 import java.util.Map;
 
@@ -17,17 +14,13 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.EventContext;
 
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Provides local (internal) extensions for administration
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @version 1.0
  * @since OMERO3.0
  */
 public interface LocalAdmin extends ome.api.IAdmin {
@@ -91,12 +84,12 @@ public interface LocalAdmin extends ome.api.IAdmin {
      */
     boolean checkPassword(String user, String password, boolean readOnly);
 
+    //TODO The following method will eventually return a list of ids
     /**
      * Returns a map from {@link Class} (as string) to a count for all entities
      * which point to the given {@link IObject}. The String "*" is mapped to
      * the sum of all the locks.
-     * 
-     * TODO This will eventually return a list of ids
+     *
      * @param klass the name of a model class
      * @param id the ID of an instance of {@code klass}
      * @param groupId the ID of a group to omit from the results, may be {@code null}
