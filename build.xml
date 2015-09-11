@@ -594,10 +594,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 breakiterator="true"
                 encoding="UTF-8"
                 docencoding="UTF-8"
-                windowtitle="OMERO (OME Remote Objects) Server"
+                windowtitle="OMERO API"
                 overview="target/docs/overview.html"
-                stylesheetfile="docs/javadocsstyle.css"
-                useexternalfile="true"
                 additionalparam="${javadoc.doclint}">
 
                 <classpath>
@@ -630,7 +628,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     <patternset refid="all.java.files"/>
                 </fileset>
 
-                <doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
+                <doctitle><![CDATA[<h1> OMERO API </h1>]]></doctitle>
                 <bottom><![CDATA[
                 <div id="ome-logo-for-top" style="display:none"><div id="ome-logo-inner"><img src="http://downloads.openmicroscopy.org/resources/ome_docs_trac_banner.png" alt="OME Docs"></div></div>
                 <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava API</b></div>
@@ -659,7 +657,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <group title="I. Deprecated"
                         packages="ome.dynamic*:ome.rules*"/>
 
-                <link href="http://docs.oracle.com/javase/6/docs/api/"/>
+                <link href="http://docs.oracle.com/javase/7/docs/api/"/>
                 <link href="http://www.springframework.org/docs/api/"/>
                 <link href="http://www.hibernate.org/hib_docs/v3/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>
