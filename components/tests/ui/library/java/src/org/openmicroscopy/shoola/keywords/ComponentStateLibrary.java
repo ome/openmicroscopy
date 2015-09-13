@@ -23,10 +23,10 @@ import java.awt.Component;
 
 import org.jdesktop.swingx.JXTaskPane;
 
-import org.robotframework.abbot.finder.BasicFinder;
-import org.robotframework.abbot.finder.ComponentNotFoundException;
-import org.robotframework.abbot.finder.Matcher;
-import org.robotframework.abbot.finder.MultipleComponentsFoundException;
+import abbot.finder.BasicFinder;
+import abbot.finder.ComponentNotFoundException;
+import abbot.finder.Matcher;
+import abbot.finder.MultipleComponentsFoundException;
 
 /**
  * Robot Framework SwingLibrary keyword library offering methods for testing component state.

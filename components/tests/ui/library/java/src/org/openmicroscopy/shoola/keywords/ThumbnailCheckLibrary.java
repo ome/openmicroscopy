@@ -28,10 +28,10 @@ import java.util.NoSuchElementException;
 
 import javax.swing.JPanel;
 
-import org.robotframework.abbot.finder.BasicFinder;
-import org.robotframework.abbot.finder.ComponentNotFoundException;
-import org.robotframework.abbot.finder.Matcher;
-import org.robotframework.abbot.finder.MultipleComponentsFoundException;
+import abbot.finder.BasicFinder;
+import abbot.finder.ComponentNotFoundException;
+import abbot.finder.Matcher;
+import abbot.finder.MultipleComponentsFoundException;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
