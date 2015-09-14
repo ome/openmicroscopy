@@ -374,15 +374,18 @@ def chgrpMarshal(conn, rsp):
                          "join fetch annLink.child as ann "
                          "left outer join fetch ann.file "
                          "where annLink.id in (:ids)" % linkType)
-                links = conn.getQueryService().findAllByQuery(query, params, conn.SERVICE_OPTS)
+                links = conn.getQueryService().findAllByQuery(
+                    query, params, conn.SERVICE_OPTS)
                 for lnk in links:
                     ann = lnk.child
                     if isinstance(ann, omero.model.FileAnnotationI):
+                        name = unwrap(ann.getFile().getName())
                         files[ann.id.val] = {'id': ann.id.val,
-                                             'name': unwrap(ann.getFile().getName())}
+                                             'name': name}
                     elif isinstance(ann, omero.model.TagAnnotationI):
+                        name = unwrap(ann.getTextValue())
                         tags[ann.id.val] = {'id': ann.id.val,
-                                            'name': unwrap(ann.getTextValue())}
+                                            'name': name}
                     elif isinstance(ann, omero.model.CommentAnnotationI):
                         comments += 1
                     else:
@@ -403,9 +406,10 @@ def chgrpMarshal(conn, rsp):
         # (and the image is left behind). If we were moving the Image then we'd
         # expect the link to be broken (can ignore)
         objects = {}
-        containerLinks = {'ome.model.containers.ProjectDatasetLink': 'Datasets',
-                          'ome.model.containers.DatasetImageLink': 'Images',
-                          'ome.model.screen.ScreenPlateLink': 'Screens'}
+        containerLinks = {
+            'ome.model.containers.ProjectDatasetLink': 'Datasets',
+            'ome.model.containers.DatasetImageLink': 'Images',
+            'ome.model.screen.ScreenPlateLink': 'Screens'}
         for l, ch in containerLinks.items():
             if l in deleted:
                 linkType = l.split(".")[-1]
@@ -414,16 +418,18 @@ def chgrpMarshal(conn, rsp):
                 query = ("select conLink from %s as conLink "
                          "join fetch conLink.child as ann "
                          "where conLink.id in (:ids)" % linkType)
-                links = conn.getQueryService().findAllByQuery(query, params, conn.SERVICE_OPTS)
+                links = conn.getQueryService().findAllByQuery(
+                    query, params, conn.SERVICE_OPTS)
                 for lnk in links:
                     child = lnk.child
                     if child.id.val not in includedDetails[ch]:
+                        name = unwrap(child.getName())
                         # Put objects in a dictionary to avoid duplicates
                         if ch not in objects:
                             objects[ch] = {}
-                        # E.g. objects['Dataset']['1'] = {'id': 1, 'name': 'test'}
+                        # E.g. objects['Dataset']['1'] = {}
                         objects[ch][child.id.val] = {'id': child.id.val,
-                                                     'name': unwrap(child.getName())}
+                                                     'name': name}
         # sort objects
         for otype, objs in objects.items():
             objs = objs.values()
