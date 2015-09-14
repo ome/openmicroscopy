@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.TreeViewerTranslator
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.util.browser;
 
 
@@ -46,19 +43,18 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateData;
-import pojos.PlateAcquisitionData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
 
 /**
  * This class contains a collection of utility static methods that transform
@@ -791,28 +787,6 @@ public class TreeViewerTranslator
             }
         }
         return nodes;
-    }
-
-    /**
-     * Transforms the passed objects.
-     *
-     * @param object The object to handle.
-     * @return See above.
-     */
-    public static TreeImageDisplay transformMultiImage(MultiImageData object)
-    {
-        if (object == null) return null;
-        List<ImageData> images = object.getComponents();
-        if (CollectionUtils.isNotEmpty(images)) {
-            TreeImageSet node = new TreeImageSet(object);
-            node.setChildrenLoaded(Boolean.valueOf(true));
-            node.setNumberItems(images.size());
-            Iterator<ImageData> i = images.iterator();
-            while (i.hasNext())
-                node.addChildDisplay(transformImage(i.next()));
-            return node;
-        } 
-        return new TreeImageNode(object);
     }
 
     /**

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -28,9 +26,9 @@ import javax.swing.Icon;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Helper class hosting information about group and icon.

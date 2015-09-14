@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -43,10 +41,10 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -264,6 +262,13 @@ public interface MetadataViewer
 	 */
 	public JComponent getEditorUI();
 	
+	/**
+     * Returns the Editor to select the metadata.
+     * 
+     * @return See above.
+     */
+    public Editor getEditor();
+    
 	/**
 	 * Checks if the renderer has already been initialized
 	 * @return See above.

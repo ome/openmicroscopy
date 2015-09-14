@@ -559,7 +559,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             sql += " and im.details.owner.id=:eid"
-        sql += " order by im.name ASC"
+        sql += " order by lower(im.name), im.id"
 
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(

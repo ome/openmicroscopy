@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -40,12 +38,12 @@ import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 
 /** 
  * Represents a component in the composite structure used to visualize an

@@ -42,7 +42,7 @@ import omero.sys.EventContext;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Tests for deleting rois and images which have rois.

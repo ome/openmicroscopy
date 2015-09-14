@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.MIFNotificationDialog
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,7 +21,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -44,16 +41,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.ui.FixedSizeSeparator;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DatasetData;
-import pojos.ImageData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 
-//Third-party libraries
 
 /**
  * Notifies the user that some images he wants to delete are linked to multiple

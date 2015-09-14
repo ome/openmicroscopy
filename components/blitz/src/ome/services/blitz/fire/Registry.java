@@ -76,7 +76,7 @@ public interface Registry {
      * {@link IceGrid.RegistryPrx}. Consumers are required to properly
      * {@link IceGrid.AdminSessionPrx#destroy()} the returned session.
      * 
-     * @return
+     * @return See above.
      * @throws PermissionDeniedException
      */
     public abstract IceGrid.AdminSessionPrx getAdminSession()

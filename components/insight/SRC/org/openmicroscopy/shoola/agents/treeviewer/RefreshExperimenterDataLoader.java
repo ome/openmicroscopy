@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,9 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -47,14 +40,14 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Reloads the data for the specified experimenters.
@@ -66,9 +59,6 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class RefreshExperimenterDataLoader

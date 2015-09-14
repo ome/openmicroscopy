@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -108,7 +106,7 @@ public abstract class AbstractRedirector implements Redirector {
 
     /**
      * Returns the current redirect, to which all calls to
-     * {@link #getProxyOrNull(String, Glacier2.SessionControlPrx, Ice.Current)}
+     * {@link #getProxyOrNull(Context, String, Glacier2.SessionControlPrx, Ice.Current)}
      * will be pointed. May be null, but is typically set to a non-null value
      * when the first {@link Ring} joins the cluster.
      */

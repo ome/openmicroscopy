@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.SelectionWizardUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -71,13 +69,13 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.TagAnnotationData;
 
 
 /**

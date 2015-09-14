@@ -1,6 +1,4 @@
 /*
- * training.util.DoubleConverter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
@@ -21,13 +19,6 @@
  *------------------------------------------------------------------------------
  */
 package training.util;
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 
 /** 

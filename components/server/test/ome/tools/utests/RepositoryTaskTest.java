@@ -2,6 +2,7 @@
  *   Copyright (C) 2007-2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.tools.utests;
 
 import junit.framework.TestCase;
@@ -11,7 +12,6 @@ import junit.framework.TestCase;
  *
  * @author David L. Whitehurst &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:david@glencoesoftware.com">david@glencoesoftware.com</a>
- * @version $Revision$
  * @since 3.0
  */
 public class RepositoryTaskTest extends TestCase {

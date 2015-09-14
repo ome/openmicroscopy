@@ -457,9 +457,6 @@ class login_required(object):
                     ctx.load_server_settings(conn, request)
 
                     share_id = kwargs.get('share_id')
-                    if share_id is None:
-                        # share_id might be in request
-                        share_id = request.REQUEST.get('share_id')
                     conn_share = ctx.prepare_share_connection(
                         request, conn, share_id)
                     if conn_share is not None:

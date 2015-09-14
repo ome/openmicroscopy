@@ -28,10 +28,10 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
 
 
 /**

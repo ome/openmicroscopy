@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerModel
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -32,11 +28,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -51,15 +47,13 @@ import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationSaver;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
-import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
-import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
+import org.openmicroscopy.shoola.agents.measurement.TagsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-
-import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -68,8 +62,6 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 
 import omero.gateway.SecurityContext;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIResult;
 
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -93,13 +85,15 @@ import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
-import pojos.ChannelData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ROIData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -119,9 +113,6 @@ import omero.model.enums.UnitsLength;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class MeasurementViewerModel
@@ -197,15 +188,6 @@ class MeasurementViewerModel
     /** The collection of ROIs and tables related to the measurements. */
     private Collection 				 measurementResults;
 
-    /** The current workflow namespace being used. */
-	private String 					workflowNamespace;
-
-	/** The map of workflow namespace, workflow. */
-	private Map<String, WorkflowData> 	workflows;
-
-	/** The keyword of the current workflow. */
-	private List<String>			keyword;
-
 	/** Flag indicating if the tool is for HCS data. */
 	private boolean					HCSData;
 
@@ -224,6 +206,8 @@ class MeasurementViewerModel
     /** The sorter to order shapes.*/
     private ViewerSorter sorter;
 
+    /** Collection of existing tags if any. */
+    private Collection existingTags;
 
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary.
@@ -287,9 +271,6 @@ class MeasurementViewerModel
 		roiComponent = new ROIComponent();
 		fileSaved = null;
 		roiComponent.setPixelSizes(getPixelSizeX(), getPixelSizeY(), getPixelSizeZ());
-		workflows = new HashMap<String, WorkflowData>();
-		this.workflowNamespace = WorkflowData.DEFAULTWORKFLOW;
-		this.keyword = new ArrayList<String>();
 		setPlane(0, 0);
 	}
 
@@ -640,9 +621,10 @@ class MeasurementViewerModel
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois)
+	List<DataObject> setServerROI(Collection rois)
 		throws ROICreationException, NoSuchROIException
 	{
+	    List<DataObject> nodes = new ArrayList<DataObject>();
 		measurementResults = rois;
 		state = MeasurementViewer.READY;
 		List<ROI> roiList = new ArrayList<ROI>();
@@ -654,7 +636,7 @@ class MeasurementViewerModel
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
 					result.getROIs(), userID));
 		}
-		if (roiList == null) return false;
+		if (roiList == null) return nodes;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
@@ -674,16 +656,20 @@ class MeasurementViewerModel
 				entry = (Entry) j.next();
 				shape = (ROIShape) entry.getValue();
 				coord = shape.getCoord3D();
-				if (coord.getTimePoint() > sizeT) return false;
-				if (coord.getZSection() > sizeZ) return false;
-				c = coord.getChannel();
-				f = shape.getFigure();
-				if (c >= 0 && f.isVisible())
-					f.setVisible(isChannelActive(c));
+				if (coord.getTimePoint() < sizeT &&
+				        coord.getZSection() < sizeZ) {
+				    c = coord.getChannel();
+	                f = shape.getFigure();
+	                if (shape.getData() != null) {
+	                    nodes.add(shape.getData());
+	                }
+	                if (c >= 0 && f.isVisible())
+	                    f.setVisible(isChannelActive(c));
+				}
 			}
 		}
 		checkIfHasROIToDelete();
-		return true;
+		return nodes;
 	}
 
 	/**
@@ -814,6 +800,25 @@ class MeasurementViewerModel
 		}
 		return roiList;
 	}
+
+	/**
+	 * Returns a collection of the currently selected shapes in the drawing view.
+	 *
+	 * @return see above.
+	 */
+    Collection<ROIShape> getSelectedShapes()
+    {
+        Collection<Figure> selectedFigs = getDrawingView().getSelectedFigures();
+        List<ROIShape> l = new ArrayList<ROIShape>();
+        Iterator<Figure> figIterator = selectedFigs.iterator();
+        ROIFigure fig;
+        while (figIterator.hasNext())
+        {
+            fig = (ROIFigure) figIterator.next();
+            l.add(fig.getROIShape());
+        }
+        return l;
+    }
 
 	/**
 	 * Removes the <code>ROIShape</code> on the current View corresponding
@@ -972,9 +977,7 @@ class MeasurementViewerModel
 	ROI createROI(ROIFigure figure, boolean addAttribs)
 		throws ROICreationException, NoSuchROIException
 	{
-		ROI roi = roiComponent.addROI(figure, getCurrentView(), addAttribs);
-		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		return roi;
+		return roiComponent.addROI(figure, getCurrentView(), addAttribs);
 	}
 
 	/**
@@ -1040,44 +1043,6 @@ class MeasurementViewerModel
 				getImageID(),  exp.getId());
 		currentLoader.load();
 		notifyDataChanged(dataChanged);
-	}
-
-	/**
-	 * Fires an asynchronous retrieval of the Workflow related user.
-	 */
-	void fireLoadWorkflow()
-	{
-		ExperimenterData exp =
-			(ExperimenterData) MeasurementAgent.getUserDetails();
-		currentLoader = new WorkflowLoader(component, getSecurityContext(),
-				exp.getId());
-		currentLoader.load();
-	}
-
-	/**
-	 * Retrieves the workflows saved.
-	 */
-	void retrieveWorkflowsFromServer()
-	{
-		ExperimenterData exp =
-			(ExperimenterData) MeasurementAgent.getUserDetails();
-		OmeroImageService svc =
-			MeasurementAgent.getRegistry().getImageService();
-		try
-		{
-			List<WorkflowData> result = svc.retrieveWorkflows(
-					getSecurityContext(), exp.getId());
-			workflows.clear();
-			component.setWorkflowList(result);
-		} catch (DSAccessException e)
-		{
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.error(this, "Cannot load workflows");
-		} catch (DSOutOfServiceException e)
-		{
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.error(this, "Cannot load workflows");
-		}
 	}
 
 	/**
@@ -1268,39 +1233,6 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	ImageData getImage() { return pixels.getImage(); }
-
-	/**
-	 * Saves the current ROISet in the ROI component to server.
-	 *
-	 * @param async Pass <code>true</code> to save the ROI asynchronously,
-	 * 				 <code>false</code> otherwise.
-	 */
-	void saveWorkflowToServer(boolean async)
-	{
-		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
-		Iterator<WorkflowData> workflowIterator = workflows.values().iterator();
-		while (workflowIterator.hasNext())
-			workflowList.add(workflowIterator.next());
-		try {
-			ExperimenterData exp =
-				(ExperimenterData) MeasurementAgent.getUserDetails();
-			if (async) {
-				currentSaver = new WorkflowSaver(component,
-					getSecurityContext(), workflowList, exp.getId());
-				currentSaver.load();
-				notifyDataChanged(false);
-			} else {
-				OmeroImageService svc =
-					MeasurementAgent.getRegistry().getImageService();
-				svc.storeWorkflows(getSecurityContext(), workflowList,
-						exp.getId());
-				event = null;
-			}
-		} catch (Exception e) {
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.warn(this, "Cannot save workflows to server "+e.getMessage());
-		}
-	}
 
 	/**
 	 * Propagates the selected shape in the roi model.
@@ -1649,127 +1581,6 @@ class MeasurementViewerModel
 	}
 
 	/**
-	 * Sets the workflow for the next ROI.
-	 *
-	 * @param workflowNamespace  See above.
-	 */
-	void setWorkflow(String workflowNamespace)
-	{
-		if (workflowNamespace == null) return;
-		if (WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
-		{
-			this.workflowNamespace = workflowNamespace;
-			keyword = new ArrayList<String>();
-		} else {
-			if (!workflows.containsKey(workflowNamespace))
-				throw new IllegalArgumentException("Workflow " +
-						workflowNamespace + " does not exist");
-			this.workflowNamespace = workflowNamespace;
-			keyword = getWorkflow().getKeywordsAsList();
-		}
-	}
-
-	/**
-	 * Returns the current workflow; or null if default workflow selected.
-	 *
-	 * @return See above.
-	 */
-	WorkflowData getWorkflow()
-	{
-		if (!WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
-			return workflows.get(workflowNamespace);
-		return null;
-	}
-
-	/**
-	 * Adds a new workflow to the workflow list;
-	 * @param workflow See above.
-	 */
-	void addWorkflow(WorkflowData workflow)
-	{
-		if (workflow != null)
-			workflows.put(workflow.getNameSpace(), workflow);
-	}
-
-	/**
-	 * Set the Workflows of the system.
-	 * @param workflowList See above.
-	 */
-	void resetWorkflows(List<WorkflowData> workflowList)
-	{
-		workflows.clear();
-		for(WorkflowData workflow : workflowList)
-			workflows.put(workflow.getNameSpace(), workflow);
-	}
-
-	/**
-	 * Returns all the workflow namespaces in the model, as an array list
-	 * @return See above.
-	 */
-	List<String> getWorkflows()
-	{
-		List<String> workflowList = new ArrayList<String>();
-		Iterator<String> i = workflows.keySet().iterator();
-		workflowList.add(WorkflowData.DEFAULTWORKFLOW);
-		while (i.hasNext())
-			workflowList.add(i.next());
-		return workflowList;
-	}
-
-	/**
-	 * Returns all the workflow namespaces in the model, as an array list.
-	 *
-	 * @return See above.
-	 */
-	List<WorkflowData> getWorkflowDataList()
-	{
-		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
-		Iterator<WorkflowData> i = workflows.values().iterator();
-		while (i.hasNext())
-			workflowList.add(i.next());
-		return workflowList;
-	}
-
-	/**
-	 * Sets the keyword of the workflow to keyword, the keyword must exist in
-	 * the workflow to be set.
-	 *
-	 * @param keyword See above.
-	 */
-	void setKeyword(List<String> keywords)
-	{
-		if (keywords == null) return;
-		if (keywords.size() == 0)
-			this.keyword = keywords;
-		else {
-			WorkflowData workflow = getWorkflow();
-			if (workflow == null) return;
-			boolean b = true;
-			for (String word : keywords) {
-				if (!workflow.contains(word) && word.trim().length() != 0)
-					b = false;
-			}
-			/*
-			for (String word : keywords)
-				if (!workflow.contains(word) && word.trim().length() != 0)
-					throw new IllegalArgumentException(
-							"Workflow does not contain keyword '" +
-							keyword +"'");
-							*/
-			if (b)
-				this.keyword = keywords;
-			else keyword = new ArrayList<String>();
-		}
-	}
-
-	/**
-	 * Returns the keywords associated with the namespace that have been
-	 * selected.
-	 * @return See above.
-	 */
-	List<String> getKeywords() { return keyword; }
-
-	/**
 	 * Returns <code>true</code> if the tool is for HCS data, <code>false</code>
 	 * otherwise.
 	 *
@@ -1874,8 +1685,8 @@ class MeasurementViewerModel
     */
 	boolean isMember()
 	{
-		if (MetadataViewerAgent.isAdministrator()) return false;
-		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
+		if (MeasurementAgent.isAdministrator()) return false;
+		Collection groups = MeasurementAgent.getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g, gRef = null;
 		long gId = getImage().getGroupId();
@@ -1898,4 +1709,107 @@ class MeasurementViewerModel
 	 * @param channels The value to set.
 	 */
 	void setChannelData(List<ChannelData> channels) { metadata = channels; }
+
+	/**
+	 * Loads the annotations linked to rois.
+	 *
+	 * @param shapes The shapes
+	 */
+	void fireLoadROIAnnotations(List<DataObject> shapes)
+	{
+	    ROIAnnotationLoader loader = new ROIAnnotationLoader(component,
+	            getSecurityContext(), shapes);
+	    loader.load();
+	}
+
+	/**
+	 * Saves the annotations.
+	 *
+	 * @param toAnnotate The objects to annotate.
+	 * @param toAdd The annotation to add.
+	 * @param toRemove The annotation to remove.
+	 */
+	void fireAnnotationSaving(Collection<DataObject> toAnnotate,
+	        List<AnnotationData> toAdd, List<Object> toRemove)
+	{
+	    ROIAnnotationSaver saver = new ROIAnnotationSaver(component,
+	            getSecurityContext(), toAnnotate, toAdd, toRemove);
+	    saver.load();
+	}
+
+	/**
+     * Sets the collection of existing tags.
+     * 
+     * @param tags The value to set.
+     */
+    void setExistingTags(Collection tags)
+    {
+        if (tags != null) existingTags = sorter.sort(tags);
+    }
+
+    /**
+     * Returns the collection of existing tags.
+     * 
+     * @return See above.
+     */
+    Collection getExistingTags() { return existingTags; }
+
+    /** Fires an asynchronous retrieval of existing tags. */
+    void fireExistingTagsLoading()
+    {
+        TagsLoader loader = new TagsLoader(component,
+                getSecurityContext(), canRetrieveAll());
+        loader.load();
+    }
+
+    /**
+     * Indicates to load all annotations available if the user can annotate
+     * and is an administrator/group owner or to only load the user's
+     * annotation.
+     * 
+     * @return See above
+     */
+    private boolean canRetrieveAll()
+    {
+        if (!pixels.canAnnotate()) return false;
+        //check the group level
+        GroupData group = getGroup(pixels.getGroupId());
+        if (group == null) return false;
+        switch (group.getPermissions().getPermissionsLevel()) {
+            case GroupData.PERMISSIONS_GROUP_READ:
+                if (MeasurementAgent.isAdministrator()) return true;
+                Set leaders = group.getLeaders();
+                Iterator i = leaders.iterator();
+                long userID = getCurrentUser().getId();
+                ExperimenterData exp;
+                while (i.hasNext()) {
+                    exp = (ExperimenterData) i.next();
+                    if (exp.getId() == userID)
+                        return true;
+                }
+                return false;
+            case GroupData.PERMISSIONS_PRIVATE:
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns the group corresponding to the specified id or <code>null</code>.
+     * 
+     * @param groupId The identifier of the group.
+     * @return See above.
+     */
+    private GroupData getGroup(long groupId)
+    {
+        Collection groups = MeasurementAgent.getAvailableUserGroups();
+        if (groups == null) return null;
+        Iterator i = groups.iterator();
+        GroupData group;
+        while (i.hasNext()) {
+            group = (GroupData) i.next();
+            if (group.getId() == groupId) return group;
+        }
+        return null;
+    }
 }

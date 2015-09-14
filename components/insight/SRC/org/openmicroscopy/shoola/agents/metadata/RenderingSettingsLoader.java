@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.RenderingSettingsLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -23,26 +21,21 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
-//Java imports
-import java.awt.Component;
-import java.awt.Point;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import pojos.DataObject;
-import pojos.ExperimenterData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Loads all rendering settings associated to an image.

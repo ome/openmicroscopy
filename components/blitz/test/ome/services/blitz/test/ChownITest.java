@@ -13,15 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.system.Roles;
-import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
 import omero.ServerError;
 import omero.cmd.Chown;
 import omero.cmd.HandleI;
 import omero.cmd.IRequest;
 import omero.cmd._HandleTie;
-import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.State;
 import omero.cmd.graphs.ChownFacadeI;
 import omero.model.AnnotationAnnotationLink;
@@ -54,14 +51,9 @@ import omero.model.WellSample;
 import omero.model.WellSampleI;
 import omero.sys.ParametersI;
 
-import org.jmock.Mock;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-
-/**
- */
 @Test(groups = { "integration", "chown" })
 @SuppressWarnings("deprecation")
 public class ChownITest extends AbstractGraphTest {

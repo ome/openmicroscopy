@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroMetadataService 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -21,8 +19,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.env.data;
-
-
 
 import java.io.File;
 import java.util.Collection;
@@ -59,10 +55,10 @@ import omero.gateway.exception.DSOutOfServiceException;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * List of methods to retrieve metadata.
@@ -753,4 +749,21 @@ public interface OmeroMetadataService
 	public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
 	        Class<?> rootType, List<Long> rootIDs)
 	                throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Add (resp. removes) annotations to (resp. from) the objects if any.
+     *
+     * @param ctx The security context.
+     * @param toAdd Collection of annotations to add.
+     * @param toRemove Collection of annotations to remove.
+     * @param userID The id of the user.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                   in.
+     * @throws DSAccessException        If an error occurred while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+    public void saveAnnotationData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID)
+        throws DSOutOfServiceException, DSAccessException;
 }

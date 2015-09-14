@@ -80,10 +80,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		return p;
 	}
 
-	/**
-	 * Implemented as specified by the {@link IPixels} I/F.
-	 * @see IPixels#retrieveRndSettingsFor(long, long)
-	 */
+    @Override
 	@RolesAllowed("user")
 	public RenderingDef retrieveRndSettingsFor(long pixId, long userId)
 	{
@@ -92,10 +89,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		return (RenderingDef) list.get(0);
 	}
 
-	/**
-	 * Implemented as specified by the {@link IPixels} I/F.
-	 * @see IPixels#retrieveAllRndSettingsFor(long, long)
-	 */
+    @Override
 	@RolesAllowed("user")
 	public List<IObject> retrieveAllRndSettings(long pixId, long userId)
 	{
@@ -113,10 +107,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		return l;
 	}
 
-	/**
-	 * Implemented as specified by the {@link IPixels} I/F.
-	 * @see IPixels#retrieveRndSettings(long)
-	 */
+    @Override
 	@RolesAllowed("user")
 	public RenderingDef retrieveRndSettings(long pixId) {
         Long userId = sec.getEffectiveUID();
@@ -136,10 +127,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         return rd;
 	}
 
-	/**
-	 * Implemented as specified by the {@link IPixels} I/F.
-	 * @see IPixels#loadRndSettings(long)
-	 */
+    @Override
 	@RolesAllowed("user")
 	public RenderingDef loadRndSettings(long renderingDefId) {
 		return (RenderingDef) iQuery.findByQuery(
@@ -147,7 +135,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 				new Parameters().addId(renderingDefId));
 	}
 
-	/** Actually performs the work declared in {@link copyAndResizePixels()}. */
+	/** Actually performs the work declared in {@link #copyAndResizePixels()}. */
 	private Pixels _copyAndResizePixels(long pixelsId, Integer sizeX, 
 			Integer sizeY, Integer sizeZ, Integer sizeT, 
 			List<Integer> channelList, String methodology, boolean copyStats)

@@ -12,12 +12,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import ome.xml.model.OME;
 import omero.cmd.Delete2;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
 import omero.model.Experiment;
-import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Screen;
@@ -26,8 +27,6 @@ import omero.model.WellSample;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
-import ome.specification.XMLMockObjects;
-import ome.specification.XMLWriter;
 
 /**
  * Tests for deleting screen/plate/wells

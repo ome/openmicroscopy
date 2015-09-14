@@ -72,7 +72,7 @@ import Ice.UserException;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.1
- * @see ome.grid.SharedResources
+ * @see omero.grid.SharedResources
  */
 public class SharedResourcesI extends AbstractCloseableAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware,

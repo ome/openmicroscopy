@@ -84,7 +84,7 @@ public class FileUploader implements IObservable
     /**
      * Initialize upload with httpClient
      *
-     * @param httpClient
+     * @param httpClient the HTTP client to use
      */
     public FileUploader(CloseableHttpClient httpClient)
     {
@@ -158,10 +158,10 @@ public class FileUploader implements IObservable
 
     /**
      * Upload files from error container to url
-     *
-     * @param url The URL to use.
-     * @param timeout - timeout
-     * @param upload - error container with files in it
+     * @param path the URL to which to POST
+     * @param timeout the timeout (ignored)
+     * @param upload the error container with files in it
+     * @throws HtmlMessengerException if the POST failed
      */
     public void uploadFiles(String path, int timeout, ErrorContainer upload)
         throws HtmlMessengerException

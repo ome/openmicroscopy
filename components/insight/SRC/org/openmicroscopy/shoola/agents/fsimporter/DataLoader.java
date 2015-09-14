@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.DataLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,19 +20,14 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter;
 
-
-//Java imports
 import java.util.Collection;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * Reloads the hierarchies when new containers have been created during an

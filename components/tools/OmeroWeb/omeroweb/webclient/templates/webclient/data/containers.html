@@ -342,7 +342,7 @@
 
             // Return a promise
             return $.ajax({
-                url: "{% url 'api_links' %}",
+                url: "{% url 'api_link' %}",
                 type: 'POST',
                 data: JSON.stringify(payload),
                 dataType: 'json'
@@ -360,7 +360,7 @@
 
             // Return a promise
             return $.ajax({
-                url: "{% url 'api_links' %}",
+                url: "{% url 'api_link' %}",
                 type: 'DELETE',
                 data: JSON.stringify(payload),
                 dataType: 'json'
@@ -561,7 +561,7 @@
                             var data = {
                                 'id': r['id'],
                                 'isOwner': true,
-                                'ownerId': {{ ome.user_id }},
+                                'ownerId': {{ ome.user.id }},
                                 'name': new_container_name,
                                 'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
                             };
@@ -790,7 +790,7 @@
                             },
 
                             error: function(json) {
-                                console.log('failure');
+                                // Global error handling is sufficient here
                             }
                         });
                     }
@@ -986,16 +986,17 @@
                             }
 
                             // If this is a node which can have paged results then either specify that
-                            // we want the first page or the specific page
+                            // we want the specific page, or use default first page
                             if (node.type === 'dataset' || node.type === 'orphaned') {
                                 // Attempt to get the current page desired if there is one
                                 var page = inst.get_page(node);
                                 if (page) {
                                     payload['page'] = page;
-                                // Otherwise, always get page 1
-                                } else {
-                                    payload['page'] = 1;
+                                    // Otherwise, no 'page' will give us default, first page
                                 }
+                            } else {
+                                // Disable paging for other queries
+                                payload['page'] = 0
                             }
 
                             // Specify that orphans are specifically sought
@@ -1004,7 +1005,7 @@
                             }
 
                             // Always add the group_id from the current context
-                            payload['group_id'] = {{ active_group.id }};
+                            payload['group'] = {{ active_group.id }};
 
 
                             // Configure URL for request
@@ -1060,9 +1061,7 @@
                                     callback.call(this, data);
                                 },
                                 error: function (jqXHR, textStatus, errorThrown) {
-                                    // TODO What do we do now if there is an error from the REST API?
-                                    // Launch the Error Dialog?
-                                    console.log('ERROR IN AJAX');
+                                    // Global error handling is sufficient here
                                 },
                                 // Converter is required because the JSON format being returned is not
                                 // jstree specific.
@@ -1504,9 +1503,12 @@
                                 config["delete"]["_disabled"] = false;
                             }
 
-                            // Disable chGrp if no permission to change groups ('canChgrp')
+                            // Enable 'Move to group' if 'canChgrp'
                             if(OME.nodeHasPermission(node, 'canChgrp')) {
-                                config["chgrp"]["_disabled"] = false;
+                                // Can chgrp everything except Plate 'run'
+                                if (node.type !== "acquisition") {
+                                    config["chgrp"]["_disabled"] = false;
+                                }
                             }
 
                             // The only cases where 'Create' menu depends on selected node are
@@ -1611,6 +1613,8 @@
                         var inst = this;
                         var node1 = inst.get_node(nodeId1);
                         var node2 = inst.get_node(nodeId2);
+                        var name1 = node1.text.toLowerCase();
+                        var name2 = node2.text.toLowerCase();
                         // If the nodes are the same type then just compare lexicographically
                         if (node1.type === node2.type && node1.text != undefined && node2.text != undefined) {
                             // Unless they are experimenters and one of them is the current user.
@@ -1621,7 +1625,11 @@
                                     return 1;
                                 }
                             }
-                            return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
+                            // If names are same, sort by ID
+                            if (name1 === name2) {
+                                return node1.data.obj.id <= node2.data.obj.id ? -1 : 1;
+                            }
+                            return name1 <= name2 ? -1 : 1;
                         // Otherwise explicitly order the type that might be siblings
                         } else {
 

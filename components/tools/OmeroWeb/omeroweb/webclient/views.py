@@ -411,6 +411,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     elif menu == 'usertags':
         template = "webclient/data/container_tags.html"
     else:
+        # E.g. search/search.html
         template = "webclient/%s/%s.html" % (menu, menu)
 
     # tree support
@@ -421,10 +422,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         first_sel = show.first_selected
     except IncorrectMenuError, e:
         return HttpResponseRedirect(e.uri)
-    init = {
-        'initially_open': show.initially_open,
-        'initially_select': show.initially_select
-    }
+    # We get the owner of the top level object, E.g. Project
+    # Actual api_paths_to_object() is retrieved by jsTree once loaded
     initially_open_owner = show.initially_open_owner
 
     # need to be sure that tree will be correct omero.group
@@ -432,6 +431,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         switch_active_group(request, first_sel.details.group.id.val)
 
     # search support
+    init = {}
     global_search_form = GlobalSearchForm(data=request.REQUEST.copy())
     if menu == "search":
         if global_search_form.is_valid():
@@ -549,7 +549,7 @@ def group_user_content(request, url=None, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_group_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -575,21 +575,15 @@ def api_group_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'groups': groups})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_experimenter_list(request, conn=None, **kwargs):
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
-
-    # If no group (or cross-group) is specified, use current
-    # TODO Remove this and check webclient handles it ok
-    if group_id is None:
-        group_id = request.session.get('active_group') or \
-            conn.getEventContext().groupId
 
     try:
         # Get the experimenters
@@ -607,7 +601,7 @@ def api_experimenter_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'experimenters': experimenters})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
     # Validate parameter
     try:
@@ -635,12 +629,12 @@ def api_container_list(request, conn=None, **kwargs):
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         experimenter_id = get_long_or_default(request, 'id', -1)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
-    # TODO While this interface does support paging, it does so in a
+    # While this interface does support paging, it does so in a
     # very odd way. The results per page is enforced per query so this
     # will actually get the limit for projects, datasets (without
     # parents), screens and plates (without parents). This is fine for
@@ -697,13 +691,13 @@ def api_container_list(request, conn=None, **kwargs):
                              'orphaned': orphaned})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_dataset_list(request, conn=None, **kwargs):
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         project_id = get_long_or_default(request, 'id', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
@@ -725,7 +719,7 @@ def api_dataset_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'datasets': datasets})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_image_list(request, conn=None, **kwargs):
     ''' Get a list of images
         Specifiying dataset_id will return only images in that dataset
@@ -740,14 +734,19 @@ def api_image_list(request, conn=None, **kwargs):
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         dataset_id = get_long_or_default(request, 'id', None)
         orphaned = get_bool_or_default(request, 'orphaned', False)
-        share_id = get_long_or_default(request, 'share_id', None)
-        experimenter_id = get_long_or_default(request, 'experimenter_id',
-                                              -1)
+        experimenter_id = get_long_or_default(request,
+                                              'experimenter_id', -1)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
+
+    # Share ID is in kwargs from api/share_images/<id>/ which will create
+    # a share connection in @login_required.
+    # We don't support ?share_id in query string since this would allow a
+    # share connection to be created for ALL urls, instead of just this one.
+    share_id = 'share_id' in kwargs and long(kwargs['share_id']) or None
 
     try:
         # Get the images
@@ -769,13 +768,13 @@ def api_image_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'images': images})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_plate_list(request, conn=None, **kwargs):
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         screen_id = get_long_or_default(request, 'id', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
@@ -797,7 +796,7 @@ def api_plate_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'plates': plates})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_plate_acquisition_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -827,14 +826,15 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
 
 
 def get_object_link(conn, parent_type, parent_id, child_type, child_id):
-    # TODO Group context?
+    """ This is just used internally by api_link DELETE below """
+    if parent_type == 'orphaned':
+        return None
     link_type = None
     if parent_type == 'experimenter':
         if child_type == 'dataset' or child_type == 'plate':
             # This will be a requested link if a dataset or plate is
             # moved from the de facto orphaned datasets/plates, it isn't
             # an error, but no link actually needs removing
-            # TODO Unless it is moved to a different user.
             return None
     elif parent_type == 'project':
         if child_type == 'dataset':
@@ -847,9 +847,7 @@ def get_object_link(conn, parent_type, parent_id, child_type, child_id):
             link_type = 'ScreenPlate'
 
     if not link_type:
-        # TODO Should throw exception as the caller uses a None return
-        # type to indicate that the type of the
-        return
+        raise Http404("json data needs 'parent_type' and 'child_type'")
 
     params = omero.sys.ParametersI()
     params.add('pid', rlong(parent_id))
@@ -866,18 +864,17 @@ def get_object_link(conn, parent_type, parent_id, child_type, child_id):
     if len(res) > 0:
         return res[0]
     else:
-        return None
+        raise Http404("No link found for %s-%s to %s-%s"
+                      % (parent_type, parent_id, child_type, child_id))
 
 
-# TODO Think carefully about the request json for this interface
-# Maybe it should jsut be 1-M?
-# Maybe it should take a list of pairs of things to link?
-# Maybe it should be PUT for move?
-@login_required(setGroupContext=True)
-def api_link_list(request, conn=None, **kwargs):
-    # TODO Is it possible and valid for 2 users to create the same link?
-    # If so we'll have to take the user id into account
-    # filter_user_id = request.session.get('user_id')
+@login_required()
+def api_link(request, conn=None, **kwargs):
+    """ Creates or Deletes a link between 2 objects specified by a json
+    blob in the request body.
+    When creating a link, fails silently if ValidationException
+    (E.g. adding an image to a Dataset that already has that image).
+    """
 
     def get_link(parent_type, parent_id, child_type, child_id):
         # TODO Handle more types of link
@@ -917,66 +914,51 @@ def api_link_list(request, conn=None, **kwargs):
     # Handle link creation
     if request.method == 'POST':
         json_data = json.loads(request.body)
-        print('linking %s-%s with %s-%s' % (json_data['parent_type'],
-                                            json_data['parent_id'],
-                                            json_data['child_type'],
-                                            json_data['child_id']))
+
         try:
-            link = get_link(json_data['parent_type'],
-                            json_data['parent_id'],
+            ptype = json_data['parent_type']
+            pid = json_data['parent_id']
+            link = get_link(ptype,
+                            pid,
                             json_data['child_type'],
                             json_data['child_id'])
 
             if link:
                 if link != 'orphan':
+                    # Need to set context to correct group (E.g parent group)
+                    p = conn.getQueryService().get(ptype.title(), pid,
+                                                   conn.SERVICE_OPTS)
+                    conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
                     conn.saveObject(link)
                 response['success'] = True
 
-        # I assume that the failed creation of the link due to
+        # We assume that the failed creation of the link due to
         # a ValidationException is due to the prexisting status
         # of the link. This could be confirmed by parsing the
         # message of the exception. That is why success is marked to
         # be true
         # At worst this may wrongly report that a link already existed
         # when in-fact, one of the object in the link did not exist
-        # TODO Parse message
-        except ValidationException as e:
-            print 'ValidationException, silent for now'
+        except ValidationException:
             response['success'] = True
-        except Exception as e:
-            print e
 
     elif request.method == 'DELETE':
         json_data = json.loads(request.body)
-        print('unlinking %s-%s with %s-%s' % (json_data['parent_type'],
-                                              json_data['parent_id'],
-                                              json_data['child_type'],
-                                              json_data['child_id']))
-        try:
-            # TODO It isn't possible to delete an object without having its
-            # ID so need to query that first.
-            link = get_object_link(conn,
-                                   json_data['parent_type'],
-                                   long(json_data['parent_id']),
-                                   json_data['child_type'],
-                                   long(json_data['child_id']))
-            print('link')
-            print(link)
-            # If the link exists delete it
-            if link is not None:
-                if link != 'orphan':
-                    conn.deleteObjectDirect(link)
-                    print('Should have deleted')
-            # If it was deleted then that is a success. Equally if it
-            # didn't exist the end result is correct, so mark it as a
-            # success
-            response['success'] = True
 
-        except ValidationException as e:
-            print 'ValidationException, silent for now'
-            response['success'] = False
-        except Exception as e:
-            print e
+        # Get the parent-child link to delete (will raise 404 if not found)
+        link = get_object_link(conn,
+                               json_data['parent_type'],
+                               long(json_data['parent_id']),
+                               json_data['child_type'],
+                               long(json_data['child_id']))
+        # If the link exists delete it
+        if link is not None:
+            conn.deleteObjectDirect(link)
+        # If it was deleted then that is a success. Equally if 'orphan', it
+        # didn't exist and the end result is correct, so mark it as a
+        # success.
+        # No try/except here - exceptions will be raised and handled by client
+        response['success'] = True
 
     return HttpJsonResponse(response)
 
@@ -1008,7 +990,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
         acquisition_id = get_long_or_default(request, 'acquisition',
                                              acquisition_id)
         well_id = request.REQUEST.get('well', None)
-        group_id = get_long_or_default(request, 'group_id', None)
+        group_id = get_long_or_default(request, 'group', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1018,7 +1000,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
     return HttpJsonResponse({'paths': paths})
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_tags_and_tagged_list(request, conn=None, **kwargs):
     if request.method == 'GET':
         return api_tags_and_tagged_list_GET(request, conn, **kwargs)
@@ -1033,14 +1015,14 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         If no tagset_id is specifed it will return tags which have no
         parent
     '''
-    # TODO This interface seems a little widely scoped?
     # Get parameters
     try:
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
-        group_id = get_long_or_default(request, 'group_id', -1)
+        group_id = get_long_or_default(request, 'group', -1)
         tag_id = get_long_or_default(request, 'id', None)
         experimenter_id = get_long_or_default(request, 'experimenter_id', -1)
+        orphaned = get_bool_or_default(request, 'orphaned', False)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1057,6 +1039,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
             tagged = {}
 
         tagged['tags'] = tree.marshal_tags(conn=conn,
+                                           orphaned=orphaned,
                                            experimenter_id=experimenter_id,
                                            tag_id=tag_id,
                                            group_id=group_id,
@@ -1107,7 +1090,7 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
     return HttpJsonResponse('')
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def api_share_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -1118,7 +1101,7 @@ def api_share_list(request, conn=None, **kwargs):
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
-    # TODO Like with api_container_list, this is a combination of
+    # Like with api_container_list, this is a combination of
     # results which will each be able to return up to the limit in page
     # size
 
@@ -1193,10 +1176,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
     template = "webclient/data/containers_icon.html"
     if 'orphaned' in kw:
         # We need to set group context since we don't have a container Id
-        if request.session.get('active_group'):
-            conn.SERVICE_OPTS.setOmeroGroup(
-                request.session.get('active_group'))
-        load_pixels = True
+        groupId = request.session.get('active_group')
+        if groupId is None:
+            groupId = conn.getEventContext().groupId
+        conn.SERVICE_OPTS.setOmeroGroup(groupId)
         manager.listOrphanedImages(filter_user_id, page)
     elif 'dataset' in kw:
         # we need the sizeX and sizeY for these
@@ -1335,7 +1318,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
@@ -2714,7 +2697,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
     @param action:      "addnewcontainer", (creates a new Project, Dataset,
                         Screen), "editname", "savename", "editdescription",
                         "savedescription",  (used as GET and POST for in-line
-                        editing), "paste", "move", "remove",
+                        editing),
                         "removefromshare", (tree P/D/I moving etc)
                         "delete", "deletemany"      (delete objects)
     @param o_type:      "dataset", "project", "image", "screen", "plate",
@@ -2962,38 +2945,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
-    elif action == 'paste':
-        # Handles 'paste' action from the jsTree. Destination in POST
-        destination = request.REQUEST['destination'].split('-')
-        rv = manager.paste(destination)
-        if rv:
-            rdict = {'bad': 'true', 'errs': rv}
-            return HttpJsonResponse(rdict)
-        else:
-            rdict = {'bad': 'false'}
-            return HttpJsonResponse(rdict)
-    elif action == 'move':
-        # Handles drag-and-drop moving of objects in jsTree.
-        # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
-        parent = request.REQUEST['parent'].split('-')
-        # source = request.REQUEST['source'].split('-')
-        destination = request.REQUEST['destination'].split('-')
-        rv = None
-        try:
-            if parent[1] == destination[1]:
-                rv = "Error: Cannot move to the same place."
-        except Exception, x:
-            rdict = {'bad': 'true', 'errs': str(x)}
-        else:
-            if rv is None:
-                rv = manager.move(parent, destination)
-            if rv:
-                rdict = {'bad': 'true', 'errs': rv}
-            else:
-                rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
     elif action == 'remove':
-        # Handles 'remove' of Images from jsTree, removal of comment, tag from
+        # Handles removal of comment, tag from
         # Object etc.
         # E.g. image-123  or image-1|image-2
         parents = request.REQUEST['parent']
@@ -3081,7 +3034,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             logger.error(
                 'Failed to delete: %r' % {'did': ids, 'dtype': key},
                 exc_info=True)
-            rdict = {'bad': 'true', 'errs': str(x)}
+            # Ajax error handling will allow user to submit bug report
+            raise
         else:
             rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)

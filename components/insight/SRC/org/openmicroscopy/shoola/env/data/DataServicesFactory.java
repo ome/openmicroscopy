@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.DataServicesFactory
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
 import java.beans.PropertyChangeEvent;
@@ -73,8 +70,8 @@ import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * A factory for the {@link OmeroDataService} and the {@link OmeroImageService}.
@@ -84,10 +81,7 @@ import pojos.GroupData;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class DataServicesFactory

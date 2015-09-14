@@ -7,13 +7,10 @@
 
 package ome.tools.hibernate;
 
-// Java imports
 import java.util.Collection;
 
-// Third-party libraries
 import org.hibernate.Hibernate;
 
-// Application-internal dependencies
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 
@@ -23,7 +20,6 @@ import ome.util.Filterable;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
 public class ProxySafeFilter extends ContextFilter {

@@ -10,8 +10,6 @@ package ome.services.blitz.fire;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.api.IQuery;
 import ome.conditions.SessionException;
 import ome.model.meta.Experimenter;
@@ -33,8 +31,6 @@ import Ice.StringHolder;
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-RC1
  */
-@RevisionDate("$Date: 2006-12-15 12:28:54 +0100 (Fri, 15 Dec 2006) $")
-@RevisionNumber("$Revision: 1175 $")
 public class PermissionsVerifierI extends _PermissionsVerifierDisp {
 
     private final static Logger log = LoggerFactory

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -34,10 +30,6 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -45,7 +37,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Brings up the <code>Personal Management</code> menu.
@@ -55,9 +47,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class PersonalManagementAction 

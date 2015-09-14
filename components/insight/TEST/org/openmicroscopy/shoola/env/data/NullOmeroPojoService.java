@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.NullOmeroPojoService
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -32,14 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-
-
-
-
-
-//Application-internal dependencies
 import omero.api.StatefulServiceInterfacePrx;
 
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -50,13 +38,13 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.SearchResultCollection;
 import omero.gateway.model.SearchParameters;
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
 
 /** 
  * 
@@ -67,9 +55,6 @@ import pojos.PlateData;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class NullOmeroPojoService
@@ -204,7 +189,7 @@ public class NullOmeroPojoService
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
 	public Map getArchivedImage(SecurityContext ctx, File location,
-			long pixelsID) 
+			long pixelsID, boolean keepOriginalPath) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

@@ -59,7 +59,7 @@ public class IniFileLoader {
     /**
      * Public in order to configure LogAppenderProxy, but then the value
      * might as well be configured in the log4j.properties file
-     * @see ticket:1479
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/1479">Trac ticket #1479</a>
      */
     public final static String LOGFILE = LOGDIR + File.separator
             + "importer.log";
@@ -78,7 +78,7 @@ public class IniFileLoader {
     /**
      * Load given file
      *
-     * @param userConfigFile
+     * @param userConfigFile the file to load
      */
     public IniFileLoader(File userConfigFile) {
         staticConfigDirectory = System.getProperty("user.dir") + File.separator
@@ -124,6 +124,7 @@ public class IniFileLoader {
     /**
      * Returns the level of debugging which should be set on {@link ImportConfig}
      * Any value lower than null will not call configureDebug.
+     * @return the debug level
      */
     public int getDebugLevel() {
     	if (userPrefs == null) return -1;
@@ -197,9 +198,8 @@ public class IniFileLoader {
     }
 
     /**
-     * Set debug level for application
-     *
-     * @param level
+     * Set if history should be disabled.
+     * @param b if history should be disabled
      */
     public void setUserDisableHistory(boolean b)
     {
@@ -209,7 +209,7 @@ public class IniFileLoader {
     }    
     
     /**
-     * @return if debug console should be shown
+     * @return if history should be disabled
      */
     public Boolean getUserDisableHistory()
     {
@@ -220,7 +220,7 @@ public class IniFileLoader {
     /**
      * Set debug level for application
      *
-     * @param level
+     * @param level a debug level
      */
     public void setDebugLevel(int level)
     {
@@ -301,8 +301,8 @@ public class IniFileLoader {
     /**
      * Parse Flex reader server maps
      *
-     * @param maps
-     * @return
+     * @param maps the Flex reader server maps
+     * @return the parsed maps
      */
     public Map<String, List<String>> parseFlexMaps(Preferences maps)
     {
@@ -380,7 +380,7 @@ public class IniFileLoader {
     /**
      * Set ui bounds for application
      *
-     * @param bounds
+     * @param bounds the bounds
      */
     public void setUIBounds(Rectangle bounds)
     {

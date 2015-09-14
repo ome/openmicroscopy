@@ -247,10 +247,13 @@ OME.doPagination = function(page) {
         containerNode = OME.getTreeBestGuess(containerType, containerId);
     }
 
+    // Deselect all
+    datatree.deselect_all(true);
+
     // Set the page for that node in the tree and reload the tree section
     datatree.change_page(containerNode, page);
-    // Reselect the same node to trigger update
-    datatree.deselect_all(true);
+
+    // and then reselect the same node again to trigger update
     datatree.select_node(containerNode);
 
     return false;
@@ -422,6 +425,52 @@ OME.refreshThumbnails = function(options) {
 };
 
 
+OME.truncateNames = (function(){
+    var insHtml;
+    // Resizing of left panel dynamically truncates image names
+    // NB: no images loaded when page first laods. Do everything on resize...
+    var truncateNames = function() {
+        if (!insHtml) {
+            // use the first image to get the html
+            var $ins = $('.jstree li[rel^="image"] a ins').first();
+            if ($ins.length > 0) {
+                insHtml = $ins.get(0).outerHTML;
+            }
+        }
+        // get the panel width, and number of chars that will fit
+        var lp_width = $("#left_panel").width() - 20;  // margin
+        // Go through all images, truncating names...
+        // When we find matching size for a name length, save it...
+        var maxChars;
+        $('.jstree li[rel^="image"] a').each(function(){
+            var $this = $(this),
+                ofs = $this.offset(),
+                name = $this.attr('data-name'),
+                truncatedName,
+                chars = name.length;
+            name = name.escapeHTML();
+            // if we know maxChars and we're longer than that...
+            if (maxChars && name.length > maxChars) {
+                chars = maxChars;
+                truncatedName = "..." + name.slice(-chars);
+                $this.html(insHtml + truncatedName);
+            } else {
+                // if needed, trim the full name until it fits and save maxChars
+                $this.html(insHtml + name);
+                var w = $this.width() + ofs.left;
+                while (w > lp_width && chars > 2) {
+                    chars = chars-2;
+                    truncatedName = "..." + name.slice(-chars);
+                    $this.html(insHtml + truncatedName);
+                    w = $this.width() + ofs.left;
+                    maxChars = chars;
+                }
+            }
+        });
+    };
+    return truncateNames;
+}());
+
 // Handle deletion of selected objects in jsTree in container_tags.html and containers.html
 OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var datatree = $.jstree.reference($('#dataTree'));
@@ -517,43 +566,34 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 dataType: "json",
                 type: "POST",
                 success: function(r){
-                    //TODO Makeshift error response should probably be removed?
-                    if(eval(r.bad)) {
-                        $.each(disabledNodes, function(index, node) {
-                             datatree.enable_node(node);
-                        });
-                        alert(r.errs);
-                      } else {
-                            // Update the central panel in case delete removes an icon
-                            $.each(selected, function(index, node) {
-                                var e = {'type': 'delete_node'};
-                                var data = {'node': node,
-                                            'old_parent': firstParent};
-                                update_thumbnails_panel(e, data);
-                            });
+                    // Update the central panel in case delete removes an icon
+                    $.each(selected, function(index, node) {
+                        var e = {'type': 'delete_node'};
+                        var data = {'node': node,
+                                    'old_parent': firstParent};
+                        update_thumbnails_panel(e, data);
+                    });
 
-                            datatree.delete_node(selected);
+                    datatree.delete_node(selected);
 
-                            // Update the central panel with new selection
-                            datatree.deselect_all();
-                            // Don't select plate during 'Run' delete - tries to load partially deleted data
-                            if (firstParent.type !== "plate") {
-                                datatree.select_node(firstParent);
-                            }
-                            $.each(disabledNodes, function(index, node) {
-                                //TODO Make use of server calculated update like chgrp?
-                                updateParentRemoveNode(datatree, node, firstParent);
-                                removeDuplicateNodes(datatree, node);
-                            });
+                    // Update the central panel with new selection
+                    datatree.deselect_all();
+                    // Don't select plate during 'Run' delete - tries to load partially deleted data
+                    if (firstParent.type !== "plate") {
+                        datatree.select_node(firstParent);
+                    }
+                    $.each(disabledNodes, function(index, node) {
+                        //TODO Make use of server calculated update like chgrp?
+                        updateParentRemoveNode(datatree, node, firstParent);
+                        removeDuplicateNodes(datatree, node);
+                    });
 
-                            OME.refreshActivities();
-                      }
+                    OME.refreshActivities();
                 },
                 error: function(response) {
                     $.each(disabledNodes, function(index, node) {
-                         datatree.enable_node(node);
+                        datatree.enable_node(node);
                     });
-                    alert("Internal server error. Cannot remove object.");
                 }
             });
         } else {
@@ -814,6 +854,79 @@ OME.getTreeImageContainerBestGuess = function(imageId) {
     });
 
     return containerNode;
+};
+
+OME.formatScriptName = function(name) {
+    // format script name by replacing '_' with ' '
+    name = name.replace(/_/g, " ");
+    if (name.indexOf(".") > 0) {
+        name = name.slice(0, name.indexOf(".")) + "...";
+    }
+    return name;
+};
+
+OME.showScriptList = function(event) {
+    // We're almost always going to be triggered from an anchor
+    event.preventDefault();
+
+    // show menu - load if empty
+    // $('#scriptList').css('visibility', 'visible');
+    $('#scriptList').show();
+    if ($("#scriptList li").length === 0){  // if none loaded yet...
+        var $scriptLink = $(this);
+        var $scriptSpinner = $("#scriptSpinner").show();
+        var script_list_url = $(this).attr('href');
+        $.get(script_list_url, function(data) {
+
+            var build_ul = function(script_data) {
+                var html = "";
+                for (var i=0; i<script_data.length; i++) {
+                    var li = script_data[i],   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
+                        name = li.name;
+                    if (li.id) {
+                        name = OME.formatScriptName(name);
+                        html += "<li><a href='" + event.data.webindex + "script_ui/"+ li.id + "/'>" + name + "</a></li>";
+                    } else {
+                        html += "<li class='menuItem'><a href='#'>" + name + "</a>";
+                        // sub-menus have a 'BACK' button at the top
+                        html += "<ul><li class='menu_back'><a href='#'>back</a></li>" + build_ul(li.ul) + "</ul>";
+                        html += "</li>";
+                    }
+                }
+                return html;
+            };
+
+            var html = "<ul class='menulist'>" + build_ul(data) + "</ul>";
+
+            $('#scriptList').append($(html));
+
+            $('#scriptList ul ul').hide();
+            $scriptSpinner.hide();
+      }, "json");
+    }
+};
+
+OME.hideScriptList = function() {
+    $("#scriptList").hide();
+};
+
+OME.toggleFileAnnotationCheckboxes = function(event) {
+    var checkboxes = $("#fileanns_container input[type=checkbox]");
+    checkboxes.toggle().prop("checked", false);
+    checkboxes.parents("li").toggleClass("selected", false);
+};
+
+OME.fileAnnotationCheckboxChanged = function(event) {
+    $(event.target).parents("li").toggleClass("selected");
+};
+
+OME.fileAnnotationCheckboxDynamicallyAdded = function() {
+    var checkboxesAreVisible = $(
+        "#fileanns_container input[type=checkbox]:visible"
+    ).length > 0;
+    if (checkboxesAreVisible) {
+        $("#fileanns_container input[type=checkbox]:not(:visible)").toggle();
+    }
 };
 
 jQuery.fn.tooltip_init = function() {

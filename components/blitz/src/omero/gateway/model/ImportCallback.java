@@ -42,10 +42,7 @@ import omero.gateway.exception.ImportException;
 
 import org.apache.commons.io.FileUtils;
 
-import pojos.util.PojoMapper;
-import pojos.DataObject;
-import pojos.FilesetData;
-import pojos.PixelsData;
+import omero.gateway.util.PojoMapper;
 
 /**
  * Notify of import update.
@@ -398,18 +395,18 @@ public class ImportCallback
      * Returns <code>true</code> if the checksums have been calculated,
      * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean hasChecksum() { return checksumEvent != null; }
 
     /**
      * Fires a property indicating to import the files.
-     * 
+     *
      * @param files The file to handle.
      */
     public void setFiles(Map<File, ImportCallback> files)
     {
-        if (isMarkedAsCancel()) 
+        if (isMarkedAsCancel())
             return;
         firePropertyChange(FILES_SET_PROPERTY, null, files);
     }
@@ -425,7 +422,7 @@ public class ImportCallback
 
     /**
      * Sets the container corresponding to the folder.
-     * 
+     *
      * @param container The container to set.
      */
     public void setContainerFromFolder(DataObject container)
@@ -437,7 +434,7 @@ public class ImportCallback
      * Replaces the initial file by the specified one. This should only be
      * invoked if the original file was an arbitrary one requiring to use the
      * import candidate e.g. <code>.log</code>.
-     * 
+     *
      * @param file The new file.
      */
     public void resetFile(File file)
@@ -447,7 +444,7 @@ public class ImportCallback
 
     /**
      * Returns the number of series.
-     * 
+     *
      * @return See above.
      */
     public int getSeriesCount() { return seriesCount; }
@@ -455,7 +452,7 @@ public class ImportCallback
     /**
      * Returns <code>true</code> if the import can be cancelled,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isCancellable() { return cancellable; }
@@ -463,7 +460,7 @@ public class ImportCallback
     /**
      * Returns the result of the import either a collection of
      * <code>PixelsData</code> or an exception.
-     * 
+     *
      * @return See above.
      */
     public Object getImportResult()
@@ -475,7 +472,7 @@ public class ImportCallback
 
     /**
      * Returns the number of pixels objects created or <code>0</code>.
-     * 
+     *
      * @return See above.
      */
     public int getNumberOfImportedFiles()
@@ -486,14 +483,14 @@ public class ImportCallback
 
     /**
      * Returns the size of the upload.
-     * 
+     *
      * @return See above.
      */
     public long getFileSize() { return sizeUpload; }
 
     /**
      * Returns the ID associated to the log file.
-     * 
+     *
      * @return See above.
      */
     public long getLogFileID() { return logFileID; }
@@ -501,7 +498,7 @@ public class ImportCallback
     /**
      * Returns <code>true</code> if the upload ever started, <code>false</code>
      * otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean didUploadStart() { return uploadStarted; }

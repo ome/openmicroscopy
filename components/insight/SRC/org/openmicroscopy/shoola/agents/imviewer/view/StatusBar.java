@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.view.StatusBar
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-//Java imports
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,14 +35,11 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Displays plane information.

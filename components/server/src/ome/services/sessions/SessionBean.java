@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -15,8 +13,6 @@ import java.util.concurrent.Future;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.ISession;
 import ome.api.ServiceInterface;
@@ -25,7 +21,6 @@ import ome.conditions.RootException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.model.meta.Session;
-import ome.security.SecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -43,8 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0-Beta3
  */
 @Transactional
-@RevisionDate("$Date: 2007-06-05 15:59:33 +0200 (Tue, 05 Jun 2007) $")
-@RevisionNumber("$Revision: 1593 $")
 public class SessionBean implements ISession {
 
     private final static Logger log = LoggerFactory.getLogger(SessionBean.class);

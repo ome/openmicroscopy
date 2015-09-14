@@ -1,17 +1,15 @@
-/*   $Id$
- *
+/*
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.fixtures;
 
-import ome.model.meta.Session;
 import org.hibernate.SessionFactory;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.matcher.InvokeAtLeastOnceMatcher;
-import org.jmock.core.matcher.InvokeOnceMatcher;
 import org.springframework.beans.factory.FactoryBean;
 
 /**

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.InstrumentComponent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-
-//Java imports
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -40,10 +35,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -51,14 +42,14 @@ import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DataObject;
-import pojos.DetectorData;
-import pojos.DichroicData;
-import pojos.FilterData;
-import pojos.FilterSetData;
-import pojos.InstrumentData;
-import pojos.LightSourceData;
-import pojos.ObjectiveData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DetectorData;
+import omero.gateway.model.DichroicData;
+import omero.gateway.model.FilterData;
+import omero.gateway.model.FilterSetData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LightSourceData;
+import omero.gateway.model.ObjectiveData;
 
 /** 
  * Describes the instrument used to capture the image.
@@ -68,9 +59,6 @@ import pojos.ObjectiveData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class InstrumentComponent 

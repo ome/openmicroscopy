@@ -1,9 +1,8 @@
 /*
- *   $Id: UseSecurityTest.java 2425 2008-05-27 14:11:41Z jmoore $
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.sec.test;
 
 import static omero.rtypes.rstring;
@@ -13,16 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import ome.conditions.SecurityViolation;
-import ome.model.ILink;
 import ome.model.core.Pixels;
-import ome.model.internal.Permissions.Flag;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
-import ome.testing.ObjectFactory;
-import ome.util.Utils;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
@@ -30,14 +22,11 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
-import omero.sys.ParametersI;
-import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
 

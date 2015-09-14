@@ -19,12 +19,11 @@
 
 package omero.gateway.model;
 
-import pojos.DataObject;
 
 /**
  * Encapsulates a single object found by a search together with the search scope
  * (name, description, etc.) it was found with.
- * 
+ *
  * Multiple search results are supposed to be held in an
  * {@link SearchResultCollection}
  * 
@@ -35,10 +34,10 @@ import pojos.DataObject;
  */
 public class SearchResult {
 
-    /** The scope (name, description, ...), see {@link SearchDataContext} */
+    /** The scope (name, description, ...).*/
     private int scopeId;
 
-    /** Indicates the type (ImageData, DatasetData, ...) see {@link DataObject} */
+    /** Indicates the type (ImageData, DatasetData, ...).*/
     private Class<? extends DataObject> type;
 
     /** Id of the found object */
@@ -61,13 +60,15 @@ public class SearchResult {
 
     /**
      * Create a new instance
-     * 
+     *
      * @param scopeId
-     *            Id of the search scope, see {@link SearchDataContext}
+     *            Id of the search scope.
      * @param type
      *            Type of the object to search
      * @param objectId
      *            Id of the found object
+     * @param groupId
+     *            Id of the group.
      */
     public SearchResult(int scopeId, Class<? extends DataObject> type,
             long objectId, long groupId) {
@@ -78,20 +79,18 @@ public class SearchResult {
     }
 
     /**
-     * The Id of the search scope, e. g. name, description, ... see
-     * {@link SearchDataContext}
-     * 
-     * @return
+     * The Id of the search scope, e.g. name, description, ...
+     *
+     * @return See above.
      */
     public int getScopeId() {
         return scopeId;
     }
 
     /**
-     * Set the id of the search scope, e. g. name, description, ... see
-     * {@link SearchDataContext}
-     * 
-     * @param scopeId
+     * Set the id of the search scope, e.g. name, description, ...
+     *
+     * @param scopeId The id of the search scope.
      */
     public void setScopeId(int scopeId) {
         this.scopeId = scopeId;
@@ -99,8 +98,8 @@ public class SearchResult {
 
     /**
      * Get the type (class) of objects to search for see {@link DataObject}
-     * 
-     * @return
+     *
+     * @return See above.
      */
     public Class<? extends DataObject> getType() {
         return type;
@@ -108,8 +107,8 @@ public class SearchResult {
 
     /**
      * Set the type (class) of objects to search for see {@link DataObject}
-     * 
-     * @param type
+     *
+     * @param type The type of object to search for.
      */
     public void setType(Class<? extends DataObject> type) {
         this.type = type;
@@ -117,8 +116,8 @@ public class SearchResult {
 
     /**
      * Get the Id of the found object
-     * 
-     * @return
+     *
+     * @return See above.
      */
     public long getObjectId() {
         return objectId;
@@ -126,8 +125,8 @@ public class SearchResult {
 
     /**
      * Set the Id of the found object
-     * 
-     * @param objectId
+     *
+     * @param objectId The id of the found object.
      */
     public void setObjectId(long objectId) {
         this.objectId = objectId;
@@ -135,8 +134,8 @@ public class SearchResult {
 
     /**
      * Get the found object
-     * 
-     * @return
+     *
+     * @return See above.
      */
     public DataObject getObject() {
         return object;
@@ -144,8 +143,8 @@ public class SearchResult {
 
     /**
      * Get the group id of the object
-     * 
-     * @return
+     *
+     * @return See above.
      */
     public long getGroupId() {
         return groupId;
@@ -153,8 +152,8 @@ public class SearchResult {
 
     /**
      * Set the group id of the object
-     * 
-     * @param groupId
+     *
+     * @param groupId The value to set.
      */
     public void setGroupId(long groupId) {
         this.groupId = groupId;
@@ -168,8 +167,9 @@ public class SearchResult {
     }
 
     /**
-     * Set to <code>true</code> if this result is an ID match
-     * @param idMatch
+     * Set to <code>true</code> if this result is an ID match.
+     *
+     * @param idMatch The value to set.
      */
     public void setIdMatch(boolean idMatch) {
         this.idMatch = idMatch;
@@ -177,8 +177,8 @@ public class SearchResult {
 
     /**
      * Set the found object
-     * 
-     * @param object
+     *
+     * @param object The value to set.
      */
     public void setObject(DataObject object) {
         if (objectId >= 0) {

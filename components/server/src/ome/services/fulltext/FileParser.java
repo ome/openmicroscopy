@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,7 +11,6 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.lang.Runtime;
 
 import ome.services.messages.ParserOpenFileMessage;
 import ome.system.OmeroContext;
@@ -29,7 +26,7 @@ import org.springframework.context.ApplicationContextAware;
  * empty/missing file, an empty {@link Iterable<String>} should be returned
  * rather than throwing an exception.
  * 
- * Subclases should follow
+ * Subclasses should follow
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3

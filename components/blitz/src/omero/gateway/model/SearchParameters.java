@@ -30,18 +30,12 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import omero.gateway.facility.SearchFacility;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
 
 
 /**
  * Holds all parameters needed to perform a search operation;
  * See {@link SearchFacility#search(omero.gateway.SecurityContext, SearchParameters)}
- * 
+ *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.0
@@ -101,12 +95,7 @@ public class SearchParameters
      * 
      * @param scope Scope of the search
      * @param types The types to search on, i.e. project, dataset, image.
-     * @param some Some (at least one) of these terms must be present in 
-     *             the document. May be <code>null</code>.
-     * @param must All of these terms must be present in the document.
-     *             May be <code>null</code>.
-     * @param none None of these terms may be present in the document.
-     *             May be <code>null</code>.
+     * @param query The terms to search for.
      */
     public SearchParameters(Set<SearchScope> scope,
             List<Class<? extends DataObject>> types, String query)
@@ -121,6 +110,7 @@ public class SearchParameters
      *
      * @param start The lower bound of the time interval.
      * @param end The upper bound of the time interval.
+     * @param type The type of date.
      */
     public void setTimeInterval(Timestamp start, Timestamp end, int type)
     {

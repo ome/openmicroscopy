@@ -342,7 +342,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     /**
      * Convert the given Object via the set {@link ReturnMapping}. Throws a
-     * {@link NullPointException} if no mapping is set.
+     * {@link NullPointerException} if no mapping is set.
      */
     public Object mapReturnValue(Object value) throws Ice.UserException {
         return mapping.mapReturnValue(this, value);
@@ -444,6 +444,10 @@ public class IceMapper extends ome.util.ModelMapper implements
             String str = (String) o;
             omero.RString rstr = rstring(str);
             return rstr;
+        } else if (o instanceof ome.util.PermDetails) {
+            // Implements IObject as well!
+            ome.util.PermDetails p = (ome.util.PermDetails) o;
+            return toRType(p.getDetails().getPermissions());
         } else if (o instanceof IObject) {
             IObject obj = (IObject) o;
             omero.model.IObject om = (omero.model.IObject) map(obj);
@@ -498,9 +502,9 @@ public class IceMapper extends ome.util.ModelMapper implements
      * implement {@link omero.rtypes.Conversion} otherwise ApiUsageException
      * will be thrown.
      * 
-     * @param rt
-     * @return
-     * @throws omero.ApiUsageException
+     * @param rt the wrapped value
+     * @return the value unwrapped
+     * @throws omero.ApiUsageException if the given value is not wrapped
      */
     public Object fromRType(RType rt) throws omero.ApiUsageException {
 
@@ -798,9 +802,6 @@ public class IceMapper extends ome.util.ModelMapper implements
     /**
      * Overrides the findCollection logic of {@link ModelMapper}, since all
      * {@link Collection}s should be {@link List}s in Ice.
-     * 
-     * Originally necessitated by the Map<Long, Set<IObject>> return value of
-     * {@link IContainer#findAnnotations(Class, Set, Set, Map)}
      */
     @Override
     public Collection findCollection(Collection source) {
@@ -881,12 +882,12 @@ public class IceMapper extends ome.util.ModelMapper implements
     /**
      * Copied from {@link ModelMapper#findCollection(Collection)} This could be
      * unified in that a method findCollection(Collection, Map) was added with
-     * {@link ModelMapper} calling findCollection(source,model2target) and
-     * {@link #reverseCollection(Collection)} calling
-     * findCollection(source,target2model).
+     * {@link ModelMapper} calling {@code findCollection(source, model2target)}
+     * and {@code reverseCollection(Collection)} calling
+     * {@code findCollection(source,target2model)}.
      * 
-     * @param collection
-     * @return
+     * @param source the wrapped {@link Collection}
+     * @return the {@link Collection} unwrapped
      */
     public Collection reverse(Collection source) { // FIXME throws
         // omero.ApiUsageException {
@@ -899,10 +900,7 @@ public class IceMapper extends ome.util.ModelMapper implements
      * {@link ArrayList}s will be returned. The need for this arose from the
      * decision to have no {@link Set}s in the Ice Java mapping.
      * 
-     * @param source
-     * @param targetType
-     * @return
-     * @see ticket:684
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/684">Trac ticket #684</a>
      */
     public Collection reverse(Collection source, Class targetType) { // FIXME
         // throws
@@ -942,11 +940,6 @@ public class IceMapper extends ome.util.ModelMapper implements
     /**
      * Supports the separate case of reversing for arrays. See
      * {@link #reverse(Collection, Class)} and {@link #map(Filterable[])}.
-     * 
-     * @param list
-     * @param type
-     * @return
-     * @throws omero.ServerError
      */
     public Object[] reverseArray(List list, Class type)
             throws omero.ServerError {
@@ -1003,9 +996,7 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     /**
-     * Copied from {@link ReverseModelMapper#map(ModelBased)}
-     * 
-     * @param source
+     * Copied from {@link ReverseModelMapper}.
      */
     public Filterable reverse(ModelBased source) {
 
@@ -1235,10 +1226,6 @@ public class IceMapper extends ome.util.ModelMapper implements
      * wraps any non-ServerError returned by
      * {@link #handleException(Throwable, OmeroContext)} in an
      * {@link InternalException}.
-     *
-     * @param t
-     * @param ctx
-     * @return
      */
     public ServerError handleServerError(Throwable t, OmeroContext ctx) {
         Ice.UserException ue = handleException(t, ctx);

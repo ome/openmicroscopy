@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ProjectionParam
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,23 +18,16 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import pojos.DatasetData;
-import pojos.ProjectData;
-
+import omero.gateway.model.DatasetData;
 
 /** 
  * Utility class storing the projection's parameters.
@@ -45,10 +36,6 @@ import pojos.ProjectData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta3
  */
 public class ProjectionParam
@@ -135,7 +122,7 @@ public class ProjectionParam
 	private long			  	pixelsID;
 	
 	/** The parent of the dataset to create. */
-	private pojos.DataObject	parent;
+	private omero.gateway.model.DataObject	parent;
 	
 	/**
 	 * Checks if the passed algorithm is supported or not.
@@ -308,7 +295,7 @@ public class ProjectionParam
 	 * 
 	 * @param parent The value to set.
 	 */
-	public void setDatasetParent(pojos.DataObject parent)
+	public void setDatasetParent(omero.gateway.model.DataObject parent)
 	{
 		this.parent = parent;
 	}
@@ -318,7 +305,7 @@ public class ProjectionParam
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getDatasetParent() { return parent; }
+	public omero.gateway.model.DataObject getDatasetParent() { return parent; }
 	
 	/**
 	 * Returns the description of the image.

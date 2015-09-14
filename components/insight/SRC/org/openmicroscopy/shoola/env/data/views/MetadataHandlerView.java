@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.MetadataHandlerView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -37,10 +35,10 @@ import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Provides methods to handle the annotations.
@@ -300,11 +298,13 @@ public interface MetadataHandlerView
 	 * @param location The location where to store the files.
 	 * @param override Flag indicating to override the existing file if it
 	 *                 exists, <code>false</code> otherwise.
+	 * @param zip Pass <code>true</code> to create a zip file
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
-		File location, boolean override,
+		File location, boolean override, boolean zip, boolean keepOriginalPaths,
 		AgentEventListener observer);
 	
 	/**
@@ -508,4 +508,19 @@ public interface MetadataHandlerView
 		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 		List<String> nsExlcude, AgentEventListener observer);
 
+	/**
+	 * Saves the object, adds (resp. removes) annotations to (resp. from)
+	 * the object if any.
+	 * 
+	 * @param ctx The security context.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param userID The id of the user.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+    public CallHandle annotateData(SecurityContext ctx,
+        Map<DataObject, List<AnnotationData>> toAdd,
+        Map<DataObject, List<AnnotationData>> toRemove, long userID,
+        AgentEventListener observer);
 }

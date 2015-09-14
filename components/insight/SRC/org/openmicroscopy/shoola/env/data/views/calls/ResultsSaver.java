@@ -43,10 +43,10 @@ import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
 
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.ROIData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ROIData;
 
 
 /**

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.AnnotationDataUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -64,25 +60,23 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DoubleAnnotationData;
-import pojos.FileAnnotationData;
-import pojos.LongAnnotationData;
-import pojos.RatingAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TimeAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TimeAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Components displaying the various annotations linked to the related 
@@ -93,9 +87,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta3
  */
 class AnnotationDataUI
@@ -157,6 +148,9 @@ class AnnotationDataUI
 	
 	/** Button to remove all tags. */
 	private JButton							removeTagsButton;
+	
+	/** Button to make the FileAnnotations selectable */
+	private JButton selectButton;
 	
 	/** Button to remove the rate of the object. */
 	private JButton							unrateButton;
@@ -226,6 +220,9 @@ class AnnotationDataUI
 	
 	/** The component displaying the MapAnnotations */
 	private MapAnnotationsComponent mapsPane;
+	
+	/** Flag to indicate if the FileAnnotations should be selectable */
+	private boolean selectable;
 	
 	/**
 	 * Creates and displays the menu 
@@ -415,6 +412,20 @@ class AnnotationDataUI
 		removeOtherAnnotationsButton.setActionCommand(
 				""+EditorControl.REMOVE_OTHER_ANNOTATIONS);
 		
+        selectButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
+        selectButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        selectButton.setToolTipText("Select Files for Scripts");
+        selectButton.addMouseListener(new MouseAdapter() {
+
+            public void mouseReleased(MouseEvent e) {
+                if (selectButton.isEnabled()) {
+                    setFileAnnotationSelectable(!isFileAnnotationSelectable());
+                }
+            }
+
+        });
+        UIUtilities.unifiedButtonLookAndFeel(selectButton);
+        
 		selectedValue = 0;
 		initialValue = selectedValue;
 		rating = new RatingComponent(selectedValue, 
@@ -464,20 +475,37 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Creates a tool bar and adds the passed buttons to it.
-	 * 
-	 * @param addButton The button to add.
-	 * @param removeButton The button to add.
+	 * Returns if the FileAnnotations are selectable
 	 * @return See above.
 	 */
-	private JToolBar createBar(JButton addButton, JButton removeButton)
+	private boolean isFileAnnotationSelectable() {
+	    return this.selectable;
+	}
+	
+	/**
+	 * Make the FileAnnotations selectable
+	 * @param b Pass <code>true</code> to make them selectable, 
+	 * <code>false</code> otherwise
+	 */
+	private void setFileAnnotationSelectable(boolean b) {
+	    this.selectable = b;
+	    filterAnnotations();
+	}
+	
+	/**
+	 * Creates a tool bar and adds the passed buttons to it.
+	 * 
+	 * @param buttons The buttons to add.
+	 * @return See above.
+	 */
+	private JToolBar createBar(JButton... buttons)
 	{
 		JToolBar bar = new JToolBar();
 		bar.setFloatable(false);
 		bar.setBorder(null);
 		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		if (addButton != null) bar.add(addButton);
-		if (removeButton != null) bar.add(removeButton);
+		for (JButton button : buttons)
+		    bar.add(button);
 		return bar;
 	}
 	
@@ -520,7 +548,7 @@ class AnnotationDataUI
 		}
 
 		// filters
-		content.add(createBar(filterButton, null), c);
+		content.add(createBar(filterButton), c);
 		c.gridy++;
 
 		// rating
@@ -531,7 +559,7 @@ class AnnotationDataUI
 		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("Rating:", Font.BOLD, size));
-		p.add(createBar(unrateButton, null));
+		p.add(createBar(unrateButton));
 		content.add(p, c);
 		c.gridx = 1;
 		c.weightx = 1;
@@ -561,7 +589,7 @@ class AnnotationDataUI
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("Attachments:", Font.BOLD, size));
-		p.add(createBar(addDocsButton, removeDocsButton));
+		p.add(createBar(addDocsButton, removeDocsButton, selectButton));
 		content.add(p, c);
 		c.gridy++;
 		content.add(docRef, c);
@@ -578,7 +606,7 @@ class AnnotationDataUI
 			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
 			p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
-			p.add(createBar(null, removeOtherAnnotationsButton));
+			p.add(createBar( removeOtherAnnotationsButton));
 			content.add(p, c);
 			c.gridy++;
 			content.add(otherPane, c);
@@ -600,6 +628,25 @@ class AnnotationDataUI
 		return p;
 	}
   
+	/**
+	 * Returns the selected FileAnnotations or an empty Collection
+	 * if there are no FileAnnotations
+	 * 
+	 * @return See above
+	 */
+    public Collection<FileAnnotationData> getSelectedFileAnnotations() {
+        Collection<FileAnnotationData> annos = new ArrayList<FileAnnotationData>();
+        for (Component comp : docPane.getComponents()) {
+            if (comp instanceof DocComponent) {
+                DocComponent doc = (DocComponent) comp;
+                if (doc.isSelected()
+                        && (doc.getData() instanceof FileAnnotationData)) {
+                    annos.add((FileAnnotationData) doc.getData());
+                }
+            }
+        }
+        return annos;
+    }
 	
 	/** 
 	 * Lays out the attachments. 
@@ -624,7 +671,7 @@ class AnnotationDataUI
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
 						if (!toReplace.contains(data)) {
-							doc = new DocComponent(data, model);
+							doc = new DocComponent(data, model, true, selectable);
 							doc.addPropertyChangeListener(controller);
 							if (doc.hasThumbnailToLoad()) {
 								loadThumbnails.put((FileAnnotationData) data, 
@@ -641,7 +688,7 @@ class AnnotationDataUI
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
 						if (!toReplace.contains(data)) {
-							doc = new DocComponent(data, model);
+							doc = new DocComponent(data, model, true, selectable);
 							doc.addPropertyChangeListener(controller);
 							filesDocList.add(doc);
 							if (model.isAnnotatedByOther(data)) {
@@ -660,7 +707,7 @@ class AnnotationDataUI
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
 						if (!toReplace.contains(data)) {
-							doc = new DocComponent(data, model);
+							doc = new DocComponent(data, model, true, selectable);
 							doc.addPropertyChangeListener(controller);
 							filesDocList.add(doc);
 							if (model.isLinkOwner(data)) {
@@ -684,7 +731,7 @@ class AnnotationDataUI
 			*/
 		}
 		if (filesDocList.size() == 0 || docPane.getComponentCount() == 0) {
-			doc = new DocComponent(null, model);
+			doc = new DocComponent(null, model, true, false);
 			filesDocList.add(doc);
 			docPane.add(doc);
 		}
@@ -1817,6 +1864,7 @@ class AnnotationDataUI
 		content.revalidate();
 		content.repaint();
 		mapsPane.clear();
+		setFileAnnotationSelectable(false);
 		revalidate();
 		repaint();
 	}

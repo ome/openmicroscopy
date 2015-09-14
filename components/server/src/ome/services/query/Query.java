@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -16,7 +14,6 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -46,7 +43,6 @@ import ome.parameters.QueryParameter;
  * </p>
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 public abstract class Query<T> implements HibernateCallback {

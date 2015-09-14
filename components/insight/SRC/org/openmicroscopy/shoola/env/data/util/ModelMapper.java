@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.ModelMapper
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -88,12 +86,18 @@ import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Roi;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
+import omero.model.Shape;
+import omero.model.ShapeAnnotationLink;
+import omero.model.ShapeAnnotationLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
@@ -103,23 +107,23 @@ import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.ProjectData;
-import pojos.RatingAnnotationData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Helper class to map {@link DataObject}s into their corresponding
@@ -170,6 +174,10 @@ public class ModelMapper
     		return ((PlateAcquisitionAnnotationLink) link).getChild();
     	if (link instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) link).getChild();
+    	if (link instanceof ShapeAnnotationLink)
+            return ((ShapeAnnotationLink) link).getChild();
+    	if (link instanceof RoiAnnotationLink)
+            return ((RoiAnnotationLink) link).getChild();
     	return null;
     }
     
@@ -198,6 +206,10 @@ public class ModelMapper
     		return ((PlateAcquisitionAnnotationLink) link).getParent();
     	if (link instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) link).getParent();
+    	if (link instanceof ShapeAnnotationLink)
+            return ((ShapeAnnotationLink) link).getParent();
+    	if (link instanceof RoiAnnotationLink)
+            return ((RoiAnnotationLink) link).getParent();
     	return null;
     }
     
@@ -584,7 +596,17 @@ public class ModelMapper
     		l.setParent((OriginalFile) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
-    	}
+    	} else if (annotatedObject instanceof Shape) {
+    	    ShapeAnnotationLink l = new ShapeAnnotationLinkI();
+            l.setParent((Shape) annotatedObject.proxy());
+            l.setChild(annotation);
+            return l;
+    	} else if (annotatedObject instanceof Roi) {
+    	    RoiAnnotationLink l = new RoiAnnotationLinkI();
+            l.setParent((Roi) annotatedObject.proxy());
+            l.setChild(annotation);
+            return l;
+        }
     	return null;
     }
     

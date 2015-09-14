@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.ExitpplicationAction
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,17 +18,12 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-//Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -40,7 +33,7 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Exit the application.
@@ -48,9 +41,6 @@ import pojos.GroupData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class ExitApplicationAction

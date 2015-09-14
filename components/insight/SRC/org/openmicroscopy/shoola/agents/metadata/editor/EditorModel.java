@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -103,37 +101,36 @@ import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.FilesetData;
-import pojos.GroupData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.InstrumentData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.MultiImageData;
-import pojos.PermissionData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.RatingAnnotationData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.PermissionData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * The Model component in the <code>EditorViewer</code> MVC triad.
@@ -695,8 +692,6 @@ class EditorModel
 			if (img != null && img.getId() >= 0) name = img.getName();
 		} else if (ref instanceof FileData)
 			name = ((FileData) ref).getName();
-		else if (ref instanceof MultiImageData)
-			name = ((MultiImageData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
 	}
@@ -3077,6 +3072,56 @@ class EditorModel
 	        downloadFiles(file, override);
 	    }
 	}
+	
+    /**
+     * Starts an asynchronous loading; preserving the original folder structure
+     * 
+     * @param path
+     *            The folder where to download the content.
+     * @param override
+     *            Flag indicating to override the existing file if it exists,
+     *            <code>false</code> otherwise.
+     */
+    void downloadOriginal(String path, boolean override) {
+        if (!(refObject instanceof ImageData))
+            return;
+
+        List<ImageData> images = new ArrayList<ImageData>();
+        List<DataObject> l = getSelectedObjects();
+        if (!CollectionUtils.isEmpty(l)) {
+            Iterator<DataObject> i = l.iterator();
+            DataObject o;
+            List<Long> filesetIds = new ArrayList<Long>();
+            long id;
+            ImageData image;
+            while (i.hasNext()) {
+                o = i.next();
+                if (isArchived(o)) {
+                    image = (ImageData) o;
+                    id = image.getFilesetId();
+                    if (id < 0)
+                        images.add(image);
+                    else if (!filesetIds.contains(id)) {
+                        images.add(image);
+                        filesetIds.add(id);
+                    }
+                }
+            }
+        }
+        if (!CollectionUtils.isEmpty(images)) {
+            DownloadArchivedActivityParam p;
+            UserNotifier un = MetadataViewerAgent.getRegistry()
+                    .getUserNotifier();
+            IconManager icons = IconManager.getInstance();
+            Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+            SecurityContext ctx = getSecurityContext();
+            p = new DownloadArchivedActivityParam(new File(path), images, icon);
+            p.setOverride(override);
+            p.setZip(false);
+            p.setKeepOriginalPaths(true);
+            un.notifyActivity(ctx, p);
+        }
+    }
 
 	/** 
 	 * Starts an asynchronous call to retrieve disk space information. 

@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.perms42;
 
 import java.util.Collections;
@@ -24,9 +23,7 @@ import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.Session;
 import ome.parameters.Parameters;
-import ome.system.EventContext;
 
 import org.testng.annotations.Test;
 

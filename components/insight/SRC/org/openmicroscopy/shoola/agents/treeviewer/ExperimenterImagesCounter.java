@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-
-
-//Java imports
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,10 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
@@ -46,8 +39,8 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import omero.log.LogMessage;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Counts the number of images imported during various periods of time

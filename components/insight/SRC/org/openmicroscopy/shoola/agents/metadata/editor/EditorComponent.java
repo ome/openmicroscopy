@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
-//Java imports
 import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -41,13 +38,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -73,23 +65,24 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.AnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.InstrumentData;
-import pojos.PixelsData;
-import pojos.PlateData;
-import pojos.TagAnnotationData;
-import pojos.WellSampleData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Implements the {@link Editor} interface to provide the functionality
@@ -104,9 +97,6 @@ import pojos.WellSampleData;
  * @author Tunneled MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorComponent 
@@ -641,6 +631,18 @@ class EditorComponent
 		if (file == null) return;
 		model.download(file, override);
 	}
+	
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * 
+     * @see Editor#downloadOriginal(String, boolean)
+     */
+    public void downloadOriginal(String path, boolean override) {
+        if (CommonsLangUtils.isEmpty(path))
+            return;
+
+        model.downloadOriginal(path, override);
+    }
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
@@ -1232,5 +1234,13 @@ class EditorComponent
     public ScriptObject getScriptFromName(String name)
     {
         return model.getScriptFromName(name);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#getSelectedFileAnnotations()
+     */
+    public Collection<FileAnnotationData> getSelectedFileAnnotations() {
+        return view.getSelectedFileAnnotations();
     }
 }

@@ -5,8 +5,6 @@ import static omero.rtypes.*;
 import omero.api.ServiceFactoryPrx;
 import omero.api.IQueryPrx;
 import omero.model.IObject;
-import omero.model.ImageI;
-import omero.model.PixelsI;
 import omero.sys.ParametersI;
 
 public class queries {

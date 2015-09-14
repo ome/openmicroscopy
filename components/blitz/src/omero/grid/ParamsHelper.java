@@ -65,7 +65,7 @@ public class ParamsHelper {
      * @param id
      *            script id.
      * @return the job.
-     * @throws ServerError
+     * @throws ServerError if the job could not be built for the script
      */
     public ParseJobI buildParseJob(final long id) throws ServerError {
         final OriginalFileI file = new OriginalFileI(id, false);
@@ -79,12 +79,12 @@ public class ParamsHelper {
     /**
      * Get the script params for the file.
      *
-     * @param file
-     *            the original file.
+     * @param id
+     *            the ID of the script
      * @param __current
-     *            cirrent
+     *            regarding the method invocation
      * @return jobparams of the script.
-     * @throws ServerError
+     * @throws ServerError if the params could not be retrieved or created
      */
     public JobParams getOrCreateParams(final long id, Current __current)
             throws ServerError {
@@ -249,8 +249,8 @@ public class ParamsHelper {
      * Interface added in order to allow ParamHelper instances to use methods
      * from SharedResourcesI. The build does not allow for a dependency between
      * the two.
-     * @DEV.TODO refactor
      */
+    // TODO refactor
     public interface Acquirer {
         public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
                 int seconds, final Current current) throws ServerError;

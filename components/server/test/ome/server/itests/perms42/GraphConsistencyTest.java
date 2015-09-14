@@ -1,14 +1,12 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.perms42;
 
 import java.util.List;
 
-import ome.conditions.GroupSecurityViolation;
 import ome.conditions.SecurityViolation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;

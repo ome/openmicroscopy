@@ -43,7 +43,7 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     }
 
     /**
-     * @DEV.TODO CACHING
+     * TODO CACHING
      */
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {

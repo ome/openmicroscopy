@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test;
 
 import java.util.Set;
@@ -11,11 +10,8 @@ import java.util.Set;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.test.mock.MockFixture;
 import ome.services.messages.CreateSessionMessage;
-import ome.system.OmeroContext;
 
 import org.jmock.MockObjectTestCase;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;

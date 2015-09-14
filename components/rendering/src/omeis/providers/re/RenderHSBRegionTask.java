@@ -54,7 +54,7 @@ class RenderHSBRegionTask implements RenderingTask {
      */
     private List<int[]> colors;
 
-    /** The <i>X1/<i>-axis start */
+    /** The <i>X1</i>-axis start */
     private int x1Start;
 
     /** The <i>X1</i>-axis end */

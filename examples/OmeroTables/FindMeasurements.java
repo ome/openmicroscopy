@@ -7,18 +7,10 @@ import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.constants.namespaces.NSMEASUREMENT;
-import omero.grid.Column;
-import omero.grid.Data;
-import omero.grid.LongColumn;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.TablePrx;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.IObject;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
-import omero.model.OriginalFile;
 
 /**
  * Take an image id and find any attached measurements. If no image id is

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,16 +21,11 @@
  */
 package org.openmicroscopy.shoola.agents.events.treeviewer;
 
-
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.GroupData;
 
 /** 
  * Posts an event indicating to move the passed objects to the selectd group.

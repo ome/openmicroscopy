@@ -24,31 +24,23 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import javax.swing.Action;
 import javax.swing.JFrame;
-import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.util.filter.file.ZipFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 
 /**
@@ -123,49 +115,23 @@ public class DownloadAction
         
         JFrame f = DataBrowserAgent.getRegistry().getTaskBar().getFrame();
 
-        int type = FileChooser.SAVE;
-        
-        List<FileFilter> filters = new ArrayList<FileFilter>();
-        filters.add(new ZipFilter());
+        int type = FileChooser.FOLDER_CHOOSER;
 
-        final File file = UIUtilities.generateFileName(
-                UIUtilities.getDefaultFolder(), model.getBrowser()
-                        .getSelectedDataObjects().size() > 1 ? "Original_Files"
-                        : "Original_File", "zip");
-        
         FileChooser chooser = new FileChooser(f, type,
-                FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-                filters, false);
-        try {
-            if (UIUtilities.getDefaultFolder() != null)
-                chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
-        } catch (Exception ex) {
-        }
-        
-        chooser.setSelectedFile(file);
-        chooser.setCheckOverride(true);
+                FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION);
+
         IconManager icons = IconManager.getInstance();
         chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
         chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
+        chooser.setCheckOverride(true);
         chooser.addPropertyChangeListener(new PropertyChangeListener() {
-
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
                 FileChooser src = (FileChooser) evt.getSource();
-                File path = null;
                 if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-                    if (src.getChooserType() == FileChooser.FOLDER_CHOOSER) {
-                        path = new File((String) evt.getNewValue());
-                    } else {
-                        File[] files = (File[]) evt.getNewValue();
-                        if (files == null || files.length == 0) return;
-                        path = files[0];
-                    }
-                    if (path == null) {
-                        path = UIUtilities.getDefaultFolder();
-                    }
+                    String path = (String) evt.getNewValue();
                     EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-                    bus.post(new DownloadEvent(path, src.isOverride()));
+                    bus.post(new DownloadEvent(new File(path), src.isOverride()));
                 }
             }
         });

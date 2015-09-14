@@ -72,9 +72,9 @@ import omero.grid.SharedResourcesPrx;
 import omero.log.LogMessage;
 import omero.log.Logger;
 import omero.model.ExperimenterGroupI;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.util.PojoMapper;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.util.PojoMapper;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -1220,7 +1220,7 @@ public class Gateway {
      * @param permitNull
      *            whether or not to throw a {@link DSOutOfServiceException} if
      *            no {@link Connector} is available by the end of the execution.
-     * @return
+     * @return See above.
      */
     public Connector getConnector(SecurityContext ctx, boolean recreate,
             boolean permitNull) throws DSOutOfServiceException {

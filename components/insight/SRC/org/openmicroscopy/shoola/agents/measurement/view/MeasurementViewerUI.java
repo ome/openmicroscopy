@@ -1,11 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
- *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +19,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -64,13 +59,11 @@ import javax.swing.filechooser.FileFilter;
 
 import omero.gateway.model.ROIResult;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -78,8 +71,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
-import pojos.ChannelData;
-import pojos.WorkflowData;
+import omero.gateway.model.ChannelData;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -112,9 +104,6 @@ import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class MeasurementViewerUI 
@@ -219,18 +208,6 @@ class MeasurementViewerUI
     
     /** The main menu bar. */
     private JMenuBar mainMenu;
-    
-    /** The menu bar handling the workflows. */
-    private JMenu workflowMenu;
-   
-    /** The existing workflow menu. */
-    private JMenu existingWorkflow;
-    
-    /** Button group of existing workflows. */
-    private ButtonGroup workflows;
-    
-    /** The map holding the work-flow objects. */
-    private Map<String, String> workflowsUIMap;
 
     /** Flag if the graph and intensity panels are shown */
     private boolean showGraph = true;
@@ -257,7 +234,6 @@ class MeasurementViewerUI
     	JMenuBar menuBar = new JMenuBar();
     	menuBar.add(createControlsMenu());
     	menuBar.add(createOptionsMenu());
-    	workflowMenu = createWorkFlowMenu();
     	TaskBar tb = MeasurementAgent.getRegistry().getTaskBar();
 		menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
 		menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
@@ -343,51 +319,16 @@ class MeasurementViewerUI
     }
     
     /**
-     * Helper method to create the Workflow menu.
-     * 
-     * @return The options sub-menu.
-     */
-    private JMenu createWorkFlowMenu()
-    {
-        JMenu menu = new JMenu("Workflow");
-        existingWorkflow = new JMenu("Existing Workflows");
-       	workflows = new ButtonGroup();
-        menu.setMnemonic(KeyEvent.VK_W);
-        
-        List<String> workFlows = model.getWorkflows();
-        MeasurementViewerAction a;
-        JCheckBoxMenuItem workflowItem;
-        String uiWorkFlow;
-        for (String workFlow : workFlows)
-        {
-        	a = controller.getAction(MeasurementViewerControl.SELECT_WORKFLOW);
-        	workflowItem = new JCheckBoxMenuItem(a);
-        	workflowItem.setSelected(WorkflowData.DEFAULTWORKFLOW.equals(
-        			workFlow));
-        	uiWorkFlow = getWorkflowDisplay(workFlow);
-        	workflowItem.setText(uiWorkFlow);
-        	workflows.add(workflowItem);
-        	existingWorkflow.add(workflowItem);
-        }
-        menu.add(existingWorkflow);    
-       	a = controller.getAction(MeasurementViewerControl.CREATE_WORKFLOW);
-       	
-       	JMenuItem createWorkflow = new JMenuItem();
-        createWorkflow.setText(a.getName());
-    	createWorkflow.addActionListener(a);
-        return menu;
-    }
+
 
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 	    showGraph = !model.isBigImage() && hasStatsInfo();
-	    
-		workflowsUIMap = new HashMap<String, String>();
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
-		roiManager = new ObjectManager(this, model);
+		roiManager = new ObjectManager(this, controller, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
         if (showGraph) {
@@ -1447,80 +1388,6 @@ class MeasurementViewerUI
 		model.calculateStats(shapeList);
 	}
 
-    /** Updates the workflow in the toolbar. */
-	void addedWorkflow()
-	{
-		if (workflowMenu != null && mainMenu != null 
-				&& existingWorkflow != null)
-		{
-			 Enumeration<AbstractButton> buttons = workflows.getElements();
-			 List<AbstractButton> buttonList = new ArrayList<AbstractButton>();
-			 while(buttons.hasMoreElements())
-				 buttonList.add(buttons.nextElement());
-			 
-			ActionListener[] l = existingWorkflow.getActionListeners();
-			for (ActionListener a :l )
-				existingWorkflow.removeActionListener(a);
-			for (AbstractButton button : buttonList)
-				workflows.remove(button);
-			existingWorkflow.removeAll();
-			workflows = new ButtonGroup();
-			List<String> workFlows = model.getWorkflows();
-		    JCheckBoxMenuItem workflowItem;
-		    MeasurementViewerAction action;
-		    String uiWorkFlow;
-		    for (String workFlow : workFlows)
-		    {
-		    	action = controller.getAction(
-		    			MeasurementViewerControl.SELECT_WORKFLOW);
-		    	workflowItem = new JCheckBoxMenuItem(action);
-		    	uiWorkFlow = getWorkflowDisplay(workFlow);
-		    	workflowsUIMap.put(uiWorkFlow, workFlow);
-		    	workflowItem.setSelected(
-		    			WorkflowData.DEFAULTWORKFLOW.equals(workFlow));
-		    	workflowItem.setText(uiWorkFlow);
-		    	workflows.add(workflowItem);
-		    	existingWorkflow.add(workflowItem);
-		    	workflowItem.setEnabled(true);
-		    }
-		    for (ActionListener a :l )
-				existingWorkflow.addActionListener(a);
-		    toolBar.addedWorkflow();
-		}
-	}
-	
-	/** Updates the workflow list. */
-	void updateWorkflow() { toolBar.updateWorkflow(); }
-	
- 	/** Adds the workflow to the toolbar.  */
-	void createWorkflow() { toolBar.createWorkflow(); }
-	
-	/**
-	 * Returns The UI representations of the workflow.
-	 * 
-	 * @param value The value to convert.
-	 * @return See above.
-	 */
-	String getWorkflowDisplay(String value)
-	{
-		String result = EditorUtil.getWorkflowForDisplay(value);
-		if (!workflowsUIMap.containsKey(result))
-			workflowsUIMap.put(result, value);
-		return result;
-	}
-	
-	/**
-	 * Returns the workflow corresponding to the specified UI value.
-	 * 
-	 * @param value The value to convert.
-	 * @return See above.
-	 */
-	String getWorkflowFromDisplay(String value)
-	{
-		if (value == null) return null;
-		return workflowsUIMap.get(value);
-	}
-	
 	/** Invokes when the figures are selected. */
 	void onSelectedFigures()
 	{
@@ -1537,7 +1404,18 @@ class MeasurementViewerUI
 		
 		roiManager.onSelectedFigures();
 	}
-	
+
+	/**
+	 * Returns the selected figures from the table. If a ROI is selected,
+	 * all the shapes hosted by that ROI
+	 *
+	 * @return See above.
+	 */
+	Collection<Figure> getSelectedFiguresFromTables()
+	{
+	    return roiManager.getSelectedFiguresFromTables();
+	}
+
 	/**
 	 * Creates a file chooser used to select where to save the results
 	 * as an Excel file.
@@ -1622,45 +1500,38 @@ class MeasurementViewerUI
     	setSize(DEFAULT_SIZE);
     	UIUtilities.incrementRelativeToAndShow(null, this);
     }
-    
-	/** 
-     * Overridden to the hide the window'd items of the UI.
-     * @see TopWindow#setVisible() 
-     */
- 	public void setVisible(boolean value)
-	{
-		if (!value)
-			toolBar.getWorkflowPanel().setVisible(false);
-		super.setVisible(value);
-	}
 
- 	/**
-         * Opens a file chooser dialog and exports the graph as JPEG or PNG.
-         */
-        public void exportGraph() {
-            if (!showGraph)
-                return;
-            List<FileFilter> filterList = new ArrayList<FileFilter>();
-            filterList.add(new JPEGFilter());
-            filterList.add(new PNGFilter());
-            FileChooser chooser = new FileChooser(
-                    (JFrame) SwingUtilities.windowForComponent(this),
-                    FileChooser.SAVE, "Save Graph",
-                    "Save the graph as JPEG or PNG", filterList);
-            try {
-                File f = UIUtilities.getDefaultFolder();
-                if (f != null)
-                    chooser.setCurrentDirectory(f);
-            } catch (Exception ex) {
-            }
-            if (chooser.showDialog() != JFileChooser.APPROVE_OPTION)
-                return;
-            File file = chooser.getFormattedSelectedFile();
-            FileFilter filter = chooser.getSelectedFilter();
-    
-            int type = (filter instanceof JPEGFilter) ? ChartObject.SAVE_AS_JPEG
-                    : ChartObject.SAVE_AS_PNG;
-    
-            graphPane.saveGraph(file, type);
+    /**
+     * Opens a file chooser dialog and exports the graph as JPEG or PNG.
+     */
+    public void exportGraph() {
+        if (!showGraph)
+            return;
+        List<FileFilter> filterList = new ArrayList<FileFilter>();
+        filterList.add(new JPEGFilter());
+        filterList.add(new PNGFilter());
+        FileChooser chooser = new FileChooser(
+                (JFrame) SwingUtilities.windowForComponent(this),
+                FileChooser.SAVE, "Save Graph",
+                "Save the graph as JPEG or PNG", filterList);
+        try {
+            File f = UIUtilities.getDefaultFolder();
+            if (f != null)
+                chooser.setCurrentDirectory(f);
+        } catch (Exception ex) {
         }
+        if (chooser.showDialog() != JFileChooser.APPROVE_OPTION)
+            return;
+        File file = chooser.getFormattedSelectedFile();
+        FileFilter filter = chooser.getSelectedFilter();
+
+        int type = (filter instanceof JPEGFilter) ? ChartObject.SAVE_AS_JPEG
+                : ChartObject.SAVE_AS_PNG;
+
+        graphPane.saveGraph(file, type);
+    }
+
+    void displayAnnotations(List<ROIShape> shapes) {
+        roiInspector.setSelectedFigures(shapes);
+    }
 }

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,7 +11,6 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.BasicSecuritySystem;
-import ome.security.policy.Policy;
 import ome.security.sharing.SharingSecuritySystem;
 import ome.system.EventContext;
 import ome.system.Principal;

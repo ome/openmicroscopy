@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.GraphPane 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
@@ -47,10 +43,8 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
@@ -58,6 +52,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrap
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import omero.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -70,7 +65,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Displays the intensities as a graph. 
@@ -124,7 +119,7 @@ public class GraphPane
 	private Map<Coord3D, Map<StatsType, Map>> shapeStatsList;
 	
 	/** Map of the pixel intensity values to coordinates. */
-	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
+	private Map<Coord3D, Map<Integer, ROIShapeStatsSimple>> pixelStats;
 	
 	/** Map of the coordinates to a shape. */
 	private Map<Coord3D, ROIShape> shapeMap;
@@ -386,7 +381,7 @@ public class GraphPane
 	private void buildGraphsAndDisplay()
 	{
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
-		Map<Integer, double[]> data = pixelStats.get(coord);
+		Map<Integer, ROIShapeStatsSimple> data = pixelStats.get(coord);
 		if (data == null) return;
 		shape = shapeMap.get(coord);
 		double[][] dataXY;
@@ -416,7 +411,7 @@ public class GraphPane
 				if (UIUtilities.isSameColors(c, Color.white, false))
 					c = DEFAULT_COLOR;
 				channelColour.add(c);
-				values = data.get(channel);
+				values = data.get(channel).getValues();
 				if (values != null && values.length != 0) {
 					channelData.add(values);
 					
@@ -566,7 +561,7 @@ public class GraphPane
 			return;
 		}
 		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
-		pixelStats = new HashMap<Coord3D, Map<Integer, double[]>>();
+		pixelStats = new HashMap<Coord3D, Map<Integer, ROIShapeStatsSimple>>();
 		shapeMap = new HashMap<Coord3D, ROIShape>();
 		channelName = new ArrayList<String>();
 		channelColour = new ArrayList<Color>();
@@ -579,7 +574,7 @@ public class GraphPane
 		
 		Coord3D c3D;
 		Map<StatsType, Map> shapeStats;
-		Map<Integer, double[]> data;
+		Map<Integer, ROIShapeStatsSimple> data;
 		int t = model.getDefaultT();
 		int z = model.getDefaultZ();
 		boolean hasData = false;

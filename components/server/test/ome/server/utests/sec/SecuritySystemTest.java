@@ -4,6 +4,7 @@
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.utests.sec;
 
 import static ome.model.internal.Permissions.Right.READ;
@@ -34,7 +35,6 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
-import ome.security.SecurityFilter;
 import ome.security.basic.OneGroupSecurityFilter;
 
 @Test

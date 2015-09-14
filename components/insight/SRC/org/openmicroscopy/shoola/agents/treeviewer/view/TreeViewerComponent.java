@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-//Java imports
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -40,17 +37,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-
-//Application-internal dependencies
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -132,22 +127,24 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PermissionData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PermissionData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Implements the {@link TreeViewer} interface to provide the functionality
@@ -165,9 +162,6 @@ import pojos.WellSampleData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 class TreeViewerComponent
@@ -2669,8 +2663,13 @@ class TreeViewerComponent
 			"you wish to apply the settings to.");
 			return;
 		}
-		model.firePasteRenderingSettings(ids, klass);
-		fireStateChange();
+		
+        MessageBox box = new MessageBox(getUI(), "Save rendering settings",
+                RENDERINGSETTINGS_WARNING);
+        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+            model.firePasteRenderingSettings(ids, klass);
+            fireStateChange();
+        }
 	}
 
 	
@@ -2798,7 +2797,7 @@ class TreeViewerComponent
 		} else if (parentObject instanceof FileData) {
 			FileData f = (FileData) parentObject;
 			if (!f.isHidden()) {
-				if (f.isDirectory() || f instanceof MultiImageData) 
+				if (f.isDirectory()) 
 					db = DataBrowserFactory.getFSFolderBrowser(
 							model.getSecurityContext(parent),
 							(FileData) parentObject, leaves);
@@ -3501,7 +3500,7 @@ class TreeViewerComponent
 		} else if (uo instanceof FileData) {
 			FileData fa = (FileData) uo;
 			if (!fa.isHidden()) {
-				if (fa.isDirectory() || fa instanceof MultiImageData) {
+				if (fa.isDirectory()) {
 					model.getSelectedBrowser().loadExperimenterData(
 							BrowserFactory.getDataOwner(node), 
 		        			node);
@@ -3677,6 +3676,8 @@ class TreeViewerComponent
             DownloadArchivedActivityParam p = new DownloadArchivedActivityParam(
                     folder, archived, icon);
             p.setOverride(override);
+            p.setZip(false);
+            p.setKeepOriginalPaths(true);
             un.notifyActivity(ctx, p);
 	    }
 	}
@@ -4336,8 +4337,10 @@ class TreeViewerComponent
 		model.setScript(script);
 		Browser browser = model.getSelectedBrowser();
 		List<DataObject> objects;
-		if (browser == null) objects = new ArrayList<DataObject>();
-		else objects = browser.getSelectedDataObjects();
+		if (browser == null)
+		    objects = new ArrayList<DataObject>();
+		else 
+		    objects = browser.getSelectedDataObjects();
 
 		if (CollectionUtils.isEmpty(objects)) {
 		    DataBrowser db = model.getDataViewer();
@@ -4346,6 +4349,23 @@ class TreeViewerComponent
 		        objects.addAll(db.getBrowser().getSelectedDataObjects());
 		    }
 		}
+		
+        // if it is a script which operates on FileAnnotations, pass on the selected
+        // FileAnnotations in the MetadataViewer as additional reference objects
+        ListMultimap<String, DataObject> addObjects = null;
+        Pattern p = Pattern.compile("file.?annotation.*",
+                Pattern.CASE_INSENSITIVE);
+        for (String paramName : script.getInputs().keySet()) {
+            Matcher m = p.matcher(paramName);
+            if (m.matches()) {
+                addObjects = ArrayListMultimap.create();
+                if (model.getMetadataViewer() != null) {
+                    addObjects.putAll(paramName, model.getMetadataViewer()
+                            .getEditor().getSelectedFileAnnotations());
+                }
+            }
+        }
+		
 		//setStatus(false);
 		//Check if the objects are in the same group.
 		Iterator<DataObject> i = objects.iterator();
@@ -4368,12 +4388,12 @@ class TreeViewerComponent
 		}
 		if (scriptDialog == null) {
 			scriptDialog = new ScriptingDialog(view, 
-					model.getScript(script.getScriptID()), objects, 
+					model.getScript(script.getScriptID()), objects, addObjects,
 					TreeViewerAgent.isBinaryAvailable());
 			scriptDialog.addPropertyChangeListener(controller);
 			UIUtilities.centerAndShow(scriptDialog);
 		} else {
-			scriptDialog.reset(model.getScript(script.getScriptID()), objects);
+			scriptDialog.reset(model.getScript(script.getScriptID()), objects, addObjects);
 			if (!scriptDialog.isVisible())
 				UIUtilities.centerAndShow(scriptDialog);
 		}

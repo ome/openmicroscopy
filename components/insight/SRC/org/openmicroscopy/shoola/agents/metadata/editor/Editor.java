@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -45,12 +43,12 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.ImageAcquisitionData;
-import pojos.InstrumentData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.InstrumentData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -285,6 +283,17 @@ public interface Editor
 	 */
 	public void download(File file, boolean override);
 
+    /**
+     * Downloads the archived files, preserving the original folder structure
+     * 
+     * @param path
+     *            The path to the folder where to download the content.
+     * @param override
+     *            Flag indicating to override the existing file if it exists,
+     *            <code>false</code> otherwise.
+     */
+    public void downloadOriginal(String path, boolean override);
+	
 	/**
 	 * Sets the parent of the root object. This will be taken into account
 	 * only if the root is a well sample.
@@ -546,4 +555,13 @@ public interface Editor
     void setLDAPDetails(long userID, String result);
 
     ScriptObject getScriptFromName(String name);
+    
+    /**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+    public Collection<FileAnnotationData> getSelectedFileAnnotations();
+    
 }

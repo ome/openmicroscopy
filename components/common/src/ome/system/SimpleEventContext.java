@@ -11,8 +11,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.model.internal.Permissions;
 
 /**
@@ -24,8 +22,6 @@ import ome.model.internal.Permissions;
  * @see EventContext
  * @since 3.0
  */
-@RevisionDate("$Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $")
-@RevisionNumber("$Revision: 1167 $")
 public class SimpleEventContext implements EventContext, Serializable {
 
     private static final long serialVersionUID = -391820349350359539L;

@@ -34,7 +34,7 @@ import ome.util.Filterable;
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 3.0
  * @since 3.0
- * @author josh
+ * @see "ome.api.IUpdate"
  */
 @MappedSuperclass
 public abstract class Details implements Filterable, Serializable {

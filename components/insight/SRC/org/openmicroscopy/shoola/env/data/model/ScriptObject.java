@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ScriptObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -40,12 +38,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.RType;
 import omero.grid.JobParams;
 import omero.grid.Param;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * Hosts the information about a given script.
@@ -663,21 +661,15 @@ public class ScriptObject
     /**
      * Returns <code>true</code> if the specified object is supported,
      * <code>false</code> otherwise.
-     *
-     * @param data The object to set.
-     * @param key The key to determine if the object is supported.
+     * 
+     * @param data
      * @return See above.
      */
-    public boolean isSupportedType(pojos.DataObject data, String key)
+    public boolean isSupportedType(omero.gateway.model.DataObject data)
     {
-        if (data == null || CommonsLangUtils.isBlank(key)) return false;
-        if (key.contains("_")) {
-            String[] values = key.split("_");
-            Class<?> type = convertDataType(values[0]);
-            return (data.getClass().equals(type));
-        }
-        return false;
+        return getDataTypes().contains(data.getClass());
     }
+    
     /**
      * Overridden to return the name of the script.
      * @see java.lang.Object#toString()

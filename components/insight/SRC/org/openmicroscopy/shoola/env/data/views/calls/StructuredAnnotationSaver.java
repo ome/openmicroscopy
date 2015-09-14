@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,21 +21,20 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
+import java.util.Map;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.AnnotationData;
-import pojos.DataObject;
+
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
 
 /** 
  * 
@@ -47,9 +44,6 @@ import pojos.DataObject;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class StructuredAnnotationSaver 
@@ -158,7 +152,30 @@ public class StructuredAnnotationSaver
             }
         };
     }
-    
+
+    /**
+     * Creates a {@link BatchCall} to save the annotations.
+     *
+     * @param toAdd The annotations to add.
+     * @param toRemove The annotations to remove.
+     * @param userID The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadBatchCall(
+            final Map<DataObject, List<AnnotationData>> toAdd,
+            final Map<DataObject, List<AnnotationData>> toRemove,
+            final long userID)
+    {
+        return new BatchCall("Saving") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService os = context.getMetadataService();
+                os.saveAnnotationData(ctx, toAdd, toRemove, userID);
+                result = Boolean.TRUE;
+            }
+        };
+    }
+
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -215,5 +232,20 @@ public class StructuredAnnotationSaver
     	this.ctx = ctx;
     	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, null, userID);
     }
-    
+
+    /**
+     * Creates a new instance.
+     *
+     * @param ctx The security context.
+     * @param toAdd The annotations to add to the specified objects.
+     * @param toRemove The annotations to remove from the specified objects.
+     * @param userID The id of the user.
+     */
+    public StructuredAnnotationSaver(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID)
+    {
+        this.ctx = ctx;
+        loadCall = loadBatchCall(toAdd, toRemove, userID);
+    }
 }

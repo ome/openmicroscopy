@@ -1,33 +1,28 @@
 /*
- * $Id$
- *
  *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import integration.PermissionsTestAll.TestParam;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -37,7 +32,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -48,13 +42,13 @@ import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 import ome.services.blitz.util.CurrentPlatform;
 import ome.specification.OmeValidator;
-import ome.specification.SchemaResolver;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import omero.api.ExporterPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
@@ -62,6 +56,8 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
+import omero.model.Shape;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -86,7 +82,6 @@ import org.w3c.dom.NodeList;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk"
  *         >donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
 public class ExporterTest extends AbstractServerTest {
@@ -1202,6 +1197,42 @@ public class ExporterTest extends AbstractServerTest {
             if (transformed != null) transformed.delete();
             if (upgraded != null) upgraded.delete();
         }
+    }
+
+    /**
+     * Test that the shapes in an image's ROI survive export then import.
+     * @throws Throwable unexpected
+     */
+    @Test
+    public void testExportImportROIs() throws Throwable {
+        /* export then import an image */
+        final File exportedFile = export(OME_TIFF, IMAGE_ROI);
+        final Pixels pixels = importFile(exportedFile, OME_TIFF).get(0);
+
+        /* find which kinds of shape are expected */
+        final Set<String> remainingClasses = new HashSet<String>();
+        for (final String fullClassName : XMLMockObjects.SHAPES) {
+            remainingClasses.add(fullClassName.substring(fullClassName.lastIndexOf('.') + 1));
+        }
+
+        /* find the image's shapes */
+        final String hql = "FROM Shape WHERE roi.image.id = :id";
+        final Parameters params = new ParametersI().addId(pixels.getImage().getId().getValue());
+        final List<IObject> shapes = iQuery.findAllByQuery(hql, params);
+
+        /* check that the image has the expected shapes */
+        for (final IObject result : shapes) {
+            Class<? extends IObject> resultClass = result.getClass();
+            while (resultClass.getSuperclass() != Shape.class) {
+                resultClass = resultClass.getSuperclass().asSubclass(IObject.class);
+            }
+            String resultClassName = resultClass.getSimpleName();
+            if ("Rect".equals(resultClassName)) {
+                resultClassName = "Rectangle";  /* the OME-XML name differs */
+            }
+            assertTrue(remainingClasses.remove(resultClassName));
+        }
+        assertTrue(remainingClasses.isEmpty());
     }
 
     class Target {

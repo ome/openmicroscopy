@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.view.ToolBar
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -53,7 +51,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 
 /** 
@@ -66,9 +64,6 @@ import pojos.GroupData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ToolBar

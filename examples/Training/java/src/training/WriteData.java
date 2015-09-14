@@ -1,6 +1,4 @@
 /*
- * training.WriteData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,8 +21,6 @@
  */
 package training;
 
-
-//Java imports
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,9 +29,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.api.IMetadataPrx;
 import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
@@ -66,11 +59,11 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.ParametersI;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Sample code showing how to write data.

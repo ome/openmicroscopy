@@ -1,13 +1,11 @@
 /*
- *   $Id: WriteSecurityTest.java 3075 2008-11-10 16:45:20Z andrew $
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.sec.test;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
@@ -17,14 +15,11 @@ import omero.model.IObject;
 import omero.model.PermissionsI;
 import omero.RString;
 import omero.ServerError;
-import omero.api.ServiceFactory;
 import omero.api.ServiceFactoryPrx;
 import omero.model.FilterI;
 import omero.model.PixelsI;
 import omero.model.Project;
-import omero.model.ProjectI;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.Microscope;
@@ -36,7 +31,6 @@ import omero.model.ThumbnailI;
 import omero.model.Image;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-
 
 import static omero.rtypes.rstring;
 

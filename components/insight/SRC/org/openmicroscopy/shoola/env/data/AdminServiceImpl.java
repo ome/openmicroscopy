@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.AdminServiceImpl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -51,13 +47,13 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 
-import pojos.util.PojoMapper;
+import omero.gateway.util.PojoMapper;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Implementation of the {@link AdminService} I/F.

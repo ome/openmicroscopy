@@ -22,6 +22,7 @@
 import omero
 from omero.plugins.delete import DeleteControl
 from test.integration.clitest.cli import CLITest
+from test.integration.clitest.test_tag import AbstractTagTest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
@@ -305,31 +306,31 @@ class TestDelete(CLITest):
         assert not self.query.find('Dataset', dset.id.val)
         assert not self.query.find('Image', img.id.val)
 
-    def testIncludeExcludeSecond(self, simpleHierarchy):
+    def testExcludeDataset(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
 
         self.args += ['Project:%s' % proj.id.val]
         self.args += ['--exclude', 'Dataset']
         self.cli.invoke(self.args, strict=True)
 
-        # Check that everything has been deleted.
+        # Check that only the Project has been deleted.
         assert not self.query.find('Project', proj.id.val)
         assert self.query.find('Dataset', dset.id.val)
         assert self.query.find('Image', img.id.val)
 
-    def testExcludeThird(self, simpleHierarchy):
+    def testExcludeImage(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
 
         self.args += ['Project:%s' % proj.id.val]
         self.args += ['--exclude', 'Image']
         self.cli.invoke(self.args, strict=True)
 
-        # Check that everything has been deleted.
+        # Check that only Project & Dataset have been deleted.
         assert not self.query.find('Project', proj.id.val)
         assert not self.query.find('Dataset', dset.id.val)
         assert self.query.find('Image', img.id.val)
 
-    def testIncludeExclude(self, simpleHierarchy):
+    def testExcludeOverridesInclude(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
 
         self.args += ['Project:%s' % proj.id.val]
@@ -337,10 +338,10 @@ class TestDelete(CLITest):
         self.args += ['--include', 'Image']
         self.cli.invoke(self.args, strict=True)
 
-        # Check that everything has been deleted.
+        # Check that only the Project has been deleted.
         assert not self.query.find('Project', proj.id.val)
         assert self.query.find('Dataset', dset.id.val)
-        assert not self.query.find('Image', img.id.val)
+        assert self.query.find('Image', img.id.val)
 
     # These tests check the default exclusion of the annotations:
     # FileAnnotation, TagAnnotation and TermAnnotation
@@ -453,3 +454,69 @@ class TestDelete(CLITest):
         assert not self.query.find('Image', img.id.val)
         assert not self.query.find('FileAnnotation', fa.id.val)
         assert not self.query.find('FileAnnotation', fa2.id.val)
+
+
+class TestTagDelete(AbstractTagTest):
+
+    def setup_method(self, method):
+        super(AbstractTagTest, self).setup_method(method)
+        self.cli.register("delete", DeleteControl, "TEST")
+        self.args += ["delete"]
+        # Create two tags sets with two tags each, one in common
+        tag_name = self.uuid()
+        self.tag_ids = self.create_tags(3, tag_name)
+        self.ts1_id = self.create_tagset(self.tag_ids[:2], tag_name)
+        self.ts2_id = self.create_tagset(self.tag_ids[1:], tag_name)
+
+    def teardown_method(self, method):
+        pass
+
+    def testDeleteOneTagSetNotTags(self):
+        # try to delete one tag set
+        self.args += ['TagAnnotation:%s' % self.ts1_id]
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[0])
+        assert self.query.find('TagAnnotation', self.ts2_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[1])
+        assert self.query.find('TagAnnotation', self.tag_ids[2])
+
+    def testDeleteTwoTagSetsNotTags(self):
+        # try to delete both tag sets
+        self.args += ['TagAnnotation:%s,%s' % (self.ts1_id, self.ts2_id)]
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[0])
+        assert not self.query.find('TagAnnotation', self.ts2_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[1])
+        assert self.query.find('TagAnnotation', self.tag_ids[2])
+
+    def testDeleteOneTagSetIncludingTags(self):
+        # try to delete one tag set with tags
+        self.args += ['TagAnnotation:%s' % self.ts1_id]
+        self.args += ['--include', 'TagAnnotation']
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[0])
+        assert self.query.find('TagAnnotation', self.ts2_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[1])
+        assert self.query.find('TagAnnotation', self.tag_ids[2])
+
+    def testDeleteTwoTagSetsIncludingTags(self):
+        # try to delete both tag sets with tags
+        self.args += ['TagAnnotation:%s,%s' % (self.ts1_id, self.ts2_id)]
+        self.args += ['--include', 'TagAnnotation']
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[0])
+        assert not self.query.find('TagAnnotation', self.ts2_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[1])
+        assert not self.query.find('TagAnnotation', self.tag_ids[2])

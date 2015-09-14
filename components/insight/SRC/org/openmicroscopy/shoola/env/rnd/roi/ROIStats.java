@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.roi.ROIStats 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -106,7 +106,7 @@ public class ROIStats
      *          2D-selection in the specified plane. If no selection was
      *          made in that plane, then <code>null</code> is returned instead.
      */
-    public ROIShapeStats getPlaneStats(int z, int w, int t)
+    public AbstractROIShapeStats getPlaneStats(int z, int w, int t)
     {
         Integer index = linearize(z, w, t);
         return arrayMap.get(index);
@@ -142,7 +142,7 @@ public class ROIStats
     public void update(double pixelValue, int z, int w, int t, Point loc)
     {
         Integer index = linearize(z, w, t);
-        ROIShapeStats planeStats = arrayMap.get(index);
+        AbstractROIShapeStats planeStats = arrayMap.get(index);
         //planeStats can't be null, see onStartPlane().
         if (pixelValue < planeStats.getMin())
             planeStats.setMin(pixelValue);
@@ -160,7 +160,7 @@ public class ROIStats
     public void onEndPlane(int z, int w, int t, int pointsCount)
     {
         Integer index = linearize(z, w, t);
-        ROIShapeStats ps = arrayMap.get(index);
+        AbstractROIShapeStats ps = arrayMap.get(index);
         //planeStats can't be null, see onStartPlane().
         if (0 < pointsCount) {
             ps.setMean(ps.getSum()/pointsCount);

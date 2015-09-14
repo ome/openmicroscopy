@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorControl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -49,7 +47,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXTaskPane;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -73,10 +70,11 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.data.util.TransformsParser;
 import org.openmicroscopy.shoola.env.event.EventBus;
+
 import omero.log.LogMessage;
 import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.ui.RefWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -97,18 +95,18 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 
-import pojos.BooleanAnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DoubleAnnotationData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.PixelsData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.WellSampleData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * The Editor's controller.
@@ -118,9 +116,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorControl
@@ -300,56 +295,31 @@ class EditorControl
 		//bus.post(new ViewImage(imageID, null));
 	}
 	
-	/** Brings up the folder chooser. */
-	private void download()
-	{
-	    JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+    /** Brings up the folder chooser. */
+    private void download() {
+        JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 
-	    List<FileFilter> filters = new ArrayList<FileFilter>();
-        filters.add(new ZipFilter());
-        
-        int type = FileChooser.SAVE;
+        int type = FileChooser.FOLDER_CHOOSER;
 
-	    FileChooser chooser = new FileChooser(f, type,
-	            FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-	            filters, false);
-        try {
-            if (UIUtilities.getDefaultFolder() != null)
-                chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
-        } catch (Exception ex) {
-        }
+        FileChooser chooser = new FileChooser(f, type,
+                FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION);
 
-        final File file = UIUtilities.generateFileName(
-                UIUtilities.getDefaultFolder(), view
-                        .getSelectedObjects().size() > 1 ? "Original_Files"
-                        : "Original_File", "zip");
-        
-	    IconManager icons = IconManager.getInstance();
-	    chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-	    chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
-	    chooser.setCheckOverride(true);
-	    chooser.setSelectedFile(file);
-	    chooser.addPropertyChangeListener(new PropertyChangeListener() {
+        IconManager icons = IconManager.getInstance();
+        chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+        chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
+        chooser.setCheckOverride(true);
+        chooser.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
                 FileChooser src = (FileChooser) evt.getSource();
                 if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-                    File path = null;
-
-                    File[] files = (File[]) evt.getNewValue();
-                    if (files == null || files.length == 0)
-                        return;
-                    path = files[0];
-
-                    if (path == null) {
-                        path = file;
-                    }
-                    model.download(path, src.isOverride());
+                    String path = (String) evt.getNewValue();
+                    model.downloadOriginal(path, src.isOverride());
                 }
             }
-	    });
-	    chooser.centerDialog();
-	}
+        });
+        chooser.centerDialog();
+    }
 
 	/** Brings up the folder chooser to select where to save the files. 
 	 * 

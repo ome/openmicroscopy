@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.IntensityView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -57,12 +53,9 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.Figure;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
@@ -90,8 +83,9 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrap
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.config.Registry;
 import omero.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Displays statistics computed on the pixels intensity value of a given 
@@ -102,9 +96,6 @@ import pojos.ChannelData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class IntensityView
@@ -229,7 +220,7 @@ class IntensityView
 	private TreeMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
 
 	/** Map of the pixel intensity values to coordinates. */
-	private TreeMap<Coord3D, Map<Integer, Map<Point, Double>>> pixelStats;
+	private TreeMap<Coord3D, Map<Integer, ROIShapeStatsSimple>> pixelStats;
 	
 	/** Map of the minimum channel intensity values to coordinates. */
 	private TreeMap<Coord3D, Map<Integer, Double>> minStats;
@@ -541,9 +532,9 @@ class IntensityView
 		selectedChannelName = string;
 		int channel = nameMap.get(string);
 		if (channel < 0) return;
-		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
+		ROIShapeStatsSimple pixels = pixelStats.get(coord).get(channel);
 		if (pixels == null) return;
-		Iterator<Point> pixelIterator = pixels.keySet().iterator();
+		Iterator<Point> pixelIterator = pixels.getPoints().iterator();
 		double minX, maxX, minY, maxY;
 		if (!pixelIterator.hasNext()) return;
 		Point point = pixelIterator.next();
@@ -563,21 +554,16 @@ class IntensityView
 		sizeX = (int) (maxX-minX)+1;
 		sizeY = (int) ((maxY-minY)+1);
 		Double[][] data = new Double[sizeX][sizeY];
-		Iterator<Entry<Point, Double>> i = pixels.entrySet().iterator();
 		int x, y;
-		Double value;
-		Entry<Point, Double> entry;
-		while (i.hasNext())
+		for(int i=0; i<pixels.getPointsCount(); i++)
 		{
-			entry = i.next();
-			point = entry.getKey();
+			point = pixels.getPoints().get(i);
 			x = (int) (point.getX()-minX);
 			y = (int) (point.getY()-minY);
-			if (x >= sizeX || y >= sizeY) continue;
+			if (x >= sizeX || y >= sizeY) 
+			    continue;
 			
-			if (pixels.containsKey(point)) value = entry.getValue();
-			else value = 0.0;
-			data[x][y] = value;
+			data[x][y] = pixels.getValues()[i];;
 		}
 		tableModel = new IntensityModel(data);
 		intensityDialog.setModel(tableModel);
@@ -1184,7 +1170,7 @@ class IntensityView
 		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
 		pixelStats = 
-			new TreeMap<Coord3D, Map<Integer, Map<Point, Double>>>(new Coord3D());
+			new TreeMap<Coord3D, Map<Integer, ROIShapeStatsSimple>>(new Coord3D());
 		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
@@ -1232,7 +1218,7 @@ class IntensityView
 				meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
 				sumStats.put(c3D, shapeStats.get(StatsType.SUM));
 				stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
-				pixelStats.put(c3D, shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
+				pixelStats.put(c3D, shapeStats.get(StatsType.PIXELDATA));
 			}
 			
 			

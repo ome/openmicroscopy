@@ -23,8 +23,7 @@ import java.util.logging.Logger;
  * 
  * Note: this class uses java.util.logging (JUL) rather than commons-logging
  * since it may be used on the client-side. Any use server-side will have logs
- * forwarded to log4j via slf4j as described in
- * {@link ome.services.blitz.Entry#configureLogging()}
+ * forwarded to log4j via slf4j.
  */
 public class Resources {
 
@@ -66,18 +65,13 @@ public class Resources {
     }
 
     /**
-     * As {@link Resources#Resources(int, ExecutorService)} but uses a
+     * As {@link Resources#Resources(int, ScheduledExecutorService)} but uses a
      * {@link Executors#newSingleThreadExecutor()}.
      */
     public Resources(int sleeptimeSeconds) {
         this(sleeptimeSeconds, Executors.newSingleThreadScheduledExecutor());
     }
 
-    /**
-     * 
-     * @param sleeptimeSeconds
-     * @param service
-     */
     public Resources(int sleeptimeSeconds, ScheduledExecutorService service) {
         this.sleeptime = sleeptimeSeconds;
         this.service = service;

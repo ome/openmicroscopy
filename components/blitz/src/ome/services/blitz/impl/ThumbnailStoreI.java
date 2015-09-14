@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,10 +11,6 @@ import ome.api.ThumbnailStore;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.RInt;
 import omero.ServerError;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_ThumbnailStore_createThumbnail;
 import omero.api.AMD_ThumbnailStore_createThumbnails;
 import omero.api.AMD_ThumbnailStore_createThumbnailsByLongestSideSet;
@@ -35,6 +29,7 @@ import omero.api.AMD_ThumbnailStore_setPixelsId;
 import omero.api.AMD_ThumbnailStore_setRenderingDefId;
 import omero.api.AMD_ThumbnailStore_thumbnailExists;
 import omero.api._ThumbnailStoreOperations;
+
 import Ice.Current;
 
 /**

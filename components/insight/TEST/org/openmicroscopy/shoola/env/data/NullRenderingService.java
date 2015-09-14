@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.NullRenderingService
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,13 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
-
-
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -58,11 +51,10 @@ import omero.gateway.exception.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ROIData;
-import pojos.WorkflowData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 
 /** 
@@ -75,9 +67,6 @@ import pojos.WorkflowData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class NullRenderingService
@@ -488,29 +477,6 @@ public class NullRenderingService
 	public Map setOwnerRenderingSettings(SecurityContext ctx,
 		Class rootNodeType, List<Long> nodeIDs)
 			throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#retrieveWorkflows(long)
-     */
-	public List<WorkflowData> retrieveWorkflows(SecurityContext ctx,
-			long userID)
-			throws DSAccessException, DSOutOfServiceException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#storeWorkflows(List, long)
-     */
-	public Object storeWorkflows(SecurityContext ctx, 
-		List<WorkflowData> workflows, long userID)
-			throws DSAccessException, DSOutOfServiceException
 	{
 		return null;
 	}

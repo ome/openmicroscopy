@@ -28,11 +28,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import ome.xml.model.OME;
 import omero.ServerError;
 import omero.cmd.Chgrp2;
 import omero.gateway.util.Requests;
-import omero.model.Dataset;
 import omero.model.ExperimenterGroup;
 import omero.model.Image;
 import omero.model.Instrument;
@@ -46,8 +47,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
-import ome.specification.XMLMockObjects;
-import ome.specification.XMLWriter;
 
 /**
  * @author Scott Littlewood, <a

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -28,7 +26,7 @@ import java.io.File;
 import java.util.List;
 import javax.swing.Icon;
 
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Parameters required to download and zip the files.

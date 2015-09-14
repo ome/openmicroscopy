@@ -1,16 +1,14 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.search;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +18,6 @@ import ome.api.Search;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
-import ome.model.enums.Format;
 import ome.services.fulltext.FileParser;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;

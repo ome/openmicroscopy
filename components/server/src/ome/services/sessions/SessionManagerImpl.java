@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.sessions;
 
 import java.sql.Timestamp;
@@ -19,6 +18,7 @@ import java.util.concurrent.Future;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+
 import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
@@ -55,7 +55,6 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;

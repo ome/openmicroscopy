@@ -98,11 +98,7 @@ public class AnnotationDescription
 														"Show Measurement");
 		annotationDescription.put(MeasurementAttributes.SCALE_PROPORTIONALLY,
 				"Scale Proportionally");
-
-		annotationDescription.put(AnnotationKeys.NAMESPACE,
-														"Workflow");
-		annotationDescription.put(AnnotationKeys.KEYWORDS,
-														"Keywords");
+		annotationDescription.put(AnnotationKeys.TAG, "Tag");
 		}
 }
 

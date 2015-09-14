@@ -10,8 +10,6 @@ package ome.security.basic;
 // Java imports
 
 // Third-party imports
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.model.IObject;
 import ome.model.internal.Details;
 
@@ -30,8 +28,6 @@ import org.hibernate.event.PreUpdateEventListener;
  * @see BasicSecuritySystem
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class UpdateEventListener implements PreUpdateEventListener {
 
     public final static String UPDATE_EVENT = "UpdateEvent";

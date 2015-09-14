@@ -12,9 +12,6 @@
  *------------------------------------------------------------------------------
  */
 
-// Java imports
-// Third-party libraries
-// Application-internal dependencies
 package ome.tools.lsid;
 
 public abstract class LsidUtils {

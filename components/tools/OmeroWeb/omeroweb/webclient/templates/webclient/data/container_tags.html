@@ -33,7 +33,8 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.pagination_plugin.js" %}"></script>
 
     <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
@@ -198,7 +199,7 @@
             // Setup jstree
             .jstree({
                 'plugins': ['types', 'sort', 'locate', 'fields', 'ometools', 'conditionalselect',
-                'truncatetext', 'contextmenu'],
+                'truncatetext', 'contextmenu', 'pagination'],
                 // The jstree core
                 'core' : {
                     'themes': {
@@ -228,10 +229,25 @@
                         var path = inst.get_path(node, false, true);
                         if (path && node.type == 'experimenter') {
                             payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
+                            payload['orphaned'] = true;     // Don't show tags that are in tagsets
+                        }
+
+                        // If this is a node which can have paged results then either specify that
+                        // we want the specific page, or use default first page
+                        if (node.type === 'dataset') {
+                            // Attempt to get the current page desired if there is one
+                            var page = inst.get_page(node);
+                            if (page) {
+                                payload['page'] = page;
+                                // Otherwise, no 'page' will give us default, first page
+                            }
+                        } else {
+                            // Disable paging for other queries
+                            payload['page'] = 0
                         }
 
                         // Always add the group_id from the current context
-                        payload['group_id'] = {{ active_group.id }};
+                        payload['group'] = {{ active_group.id }};
 
                         // Configure the url
                         var url;
@@ -288,9 +304,7 @@
                                 callback.call(this, data);
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
-                                // TODO What do we do now if there is an error from the REST API?
-                                // Launch the Error Dialog?
-                                console.log('ERROR IN AJAX');
+                                // Global error hanlding is sufficient here
                             },
                             // Converter is required because the JSON format being returned is not
                             // jstree specific.
@@ -350,8 +364,7 @@
                                             var node = {
                                                 'data': {'id': value.id, 'obj': value},
                                                 'text': value.value,
-                                                //TODO Shall I calculate this up front? Could be a heavy calculation
-                                                // 'children': value.childCount > 0 ? true : false,
+                                                // We don't count children for Tags (too expensive?) Assume they have children
                                                 'children': true,
                                                 'type': value.set ? 'tagset' : 'tag',
                                                 'li_attr': {
@@ -509,7 +522,7 @@
                     }
 
                 },
-                // TODO Performance of sort may not be realistic. The tree is mostly ordered correctly
+                // Performance of sort may not be realistic. The tree is mostly ordered correctly
                 // already, only insertions need to be corrected manually.
                 'sort': function(nodeId1, nodeId2) {
                     var inst = this;
@@ -602,11 +615,6 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-
-                    // TODO - this was previously moved to OME.handleDelete();
-                    // Handles split filesets etc?
-                    // OME.handleDelete();
-
 
                     var datatree = $.jstree.reference($('#dataTree'));
                     // Get the current selection
@@ -734,7 +742,6 @@
     </div>
 </div>
 
-    <!-- TODO - check this is still needed? -->
     <!-- hidden form for delete dialogs -->
         <div id="delete-dialog-form" title="Delete" style="display:none"
                 data-url="{% url 'manage_action_containers' 'deletemany' %}"

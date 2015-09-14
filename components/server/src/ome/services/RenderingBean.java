@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -19,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
@@ -42,7 +38,6 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.model.internal.Permissions;
 import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
@@ -87,12 +82,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Chris Allan, callan at blackcat.ca
  * @author Jean-Marie Burel, j.burel at dundee.ac.uk
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see RenderingEngine
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 @Transactional(readOnly = true)
 public class RenderingBean implements RenderingEngine, Serializable {
 

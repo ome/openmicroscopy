@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *   
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -14,14 +12,9 @@ import omero.model.Image;
 import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.Shape;
-import omero.model.SmartLineI;
-import omero.model.SmartShape.Util;
 
 import org.testng.annotations.Test;
 
-/**
- *
- */
 @Test(groups = { "integration", "rois" })
 public class ContainedPointsTest extends AbstractRoiITest {
 

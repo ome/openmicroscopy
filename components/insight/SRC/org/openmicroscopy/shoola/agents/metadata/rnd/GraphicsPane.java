@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.GraphicsPane 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -47,17 +43,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WrapLayout;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Component hosting the diagram and the controls to select the pixels intensity

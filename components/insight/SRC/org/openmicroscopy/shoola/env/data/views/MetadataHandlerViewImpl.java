@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.MetadataHandlerViewImpl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,16 +20,12 @@
  */
 package org.openmicroscopy.shoola.env.data.views;
 
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -54,10 +48,10 @@ import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Implementation of the {@link MetadataHandlerView} interface.
@@ -67,9 +61,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class MetadataHandlerViewImpl
@@ -245,15 +236,15 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadOriginalImage(SecurityContext, List, File,
-	 * String, boolean, AgentEventListener)
+	 * @see MetadataHandlerView#loadArchivedImage(SecurityContext, List, File,
+	 * String, boolean, boolean, boolean AgentEventListener)
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
-			File path, boolean override,
+			File path, boolean override, boolean zip, boolean keepOriginalPaths,
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageIDs, path,
-		        override);
+		        override, zip, keepOriginalPaths);
 		return cmd.exec(observer);
 	}
 
@@ -473,4 +464,19 @@ class MetadataHandlerViewImpl
 			rootIDs, annotationType, nsInclude, nsExlcude);
 		return cmd.exec(observer);
 	}
+
+	
+    /**
+     * Implemented as specified by the view interface.
+     * @see MetadataHandlerView#annotateData(SecurityContext, Map, Map, long,
+     * AgentEventListener)
+     */
+    public CallHandle annotateData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID,
+            AgentEventListener observer) {
+        BatchCallTree cmd = new StructuredAnnotationSaver(ctx, toAdd, toRemove,
+                userID);
+        return cmd.exec(observer);
+    }
 }

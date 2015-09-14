@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerComponent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -88,12 +84,12 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
 
 
 /** 
@@ -115,9 +111,6 @@ import pojos.ImageData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ImViewerComponent

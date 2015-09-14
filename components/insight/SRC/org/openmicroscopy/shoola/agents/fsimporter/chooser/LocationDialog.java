@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.chooser.LocationDialog 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -82,13 +80,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.PermissionData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.PermissionData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /**
  * Provides the user with the options to select the location to import data.

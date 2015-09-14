@@ -39,11 +39,9 @@ import omero.model.PixelsType;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pojos.ImageData;
-import pojos.ROIData;
-import pojos.RectangleData;
-
-//Java imports
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
 
 /**
  *
@@ -56,7 +54,7 @@ public class ROIFacilityTest extends GatewayTest {
 
     private ImageData img;
     private ROIFacility roifac;
-    private List<ROIData> rois;
+    private Collection<ROIData> rois;
 
     @Override
     @BeforeClass(alwaysRun = true)

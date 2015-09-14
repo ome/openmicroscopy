@@ -1,6 +1,4 @@
 /*
- * training.ReadDataAdvanced
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,17 +21,12 @@
  */
 package training;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 import omero.api.IContainerPrx;
@@ -49,11 +42,11 @@ import omero.model.Project;
 import omero.model.TagAnnotation;
 import omero.sys.Filter;
 import omero.sys.ParametersI;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.ProjectData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.TagAnnotationData;
 
 /**
  * More advanced code for how to load data from an OMERO server.

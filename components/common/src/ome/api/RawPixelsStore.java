@@ -7,14 +7,11 @@
 
 package ome.api;
 
-import java.io.IOException;
-import java.nio.BufferOverflowException;
 import java.util.List;
 import java.util.Set;
 
 import ome.annotations.Validate;
 import ome.model.core.Pixels;
-import ome.util.PixelData;
 
 /**
  * Binary data provider. Initialized with the id of a

@@ -785,6 +785,12 @@
 				
             }
             
+                .lnfiles li input[type=checkbox] {
+                    vertical-align: middle;
+                    margin-top: 1px;
+                    margin-right: 0px;
+                    padding-right: 0px;
+                }
             
                 .lnfiles li>a {
                     text-shadow:0 1px 0 rgba(255,255,255,.4);
@@ -799,6 +805,11 @@
 					        border-radius:inherit; /* Opera 10.5, IE 9 */ 
                 }
                 
+
+                    .lnfiles li.selected {
+                        background:hsl(210,20%,85%)
+                    }
+
                     .lnfiles li a.tooltip span {
                         color:hsl(210,15%,55%);
                     }

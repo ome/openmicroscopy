@@ -13,12 +13,19 @@ Suite Teardown      Close all browsers
 
 ${thumbnailsXpath}      //ul[@id='dataIcons']//div[contains(@class, 'image')]
 
+*** Keywords ***
+
+Clear Activity
+    [Documentation]         Clear any activities from earlier tests etc.
+    Click Element           id=launch_activities
+    Click Element           id=clear_activities
 
 *** Test Cases ***
 
 Test Delete Project
     [Documentation]     Create and Delete a Project
 
+    Clear Activity
     Select Experimenter
     ${pid}=                                 Create project          robot test delete
     Click Element                           refreshButton
@@ -38,9 +45,7 @@ Test Delete Project
 Test Delete Project Dataset
     [Documentation]     Create and Delete a Project containing a Dataset
 
-    # Clear any activities from earlier tests etc.
-    Click Element                           id=launch_activities
-    Click Element                           id=clear_activities
+    Clear Activity
     Select Experimenter
     ${pid}=                                 Create project      robot test delete
     ${did}=                                 Create Dataset      robot test deleteChildren
@@ -61,6 +66,7 @@ Test Delete Project Dataset
 Test Delete Images in Dataset
     [Documentation]     Deletes images pre-imported into a dataset named "Delete"
 
+    Clear Activity
     Select Experimenter
     # Click on Dataset named "Delete", wait for thumbnails and count them
     ${nodeId}=                              Wait For Dataset Node Text              Delete
@@ -83,10 +89,8 @@ Test Delete Images in Dataset
 Test Delete Images in Share
     [Documentation]     Deletes pre-imported images after putting them in Share
 
+    Clear Activity
     Select Experimenter
-    # Clear any activities from earlier tests etc.
-    Click Element                               id=launch_activities
-    Click Element                               id=clear_activities
     # Add image in 'Delete' Dataset to Share
     ${nodeId}=                                  Wait For Dataset Node Text              Delete
     Click Node                                  ${nodeId}
@@ -116,7 +120,7 @@ Test Delete Images in Share
     Wait Until Keyword Succeeds     10   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus'][contains(text(),'1')]
 
     # Check share has 'Object Deleted' for deleted image
-    Go To                                       ${WELCOME URL}public
+    Go To                                       ${WELCOME URL}public/
     Select First Share
     # Should be image with id='image-123', with 'Object Deleted' in Tree and icons
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@data-id='${imageId}']/a[contains(text(), 'Object deleted')]

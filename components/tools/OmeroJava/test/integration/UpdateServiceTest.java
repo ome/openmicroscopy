@@ -103,26 +103,26 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
-import pojos.BooleanAnnotationData;
-import pojos.DatasetData;
-import pojos.EllipseData;
-import pojos.ImageData;
-import pojos.LineData;
-import pojos.LongAnnotationData;
-import pojos.MaskData;
-import pojos.PlateData;
-import pojos.PointData;
-import pojos.PolygonData;
-import pojos.PolylineData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ScreenData;
-import pojos.ShapeData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /**
  * Collections of tests for the <code>IUpdate</code> service.
@@ -570,11 +570,38 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
 
         //Create a roi
+        int n = 0;
         ROIData roiData = new ROIData();
         roiData.setImage((Image) i.proxy());
-        //Add shape
-        RectangleData r = new RectangleData(0, 0, 1, 1);
+        //Add rectangle
+        ShapeData r = new RectangleData(0, 0, 1, 1);
         roiData.addShapeData(r);
+        n++;
+        //Add ellipse
+        r = new EllipseData(2, 2, 1, 1);
+        roiData.addShapeData(r);
+        n++;
+        //Add point
+        r = new PointData(1, 1);
+        roiData.addShapeData(r);
+        n++;
+        //Add line
+        r = new LineData(0, 1, 1, 2);
+        roiData.addShapeData(r);
+        n++;
+        //Add polygon
+        String points = "points[10,10] points1[10,10] points2[10,10]";
+        Polygon rect = new PolygonI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        r = new PolygonData(rect);
+        roiData.addShapeData(r);
+        n++;
+        //Add polyline
+        Polyline polyline = new PolylineI();
+        polyline.setPoints(omero.rtypes.rstring(points));
+        r = new PolylineData(polyline);
+        roiData.addShapeData(r);
+        n++;
         Roi roi = (Roi) iUpdate.saveAndReturnObject(roiData.asIObject());
         //annotate both roi and the shape.
         RoiAnnotationLink ral = new RoiAnnotationLinkI();
@@ -586,7 +613,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertEquals(ral.getChild().getId().getValue(), data.getId().getValue());
         assertEquals(ral.getParent().getId().getValue(), roi.getId().getValue());
         List<Shape> shapes = roi.copyShapes();
-        assertEquals(1, shapes.size());
+        assertEquals(n, shapes.size());
         Iterator<Shape> k = shapes.iterator();
         while (k.hasNext()) {
             Shape shape = k.next();

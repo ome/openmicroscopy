@@ -35,7 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,7 +59,6 @@ import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
-import omero.RString;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -553,7 +551,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
     /**
      * From a list of paths, calculate the common root path that all share. In
      * the worst case, that may be "/". May not include the last element, the filename.
-     * @param some paths
+     * @param paths some paths
      * @return the paths' common root
      */
     protected FsFile commonRoot(List<FsFile> paths) {
@@ -1400,7 +1398,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Checks for the top-level user directory restriction before calling
-     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, boolean, Current)}
+     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList, boolean, Session, ServiceFactory, SqlAction, ome.system.EventContext)}
      */
     @Override
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserUI
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-
-//Java import
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -92,19 +87,18 @@ import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateData;
-import pojos.PlateAcquisitionData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * The Browser's View.
@@ -112,9 +106,6 @@ import pojos.TagAnnotationData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 class BrowserUI
@@ -315,7 +306,7 @@ class BrowserUI
         partialButton = new JToggleButton(
         				controller.getAction(BrowserControl.PARTIAL_NAME));
         partialButton.setBorderPainted(true);
-        //rightMenuBar.add(partialButton);
+        rightMenuBar.add(partialButton);
         rightMenuBar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
@@ -606,14 +597,7 @@ class BrowserUI
     		for (int i = 0; i < files.length; i++) {
     			object = files[i];
     			display = null;
-    			if (object instanceof MultiImageData) {
-					display = TreeViewerTranslator.transformMultiImage(
-    						(MultiImageData) object);
-    				if (display != null)
-    					buildTreeNode(display, 
-    						prepareSortedList(sorter.sort(
-    								display.getChildrenDisplay())), dtm);
-				} else if (object instanceof FileData) {
+    			if (object instanceof FileData) {
 					file = (FileData) object;
     				if (file.isDirectory()) {
             			if (!file.isHidden()) {
@@ -1313,8 +1297,6 @@ class BrowserUI
 				if (f.isDirectory()) top.add(object);
 				else bottom.add(object);
 			} else if (uo instanceof ImageData)
-				bottom.add(object);
-			else if (uo instanceof MultiImageData)
 				bottom.add(object);
 			else if (uo instanceof ExperimenterData)
 				bottom.add(object);

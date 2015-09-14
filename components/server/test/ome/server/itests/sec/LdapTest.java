@@ -1,36 +1,20 @@
 /*
- *   $Id: LdapTest.java 1395 2007-04-04 13:18:22Z atarkowska $
- *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.sec;
 
 import java.util.List;
 
-import javax.naming.Name;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-
 import ome.conditions.ApiUsageException;
-import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.ldap.NamingException;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.ContextExecutor;
-import org.springframework.ldap.core.ContextMapper;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DirContextProcessor;
 import org.springframework.ldap.core.LdapOperations;
-import org.springframework.ldap.core.NameClassPairCallbackHandler;
-import org.springframework.ldap.core.NameClassPairMapper;
-import org.springframework.ldap.core.SearchExecutor;
 import org.testng.annotations.Test;
 
 public class LdapTest extends AbstractManagedContextTest {

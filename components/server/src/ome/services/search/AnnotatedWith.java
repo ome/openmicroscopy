@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -24,7 +22,6 @@ import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TimestampAnnotation;
 import ome.model.annotations.XmlAnnotation;
 import ome.model.core.OriginalFile;
-import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;

@@ -872,7 +872,6 @@ class TestPermissionProjections(lib.ITest):
             expected_arr.append(expected)
         assert expected_arr == found_arr
 
-    @pytest.mark.xfail(ticket="12474")
     @pytest.mark.parametrize("fixture", lib.PFS,
                              ids=[x.get_name() for x in lib.PFS])
     def testProjectionPermissions(self, fixture):
@@ -880,17 +879,28 @@ class TestPermissionProjections(lib.ITest):
         reader = self.reader(fixture)
         project = self.make_project(name="testProjectPermissions",
                                     client=writer)
-        project = writer.saveAndReturnObject(project)
+
+        update = writer.sf.getUpdateService()
+        project = update.saveAndReturnObject(project)
+
         try:
-            perms = unwrap(reader.projection(
-                "select p.details.permissions from Project p where p.id = :id",
+            perms1 = unwrap(reader.projection((
+                "select new ome.util.PermDetails(p) "
+                "from Project p where p.id = :id"),
                 ParametersI().addId(project.id.val)))[0][0]
+            perms2 = unwrap(reader.projection((
+                "select new map(p.id as id, p as p_details_permissions) "
+                "from Project p where p.id = :id"),
+                ParametersI().addId(project.id.val)))[0][0]
+            perms2 = perms2["p_details_permissions"]
+            assert perms1 == perms2
             assert fixture.canRead
         except IndexError:
             # No permissions were returned.
             assert not fixture.canRead
         else:
-            self.assertPerms(perms, fixture)
+            self.assertPerms(perms1, fixture)
+            self.assertPerms(perms2, fixture)
 
     @pytest.mark.parametrize("fixture", lib.PFS,
                              ids=[x.get_name() for x in lib.PFS])

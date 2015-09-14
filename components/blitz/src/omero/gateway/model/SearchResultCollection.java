@@ -25,8 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import pojos.DataObject;
-
 /**
  * Holds the results of a search; a collection of {@link SearchResult}s
  * 
@@ -65,8 +63,8 @@ public class SearchResultCollection extends
 
     /**
      * Set the error state
-     * 
-     * @param error
+     *
+     * @param error The value to set.
      */
     public void setError(int error) {
         this.error = error;
@@ -75,7 +73,7 @@ public class SearchResultCollection extends
     /**
      * Get the error code
      * 
-     * @return
+     * @return See above.
      */
     public int getError() {
         return this.error;
@@ -105,12 +103,12 @@ public class SearchResultCollection extends
 
     /**
      * Get all results of a certain scope and/or type
-     * 
+     *
      * @param scopeId
-     *            The scope to filter for, see {@link SearchDataContext}
+     *            The scope to filter for.
      * @param type
      *            The type to filter for, see {@link DataObject}
-     * @return
+     * @return See above.
      */
     public List<SearchResult> getResults(int scopeId,
             Class<? extends DataObject> type) {
@@ -129,10 +127,10 @@ public class SearchResultCollection extends
 
     /**
      * Get DataObjects filtered by scope and type
-     * 
+     *
      * @param scopeId
      * @param type
-     * @return
+     * @return See above.
      */
     public List<DataObject> getDataObjects(int scopeId,
             Class<? extends DataObject> type) {
@@ -151,8 +149,8 @@ public class SearchResultCollection extends
 
     /**
      * Get a perGroup map representation of the results
-     * 
-     * @return
+     *
+     * @return See above.
      */
     public Map<Long, List<SearchResult>> getByGroup() {
         return getByGroup(null);
@@ -160,9 +158,9 @@ public class SearchResultCollection extends
 
     /**
      * Get a perGroup map representation of the results, filtered by type
-     * 
+     *
      * @param type
-     * @return
+     * @return See above.
      */
     public Map<Long, List<SearchResult>> getByGroup(
             Class<? extends DataObject> type) {

@@ -28,7 +28,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.rnd.DataSink;
 import omero.gateway.rnd.Plane2D;
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

@@ -1,5 +1,4 @@
-/*   $Id$
- *
+/*
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -7,7 +6,6 @@
 package ome.services.blitz.util;
 
 import java.net.URL;
-import java.util.Map;
 
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.PermissionsVerifierI;
@@ -15,11 +13,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.fire.TopicManager;
-import ome.services.roi.RoiTypes;
 import ome.services.util.Executor;
-import omero.model.DetailsI;
-import omero.model.PermissionsI;
-import omero.util.ModelObjectFactoryRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +25,7 @@ import Glacier2.SessionManager;
 import Ice.Util;
 
 /**
- * Factory bean which creates an {@lik Ice.Communicator} instance as well as the
+ * Factory bean which creates an {@link Ice.Communicator} instance as well as the
  * proper {@link Ice.ObjectAdapter} and adds initial, well-known servants.
  * 
  * @author Josh Moore
@@ -67,7 +61,7 @@ public class BlitzConfiguration {
      * Single constructor which builds all Ice instances needed for the server
      * runtime based on arguments provided. Once the constructor is finished,
      * none of the default create* methods can safely be called, since
-     * {@link #throwIfInitialized()} is called first.
+     * {@link #throwIfInitialized(Object)} is called first.
      * 
      * If any of the methods other than {@link #createCommunicator()} throws an
      * exception, then {@link #destroy()} will be called to properly shut down
@@ -85,14 +79,16 @@ public class BlitzConfiguration {
 
     /**
      * Like
-     * {@link #BlitzConfiguration(ome.services.sessions.SessionManager, SecuritySystem, Executor)}
+     * {@link #BlitzConfiguration(Ring, ome.services.sessions.SessionManager, SecuritySystem, Executor, int)}
      * but allows properties to be specified via an
      * {@link Ice.InitializationData} instance.
      * 
      * @param id
+     * @param ring
      * @param sessionManager
      * @param securitySystem
      * @param executor
+     * @param servantsPerSession
      * @throws RuntimeException
      */
     public BlitzConfiguration(Ice.InitializationData id, Ring ring,

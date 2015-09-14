@@ -23,15 +23,10 @@
 
 package org.openmicroscopy.shoola.util.ui;
 
-//Java imports
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
 /** 
@@ -42,10 +37,6 @@ import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *                  a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 4724 $ $Date: 2007-01-17 08:46:48 +0000 (Wed, 17 Jan 2007) $)
- * </small>
  * @since OME2.2
  */
 public class TinyLoadingWin

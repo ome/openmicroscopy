@@ -208,6 +208,8 @@
                         }
                         var selectedNode = datatree.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
                         datatree.select_node(selectedNode, true);
+                        // we also focus the node, so that hotkey events come from the node
+                        $("#" + selectedNode.id).children('.jstree-anchor').focus();
                     });
                 } else {
                     console.log('jstree may need to be refreshed');
@@ -395,6 +397,7 @@
             $("#filtersearch label").inFieldLabels();
 
             // simple emulation of table-sorter for other elements...
+            // performs sort when intialised on 'sort-init' column
             $(".element_sorter").elementsorter({
                 head: '.thead div',             // Selector for the equivalent of 'table head'
                 body: 'li.row',                 // Selector for the equivalent of 'table rows'
@@ -448,7 +451,8 @@
     <ul id="dataIcons" class="element_sorter iconLayout">
         <li class="thead"> 
             <div></div> 
-            <div class='sort-alpha'>{% trans "Name" %}</div> 
+            <!-- 'sort-init' will perform sort on this column when element_sorter plugin inits -->
+            <div class='sort-alpha sort-init'>{% trans "Name" %}</div>
             <div class='sort-date'>{% trans "Date" %}</div> 
             <div class='sort-numeric'>{% trans "Size X" %}</div> 
             <div class='sort-numeric'>{% trans "Size Y" %}</div> 

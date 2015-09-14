@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,16 +21,12 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
@@ -51,8 +45,8 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * The DataBrowser agent. This agent manages and presents a thumbnail view
@@ -63,9 +57,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataBrowserAgent 

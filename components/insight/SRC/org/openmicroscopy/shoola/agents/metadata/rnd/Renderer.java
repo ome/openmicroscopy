@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.Renderer 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -43,9 +41,9 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.ChannelData;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Defines the interface provided by the renderer component. 

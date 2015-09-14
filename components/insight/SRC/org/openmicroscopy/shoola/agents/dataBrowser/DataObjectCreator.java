@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -23,17 +21,13 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Creates a data objects e.g. a dataset and links it to the specified children.
@@ -45,9 +39,6 @@ import pojos.DataObject;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataObjectCreator

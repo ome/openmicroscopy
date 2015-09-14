@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ArchivedLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -35,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Loads the image.
@@ -66,6 +64,12 @@ public class ArchivedLoader
     /** Flag indicating to override or not the files when saving.*/
     private boolean override;
 
+    /** Flag for zipping the downloaded images */
+    private boolean zip = false;
+    
+    /** Flag for preserving the original folder structure */
+    private boolean keepOriginalPaths = true;
+    
     /**
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String, Throwable)
@@ -87,11 +91,13 @@ public class ArchivedLoader
      * @param file The location where to download the image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
+     * @param zip Pass <code>true</code> to create a zip file
+     * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
      * @param activity The activity associated to this loader.
      */
 	public ArchivedLoader(UserNotifier viewer, Registry registry,
 			SecurityContext ctx, List<ImageData> images, File file,
-			boolean override, ActivityComponent activity)
+			boolean override, boolean zip, boolean keepOriginalPaths, ActivityComponent activity)
 	{
 		super(viewer, registry, ctx, activity);
 		if (images == null)
@@ -99,6 +105,8 @@ public class ArchivedLoader
 		this.images = images;
 		this.file = file;
 		this.override = override;
+		this.zip = zip;
+		this.keepOriginalPaths = keepOriginalPaths;
 	}
 
 	/**
@@ -112,7 +120,7 @@ public class ArchivedLoader
 	        imageIds.add(d.getId());
 	    
 	    handle = mhView.loadArchivedImage(ctx, imageIds, file,
-	            override, this);
+	            override, zip, keepOriginalPaths, this);
 	}
 
 	/**

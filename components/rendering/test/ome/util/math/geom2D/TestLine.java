@@ -7,13 +7,8 @@
 
 package ome.util.math.geom2D;
 
-// Java imports
-
-// Third-party libraries
 import org.testng.annotations.*;
 import junit.framework.TestCase;
-
-// Application-internal dependencies
 
 /**
  * Unit test for {@link Line}.
@@ -23,8 +18,6 @@ import junit.framework.TestCase;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/25 18:09:01 $) </small>
  * @since OME2.2
  */
 public class TestLine extends TestCase {

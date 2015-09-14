@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.InputStrategy 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.util.roi.io;
 
-//Java imports
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -35,7 +32,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-//Third-party libraries
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
 import net.n3.nanoxml.IXMLReader;
@@ -44,7 +40,6 @@ import net.n3.nanoxml.XMLParserFactory;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -82,7 +77,7 @@ import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowMeasurementParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowTextParser;
 
-import pojos.ShapeSettingsData;
+import omero.gateway.model.ShapeSettingsData;
 
 /** 
  * 
@@ -92,9 +87,6 @@ import pojos.ShapeSettingsData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class InputStrategy

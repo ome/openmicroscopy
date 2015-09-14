@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.StatusLabel
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -55,10 +53,10 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.util.PojoMapper;
-import pojos.DataObject;
-import pojos.FilesetData;
-import pojos.PixelsData;
+import omero.gateway.util.PojoMapper;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.PixelsData;
 
 /**
  * Component displaying the status of a specific import.

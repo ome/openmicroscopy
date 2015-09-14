@@ -421,7 +421,8 @@ class BaseContainer(BaseController):
             #     self.experimenter = self.conn.getObject("Experimenter", eid)
         im_list = list(self.conn.listImagesInDataset(
             oid=did, eid=eid, page=page, load_pixels=load_pixels))
-        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
+        # List is already sorted by name, id in query
+        # im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
         self.containers = {'images': im_list}
         self.c_size = self.conn.getCollectionCount(
             "Dataset", "imageLinks", [long(did)])[long(did)]
@@ -470,7 +471,7 @@ class BaseContainer(BaseController):
             params.page((int(page)-1)*settings.PAGE, settings.PAGE)
         im_list = list(self.conn.listOrphans(
             "Image", eid=eid, params=params, loadPixels=True))
-        im_list.sort(key=lambda x: x.getName().lower())
+        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
         self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
 

@@ -21,7 +21,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-// Application-internal dependencies
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 
@@ -42,7 +41,6 @@ import ome.parameters.QueryParameter;
  * </p>
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 public class IObjectClassQuery extends Query {

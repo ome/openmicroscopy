@@ -9,8 +9,6 @@ package ome.system;
 
 import java.util.List;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.model.internal.Permissions;
 
 /**
@@ -24,8 +22,6 @@ import ome.model.internal.Permissions;
  * @see ome.model.meta.ExperimenterGroup
  * @since 3.0
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface EventContext {
 
     Long getCurrentShareId();

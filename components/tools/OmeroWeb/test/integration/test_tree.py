@@ -25,6 +25,7 @@ import pytest
 import library as lib
 
 from omero.gateway import BlitzGateway
+from omero.constants.metadata import NSINSIGHTTAGSET
 from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
     PlateAcquisitionI, TagAnnotationI, ProjectAnnotationLinkI, \
     DatasetAnnotationLinkI, ImageAnnotationLinkI, ScreenAnnotationLinkI, \
@@ -243,21 +244,17 @@ def expected_orphaned(user, images):
 def expected_tags(user, tags):
     expected = []
     for tag in tags:
-        if tag.description is not None:
-            description = tag.description.val
-        else:
-            description = None
         t = {
             'id': tag.id.val,
             'value': tag.textValue.val,
-            'description': description,
             'ownerId': tag.details.owner.id.val,
             'childCount': len(tag.linkedAnnotationList()),
             'permsCss': get_perms(user, tag, "TagAnnotation")
         }
+        if tag.description is not None:
+            t['description'] = tag.description.val
 
-        if tag.ns is not None and tag.ns.val == \
-                'openmicroscopy.org/omero/insight/tagset':
+        if tag.ns is not None and tag.ns.val == NSINSIGHTTAGSET:
             t['set'] = True
         else:
             t['set'] = False
@@ -1069,7 +1066,7 @@ def tagset_hierarchy_userA_groupA(request, userA, userB,
     # Create and name all the objects
     tagsetA = TagAnnotationI()
     tagsetA.textValue = rstring('TagsetA')
-    tagsetA.ns = rstring('openmicroscopy.org/omero/insight/tagset')
+    tagsetA.ns = rstring(NSINSIGHTTAGSET)
     tagA = TagAnnotationI()
     tagA.textValue = rstring('TagA')
 
@@ -1147,7 +1144,7 @@ def tagset_hierarchy_userB_groupA(request, userA,
     # Create and name all the objects
     tagsetA = TagAnnotationI()
     tagsetA.textValue = rstring('TagsetA')
-    tagsetA.ns = rstring('openmicroscopy.org/omero/insight/tagset')
+    tagsetA.ns = rstring(NSINSIGHTTAGSET)
     tagA = TagAnnotationI()
     tagA.textValue = rstring('TagA')
 
@@ -2102,6 +2099,26 @@ class TestTree(lib.ITest):
         expected = expected_tags(userA, tags)
         marshaled = marshal_tags(conn=conn,
                                  group_id=-1)
+        assert marshaled == expected
+
+    def test_marshal_tags_orphaned(self, userA, tagset_hierarchy_userA_groupA):
+        """
+        Test marshalling orphaned tags not in a tagset
+        """
+        conn = get_connection(userA)
+        tagset = tagset_hierarchy_userA_groupA[0]
+        tags = [tagset_hierarchy_userA_groupA[1]]
+        # with no 'orphaned' filter, we get all tags
+        allTags = [tagset] + tags
+        expected = expected_tags(userA, allTags)
+        marshaled = marshal_tags(conn=conn,
+                                 experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+        # if 'orphaned', we won't get tag
+        expected = expected_tags(userA, [tagset])
+        marshaled = marshal_tags(conn=conn,
+                                 orphaned=True,
+                                 experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
     def test_marshal_tags_tagset(self, userA, tagset_hierarchy_userA_groupA):

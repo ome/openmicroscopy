@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -47,12 +42,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -63,21 +55,21 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellSampleData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -87,9 +79,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorUI 
@@ -1097,4 +1086,13 @@ class EditorUI
 	    userUI.setLDAPDetails(result);
 	}
 
+	/**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+	public Collection<FileAnnotationData> getSelectedFileAnnotations() { 
+	    return generalPane.getSelectedFileAnnotations();
+	}
 }

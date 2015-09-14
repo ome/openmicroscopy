@@ -30,10 +30,9 @@ import omero.gateway.exception.DSOutOfServiceException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
-//Java imports
 
 /**
  *

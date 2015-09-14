@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerComponent 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -43,13 +39,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -85,23 +76,23 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MapAnnotationData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Implements the {@link MetadataViewer} interface to provide the functionality
@@ -116,9 +107,6 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class MetadataViewerComponent 
@@ -370,6 +358,18 @@ class MetadataViewerComponent
 		return model.getEditor().getUI();
 	}
 	
+	/** 
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#getEditor()
+     */
+    public Editor getEditor()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+        return model.getEditor();
+    }
+    
 	/** 
          * Implemented as specified by the {@link MetadataViewer} interface.
          * @see MetadataViewer#isRendererLoaded()

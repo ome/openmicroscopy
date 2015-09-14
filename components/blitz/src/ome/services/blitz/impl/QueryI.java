@@ -1,13 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.blitz.impl;
 
-// Java imports
 import ome.api.IQuery;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
@@ -28,6 +25,7 @@ import omero.model.IObject;
 import omero.sys.Filter;
 import omero.sys.Parameters;
 import omero.util.IceMapper;
+
 import Ice.Current;
 
 /**

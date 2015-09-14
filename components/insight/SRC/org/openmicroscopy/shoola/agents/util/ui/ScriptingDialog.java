@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -76,7 +74,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
-import pojos.DataObject;
+import com.google.common.collect.ListMultimap;
+
+import omero.gateway.model.DataObject;
 
 /** 
  * Dialog to run the selected script. The UI is created on the fly.
@@ -182,6 +182,12 @@ public class ScriptingDialog
     /** Flag indicating if the binary data are available.*/
     private boolean binaryAvailable;
 
+    /**
+     * Map which holds additional reference objects per parameter name for
+     * pre-setting the dialog
+     */
+    private ListMultimap<String, DataObject> additionalObjects; 
+    
     /** Populates the changes of data types.*/
     private void handleDataTypeChanges()
     {
@@ -429,7 +435,7 @@ public class ScriptingDialog
                         if (CollectionUtils.isNotEmpty(refObjects)) {
                             //support of image type
                             DataObject object = refObjects.get(0);
-                            if (script.isSupportedType(object, name)){
+                            if (script.isSupportedType(object)){
                                 defValue = object.getId();
                             }
                         }
@@ -512,7 +518,18 @@ public class ScriptingDialog
                     identifier.setValues(refObjects);
                     identifier.addDocumentListener(this);
                     comp = identifier;
-                } else {
+                }
+                else if (Long.class.isAssignableFrom(param.getKeyType())) {
+                    // a list of longs is usually another field holding ids;
+                    IdentifierParamPane id2 = new IdentifierParamPane(Long.class);
+                    // check if there are default values for this parameter in the additionalObjects map
+                    if(additionalObjects!=null) {
+                        List<DataObject> objs = additionalObjects.get(name);
+                        id2.setValues(objs);
+                    }
+                    comp = id2;
+                }
+                else {
                     if (comp == null)
                         comp = new ComplexParamPane(param.getKeyType());
                     else 
@@ -799,9 +816,24 @@ public class ScriptingDialog
     public ScriptingDialog(JFrame parent, ScriptObject script,
             List<DataObject> refObjects, boolean binaryAvailable)
     {
+        this(parent, script, refObjects, null, binaryAvailable);
+    }
+    
+    /**
+     * Creates a new instance.
+     *
+     * @param parent The parent of the frame.
+     * @param script The script to run. Mustn't be <code>null</code>.
+     * @param refObjects The objects of reference.
+     * @param additionalObjects Additional reference objects per input parameter name
+     * @param binaryAvailable Flag indicating if binary data are available.
+     */
+    public ScriptingDialog(JFrame parent, ScriptObject script,
+            List<DataObject> refObjects, ListMultimap<String, DataObject> additionalObjects, boolean binaryAvailable)
+    {
         super(parent);
         this.binaryAvailable = binaryAvailable;
-        reset(script, refObjects);
+        reset(script, refObjects, additionalObjects);
     }
 
     /**
@@ -812,10 +844,23 @@ public class ScriptingDialog
      */
     public void reset(ScriptObject script, List<DataObject> refObjects)
     {
+        reset(script, refObjects, null);
+    }
+    
+    /**
+     * Resets the value.
+     *
+     * @param script The script to run. Mustn't be <code>null</code>.
+     * @param refObjects The objects of reference.
+     * @param additionalObjects Additional reference objects per input parameter name
+     */
+    public void reset(ScriptObject script, List<DataObject> refObjects, ListMultimap<String, DataObject> additionalObjects)
+    {
         if (script == null)
             throw new IllegalArgumentException("No script specified");
         this.script = script;
         this.refObjects = refObjects;
+        this.additionalObjects = additionalObjects;
         initComponents();
         buildGUI();
         pack();

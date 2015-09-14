@@ -33,7 +33,7 @@ public class ParametersI extends omero.sys.Parameters {
 
     /**
      * Default constructor creates the {@link #map} instance to prevent later
-     * {@link NullPointerExceptions}. To save memory, it is possible to pass
+     * {@link NullPointerException}s. To save memory, it is possible to pass
      * null to {@link ParametersI#ParametersI(Map)}.
      */
     public ParametersI() {
@@ -41,10 +41,11 @@ public class ParametersI extends omero.sys.Parameters {
     }
 
     /**
-     * Uses (and does not copy) the given {@link Map<String, RType>} as the
+     * Uses (and does not copy) the given {@code Map<String, RType>} as the
      * named parameter store in this instance. Be careful if either null is
      * passed or if this instance is being used in a multi-threaded environment.
      * No synchronization takes place.
+     * @param map the named parameter store to use
      */
     public ParametersI(Map<String, RType> map) {
         this.map = map;
@@ -55,6 +56,7 @@ public class ParametersI extends omero.sys.Parameters {
 
     /**
      * Nulls both the {@link Filter#limit} and {@link Filter#offset} values.
+     * @return this instance, for method chaining
      */
     public Parameters noPage() {
         if (this.theFilter != null) {
@@ -68,6 +70,9 @@ public class ParametersI extends omero.sys.Parameters {
      * Sets both the {@link Filter#limit} and {@link Filter#offset} values by
      * wrapping the arguments in {@link RInt} and passing the values to
      * {@link #page(RInt, RInt)}
+     * @param offset the offset (to start from)
+     * @param limit the limit (maximum to return)
+     * @return this instance, for method chaining
      */
     public ParametersI page(int offset, int limit) {
         return this.page(rint(offset), rint(limit));
@@ -76,6 +81,9 @@ public class ParametersI extends omero.sys.Parameters {
     /**
      * Creates a {@link Filter} if necessary and sets both {@link Filter#limit}
      * and {@link Filter#offset}.
+     * @param offset the offset (to start from)
+     * @param limit the limit (maximum to return)
+     * @return this instance, for method chaining
      */
     public ParametersI page(RInt offset, RInt limit) {
         if (this.theFilter == null) {
@@ -501,6 +509,7 @@ public class ParametersI extends omero.sys.Parameters {
      * Pre-4.0, pojoOptions.map() was a common idiom for passing the {@link Map
      * <String, RType} into methods, to keep those uses valid, the
      * {@link #map()} method is defined.
+     * @deprecated use {@link #map()} instead, to be removed in 5.3
      */
     @Deprecated
     public ParametersI map() {
