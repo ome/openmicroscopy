@@ -98,14 +98,14 @@ public class GroupData extends DataObject {
     public static final String PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT = 
             "Read-Write";
 
-    /** Identifies the {@link ExperimenterGroup#NAME} field. */
+    /** Identifies the {@link ExperimenterGroupI#NAME} field. */
     public final static String NAME = ExperimenterGroupI.NAME;
 
-    /** Identifies the {@link ExperimenterGroup#DESCRIPTION} field. */
+    /** Identifies the {@link ExperimenterGroupI#DESCRIPTION} field. */
     public final static String DESCRIPTION = ExperimenterGroupI.DESCRIPTION;
 
-    /** Identifies the {@link ExperimenterGroup#GROUPEXPERIMENTERMAP} field. */
-    public final static String GROUP_EXPERIMENTER_MAP = 
+    /** Identifies the {@link ExperimenterGroupI#GROUPEXPERIMENTERMAP} field. */
+    public final static String GROUP_EXPERIMENTER_MAP =
             ExperimenterGroupI.GROUPEXPERIMENTERMAP;
 
     /** Identifies the <code>User</code> group. */

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -31,8 +29,8 @@ public abstract class Helper {
      * Factory method to generate Helper instances from the LSID of a given
      * column.
      * 
-     * @param lsid
-     * @return
+     * @param lsid The lsid
+     * @return See above.
      * @throws ServerError
      */
     public static Helper fromLsid(String lsid) throws ServerError {
@@ -54,8 +52,8 @@ public abstract class Helper {
      * Factory method to generate Helper instances from the Class of a given
      * column.
      * 
-     * @param kls
-     * @return
+     * @param kls The class.
+     * @return See above.
      * @throws ServerError
      */
     public static Helper fromClass(Class kls) throws ServerError {

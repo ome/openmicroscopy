@@ -48,25 +48,25 @@ import omero.model.GroupExperimenterMap;
  */
 public class ExperimenterData extends DataObject {
 
-    /** Identifies the {@link Experimenter#FIRSTNAME} field. */
+    /** Identifies the {@link ExperimenterI#FIRSTNAME} field. */
     public final static String FIRSTNAME = ExperimenterI.FIRSTNAME;
 
-    /** Identifies the {@link Experimenter#MIDDLENAME} field. */
+    /** Identifies the {@link ExperimenterI#MIDDLENAME} field. */
     public final static String MIDDLENAME = ExperimenterI.MIDDLENAME;
 
-    /** Identifies the {@link Experimenter#LASTNAME} field. */
+    /** Identifies the {@link ExperimenterI#LASTNAME} field. */
     public final static String LASTNAME = ExperimenterI.LASTNAME;
 
-    /** Identifies the {@link Experimenter#EMAIL} field. */
+    /** Identifies the {@link ExperimenterI#EMAIL} field. */
     public final static String EMAIL = ExperimenterI.EMAIL;
 
-    /** Identifies the {@link Experimenter#OMENAME} field. */
+    /** Identifies the {@link ExperimenterI#OMENAME} field. */
     public final static String OMENAME = ExperimenterI.OMENAME;
 
-    /** Identifies the {@link Experimenter#INSTITUTION} field. */
+    /** Identifies the {@link ExperimenterI#INSTITUTION} field. */
     public final static String INSTITUTION = ExperimenterI.INSTITUTION;
 
-    /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
+    /** Identifies the {@link ExperimenterI#GROUPEXPERIMENTERMAP} field. */
     public final static String GROUP_EXPERIMENTER_MAP = ExperimenterI.GROUPEXPERIMENTERMAP;
 
     /** The other Groups this Experimenter belongs in. */
@@ -319,7 +319,7 @@ public class ExperimenterData extends DataObject {
     /**
      * Checks if supplied group id matches any group to which the current
      * experimenter belongs to.
-     * @param long groupId
+     * @param groupId The id of the group.
      * @return boolean <code>true</code>/<code>false</code> depending if matching
      *                id found
      */

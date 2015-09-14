@@ -483,10 +483,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     /**
      * Set the repository of the given original file to be this one.
-     * TODO: Should be refactored elsewhere.
-     * @param originalFileId the ID of the log file
+     * @param originalFile the ID of the log file
      * @param current the Ice method invocation context
      */
+    //TODO: Should be refactored elsewhere.
     @Deprecated
     protected ome.model.core.OriginalFile persistLogFile(final ome.model.core.OriginalFile originalFile, Ice.Current current)
                 throws ServerError {
@@ -620,7 +620,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * @param tie
      * @param servant
      * @param current
-     * @return
+     * @return See above.
      * @throws ServerError
      */
     Ice.ObjectPrx registerServant(Ice.Object tie,
@@ -680,14 +680,14 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *
      * @param path
      *            A path on a repository.
-     * @param parent
+     * @param parents
      *            Boolean switch like the "mkdir -p" flag in unix.
-     * @param __current
+     * @param current
      *            ice context.
      */
-    public void makeDir(String path, boolean parents, Current __current) throws ServerError {
-        CheckedPath checked = checkPath(path, null, __current);
-        repositoryDao.makeDirs(this, Arrays.asList(checked), parents, __current);
+    public void makeDir(String path, boolean parents, Current current) throws ServerError {
+        CheckedPath checked = checkPath(path, null, current);
+        repositoryDao.makeDirs(this, Arrays.asList(checked), parents, current);
     }
 
     public void makeDir(CheckedPath checked, boolean parents,
@@ -723,7 +723,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *
      * @param paths Not null, not empty. (Will be emptied by this method.)
      * @param parents "mkdir -p" like flag.
-     * @param __current
+     * @param s The session
+     * @param sf
+     * @param sql
+     * @param effectiveEventContext
      */
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
             boolean parents, Session s, ServiceFactory sf, SqlAction sql,

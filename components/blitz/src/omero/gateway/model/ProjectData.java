@@ -48,13 +48,13 @@ import omero.model.ProjectI;
  */
 public class ProjectData extends DataObject {
 
-    /** Identifies the {@link Project#NAME} field. */
+    /** Identifies the {@link ProjectI#NAME} field. */
     public final static String NAME = ProjectI.NAME;
 
-    /** Identifies the {@link Project#DESCRIPTION} field. */
+    /** Identifies the {@link ProjectI#DESCRIPTION} field. */
     public final static String DESCRIPTION = ProjectI.DESCRIPTION;
 
-    /** Identifies the {@link Project#DATASETLINKS} field. */
+    /** Identifies the {@link ProjectI#DATASETLINKS} field. */
     public final static String DATASET_LINKS = ProjectI.DATASETLINKS;
 
     /**

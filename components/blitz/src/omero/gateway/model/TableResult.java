@@ -66,7 +66,6 @@ public class TableResult
      *
      * @param data The data contained in the py-table.
      * @param columns The name of the columns.
-     * @param columnsDescription The description of the columns.
      */
     public TableResult(Object[][] data, String[] columns)
     {

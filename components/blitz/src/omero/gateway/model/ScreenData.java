@@ -44,13 +44,13 @@ import omero.model.ScreenPlateLink;
  */
 public class ScreenData extends DataObject {
 
-    /** Identifies the {@link Screen#NAME} field. */
+    /** Identifies the {@link ScreenI#NAME} field. */
     public final static String NAME = ScreenI.NAME;
 
-    /** Identifies the {@link Screen#DESCRIPTION} field. */
+    /** Identifies the {@link ScreenI#DESCRIPTION} field. */
     public final static String DESCRIPTION = ScreenI.DESCRIPTION;
 
-    /** Identifies the {@link Screen#PLATELINKS} field. */
+    /** Identifies the {@link ScreenI#PLATELINKS} field. */
     public final static String PLATE_LINKS = ScreenI.PLATELINKS;
 
     /**
@@ -200,7 +200,6 @@ public class ScreenData extends DataObject {
      * Sets the description of the protocol.
      *
      * @param value The value to set.
-     * @return See above.
      */
     public void setProtocolDescription(String value)
     {
@@ -223,7 +222,6 @@ public class ScreenData extends DataObject {
      * Sets the identifier of the protocol.
      *
      * @param value The value to set.
-     * @return See above.
      */
     public void setProtocolIdentifier(String value)
     {
@@ -246,7 +244,6 @@ public class ScreenData extends DataObject {
      * Sets the identifier of the reagent.
      *
      * @param value The value to set.
-     * @return See above.
      */
     public void setReagentSetDescripion(String value)
     {
@@ -269,7 +266,6 @@ public class ScreenData extends DataObject {
      * Sets the identifier of the reagent.
      *
      * @param value The value to set.
-     * @return See above.
      */
     public void setReagentSetIdentifier(String value)
     {

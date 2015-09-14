@@ -18,8 +18,8 @@ import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 /**
- * OMERO.blitz startup code. Replaces {@link Main} as the main application entry
- * point. Uses Sun-specific APIs to handle signals.
+ * OMERO.blitz startup code. Replaces the standard <code>Main</code> class as
+ * the main application entry point. Uses Sun-specific APIs to handle signals.
  */
 public class Entry {
 
@@ -70,10 +70,9 @@ public class Entry {
 
     /**
      * Entry point to the server. The first argument on the command line will be
-     * used as the name for the {@link OmeroContext} via
-     * {@link Main2#Main(String)}. Other options include:
+     * used as the name for the {@link OmeroContext}. Other options include:
      * 
-     * -s Check status (all args passed to {@link Ice.Util.initialize(String[])}
+     * -s Check status (all args passed to {@link Ice.Util#initialize(String[])}
      * 
      */
     public static void main(final String[] args) {

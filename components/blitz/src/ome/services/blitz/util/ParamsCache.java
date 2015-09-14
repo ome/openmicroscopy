@@ -60,8 +60,8 @@ import com.google.common.cache.LoadingCache;
  * start and them subsequently based on the omero.scripts.cache.cron setting.
  * {@link JobParams} instances may be removed from the cache based on the
  * omero.scripts.cache.spec setting. If a key is not present in the cache on
- * {@link #getParams(String)} then an attempt will be made to load it. Any
- * exceptions thrown will be propagated to the caller.
+ * {@link #getParams(Long, String, Current)} then an attempt will be made to
+ * load it. Any exceptions thrown will be propagated to the caller.
  *
  * @since 5.1.2
  */
@@ -125,8 +125,10 @@ public class ParamsCache implements ApplicationContextAware {
      * is present, then an attempt will be made to load one, possibly throwing
      * a {@link UserException}.
      *
-     * @param key
-     * @return
+     * @param id
+     * @param sha1
+     * @param curr
+     * @return See above.
      * @throws UserException
      */
     public JobParams getParams(Long id, String sha1, Ice.Current curr) throws UserException {
@@ -148,6 +150,8 @@ public class ParamsCache implements ApplicationContextAware {
 
     /**
      * Remove a cached {@link JobParams} instance.
+     * 
+     * @param id The id of the job.
      */
     public void removeParams(Long id) {
         if (id == null) {

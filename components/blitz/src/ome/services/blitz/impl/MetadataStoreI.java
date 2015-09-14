@@ -32,7 +32,6 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.roi.PopulateRoiJob;
 import ome.services.throttling.Adapter;
 import ome.services.util.Executor;
-import ome.services.util.Executor.SimpleWork;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
@@ -260,9 +259,9 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
                     }
                 }));
     }
-    
+
     /**
-     * Called after some number of Passes the {@link #savedPixels} to a
+     * Called after some number of Passes the {@link #savedPlates} to a
      * background processor for further work. This happens on
      * {@link #close_async(AMD_StatefulServiceInterface_close, Current)} since
      * no further pixels can be created, but also on
@@ -291,12 +290,11 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
                             if (copy.size() == 0) {
                                 return null;
                             }
-                            
                             for (Long id : copy) {
                                 
                                 RMap inputs = omero.rtypes.rmap("Plate_ID",
                                         omero.rtypes.rlong(id));
-                                
+
                                 ScriptJob job = popRoi.createJob(_sf);
                                 InteractiveProcessorPrx prx;
                                 try {
@@ -311,9 +309,7 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
                                     log.error(msg, e);
                                     throw new InternalException(msg);
                                 }
-                            
                             }
-                            
                             savedPlates.clear();
                             return procs;
                         }

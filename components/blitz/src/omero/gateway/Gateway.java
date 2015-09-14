@@ -1220,7 +1220,7 @@ public class Gateway {
      * @param permitNull
      *            whether or not to throw a {@link DSOutOfServiceException} if
      *            no {@link Connector} is available by the end of the execution.
-     * @return
+     * @return See above.
      */
     public Connector getConnector(SecurityContext ctx, boolean recreate,
             boolean permitNull) throws DSOutOfServiceException {

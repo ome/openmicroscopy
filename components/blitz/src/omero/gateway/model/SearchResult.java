@@ -34,10 +34,10 @@ package omero.gateway.model;
  */
 public class SearchResult {
 
-    /** The scope (name, description, ...), see {@link SearchDataContext} */
+    /** The scope (name, description, ...).*/
     private int scopeId;
 
-    /** Indicates the type (ImageData, DatasetData, ...) see {@link DataObject} */
+    /** Indicates the type (ImageData, DatasetData, ...).*/
     private Class<? extends DataObject> type;
 
     /** Id of the found object */
@@ -62,11 +62,13 @@ public class SearchResult {
      * Create a new instance
      *
      * @param scopeId
-     *            Id of the search scope, see {@link SearchDataContext}
+     *            Id of the search scope.
      * @param type
      *            Type of the object to search
      * @param objectId
      *            Id of the found object
+     * @param groupId
+     *            Id of the group.
      */
     public SearchResult(int scopeId, Class<? extends DataObject> type,
             long objectId, long groupId) {
@@ -77,8 +79,7 @@ public class SearchResult {
     }
 
     /**
-     * The Id of the search scope, e.g. name, description, ... see
-     * {@link SearchDataContext}
+     * The Id of the search scope, e.g. name, description, ...
      *
      * @return See above.
      */
@@ -87,8 +88,7 @@ public class SearchResult {
     }
 
     /**
-     * Set the id of the search scope, e.g. name, description, ... see
-     * {@link SearchDataContext}
+     * Set the id of the search scope, e.g. name, description, ...
      *
      * @param scopeId The id of the search scope.
      */

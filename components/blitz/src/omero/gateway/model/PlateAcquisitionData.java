@@ -61,8 +61,8 @@ public class PlateAcquisitionData
     /**
      * Creates a new instance.
      *
-     * @param value Back pointer to the {@link Plate} model object. Mustn't be
-     *            <code>null</code>.
+     * @param value Back pointer to the {@link PlateAcquisition} model object.
+     *              Mustn't be <code>null</code>.
      */
     public PlateAcquisitionData(PlateAcquisition value)
     {

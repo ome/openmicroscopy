@@ -34,7 +34,7 @@ public interface BlitzExecutor {
     /**
      * Passes the given arguments to {@link IceMethodInvoker} with the
      * assumption that all conversion from omero.* to ome.* has taken place.
-     * Similarly, the {@link ReturnMapper} instance will be used to map the
+     * Similarly, the {@link IceMapper} instance will be used to map the
      * return value from ome.* to omero.*.
      */
     void callInvokerWithMappedArgs(ServiceInterface service,

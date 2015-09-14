@@ -34,9 +34,7 @@ public class TemporaryRepositoryI extends AbstractRepositoryI {
         super(oa, reg, ex, p, System.getProperty("java.io.tmpdir"), servant);
     }
 
-    /**
-     * @DEV.TODO CACHING
-     */
+    //TODO CACHING
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {
 

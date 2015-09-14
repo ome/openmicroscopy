@@ -21,12 +21,9 @@
 package omero.gateway.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.Map;
-import java.lang.Math;
 
 import omero.model.Ellipse;
 import omero.model.Image;
@@ -126,9 +123,9 @@ public class ROIData
     }
 
     /**
-     * Sets the imageId for the ROI.
+     * Sets the image for the ROI.
      *
-     * @param imageId See above.
+     * @param image See above.
      */
     public void setImage(Image image)
     {

@@ -95,12 +95,7 @@ public class SearchParameters
      * 
      * @param scope Scope of the search
      * @param types The types to search on, i.e. project, dataset, image.
-     * @param some Some (at least one) of these terms must be present in 
-     *             the document. May be <code>null</code>.
-     * @param must All of these terms must be present in the document.
-     *             May be <code>null</code>.
-     * @param none None of these terms may be present in the document.
-     *             May be <code>null</code>.
+     * @param query The terms to search for.
      */
     public SearchParameters(Set<SearchScope> scope,
             List<Class<? extends DataObject>> types, String query)
@@ -115,6 +110,7 @@ public class SearchParameters
      *
      * @param start The lower bound of the time interval.
      * @param end The upper bound of the time interval.
+     * @param type The type of date.
      */
     public void setTimeInterval(Timestamp start, Timestamp end, int type)
     {

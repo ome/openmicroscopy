@@ -78,6 +78,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
     /**
      * Return the number of times this instance has been called in a thread
      * safe manner.
+     * @return See above.
      */
     public int getResponses() {
         return responses.get();
@@ -86,7 +87,8 @@ public class ProcessorCallbackI extends AbstractAmdServant
     /**
      * Generates a UUID-based {@link Ice.Identity} with the category of
      * {@link PROCESSORCALLBACK#value} and then calls
-     * {@link #activateAndWait(Current, Ice.Identity).
+     * {@link #activateAndWait(Current, Ice.Identity)}.
+     * @return See above.
      */
     public ProcessorPrx activateAndWait(Ice.Current current) throws ServerError {
         Ice.Identity acceptId = new Ice.Identity();
@@ -102,7 +104,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
 
      * @param current
      * @param acceptId
-     * @return
+     * @return See above.
      * @throws ServerError
      */
     public ProcessorPrx activateAndWait(Ice.Current current,

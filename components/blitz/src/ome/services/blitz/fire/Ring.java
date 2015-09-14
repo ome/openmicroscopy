@@ -109,7 +109,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     /**
      * Returns the proxy information for the local {@link SessionManager}.
      * 
-     * @return
+     * @return See above.
      */
     public String getDirectProxy() {
         return this.directProxy;

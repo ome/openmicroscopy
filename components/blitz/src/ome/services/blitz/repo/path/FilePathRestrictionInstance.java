@@ -164,7 +164,7 @@ public enum FilePathRestrictionInstance {
     /**
      * Get a set of rules by which local files may not be named on the file-system,
      * formed by combining the given rules identifiers with rules against control characters.
-     * @param names the names of the desired rules
+     * @param enums the names of the desired rules
      * @return a rule set
      */
     public static FilePathRestrictions getFilePathRestrictions(FilePathRestrictionInstance... enums) {

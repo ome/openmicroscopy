@@ -244,11 +244,8 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
     /**
      * Prepend a "./" if necessary to make the path relative.
-     * TODO: this could likely be removed once the prefix is always stripped.
-     *
-     * @param arg
-     * @return
      */
+    //TODO: this could likely be removed once the prefix is always stripped.
     private String parse(String arg) {
         if (arg.startsWith("/")) {
             arg = "./" + arg;

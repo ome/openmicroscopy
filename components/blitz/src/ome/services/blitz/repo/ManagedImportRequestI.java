@@ -502,9 +502,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * Uses the {@link OMEROMetadataStoreClient} to save all metadata for the
      * current image provided.
      *
-     * @param index Index of the file being imported.
-     * @param container The import container which houses all the configuration
-     * values for the import.
+     * @param mij Object hosting metadata to save.
      * @return the newly created {@link Pixels} id.
      * @throws FormatException if there is an error parsing metadata.
      * @throws IOException if there is an error reading the file.
