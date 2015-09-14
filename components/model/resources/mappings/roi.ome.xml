@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -48,7 +46,6 @@
                         <optional name="g" type="string"/>
                         <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
                         <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
-                        <optional name="visibility" type="boolean"/>
                         <!-- Fill -->
                         <optional name="fillColor" type="int"/>
                         <optional name="fillRule" type="string"/><!-- even-odd, nonzero -->
