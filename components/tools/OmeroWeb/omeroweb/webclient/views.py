@@ -77,6 +77,7 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.marshal import chgrpMarshal
 
 from omeroweb.feedback.views import handlerInternalError
 
@@ -3420,6 +3421,19 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
+    # If we have a jobId, just process that (Only chgrp supported)
+    jobId = request.REQUEST.get('jobId', None)
+    if jobId is not None:
+        jobId = str(jobId)
+        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
+        rsp = prx.getResponse()
+        if rsp is not None:
+            rv = chgrpMarshal(conn, rsp)
+            rv['finished'] = True
+        else:
+            rv = {'finished': False}
+        return rv
+
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
         callbackDict = request.session['callback'][cbString]
@@ -4296,6 +4310,23 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
         }
     }
     return result
+
+
+@login_required()
+def chgrpDryRun(request, conn=None, **kwargs):
+
+    group_id = getIntOrDefault(request, 'group_id', None)
+    targetObjects = {}
+    dtypes = ["Project", "Dataset", "Image", "Screen", "Plate", "Fileset"]
+    for dtype in dtypes:
+        oids = request.REQUEST.get(dtype, None)
+        if oids is not None:
+            obj_ids = [int(oid) for oid in oids.split(",")]
+            targetObjects[dtype] = obj_ids
+
+    handle = conn.chgrpDryRun(targetObjects, group_id)
+    jobId = str(handle)
+    return HttpResponse(jobId)
 
 
 @login_required()

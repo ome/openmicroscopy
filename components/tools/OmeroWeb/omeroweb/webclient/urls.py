@@ -196,6 +196,10 @@ urlpatterns = patterns(
         views.fileset_check,
         name="fileset_check"),
 
+    # chgrp dry run - 'group_id', obj-types and ids in POST data.
+    # E.g. Dataset=1,2,3 & Fileset=4. Multiple datatypes in one chgrp.
+    url(r'^chgrpDryRun/$', views.chgrpDryRun, name="chgrpDryRun"),
+
     # Popup for downloading original archived files for images
     url(r'^download_placeholder/$', views.download_placeholder,
         name="download_placeholder"),

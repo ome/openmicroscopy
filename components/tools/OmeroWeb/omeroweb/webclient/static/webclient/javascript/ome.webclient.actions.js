@@ -128,14 +128,18 @@ OME.clear_selected = function(force_refresh) {
 };
 
 // select all images from the specified fileset (if currently visible)
-OME.select_fileset_images = function(filesetId) {
-    var datatree = $.jstree.reference('#dataTree');
+OME.select_fileset_images = function(filesetIds) {
     // This is only used for chgrp of filesets to select them all
     // It only selects images that have been loaded in the tree,
     // in preparation for removing them from the tree on "OK".
     // However, it will not update child counts on datasets that
     // have not been loaded in tree.
-    datatree.select_fileset_nodes(filesetId);
+    var datatree = $.jstree._focused();
+    filesetIds.forEach(function(fsId){
+        $("#dataTree li[data-fileset="+fsId+"]").each(function(){
+            datatree.select_node(this);
+        });
+    });
 };
 
 // actually called when share is edited, to refresh right-hand panel
