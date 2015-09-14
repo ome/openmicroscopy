@@ -118,14 +118,13 @@ the kind of component that they are. For instance, the first window to
 pop up is the "server window" and it includes a "username field" and a
 "config server button" and similar.
 
-The supplied SwingLibrary JAR has been adjusted by the script from
-http://github.com/Rethought/swinglibrary_package so that it
-incorporates a later revision of Abbot that corrects an issue with
-Java 7. Those wishing to repeat the adjustment on a Mac may wish to
-review the adjustment script and use homebrew to install wget and GNU
-sed: when the script runs correctly, no errors should be glimpsed.
-This procedure may not be necessary in the long term: those
-maintaining our Insight testing framework should periodically review
+The version of the SwingLibrary library has an issue with Java 7. The script
+from http://github.com/Rethought/swinglibrary_package provides an adjustement
+to the JAR correcting this issue. Those  wishing to repeat the fix on a Mac
+may wish to review the adjustment script and use Homebrew to install wget
+and GNU sed: when the script runs correctly, no errors should be glimpsed.
+In the long term, the maintainers Insight testing framework should
+periodically review
 https://github.com/robotframework/SwingLibrary/issues?state=open and
 watch issues like #41 and #47 whose resolution may suggest changes to
 our code.
