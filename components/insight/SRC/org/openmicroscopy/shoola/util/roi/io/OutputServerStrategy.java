@@ -249,7 +249,6 @@ class OutputServerStrategy
 		double cy = fig.getEllipse().getCenterY();
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
-		ellipse.setVisible(fig.isVisible());
 		String text = fig.getText();
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
@@ -288,7 +287,6 @@ class OutputServerStrategy
 		double cy = fig.getCentre().getY();
 		
 		PointData point = new PointData(cx, cy); 
-		point.setVisible(fig.isVisible());
 		String text = fig.getText();
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
@@ -351,7 +349,6 @@ class OutputServerStrategy
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
 			rectangle.setText(fig.getText());
-		rectangle.setVisible(fig.isVisible());
 		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			rectangle.setTransform(toTransform(t));
@@ -386,7 +383,6 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolygonData poly = new PolygonData();
-		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
@@ -417,7 +413,6 @@ class OutputServerStrategy
 			BezierPath.Node end = bezier.get(1);
 			LineData line = new LineData(start.x[0], start.y[0], 
 					end.x[0], end.y[0]);
-			line.setVisible(fig.isVisible());
 			if (t != null) line.setTransform(toTransform(t));
 			String text = fig.getText();
 			if (text != null && text.trim().length() > 0 && 
@@ -438,7 +433,6 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData line = new PolylineData();
-		line.setVisible(fig.isVisible());
 		line.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			line.setTransform(toTransform(t));
@@ -476,7 +470,6 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData poly = new PolylineData();
-		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
