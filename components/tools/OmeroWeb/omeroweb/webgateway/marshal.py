@@ -322,3 +322,113 @@ def rgb_int2css(rgbint):
     alpha = float(alpha) / 256
     r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
     return "#%02x%02x%02x" % (r, g, b), alpha
+
+
+def chgrpMarshal(conn, rsp):
+    """
+    Helper for marshalling a Chgrp response.
+    Uses conn to lookup unlinked objects.
+    """
+    rv = {}
+    if isinstance(rsp, omero.cmd.ERR):
+        rsp_params = ", ".join(["%s: %s" % (k, v) for k, v in
+                               rsp.parameters.items()])
+        rv['error'] = "%s %s" % (rsp.name, rsp_params)
+    else:
+        included = rsp.responses[0].includedObjects
+        deleted = rsp.responses[0].deletedObjects
+        rv['includedObjects'] = included
+        rv['deletedObjects'] = deleted
+
+        # Included: just simplify the key, e.g. -> Projects, Datasets etc
+        includedDetails = {}
+        objKeys = ['ome.model.containers.Project',
+                   'ome.model.containers.Dataset',
+                   'ome.model.core.Image',
+                   'ome.model.screen.Screen',
+                   'ome.model.screen.Plate',
+                   'ome.model.screen.Well']
+        for k in objKeys:
+            if k in included:
+                otype = k.split(".")[-1]
+                includedDetails[otype + 's'] = included[k]
+        rv['includedDetails'] = includedDetails
+
+        # Annotation links - need to get info on linked objects
+        tags = {}
+        files = {}
+        comments = 0
+        others = 0
+        annotationLinks = ['ome.model.annotations.ProjectAnnotationLink',
+                           'ome.model.annotations.DatasetAnnotationLink',
+                           'ome.model.annotations.ImageAnnotationLink',
+                           'ome.model.annotations.ScreenAnnotationLink',
+                           'ome.model.annotations.PlateAnnotationLink',
+                           'ome.model.annotations.WellAnnotationLink']
+        for l in annotationLinks:
+            if l in deleted:
+                linkType = l.split(".")[-1]
+                params = omero.sys.ParametersI()
+                params.addIds(deleted[l])
+                query = ("select annLink from %s as annLink "
+                         "join fetch annLink.child as ann "
+                         "left outer join fetch ann.file "
+                         "where annLink.id in (:ids)" % linkType)
+                links = conn.getQueryService().findAllByQuery(query, params, conn.SERVICE_OPTS)
+                for lnk in links:
+                    ann = lnk.child
+                    if isinstance(ann, omero.model.FileAnnotationI):
+                        files[ann.id.val] = {'id': ann.id.val,
+                                             'name': unwrap(ann.getFile().getName())}
+                    elif isinstance(ann, omero.model.TagAnnotationI):
+                        tags[ann.id.val] = {'id': ann.id.val,
+                                            'name': unwrap(ann.getTextValue())}
+                    elif isinstance(ann, omero.model.CommentAnnotationI):
+                        comments += 1
+                    else:
+                        others += 1
+        # sort tags & comments
+        tags = tags.values()
+        tags.sort(key=lambda x: x['name'])
+        files = files.values()
+        files.sort(key=lambda x: x['name'])
+        rv['unlinkedDetails'] = {'Tags': tags,
+                                 'Files': files,
+                                 'Comments': comments,
+                                 'Others': others
+                                 }
+
+        # Container links - only report these if we are moving the *parent*,
+        # E.g. DatasetImageLinks are only reported if we are moving the Dataset
+        # (and the image is left behind). If we were moving the Image then we'd
+        # expect the link to be broken (can ignore)
+        objects = {}
+        containerLinks = {'ome.model.containers.ProjectDatasetLink': 'Datasets',
+                          'ome.model.containers.DatasetImageLink': 'Images',
+                          'ome.model.screen.ScreenPlateLink': 'Screens'}
+        for l, ch in containerLinks.items():
+            if l in deleted:
+                linkType = l.split(".")[-1]
+                params = omero.sys.ParametersI()
+                params.addIds(deleted[l])
+                query = ("select conLink from %s as conLink "
+                         "join fetch conLink.child as ann "
+                         "where conLink.id in (:ids)" % linkType)
+                links = conn.getQueryService().findAllByQuery(query, params, conn.SERVICE_OPTS)
+                for lnk in links:
+                    child = lnk.child
+                    if child.id.val not in includedDetails[ch]:
+                        # Put objects in a dictionary to avoid duplicates
+                        if ch not in objects:
+                            objects[ch] = {}
+                        # E.g. objects['Dataset']['1'] = {'id': 1, 'name': 'test'}
+                        objects[ch][child.id.val] = {'id': child.id.val,
+                                                     'name': unwrap(child.getName())}
+        # sort objects
+        for otype, objs in objects.items():
+            objs = objs.values()
+            objs.sort(key=lambda x: x['name'])
+            # E.g. 'Dataset' objects in 'Datasets'
+            rv['unlinkedDetails'][otype] = objs
+
+    return rv

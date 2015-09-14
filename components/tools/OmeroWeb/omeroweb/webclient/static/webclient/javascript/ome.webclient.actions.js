@@ -107,10 +107,12 @@ OME.field_selection_changed = function(field) {
 };
 
 // select all images from the specified fileset (if currently visible)
-OME.select_fileset_images = function(filesetId) {
+OME.select_fileset_images = function(filesetIds) {
     var datatree = $.jstree._focused();
-    $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
-        datatree.select_node(this);
+    filesetIds.forEach(function(fsId){
+        $("#dataTree li[data-fileset="+fsId+"]").each(function(){
+            datatree.select_node(this);
+        });
     });
 };
 
