@@ -112,6 +112,7 @@ import org.slf4j.LoggerFactory;
  * @author Josh Moore josh at glencoesoftware.com
  * @author Chris Allan callan at blackcat.ca
  * @author Curtis Rueden ctrueden at wisc.edu
+ * @author m.t.b.carroll@dundee.ac.uk
  */
 public class OmeroMetadata extends DummyMetadata {
 
@@ -1617,14 +1618,6 @@ public class OmeroMetadata extends DummyMetadata {
         return toTransform(shape.getTransform());
     }
 
-    private <X extends Shape> Boolean getShapeVisible(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
-        if (shape == null) {
-            return null;
-        }
-        return fromRType(shape.getVisibility());
-    }
-
     @Override
     public String getEllipseAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
         return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Ellipse.class);
@@ -1703,11 +1696,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getEllipseTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Ellipse.class);
-    }
-
-    @Override
-    public Boolean getEllipseVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
@@ -1836,11 +1824,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getLabelVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Label.class);
-    }
-
-    @Override
     public String getLabelText(int ROIIndex, int shapeIndex) {
         final Label label = getShape(ROIIndex, shapeIndex, Label.class);
         if (label == null) {
@@ -1945,11 +1928,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getLineTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Line.class);
-    }
-
-    @Override
-    public Boolean getLineVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Line.class);
     }
 
     @Override
@@ -2078,11 +2056,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getPointVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Point.class);
-    }
-
-    @Override
     public String getPointText(int ROIIndex, int shapeIndex) {
         final Point point = getShape(ROIIndex, shapeIndex, Point.class);
         if (point == null) {
@@ -2190,11 +2163,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getPolygonVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Polygon.class);
-    }
-
-    @Override
     public String getPolygonPoints(int ROIIndex, int shapeIndex) {
         final Polygon polygon = getShape(ROIIndex, shapeIndex, Polygon.class);
         if (polygon == null) {
@@ -2293,11 +2261,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getPolylineVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Polyline.class);
-    }
-
-    @Override
     public String getPolylinePoints(int ROIIndex, int shapeIndex) {
         final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
         if (polyline == null) {
@@ -2393,11 +2356,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getRectangleTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Rect.class);
-    }
-
-    @Override
-    public Boolean getRectangleVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Rect.class);
     }
 
     @Override
