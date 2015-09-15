@@ -123,7 +123,7 @@ from http://github.com/Rethought/swinglibrary_package provides an adjustement
 to the JAR correcting this issue. Those  wishing to repeat the fix on a Mac
 may wish to review the adjustment script and use Homebrew to install wget
 and GNU sed: when the script runs correctly, no errors should be glimpsed.
-In the long term, the maintainers Insight testing framework should
+In the long term, those maintaining our Insight testing framework should
 periodically review
 https://github.com/robotframework/SwingLibrary/issues?state=open and
 watch issues like #41 and #47 whose resolution may suggest changes to
