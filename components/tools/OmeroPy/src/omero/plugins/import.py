@@ -205,10 +205,41 @@ class ImportControl(BaseControl):
                                not args.java_f and
                                not args.java_advanced_help)
         if connection_required:
-            client = self.ctx.conn(args)
+            client = self.get_client(args)
             self.command_args.extend(["-s", client.getProperty("omero.host")])
             self.command_args.extend(["-p", client.getProperty("omero.port")])
             self.command_args.extend(["-k", client.getSessionId()])
+
+    def get_client(self, args):
+        """
+            Connect using the provide credentials but then switch group if the
+            target is in a different group. Return the client.
+        """
+        client = self.ctx.conn(args)
+        if args.java_d or args.java_r:
+            if args.java_d:
+                klass = "Dataset"
+                target_id = long(args.java_d)
+            else:
+                klass = "Screen"
+                target_id = long(args.java_r)
+
+            query = client.sf.getQueryService()
+            try:
+                target = query.get(klass,  target_id, {"omero.group": "-1"})
+            except omero.ValidationException, ve:
+                self.ctx.die(104, "ValidationException: %s" % ve.message)
+
+            group_id = target.details.group.id.val
+            ec = self.ctx.get_event_context()
+            if group_id != ec.groupId:
+                try:
+                    client.sf.setSecurityContext(
+                        omero.model.ExperimenterGroupI(group_id, False))
+                    self.ctx.set_event_context(ec)
+                except omero.SecurityViolation, sv:
+                    self.ctx.die(105, "SecurityViolation: %s" % sv.message)
+        return client
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
