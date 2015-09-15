@@ -137,11 +137,19 @@ $(function() {
                 var url = webindex_url + "activities_json/",
                     data = {'jobId': jobId};
                 $.get(url, data, function(dryRunData) {
-                    console.log(dryRunData);
-                    // TODO: handle error
                     if (dryRunData.finished) {
+                        // Handle chgrp errors by showing message...
                         if (dryRunData.error) {
-                            alert(dryRunData.error);
+                            var errHtml = "<img style='vertical-align: middle; position:relative; top:-3px' src='" +
+                                static_url + "/../webgateway/img/failed.png'> ";
+                            // In messages, replace Image[123] with link to image
+                            var getLinkHtml = function(imageId) {
+                                var id = imageId.replace("Image[", "").replace("]", "");
+                                return "<a href='" + webindex_url + "?show=image-" + id + "'>" + imageId + "</a>";
+                            };
+                            errHtml += dryRunData.error.replace(/Image\[([0-9]*)\]/g, getLinkHtml);
+                            $dryRunSpinner.html(errHtml);
+                            $okbtn.hide();
                             return;
                         }
                         var html = "<b style='font-weight: bold'>Move:</b> ",
@@ -185,7 +193,6 @@ $(function() {
                         $dryRunSpinner.html(html);
                     } else {
                         // try again...
-                        console.log("AGAIN...");
                         setTimeout(getDryRun, 200);
                     }
                 });
@@ -272,7 +279,7 @@ $(function() {
     // After we edit the chgrp dialog to handle Filesets, we need to clean-up
     var resetChgrpForm = function() {
         $('span', $okbtn).text("OK");
-        // $okbtn.prop('disabled', 'disabled');
+        $okbtn.show();
         $newbtn.hide();
         $("#move_group_tree").show();
         $("#chgrp_split_filesets").remove();
