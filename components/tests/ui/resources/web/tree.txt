@@ -76,6 +76,11 @@ Create Dataset
     ${did}=     Create Container    dataset    ${newName}
     [Return]    ${did}
 
+Create Screen
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${did}=     Create Container    screen    ${newName}
+    [Return]    ${did}
+
 Create Button Should Be Enabled
     [Arguments]                 ${oType}
     Element Should Be Enabled   add${oType}Button
@@ -180,6 +185,14 @@ Select First Image
     Wait Until Right Panel Loads    Image                    ${imageId}
     [Return]                        ${imageId}
 
+Select First Orphaned Image
+    ${nodeId}                       Select Orphaned Images Section
+    Wait Until Element Is Visible   xpath=//li[@id='${nodeId}']/ul/li[1]/a
+    Click Element                   xpath=//li[@id='${nodeId}']/ul/li[1]/a
+    Wait Until Page Contains Element                        xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'Image ID:')]
+    ${newId}                        Get Text                css=tr.data_heading_id strong
+    [Return]                        ${newId}
+
 Select First Share
     ${shareId}=                     Select Node By Icon      ${shareIcon}
     [Return]                        ${shareId}
@@ -193,6 +206,9 @@ Select Orphaned Images Section
     ${firstNodeId}=                 Get NodeId By Icon       ${orphanedIcon}
     Click Node                      ${firstNodeId}
     Wait Until Page Contains Element                         xpath=//p[contains(@class,"description")][contains(text(),'This is a virtual container with orphaned images.')]
+    #Something weird happening in here, if the sleep is removed this seems to fail a couple of tests which are depenedent on Selecting Orphaned Images Section
+    #To Do : Investigate this failure in better detail.
+    Sleep                           0.5
     [Return]                        ${firstNodeId}
 
 Wait Until Right Panel Loads
@@ -302,7 +318,7 @@ Select Image By Id
 Node Should Be Selected By Id
     [Arguments]       ${nodeId}     ${expected}=${true}
     Run Keyword If    ${expected}   Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[contains(@class, 'jstree-clicked')]
-    ...               ELSE          Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[not(contains(@class, 'jstree-clicked'))]
+    ...               ELSE          Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[not(contains(@class, 'jstree-clicked'))]I
 
 Image Should Be Selected By Id
     [Arguments]                         ${imageId}                  ${expected}=${true}
