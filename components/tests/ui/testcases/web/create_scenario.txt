@@ -245,3 +245,4 @@ Test Create Screen Using Right Click
 	Create Screen Using Right Click and Check If It Exists		${treeId}   				${CtxScreenName}
 
 
+[Teardown]    Close Browser
