@@ -69,6 +69,11 @@
           usepoms="true" useMavenMetadata="true"
           m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
 
+      <ibiblio name="laughingpanda-maven" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="http://maven.laughingpanda.org/maven2/"/>
+
       <url name="com.springsource.repository.bundles.release" cache="maven">
         <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
@@ -103,6 +108,12 @@
         <resolver ref="com.springsource.repository.bundles.external"/>
     </chain>
 
+    <!-- Laughing Panda resolver -->
+    <chain name="laughingpanda-resolver" returnFirst="true">
+        <resolver ref="user-maven"/>
+        <resolver ref="laughingpanda-maven"/>
+    </chain>
+
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
       <resolver ref="test"/>
@@ -126,6 +137,8 @@
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="spring-resolver"/>
+    <module organisation="abbot" resolver="laughingpanda-resolver"/>
+    <module organisation="jretrofit" resolver="laughingpanda-resolver"/>
     <module organisation="ome" name="appbundler" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
   </modules>
