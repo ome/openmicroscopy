@@ -67,7 +67,8 @@
            root="http://artifacts.openmicroscopy.org/artifactory/simple/${simple.repository}/"/>
       <ibiblio name="ome-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
-          m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
+          m2compatible="true"
+          root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
 
       <ibiblio name="unidata.releases" cache="maven"
               usepoms="true" useMavenMetadata="true"
