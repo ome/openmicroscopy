@@ -169,6 +169,7 @@ $(function() {
                             if (otype in dryRunData.unlinkedDetails) {
                                 unlinked = dryRunData.unlinkedDetails[otype];
                                 count = unlinked.length;
+                                if (count === 0) return;
                                 if (count === 1) otype = otype.slice(0, -1);  // remove s
                                 var namesList = [], names;
                                 unlinked.forEach(function(u){
