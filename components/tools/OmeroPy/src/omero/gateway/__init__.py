@@ -4581,6 +4581,10 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 
     OMERO_TYPE = FileAnnotationI
 
+    def __init__(self, *args, **kwargs):
+        super(FileAnnotationWrapper, self).__init__(*args, **kwargs)
+        self._file = None
+
     _attrs = ('file|OriginalFileWrapper',)
 
     def _getQueryString(self):
@@ -4600,6 +4604,16 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     def setValue(self, val):
         """ Not implemented """
         pass
+
+    def getFile(self):
+        """
+        Returns an OriginalFileWrapper for the file.
+        Wrapper object will load the file if it isn't already loaded.
+        File is cached to prevent repeated loading of the file.
+        """
+        if self._file is None:
+            self._file = OriginalFileWrapper(self._conn, self._obj.file)
+        return self._file
 
     def setFile(self, originalfile):
         """
