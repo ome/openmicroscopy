@@ -128,9 +128,10 @@ $(function() {
         var dryRunUrl = webindex_url + "chgrpDryRun/",
             data = $.extend({}, targetObjects, {'group_id': groupId});
         // Show message and start dry-run
-        var msg = "<p><img alt='Loading' src='" + static_url + "/../webgateway/img/spinner.gif'> " +
+        var msg = "<p style='margin-bottom:0'><img alt='Loading' src='" + static_url + "/../webgateway/img/spinner.gif'> " +
                   "Checking which linked objects will be moved...</p>";
         var $dryRunSpinner = $(msg).appendTo($group_chooser);
+        $group_chooser.append('<hr>');
         $.post(dryRunUrl, data, function(jobId){
             // keep polling for dry-run completion...
             var getDryRun = function() {
