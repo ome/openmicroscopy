@@ -35,8 +35,8 @@ class BulkAnnotationConfiguration(object):
     Parent class for handling bulk-annotation column configurations
     """
 
-    REQUIRED = {"name"}
-    OPTIONAL = {
+    REQUIRED = set(["name"])
+    OPTIONAL = set([
         "clientname",
         "clientvalue",
         "includeclient",
@@ -46,7 +46,7 @@ class BulkAnnotationConfiguration(object):
         "type",
         "visible",
         "omitempty",
-        }
+        ])
 
     def __init__(self, default_cfg, column_cfgs):
         """
