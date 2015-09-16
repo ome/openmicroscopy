@@ -140,6 +140,9 @@ $(function() {
                     if (dryRunData.finished) {
                         // Handle chgrp errors by showing message...
                         if (dryRunData.error) {
+                            var errMsg = dryRunData.error;
+                            // More assertive error message
+                            errMsg = errMsg.replace("may not move", "Cannot move");
                             var errHtml = "<img style='vertical-align: middle; position:relative; top:-3px' src='" +
                                 static_url + "/../webgateway/img/failed.png'> ";
                             // In messages, replace Image[123] with link to image
@@ -147,7 +150,7 @@ $(function() {
                                 var id = imageId.replace("Image[", "").replace("]", "");
                                 return "<a href='" + webindex_url + "?show=image-" + id + "'>" + imageId + "</a>";
                             };
-                            errHtml += dryRunData.error.replace(/Image\[([0-9]*)\]/g, getLinkHtml);
+                            errHtml += errMsg.replace(/Image\[([0-9]*)\]/g, getLinkHtml);
                             $dryRunSpinner.html(errHtml);
                             $okbtn.hide();
                             return;
