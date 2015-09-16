@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 import ij.ImagePlus;
 import ij.Prefs;
+import ij.WindowManager;
 import ij.gui.EllipseRoi;
 import ij.gui.Line;
 import ij.gui.OvalRoi;
@@ -242,6 +243,24 @@ public class ROIReader {
     }
 
     /**
+     * Links image and rois.
+     *
+     * @param rois The rois to handle.
+     */
+    private void setImage(Roi[] rois)
+    {
+        ImagePlus img = WindowManager.getCurrentImage();
+        for (int i = 0; i < rois.length; i++) {
+            int id = rois[i].getImageID();
+            if (id <= 0) { //no image set.
+                rois[i].setImage(img);
+            } else {
+                rois[i].setImage(WindowManager.getImage(id));
+            }
+        }
+    }
+
+    /**
      * Reads the roi linked to the imageJ object.
      *
      * @param imageID The identifier of the image to link the ROI to.
@@ -260,7 +279,7 @@ public class ROIReader {
             r = rois[i];
             roiData = new ROIData();
             type = r.getTypeAsString();
-            if (imageID >=0) {
+            if (imageID >= 0) {
                 roiData.setImage(new ImageI(imageID, false));
             }
             pojos.add(roiData);
@@ -291,22 +310,23 @@ public class ROIReader {
                     
                     // Set ImagePlus reference in subROIs for the check in L216 to work
                     ImagePlus imp = r.getImage();
-                    if (imp != null) {
-                    	shape.setImage(imp);
-                    }
-                    
+                    shape.setImage(imp);
                     // Transfer correct ROI positions (according to IJ) from superROI
                     int pos = r.getPosition();
                     int c = r.getCPosition();
                     int z = r.getZPosition();
                     int t = r.getTPosition();
-                    
-                    if (c == 0 || z == 0 || t == 0) {
-                    	shape.setPosition(pos);
-                    } else {
-                    	shape.setPosition(c, z, t);
+                    if (imp.getNChannels() == 1 && imp.getNSlices() == 1) {
+                        shape.setPosition(pos);
+                    } else if (imp.getNChannels() == 1 &&
+                            imp.getNFrames() == 1) {
+                        shape.setPosition(pos);
+                    } else if (imp.getNSlices() == 1 &&
+                            imp.getNFrames() == 1) {
+                        shape.setPosition(pos);
+                    } else if (imp.isHyperStack()) {
+                        shape.setPosition(pos);
                     }
-                    
                     type = shape.getTypeAsString();
                     if (shape instanceof Line) {
                         roiData.addShapeData(convertLine((Line) shape));
@@ -345,12 +365,16 @@ public class ROIReader {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
         if (overlay == null) return null;
-        
         Roi[] rois = overlay.toArray();
         for (Roi roi : rois) {
             roi.setImage(image);
         }
-        
+        RoiManager manager = RoiManager.getInstance();
+        if (manager == null) return null;
+        rois = manager.getRoisAsArray();
+        for (Roi roi : rois) {
+            roi.setImage(image);
+        }
         return read(imageID, rois);
     }
 
@@ -364,7 +388,9 @@ public class ROIReader {
     {
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
-        return read(imageID, manager.getRoisAsArray());
+        Roi[] rois = manager.getRoisAsArray();
+        setImage(rois);
+        return read(imageID, rois);
     }
 
     /**
@@ -379,9 +405,13 @@ public class ROIReader {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
         if (overlay != null) {
-            return read(imageID, overlay.toArray());
+            Roi[] rois = overlay.toArray();
+            for (int i = 0; i < rois.length; i++) {
+                rois[i].setImage(image);
+            }
+            return read(imageID, rois);
         }
-        return readImageJROI(imageID);
+        return readImageJROI(imageID, image);
     }
 
     /**
@@ -393,7 +423,9 @@ public class ROIReader {
     {
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
-        return read(-1, manager.getRoisAsArray());
+        Roi[] rois = manager.getRoisAsArray();
+        setImage(rois);
+        return read(-1, rois);
     }
 
     /**
