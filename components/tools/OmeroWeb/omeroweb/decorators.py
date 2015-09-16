@@ -37,6 +37,7 @@ from django.template import RequestContext
 from django.core.cache import cache
 
 from omeroweb.http import HttpJsonResponse
+from omero.gateway.utils import toBoolean
 
 from omeroweb.connector import Connector
 
@@ -257,6 +258,8 @@ class login_required(object):
                 conn.getEmailSettings()
             request.session['server_settings']['initial_zoom_level'] = \
                 conn.getInitialZoomLevel()
+            request.session['server_settings']['interpolate_pixels'] = \
+                toBoolean(conn.getInterpolateSetting())
 
     def get_public_user_connector(self):
         """

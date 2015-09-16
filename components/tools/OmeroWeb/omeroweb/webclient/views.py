@@ -1102,8 +1102,6 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
                           **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel.
-    Currently this doesn't do much except launch the view-port plugin using
-    the image Id (and share Id if necessary)
     """
     context = {}
 

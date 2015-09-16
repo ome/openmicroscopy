@@ -3,7 +3,7 @@
 #
 # webgateway/views.py - django application view handling functions
 #
-# Copyright (c) 2007-2013 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2015 Glencoe Software, Inc. All rights reserved.
 #
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -1905,6 +1905,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
     """
 
     rid = getImgDetailsFromReq(request)
+    interpolate = request.session['server_settings']['interpolate_pixels']
+
     try:
         image = conn.getObject("Image", iid)
         if image is None:
@@ -1913,6 +1915,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
+             'interpolate': interpolate,
              'build_year': build_year,
              'roiCount': image.getROICount(),
              'viewport_server': kwargs.get(
