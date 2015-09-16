@@ -97,7 +97,7 @@ public class GraphOpts {
      *
      * @param op Current {@link Op} to add to the stack
      * @param modified Whether or not the value was changed by the user
-     * @param ec The event context.Active user login
+     * @param ec The event context.
      */
     public void push(Op op, boolean modified, EventContext ec) throws GraphException {
         if (op.restricted && modified && ! ec.isCurrentUserAdmin()) {

@@ -138,10 +138,10 @@ public class EventBacklog {
      * Flips the {@link EventBacklog} to the "adding" state if it is empty,
      * otherwise to the "removing" state. This is necessary since the indexing
      * happens only at flush time in the
-     * {@link ome.services.fulltext.FullTextIndexer}.This
+     * {@link ome.services.fulltext.FullTextIndexer}. This
      * restriction means in any one batch only either backlog or new event logs
      * will be processed.
-     * 
+     *
      * @see EventLogLoader#hasNext()
      */
     public synchronized void flipState() {
