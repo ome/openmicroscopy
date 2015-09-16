@@ -52,7 +52,9 @@ import ome.formats.model.UnitsFactory;
 import omero.model.ImageI;
 import omero.model.LengthI;
 import omero.gateway.model.EllipseData;
+import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
+import omero.gateway.model.PixelsData;
 import omero.gateway.model.PointData;
 import omero.gateway.model.PolygonData;
 import omero.gateway.model.PolylineData;
@@ -61,6 +63,7 @@ import omero.gateway.model.RectangleData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.ShapeSettingsData;
 import omero.gateway.model.TextData;
+
 
 /**
  * Reads ROI from ImageJ.
@@ -79,23 +82,27 @@ public class ROIReader {
      * Converts the line.
      *
      * @param shape The line to convert.
+     * @param image The reference image.
      * @return See above.
      */
-    private LineData convertLine(Line shape)
+    private LineData convertLine(Line shape, ImageData image)
     {
         LineData r = new LineData(shape.x1d, shape.y1d, shape.x2d, shape.y2d);
         r.setText(shape.getName());
-        formatShape(shape, r);
-        return r;
+        if (formatShape(shape, r, image)) {
+            return r;
+        }
+        return null;
     }
 
     /**
      * Converts the ellipse.
      *
      * @param shape The ellipse to convert.
+     * @param image The reference image.
      * @return See above.
      */
-    private EllipseData convertEllipse(OvalRoi shape)
+    private EllipseData convertEllipse(OvalRoi shape, ImageData image)
     {
         Rectangle bounds = shape.getBounds();
         double rx = bounds.getWidth();
@@ -103,34 +110,40 @@ public class ROIReader {
         EllipseData r = new EllipseData(bounds.getX()+rx/2, bounds.getY()+ry/2,
                 rx/2, ry/2);
         r.setText(shape.getName());
-        formatShape(shape, r);
-        return r;
+        if (formatShape(shape, r, image)) {
+            return r;
+        }
+        return null;
     }
 
     /**
      * Converts the rectangle.
      *
      * @param shape The rectangle to convert.
+     * @param image The reference image.
      * @return See above.
      */
-    private RectangleData convertRectangle(Roi shape)
+    private RectangleData convertRectangle(Roi shape, ImageData image)
     {
         Rectangle bounds = shape.getBounds();
         RectangleData r = new RectangleData(
                 bounds.getX(), bounds.getY(), bounds.getWidth(),
                 bounds.getHeight());
         r.setText(shape.getName());
-        formatShape(shape, r);
-        return r;
+        if (formatShape(shape, r, image)) {
+            return r;
+        }
+        return null;
     }
 
     /**
      * Converts the point.
      *
      * @param shape The point to convert.
+     * @param image The reference image.
      * @return See above.
      */
-    private void convertPoint(PointRoi shape, ROIData roi)
+    private void convertPoint(PointRoi shape, ROIData roi, ImageData image)
     {
         int[] xc = shape.getPolygon().xpoints;
         int[] yc = shape.getPolygon().ypoints;
@@ -138,8 +151,9 @@ public class ROIReader {
         for (int i = 0; i < xc.length; i++) {
             p = new PointData((double) xc[i], (double) yc[i]);
             p.setText(shape.getName());
-            formatShape(shape, p);
-            roi.addShapeData(p);
+            if (formatShape(shape, p, image)) {
+                roi.addShapeData(p);
+            }
         }
     }
 
@@ -147,9 +161,10 @@ public class ROIReader {
      * Converts the polygon.
      *
      * @param shape The point to convert.
+     * @param image The reference image.
      * @return See above.
      */
-    private ShapeData convertPolygon(PolygonRoi shape)
+    private ShapeData convertPolygon(PolygonRoi shape, ImageData image)
     {
         int[] xc = shape.getPolygon().xpoints;
         int[] yc = shape.getPolygon().ypoints;
@@ -172,8 +187,10 @@ public class ROIReader {
             data = new PolygonData(points, points, points, masks);
             ((PolygonData) data).setText(shape.getName());
         }
-        formatShape(shape, data);
-        return data;
+        if (formatShape(shape, data, image)){
+            return data;
+        }
+        return null;
     }
 
     /**
@@ -194,8 +211,11 @@ public class ROIReader {
      *
      * @param roi The ImageJ roi.
      * @param shape The internal roi.
+     * @param data The reference image.
+     * @return <code>true</code> if the shape is valid, <code>false</code>
+     *         otherwise.
      */
-    private void formatShape(Roi roi, ShapeData shape)
+    private boolean formatShape(Roi roi, ShapeData shape, ImageData data)
     {
         ShapeSettingsData settings = shape.getShapeSettings();
         if (roi.getStrokeWidth() > 0) {
@@ -208,7 +228,6 @@ public class ROIReader {
         if (roi.getFillColor() != null) {
             settings.setFill(roi.getFillColor());
         }
-
         int pos = roi.getPosition();
         int c = roi.getCPosition();
         int z = roi.getZPosition();
@@ -234,6 +253,18 @@ public class ROIReader {
             }
         }
 
+        if (data != null && data.isLoaded()) {
+            PixelsData pixels = data.getDefaultPixels();
+            if (c-1 >= pixels.getSizeC()) {
+                return false;
+            }
+            if (z-1 >= pixels.getSizeZ()) {
+                return false;
+            }
+            if (t-1 >= pixels.getSizeT()) {
+                return false;
+            }
+        }
         if (c != 0) {
             shape.setC(c-1);
         }
@@ -243,7 +274,7 @@ public class ROIReader {
         if (t != 0) {
             shape.setT(t-1);
         }
-
+        return true;
     }
 
     /**
@@ -271,7 +302,7 @@ public class ROIReader {
      * @param rois The rois to convert.
      * @return See above.
      */
-    private List<ROIData> read(long imageID, Roi[] rois)
+    private List<ROIData> read(ImageData data, Roi[] rois)
     {
         if (rois == null || rois.length == 0) return null;
         Roi r;
@@ -279,66 +310,85 @@ public class ROIReader {
         //check ij version
         String type;
         ROIData roiData;
+        ShapeData shape;
         for (int i = 0; i < rois.length; i++) {
             r = rois[i];
             roiData = new ROIData();
             type = r.getTypeAsString();
-            if (imageID >= 0) {
-                roiData.setImage(new ImageI(imageID, false));
+            if (data != null) {
+                roiData.setImage(data.asImage());
             }
             pojos.add(roiData);
             if (r.isDrawingTool()) {//Checks if the given roi is a Text box/Arrow/Rounded Rectangle
                 if (type.matches("Text")){
                     roiData.addShapeData(convertText((TextRoi) r));
-                } else if (type.matches("Rectangle")){
-                    roiData.addShapeData(convertRectangle(r));
+                } else if (type.matches("Rectangle")) {
+                    shape = convertRectangle(r, data);
+                    if (shape != null) {
+                        roiData.addShapeData(shape);
+                    }
                 }
             } else if (r instanceof OvalRoi) {
-                roiData.addShapeData(convertEllipse((OvalRoi) r));
+                shape = convertEllipse((OvalRoi) r, data);
+                if (shape != null) {
+                    roiData.addShapeData(shape);
+                }
             } else if (r instanceof Line) {
-                roiData.addShapeData(convertLine((Line) r));
+                shape = convertLine((Line) r, data);
+                if (shape != null) {
+                    roiData.addShapeData(shape);
+                }
             } else if (r instanceof PolygonRoi || r instanceof EllipseRoi) {
                 if (type.matches("Point")) {
-                    convertPoint((PointRoi) r, roiData);
+                    convertPoint((PointRoi) r, roiData, data);
                 } else if (type.matches("Polyline") || type.matches("Freeline") ||
                         type.matches("Angle") || type.matches("Polygon") ||
                         type.matches("Freehand")
                         || type.matches("Traced") || type.matches("Oval")) {
-                    roiData.addShapeData(convertPolygon((PolygonRoi) r));
+                    shape = convertPolygon((PolygonRoi) r, data);
+                    if (shape != null) {
+                        roiData.addShapeData(shape);
+                    }
                 }
             } else if (r instanceof ShapeRoi) {
                 Roi[] subRois = ((ShapeRoi) r).getRois();
-                Roi shape;
+                Roi shapeij;
                 for (int j = 0; j < subRois.length; j++) {
-                    shape = subRois[j];
-                    
+                    shapeij = subRois[j];
+
                     // Set ImagePlus reference in subROIs for the check in L216 to work
                     ImagePlus imp = r.getImage();
-                    shape.setImage(imp);
+                    shapeij.setImage(imp);
                     // Transfer correct ROI positions (according to IJ) from superROI
                     int pos = r.getPosition();
                     int c = r.getCPosition();
                     int z = r.getZPosition();
                     int t = r.getTPosition();
                     if (imp.getNChannels() == 1 && imp.getNSlices() == 1) {
-                        shape.setPosition(pos);
+                        shapeij.setPosition(pos);
                     } else if (imp.getNChannels() == 1 &&
                             imp.getNFrames() == 1) {
-                        shape.setPosition(pos);
+                        shapeij.setPosition(pos);
                     } else if (imp.getNSlices() == 1 &&
                             imp.getNFrames() == 1) {
-                        shape.setPosition(pos);
+                        shapeij.setPosition(pos);
                     } else if (imp.isHyperStack()) {
-                        shape.setPosition(c, z, t);
+                        shapeij.setPosition(c, z, t);
                     }
-                    type = shape.getTypeAsString();
-                    if (shape instanceof Line) {
-                        roiData.addShapeData(convertLine((Line) shape));
-                    } else if (shape instanceof OvalRoi) {
-                        roiData.addShapeData(convertEllipse((OvalRoi) shape));
-                    } else if (shape instanceof PolygonRoi || r instanceof EllipseRoi) {
+                    type = shapeij.getTypeAsString();
+                    if (shapeij instanceof Line) {
+                        shape = convertLine((Line) shapeij, data);
+                        if (shape != null) {
+                            roiData.addShapeData(shape);
+                        }
+                    } else if (shapeij instanceof OvalRoi) {
+                        shape = convertEllipse((OvalRoi) shapeij, data);
+                        if (shape != null) {
+                            roiData.addShapeData(shape);
+                        }
+                    } else if (shapeij instanceof PolygonRoi || r instanceof EllipseRoi) {
                         if (type.matches("Point")) {
-                            convertPoint((PointRoi) shape, roiData);
+                            convertPoint((PointRoi) shapeij, roiData, data);
                         } else if (type.matches("Polyline") ||
                                 type.matches("Freeline") ||
                                 type.matches("Angle") ||
@@ -346,22 +396,43 @@ public class ROIReader {
                                 type.matches("Freehand")
                                 || type.matches("Traced") ||
                                 type.matches("Oval")) {
-                            roiData.addShapeData(
-                                    convertPolygon((PolygonRoi) shape));
+                            shape = convertPolygon((PolygonRoi) shapeij, data);
+                            if (shape != null) {
+                                roiData.addShapeData(shape);
+                            }
                         }
                     }
                 }
             } else if (type.matches("Rectangle")) {
-                roiData.addShapeData(convertRectangle(r));
+                shape = convertRectangle(r, data);
+                if (shape != null) {
+                    roiData.addShapeData(shape);
+                }
             }
         }
         return pojos;
+    }
+    /**
+     * Reads the roi linked to the imageJ object.
+     *
+     * @param imageID The identifier of the image to link the ROI to.
+     * @param rois The rois to convert.
+     * @return See above.
+     */
+    private List<ROIData> read(long imageID, Roi[] rois)
+    {
+        ImageData image = null;
+        if (imageID >= 0) {
+            image = new ImageData(new ImageI(imageID, false));
+        }
+        return read(image, rois);
     }
 
     /**
      * Reads the roi linked to the imageJ object.
      *
      * @param imageID The identifier of the image to link the ROI to.
+     * @param image The ImageJ object.
      * @return See above.
      */
     public List<ROIData> readImageJROI(long imageID, ImagePlus image)
@@ -385,6 +456,46 @@ public class ROIReader {
     /**
      * Reads the roi linked to the imageJ object.
      *
+     * @param data The image the rois need to be added to.
+     * @param image The ImageJ object.
+     * @return See above.
+     */
+    public List<ROIData> readImageJROI(ImageData data, ImagePlus image)
+    {
+        if (image == null) return null;
+        Overlay overlay = image.getOverlay();
+        if (overlay == null) return null;
+        Roi[] rois = overlay.toArray();
+        for (Roi roi : rois) {
+            roi.setImage(image);
+        }
+        RoiManager manager = RoiManager.getInstance();
+        if (manager == null) return null;
+        rois = manager.getRoisAsArray();
+        for (Roi roi : rois) {
+            roi.setImage(image);
+        }
+        return read(data, rois);
+    }
+
+    /**
+     * Reads the roi linked to the imageJ object.
+     *
+     * @param image The image to link the ROI to.
+     * @return See above.
+     */
+    public List<ROIData> readImageJROI(ImageData image)
+    {
+        RoiManager manager = RoiManager.getInstance();
+        if (manager == null) return null;
+        Roi[] rois = manager.getRoisAsArray();
+        setImage(rois);
+        return read(image, rois);
+    }
+    
+    /**
+     * Reads the roi linked to the imageJ object.
+     *
      * @param imageID The identifier of the image to link the ROI to.
      * @return See above.
      */
@@ -402,6 +513,7 @@ public class ROIReader {
      * First checks the overlays then the roi manager.
      *
      * @param imageID The identifier of the image to link the ROI to.
+     * @param image The ImageJ object.
      * @return See above.
      */
     public List<ROIData> readImageJROIFromSources(long imageID, ImagePlus image)
