@@ -1568,6 +1568,7 @@ def batch_annotate(request, conn=None, **kwargs):
     ratings = manager.getGroupedRatings(allratings)
 
     figScripts = manager.listFigureScripts(objs)
+    canExportAsJpg = manager.canExportAsJpg(objs)
     filesetInfo = None
     iids = []
     if 'well' in objs and len(objs['well']) > 0:
@@ -1605,6 +1606,7 @@ def batch_annotate(request, conn=None, **kwargs):
         'batch_ann': True,
         'index': index,
         'figScripts': figScripts,
+        'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
         'annotationBlocked': annotationBlocked,
         'userRatingAvg': userRatingAvg,
