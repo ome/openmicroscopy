@@ -115,6 +115,59 @@ Screen Should Exist
     Wait Until Page Contains Element		xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
 
 *** Test Cases ***
+Test Container Creation Enabled
+	[Documentation]     Select User, Project, Dataset, Image and checks
+    ...                 whether the toolbar/right-click menu options for
+    ...                 creating various containers are enabled.
+
+    Tree Should Be Visible
+    Wait For Node To Be Visible                 ${FULL NAME}
+    Wait For Node To Be Visible                 Orphaned Images
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Enabled      Project    ${FULL NAME}
+    Node Popup Menu Item Should Be Enabled      Dataset    ${FULL NAME}
+    Node Popup Menu Item Should Be Enabled      Screen     ${FULL NAME}
+    Node Popup Menu Item Should Be Disabled     Delete     ${FULL NAME}
+    Select First Project With Children
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Delete
+    Select First Dataset With Children
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Disabled     Dataset
+    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Delete
+    ${imageId}=                                 Select First Image
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Enabled      Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Enabled      Screen
+    Node Popup Menu Item Should Be Enabled      Delete
+
+    Thumbnail Should Be Selected                ${imageId}
+    ${imageNodeId}=                             Select Image By Id            ${imageId}
+    # Using hot-key fails on jsTree 3 (worked OK previously)...
+    # Focus                                       ${imageNodeId}
+    # Key Down                                    40    '#${imageNodeId}'  # '40' is 'down' key    # Press Key    dataTree    /40
+    # ... Use 'Click Next Thumbnail' instead
+    Click Next Thumbnail
+    Thumbnail Should Not Be Selected            ${imageId}
+    Image Should Not Be Selected By Id          ${imageId}
+    Click Thumbnail                             ${imageId}
+    Thumbnail Should Be Selected                ${imageId}
+    Image Should Be Selected By Id              ${imageId}
+
 
 Test Create Project Using Icon
 	
