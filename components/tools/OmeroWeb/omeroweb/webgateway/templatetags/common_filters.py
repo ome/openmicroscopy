@@ -263,11 +263,11 @@ def timeformat(value):
         return u'%d\u00A0\u00B5s' % (round(value * 1000 * 1000))
     elif value < 1:
         return u'%d\u00A0ms' % (round(value * 1000))
-    elif value < 60:
+    elif round(value) < 60:
         # Round and format seconds to one decimal place
         value = round(value * 10) / 10
         return u'%0.1f\u00A0s' % value
-    elif value < 60 * 60:
+    elif round(value) < 60 * 60:
         value = round(value)        # Avoids '1min 60s'
         return u'%d\u00A0min\u00A0%d\u00A0s' % (value / 60, value % 60)
     else:
