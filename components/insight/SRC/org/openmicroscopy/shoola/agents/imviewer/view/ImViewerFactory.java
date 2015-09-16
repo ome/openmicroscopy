@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.DataObject;
 import pojos.ImageData;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /** 
 * Factory to create {@link ImViewer} components.
@@ -86,6 +87,10 @@ public class ImViewerFactory
 	private static final String	OMERO_VIEWER_COMPRESSION = 
 		"omeroViewerCompression";
 
+	/** The name of the interpolation property */
+	private static final String    OMERO_INTERPOLATION = 
+	        "omeroViewerInterpolation";
+	
 	/** The name of the windows menu. */
 	private static final String MENU_NAME = "Image Viewer";
 	
@@ -424,6 +429,28 @@ public class ImViewerFactory
 		if (value != null && value.trim().length() > 0) 
 			return Integer.parseInt(value);
 		return -1;
+	}
+	
+	/**
+	 * Sets the interpolation user preference
+	 */
+	public static void setInterpolation(boolean interpolation) {
+	    Preferences p = Preferences.userNodeForPackage(ImViewerFactory.class);
+        p.put(OMERO_INTERPOLATION, ""+interpolation);
+	}
+	
+	/**
+	 * Returns the interpolation user preference or <code>null</code>
+	 * if it hasn't been set.
+	 * 
+	 * @return See above.
+	 */
+	public static Boolean isInterpolation() {
+	    Preferences p = Preferences.userNodeForPackage(ImViewerFactory.class);
+        String value = p.get(OMERO_INTERPOLATION, null);
+        if (CommonsLangUtils.isNotEmpty(value)) 
+            return new Boolean(value);
+        return null;
 	}
 	
 	/**
