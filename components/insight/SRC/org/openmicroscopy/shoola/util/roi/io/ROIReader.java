@@ -208,17 +208,17 @@ public class ROIReader {
         if (roi.getFillColor() != null) {
             settings.setFill(roi.getFillColor());
         }
-      
+
         int pos = roi.getPosition();
         int c = roi.getCPosition();
         int z = roi.getZPosition();
         int t = roi.getTPosition();
-        
-        ImagePlus image = roi.getImage();        
+
+        ImagePlus image = roi.getImage();
         if (!image.isHyperStack()) {
             int imageC = image.getNChannels();
             int imageT = image.getNFrames();
-
+            int imageZ = image.getNSlices();
             if (imageT > 1) {
                 shape.setC(0);
                 shape.setZ(0);
@@ -227,9 +227,13 @@ public class ROIReader {
                 c = pos;
                 shape.setZ(0);
                 shape.setT(0);
+            } else if (imageZ > 1) {
+                z = pos;
+                shape.setC(0);
+                shape.setT(0);
             }
         }
-        
+
         if (c != 0) {
             shape.setC(c-1);
         }
@@ -325,7 +329,7 @@ public class ROIReader {
                             imp.getNFrames() == 1) {
                         shape.setPosition(pos);
                     } else if (imp.isHyperStack()) {
-                        shape.setPosition(pos);
+                        shape.setPosition(c, z, t);
                     }
                     type = shape.getTypeAsString();
                     if (shape instanceof Line) {
