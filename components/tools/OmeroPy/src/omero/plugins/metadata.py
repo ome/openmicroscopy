@@ -34,6 +34,17 @@ ANNOTATION_TYPES = [t for t in dir(omero.model)
 NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
 
 
+class ObjectLoadException(Exception):
+    """
+    Raised when a requested object could not be loaded
+    """
+    def __init__(self, klass, oid):
+        self.klass = klass
+        self.oid = oid
+        super(ObjectLoadException, self).__init__(
+            "Failed to get object %s:%s" % (klass, oid))
+
+
 class Metadata(object):
     """
     A general helper object which providers higher-level
@@ -168,14 +179,20 @@ class MetadataControl(BaseControl):
         conn = BlitzGateway(client_obj=client)
         return client, conn
 
-    def _load(self, args):
+    def _load(self, args, die_on_failure=True):
+        # In most cases we want to die immediately if an object can't be
+        # loaded. To raise an exception instead pass die_on_failure=False
+        # and catch ObjectLoadException
         client, conn = self._clientconn(args)
         conn.SERVICE_OPTS.setOmeroGroup('-1')
         klass = args.obj.ice_staticId().split("::")[-1]
         oid = args.obj.id.val
         wrapper = conn.getObject(klass, oid)
         if not wrapper:
-            raise Exception("Failed to get object %s:%s" % (klass, oid))
+            e = ObjectLoadException(klass, oid)
+            if die_on_failure:
+                self.ctx.die(100, str(e))
+            raise e
         return Metadata(wrapper)
 
     def _format_ann(self, md, obj, indent=None):
@@ -258,7 +275,12 @@ class MetadataControl(BaseControl):
     def original(self, args):
         "Print the original metadata in ini format"
         md = self._load(args)
-        source, global_om, series_om = md.get_original()
+        try:
+            source, global_om, series_om = md.get_original()
+        except AttributeError:
+            self.ctx.die(100, 'Failed to get original metadata for %s' %
+                         md.get_name())
+
         om = (("Global", global_om),
               ("Series", series_om))
 
