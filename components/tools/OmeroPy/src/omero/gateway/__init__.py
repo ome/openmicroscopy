@@ -824,8 +824,9 @@ class BlitzObjectWrapper (object):
 
     def _loadAnnotationLinks(self):
         """
-        Loads the annotation links for the object (if not already loaded) and
-        saves them to the object
+        Loads the annotation links and annotations for the object
+        (if not already loaded) and saves them to the object.
+        Also loads file for file annotations.
         """
         # pragma: no cover
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'):
@@ -839,6 +840,7 @@ class BlitzObjectWrapper (object):
                      "fetch l.details.owner join "
                      "fetch l.details.creationEvent "
                      "join fetch l.child as a join fetch a.details.owner "
+                     "left outer join fetch a.file "
                      "join fetch a.details.creationEvent where l.parent.id=%i"
                      % (self.OMERO_CLASS, self._oid))
             links = self._conn.getQueryService().findAllByQuery(
