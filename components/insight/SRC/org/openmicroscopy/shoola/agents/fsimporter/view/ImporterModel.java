@@ -663,12 +663,12 @@ class ImporterModel
                    linkRoisToImage(id, rois);
                 } else {
                    if (!mif) {
-                       rois = reader.readImageJROI(id, img);
+                       rois = reader.readImageJROI(data, img);
                    }
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {
-                    rois = reader.readImageJROI(id);
+                    rois = reader.readImageJROI(data);
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
