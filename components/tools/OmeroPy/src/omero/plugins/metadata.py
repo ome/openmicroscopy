@@ -89,10 +89,14 @@ class Metadata(object):
         return self.get_allanns(namespaces.NSMEASUREMENT)
 
     def get_allanns(self, ns=None, anntype=None):
-        anns = self.wrap(self.obj_wrapper.listAnnotations(ns))
-        if anntype:
-            return [a for a in anns if a.get_type() == anntype]
-        return anns
+        # Sooner or later we're going to end up with an object that has 1000s
+        # of annotations, and since listAnnotations() returns a generator we
+        # might as well do the same
+        for a in self.obj_wrapper.listAnnotations(ns):
+            aw = self.wrap(a)
+            if anntype and aw.get_type() != anntype:
+                continue
+            yield aw
 
     def wrap(self, obj):
         if obj is None:
@@ -243,7 +247,10 @@ class MetadataControl(BaseControl):
             self.ctx.out("Roi count: %s" % md.get_roi_count())
         except AttributeError:
             pass
-        self.ctx.out("Bulk annotations: %s" % len(md.get_bulkanns()))
+        self.ctx.out("Bulk annotations: %d" %
+                     sum(1 for a in md.get_bulkanns()))
+        self.ctx.out("Measurement tables: %d" %
+                     sum(1 for a in md.get_measures()))
         try:
             parent = md.get_parent().get_name()
             self.ctx.out("Parent: %s" % parent)
@@ -330,10 +337,10 @@ class MetadataControl(BaseControl):
     def mapanns(self, args):
         "Provide a list of all MapAnnotations linked to the given object"
         def get_anns(md):
-            anns = md.get_allanns(args.ns, 'MapAnnotation')
-            if args.nsre:
-                return [a for a in anns if re.match(args.nsre, a.get_ns())]
-            return anns
+            for a in md.get_allanns(args.ns, 'MapAnnotation'):
+                if args.nsre and not re.match(args.nsre, a.get_ns()):
+                    continue
+            yield a
 
         md = self._load(args)
         indent = None
@@ -344,10 +351,10 @@ class MetadataControl(BaseControl):
     def allanns(self, args):
         "Provide a list of all annotations linked to the given object"
         def get_anns(md):
-            anns = md.get_allanns(args.ns)
-            if args.nsre:
-                return [a for a in anns if re.match(args.nsre, a.get_ns())]
-            return anns
+            for a in md.get_allanns(args.ns):
+                if args.nsre and not re.match(args.nsre, a.get_ns()):
+                    continue
+            yield a
 
         md = self._load(args)
         indent = None
