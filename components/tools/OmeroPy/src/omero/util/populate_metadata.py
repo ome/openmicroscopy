@@ -652,7 +652,7 @@ class BulkToMapAnnotationContext(object):
         qs = self.client.getSession().getQueryService()
         r = qs.projection(q, params)
         if r:
-            return unwrap(r[0][0])
+            return unwrap(r[-1][0])
 
     @staticmethod
     def create_map_annotation(targets, rowkvs):
