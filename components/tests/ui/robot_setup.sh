@@ -31,6 +31,7 @@ bin/omero logout
 # Create fake file
 touch $IMAGE_NAME
 touch $TINY_IMAGE_NAME
+touch $PLATE_NAME
 
 # Create robot setup
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
@@ -64,7 +65,7 @@ done
 scrDs=$(bin/omero obj new Screen name='CreateScenario')
 for (( k=1; k<=3; k++ ))
 do
-  bin/omero import -d $scrDs $PLATE_NAME --debug ERROR
+  bin/omero import -r $scrDs $PLATE_NAME --debug ERROR
 done
 
 # Create Orphaned Images for Create Scenario
