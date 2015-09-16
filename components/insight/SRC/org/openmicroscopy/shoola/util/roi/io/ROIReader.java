@@ -219,15 +219,15 @@ public class ROIReader {
             int imageC = image.getNChannels();
             int imageT = image.getNFrames();
             int imageZ = image.getNSlices();
-            if (imageT > 1) {
+            if (imageC == 1 && imageZ == 1) {
                 shape.setC(0);
                 shape.setZ(0);
                 t = pos;
-            } else if (imageC > 1) {
+            } else if (imageZ == 1 && imageT == 1) {
                 c = pos;
                 shape.setZ(0);
                 shape.setT(0);
-            } else if (imageZ > 1) {
+            } else if (imageC == 1 && imageT == 1) {
                 z = pos;
                 shape.setC(0);
                 shape.setT(0);
