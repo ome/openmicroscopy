@@ -50,7 +50,7 @@ public abstract class BridgeHelper implements FieldBridge,
 
     /**
      * Simpler wrapper to handle superclass proxy objects (e.g. Annotation)
-     * which do * not behave properly with instance of checks.
+     * which do * not behave properly with instanceof checks.
      *
      * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5076">ticket:5076</a>
      */
