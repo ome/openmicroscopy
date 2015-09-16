@@ -718,11 +718,9 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     manager.listContainerHierarchy(owner)
     template = 'webclient/data/chgrp_target_tree.html'
 
-    show_projects = target_type in ('project', 'dataset')
     context = {
         'manager': manager,
         'target_type': target_type,
-        'show_projects': show_projects,
         'template': template}
     return context
 
