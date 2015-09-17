@@ -463,10 +463,13 @@ public class ROIReader {
     {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
-        if (overlay == null) return null;
-        Roi[] rois = overlay.toArray();
-        for (Roi roi : rois) {
-            roi.setImage(image);
+        Roi[] rois;
+        if (overlay != null) {
+            rois = overlay.toArray();
+            for (Roi roi : rois) {
+                roi.setImage(image);
+            }
+            return read(data, rois);
         }
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
