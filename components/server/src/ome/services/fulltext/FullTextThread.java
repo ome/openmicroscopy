@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -30,7 +28,7 @@ import ome.util.SqlAction;
 
 /**
  * Library entry-point for indexing. Once the {@link FullTextThread} is properly
- * initialized calling {@link run()} repeatedly and from multiple
+ * initialized calling {@link #run()} repeatedly and from multiple
  * {@link Thread threads} should be safe.
  * 
  * For more control, use the {@link EventLogLoader#more()} method to test how
@@ -129,7 +127,7 @@ public class FullTextThread extends ExecutionThread {
 
     /**
      * Passes the {@link FullTextIndexer} instance to
-     * {@link Executor.Work#doWork(org.springframework.transaction.TransactionStatus, org.hibernate.Session, ome.system.ServiceFactory)}
+     * {@link ome.services.util.Executor.Work#doWork(Session, ServiceFactory)}
      * between calls to {@link DetailsFieldBridge#lock()} and
      * {@link DetailsFieldBridge#unlock()} in order to guarantee that no other
      * {@link org.hibernate.search.bridge.FieldBridge} can edit the property.

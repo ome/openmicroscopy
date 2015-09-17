@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Registers the given file paths as well as other Pixel-related
- * files like Pyramids for later deletion via {@link #deleteLocal(java.util.Map)}.
+ * files like Pyramids for later deletion via {@link #deleteLocal()}.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 5.1.0-m3

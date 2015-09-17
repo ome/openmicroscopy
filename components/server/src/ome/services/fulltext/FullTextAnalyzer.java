@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -65,7 +63,7 @@ public class FullTextAnalyzer extends Analyzer {
     }
 
     /**
-     * Returns a {@link LowercaseAlphaNumericTokenizer}
+     * Returns a {@link ome.services.fulltext.FullTextAnalyzer.LowercaseAlphaNumericTokenizer}
      */
     @Override
     public TokenStream tokenStream(String fieldName, Reader reader) {

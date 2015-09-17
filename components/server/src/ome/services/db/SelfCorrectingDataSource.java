@@ -72,7 +72,7 @@ public class SelfCorrectingDataSource extends DelegatingDataSource
      * the data source. This is the case with
      * bitronix.tm.resource.jdbc.PoolingDataSource
      *
-     * @see ticket:4210
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/4210">ticket:4210</a>
      */
     public void onApplicationEvent(UserSignalMessage usm) {
         if (usm.signal == 1) {

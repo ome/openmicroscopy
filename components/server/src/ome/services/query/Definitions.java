@@ -1,6 +1,4 @@
 /*
- * ome.services.query.Definitions
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -21,7 +19,7 @@ import java.util.Set;
 /**
  * container for {@link ome.services.query.QueryParameterDef} instances.
  * Typically created as a static variable in a Query and passed to the super
- * constructor ({@link ome.services.query.Query#Query(Definitions, Parameters))
+ * constructor {@link ome.services.query.Query#Query(Definitions, Parameters)}
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @since OMERO 3.0

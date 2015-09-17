@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -14,12 +12,11 @@ import ome.system.EventContext;
 /**
  * Manager for option instances for an entire action graph. As method calls are
  * made, this instance gets passed around and the appropriate {@link Op ops}
- * are {@link #push(Op) pushed} or {@link #pop() popped} changing the current
+ * are {@link #push(Op, boolean, EventContext) pushed} or {@link #pop() popped} changing the current
  * state of affairs.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
- * @see IGraph
  * @deprecated will be removed in OMERO 5.3, so use the
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
@@ -31,7 +28,7 @@ public class GraphOpts {
 
         /**
          * Default operation. If an action is not possible, i.e. it fails with a
-         * {@link org.hibernate.exception.ConstraintViolationException} or
+         * {@code ConstraintViolationException} or
          * similar, then the failure will cause the entire command to fail as an
          * error.
          */
@@ -39,15 +36,15 @@ public class GraphOpts {
 
         /**
          * Graph is attempted, but the exceptions which would make a
-         * {@link #HARD} operation fail lead only to warnings.
+         * {@link ome.services.graphs.GraphOpts.Op#HARD} operation fail lead only to warnings.
          */
         SOFT(false),
 
         /**
          * Prevents the action from being carried out. If an entry has a subspec,
          * then the entire subgraph will not be processed. In some cases,
-         * specifically {@link AnnotationGraphSpec} this value may be
-         * vetoed by {@link GraphSpec#overrideKeep()}.
+         * specifically when traversing the annotations graph, this value may be
+         * vetoed and the annotations will be kept.
          */
         KEEP(false),
 
@@ -59,10 +56,14 @@ public class GraphOpts {
         FORCE(true),
 
         /**
-         * If more than one step points at the same {@link REAP} {@link GraphSpec}
-         * then only the last one will be interpreted as {@link HARD}, all
-         * others will be interpreted as {@link SOFT}. This gives earlier objects
-         * in the graph a chance to let later objects cleanup for them.
+         * If more than one step points at the same
+         * {@link ome.services.graphs.GraphOpts.Op#REAP}
+         * then only the last one will be interpreted as
+         * {@link ome.services.graphs.GraphOpts.Op#HARD}, all
+         * others will be interpreted as
+         * {@link ome.services.graphs.GraphOpts.Op#SOFT}.
+         * This gives earlier objects in the graph a chance to let later objects
+         * cleanup for them.
          */
         REAP(false),
 
@@ -96,7 +97,7 @@ public class GraphOpts {
      *
      * @param op Current {@link Op} to add to the stack
      * @param modified Whether or not the value was changed by the user
-     * @param details Active user login
+     * @param ec The event context.
      */
     public void push(Op op, boolean modified, EventContext ec) throws GraphException {
         if (op.restricted && modified && ! ec.isCurrentUserAdmin()) {

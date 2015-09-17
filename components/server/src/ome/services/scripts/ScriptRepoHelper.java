@@ -106,7 +106,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
-     * @see #ScriptRepoHelper(String, File, Executor, Principal)
+     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
      */
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
         this(new File(getDefaultScriptDir()), ex, new Principal(sessionUuid),
@@ -114,7 +114,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     /**
-     * @see #ScriptRepoHelper(String, File, Executor, Principal)
+     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
      */
     public ScriptRepoHelper(File dir, Executor ex, Principal p, Roles roles) {
         this(SCRIPT_REPO, dir, ex, p, roles);
@@ -449,7 +449,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * <pre>(uuid == null)</pre> and a new file created in its place.
      *
      * @param modificationCheck
-     * @return
+     * @return See above.
      */
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck) {
@@ -498,7 +498,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      *
      * @param repoFile
      * @param old
-     * @return
+     * @return See above.
      */
     public OriginalFile addOrReplace(final RepoFile repoFile, final Long old) {
         return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
@@ -523,7 +523,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     /**
-     * Given the current files on disk, {@link #unregister(Long, Session)}
+     * Given the current files on disk, {@link #unregister(Long, SqlAction)}
      * all files which have been removed from disk.
      */
     public long removeMissingFilesFromDb(SqlAction sqlAction, Session session, List<OriginalFile> filesOnDisk) {

@@ -32,13 +32,13 @@ import ome.parameters.QueryParameter;
  * base Query type to facilitate the creation of ORM queries. This class
  * attempts to enforce a strict usage pattern. First, subclasses must define a
  * {@link ome.services.query.Definitions} instance, which can optionally (and
- * perhaps preferrably) be static, which must be passed into the super
+ * perhaps preferably) be static, which must be passed into the super
  * constructor along with the {@link ome.parameters.Parameters} provided during
  * lookup.
  * <p>
  * Queries can optionally define a {@link #enableFilters(Session)} method
  * (perhaps using pre-defined filters like
- * {@link #ownerOrGroupFilters(Session, String[])} to limit the entities
+ * {@link #ownerOrGroupFilters(Session, String[], String[])} to limit the entities
  * returned.
  * </p>
  * 
@@ -202,8 +202,9 @@ public abstract class Query<T> implements HibernateCallback {
     // =========================================================================
 
     /**
-     * template method defined by {@link HibernateTemplate}. This does not need
-     * to be overridden by subclasses, but rather {@link #buildQuery(Session)}.
+     * template method defined by {@link org.springframework.orm.hibernate3.HibernateTemplate}.
+     * This does not need to be overridden by subclasses, but rather
+     * {@link #buildQuery(Session)}.
      * This ensures that the filters are set properly, that
      * {@link #buildQuery(Session)} does its job, and that everything is cleaned
      * up properly afterwards.
@@ -299,7 +300,7 @@ public abstract class Query<T> implements HibernateCallback {
 
     /**
      * standard filter used by many subclasses which uses the
-     * {@link PojoOptions#isExperimenter()} and {@link PojoOptions#isGroup()}
+     * {@link Parameters#isExperimenter()} and {@link Parameters#isGroup()}
      * booleans to see if a filter should be turned on. If both booleans are
      * active, group wins. The constant {@link Parameters#OWNER_ID} or
      * {@link Parameters#GROUP_ID} is then used to define a filter.

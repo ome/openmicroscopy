@@ -208,7 +208,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     /**
      * Process Manager Bean injector.
      * 
-     * @param processManager
+     * @param procMgr
      *            a <code>ProcessManager</code>.
      */
     public void setProcessManager(IProcessManager procMgr) {

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,7 +11,8 @@ import ome.util.messages.InternalMessage;
 
 /**
  * {@link InternalMessage} implementations which carry relate to some
- * {@link Session} bound event. These messages are <em>not</em> thread-safe
+ * {@link ome.model.meta.Session} bound event.
+ * These messages are <em>not</em> thread-safe
  * and so will be called within the same {@link Thread} as the publisher. This
  * means {@link ApplicationListener listeners} have a chance to throw an
  * exception and cancel the related event.

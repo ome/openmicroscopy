@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -74,7 +72,7 @@ public class PixelDataHandler extends SimpleWork {
     }
 
     /**
-     * Loads {@link #rep} {@link EventLog} instances and returns them.
+     * Loads {@link #reps} {@link EventLog} instances and returns them.
      * This is the first phase used by the {@link PixelDataThread}. A later
      * phase will invoke {@link #handleEventLog(EventLog, Session, ServiceFactory)}
      * with the returned instance.
@@ -106,7 +104,7 @@ public class PixelDataHandler extends SimpleWork {
      * Handles only single elements from the {@link PersistentEventLogLoader}
      * in order to keep transactions short and safe.
      *
-     * @see ticket:5814
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5814">ticket:5814</a>
      */
     public void handleEventLog(EventLog eventLog, Session session, ServiceFactory sf) {
         final long start = System.currentTimeMillis();
@@ -127,10 +125,10 @@ public class PixelDataHandler extends SimpleWork {
      * us the proper types, since we are using the specific
      * type defined in this package.
      *
-     * @param eventLog
+     * @param id
      * @param sf
      * @param s
-     * @return
+     * @return See above.
      */
     public boolean process(Long id, ServiceFactory sf, Session s) {
 

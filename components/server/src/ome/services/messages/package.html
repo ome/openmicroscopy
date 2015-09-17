@@ -13,8 +13,8 @@
 <body bgcolor="white">
 
 Message implementations used throughout the server for internal communication.
-Messages subclass {@link ApplicationEvent} and provide special exception
-handling via {@link OmeroContext#publishMessage(InternalMessage)}
+Messages subclass {@link ome.util.messages.InternalMessage} and provide special exception
+handling via {@link ome.system.OmeroContext#publishMessage(ome.util.messages.InternalMessage)}
 
 As far as possible, messages should be considered primitives and have no
 dependencies on other types in the server.

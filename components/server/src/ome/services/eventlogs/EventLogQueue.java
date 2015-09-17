@@ -171,9 +171,9 @@ public class EventLogQueue extends PersistentEventLogLoader {
      * consumption by the FullTextIndexer.
      *
      * @since 5.0.3
-     * @TODO Unfortunately this {@link EventLog} subclass needlessly creates a
-     *       Details object.
      */
+    //Unfortunately this {@link EventLog} subclass needlessly creates a
+    //       Details object.
     private static class WrappedEventLog extends EventLog {
 
         private static final long serialVersionUID = 1L;
@@ -530,7 +530,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
     //
 
     /**
-     * Checks if either any {@link Entry} instances are available or tries
+     * Checks if either any {@link ome.services.eventlogs.EventLogQueue.Entry} instances are available or tries
      * to load them if not. Conditions which will lead this to return false
      * include: "stop" being set, the batch size being met, the current
      * id in the database being equivalent to the newest event log.
@@ -554,7 +554,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
     }
 
     /**
-     * Return a wrapped version of {@link Data#next()} which could possibly be
+     * Return a wrapped version of {@link ome.services.eventlogs.EventLogQueue.Data#next()} which could possibly be
      * null.
      */
     public EventLog next() {

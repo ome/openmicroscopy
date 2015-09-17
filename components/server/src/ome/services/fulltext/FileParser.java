@@ -23,7 +23,7 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * Object which attempts to parse any file given to it. On an exception or
- * empty/missing file, an empty {@link Iterable<String>} should be returned
+ * empty/missing file, an empty {@link Iterable} should be returned
  * rather than throwing an exception.
  * 
  * Subclasses should follow

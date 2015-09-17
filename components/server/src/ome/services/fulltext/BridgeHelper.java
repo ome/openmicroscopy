@@ -32,14 +32,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 
 /**
  * Base class for building custom {@link FieldBridge} implementations.
- * 
- * To force handling of null values, the
- * {@link #add(Document, String, String, Store, org.apache.lucene.document.Field.Index, Float)}
- * methods throw {@link NullValueException} which can convert itself to a
- * {@link RuntimeException} via {@link NullValueException#convert(Object)} if
- * that is the simplest course of action. Alternatively, you could re-add the
- * value with a null-token like "null".
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -51,16 +44,15 @@ public abstract class BridgeHelper implements FieldBridge,
      * also the default search field, so users need not append the value to
      * search the full index. A field name need only be added to a search to
      * eliminate other fields.
-     * 
-     * @DEV.TODO add to constants
      */
+    //TODO add to constants
     public final static String COMBINED = "combined_fields";
 
     /**
      * Simpler wrapper to handle superclass proxy objects (e.g. Annotation)
      * which do * not behave properly with instanceof checks.
      *
-     * @see ticket:5076
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5076">ticket:5076</a>
      */
     @SuppressWarnings("unchecked")
     public static <T> T getProxiedObject(T proxy) {
@@ -93,7 +85,7 @@ public abstract class BridgeHelper implements FieldBridge,
 
     /**
      * Helper method which takes the parameters from the
-     * {@link #set(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}
+     * {@link #set(String, Object, Document, LuceneOptions)}
      * method (possibly modified) as well as the parsed {@link String} value
      * which should be added to the index, and adds two fields. One with the
      * given field name and another to the {@link #COMBINED} field which is the
@@ -163,21 +155,21 @@ public abstract class BridgeHelper implements FieldBridge,
      * 
      * @param d
      *            {@link Document} as passed to set. Do not modify.
-     * @params name String to be used as the name of the field. If null, then
-     *         the contens will only be added to the {@link #COMBINED}
+     * @param name String to be used as the name of the field. If null, then
+     *         the contents will only be added to the {@link #COMBINED}
      *         {@link Field}.
      * @param file
      *            Non-null, possibly unloaded {@link OriginalFile} which is used
      *            to look up the file on disk.
      * @param files
-     *            {@link OriginalFileServer} which knows how to find where this
+     *            {@link OriginalFilesService} which knows how to find where this
      *            {@link OriginalFile} is stored on disk.
      * @param parsers
      *            {@link Map} of {@link FileParser} instances to be used based
-     *            on the {@link Format} of the {@link OriginalFile}
-     * @param boost
-     *            Positive float which increases or decreases search importance
-     *            for a field. Default is 1.0.
+     *            on the {@link OriginalFile#getMimetype() Format} of
+     *            the {@link OriginalFile}
+     * @param opts
+     *            The search option.
      */
     protected void addContents(final Document d, final String name,
             final OriginalFile file, final OriginalFilesService files,

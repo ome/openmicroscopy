@@ -60,7 +60,7 @@ public abstract class LongCounter implements ApplicationEventPublisherAware {
  
     /**
      * 
-     * @return
+     * @return The message.
      */
     protected abstract InternalMessage message();
 

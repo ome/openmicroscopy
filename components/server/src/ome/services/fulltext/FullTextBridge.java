@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -46,14 +44,13 @@ import org.hibernate.search.bridge.builtin.DateBridge;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @DEV.TODO insert/update OR delete regular type OR annotated type OR
- *           originalfile
  * @see <a href="http://trac.openmicroscopy.org.uk/ome/FileParsers">Parsers</a
  *      href>
  * @see <a href="http://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
  *      href>
  */
 public class FullTextBridge extends BridgeHelper {
+// TODO insert/update OR delete regular type OR annotated type OR originalfile
 
     final protected OriginalFilesService files;
     final protected Map<String, FileParser> parsers;
@@ -83,7 +80,7 @@ public class FullTextBridge extends BridgeHelper {
      * Main constructor.
      *
      * @param files
-     *            {@link OriginalFileServce} for getting access to binary files.
+     *            {@link OriginalFilesService} for getting access to binary files.
      * @param parsers
      *            List of {@link FileParser} instances which are currently
      *            configured.
@@ -104,13 +101,13 @@ public class FullTextBridge extends BridgeHelper {
 
     /**
      * Default implementation of the
-     * {@link #set(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}
+     * {@link #set(String, Object, Document, LuceneOptions)}
      * method which calls
-     * {@link #set_file(String, IObject, Document, Store, org.apache.lucene.document.Field.Index, Float)}
-     * {@link #set_annotations(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)},
-     * {@link #set_details(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)},
+     * {@link #set_file(String, IObject, Document, LuceneOptions)}
+     * {@link #set_annotations(String, IObject, Document, LuceneOptions)},
+     * {@link #set_details(String, IObject, Document, LuceneOptions)},
      * and finally
-     * {@link #set_custom(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}.
+     * {@link #set_custom(String, IObject, Document, LuceneOptions)}.
      * as well as all {@link Annotation annotations}.
      */
     @Override
@@ -130,17 +127,16 @@ public class FullTextBridge extends BridgeHelper {
     }
 
     /**
-     * Uses {@link #parse(OriginalFile)} to get a {@link Reader} for the given
+     * Uses {@link BridgeHelper#parse(OriginalFile, OriginalFilesService, Map)}
+     * to get a {@link Reader} for the given
      * file which is then passed to
-     * {@link #add(Document, String, Reader, Float)} using the field name
-     * "file".
+     * {@link #addContents(Document, String, OriginalFile, OriginalFilesService, Map, LuceneOptions)}
+     * using the field name "file".
      *
      * @param name
      * @param object
      * @param document
-     * @param store
-     * @param index
-     * @param boost
+     * @param opts
      */
     public void set_file(final String name, final IObject object,
             final Document document, final LuceneOptions opts) {
@@ -159,9 +155,7 @@ public class FullTextBridge extends BridgeHelper {
      * @param name
      * @param object
      * @param document
-     * @param store
-     * @param index
-     * @param boost
+     * @param opts
      */
     public void set_annotations(final String name, final IObject object,
             final Document document, final LuceneOptions opts) {
@@ -236,9 +230,7 @@ public class FullTextBridge extends BridgeHelper {
      * @param name
      * @param object
      * @param document
-     * @param store
-     * @param index
-     * @param boost
+     * @param opts
      */
     public void set_details(final String name, final IObject object,
             final Document document, final LuceneOptions opts) {
@@ -298,15 +290,13 @@ public class FullTextBridge extends BridgeHelper {
 
     /**
      * Loops over each {@link #classes field bridge class} and calls its
-     * {@link FieldBridge#set(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}
+     * {@link FieldBridge#set(String, Object, Document, LuceneOptions)}
      * method. Any exceptions are logged but do not cancel execution.
      *
      * @param name
      * @param object
      * @param document
-     * @param store
-     * @param index
-     * @param boost
+     * @param opts
      */
     public void set_custom(final String name, final IObject object,
             final Document document, final LuceneOptions opts) {
@@ -337,9 +327,7 @@ public class FullTextBridge extends BridgeHelper {
      * Creates {@link Field} instances for {@link FileAnnotation} objects.
      *
      * @param document
-     * @param store
-     * @param index
-     * @param boost
+     * @param opts
      * @param fileAnnotation
      */
     private void handleFileAnnotation(final Document document,
@@ -369,9 +357,7 @@ public class FullTextBridge extends BridgeHelper {
      * pair.
      *
      * @param document
-     * @param store
-     * @param index
-     * @param boost
+     * @param opts
      * @param mapAnnotation
      */
     private void handleMapAnnotation(final Document document,
@@ -395,7 +381,7 @@ public class FullTextBridge extends BridgeHelper {
      * be "TextAnnotation".
      *
      * @param annotation
-     * @return
+     * @return See above.
      */
     private String annotationTypeString(Annotation annotation) {
         Class ac = Utils.trueClass(annotation.getClass());

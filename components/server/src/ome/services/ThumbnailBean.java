@@ -127,7 +127,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** If the renderer is dirty. */
     private Boolean dirty = true;
 
-    /** If the settings {@link metadata} is dirty. */
+    /** If the settings {@link #ctx} is dirty. */
     private Boolean dirtyMetadata = false;
 
     /** The pixels instance that the service is currently working on. */
@@ -372,10 +372,10 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
-     * Pixels service Bean injector.
+     * Pixels data service Bean injector.
      *
-     * @param iPixels
-     *            an <code>IPixels</code>.
+     * @param pixelDataService
+     *            a <code>PixelsService</code>.
      */
     public void setPixelDataService(PixelsService pixelDataService) {
         getBeanHelper().throwIfAlreadySet(this.pixelDataService, pixelDataService);
