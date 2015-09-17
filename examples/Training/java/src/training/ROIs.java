@@ -202,7 +202,6 @@ public class ROIs
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
         text.setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
-        text.setVisibility(omero.rtypes.rbool(true));
         text.setLocked(omero.rtypes.rbool(true));
 
 
