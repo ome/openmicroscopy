@@ -210,14 +210,14 @@ class BaseContainer(BaseController):
         Limit set by OOM error in omeis.providers.re.RGBIntBuffer
         """
         can = True
-        k = 12100 * 12100
+        limit = settings.DOWNLOAD_JPG_MAX_SIZE
         if self.image:
-            if (self.image.getSizeX() * self.image.getSizeY()) > k:
+            if (self.image.getSizeX() * self.image.getSizeY()) > limit:
                 can = False
         elif objDict is not None:
             if 'image' in objDict:
                 for i in objDict['image']:
-                    if (i.getSizeX() * i.getSizeY()) > k:
+                    if (i.getSizeX() * i.getSizeY()) > limit:
                         can = False
         return can
 
