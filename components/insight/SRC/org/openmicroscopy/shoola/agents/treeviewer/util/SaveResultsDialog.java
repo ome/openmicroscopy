@@ -160,11 +160,15 @@ public class SaveResultsDialog
                     int[] values = WindowManager.getIDList();
                     String path = img.getAbsolutePath();
                     if (path != null) {
+                        int id = plus.getID();
                         FileObject ff;
                         for (int i = 0; i < values.length; i++) {
-                            ff = new FileObject(WindowManager.getImage(values[i]));
-                            if (path.equals(ff.getAbsolutePath())) {
-                                img.addAssociatedFile(ff);
+                            plus = WindowManager.getImage(values[i]);
+                            if (plus.getID() == id) {
+                                ff = new FileObject(plus);
+                                if (path.equals(ff.getAbsolutePath())) {
+                                    img.addAssociatedFile(ff);
+                                }
                             }
                         }
                     }
@@ -187,11 +191,14 @@ public class SaveResultsDialog
                             if (CollectionUtils.isEmpty(l)) {
                                 toImport.add(img);
                             }
+                            int id = plus.getID();
                             for (int j = 0; j < values.length; j++) {
-                                ff = new FileObject(
-                                        WindowManager.getImage(values[j]));
-                                if (path.equals(ff.getAbsolutePath())) {
-                                    img.addAssociatedFile(ff);
+                                plus =  WindowManager.getImage(values[j]);
+                                if (plus.getID() != id) {
+                                    ff = new FileObject(plus);
+                                    if (path.equals(ff.getAbsolutePath())) {
+                                        img.addAssociatedFile(ff);
+                                    }
                                 }
                             }
                         }

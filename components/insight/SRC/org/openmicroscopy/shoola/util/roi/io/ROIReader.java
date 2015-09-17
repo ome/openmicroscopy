@@ -258,7 +258,6 @@ public class ROIReader {
         }
         if (data != null && data.isLoaded()) {
             PixelsData pixels = data.getDefaultPixels();
-            IJ.log(""+pixels.getSizeC()+" "+pixels.getSizeZ()+" "+pixels.getSizeT());
             if (c-1 >= pixels.getSizeC()) {
                 return false;
             }
