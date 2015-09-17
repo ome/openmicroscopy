@@ -318,7 +318,7 @@ Select Image By Id
 Node Should Be Selected By Id
     [Arguments]       ${nodeId}     ${expected}=${true}
     Run Keyword If    ${expected}   Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[contains(@class, 'jstree-clicked')]
-    ...               ELSE          Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[not(contains(@class, 'jstree-clicked'))]I
+    ...               ELSE          Wait Until Page Contains Element    xpath=//li[@id='${nodeId}']/a[not(contains(@class, 'jstree-clicked'))]
 
 Image Should Be Selected By Id
     [Arguments]                         ${imageId}                  ${expected}=${true}
