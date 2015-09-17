@@ -21,6 +21,7 @@
 package org.openmicroscopy.shoola.util.roi.io;
 
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.WindowManager;
@@ -258,6 +259,7 @@ public class ROIReader {
         }
         if (data != null && data.isLoaded()) {
             PixelsData pixels = data.getDefaultPixels();
+            IJ.log(""+pixels.getSizeC()+" "+pixels.getSizeZ()+" "+pixels.getSizeT());
             if (c-1 >= pixels.getSizeC()) {
                 return false;
             }
@@ -442,10 +444,13 @@ public class ROIReader {
     {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
-        if (overlay == null) return null;
-        Roi[] rois = overlay.toArray();
-        for (Roi roi : rois) {
-            roi.setImage(image);
+        Roi[] rois;
+        if (overlay != null) {
+            rois = overlay.toArray();
+            for (Roi roi : rois) {
+                roi.setImage(image);
+            }
+            return read(imageID, rois);
         }
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
@@ -468,6 +473,7 @@ public class ROIReader {
         if (image == null) return null;
         Overlay overlay = image.getOverlay();
         Roi[] rois;
+        IJ.log("overlay"+overlay);
         if (overlay != null) {
             rois = overlay.toArray();
             for (Roi roi : rois) {
