@@ -234,25 +234,28 @@ public class ROIReader {
         int t = roi.getTPosition();
 
         ImagePlus image = roi.getImage();
-        if (!image.isHyperStack()) {
-            int imageC = image.getNChannels();
-            int imageT = image.getNFrames();
-            int imageZ = image.getNSlices();
-            if (imageC == 1 && imageZ == 1) {
-                shape.setC(0);
-                shape.setZ(0);
-                t = pos;
-            } else if (imageZ == 1 && imageT == 1) {
-                c = pos;
-                shape.setZ(0);
-                shape.setT(0);
-            } else if (imageC == 1 && imageT == 1) {
-                z = pos;
-                shape.setC(0);
-                shape.setT(0);
-            }
+        int imageC = image.getNChannels();
+        int imageT = image.getNFrames();
+        int imageZ = image.getNSlices();
+        if (imageC == 1 && imageZ == 1) {
+            shape.setC(0);
+            shape.setZ(0);
+            z = 0;
+            c = 0;
+            t = pos;
+        } else if (imageZ == 1 && imageT == 1) {
+            c = pos;
+            z = 0;
+            t = 0;
+            shape.setZ(0);
+            shape.setT(0);
+        } else if (imageC == 1 && imageT == 1) {
+            z = pos;
+            t = 0;
+            c = 0;
+            shape.setC(0);
+            shape.setT(0);
         }
-
         if (data != null && data.isLoaded()) {
             PixelsData pixels = data.getDefaultPixels();
             if (c-1 >= pixels.getSizeC()) {
