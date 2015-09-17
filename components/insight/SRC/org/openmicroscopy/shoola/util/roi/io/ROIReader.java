@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import ome.formats.model.UnitsFactory;
 import omero.model.ImageI;
 import omero.model.LengthI;
-import pojos.DataObject;
 import pojos.EllipseData;
 import pojos.ImageData;
 import pojos.LineData;
