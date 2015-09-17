@@ -308,6 +308,35 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     assert gateway.getObject("Annotation", annId) is None
 
 
+def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
+    """ Tests speed of loading file annotations. See PR: 4176 """
+    tempFileName = "tempFile"
+    f = open(tempFileName, 'w')
+    fileText = "testFileAnnotationSpeed text"
+    f.write(fileText)
+    f.close()
+    ns = TESTANN_NS
+    image = author_testimg_generated
+
+    # use the same file to create many file annotations
+    for i in range(20):
+        fileAnn = gatewaywrapper.gateway.createFileAnnfromLocalFile(
+            tempFileName, mimetype='text/plain', ns=ns)
+        image.linkAnnotation(fileAnn)
+    os.remove(tempFileName)
+
+    now = time.time()
+    for ann in image.listAnnotations():
+        if ann._obj.__class__ == omero.model.FileAnnotationI:
+            # mimmic behaviour of templates which call multiple times
+            print ann.getId()
+            print ann.getFileName()
+            print ann.getFileName()
+            print ann.getFileSize()
+            print ann.getFileSize()
+    print time.time() - now
+
+
 def testFileAnnNonDefaultGroup(author_testimg_generated, gatewaywrapper):
     """ Test conn.createFileAnnfromLocalFile() respects SERVICE_OPTS """
     gatewaywrapper.loginAsAuthor()
