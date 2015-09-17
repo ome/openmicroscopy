@@ -429,7 +429,8 @@ def chgrpMarshal(conn, rsp):
                     query, params, conn.SERVICE_OPTS)
                 for lnk in links:
                     child = lnk.child
-                    if ch not in includedDetails or child.id.val not in includedDetails[ch]:
+                    if (ch not in includedDetails or
+                            child.id.val not in includedDetails[ch]):
                         name = unwrap(child.getName())
                         # Put objects in a dictionary to avoid duplicates
                         if ch not in objects:
