@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import ome.formats.model.UnitsFactory;
 import omero.model.ImageI;
 import omero.model.LengthI;
+
 import omero.gateway.model.EllipseData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
@@ -63,7 +64,6 @@ import omero.gateway.model.RectangleData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.ShapeSettingsData;
 import omero.gateway.model.TextData;
-
 
 /**
  * Reads ROI from ImageJ.
