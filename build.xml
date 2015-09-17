@@ -639,8 +639,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
                 ]]></bottom>
 
-                <tag name="DEV.TODO" scope="all" description="To do:"/>
-
                 <group title="A. Core System"
                         packages="ome.api:ome.conditions*:ome.parameters*:ome.system*"/>
                 <group title="B. Model"
