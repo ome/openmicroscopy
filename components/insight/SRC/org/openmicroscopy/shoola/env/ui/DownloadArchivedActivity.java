@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -102,7 +101,8 @@ public class DownloadArchivedActivity
 	{
 	    File f = parameters.getLocation();
 		loader = new ArchivedLoader(viewer, registry, ctx,
-		        parameters.getImages(), f, parameters.isOverride(), this);
+		        parameters.getImages(), f, parameters.isOverride(), parameters.isZip(), 
+		        parameters.isKeepOriginalPaths(), this);
 		return loader;
 	}
 
