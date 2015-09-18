@@ -328,6 +328,10 @@ def chgrpMarshal(conn, rsp):
     """
     Helper for marshalling a Chgrp response.
     Uses conn to lookup unlinked objects.
+    Returns dict of e.g.
+    {'includedObjects': {'Datasets':[1,2,3]},
+     'unlinkedDetails': {'Tags':[{'id':1, 'name':'t'}]}
+     }
     """
     rv = {}
     if isinstance(rsp, omero.cmd.ERR):
@@ -338,11 +342,9 @@ def chgrpMarshal(conn, rsp):
     else:
         included = rsp.responses[0].includedObjects
         deleted = rsp.responses[0].deletedObjects
-        rv['includedObjects'] = included
-        rv['deletedObjects'] = deleted
 
         # Included: just simplify the key, e.g. -> Projects, Datasets etc
-        includedDetails = {}
+        includedObjects = {}
         objKeys = ['ome.model.containers.Project',
                    'ome.model.containers.Dataset',
                    'ome.model.core.Image',
@@ -352,8 +354,10 @@ def chgrpMarshal(conn, rsp):
         for k in objKeys:
             if k in included:
                 otype = k.split(".")[-1]
-                includedDetails[otype + 's'] = included[k]
-        rv['includedDetails'] = includedDetails
+                oids = included[k]
+                oids.sort()     # makes testing easier
+                includedObjects[otype + 's'] = oids
+        rv['includedObjects'] = includedObjects
 
         # Annotation links - need to get info on linked objects
         tags = {}
@@ -423,8 +427,8 @@ def chgrpMarshal(conn, rsp):
                     query, params, conn.SERVICE_OPTS)
                 for lnk in links:
                     child = lnk.child
-                    if (ch not in includedDetails or
-                            child.id.val not in includedDetails[ch]):
+                    if (ch not in includedObjects or
+                            child.id.val not in includedObjects[ch]):
                         name = unwrap(child.getName())
                         # Put objects in a dictionary to avoid duplicates
                         if ch not in objects:
