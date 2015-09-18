@@ -7,16 +7,13 @@
 
 package ome.dsl;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableMap;
-
-// Application-internal dependencies
 
 /**
  * represents the <b>definition</b> of a property within a SemanticType
@@ -144,20 +141,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(INTEGERS, INTEGERS);
     }
 
-    public static final ImmutableMap<String, String> DBTYPES;
-
-    static {
-        final ImmutableMap.Builder<String, String> dbTypes = ImmutableMap.builder();
-        dbTypes.put("byte[]", "bytea");
-        dbTypes.put("string[]", "text[]");
-        dbTypes.put("string[][]", "text[][]");
-        dbTypes.put(POSITIVEINTEGER, "positive_int");
-        dbTypes.put(NONNEGATIVEINTEGER, "nonnegative_int");
-        dbTypes.put(FLOAT, "double precision");
-        dbTypes.put(POSITIVEFLOAT, "positive_float");
-        dbTypes.put(PERCENTFRACTION, "percent_fraction");
-        DBTYPES = dbTypes.build();
-    }
+    public final Properties DBTYPES;
 
     /**
      * The {@link SemanticType} instance which this property belongs to
@@ -319,7 +303,7 @@ public abstract class Property { // TODO need to define equality so that two
      * Read-only variable
      */
     public String getDbType() {
-        String t = DBTYPES.get(type);
+        String t = DBTYPES.getProperty(type);
         if (t == null) {
             return SemanticType.typeToColumn(type);
         }
@@ -541,7 +525,7 @@ public abstract class Property { // TODO need to define equality so that two
      * @see <a href="https://trac.openmicroscopy.org/ome/ticket/803">ticket 803</a>
      */
     public String getDef() {
-        final String def = DBTYPES.get(type);
+        final String def = DBTYPES.getProperty(type);
         return def == null ? "" : def;
     }
 
@@ -579,6 +563,16 @@ public abstract class Property { // TODO need to define equality so that two
         // TODO Mutability
         setInsert(Boolean.TRUE);
         setUpdate(Boolean.valueOf(attrs.getProperty("mutable", "true")));
+
+        // Load DBTYPES from resource file
+        try {
+            DBTYPES = new Properties();
+            String typesResource = "ome/dsl/" + st.profile + "-types.properties";
+            DBTYPES.load(this.getClass().getClassLoader()
+                    .getResourceAsStream(typesResource));
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading DB types: " + e.getMessage(), e);
+        }
 
         if (JAVATYPES.containsKey(type)) {
             setForeignKey(null);
