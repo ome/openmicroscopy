@@ -161,8 +161,8 @@ $(function() {
                             unlink = [], unlinked;
                         ["Projects", "Datasets", "Screens",
                          "Plates", "Wells", "Images"].forEach(function(otype){
-                            if (otype in dryRunData.includedDetails) {
-                                count = dryRunData.includedDetails[otype].length;
+                            if (otype in dryRunData.includedObjects) {
+                                count = dryRunData.includedObjects[otype].length;
                                 if (count === 1) otype = otype.slice(0, -1);  // remove s
                                 move.push(count + " " + otype);
                             }
