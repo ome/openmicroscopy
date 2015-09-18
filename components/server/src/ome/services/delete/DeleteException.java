@@ -17,7 +17,9 @@ import ome.services.graphs.GraphException;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
  * @see IDelete
+ * @deprecated will be removed in OMERO 5.3
  */
+@Deprecated
 public class DeleteException extends GraphException {
 
     private static final long serialVersionUID = -4619031026063199194L;
