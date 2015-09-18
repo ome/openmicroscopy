@@ -603,6 +603,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <classpath>
                     <fileset dir="lib">
                         <include name="**/*.jar"/>
+                        <exclude name="repository/org.springframework.*.jar"/>
                         <exclude name="repository/omero/**"/>
                         <exclude name="repository/omero-tools/**"/>
                         <exclude name="cache/omero/omero_client/jars/**"/>
@@ -638,8 +639,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
                 ]]></bottom>
 
-                <tag name="DEV.TODO" scope="all" description="To do:"/>
-
                 <group title="A. Core System"
                         packages="ome.api:ome.conditions*:ome.parameters*:ome.system*"/>
                 <group title="B. Model"
@@ -661,9 +660,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
                 <link href="http://docs.oracle.com/javase/6/docs/api/"/>
                 <link href="http://www.springframework.org/docs/api/"/>
-                <link href="http://www.hibernate.org/hib_docs/v3/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>
-                <link href="http://lucene.apache.org/java/2_2_0/api"/>
 
             </javadoc>
         </presetdef>
