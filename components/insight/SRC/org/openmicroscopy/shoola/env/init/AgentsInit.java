@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.init.AgentsInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,17 +23,10 @@
 
 package org.openmicroscopy.shoola.env.init;
 
-//Java imports
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
-import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
