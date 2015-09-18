@@ -29,8 +29,11 @@ import java.util.List;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -183,9 +186,20 @@ public final class AgentsInit
 			createAgent(i.next(), value);
 		String name = (String) container.getRegistry().lookup(
 				LookupNames.MASTER);
-		if (name == null)
-			container.getRegistry().bind(LookupNames.MASTER,
-					LookupNames.MASTER_INSIGHT);
+		if (name == null) {
+		    //check if run as an ij plugin.
+		    Integer plugin = (Integer) container.getRegistry().lookup(
+	                LookupNames.PLUGIN);
+	        name = LookupNames.MASTER_INSIGHT;
+	        if (plugin != null) {
+	            switch (plugin) {
+                    case LookupNames.IMAGE_J:
+                    case LookupNames.IMAGE_J_IMPORT:
+                        name = LookupNames.MASTER_IJ;
+                }
+	        }
+	        container.getRegistry().bind(LookupNames.MASTER, name);
+		}
 	}
 
 	/** 
