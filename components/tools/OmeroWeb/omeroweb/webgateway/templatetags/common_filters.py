@@ -256,15 +256,21 @@ def timeformat(value):
             value = Decimal(force_unicode(float(value)))
         except (ValueError, InvalidOperation, TypeError, UnicodeEncodeError):
             return u'%s s' % str(value)
+    # Formatting shows integer values for all, so we round() for accuracy
     if value == 0:
         return u'%d\u00A0s' % value
-    if value < 1.0 / 1000:
-        return u'%d\u00A0\u00B5s' % (value * 1000 * 1000)
+    if value < Decimal("0.001"):
+        return u'%d\u00A0\u00B5s' % (round(value * 1000 * 1000))
     elif value < 1:
-        return u'%d\u00A0ms' % (value * 1000)
-    elif value < 60:
-        return u'%d\u00A0s' % value
-    elif value < 60 * 60:
+        return u'%d\u00A0ms' % (round(value * 1000))
+    elif round(value) < 60:
+        # Round and format seconds to one decimal place
+        value = round(value * 10) / 10
+        return u'%0.1f\u00A0s' % value
+    elif round(value) < 60 * 60:
+        value = round(value)        # Avoids '1min 60s'
         return u'%d\u00A0min\u00A0%d\u00A0s' % (value / 60, value % 60)
     else:
-        return u'%d\u00A0h\u00A0%d\u00A0min' % (value / 3600, value % 3600)
+        value = round(value)        # Avoids '1h 60min'
+        return u'%d\u00A0h\u00A0%d\u00A0min' % (value / 3600,
+                                                round((value % 3600)/60))
