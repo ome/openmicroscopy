@@ -148,7 +148,7 @@
             {% endif %}
             
             {% if image %}
-              {% with ex=manager.canExportAsJpg %}
+              {% with ex=canExportAsJpg %}
               <li {% if not ex %}class="disabled"{% endif %}>
                 <a 
                   {% if share and not share.share.isOwned %}
