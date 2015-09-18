@@ -1545,6 +1545,20 @@ class _BlitzGateway (object):
         return (self.getConfigService().getConfigValue(
                 "omero.client.viewer.interpolate_pixels") or 'true')
 
+    def getDownloadAsJpgMaxSizeSetting(self):
+        """
+        Returns default max size of images that can be downloaded as
+        jpg, png or tiff, expressed as number of pixels.
+        Default is 144000000 (12k * 12k image)
+
+        :return:    Integer
+        """
+        size = self.getConfigService().getConfigValue(
+            "omero.client.download_as_jpg.max_size")
+        if size:
+            return int(size)
+        return 144000000
+
     def getWebclientHost(self):
         """
         Returns default initial zoom level set on the server.

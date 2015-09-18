@@ -260,6 +260,8 @@ class login_required(object):
                 conn.getInitialZoomLevel()
             request.session['server_settings']['interpolate_pixels'] = \
                 toBoolean(conn.getInterpolateSetting())
+            request.session['server_settings']['download_as_jpg_max_size'] = \
+                conn.getDownloadAsJpgMaxSizeSetting()
 
     def get_public_user_connector(self):
         """
