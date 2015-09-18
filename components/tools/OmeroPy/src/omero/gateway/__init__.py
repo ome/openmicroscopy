@@ -29,7 +29,7 @@ from omero.util.decorators import timeit
 from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
-from omero.gateway.utils import ServiceOptsDict, GatewayConfig
+from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
 import omero.scripts as scripts
 
 import Ice
@@ -1532,8 +1532,12 @@ class _BlitzGateway (object):
         """
         Returns default initial zoom level set on the server.
         """
-        return (self.getConfigService().getConfigValue(
-                "omero.client.viewer.initial_zoom_level") or 0)
+        try:
+            initzoom = (self.getConfigService().getConfigValue(
+                        "omero.client.viewer.initial_zoom_level") or 0)
+        except:
+            initzoom = None
+        return initzoom
 
     def getInterpolateSetting(self):
         """
@@ -1542,14 +1546,25 @@ class _BlitzGateway (object):
 
         :return:    String
         """
-        return (self.getConfigService().getConfigValue(
-                "omero.client.viewer.interpolate_pixels") or 'true')
+        try:
+            interpolate = (
+                toBoolean(self.getConfigService().getConfigValue(
+                    "omero.client.viewer.interpolate_pixels")) or True
+            )
+        except:
+            interpolate = False
+        return interpolate
 
     def getWebclientHost(self):
         """
         Returns default initial zoom level set on the server.
         """
-        return self.getConfigService().getConfigValue("omero.client.web.host")
+        try:
+            host = self.getConfigService() \
+                       .getConfigValue("omero.client.web.host")
+        except:
+            host = None
+        return host
 
     def isAnonymous(self):
         """
