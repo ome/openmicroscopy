@@ -155,8 +155,8 @@ class TestChgrp(IWebTest):
                     'Datasets': [{'id': dataset.id.val,
                                   'name': dataset.name.val}],
                     'Comments': 0, 'Others': 0}
-        assert 'includedDetails' in rsp
-        assert rsp['includedDetails'] == {'Projects': [projectId]}
+        assert 'includedObjects' in rsp
+        assert rsp['includedObjects'] == {'Projects': [projectId]}
         assert 'unlinkedDetails' in rsp
         assert rsp['unlinkedDetails'] == unlinked
 
@@ -166,7 +166,9 @@ class TestChgrp(IWebTest):
             "Project": "%s,%s" % (projectId, projectId2)
         }
         rsp = doDryRun(data)
-        assert rsp['includedDetails'] == {'Projects': [projectId, projectId2],
+        pids = [projectId, projectId2]
+        pids.sort()
+        assert rsp['includedObjects'] == {'Projects': pids,
                                           'Datasets': [dataset.id.val],
                                           'Images': [image.id.val]}
         assert rsp['unlinkedDetails'] == {'Files': [], 'Tags': [],
