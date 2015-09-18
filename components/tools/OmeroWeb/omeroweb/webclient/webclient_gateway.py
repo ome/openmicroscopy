@@ -2551,15 +2551,6 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
 omero.gateway.WellWrapper = WellWrapper
 
 
-class TagWrapper(OmeroWebObjectWrapper, omero.gateway.TagAnnotationWrapper):
-    """
-    omero_model_TagAnnotationI class wrapper overwrite
-    omero.gateway.TagAnnotationWrapper and extends OmeroWebObjectWrapper.
-    """
-
-omero.gateway.TagAnnotationWrapper = TagWrapper
-
-
 class PlateAcquisitionWrapper(OmeroWebObjectWrapper,
                               omero.gateway.PlateAcquisitionWrapper):
 
