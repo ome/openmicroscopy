@@ -16,6 +16,7 @@
 import time
 import datetime
 import os
+from tempfile import NamedTemporaryFile
 
 import omero.gateway
 
@@ -310,20 +311,19 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
 
 def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
     """ Tests speed of loading file annotations. See PR: 4176 """
-    tempFileName = "tempFile"
-    f = open(tempFileName, 'w')
-    fileText = "testFileAnnotationSpeed text"
-    f.write(fileText)
-    f.close()
-    ns = TESTANN_NS
-    image = author_testimg_generated
+    try:
+        f = NamedTemporaryFile()
+        f.write("testFileAnnotationSpeed text")
+        ns = TESTANN_NS
+        image = author_testimg_generated
 
-    # use the same file to create many file annotations
-    for i in range(20):
-        fileAnn = gatewaywrapper.gateway.createFileAnnfromLocalFile(
-            tempFileName, mimetype='text/plain', ns=ns)
-        image.linkAnnotation(fileAnn)
-    os.remove(tempFileName)
+        # use the same file to create many file annotations
+        for i in range(20):
+            fileAnn = gatewaywrapper.gateway.createFileAnnfromLocalFile(
+                f.name, mimetype='text/plain', ns=ns)
+            image.linkAnnotation(fileAnn)
+    finally:
+        f.close()
 
     now = time.time()
     for ann in image.listAnnotations():
