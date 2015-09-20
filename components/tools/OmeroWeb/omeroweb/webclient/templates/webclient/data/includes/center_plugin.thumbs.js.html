@@ -51,6 +51,7 @@ $(document).ready(function() {
     // for 200ms)
     var loadThumbnailsPanelTimeout = false;
     var loadThumbnailsPanel = function(node, newPage, newField) {
+        console.log('loadThumbnailsPanel...');
         // Reset timeout if within 200ms of the last request
         if (loadThumbnailsPanelTimeout) {
             window.clearTimeout(loadThumbnailsPanelTimeout);
@@ -107,6 +108,7 @@ $(document).ready(function() {
                 $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
 
                 // Load html from url
+                console.log("loading", url);
                 $("div#content_details").load(url);
                 setThumbnailsPanel(nodeType, nodeId, inst.get_omepath(node), newPage, newField);
 
@@ -170,6 +172,7 @@ $(document).ready(function() {
     // This is called directly by various jstree plugins
     // E.g. omecut_plugin.js as well as the jstree in containers.html
     window.update_thumbnails_panel = function(event, data) {
+        console.log('update_thumbnails_panel...');
         var inst = $.jstree.reference('#dataTree');
 
         // Get the container that is currently rendered

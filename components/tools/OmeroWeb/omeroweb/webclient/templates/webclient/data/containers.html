@@ -339,6 +339,7 @@
                 'child_id': node.data.obj.id,
                 'child_type': node.type
             };
+            console.log('linkNode', payload);
 
             // Return a promise
             return $.ajax({
@@ -357,6 +358,7 @@
                 'child_id': node.data.obj.id,
                 'child_type': node.type
             };
+            console.log('unlink', payload);
 
             // Return a promise
             return $.ajax({
@@ -631,7 +633,7 @@
                 })
                 .on('copy_node.jstree', function(e, data) {
                     /**
-                    * Fired when a node is copied
+                    * Fired when a node is copied and paste_rdef
                     * Updates the server, adding the new link
                     */
                     var inst = data.instance;
