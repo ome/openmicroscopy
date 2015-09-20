@@ -1553,11 +1553,14 @@ class _BlitzGateway (object):
 
         :return:    Integer
         """
-        size = self.getConfigService().getConfigValue(
-            "omero.client.download_as_jpg.max_size")
-        if size:
-            return int(size)
-        return 144000000
+        size = 144000000
+        try:
+            size = self.getConfigService().getConfigValue(
+                "omero.client.download_as_jpg.max_size")
+            size = int(size)
+        except:
+            pass
+        return size
 
     def getWebclientHost(self):
         """
