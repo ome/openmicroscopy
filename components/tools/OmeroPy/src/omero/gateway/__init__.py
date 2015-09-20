@@ -1536,7 +1536,7 @@ class _BlitzGateway (object):
             initzoom = (self.getConfigService().getConfigValue(
                         "omero.client.viewer.initial_zoom_level") or 0)
         except:
-            initzoom = None
+            initzoom = 0
         return initzoom
 
     def getInterpolateSetting(self):
@@ -1552,7 +1552,7 @@ class _BlitzGateway (object):
                     "omero.client.viewer.interpolate_pixels")) or True
             )
         except:
-            interpolate = False
+            interpolate = True
         return interpolate
 
     def getWebclientHost(self):
