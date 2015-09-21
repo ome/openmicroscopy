@@ -173,7 +173,6 @@ public class Main {
         roi.addShape(text);
 
         // Other options which may come with time
-        text.setVectorEffect(rstring("non-scaling-stroke"));
         text.setFontStretch(rstring("wider"));
         text.setFontStyle(rstring("italic"));
         text.setFontVariant(rstring("small-caps"));

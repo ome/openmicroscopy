@@ -206,7 +206,6 @@ public class ROIs
 
 
         // Other options which may come with time
-        text.setVectorEffect(omero.rtypes.rstring("non-scaling-stroke"));
         text.setFontStretch(omero.rtypes.rstring("wider"));
         text.setFontStyle(omero.rtypes.rstring("italic"));
         text.setFontVariant(omero.rtypes.rstring("small-caps"));
