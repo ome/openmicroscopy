@@ -108,6 +108,7 @@ ALTER TABLE shape DROP COLUMN glyphorientationvertical;
 ALTER TABLE shape DROP COLUMN strokedashoffset;
 ALTER TABLE shape DROP COLUMN strokelinejoin;
 ALTER TABLE shape DROP COLUMN strokemiterlimit;
+ALTER TABLE shape DROP COLUMN vectoreffect;
 ALTER TABLE shape DROP COLUMN visibility;
 ALTER TABLE shape DROP COLUMN writingmode;
 

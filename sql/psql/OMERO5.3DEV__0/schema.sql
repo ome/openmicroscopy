@@ -2090,7 +2090,6 @@
         theT int4,
         theZ int4,
         transform varchar(255),
-        vectorEffect varchar(255),
         version int4,
         cx float8,
         cy float8,
