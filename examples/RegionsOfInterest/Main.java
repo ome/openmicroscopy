@@ -181,10 +181,7 @@ public class Main {
         text.setFillRule(rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(rstring("10 20 30 10"));
-        text.setStrokeDashOffset(rint(1));
         text.setStrokeLineCap(rstring("butt"));
-        text.setStrokeLineJoin(rstring("bevel"));
-        text.setStrokeMiterLimit(rint(1));
         text.setStrokeWidth(rint(10));
         text.setAnchor(rstring("middle"));
         text.setDecoration(rstring("underline"));
