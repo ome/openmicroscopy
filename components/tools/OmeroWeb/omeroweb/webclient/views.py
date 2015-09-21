@@ -911,54 +911,68 @@ def api_link(request, conn=None, **kwargs):
 
     response = {}
 
-    # Handle link creation
-    if request.method == 'POST':
-        json_data = json.loads(request.body)
+    # Handle link creation/deletion
+    json_data = json.loads(request.body)
 
-        try:
-            ptype = json_data['parent_type']
-            pid = json_data['parent_id']
-            link = get_link(ptype,
-                            pid,
-                            json_data['child_type'],
-                            json_data['child_id'])
+    print 'json_data', json_data
 
-            if link:
-                if link != 'orphan':
-                    # Need to set context to correct group (E.g parent group)
-                    p = conn.getQueryService().get(ptype.title(), pid,
-                                                   conn.SERVICE_OPTS)
-                    conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
-                    conn.saveObject(link)
-                response['success'] = True
+    # json is [parent_type][parent_id][child_type][childIds]
+    try:
+        linksToSave = []
+        for parent_type, parents in json_data.items():
+            for parent_id, children in parents.items():
+                for child_type, childIds in children.items():
+                    for child_id in childIds:
+                        parent_id = int(parent_id)
+                        print parent_type, parent_id, child_type, child_id
 
-        # We assume that the failed creation of the link due to
-        # a ValidationException is due to the prexisting status
-        # of the link. This could be confirmed by parsing the
-        # message of the exception. That is why success is marked to
-        # be true
-        # At worst this may wrongly report that a link already existed
-        # when in-fact, one of the object in the link did not exist
-        except ValidationException:
-            response['success'] = True
+                        if request.method == 'POST':
+                            link = get_link(parent_type, parent_id, child_type, child_id)
+                            if link and link != 'orphan':
+                                linksToSave.append(link)
+                        elif request.method == 'DELETE':
+                            link = get_object_link(conn, parent_type, parent_id, child_type, child_id)
+                            print "Delete"
+                            if link is not None:
+                                conn.deleteObjectDirect(link)
 
-    elif request.method == 'DELETE':
-        json_data = json.loads(request.body)
+        if request.method == 'POST' and len(linksToSave) > 0:
+            print "saving objects...", len(linksToSave)
+            # Need to set context to correct group (E.g parent group)
+            p = conn.getQueryService().get(parent_type.title(), parent_id,
+                                           conn.SERVICE_OPTS)
+            conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
+            conn.saveArray(linksToSave)
 
-        # Get the parent-child link to delete (will raise 404 if not found)
-        link = get_object_link(conn,
-                               json_data['parent_type'],
-                               long(json_data['parent_id']),
-                               json_data['child_type'],
-                               long(json_data['child_id']))
-        # If the link exists delete it
-        if link is not None:
-            conn.deleteObjectDirect(link)
-        # If it was deleted then that is a success. Equally if 'orphan', it
-        # didn't exist and the end result is correct, so mark it as a
-        # success.
-        # No try/except here - exceptions will be raised and handled by client
         response['success'] = True
+
+    # We assume that the failed creation of the link due to
+    # a ValidationException is due to the prexisting status
+    # of the link. This could be confirmed by parsing the
+    # message of the exception. That is why success is marked to
+    # be true
+    # At worst this may wrongly report that a link already existed
+    # when in-fact, one of the object in the link did not exist
+    except ValidationException:
+        response['success'] = True
+
+    # elif request.method == 'DELETE':
+    #     json_data = json.loads(request.body)
+
+    #     # Get the parent-child link to delete (will raise 404 if not found)
+    #     link = get_object_link(conn,
+    #                            json_data['parent_type'],
+    #                            long(json_data['parent_id']),
+    #                            json_data['child_type'],
+    #                            long(json_data['child_id']))
+    #     # If the link exists delete it
+    #     if link is not None:
+    #         conn.deleteObjectDirect(link)
+    #     # If it was deleted then that is a success. Equally if 'orphan', it
+    #     # didn't exist and the end result is correct, so mark it as a
+    #     # success.
+    #     # No try/except here - exceptions will be raised and handled by client
+    #     response['success'] = True
 
     return HttpJsonResponse(response)
 

@@ -331,44 +331,103 @@
             }
         };
 
+
+        var linkNodeTimeout,
+            linkPayload = {};
+
+        var d = jQuery.Deferred();
+
+        function addDataToPayload(payload, node, parent) {
+
+            // Add data to payload...
+            var parent_id = parent.data.obj.id,
+                parent_type = parent.type,
+                child_id = node.data.obj.id,
+                child_type = node.type;
+            // payload is payload.parent_type.parent_id.child_type.child_id
+            if (!(parent_type in payload)) payload[parent_type] = {};
+            if (!(parent_id in payload[parent_type])) {
+                payload[parent_type][parent_id] = {};
+            }
+            if (!(child_type in payload[parent_type][parent_id])) {
+                payload[parent_type][parent_id][child_type] = [];
+            }
+            payload[parent_type][parent_id][child_type].push(child_id);
+        }
+
         function linkNode(inst, node, parent) {
 
-            var payload = {
-                'parent_id': parent.data.obj.id,
-                'parent_type': parent.type,
-                'child_id': node.data.obj.id,
-                'child_type': node.type
+            var doLink = function() {
+
+                var dd = d;
+                d = jQuery.Deferred();
+
+                console.log("Starting link....")
+                // Return a promise
+                $.ajax({
+                    url: "{% url 'api_link' %}",
+                    type: "POST",
+                    data: JSON.stringify(linkPayload),
+                    dataType: 'json'
+                })
+                .done(function(){
+                    dd.resolve();
+                });
+
+                linkPayload = {};
             };
             console.log('linkNode', payload);
 
-            // Return a promise
-            return $.ajax({
-                url: "{% url 'api_link' %}",
-                type: 'POST',
-                data: JSON.stringify(payload),
-                dataType: 'json'
-            });
+            addDataToPayload(linkPayload, node, parent)       
 
-        };
+            // if we're waiting on timeout, clear this and start new timeout
+            if (linkNodeTimeout) {
+                clearTimeout(linkNodeTimeout);
+            }
+            linkNodeTimeout = setTimeout(doLink, 20);
 
-        function unlinkNode(inst, node, parent, callback) {
-            var payload = {
-                'parent_id': parent.data.obj.id,
-                'parent_type': parent.type,
-                'child_id': node.data.obj.id,
-                'child_type': node.type
+            return d;
+
+        }
+
+
+        var unlinkNodeTimeout,
+            unlinkPayload = {};
+
+        var dUnlink = jQuery.Deferred();
+
+        function unlinkNode(inst, node, parent) {
+
+            var doUnlink = function() {
+
+                var dd = dUnlink;
+                dUnlink = jQuery.Deferred();
+
+                console.log("Starting link....")
+                // Return a promise
+                $.ajax({
+                    url: "{% url 'api_link' %}",
+                    type: "DELETE",
+                    data: JSON.stringify(unlinkPayload),
+                    dataType: 'json'
+                })
+                .done(function(){
+                    dd.resolve();
+                });
+
+                unlinkPayload = {};
             };
             console.log('unlink', payload);
 
-            // Return a promise
-            return $.ajax({
-                url: "{% url 'api_link' %}",
-                type: 'DELETE',
-                data: JSON.stringify(payload),
-                dataType: 'json'
-            });
+            addDataToPayload(unlinkPayload, node, parent)       
 
+            // if we're waiting on timeout, clear this and start new timeout
+            if (unlinkNodeTimeout) {
+                clearTimeout(unlinkNodeTimeout);
+            }
+            unlinkNodeTimeout = setTimeout(doUnlink, 20);
 
+            return d;
 
         };
 
