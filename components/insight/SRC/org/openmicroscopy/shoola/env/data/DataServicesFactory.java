@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -72,6 +73,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
+
 
 /** 
  * A factory for the {@link OmeroDataService} and the {@link OmeroImageService}.
@@ -541,10 +543,10 @@ public class DataServicesFactory
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
 		String name = (String) 
-		 container.getRegistry().lookup(LookupNames.MASTER);
-		if (name == null) 
-		    name = LookupNames.MASTER_INSIGHT;
-		
+		container.getRegistry().lookup(LookupNames.MASTER);
+		if (CommonsLangUtils.isBlank(name)) {
+            name = LookupNames.MASTER_INSIGHT;
+        }
 		LoginCredentials cred = new LoginCredentials();
         cred.getUser().setUsername(uc.getUserName());
         cred.getUser().setPassword(uc.getPassword());
@@ -556,7 +558,7 @@ public class DataServicesFactory
         cred.setEncrypyion(uc.isEncrypted());
         
 		ExperimenterData exp = omeroGateway.connect(cred);
-		
+
 		//check client server version
 		compatible = true;
         //Register into log file.
