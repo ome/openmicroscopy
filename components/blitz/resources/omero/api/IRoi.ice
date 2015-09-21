@@ -44,16 +44,12 @@ module omero {
          *
          *   ShapeList shapes = byZ.get(1);
          *
-         * Shapes which are found on all z, t, or do not belong to a group can be found
-         * with:
+         * Shapes which are found on all z or t can be found with:
          *
          *   byZ.get(-1);
          *   byT.get(-1);
-         *   byG.get("");
          *
-         * respectively. The groups string-string map provides the hierarchy of the group
-         * strings using unix-style filesystem paths. That is, if a returned shape is in
-         * the group "/a/b", then there will be an entry in the groups map: ...TBD...
+         * respectively.
          *
          **/
         class RoiResult
@@ -65,8 +61,6 @@ module omero {
 
                 IntShapeListMap    byZ;
                 IntShapeListMap    byT;
-                StringShapeListMap byG;
-                StringStringMap    groups;
             };
 
         /**
