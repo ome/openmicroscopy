@@ -214,10 +214,7 @@ public class ROIs
         text.setFillRule(omero.rtypes.rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(omero.rtypes.rstring("10 20 30 10"));
-        text.setStrokeDashOffset(omero.rtypes.rint(1));
         text.setStrokeLineCap(omero.rtypes.rstring("butt"));
-        text.setStrokeLineJoin(omero.rtypes.rstring("bevel"));
-        text.setStrokeMiterLimit(omero.rtypes.rint(1));
         text.setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
         text.setAnchor(omero.rtypes.rstring("middle"));
         text.setDecoration(omero.rtypes.rstring("underline"));
