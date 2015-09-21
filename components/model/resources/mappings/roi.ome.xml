@@ -99,7 +99,6 @@
                         <optional name="y" type="double"/>
                         <optional name="width" type="double"/>
                         <optional name="height" type="double"/>
-                        <optional name="rx" type="double"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
