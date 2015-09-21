@@ -52,9 +52,7 @@ import omero.model.ImageI;
 import omero.model.LengthI;
 
 import omero.gateway.model.EllipseData;
-import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
-import omero.gateway.model.PixelsData;
 import omero.gateway.model.PointData;
 import omero.gateway.model.PolygonData;
 import omero.gateway.model.PolylineData;
