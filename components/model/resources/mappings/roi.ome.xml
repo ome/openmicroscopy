@@ -40,10 +40,6 @@
                                Color keyword : red, blue, black, ...
                         -->
                         <!-- Global -->
-                        <!-- "g" provides limited support for the nestable g
-                              elements in SVG. All shapes with the same roi and the same
-                              g value are in the same group -->
-                        <optional name="g" type="string"/>
                         <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
                         <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
                         <!-- Fill -->
@@ -52,10 +48,7 @@
                         <!-- Stroke -->
                         <optional name="strokeColor" type="int"/>
                         <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
-                        <optional name="strokeDashOffset" type="int"/>
                         <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
-                        <optional name="strokeLineJoin" type="string"/><!-- miter, round, bevel -->
-                        <optional name="strokeMiterLimit" type="int"/>
                         <optional name="strokeWidth" type="ome.model.units.Length"/><!-- point default -->
                         <!-- Font -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
