@@ -99,11 +99,17 @@ INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
 
 -- ... up to patch 0:
 
+ALTER TABLE shape DROP COLUMN anchor;
+ALTER TABLE shape DROP COLUMN baselineshift;
+ALTER TABLE shape DROP COLUMN decoration;
+ALTER TABLE shape DROP COLUMN direction;
 ALTER TABLE shape DROP COLUMN g;
+ALTER TABLE shape DROP COLUMN glyphorientationvertical;
 ALTER TABLE shape DROP COLUMN strokedashoffset;
 ALTER TABLE shape DROP COLUMN strokelinejoin;
 ALTER TABLE shape DROP COLUMN strokemiterlimit;
 ALTER TABLE shape DROP COLUMN visibility;
+ALTER TABLE shape DROP COLUMN writingmode;
 
 
 --
