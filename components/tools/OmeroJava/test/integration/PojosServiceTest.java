@@ -2169,7 +2169,7 @@ public class PojosServiceTest extends AbstractServerTest {
     }
 
     /**
-     * Test to load container hierarchy with project containing an dataset
+     * Test to load container hierarchy with screen containing a plate
      * owned by another member of the group.
      *
      * @throws Exception
@@ -2179,6 +2179,8 @@ public class PojosServiceTest extends AbstractServerTest {
     public void testLoadContainerHierarchyScreenWithOtherMembersPlate()
             throws Exception {
         // first create a Screen
+        String perms = "rwrw--";
+        EventContext ctx = newUserAndGroup(perms, true);
         Screen p = (Screen) iUpdate.saveAndReturnObject(mmFactory
                 .simpleScreenData().asIObject());
 
