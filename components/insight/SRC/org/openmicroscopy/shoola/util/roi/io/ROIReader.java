@@ -247,7 +247,7 @@ public class ROIReader {
             shape.setC(0);
             shape.setT(0);
         }
-        if (c >= imageC || z >= imageZ || t >= imageT) {
+        if (c > imageC || z > imageZ || t > imageT) {
             return false;
         }
         if (c != 0) {
