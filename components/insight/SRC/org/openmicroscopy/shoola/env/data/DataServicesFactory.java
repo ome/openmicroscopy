@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+
 import omero.client;
 
 import org.openmicroscopy.shoola.env.Agent;
@@ -63,11 +64,13 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -546,7 +549,9 @@ public class DataServicesFactory
             throw new NullPointerException("No user credentials.");
 		String name = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
-		if (name == null) name = LookupNames.MASTER_INSIGHT;
+		if (CommonsLangUtils.isBlank(name)) {
+		    name = LookupNames.MASTER_INSIGHT;
+		}
 		client client = omeroGateway.createSession(uc.getUserName(),
 				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
 				uc.getPort());
