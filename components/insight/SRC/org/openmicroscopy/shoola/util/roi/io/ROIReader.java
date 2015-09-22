@@ -37,6 +37,7 @@ import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.RoiManager;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -213,11 +214,16 @@ public class ROIReader {
             settings.setStrokeWidth(new LengthI((double) roi.getStrokeWidth(),
                     UnitsFactory.Shape_StrokeWidth));
         }
+        Color color;
         if (roi.getStrokeColor() != null) {
-            settings.setStroke(roi.getStrokeColor());
+            color = roi.getStrokeColor();
+            settings.setStroke(new Color(color.getRed(), color.getGreen(),
+                    color.getBlue(), color.getAlpha()));
         }
         if (roi.getFillColor() != null) {
-            settings.setFill(roi.getFillColor());
+            color = roi.getFillColor();
+            settings.setFill(new Color(color.getRed(), color.getGreen(),
+                    color.getBlue(), color.getAlpha()));
         }
         int pos = roi.getPosition();
         int c = roi.getCPosition();
