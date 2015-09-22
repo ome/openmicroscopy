@@ -175,7 +175,11 @@ public class DataServicesFactory
         
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
-        if (omeroGateway.isUpgradeRequired()) {
+        String name = (String) registry.lookup(LookupNames.MASTER);
+        if (CommonsLangUtils.isBlank(name)) {
+            name = LookupNames.MASTER_INSIGHT;
+        }
+        if (omeroGateway.isUpgradeRequired(name)) {
         	
         }
 	}
@@ -569,7 +573,6 @@ public class DataServicesFactory
     	if (uc.getUserName().equals(omeroGateway.getSessionId(exp))) {
     	    container.getRegistry().bind(LookupNames.SESSION_KEY, Boolean.TRUE);
     	}
-    	;
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
         Boolean check = checkClientServerCompatibility(version, clientVersion);

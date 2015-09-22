@@ -1399,14 +1399,23 @@ class OMEROGateway
 	 * Returns <code>true</code> if an upgrade is required, <code>false</code>
 	 * otherwise.
 	 *
+	 * @param name The name of the agent.
 	 * @return See above.
 	 */
-	boolean isUpgradeRequired()
+	boolean isUpgradeRequired(String name)
 	{
-		ResourceBundle bundle = ResourceBundle.getBundle("omero");
+	    ResourceBundle bundle = ResourceBundle.getBundle("omero");
 	    String version = bundle.getString("omero.version");
 	    String url = bundle.getString("omero.upgrades.url");
-	    UpgradeCheck check = new UpgradeCheck(url, version, "insight");
+	    //Strip the "OMERO" part of the string
+	    if (CommonsLangUtils.isBlank(name)) {
+	        name = "insight";
+	    }
+	    if (name.startsWith("OMERO.")) {
+	        name = name.substring("OMERO.".length());
+	    }
+	    System.err.println(name);
+	    UpgradeCheck check = new UpgradeCheck(url, version, name);
 	    check.run();
 	    return check.isUpgradeNeeded();
 	}
