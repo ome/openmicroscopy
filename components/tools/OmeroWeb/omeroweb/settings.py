@@ -628,12 +628,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
-    "omero.web.download_jpg.max_size":
-        ["DOWNLOAD_JPG_MAX_SIZE",
-         144000000,
-         int,
-         ("Disable download as jpg, png & tiff for images"
-          "where sizeX * sizeY exceeds this limit")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
