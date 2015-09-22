@@ -23,6 +23,8 @@
 
 package org.openmicroscopy.shoola.env.data;
 
+import ij.IJ;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -92,14 +94,17 @@ public class DataServicesFactory
 {
 
     /** The sole instance. */
-	private static DataServicesFactory		singleton;
+	private static DataServicesFactory singleton;
 	
 	/** The dialog indicating that the connection is lost.*/
 	private JDialog connectionDialog;
 	
 	/** Flag indicating that the client and server are not compatible.*/
 	private boolean compatible;
-	
+
+    /** Flag indicating that if the upgrade check has been performed or not.*/
+    private boolean upgradeCheck = false;
+
 	/**
 	 * Creates a new instance. This can't be called outside of container 
 	 * b/c agents have no references to the singleton container.
@@ -115,7 +120,7 @@ public class DataServicesFactory
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (singleton == null)	
+		if (singleton == null)
 			singleton = new DataServicesFactory(c);
 		return singleton;
 	}
@@ -182,9 +187,6 @@ public class DataServicesFactory
         String name = (String) registry.lookup(LookupNames.MASTER);
         if (CommonsLangUtils.isBlank(name)) {
             name = LookupNames.MASTER_INSIGHT;
-        }
-        if (omeroGateway.isUpgradeRequired(name)) {
-        	
         }
 	}
 	
@@ -587,7 +589,8 @@ public class DataServicesFactory
         	omeroGateway.logout();
         	return;
         }
-
+        //Upgrade check only if client and server are compatible
+        omeroGateway.isUpgradeRequired(name);
         ExperimenterData exp = omeroGateway.login(client,
                 uc.getHostName(), determineCompression(uc.getSpeedLevel()),
                 uc.getGroup(), uc.getPort());
@@ -746,7 +749,6 @@ public class DataServicesFactory
 		if (omeroGateway != null) omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
-		 
         if (executor != null) executor.shutdown();
         singleton = null;
         executor = null;
@@ -810,11 +812,11 @@ public class DataServicesFactory
 			}
 		}
 		shutdown(null);
-		singleton = null;
 		if (exit) {
 			CacheServiceFactory.shutdown(container);
 			container.exit();
 		}
+		singleton = null;
 	}
 
 	/**
