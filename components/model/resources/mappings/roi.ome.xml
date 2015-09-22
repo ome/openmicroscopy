@@ -15,8 +15,6 @@
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
                         <optional name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>
-                        <optional name="namespaces" type="string[]"/>
-                        <optional name="keywords" type="string[][]"/>
                 </properties>
         </type>
         <abstract id="ome.model.roi.Shape" discriminator="" annotated="true">
