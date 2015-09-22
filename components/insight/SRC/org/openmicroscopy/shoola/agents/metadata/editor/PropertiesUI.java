@@ -670,25 +670,37 @@ public class PropertiesUI
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
     	NumberFormat nf = new DecimalFormat("0.00");
-    	String units = null;
+    	UnitsLength unit = null;
     	try {
     		x = UIUtilities.transformSize(x);
 			dx = x.getValue();
-			units = ((LengthI)x).getSymbol();
+			unit = x.getUnit();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			y = UIUtilities.transformSize(y);
-			dy = y.getValue();
-			if (units == null) units = ((LengthI)y).getSymbol();
+		    if(unit == null) {
+		        y = UIUtilities.transformSize(y);
+		        dy = y.getValue();
+		        unit = y.getUnit();
+		    }
+		    else {
+		        y = new LengthI(y, unit);
+		        dy = y.getValue();
+		    }
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			z = UIUtilities.transformSize(z);
-			dz = z.getValue();
-			if (units == null) units = ((LengthI)z).getSymbol();
+		    if(unit == null) {
+                z = UIUtilities.transformSize(z);
+                dz = z.getValue();
+                unit = z.getUnit();
+            }
+            else {
+                z = new LengthI(z, unit);
+                dz = z.getValue();
+            }
 		} catch (Exception e) {
 			number = false;
 		}
@@ -722,8 +734,8 @@ public class PropertiesUI
     	}
     	if (value.length() == 0) return null;
     	component.setText(value);
-    	if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
-    	label += "("+units+")";
+    	if (unit == null) unit = UnitsLength.MICROMETER;
+    	label += "("+LengthI.lookupSymbol(unit)+")";
     	return label+":";
     }
 
