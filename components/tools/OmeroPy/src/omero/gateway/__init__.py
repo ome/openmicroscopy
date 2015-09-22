@@ -1545,7 +1545,7 @@ class _BlitzGateway (object):
         return (self.getConfigService().getConfigValue(
                 "omero.client.viewer.interpolate_pixels") or 'true')
 
-    def getDownloadAsJpgMaxSizeSetting(self):
+    def getDownloadAsMaxSizeSetting(self):
         """
         Returns default max size of images that can be downloaded as
         jpg, png or tiff, expressed as number of pixels.
@@ -1556,7 +1556,7 @@ class _BlitzGateway (object):
         size = 144000000
         try:
             size = self.getConfigService().getConfigValue(
-                "omero.client.download_as_jpg.max_size")
+                "omero.client.download_as.max_size")
             size = int(size)
         except:
             pass
