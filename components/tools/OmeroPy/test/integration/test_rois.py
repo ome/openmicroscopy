@@ -127,34 +127,30 @@ class TestRois(lib.ITest):
 
         class Roi(object):
 
-            def __init__(self, fix, ns, z, t):
+            def __init__(self, fix, z, t):
                 self.fix = fix
-                self.ns = ns
                 self.z = z
                 self.t = t
                 self.shape = omero.model.RectangleI()
                 self.shape.setTheZ(omero.rtypes.rint(z))
                 self.shape.setTheT(omero.rtypes.rint(t))
                 self.obj = omero.model.RoiI()
-                self.obj.namespaces = [ns]
                 self.obj.setImage(img)
                 self.obj.addShape(self.shape)
                 self.obj = fix.save(self.obj)
                 self.id = self.obj.id.val
 
-        r1 = Roi(fix1, "A", 0, 0)
-        r2 = Roi(fix1, "B", 1, 1)
-        r3 = Roi(fix2, "A", 0, 0)
-        r4 = Roi(fix2, "B", 1, 1)
+        r1 = Roi(fix1, 0, 0)
+        r2 = Roi(fix1, 1, 1)
+        r3 = Roi(fix2, 0, 0)
+        r4 = Roi(fix2, 1, 1)
 
-        def assertRois(fix, userid, ns, z, t,
-                       byimage, byrois, byns, byplane):
+        def assertRois(fix, userid, z, t,
+                       byimage, byrois, byplane):
 
             roiOptions = omero.api.RoiOptions()
             if userid is not None:
                 roiOptions.userId = omero.rtypes.rlong(userid)
-            if ns is not None:
-                roiOptions.namespace = omero.rtypes.rstring(ns)
 
             svc = fix.roi
 
@@ -171,14 +167,9 @@ class TestRois(lib.ITest):
             assert byplane == len(r.rois)
 
         for x, y in ((fix1, fix1), (fix1, fix2), (fix2, fix1), (fix2, fix2)):
-            assertRois(x, y.userid, None, 0, 0,   2, 2, 2, 1)
-            assertRois(x, y.userid, None, 0, 1,   2, 2, 2, 0)  # DNE
-            assertRois(x, y.userid, "A",  0, 0,   1, 2, 1, 1)
-            assertRois(x, y.userid, "B",  0, 0,   1, 2, 1, 1)
+            assertRois(x, y.userid, 0, 0,   2, 2, 1)
+            assertRois(x, y.userid, 0, 1,   2, 2, 0)  # DNE
 
         for x in (fix1, fix2):
-            assertRois(x, None,     None,  0, 0,   4, 4, 4, 2)
-            assertRois(x, None,     None,  0, 1,   4, 4, 4, 0)  # DNE
-            assertRois(x, None,     "A",   0, 0,   2, 4, 2, 2)
-            assertRois(x, None,     "B",   0, 0,   2, 4, 2, 2)
-            assertRois(x, None,     "B",   0, 0,   2, 4, 2, 2)
+            assertRois(x, None,     0, 0,   4, 4, 2)
+            assertRois(x, None,     0, 1,   4, 4, 0)  # DNE
