@@ -510,12 +510,11 @@ class ChannelAcquisitionComponent
             date = DateUtils.round(date, Calendar.SECOND);
             m = date.get(Calendar.MINUTE);
             s = date.get(Calendar.SECOND);
-            return m + " m " + s + " s";
-        } else if (tInS > 0.9) {
+            return m + " min " + s + " s";
+        } else if (tInS > 0.9) 
             return sFormat.format(tInS);
-        } else {
-            return msFormat.format((tInS * 1000));
-        }
+            
+        return msFormat.format(tInS * 1000);
     }
 	
 	/**
