@@ -39,7 +39,7 @@ import omero.scripts
 
 from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
-from omero.cmd import Chmod
+from omero.cmd import Chmod, Chgrp2, DoAll
 
 from omero.gateway import AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
@@ -202,6 +202,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 self.getConfigService().getConfigValue(
                     "omero.client.ui.menu.dropdown.everyone")
         return dropdown_menu
+
+    def chgrpDryRun(self, targetObjects, group_id):
+        """
+        Submits a 'dryRun' chgrp to test for links that would be broken.
+        Returns a handle.
+
+        :param targetObjects:   Dict of dtype: [ids]. E.g. {'Dataset': [1,2]}
+        :param group_id:        The group to move the data to.
+        """
+
+        chgrp = Chgrp2(targetObjects=targetObjects, groupId=group_id)
+        chgrp.dryRun = True
+
+        da = DoAll()
+        da.requests = [chgrp]
+
+        ctx = self.SERVICE_OPTS.copy()
+        prx = self.c.sf.submit(da, ctx)
+        return prx
 
     ##############################################
     #   IAdmin                                  ##
