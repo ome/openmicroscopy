@@ -212,7 +212,7 @@ class BaseContainer(BaseController):
         can = True
         try:
             limit = request.session['server_settings'][
-                'download_as_jpg_max_size']
+                'download_as_max_size']
         except:
             limit = 144000000
         if self.image:
