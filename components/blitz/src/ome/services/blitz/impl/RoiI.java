@@ -107,18 +107,18 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                    final Filter f = filter(opts);
-                    final QueryBuilder qb = new QueryBuilder();
-                    qb.select("distinct r").from("Roi", "r");
-                    qb.join("r.image", "i", false, false);
-                    qb.join("r.shapes", "shapes", false, true); // fetch
-                    qb.where();
-                    qb.and("i.id = :id");
-                    qb.filter("r", f);
-                    qb.filterNow();
-                    qb.order("r.id", true); // ascending
-                    qb.param("id", imageId);
-                    return qb.queryWithoutFilter(session).list();
+                final Filter f = filter(opts);
+                final QueryBuilder qb = new QueryBuilder();
+                qb.select("distinct r").from("Roi", "r");
+                qb.join("r.image", "i", false, false);
+                qb.join("r.shapes", "shapes", false, true); // fetch
+                qb.where();
+                qb.and("i.id = :id");
+                qb.filter("r", f);
+                qb.filterNow();
+                qb.order("r.id", true); // ascending
+                qb.param("id", imageId);
+                return qb.queryWithoutFilter(session).list();
             }
         }));
 
