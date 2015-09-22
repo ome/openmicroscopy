@@ -332,19 +332,15 @@
         };
 
 
-        var linkNodeTimeout,
-            linkPayload = {};
-
-        var d = jQuery.Deferred();
-
+        // Helper method used by linkNode and unlinkNode below.
+        // Simply adds parent_type, parent_id, child_type & child_id to payload object
+        // e.g. {"dataset":{"10":{"image":[1,2,3]}}}:
         function addDataToPayload(payload, node, parent) {
-
-            // Add data to payload...
             var parent_id = parent.data.obj.id,
                 parent_type = parent.type,
                 child_id = node.data.obj.id,
                 child_type = node.type;
-            // payload is payload.parent_type.parent_id.child_type.child_id
+            // payload is payload.parent_type.parent_id.child_type: [child_ids]
             if (!(parent_type in payload)) payload[parent_type] = {};
             if (!(parent_id in payload[parent_type])) {
                 payload[parent_type][parent_id] = {};
@@ -355,15 +351,25 @@
             payload[parent_type][parent_id][child_type].push(child_id);
         }
 
+        // linkNode and unlinkNode (below) use a 'debounce' timeout to collect
+        // many link or unlink calls into a single AJAX call.
+        // On each call to linkNode or unlinkNode, we add the data from node & parent
+        // to the payload that we submit. This is sent once the timeout expires.
+        // linkNode and unlinkNode both return a deferred promise that will be
+        // resolved when the AJAX call returns.
+        var linkNodeTimeout,
+            linkPayload = {},
+            deferredLink = jQuery.Deferred();
         function linkNode(inst, node, parent) {
 
+            // doLink is called on timeout to submit AJAX call
             var doLink = function() {
+                // we send a reference to the deferred...
+                var dd = deferredLink;
+                // ...and create a new deferred to handle subsequent calls to linkNode
+                deferredLink = jQuery.Deferred();
 
-                var dd = d;
-                d = jQuery.Deferred();
-
-                console.log("Starting link....")
-                // Return a promise
+                // Do the call, and resolve the deferred when done
                 $.ajax({
                     url: "{% url 'api_link' %}",
                     type: "POST",
@@ -374,37 +380,33 @@
                     dd.resolve();
                 });
 
+                // empty the payload, ready for sebsequent calls
                 linkPayload = {};
             };
-            console.log('linkNode', payload);
 
+            // build up an object with all the links we want to create
             addDataToPayload(linkPayload, node, parent)       
 
-            // if we're waiting on timeout, clear this and start new timeout
+            // if we're waiting on timeout, clear this...
             if (linkNodeTimeout) {
                 clearTimeout(linkNodeTimeout);
             }
-            linkNodeTimeout = setTimeout(doLink, 20);
+            // ...start new timeout
+            linkNodeTimeout = setTimeout(doLink, 10);
 
-            return d;
+            // return a promise (cannot call resolve() on it elsewhere)
+            return deferredLink.promise();
 
         }
 
-
+        // See docs above for linkNode (works the same as unlinkNode)
         var unlinkNodeTimeout,
-            unlinkPayload = {};
-
-        var dUnlink = jQuery.Deferred();
-
+            unlinkPayload = {},
+            deferredUnlink = jQuery.Deferred();
         function unlinkNode(inst, node, parent) {
-
             var doUnlink = function() {
-
-                var dd = dUnlink;
-                dUnlink = jQuery.Deferred();
-
-                console.log("Starting link....")
-                // Return a promise
+                var dd = deferredUnlink;
+                deferredUnlink = jQuery.Deferred();
                 $.ajax({
                     url: "{% url 'api_link' %}",
                     type: "DELETE",
@@ -414,21 +416,14 @@
                 .done(function(){
                     dd.resolve();
                 });
-
                 unlinkPayload = {};
             };
-            console.log('unlink', payload);
-
             addDataToPayload(unlinkPayload, node, parent)       
-
-            // if we're waiting on timeout, clear this and start new timeout
             if (unlinkNodeTimeout) {
                 clearTimeout(unlinkNodeTimeout);
             }
-            unlinkNodeTimeout = setTimeout(doUnlink, 20);
-
-            return d;
-
+            unlinkNodeTimeout = setTimeout(doUnlink, 10);
+            return deferredUnlink.promise();
         };
 
         // Remove duplicate nodes, normally as a result of copy_node
