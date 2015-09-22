@@ -221,13 +221,9 @@ public class ROIFacility extends Facility {
                         measurements, options);
                 if (map == null)
                     return results;
-                Iterator i = map.entrySet().iterator();
-                Long id;
-                Entry entry;
-                while (i.hasNext()) {
-                    entry = (Entry) i.next();
-                    id = (Long) entry.getKey();
-                    r = (RoiResult) entry.getValue();
+                for (final Entry<Long, RoiResult> entry : map.entrySet()) {
+                    final Long id = entry.getKey();
+                    r = entry.getValue();
                     // get the table
                     result = new ROIResult(PojoMapper.<ROIData>asCastedDataObjects(r.rois), id);
                     result.setResult(PyTablesUtils.createTableResult(
@@ -516,8 +512,6 @@ public class ROIFacility extends Facility {
                 if (serverRoi != null) {
                     Roi ri = (Roi) roi.asIObject();
                     serverRoi.setDescription(ri.getDescription());
-                    serverRoi.setNamespaces(ri.getNamespaces());
-                    serverRoi.setKeywords(ri.getKeywords());
                     serverRoi.setImage(unloaded);
                     ri = (Roi) updateService.saveAndReturnObject(serverRoi);
                     updated.add(new ROIData(ri));

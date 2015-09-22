@@ -1384,19 +1384,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public String getROINamespace(int ROIIndex) {
-        if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
-            return null;
-        }
-        final Roi roi = roiList.get(ROIIndex);
-        final String[] namespaces = roi.getNamespaces();
-        if (ArrayUtils.isEmpty(namespaces)) {
-            return null;
-        }
-        return namespaces[0];
-    }
-
-    @Override
     public int getShapeCount(int ROIIndex) {
         if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
             return -1;
