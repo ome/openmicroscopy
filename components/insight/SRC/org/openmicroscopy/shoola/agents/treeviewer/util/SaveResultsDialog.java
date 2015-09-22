@@ -160,15 +160,12 @@ public class SaveResultsDialog
                     int[] values = WindowManager.getIDList();
                     String path = img.getAbsolutePath();
                     if (path != null) {
-                        int id = plus.getID();
                         FileObject ff;
                         for (int i = 0; i < values.length; i++) {
                             plus = WindowManager.getImage(values[i]);
-                            if (plus.getID() == id) {
-                                ff = new FileObject(plus);
-                                if (path.equals(ff.getAbsolutePath())) {
-                                    img.addAssociatedFile(ff);
-                                }
+                            ff = new FileObject(plus);
+                            if (path.equals(ff.getAbsolutePath())) {
+                                img.addAssociatedFile(ff);
                             }
                         }
                     }
