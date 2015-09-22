@@ -825,7 +825,7 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'acquisitions': plate_acquisitions})
 
 
-def get_object_link(conn, parent_type, parent_id, child_type, child_id):
+def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     """ This is just used internally by api_link DELETE below """
     if parent_type == 'orphaned':
         return None
@@ -838,40 +838,42 @@ def get_object_link(conn, parent_type, parent_id, child_type, child_id):
             return None
     elif parent_type == 'project':
         if child_type == 'dataset':
-            link_type = 'ProjectDataset'
+            link_type = 'ProjectDatasetLink'
     elif parent_type == 'dataset':
         if child_type == 'image':
-            link_type = 'DatasetImage'
+            link_type = 'DatasetImageLink'
     elif parent_type == 'screen':
         if child_type == 'plate':
-            link_type = 'ScreenPlate'
+            link_type = 'ScreenPlateLink'
 
     if not link_type:
         raise Http404("json data needs 'parent_type' and 'child_type'")
 
     params = omero.sys.ParametersI()
     params.add('pid', rlong(parent_id))
-    params.add('cid', rlong(child_id))
+    params.addIds(child_ids)
 
     qs = conn.getQueryService()
     q = """
-        from %sLink olink
+        from %s olink
         where olink.parent.id = :pid
-        and olink.child.id = :cid
+        and olink.child.id in (:ids)
         """ % link_type
     res = qs.findAllByQuery(q, params, conn.SERVICE_OPTS)
 
     if len(res) > 0:
-        return res[0]
+        linkIds = [r.id.val for r in res]
+        return link_type, linkIds
     else:
         raise Http404("No link found for %s-%s to %s-%s"
-                      % (parent_type, parent_id, child_type, child_id))
+                      % (parent_type, parent_id, child_type, child_ids))
 
 
 @login_required()
 def api_link(request, conn=None, **kwargs):
-    """ Creates or Deletes a link between 2 objects specified by a json
+    """ Creates or Deletes links between objects specified by a json
     blob in the request body.
+    e.g. {"dataset":{"10":{"image":[1,2,3]}}}
     When creating a link, fails silently if ValidationException
     (E.g. adding an image to a Dataset that already has that image).
     """
@@ -914,30 +916,24 @@ def api_link(request, conn=None, **kwargs):
     # Handle link creation/deletion
     json_data = json.loads(request.body)
 
-    print 'json_data', json_data
-
     # json is [parent_type][parent_id][child_type][childIds]
+    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
     try:
         linksToSave = []
         for parent_type, parents in json_data.items():
             for parent_id, children in parents.items():
-                for child_type, childIds in children.items():
-                    for child_id in childIds:
-                        parent_id = int(parent_id)
-                        print parent_type, parent_id, child_type, child_id
-
-                        if request.method == 'POST':
+                for child_type, child_ids in children.items():
+                    if request.method == 'DELETE':
+                        linkType, linkIds = get_object_links(conn, parent_type, parent_id, child_type, child_ids)
+                        conn.deleteObjects(linkType, linkIds)
+                    elif request.method == 'POST':
+                        for child_id in child_ids:
+                            parent_id = int(parent_id)
                             link = get_link(parent_type, parent_id, child_type, child_id)
                             if link and link != 'orphan':
                                 linksToSave.append(link)
-                        elif request.method == 'DELETE':
-                            link = get_object_link(conn, parent_type, parent_id, child_type, child_id)
-                            print "Delete"
-                            if link is not None:
-                                conn.deleteObjectDirect(link)
 
         if request.method == 'POST' and len(linksToSave) > 0:
-            print "saving objects...", len(linksToSave)
             # Need to set context to correct group (E.g parent group)
             p = conn.getQueryService().get(parent_type.title(), parent_id,
                                            conn.SERVICE_OPTS)
@@ -949,12 +945,9 @@ def api_link(request, conn=None, **kwargs):
     # We assume that the failed creation of the link due to
     # a ValidationException is due to the prexisting status
     # of the link. This could be confirmed by parsing the
-    # message of the exception. That is why success is marked to
-    # be true
-    # At worst this may wrongly report that a link already existed
-    # when in-fact, one of the object in the link did not exist
+    # message of the exception.
     except ValidationException:
-        response['success'] = True
+        response['success'] = False
 
     # elif request.method == 'DELETE':
     #     json_data = json.loads(request.body)
