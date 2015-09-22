@@ -273,6 +273,9 @@ public class AnnotationDeleteTest extends AbstractServerTest {
      */
     @Test(dataProvider = "child option")
     public void testDeleteTargetSharedTag(Option option) throws Exception {
+        /* ensure a connection to the server */
+        newUserAndGroup("rwra--");
+
         /* create two tag sets */
         final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= 2; i++) {

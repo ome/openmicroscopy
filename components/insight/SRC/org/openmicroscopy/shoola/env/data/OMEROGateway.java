@@ -3736,31 +3736,34 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, File file, ImageData image)
+			SecurityContext ctx, File file, ImageData image, boolean keepOriginalPaths)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		return retrieveArchivedFiles(ctx, file, image);
+		return retrieveArchivedFiles(ctx, file, image, keepOriginalPaths);
 	}
-
+	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 *
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder
+	 *               structure.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	private Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, File file, ImageData image)
+			SecurityContext ctx, File file, ImageData image, boolean keepOriginalPaths)
 		throws DSAccessException, DSOutOfServiceException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -3798,7 +3801,7 @@ class OMEROGateway
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (CollectionUtils.isEmpty(files)) return result;
 		Iterator<?> i;
-		List<OriginalFile> values = new ArrayList<OriginalFile>();
+		Map<OriginalFile, Fileset> values = new HashMap<OriginalFile, Fileset>();
 		if (image.isFSImage()) {
 			i = files.iterator();
 			Fileset set;
@@ -3810,10 +3813,13 @@ class OMEROGateway
 				j = entries.iterator();
 				while (j.hasNext()) {
 					FilesetEntry fs = j.next();
-					values.add(fs.getOriginalFile());
+					values.put(fs.getOriginalFile(), set);
 				}
 			}
-		} else values.addAll((List<OriginalFile>) files);
+		} else {
+		    for(Object f : files)
+		        values.put((OriginalFile)f, null);
+		}
 
 		RawFileStorePrx store = null;
 		OriginalFile of;
@@ -3825,19 +3831,62 @@ class OMEROGateway
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
 		folderPath = file.getAbsolutePath();
-		i = values.iterator();
+		Iterator<Entry<OriginalFile, Fileset>> entries = values.entrySet().iterator();
 
-		while (i.hasNext()) {
-			of = (OriginalFile) i.next();
-
+		Map<Fileset, String> filesetPaths = new HashMap<Fileset, String>();
+		
+		while (entries.hasNext()) {
+		    Entry<OriginalFile, Fileset> entry = entries.next();
+		    
+			of = entry.getKey();
+			Fileset set = entry.getValue();
+			String repoPath = set.getTemplatePrefix().getValue();
+			
+            String path = null;
+            if (keepOriginalPaths && set != null && set.sizeOfUsedFiles() > 1) {
+                // this will store multi file images within a subdirectory with
+                // the same name as the main image file
+                path = filesetPaths.get(set);
+                if (path == null) {
+                    path = folderPath.endsWith("/") ? folderPath : folderPath + "/";
+                    String imgFilename = set.getFilesetEntry(0).getOriginalFile()
+                            .getName().getValue();
+                    path += imgFilename;
+                    path = generateUniquePathname(path, false);
+                    // path should now be in the form
+                    // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]
+                    // where N is a consecutive number if the folder IMAGE_NAME
+                    // already exists
+                    filesetPaths.put(set, path);
+                }
+                path = path +"/"+ (of.getPath().getValue().replace(repoPath, ""));
+                // path should now be in the form
+                // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]/X/Y/Z
+                // where X, Y, Z are image specific subdirectories
+                // for the single image/data files
+                File origPath = new File(path);
+                if (!origPath.exists())
+                    origPath.mkdirs();
+            } else {
+                path = folderPath;
+            }
+			
 			try {
 			    store = c.getRawFileService();
 				store.setFileId(of.getId().getValue());
-
-				if (folderPath != null) {
-				    f = new File(folderPath, of.getName().getValue());
-				} else f = file;
-				    results.add(f);
+				
+				if (path != null) 
+				    f = new File(path, of.getName().getValue());
+				else
+				    f = file;
+				
+                if (f.exists()) {
+                    String newFileName = generateUniquePathname(f.getPath(),
+                            true);
+                    f = new File(newFileName);
+                }
+				
+				results.add(f);
 
 				stream = new FileOutputStream(f);
 				size = of.getSize().getValue();
@@ -3878,6 +3927,40 @@ class OMEROGateway
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
 	}
+	
+    /**
+     * Checks if the given path already exists and if so, generates a new path
+     * name path(N), where N is a consecutive number
+     * 
+     * @param path
+     *            The path name to check
+     * @param isFile
+     *            Pass <code>true</code> if the path name represents a file
+     * @return A unique path name based on the given path or the path itself if
+     *         it doesn't exist yet
+     */
+    private String generateUniquePathname(String path, boolean isFile) {
+        File tmp = new File(path);
+        if (tmp.exists()) {
+            String fileExt = null;
+            if (isFile && path.matches(".+\\..+")) {
+                fileExt = path.substring(path.lastIndexOf('.'), path.length());
+                path = path.substring(0, path.lastIndexOf('.'));
+            }
+            if (path.matches(".+\\(\\d+\\)")) {
+                int n = Integer.parseInt(path.substring(
+                        path.lastIndexOf('(') + 1, path.lastIndexOf(')')));
+                n++;
+                path = path.substring(0, path.lastIndexOf('(')) + "(" + n + ")";
+            } else {
+                path += "(1)";
+            }
+            if (fileExt != null)
+                path += fileExt;
+            return generateUniquePathname(path, isFile);
+        }
+        return path;
+    }
 
 	/**
 	 * Downloads a file previously uploaded to the server.
