@@ -20,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-import ij.IJ;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
