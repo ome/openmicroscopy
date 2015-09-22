@@ -7,19 +7,19 @@ OMERO version history
 A bug-fix release covering all components. Improvements include:
 
 -  channel buttons fixed in OMERO.web
--  rendering setting fixes for copy and paste actions and floating point
-   rendering
+-  improved UI experience when moving annotated data between groups in
+   OMERO.web
+-  rendering setting fixes for copy and paste actions
+-  rendering fixes for floating point data
 -  image interpolation can now be turned on and off in the clients
 -  more readable timestamps
--  measurement table fixes
 -  directories are now preserved when downloading multiple original files
--  various improvements to the imageJ plugin's handling of ROIs and
-   measurement tool functionality when interacting with OMERO
+-  various improvements to the OMERO-ImageJ handling of ROIs and measurements,
+   including the ability to name measurement tables
 -  current session key can now be returned via the CLI
--  other CLI improvements including reporting for 'delete' and 'chgrp',
-   usability of 'chmod' for downgrading group permissions, and listing empty
-   tagsets
--  better support for groups in OMERO.matlab methods
+-  other CLI improvements including usability of 'chmod' for downgrading group
+   permissions, and listing empty tagsets
+-  added support for groups in OMERO.matlab methods
 
 Developer updates include:
 
