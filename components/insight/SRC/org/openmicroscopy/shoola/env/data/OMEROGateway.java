@@ -1414,7 +1414,6 @@ class OMEROGateway
 	    if (name.startsWith("OMERO.")) {
 	        name = name.substring("OMERO.".length());
 	    }
-	    System.err.println(name);
 	    UpgradeCheck check = new UpgradeCheck(url, version, name);
 	    check.run();
 	    return check.isUpgradeNeeded();
