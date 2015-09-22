@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-//Java imports
-import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
@@ -1584,11 +1582,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                 if (path != null) {
                     for (int i = 0; i < values.length; i++) {
                         p = WindowManager.getImage(values[i]);
-                        if (p.getID() != id) {
-                            ff = new FileObject(p);
-                            if (path.equals(ff.getAbsolutePath())) {
-                                f.addAssociatedFile(ff);
-                            }
+                        ff = new FileObject(p);
+                        if (path.equals(ff.getAbsolutePath())) {
+                            f.addAssociatedFile(ff);
                         }
                     }
                 }
@@ -1601,18 +1597,15 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                         //need to check if it is the same image
                         ImagePlus p = WindowManager.getImage(values[i]);
                         f = new FileObject(p);
-                        int id = p.getID();
                         String path = f.getAbsolutePath();
                         if (!paths.contains(path)) {
                             paths.add(path);
                             list.add(f);
                             for (int j = 0; j < values.length; j++) {
                                 p = WindowManager.getImage(values[j]);
-                                if (p.getID() != id) {
-                                    ff = new FileObject(p);
-                                    if (path.equals(ff.getAbsolutePath())) {
-                                        f.addAssociatedFile(ff);
-                                    }
+                                ff = new FileObject(p);
+                                if (path.equals(ff.getAbsolutePath())) {
+                                    f.addAssociatedFile(ff);
                                 }
                             }
                         }
