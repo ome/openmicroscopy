@@ -429,17 +429,20 @@
         // Remove duplicate nodes, normally as a result of copy_node
         // or move_node
         function removeDuplicate(inst, node, parentId) {
-            var parent = inst.get_node(parentId);
+            var parent = inst.get_node(parentId),
+                found = false;
             $.each(parent.children, function(index, childId) {
                 var child = inst.get_node(childId);
                 if (child.type === node.type &&
                     child.data.obj.id === node.data.obj.id &&
                     child.id != node.id) {
                     inst.delete_node(child);
+                    found = true;
                     // Break out of $.each
                     return false;
                 }
             });
+            return found;
         };
 
         // Stuff to do on load...
@@ -703,12 +706,16 @@
                     }
 
                     // Remove potential duplicate node
-                    removeDuplicate(inst, data.node, data.parent);
+                    var childExists = removeDuplicate(inst, data.node, data.parent);
 
                     // Persist
-                    $.when(linkNode(inst, data.node, inst.get_node(data.parent))).done(function() {
+                    if (!childExists) {
+                        $.when(linkNode(inst, data.node, inst.get_node(data.parent))).done(function() {
+                            update_thumbnails_panel(e, data);
+                        });
+                    } else {
                         update_thumbnails_panel(e, data);
-                    });
+                    }
 
                     // Update the child count
                     OME.updateNodeChildCount(inst, data.parent);
@@ -723,7 +730,7 @@
                     */
                     var inst = data.instance;
                     // Remove potential duplicate node
-                    removeDuplicate(inst, data.node, data.parent);
+                    var childExists = removeDuplicate(inst, data.node, data.parent);
 
                     // trigger ome remove
                     $("body").trigger('removed_node.jstree.ome', data.node.data.obj);
@@ -732,7 +739,7 @@
                     var linkPromise;
                     // If the move is orphaning an object, do not persist the link
                     if (data.parent.type !== 'experimenter' &&
-                        data.parent.type !== 'orphaned') {
+                        data.parent.type !== 'orphaned' && !childExists) {
                         linkPromise = linkNode(inst, data.node, inst.get_node(data.parent));
                     }
                     var unlinkPromise = unlinkNode(inst, data.node, inst.get_node(data.old_parent));
