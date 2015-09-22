@@ -101,7 +101,10 @@ class ChannelAcquisitionComponent
 	private static final int	GENERAL = 0;
 	
 	/** Format used for displaying time in ms */
-	private static final DecimalFormat msFormat = new DecimalFormat("#ms");
+	private static final DecimalFormat msFormat = new DecimalFormat("# ms");
+	
+	/** Format used for displaying time in s */
+	private static final DecimalFormat sFormat = new DecimalFormat("0.0 s");
 	
 	/** Reference to the parent of this component. */
 	private AcquisitionDataUI					parent;
@@ -493,39 +496,34 @@ class ChannelAcquisitionComponent
      */
     private String getReadableTime(double tInS) {
         if (tInS == 0.0)
-            return "0s";
+            return "0 s";
 
         Calendar date = Calendar.getInstance();
         date = DateUtils.truncate(date, Calendar.YEAR);
         date.add(Calendar.MILLISECOND, (int) (tInS * 1000));
 
-        int d, h, m, s, ms;
+        int d, h, m, s;
 
         if (tInS > (23 * 60 * 60)) {
             date = DateUtils.round(date, Calendar.MINUTE);
             d = date.get(Calendar.DAY_OF_YEAR) - 1;
             h = date.get(Calendar.HOUR_OF_DAY);
             m = date.get(Calendar.MINUTE);
-            return d + "d " + (h > 0 ? h + "h " : "")
-                    + (m > 0 ? m + "min " : "");
+            return d + " d " + h + " h " + (m > 0 ? m + " min " : "");
         } else if (tInS > (59 * 60)) {
             date = DateUtils.round(date, Calendar.MINUTE);
             h = date.get(Calendar.HOUR_OF_DAY);
             m = date.get(Calendar.MINUTE);
-            return h + "h " + (m > 0 ? m + "min" : "");
+            return h + " h " + m + " min";
         } else if (tInS > 59) {
             date = DateUtils.round(date, Calendar.SECOND);
             m = date.get(Calendar.MINUTE);
             s = date.get(Calendar.SECOND);
-            return m + "m " + (s > 0 ? s + "s" : "");
-        } else if (tInS > 0.9) {
-            date = DateUtils.round(date, Calendar.MILLISECOND);
-            s = date.get(Calendar.SECOND);
-            ms = date.get(Calendar.MILLISECOND);
-            return s + "s " + (ms > 0 ? ms + "ms" : "");
-        } else {
-            return msFormat.format((tInS * 1000));
-        }
+            return m + " min " + s + " s";
+        } else if (tInS > 0.9) 
+            return sFormat.format(tInS);
+            
+        return msFormat.format(tInS * 1000);
     }
 	
 	/**
