@@ -6462,16 +6462,6 @@ public class OMEROMetadataStoreClient
         ignoreMissing("setROIName", name, ROIIndex);
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROINamespace(java.lang.String, int)
-     */
-    @Override
-    public void setROINamespace(String namespace, int ROIIndex)
-    {
-        Roi o = getROI(ROIIndex);
-        o.setNamespaces(new String[]{namespace});
-    }
-
     //////// Reagent /////////
 
     /**

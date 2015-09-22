@@ -107,31 +107,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                boolean ns = false;
-                if (opts != null) {
-                    if(opts.namespace != null) {
-                        ns = true;
-                    }
-                }
-
-                if (ns)
-                {
-		    final List<Map<String, Object>> mapList = sql.roiByImageAndNs(imageId,
-		            opts.namespace.getValue());
-                    final List<Long> idList = new ArrayList<Long>();
-
-                    for(Map<String, Object> idMap : mapList) {
-                        idList.add((Long)idMap.get("id"));
-                    }
-
-                    if (idList.size() == 0) return new ArrayList();
-
-                    final RoiQueryBuilder qb = new RoiQueryBuilder(idList, opts);
-                    return qb.query(session).list();
-                }
-
-                else
-                {
                     final Filter f = filter(opts);
                     final QueryBuilder qb = new QueryBuilder();
                     qb.select("distinct r").from("Roi", "r");
@@ -144,7 +119,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                     qb.order("r.id", true); // ascending
                     qb.param("id", imageId);
                     return qb.queryWithoutFilter(session).list();
-                }
             }
         }));
 
