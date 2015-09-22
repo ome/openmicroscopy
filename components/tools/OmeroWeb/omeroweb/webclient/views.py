@@ -924,13 +924,17 @@ def api_link(request, conn=None, **kwargs):
         for parent_id, children in parents.items():
             for child_type, child_ids in children.items():
                 if request.method == 'DELETE':
-                    linkType, linkIds = get_object_links(conn, parent_type, parent_id, child_type, child_ids)
+                    linkType, linkIds = get_object_links(conn, parent_type,
+                                                         parent_id,
+                                                         child_type,
+                                                         child_ids)
                     logger.info("api_link: Deleting %s links" % len(linkIds))
                     conn.deleteObjects(linkType, linkIds)
                 elif request.method == 'POST':
                     for child_id in child_ids:
                         parent_id = int(parent_id)
-                        link = get_link(parent_type, parent_id, child_type, child_id)
+                        link = get_link(parent_type, parent_id,
+                                        child_type, child_id)
                         if link and link != 'orphan':
                             linksToSave.append(link)
 
@@ -946,7 +950,8 @@ def api_link(request, conn=None, **kwargs):
             conn.saveArray(linksToSave)
             response['success'] = True
         except:
-            logger.info("api_link: Exception on saveArray with %s links" % len(linksToSave))
+            logger.info("api_link: Exception on saveArray with %s links"
+                        % len(linksToSave))
             # If this fails, e.g. ValidationException because link
             # already exists, try to save individual links
             for l in linksToSave:
