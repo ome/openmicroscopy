@@ -4918,7 +4918,7 @@ public class OMEROMetadataStoreClient
     public void setListAnnotationAnnotationRef(String annotation,
             int listAnnotationIndex, int annotationRefIndex)
     {
-        LSID key = new LSID(Annotation.class, listAnnotationIndex);
+        LSID key = new LSID(ListAnnotation.class, listAnnotationIndex);
         addReference(key, new LSID(annotation));
     }
 
