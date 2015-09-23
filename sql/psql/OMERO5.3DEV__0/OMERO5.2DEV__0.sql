@@ -99,6 +99,34 @@ INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
 
 -- ... up to patch 0:
 
+CREATE FUNCTION assert_no_roi_keywords_namespaces() RETURNS void AS $$
+
+DECLARE
+  roi_row roi%ROWTYPE;
+  element TEXT;
+
+BEGIN
+    FOR roi_row IN SELECT * FROM roi LOOP
+        FOREACH element IN ARRAY roi_row.keywords LOOP
+            IF element <> '' THEN
+                RAISE EXCEPTION 'data in roi.keywords row id=%', roi_row.id;
+            END IF;
+        END LOOP;
+        FOREACH element IN ARRAY roi_row.namespaces LOOP
+            IF element <> '' THEN
+                RAISE EXCEPTION 'data in roi.namespaces row id=%', roi_row.id;
+            END IF;
+        END LOOP;
+    END LOOP;
+
+END;$$ LANGUAGE plpgsql;
+
+SELECT assert_no_roi_keywords_namespaces();
+DROP FUNCTION assert_no_roi_keywords_namespaces();
+
+ALTER TABLE roi DROP COLUMN keywords;
+ALTER TABLE roi DROP COLUMN namespaces;
+
 ALTER TABLE shape DROP COLUMN anchor;
 ALTER TABLE shape DROP COLUMN baselineshift;
 ALTER TABLE shape DROP COLUMN decoration;
