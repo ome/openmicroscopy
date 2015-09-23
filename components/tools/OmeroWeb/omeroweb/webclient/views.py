@@ -850,23 +850,23 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
         raise Http404("json data needs 'parent_type' and 'child_type'")
 
     params = omero.sys.ParametersI()
-    params.add('pid', rlong(parent_id))
     params.addIds(child_ids)
 
     qs = conn.getQueryService()
     q = """
         from %s olink
-        where olink.parent.id = :pid
-        and olink.child.id in (:ids)
+        where olink.child.id in (:ids)
         """ % link_type
+    if parent_id:
+        params.add('pid', rlong(parent_id))
+        q += " and olink.parent.id = :pid"
+
     res = qs.findAllByQuery(q, params, conn.SERVICE_OPTS)
 
-    if len(res) > 0:
-        linkIds = [r.id.val for r in res]
-        return link_type, linkIds
-    else:
+    if parent_id is not None and len(res) == 0:
         raise Http404("No link found for %s-%s to %s-%s"
                       % (parent_type, parent_id, child_type, child_ids))
+    return link_type, res
 
 
 @login_required()
@@ -921,15 +921,39 @@ def api_link(request, conn=None, **kwargs):
 
     linksToSave = []
     for parent_type, parents in json_data.items():
+        if parent_type == "orphaned":
+            continue
         for parent_id, children in parents.items():
             for child_type, child_ids in children.items():
                 if request.method == 'DELETE':
-                    linkType, linkIds = get_object_links(conn, parent_type,
-                                                         parent_id,
-                                                         child_type,
-                                                         child_ids)
+                    linkType, links = get_object_links(conn, parent_type,
+                                                       parent_id,
+                                                       child_type,
+                                                       child_ids)
+                    linkIds = [r.id.val for r in links]
                     logger.info("api_link: Deleting %s links" % len(linkIds))
-                    conn.deleteObjects(linkType, linkIds)
+                    handle = conn.deleteObjects(linkType, linkIds)
+                    cb = omero.callbacks.CmdCallbackI(conn.c, handle)
+                    while not cb.block(50):
+                        pass
+                    cb.close(True)      # close handle too
+                    # webclient needs to know what is orphaned
+                    linkType, remainingLinks = get_object_links(conn,
+                                                                parent_type,
+                                                                None,
+                                                                child_type,
+                                                                child_ids)
+                    # return remaining links in same format as json above
+                    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+                    if parent_type not in response:
+                        response[parent_type] = {}
+                    for rl in remainingLinks:
+                        pid = rl.parent.id.val
+                        cid = rl.child.id.val
+                        if pid not in response[parent_type]:
+                            response[parent_type][pid] = {child_type: []}
+                        response[parent_type][pid][child_type].append(cid)
+
                 elif request.method == 'POST':
                     for child_id in child_ids:
                         parent_id = int(parent_id)

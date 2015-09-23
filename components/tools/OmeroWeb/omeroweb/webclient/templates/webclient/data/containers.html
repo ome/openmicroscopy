@@ -376,8 +376,8 @@
                     data: JSON.stringify(linkPayload),
                     dataType: 'json'
                 })
-                .done(function(){
-                    dd.resolve();
+                .done(function(data){
+                    dd.resolve(data);
                 });
 
                 // empty the payload, ready for sebsequent calls
@@ -413,8 +413,8 @@
                     data: JSON.stringify(unlinkPayload),
                     dataType: 'json'
                 })
-                .done(function(){
-                    dd.resolve();
+                .done(function(data){
+                    dd.resolve(data);
                 });
                 unlinkPayload = {};
             };
