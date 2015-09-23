@@ -169,6 +169,13 @@ Select First Project With Children
     Wait Until Right Panel Loads    Project                  ${projectId}
     [Return]                        ${projectId}
 
+Select First Project With Name
+    [Arguments]                     ${ProjectName}
+    ${nodeId}=                      Wait For Project Node Text      ${ProjectName}
+    Click Node                      ${nodeId}
+    Wait For General Panel          Project
+    [Return]                        ${nodeId}
+
 Select First Dataset
     ${datasetId}=                   Select Node By Icon      ${datasetIcon}
     Wait Until Right Panel Loads    Dataset                  ${datasetId}
@@ -204,11 +211,13 @@ Select First Screen
 
 Select Orphaned Images Section
     ${firstNodeId}=                 Get NodeId By Icon       ${orphanedIcon}
-    Click Node                      ${firstNodeId}
+    Click Node                                               ${firstNodeId}
     Wait Until Page Contains Element                         xpath=//p[contains(@class,"description")][contains(text(),'This is a virtual container with orphaned images.')]
+    Node Should Be Selected By Icon                          ${orphanedIcon}
+    Wait Until Element Is Visible                            xpath=//li[@id='${firstNodeId}']/ul/li
     #Something weird happening in here, if the sleep is removed this seems to fail a couple of tests which are depenedent on Selecting Orphaned Images Section
     #To Do : Investigate this failure in better detail.
-    Sleep                           0.5
+    # Sleep                           0.5
     [Return]                        ${firstNodeId}
 
 Wait Until Right Panel Loads

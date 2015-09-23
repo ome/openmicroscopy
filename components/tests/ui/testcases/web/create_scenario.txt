@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation     Tests copying, pasting and applying Rendering settings.
+Documentation     Tests the tree for creating new projects, datasets and screens.
 
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
@@ -7,7 +7,6 @@ Resource          ../../resources/web/tree.txt
 
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}" 
 Suite Teardown      Close all browsers
-# Suite Teardown      Close all browsers
 
 *** Variables ***
 
@@ -18,7 +17,6 @@ ${CtxScreenName}					TestScreen
 ${XPathNoData}						xpath=//p[contains(@class, 'no_data')]
 ${orphaned}							True
 ${notOrphaned}						False
-# ${XPathOrphanedDataset}				xpath=//
 
 *** Keywords ***
 Right Click Create P/D/S
@@ -207,7 +205,7 @@ Test Create Project Using Right Click
 
 	${imageId}=													Select First Orphaned Image 
 	${treeId}=                       						   	Wait For Image Node         	${imageId}							
-	Create Project Using Right Click and Check If It Exists		${treeId}   					${CtxScreenName}
+	Create Project Using Right Click and Check If It Exists		${treeId}   					${CtxProjectName}
 
 
 Test Create Dataset Using Icon
@@ -215,7 +213,7 @@ Test Create Dataset Using Icon
 	Select Experimenter
 	Create Dataset Using Icon and Check If Orphaned	 			${orphaned}
 
-	Select First Project
+	Select First Project With Name								${CtxProjectName}
 	Create Dataset Using Icon and Check If Orphaned				${notOrphaned}
 
 	Select First Dataset
@@ -236,8 +234,7 @@ Test Create Dataset Using Right Click
 	Select Experimenter
 	Create Dataset Using Right Click and Check If Orphaned  	${treeRootId}    			${CtxDatasetName}				${orphaned}
 
-	${projectId}=												Select First Project
-	${treeId}=                       						   	Wait For Project Node       ${projectId}
+	${treeId}=													Select First Project With Name 							 	${CtxProjectName}
 	Create Dataset Using Right Click and Check If Orphaned     	${treeId}    				${CtxDatasetName}				${notOrphaned}
 
 	${imageId}=							    				   	Select And Expand Image
