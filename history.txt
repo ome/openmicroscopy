@@ -9,13 +9,13 @@ A bug-fix release covering all components. Improvements include:
 -  channel buttons fixed in OMERO.web
 -  improved UI experience when moving annotated data between groups in
    OMERO.web
--  major improvement in loading annotations in the righthand panel of
+-  improved performance for loading annotations in the right-hand panel of
    OMERO.web
 -  much better handling of ROIs covering large planes in OMERO.insight
--  rendering setting fixes for copy and paste actions
+-  rendering setting fixes for copy and paste actions in OMERO.insight
 -  rendering fixes for floating point data
--  image interpolation can now be turned on and off in the clients
--  more readable timestamps
+-  Admins can now configure whether the clients interpolate images by default
+-  better formatting of Delta-T and exposure times in the clients
 -  directories are now preserved when downloading multiple original files
 -  various improvements to the OMERO-ImageJ handling of ROIs and measurements,
    including the ability to name measurement tables
@@ -28,7 +28,7 @@ Developer updates include:
 
 -  improvements to web logging to log full request and status code
 -  fixed joda-time version mismatch
--  cleanup of old insight code
+-  cleanup of old insight code to remove remaining references to OMERO.editor
 
 Support for deployment of OMERO.web using FastCGI has also been deprecated in
 this release and is scheduled to be removed in 5.2.0. Sysadmins should move to
