@@ -52,6 +52,7 @@ import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Label;
 import omero.model.Line;
 import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
@@ -64,6 +65,7 @@ import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
 import omero.model.Point;
+import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
@@ -110,6 +112,7 @@ import omero.gateway.model.RectangleData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextData;
 import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.TimeAnnotationData;
 import omero.gateway.model.WellData;
@@ -539,11 +542,13 @@ public class PojoMapper
         else if (PointData.class.equals(pojoType))
             return Point.class;
         else if (PolygonData.class.equals(pojoType))
-            return Line.class;
+            return Polygon.class;
         else if (PolylineData.class.equals(pojoType))
             return Polyline.class;
         else if (RectangleData.class.equals(pojoType))
             return Rect.class;
+        else if (TextData.class.equals(pojoType))
+            return Label.class;
 
         throw new IllegalArgumentException(pojoType.getClass().getSimpleName()+" not supported");
     }
