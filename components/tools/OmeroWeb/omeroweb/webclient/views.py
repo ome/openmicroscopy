@@ -926,17 +926,16 @@ def api_link(request, conn=None, **kwargs):
         for parent_id, children in parents.items():
             for child_type, child_ids in children.items():
                 if request.method == 'DELETE':
-                    linkType, links = get_object_links(conn, parent_type,
-                                                       parent_id,
-                                                       child_type,
-                                                       child_ids)
+                    objLnks = get_object_links(conn, parent_type,
+                                               parent_id,
+                                               child_type,
+                                               child_ids)
+                    if objLnks is None:
+                        continue
+                    linkType, links = objLnks
                     linkIds = [r.id.val for r in links]
                     logger.info("api_link: Deleting %s links" % len(linkIds))
-                    handle = conn.deleteObjects(linkType, linkIds)
-                    cb = omero.callbacks.CmdCallbackI(conn.c, handle)
-                    while not cb.block(50):
-                        pass
-                    cb.close(True)      # close handle too
+                    conn.deleteObjects(linkType, linkIds)
                     # webclient needs to know what is orphaned
                     linkType, remainingLinks = get_object_links(conn,
                                                                 parent_type,
@@ -950,6 +949,9 @@ def api_link(request, conn=None, **kwargs):
                     for rl in remainingLinks:
                         pid = rl.parent.id.val
                         cid = rl.child.id.val
+                        # Deleting links still in progress above - ignore these
+                        if pid == int(parent_id):
+                            continue
                         if pid not in response[parent_type]:
                             response[parent_type][pid] = {child_type: []}
                         response[parent_type][pid][child_type].append(cid)
