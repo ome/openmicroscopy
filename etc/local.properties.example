@@ -53,16 +53,6 @@ ome.resolver=ome-resolver
 # switched to ome-simple-artifactory
 simple.repository=ome.unstable
 
-# Default keystore values
-jarsign.keystore=${omero.home}/lib/keystore
-jarsign.alias=omedev
-jarsign.storepass=omedev
-#Password can be stored in a file
-#jarsign.storepassfile=
-jarsign.validity=1000
-#Timestamping can be enabled by providing a server url
-#jarsign.tsa=
-
 ############################################
 # Testing
 ############################################
