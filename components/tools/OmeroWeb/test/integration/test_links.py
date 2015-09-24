@@ -106,11 +106,13 @@ class TestLinks(IWebTest):
         # Check links
         request_url = reverse("api_images")
         # First Dataset has single image
-        json = _get_response_json(self.django_client, request_url, {'id': dids[0]})
+        json = _get_response_json(self.django_client,
+                                  request_url, {'id': dids[0]})
         assert len(json['images']) == 1
         assert json['images'][0]['id'] == iids[0]
         # Second Dataset has both images
-        json = _get_response_json(self.django_client, request_url, {'id': dids[1]})
+        json = _get_response_json(self.django_client,
+                                  request_url, {'id': dids[1]})
         assert len(json['images']) == 2
         assert json['images'][0]['id'] == iids[0]
         assert json['images'][1]['id'] == iids[1]
