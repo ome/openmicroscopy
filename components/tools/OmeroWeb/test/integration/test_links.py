@@ -26,7 +26,7 @@ import omero
 from omero.rtypes import rstring
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _get_response
-# from weblibrary import _csrf_delete_response, _delete_response
+from weblibrary import _csrf_delete_response
 
 import json
 
@@ -57,7 +57,7 @@ class TestLinks(IWebTest):
 
     @pytest.fixture
     def datasets(self):
-        """Returns a new OMERO Dataset with required fields set."""
+        """Returns 2 new OMERO Datasets with required fields set."""
         dataset = omero.model.DatasetI()
         dataset.name = rstring("A_%s" % self.uuid())
         dataset2 = omero.model.DatasetI()
@@ -70,6 +70,24 @@ class TestLinks(IWebTest):
         image2 = self.new_image(name="B_%s" % self.uuid())
         return self.update.saveAndReturnArray([image, image2])
 
+    @pytest.fixture
+    def screens(self):
+        """Returns 2 new OMERO Screens with required fields set."""
+        screen = omero.model.ScreenI()
+        screen.name = rstring("A_%s" % self.uuid())
+        screen2 = omero.model.ScreenI()
+        screen2.name = rstring("B_%s" % self.uuid())
+        return self.update.saveAndReturnArray([screen, screen2])
+
+    @pytest.fixture
+    def plates(self):
+        """Returns 2 new OMERO Plates with required fields set."""
+        plate = omero.model.PlateI()
+        plate.name = rstring("A_%s" % self.uuid())
+        plate2 = omero.model.PlateI()
+        plate2.name = rstring("B_%s" % self.uuid())
+        return self.update.saveAndReturnArray([plate, plate2])
+
     def test_link_project_datasets(self, project, datasets):
         # Link Project to Datasets
         request_url = reverse("api_links")
@@ -78,16 +96,16 @@ class TestLinks(IWebTest):
         data = {
             'project': {pid: {'dataset': dids}}
         }
-        json = _csrf_post_response_json(self.django_client, request_url, data)
-        assert json == {"success": True}
+        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        assert rsp == {"success": True}
 
         # Check links
         request_url = reverse("api_datasets")
-        json = _get_response_json(self.django_client, request_url, {'id': pid})
+        rsp = _get_response_json(self.django_client, request_url, {'id': pid})
         # Expect a single Dataset with correct id
-        assert len(json['datasets']) == 2
-        assert json['datasets'][0]['id'] == dids[0]
-        assert json['datasets'][1]['id'] == dids[1]
+        assert len(rsp['datasets']) == 2
+        assert rsp['datasets'][0]['id'] == dids[0]
+        assert rsp['datasets'][1]['id'] == dids[1]
 
     def test_link_datasets_images(self, datasets, images):
         # Link Datasets to Images
@@ -100,22 +118,51 @@ class TestLinks(IWebTest):
             'dataset': {dids[0]: {'image': [iids[0]]},
                         dids[1]: {'image': iids}}
         }
-        json = _csrf_post_response_json(self.django_client, request_url, data)
-        assert json == {"success": True}
+        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        assert rsp == {"success": True}
 
         # Check links
         request_url = reverse("api_images")
         # First Dataset has single image
-        json = _get_response_json(self.django_client,
-                                  request_url, {'id': dids[0]})
-        assert len(json['images']) == 1
-        assert json['images'][0]['id'] == iids[0]
+        rsp = _get_response_json(self.django_client,
+                                 request_url, {'id': dids[0]})
+        assert len(rsp['images']) == 1
+        assert rsp['images'][0]['id'] == iids[0]
         # Second Dataset has both images
-        json = _get_response_json(self.django_client,
-                                  request_url, {'id': dids[1]})
-        assert len(json['images']) == 2
-        assert json['images'][0]['id'] == iids[0]
-        assert json['images'][1]['id'] == iids[1]
+        rsp = _get_response_json(self.django_client,
+                                 request_url, {'id': dids[1]})
+        assert len(rsp['images']) == 2
+        assert rsp['images'][0]['id'] == iids[0]
+        assert rsp['images'][1]['id'] == iids[1]
+
+    def test_unlink_screen_plate(self, screens, plates):
+        # Link both plates to both screens
+        request_url = reverse("api_links")
+        sids = [s.id.val for s in screens]
+        pids = [p.id.val for p in plates]
+        # Link first dataset to first image,
+        # Second dataset linked to both images
+        data = {
+            'screen': {sids[0]: {'plate': pids},
+                       sids[1]: {'plate': pids}}
+        }
+        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        assert rsp == {"success": True}
+
+        # Unlink first Plate from first Screen
+        request_url = reverse("api_links")
+        data = {
+            'screen': {sids[0]: {'plate': pids[:1]}}
+        }
+        response = _csrf_delete_response(self.django_client,
+                                         request_url,
+                                         json.dumps(data),
+                                         content_type="application/json")
+        # Returns remaing link from first Plate to 2nd Screen
+        response = json.loads(response.content)
+        assert response == {"success": True,
+                            "screen": {str(sids[1]): {"plate": pids[:1]}}
+                            }
 
 
 def _get_response_json(django_client, request_url, query_string):
