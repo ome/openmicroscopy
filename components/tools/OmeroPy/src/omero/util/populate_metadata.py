@@ -28,7 +28,6 @@ import sys
 import csv
 import re
 import json
-import yaml
 from getpass import getpass
 from getopt import getopt, GetoptError
 from itertools import izip
@@ -48,6 +47,13 @@ from omero.util.metadata_utils import KeyValueListTransformer
 from omero import client
 
 from populate_roi import ThreadPool
+
+try:
+    import yaml
+    YAML_ENABLED = True
+except ImportError:
+    YAML_ENABLED = False
+
 
 log = logging.getLogger("omero.util.populate_metadata")
 
@@ -622,6 +628,9 @@ class BulkToMapAnnotationContext(object):
                        target_object.id.val)
 
     def get_config(self, cfgfileid):
+        if not YAML_ENABLED:
+            raise ImportError("yaml (PyYAML) module required")
+
         rfs = self.client.getSession().createRawFileStore()
         try:
             rfs.setFileId(cfgfileid)
