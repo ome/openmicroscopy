@@ -1077,6 +1077,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            context['canExportAsJpg'] = manager.canExportAsJpg(request)
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
     context['manager'] = manager
@@ -1567,6 +1568,7 @@ def batch_annotate(request, conn=None, **kwargs):
     ratings = manager.getGroupedRatings(allratings)
 
     figScripts = manager.listFigureScripts(objs)
+    canExportAsJpg = manager.canExportAsJpg(request, objs)
     filesetInfo = None
     iids = []
     if 'well' in objs and len(objs['well']) > 0:
@@ -1604,6 +1606,7 @@ def batch_annotate(request, conn=None, **kwargs):
         'batch_ann': True,
         'index': index,
         'figScripts': figScripts,
+        'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
         'annotationBlocked': annotationBlocked,
         'userRatingAvg': userRatingAvg,
