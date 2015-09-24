@@ -122,15 +122,29 @@ class TestLinks(IWebTest):
         assert rsp == {"success": True}
 
         # Check links
-        request_url = reverse("api_images")
+        images_url = reverse("api_images")
         # First Dataset has single image
         rsp = _get_response_json(self.django_client,
-                                 request_url, {'id': dids[0]})
+                                 images_url, {'id': dids[0]})
         assert len(rsp['images']) == 1
         assert rsp['images'][0]['id'] == iids[0]
         # Second Dataset has both images
         rsp = _get_response_json(self.django_client,
-                                 request_url, {'id': dids[1]})
+                                 images_url, {'id': dids[1]})
+        assert len(rsp['images']) == 2
+        assert rsp['images'][0]['id'] == iids[0]
+        assert rsp['images'][1]['id'] == iids[1]
+
+        # Link BOTH images to first Dataset. Shouldn't get any
+        # Validation Exception, even though first image is already linked
+        data = {
+            'dataset': {dids[0]: {'image': iids}}
+        }
+        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        assert rsp == {"success": True}
+        # Check first Dataset now has both images
+        rsp = _get_response_json(self.django_client,
+                                 images_url, {'id': dids[0]})
         assert len(rsp['images']) == 2
         assert rsp['images'][0]['id'] == iids[0]
         assert rsp['images'][1]['id'] == iids[1]
@@ -140,14 +154,18 @@ class TestLinks(IWebTest):
         request_url = reverse("api_links")
         sids = [s.id.val for s in screens]
         pids = [p.id.val for p in plates]
-        # Link first dataset to first image,
-        # Second dataset linked to both images
         data = {
             'screen': {sids[0]: {'plate': pids},
                        sids[1]: {'plate': pids}}
         }
         rsp = _csrf_post_response_json(self.django_client, request_url, data)
         assert rsp == {"success": True}
+
+        # Confirm that first Screen linked to 2 Plates
+        plates_url = reverse("api_plates")
+        rsp = _get_response_json(self.django_client,
+                                 plates_url, {'id': sids[0]})
+        assert len(rsp['plates']) == 2
 
         # Unlink first Plate from first Screen
         request_url = reverse("api_links")
@@ -158,11 +176,18 @@ class TestLinks(IWebTest):
                                          request_url,
                                          json.dumps(data),
                                          content_type="application/json")
-        # Returns remaing link from first Plate to 2nd Screen
+        # Returns remaining link from 2nd Screen to first Plate
         response = json.loads(response.content)
         assert response == {"success": True,
                             "screen": {str(sids[1]): {"plate": pids[:1]}}
                             }
+
+        # Check that link has been deleted, leaving 2nd plate under 1st screen
+        plates_url = reverse("api_plates")
+        rsp = _get_response_json(self.django_client,
+                                 plates_url, {'id': sids[0]})
+        assert len(rsp['plates']) == 1
+        assert rsp['plates'][0]['id'] == pids[1]
 
 
 def _get_response_json(django_client, request_url, query_string):
