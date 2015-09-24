@@ -64,15 +64,20 @@ class TestLinks(IWebTest):
         dataset2.name = rstring("B_%s" % self.uuid())
         return self.update.saveAndReturnArray([dataset, dataset2])
 
+    @pytest.fixture
+    def images(self):
+        image = self.new_image(name="A_%s" % self.uuid())
+        image2 = self.new_image(name="B_%s" % self.uuid())
+        return self.update.saveAndReturnArray([image, image2])
+
     def test_link_project_datasets(self, project, datasets):
-        # Link Project to Dataset
+        # Link Project to Datasets
         request_url = reverse("api_links")
         pid = project.id.val
         dids = [d.id.val for d in datasets]
         data = {
             'project': {pid: {'dataset': dids}}
         }
-
         json = _csrf_post_response_json(self.django_client, request_url, data)
         assert json == {"success": True}
 
@@ -83,6 +88,32 @@ class TestLinks(IWebTest):
         assert len(json['datasets']) == 2
         assert json['datasets'][0]['id'] == dids[0]
         assert json['datasets'][1]['id'] == dids[1]
+
+    def test_link_datasets_images(self, datasets, images):
+        # Link Datasets to Images
+        request_url = reverse("api_links")
+        dids = [d.id.val for d in datasets]
+        iids = [i.id.val for i in images]
+        # Link first dataset to first image,
+        # Second dataset linked to both images
+        data = {
+            'dataset': {dids[0]: {'image': [iids[0]]},
+                        dids[1]: {'image': iids}}
+        }
+        json = _csrf_post_response_json(self.django_client, request_url, data)
+        assert json == {"success": True}
+
+        # Check links
+        request_url = reverse("api_images")
+        # First Dataset has single image
+        json = _get_response_json(self.django_client, request_url, {'id': dids[0]})
+        assert len(json['images']) == 1
+        assert json['images'][0]['id'] == iids[0]
+        # Second Dataset has both images
+        json = _get_response_json(self.django_client, request_url, {'id': dids[1]})
+        assert len(json['images']) == 2
+        assert json['images'][0]['id'] == iids[0]
+        assert json['images'][1]['id'] == iids[1]
 
 
 def _get_response_json(django_client, request_url, query_string):
