@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.lens.ZoomWindow.java
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
+
+import ome.model.units.BigResult;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 //Third-party libraries
 
@@ -146,9 +151,14 @@ class ZoomWindow
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
-	void setXYPixelMicron(double x, double y) 
+	void setXYPixelMicron(Length x, Length y) 
 	{
-		statusPanel.setXYPixelMicron(x, y);
+	    try {
+            Length x1 = new LengthI(x, UnitsLength.MICROMETER);
+            Length y1 = new LengthI(y, UnitsLength.MICROMETER);
+            statusPanel.setXYPixelMicron(x1.getValue(), y1.getValue());
+        } catch (BigResult e) {
+        }
 		statusPanel.repaint();
 	}
 	

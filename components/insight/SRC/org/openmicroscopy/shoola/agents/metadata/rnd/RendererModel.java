@@ -45,6 +45,9 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
 import omero.log.LogMessage;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -1093,9 +1096,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeY()
+	Length getPixelsSizeY()
 	{ 
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeY();
 	}
 
@@ -1104,9 +1108,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeX()
+	Length getPixelsSizeX()
 	{
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeX();
 	}
 	
@@ -1115,9 +1120,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeZ()
+	Length getPixelsSizeZ()
 	{
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeZ();
 	}
 

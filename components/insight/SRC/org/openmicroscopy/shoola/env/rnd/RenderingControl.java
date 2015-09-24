@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
+import omero.model.Length;
 import omero.romio.PlaneDef;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
@@ -158,25 +159,25 @@ public interface RenderingControl
     public int getPixelsDimensionsC();
     
     /**
-     * The size in microns of a pixel along the X-axis.
+     * The size of a pixel along the X-axis.
      * 
      * @return See above.
      */
-    public double getPixelsPhysicalSizeX();
+    public Length getPixelsPhysicalSizeX();
     
     /**
-     * The size in microns of a pixel along the Y-axis.
+     * The size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    public double getPixelsPhysicalSizeY();
+    public Length getPixelsPhysicalSizeY();
     
     /**
-     * The size in microns of a pixel along the Z-axis.
+     * The size of a pixel along the Z-axis.
      * 
      * @return See above.
      */
-    public double getPixelsPhysicalSizeZ();
+    public Length getPixelsPhysicalSizeZ();
 
     /**
      * Specifies the model that dictates how transformed raw data has to be 

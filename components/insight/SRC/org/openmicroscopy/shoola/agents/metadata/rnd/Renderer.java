@@ -28,6 +28,7 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
+import omero.model.Length;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
@@ -420,24 +421,24 @@ public interface Renderer
     List<Integer> getActiveChannels();
 
     /**
-     * Returns the size in microns of a pixel along the X-axis.
+     * Returns the size of a pixel along the X-axis.
      * 
      * @return See above.
      */
-    double getPixelsSizeX();
+    Length getPixelsSizeX();
     /**
-     * Returns the size in microns of a pixel along the Y-axis.
+     * Returns the size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    double getPixelsSizeY();
+    Length getPixelsSizeY();
 
     /**
-     * Returns the size in microns of a pixel along the Y-axis.
+     * Returns the size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    double getPixelsSizeZ();
+    Length getPixelsSizeZ();
 
     /**
      * Returns a 3-dimensional array of boolean value, one per color band.

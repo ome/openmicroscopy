@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 
 import omero.log.LogMessage;
 import omero.log.Logger;
+import omero.model.Length;
 
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -769,19 +770,19 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getPixelsSizeX()
      */
-	public double getPixelsSizeX() { return model.getPixelsSizeX(); }
+	public Length getPixelsSizeX() { return model.getPixelsSizeX(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getPixelsSizeY()
      */
-	public double getPixelsSizeY() { return model.getPixelsSizeY(); }
+	public Length getPixelsSizeY() { return model.getPixelsSizeY(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getPixelsSizeZ()
      */
-	public double getPixelsSizeZ() { return model.getPixelsSizeZ(); }
+	public Length getPixelsSizeZ() { return model.getPixelsSizeZ(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.

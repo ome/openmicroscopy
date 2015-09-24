@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -299,10 +300,10 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setUnitBarSize(double)
      */
-    public void setUnitBarSize(double size)
+    public void setUnitBarSize(double size, UnitsLength unit)
     {
     	double oldUnit = model.getUnitInRefUnits();
-        model.setUnitBarSize(size);
+        model.setUnitBarSize(size, unit);
         
         Rectangle viewRect = view.getViewport().getBounds();
         if (viewRect.width >= model.getUnitBarSize()) {
@@ -320,7 +321,7 @@ class BrowserComponent
               		"the selected size: "+size +
               		"\ncannot be displayed on the image. " +
               		"Please select a new size.");
-              model.setUnitBarSize(oldUnit);
+              model.setUnitBarSize(oldUnit, unit);
         }
     }
 

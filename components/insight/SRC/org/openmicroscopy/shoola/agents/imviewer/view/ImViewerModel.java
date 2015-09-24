@@ -324,7 +324,10 @@ class ImViewerModel
     private int planeSize;
 
     /** The units corresponding to the pixels size.*/
-    private String refUnit;
+    private UnitsLength refUnit;
+    
+    /** The unit used for the scale bar */
+    private UnitsLength scaleBarUnit;
     
     /**
      * Returns the default resolution level.
@@ -652,6 +655,25 @@ class ImViewerModel
 	boolean isRendererLoaded() {
 	    return metadataViewer.getRenderer() != null;
 	}
+	
+    /**
+     * Get the unit for the scalebar. 
+     * Determined by assuming a 100px wide scalebar.
+     * 
+     * @return The unit used for the scalebar
+     */
+    public UnitsLength getScaleBarUnit() {
+        if (scaleBarUnit == null) {
+            if (getPixelsSizeX() == null)
+                return UnitsLength.MICROMETER;
+            // Determine a reasonable unit by assuming a 100px wide scalebar
+            Length tmp = new LengthI(getPixelsSizeX().getValue() * 100,
+                    getPixelsSizeX().getUnit());
+            tmp = UIUtilities.transformSize(tmp);
+            this.scaleBarUnit = tmp.getUnit();
+        }
+        return scaleBarUnit;
+    }
 	
 	/**
 	 * Returns the current user's details.
@@ -1380,38 +1402,39 @@ class ImViewerModel
 	BufferedImage getGridImage() { return browser.getGridImage(); }
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelsSizeX()
+	Length getPixelsSizeX()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return -1;
+		if (rnd == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rnd.getPixelsSizeX(); 
 	}
 
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelsSizeY()
+	Length getPixelsSizeY()
 	{ 
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return -1;
+		if (rnd == null) return new LengthI(1, UnitsLength.PIXEL);
 		return rnd.getPixelsSizeY();
 	}
 
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelsSizeZ()
+	Length getPixelsSizeZ()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return -1;
+		if (rnd == null) return new LengthI(1, UnitsLength.PIXEL);
 		return rnd.getPixelsSizeZ();
 	}
 
@@ -2947,18 +2970,14 @@ class ImViewerModel
      * 
      * @return See above.
      */
-	String getUnits()
+	UnitsLength getRefUnit()
 	{
 		if (refUnit != null) 
 			return refUnit;
 		
-		double size = getPixelsSizeX();
-		if (size < 0) 
-			return LengthI.lookupSymbol(UnitsLength.MICROMETER);
+		Length tmp = UIUtilities.transformSize(getPixelsSizeX());
+		refUnit = tmp.getUnit();
 		
-		Length tmp = new LengthI(size, UnitsLength.MICROMETER);
-		tmp = UIUtilities.transformSize(tmp);
-		refUnit = ((LengthI)tmp).getSymbol();
 		return refUnit;
 	}
 	

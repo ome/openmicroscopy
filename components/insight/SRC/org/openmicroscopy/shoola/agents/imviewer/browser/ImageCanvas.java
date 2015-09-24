@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.ImageCanvas 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -122,8 +122,11 @@ class ImageCanvas
 		if (!model.isUnitBar()) return;
 
 		String value = model.getUnitBarValue();
-		if (value == null) return;
+		if (value == null) 
+		    return;
 
+		value += " "+model.getUnitBarUnit();
+		
 		int size = (int) (model.getUnitBarSize());
 		
 		// Position scalebar in the bottom left of the viewport or

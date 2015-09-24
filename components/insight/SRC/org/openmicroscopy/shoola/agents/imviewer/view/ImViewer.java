@@ -45,6 +45,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
+import omero.model.Length;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -471,25 +472,25 @@ public interface ImViewer
 	public int getDefaultT();
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeX();
+	public Length getPixelsSizeX();
 
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeY();
+	public Length getPixelsSizeY();
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeZ();
+	public Length getPixelsSizeZ();
 
 	/**
 	 * Returns the title of the viewer.
@@ -1014,13 +1015,6 @@ public interface ImViewer
 
 	/** Loads all the datasets available. */
 	public void loadAllContainers();
-	
-	/**
-	 * Returns the unit in microns.
-	 * 
-	 * @return See above.
-	 */
-	public double getUnitInRefUnits();
 
 	/** Makes a movie. */
 	public void makeMovie();
