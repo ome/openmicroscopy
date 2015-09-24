@@ -333,8 +333,8 @@ urlpatterns = patterns(
     #     views.api_plate_acquisitions_detail),
 
     # POST to create link, DELETE to remove.
-    # parent_type, parent_id, child_type, child_id in request.body json
-    url(r'^api/link/$', views.api_link, name='api_link'),
+    # links in request.body json, e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+    url(r'^api/links/$', views.api_links, name='api_links'),
 
     # url(r'^api/tags/$', views.api_tag_list, name='api_tags'),
     # url(r'^api/tags/(?P<pk>[0-9]+)/$', views.api_tag_detail),

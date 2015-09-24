@@ -371,7 +371,7 @@
 
                 // Do the call, and resolve the deferred when done
                 $.ajax({
-                    url: "{% url 'api_link' %}",
+                    url: "{% url 'api_links' %}",
                     type: "POST",
                     data: JSON.stringify(linkPayload),
                     dataType: 'json'
@@ -408,7 +408,7 @@
                 var dd = deferredUnlink;
                 deferredUnlink = jQuery.Deferred();
                 $.ajax({
-                    url: "{% url 'api_link' %}",
+                    url: "{% url 'api_links' %}",
                     type: "DELETE",
                     data: JSON.stringify(unlinkPayload),
                     dataType: 'json'

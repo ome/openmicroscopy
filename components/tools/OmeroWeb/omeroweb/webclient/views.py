@@ -870,7 +870,7 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
 
 
 @login_required()
-def api_link(request, conn=None, **kwargs):
+def api_links(request, conn=None, **kwargs):
     """ Creates or Deletes links between objects specified by a json
     blob in the request body.
     e.g. {"dataset":{"10":{"image":[1,2,3]}}}
@@ -878,7 +878,7 @@ def api_link(request, conn=None, **kwargs):
     (E.g. adding an image to a Dataset that already has that image).
     """
 
-    def get_link(parent_type, parent_id, child_type, child_id):
+    def create_link(parent_type, parent_id, child_type, child_id):
         # TODO Handle more types of link
         if parent_type == 'experimenter':
             if child_type == 'dataset' or child_type == 'plate':
@@ -944,14 +944,14 @@ def api_link(request, conn=None, **kwargs):
                                                                 child_ids)
                     # return remaining links in same format as json above
                     # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
-                    if parent_type not in response:
-                        response[parent_type] = {}
                     for rl in remainingLinks:
                         pid = rl.parent.id.val
                         cid = rl.child.id.val
                         # Deleting links still in progress above - ignore these
                         if pid == int(parent_id):
                             continue
+                        if parent_type not in response:
+                            response[parent_type] = {}
                         if pid not in response[parent_type]:
                             response[parent_type][pid] = {child_type: []}
                         response[parent_type][pid][child_type].append(cid)
@@ -959,8 +959,8 @@ def api_link(request, conn=None, **kwargs):
                 elif request.method == 'POST':
                     for child_id in child_ids:
                         parent_id = int(parent_id)
-                        link = get_link(parent_type, parent_id,
-                                        child_type, child_id)
+                        link = create_link(parent_type, parent_id,
+                                           child_type, child_id)
                         if link and link != 'orphan':
                             linksToSave.append(link)
 
