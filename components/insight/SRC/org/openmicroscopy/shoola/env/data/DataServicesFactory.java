@@ -553,7 +553,7 @@ public class DataServicesFactory
         cred.setApplicationName(name);
         cred.setCheckNetwork(true);
         cred.setCompression(determineCompression(uc.getSpeedLevel()));
-        cred.setEncrypyion(uc.isEncrypted());
+        cred.setEncryption(uc.isEncrypted());
         
 		ExperimenterData exp = omeroGateway.connect(cred);
 		
