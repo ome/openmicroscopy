@@ -178,10 +178,6 @@ public class DataServicesFactory
         
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
-        String name = (String) registry.lookup(LookupNames.MASTER);
-        if (CommonsLangUtils.isBlank(name)) {
-            name = LookupNames.MASTER_INSIGHT;
-        }
 	}
 	
 	/**
