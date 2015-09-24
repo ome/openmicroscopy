@@ -121,7 +121,6 @@
                     },
                     error: function(response) {
                         inst.enable_node(node);
-                        console.log('Ajax error');
                     }
                 });
             });
@@ -238,14 +237,17 @@
 
                                 }
 
-                                // Add images to the jstree data structure
+                                // Add share to the jstree data structure
                                 if (data.hasOwnProperty('shares')) {
                                     $.each(data.shares, function(index, value) {
                                         var node = {
                                             'data': {'id': value.id, 'obj': value},
                                             'text': value.id.toString(),
-                                            'children': value.childCount > 0 ? true : false,
+                                            'children': (this.isOwned || (this.active && !this.expired)) && value.childCount > 0 ? true : false,
                                             'type': 'share',
+                                            'state' : {
+                                                'disabled'  : !this.isOwned && ( !this.active || this.expired )
+                                            },
                                             'li_attr': {
                                                 // 'class': 'share',
                                                 'data-id': value.id
@@ -255,7 +257,7 @@
                                     });
                                 }
 
-                                // Add images to the jstree data structure
+                                // Add discussion to the jstree data structure
                                 if (data.hasOwnProperty('discussions')) {
                                     $.each(data.discussions, function(index, value) {
                                         var node = {
@@ -263,6 +265,9 @@
                                             'text': value.id.toString(),
                                             'children': false,
                                             'type': 'discussion',
+                                            'state' : {
+                                                'disabled'  : !this.isOwned && ( !this.active || this.expired )
+                                            },
                                             'li_attr': {
                                                 // 'class': 'discussion',
                                                 'data-id': value.id
@@ -403,6 +408,7 @@
                     if(confirm_remove.data("clicked_button") == "OK") {
                         var inst = $.jstree.reference('#dataTree');
                         removeImage(inst.get_selected(), inst);
+                        inst.refresh();
                     }
                 }
             );
