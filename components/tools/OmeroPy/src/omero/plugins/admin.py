@@ -35,6 +35,8 @@ from omero.cli import UserGroupControl
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config, with_rw_config
 
+from omero.util.upgrade_check import UpgradeCheck
+
 from omero_ext import portalocker
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType
@@ -396,6 +398,9 @@ location.
         Action("checkice", "Run simple check of the Ice installation")
 
         Action("events", "Print event log (Windows-only)")
+
+        Action(
+            "checkupgrade", "Check whether a server upgrade is available")
 
         self.actions["ice"].add_argument(
             "argument", nargs="*",
@@ -1780,6 +1785,17 @@ OMERO Diagnostics %s
     def _get_data_dir(self, config):
         config = config.as_map()
         return config.get("omero.data.dir", "/OMERO")
+
+    def checkupgrade(self, args):
+        """
+        Checks whether a server upgrade is available,
+        exits with return code 1 if yes
+        """
+        uc = UpgradeCheck('server')
+        uc.run()
+        if uc.isUpgradeNeeded():
+            self.ctx.die(1, uc.getUpgradeUrl())
+
 
 try:
     register("admin", AdminControl, HELP)
