@@ -269,13 +269,10 @@ class TestCsrf(IWebTest):
 
         img = self.image_with_channels()
 
-        # Move image
-        request_url = reverse("api_link")
+        # Link image to Dataset
+        request_url = reverse("api_links")
         data = {
-            'parent_type': 'dataset',
-            'parent_id': did,
-            'child_type': 'image',
-            'child_id': img.id.val
+            'dataset': {did: {'image': [img.id.val]}}
         }
 
         _post_response(self.django_client, request_url, data)
@@ -284,19 +281,19 @@ class TestCsrf(IWebTest):
                             json.dumps(data),
                             content_type="application/json")
 
-        # Delete image
-        request_url = reverse("api_link")
+        # Unlink image from Dataset
+        request_url = reverse("api_links")
         data = {
-            'parent_type': 'dataset',
-            'parent_id': did,
-            'child_type': 'image',
-            'child_id': img.id.val
+            'dataset': {did: {'image': [img.id.val]}}
         }
         _delete_response(self.django_client, request_url, data)
-        _csrf_delete_response(self.django_client,
-                              request_url,
-                              json.dumps(data),
-                              content_type="application/json")
+        response = _csrf_delete_response(self.django_client,
+                                         request_url,
+                                         json.dumps(data),
+                                         content_type="application/json")
+        # Response will contain any remaing links from image
+        response = json.loads(response.content)
+        assert response == {"success": True}
 
     def test_create_share(self):
 
