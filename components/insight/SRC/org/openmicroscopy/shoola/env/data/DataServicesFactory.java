@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -72,6 +73,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
+
 
 /** 
  * A factory for the {@link OmeroDataService} and the {@link OmeroImageService}.
@@ -88,14 +90,17 @@ public class DataServicesFactory
 {
 
     /** The sole instance. */
-	private static DataServicesFactory		singleton;
+	private static DataServicesFactory singleton;
 	
 	/** The dialog indicating that the connection is lost.*/
 	private JDialog connectionDialog;
 	
 	/** Flag indicating that the client and server are not compatible.*/
 	private boolean compatible;
-	
+
+    /** Flag indicating that if the upgrade check has been performed or not.*/
+    private boolean upgradeCheck = false;
+
 	/**
 	 * Creates a new instance. This can't be called outside of container 
 	 * b/c agents have no references to the singleton container.
@@ -111,7 +116,7 @@ public class DataServicesFactory
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (singleton == null)	
+		if (singleton == null)
 			singleton = new DataServicesFactory(c);
 		return singleton;
 	}
@@ -173,9 +178,6 @@ public class DataServicesFactory
         
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
-        if (omeroGateway.isUpgradeRequired()) {
-        	
-        }
 	}
 	
 	/**
@@ -541,10 +543,10 @@ public class DataServicesFactory
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
 		String name = (String) 
-		 container.getRegistry().lookup(LookupNames.MASTER);
-		if (name == null) 
-		    name = LookupNames.MASTER_INSIGHT;
-		
+		container.getRegistry().lookup(LookupNames.MASTER);
+		if (CommonsLangUtils.isBlank(name)) {
+            name = LookupNames.MASTER_INSIGHT;
+        }
 		LoginCredentials cred = new LoginCredentials();
         cred.getUser().setUsername(uc.getUserName());
         cred.getUser().setPassword(uc.getPassword());
@@ -556,7 +558,7 @@ public class DataServicesFactory
         cred.setEncryption(uc.isEncrypted());
         
 		ExperimenterData exp = omeroGateway.connect(cred);
-		
+
 		//check client server version
 		compatible = true;
         //Register into log file.
@@ -567,7 +569,6 @@ public class DataServicesFactory
     	if (uc.getUserName().equals(omeroGateway.getSessionId(exp))) {
     	    container.getRegistry().bind(LookupNames.SESSION_KEY, Boolean.TRUE);
     	}
-    	;
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
         Boolean check = checkClientServerCompatibility(version, clientVersion);
@@ -582,6 +583,9 @@ public class DataServicesFactory
         	omeroGateway.logout();
         	return;
         }
+
+        //Upgrade check only if client and server are compatible
+        omeroGateway.isUpgradeRequired(name);
 
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
@@ -795,11 +799,11 @@ public class DataServicesFactory
 			}
 		}
 		shutdown(null);
-		singleton = null;
 		if (exit) {
 			CacheServiceFactory.shutdown(container);
 			container.exit();
 		}
+		singleton = null;
 	}
 
 	/**

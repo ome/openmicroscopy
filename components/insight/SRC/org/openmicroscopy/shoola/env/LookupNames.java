@@ -114,6 +114,9 @@ public class LookupNames
     /** Field to access the <code>master</code> agent. */
     public static final String MASTER_IMPORTER = "OMERO.importer";
 
+    /** Field to access the <code>master</code> agent. */
+    public static final String MASTER_IJ = "OMERO.ij";
+    
     /** Field to access the <code>Version</code> information. */
     public static final String VERSION = "Version";
 
