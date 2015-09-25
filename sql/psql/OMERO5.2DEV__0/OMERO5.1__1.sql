@@ -99,6 +99,25 @@ INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
 
 -- ... up to patch 0:
 
+-- Prevent the deletion of mimetype = "Directory" objects
+CREATE OR REPLACE FUNCTION _fs_dir_delete() RETURNS TRIGGER AS $$
+    BEGIN
+        --
+        -- If any children are found, prevent deletion
+        --
+        IF OLD.mimetype = 'Directory' AND EXISTS(
+            SELECT id FROM originalfile
+            WHERE repo = OLD.repo AND path = OLD.path || OLD.name || '/'
+            LIMIT 1) THEN
+
+                -- CANCEL DELETE
+                RAISE EXCEPTION '%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+
+        END IF;
+        RETURN OLD; -- proceed
+    END;
+$$ LANGUAGE plpgsql;
+
 
 --
 -- FINISHED
