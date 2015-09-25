@@ -12,7 +12,8 @@
     </li>
 
     <% _.each(images, function(img) { %>
-        <li class='row' id="image_icon-<%= img.id %>"
+        <li class="row <% if(img.selected) {print ('ui-selected')} %>"
+            id="image_icon-<%= img.id %>"
             data-fileset="<%= img.data.obj.filesetId %>"
             data-type="image"
             data-id="<%= img.id %>"

@@ -109,13 +109,11 @@ $(document).ready(function() {
         if (dataset) {
             inst.get_children_dom(dataset).each(function(i, n){
                 var node = inst.get_node(n);
-                console.log(i, node);
                 imgNodes.push(node);
             });
             if (imgNodes.length === 0 && event.type === "load_node") {
                 data.node.children.forEach(function(nodeId) {
                     var node = inst.get_node(nodeId);
-                    console.log("load_node", nodeId, node);
                     imgNodes.push(node);
                 });
             }
@@ -125,10 +123,10 @@ $(document).ready(function() {
         imgNodes.forEach(function(node){
             imgJson.push({'id': node.data.obj.id,
                         'name': node.text,
-                        'data': JSON.parse(JSON.stringify(node.data))
+                        'data': JSON.parse(JSON.stringify(node.data)),
+                        'selected': node.state.selected,
                     });
         });
-        console.log(imgJson);
 
         var html = iconTmpl({'images': imgJson});
         $("#icon_table").html(html);
