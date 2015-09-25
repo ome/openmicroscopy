@@ -87,12 +87,12 @@ Omero Default Search
 For-Loop-In-Range-Acquired       [Arguments]         ${rows}
     : FOR    ${INDEX}    IN RANGE    2    ${rows}
     \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    3
-    \    Run Keyword Unless    "${RANDOM_STRING}" == ""    Condition Check Acquired Date 
+    \    Run Keyword Unless    "${RANDOM_STRING}" == ""    Condition Check Acquired Date       ${RANDOM_STRING}
    
 For-Loop-In-Range-Imported       [Arguments]         ${rows}
     : FOR    ${INDEX}    IN RANGE    2    ${rows}
     \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    4
-    \    Run Keyword Unless    "${RANDOM_STRING}" == ""  Condition Check Imported Date  
+    \    Run Keyword Unless    "${RANDOM_STRING}" == ""  Condition Check Imported Date         ${RANDOM_STRING}
 
 For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
     
@@ -131,11 +131,13 @@ For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
 
 
 Condition Check Imported Date
+    [Arguments]             ${RANDOM_STRING}    
     ${DATE}=    Get Current Date    result_format=timestamp
     ${time} =  Subtract Date From Date  ${RANDOM_STRING}  ${Date}  
     Should Be True     ${time}<=0
 
 Condition Check Acquired Date
+    [Arguments]             ${RANDOM_STRING}
     ${DATE}=    Get Current Date    result_format=timestamp
     ${time} =    Subtract Date From Date    ${RANDOM_STRING}   ${Date}
     Should Be True     ${time}<=0
