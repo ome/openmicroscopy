@@ -71,13 +71,9 @@ urlpatterns = patterns(
     (r'^(?i)webgateway/', include('omeroweb.webgateway.urls')),
     (r'^(?i)webadmin/', include('omeroweb.webadmin.urls')),
     (r'^(?i)webclient/', include('omeroweb.webclient.urls')),
-    (r'^(?i)webstart/', include('omeroweb.webstart.urls')),
 
     (r'^(?i)url/', include('omeroweb.webredirect.urls')),
     (r'^(?i)feedback/', include('omeroweb.feedback.urls')),
-
-    url(r'^index/$', 'omeroweb.webstart.views.custom_index',
-        name="webindex_custom"),
 )
 
 urlpatterns += redirect_urlpatterns()
