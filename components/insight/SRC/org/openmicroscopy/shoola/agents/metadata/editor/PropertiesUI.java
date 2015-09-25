@@ -679,7 +679,7 @@ public class PropertiesUI
 			number = false;
 		}
 		try {
-		    if(unit == null) {
+		    if (unit == null) {
 		        y = UIUtilities.transformSize(y);
 		        dy = y.getValue();
 		        unit = y.getUnit();
@@ -692,7 +692,7 @@ public class PropertiesUI
 			number = false;
 		}
 		try {
-		    if(unit == null) {
+		    if (unit == null) {
                 z = UIUtilities.transformSize(z);
                 dz = z.getValue();
                 unit = z.getUnit();
