@@ -133,6 +133,9 @@ $(document).ready(function() {
         var html = iconTmpl({'images': imgJson});
         $("#icon_table").html(html);
 
+        // populate arrays etc for speedy icon zooming
+        setupIconZooming();
+
         return;
     }
 
@@ -140,6 +143,60 @@ $(document).ready(function() {
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
 
+    // Handle zooming of thumbnails with jQuery slider
+    var icon_styles = [];
+    var li_styles = [];
+    var aspect_ratios = [];
+    var iconSize = 65;
+
+    var setupIconZooming = function() {
+        icon_styles = [];
+        li_styles = [];
+        aspect_ratios = [];
+        // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
+        $("#dataIcons img").each(function(){
+            icon_styles.push(this.style);
+        });
+
+        var sizeX, sizeY;
+        $("#dataIcons li").each(function(){
+            if (! $(this).hasClass('thead')) {
+                li_styles.push(this.style);
+                sizeX = $(".sizeX", $(this)).text();
+                sizeY = $(".sizeY", $(this)).text();
+                aspect_ratios.push(parseFloat(sizeX) / parseFloat(sizeY));
+            }
+        });
+
+        setIconSize();
+    }
+
+    var setIconSize = function(icon_size) {
+        var icon_size = iconSize;
+        for (var s=0; s<icon_styles.length; s++) {
+            if (aspect_ratios[s] < 1) {
+                icon_styles[s].width = (icon_size * aspect_ratios[s]) >> 0 + "px";
+                icon_styles[s].height = icon_size + "px";
+            } else if (aspect_ratios[s] > 1) {
+                icon_styles[s].height = (icon_size / aspect_ratios[s]) >> 0 + "px";
+                icon_styles[s].width = icon_size + "px";
+            } else {
+                icon_styles[s].width = icon_size + "px";
+                icon_styles[s].height = icon_size + "px";
+            }
+            li_styles[s].width = icon_size + "px";
+            li_styles[s].height = icon_size + "px";
+        }
+    }
+    $("#thumb_size_slider").slider({
+        max: 200,
+        min: 30,
+        value: iconSize,
+        slide: function(event, ui) {
+            iconSize = ui.value;
+            setIconSize();
+        }
+    });
 
 
     // --------------------------------- OLD CODE BELOW HERE -- TODO: REMOVE! ------------------ //
