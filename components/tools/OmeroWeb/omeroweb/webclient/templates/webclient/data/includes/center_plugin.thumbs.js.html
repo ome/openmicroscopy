@@ -119,14 +119,35 @@ $(document).ready(function() {
             }
         }
 
-        var imgJson = [];
+        var imgJson = [],
+            selFileSets = [];
         imgNodes.forEach(function(node){
-            imgJson.push({'id': node.data.obj.id,
-                        'name': node.text,
-                        'data': JSON.parse(JSON.stringify(node.data)),
-                        'selected': node.state.selected,
-                    });
+            console.log('node', node)
+            var iData = {'id': node.data.obj.id,
+                    'name': node.text,
+                    'data': JSON.parse(JSON.stringify(node.data)),
+                    'selected': node.state.selected,
+                };
+            if (iData.selected) {
+                var fsId = node.data.obj.filesetId;
+                if (fsId) {
+                    selFileSets.push(fsId);
+                }
+            }
+            imgJson.push(iData);
         });
+
+        // Now we know which filesets are selected, we can
+        // go through all images, adding fs-selection flag if in 
+        if (selFileSets.length > 0) {
+            imgJson.forEach(function(img){
+                if (selFileSets.indexOf(img.data.obj.filesetId) > -1) {
+                    img.fsSelected = true;
+                }
+            });
+        }
+
+        console.log(imgJson);
 
         var html = iconTmpl({'images': imgJson});
         $("#icon_table").html(html);
