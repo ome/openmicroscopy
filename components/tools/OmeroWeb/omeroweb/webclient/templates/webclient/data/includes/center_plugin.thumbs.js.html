@@ -167,10 +167,55 @@ $(document).ready(function() {
         return 0;
     };
 
+
+    var tmplText = $('#containers_icon_template').html();
+    var iconTmpl = _.template(tmplText);
+
     // This is called directly by various jstree plugins
     // E.g. omecut_plugin.js as well as the jstree in containers.html
     window.update_thumbnails_panel = function(event, data) {
         var inst = $.jstree.reference('#dataTree');
+
+        // Get the current selection
+        var selected = inst.get_selected(true);
+        console.log("update_thumbnails_panel", selected);
+
+        if (selected.length === 0) {
+            $("#icon_table").html("");
+            return;
+        }
+        var dtype = selected[0].type;
+        console.log(dtype);
+
+        var dataset,
+            imgNodes = [];
+        if (dtype === "dataset") {
+            dataset = selected[0];
+        } else if (dtype === "image") {
+            dataset = inst.get_parent(selected[0]);
+        }
+
+        if (dataset) {
+            inst.get_children_dom(dataset).each(function(i, n){
+                var node = inst.get_node(n);
+                console.log(i, node);
+                imgNodes.push(node);
+            });
+        }
+
+        var imgJson = [];
+        imgNodes.forEach(function(node){
+            imgJson.push({'id': node.data.obj.id,
+                        'name': node.text,
+                        'data': JSON.parse(JSON.stringify(node.data))
+                    });
+        });
+        console.log(imgJson);
+
+        var html = iconTmpl({'images': imgJson});
+        $("#icon_table").html(html);
+
+        return;
 
         // Get the container that is currently rendered
         // If any of these are not defined then nothing was selected
@@ -347,6 +392,29 @@ $(document).ready(function() {
             }
         }
     };
+
+
+    var html = '<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">' +
+                '<div id="layout_chooser">' +
+                '    <button id="icon_layout" title="View as Thumbnails" class="checked"/><button id="table_layout" title="View as List"/>' +
+                '</div>' +
+                '<form class="search filtersearch" id="filtersearch" action="#" style="top:4px">' +
+                '    <div>' +
+                '        <label for="id_search"> Filter Images </label>' +
+                '        <input id="id_search" type="text" size="25">' +
+                '    </div>' +
+                '    <span class="loading" style="display: none;"></span>' +
+                '</form>' +
+            '</div>' +
+            '<div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">' +
+            '    <div id="thumb_size_slider" title="Zoom Thumbnails"></div>' +
+            '</div>' +
+            '<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>';
+
+    console.log($("#content_details").length);
+    console.log(html);
+    $("#content_details").html(html);
+
 
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
