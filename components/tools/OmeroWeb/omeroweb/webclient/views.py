@@ -737,6 +737,7 @@ def api_image_list(request, conn=None, **kwargs):
         group_id = get_long_or_default(request, 'group', -1)
         dataset_id = get_long_or_default(request, 'id', None)
         orphaned = get_bool_or_default(request, 'orphaned', False)
+        load_pixels = get_bool_or_default(request, 'sizeXYZ', False)
         experimenter_id = get_long_or_default(request,
                                               'experimenter_id', -1)
     except ValueError:
@@ -755,6 +756,7 @@ def api_image_list(request, conn=None, **kwargs):
                                      experimenter_id=experimenter_id,
                                      dataset_id=dataset_id,
                                      share_id=share_id,
+                                     load_pixels=load_pixels,
                                      group_id=group_id,
                                      page=page,
                                      limit=limit)
