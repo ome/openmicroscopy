@@ -47,127 +47,38 @@ $(document).ready(function() {
 
     */
 
-    // Load the thumbnails (Will wait until there are no new requests
-    // for 200ms)
-    var loadThumbnailsPanelTimeout = false;
-    var loadThumbnailsPanel = function(node, newPage, newField) {
-        // Reset timeout if within 200ms of the last request
-        if (loadThumbnailsPanelTimeout) {
-            window.clearTimeout(loadThumbnailsPanelTimeout);
+
+    // Set up the centre panel header.
+    // Could do this in a nicer way (E.g. underscore?)
+    // TODO: Do we want to hide header if nothing selected (same as existing webclient behaviour?)
+    var html = '<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">' +
+            '<div id="layout_chooser">' +
+            '    <button id="icon_layout" title="View as Thumbnails" class="checked"/><button id="table_layout" title="View as List"/>' +
+            '</div>' +
+            '<form class="search filtersearch" id="filtersearch" action="#" style="top:4px">' +
+            '    <div>' +
+            '        <label for="id_search"> Filter Images </label>' +
+            '        <input id="id_search" type="text" size="25">' +
+            '    </div>' +
+            '    <span class="loading" style="display: none;"></span>' +
+            '</form>' +
+        '</div>' +
+        '<div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">' +
+        '    <div id="thumb_size_slider" title="Zoom Thumbnails"></div>' +
+        '</div>' +
+        '<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>';
+    $("#content_details").html(html);
+
+    // Start listening for Node Loading events on the tree...
+    // If a node loads and it's selected, update_thumbs...
+    $("#dataTree").on('load_node.jstree', function(event, data){
+        console.log('load_node.jstree', arguments);
+        if (data.node.state.selected) {
+            update_thumbnails_panel(event, data);
         }
+    });
 
-        loadThumbnailsPanelTimeout = window.setTimeout(function() {
-            // Clear the timeout
-            loadThumbnailsPanelTimeout = false;
-
-            // Update the central panel
-            var inst = $.jstree.reference('#dataTree');
-            var url = "{% url 'webindex' %}";
-            node = inst.get_node(node);
-            var nodeType = node.type;
-            var nodeId = node.data.obj.id;
-            var show = OME.getURLParameter('show');
-
-            switch(nodeType) {
-                case 'dataset':
-                    url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
-                    break;
-                case 'orphaned':
-                    url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
-                    break;
-                case 'plate':
-                    // Only load plates if it does not have child acquisitions
-                    if (!inst.is_parent(node)) {
-                        url += 'load_data/' + nodeType + '/' + nodeId + '/';
-                        if (show) {
-                            url += "?show=" + show;
-                        }
-                    } else {
-                        url = undefined;
-                    }
-                    break;
-                case 'acquisition':
-                    url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
-                    if (show) {
-                        url += "&show=" + show;
-                    }
-                    break;
-                case 'tag':
-                    url += 'load_data_by_tag/?o_id=' + nodeId;
-                    break;
-                case 'share':
-                    url += 'load_public/' + nodeId + '/?view=icon'
-                    break;
-                default:
-                    url = undefined;
-            }
-
-            if (url != undefined) {
-                // Loading screen
-                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
-
-                // Load html from url
-                $("div#content_details").load(url);
-                setThumbnailsPanel(nodeType, nodeId, inst.get_omepath(node), newPage, newField);
-
-            // Or if it's not a container that can be loaded, sometimes display a message
-            } else {
-                // If there are no children of a project node, display a message
-                if (nodeType === 'project' && !inst.is_parent(node)) {
-                    var msg = "<p class='center_message' title='Create Datasets using toolbar or right-click menu'>No Datasets in Project</a>";
-                    $("div#content_details").html(msg);
-
-                // If there are no children of a screen node, display a message
-                } else if (nodeType === 'screen' && !inst.is_parent(node)) {
-                    msg = "<p class='center_message' title='Import Plates using OMERO.insight'>No Plates in Screen</a>";
-                    $("div#content_details").html(msg);
-                }
-
-                // And ensure the content is empty
-                clearThumbnailsPanel();
-            }
-        }, 200);
-
-    };
-
-    var clearThumbnailsPanel = function() {
-        var $contentDetails = $("div#content_details");
-        $contentDetails.empty();
-        $contentDetails.removeData('type');
-        $contentDetails.removeData('id');
-        $contentDetails.removeData('path');
-        $("div#page").removeData('page');
-        $contentDetails.removeData('field');
-    };
-
-    var setThumbnailsPanel = function(type, id, path, page, field) {
-        var $contentDetails = $("div#content_details");
-        $contentDetails.data('type', type);
-        $contentDetails.data('id', id);
-        $contentDetails.data('path', JSON.stringify(path));
-        $("div#page").data('page', page);
-        $contentDetails.data('field', field);
-    };
-
-    var removeThumbnail = function(node) {
-        $("#image_icon-" + node.data.obj.id).remove();
-    };
-
-    var getPageOr1 = function(inst, node) {
-        if ('get_page' in inst) {
-            return inst.get_page(node);
-        }
-        return 1;
-    };
-
-    var getfieldOr0 = function(inst, node) {
-        if ('get_field' in inst) {
-            return inst.get_field(node);
-        }
-        return 0;
-    };
-
-
+    // We compile the underscore template, ready for rendering
     var tmplText = $('#containers_icon_template').html();
     var iconTmpl = _.template(tmplText);
 
@@ -201,6 +112,13 @@ $(document).ready(function() {
                 console.log(i, node);
                 imgNodes.push(node);
             });
+            if (imgNodes.length === 0 && event.type === "load_node") {
+                data.node.children.forEach(function(nodeId) {
+                    var node = inst.get_node(nodeId);
+                    console.log("load_node", nodeId, node);
+                    imgNodes.push(node);
+                });
+            }
         }
 
         var imgJson = [];
@@ -216,7 +134,18 @@ $(document).ready(function() {
         $("#icon_table").html(html);
 
         return;
+    }
 
+    // Update thumbnails when we switch between plugins
+    $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
+
+
+
+
+    // --------------------------------- OLD CODE BELOW HERE -- TODO: REMOVE! ------------------ //
+
+
+    var old_thumbnails_panel = function(event, data) {
         // Get the container that is currently rendered
         // If any of these are not defined then nothing was selected
         var $contentDetails = $("div#content_details");
@@ -393,30 +322,125 @@ $(document).ready(function() {
         }
     };
 
+        // Load the thumbnails (Will wait until there are no new requests
+    // for 200ms)
+    var loadThumbnailsPanelTimeout = false;
+    var loadThumbnailsPanel = function(node, newPage, newField) {
+        // Reset timeout if within 200ms of the last request
+        if (loadThumbnailsPanelTimeout) {
+            window.clearTimeout(loadThumbnailsPanelTimeout);
+        }
 
-    var html = '<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">' +
-                '<div id="layout_chooser">' +
-                '    <button id="icon_layout" title="View as Thumbnails" class="checked"/><button id="table_layout" title="View as List"/>' +
-                '</div>' +
-                '<form class="search filtersearch" id="filtersearch" action="#" style="top:4px">' +
-                '    <div>' +
-                '        <label for="id_search"> Filter Images </label>' +
-                '        <input id="id_search" type="text" size="25">' +
-                '    </div>' +
-                '    <span class="loading" style="display: none;"></span>' +
-                '</form>' +
-            '</div>' +
-            '<div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">' +
-            '    <div id="thumb_size_slider" title="Zoom Thumbnails"></div>' +
-            '</div>' +
-            '<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>';
+        loadThumbnailsPanelTimeout = window.setTimeout(function() {
+            // Clear the timeout
+            loadThumbnailsPanelTimeout = false;
 
-    console.log($("#content_details").length);
-    console.log(html);
-    $("#content_details").html(html);
+            // Update the central panel
+            var inst = $.jstree.reference('#dataTree');
+            var url = "{% url 'webindex' %}";
+            node = inst.get_node(node);
+            var nodeType = node.type;
+            var nodeId = node.data.obj.id;
+            var show = OME.getURLParameter('show');
 
+            switch(nodeType) {
+                case 'dataset':
+                    url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
+                    break;
+                case 'orphaned':
+                    url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
+                    break;
+                case 'plate':
+                    // Only load plates if it does not have child acquisitions
+                    if (!inst.is_parent(node)) {
+                        url += 'load_data/' + nodeType + '/' + nodeId + '/';
+                        if (show) {
+                            url += "?show=" + show;
+                        }
+                    } else {
+                        url = undefined;
+                    }
+                    break;
+                case 'acquisition':
+                    url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
+                    if (show) {
+                        url += "&show=" + show;
+                    }
+                    break;
+                case 'tag':
+                    url += 'load_data_by_tag/?o_id=' + nodeId;
+                    break;
+                case 'share':
+                    url += 'load_public/' + nodeId + '/?view=icon'
+                    break;
+                default:
+                    url = undefined;
+            }
 
-    $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
+            if (url != undefined) {
+                // Loading screen
+                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
+
+                // Load html from url
+                $("div#content_details").load(url);
+                setThumbnailsPanel(nodeType, nodeId, inst.get_omepath(node), newPage, newField);
+
+            // Or if it's not a container that can be loaded, sometimes display a message
+            } else {
+                // If there are no children of a project node, display a message
+                if (nodeType === 'project' && !inst.is_parent(node)) {
+                    var msg = "<p class='center_message' title='Create Datasets using toolbar or right-click menu'>No Datasets in Project</a>";
+                    $("div#content_details").html(msg);
+
+                // If there are no children of a screen node, display a message
+                } else if (nodeType === 'screen' && !inst.is_parent(node)) {
+                    msg = "<p class='center_message' title='Import Plates using OMERO.insight'>No Plates in Screen</a>";
+                    $("div#content_details").html(msg);
+                }
+
+                // And ensure the content is empty
+                clearThumbnailsPanel();
+            }
+        }, 200);
+
+    };
+
+    var clearThumbnailsPanel = function() {
+        var $contentDetails = $("div#content_details");
+        $contentDetails.empty();
+        $contentDetails.removeData('type');
+        $contentDetails.removeData('id');
+        $contentDetails.removeData('path');
+        $("div#page").removeData('page');
+        $contentDetails.removeData('field');
+    };
+
+    var setThumbnailsPanel = function(type, id, path, page, field) {
+        var $contentDetails = $("div#content_details");
+        $contentDetails.data('type', type);
+        $contentDetails.data('id', id);
+        $contentDetails.data('path', JSON.stringify(path));
+        $("div#page").data('page', page);
+        $contentDetails.data('field', field);
+    };
+
+    var removeThumbnail = function(node) {
+        $("#image_icon-" + node.data.obj.id).remove();
+    };
+
+    var getPageOr1 = function(inst, node) {
+        if ('get_page' in inst) {
+            return inst.get_page(node);
+        }
+        return 1;
+    };
+
+    var getfieldOr0 = function(inst, node) {
+        if ('get_field' in inst) {
+            return inst.get_field(node);
+        }
+        return 0;
+    };
 
 });
 
