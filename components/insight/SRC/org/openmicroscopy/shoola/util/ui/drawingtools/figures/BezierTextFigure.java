@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.roi.drawingtools.figures.BezierTextFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -36,7 +34,6 @@ import java.awt.geom.Rectangle2D;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.TextHolderFigure;
@@ -44,8 +41,6 @@ import org.jhotdraw.draw.Tool;
 import org.jhotdraw.geom.BezierPath;
 import org.jhotdraw.geom.Insets2D;
 
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
@@ -178,7 +173,7 @@ public class BezierTextFigure
 				layout.draw(g, (float) x, (float) y);
 				y += layout.getDescent()+layout.getLeading();
 			}
-		}	
+		}
 	}
 
 	/** 
@@ -349,5 +344,3 @@ public class BezierTextFigure
 	}
 
 }
-
-
