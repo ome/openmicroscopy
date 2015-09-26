@@ -47,6 +47,7 @@ $(document).ready(function() {
 
     */
 
+    var inst = $.jstree.reference('#dataTree');
 
     // Set up the centre panel header.
     // Could do this in a nicer way (E.g. underscore?)
@@ -69,10 +70,193 @@ $(document).ready(function() {
         '<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>';
     $("#content_details").html(html);
 
+
+    // single click handler on image (container). Selection then update toolbar & metadata pane
+    $( "#icon_table" ).on( "click", "li.row", function(event) {
+        handleClickSelection(event);
+    });
+
+    // handles selection for 'clicks' (not drags)
+    var handleClickSelection = function(event) {
+
+        // It is possible to select the image itself or its individual container
+        // Handle that here
+        var $targetIcon;
+        if (event.target.nodeName.toLowerCase() == 'li') {
+            $targetIcon = $(event.target);
+        } else if (event.target.nodeName.toLowerCase() == 'img') {
+            $targetIcon = $(event.target).parent().parent();
+        } else {
+            $targetIcon = $(event.target).parent();
+        }
+
+        var imageId = $targetIcon.attr('data-id');
+
+        // Add ui-selected class to range of icons etc
+        highlightClickedIcons(event, $targetIcon);
+
+        syncTreeSelection();
+
+        // if (imageId) {
+        //     // don't lookup container if no images selected
+        //     var containerNode = OME.getTreeImageContainerBestGuess(imageId);
+
+        //     var selectedNode = inst.locate_node('image-' + imageId, containerNode)[0];
+        //     console.log("selectedNode", selectedNode);
+
+        //     console.log($("#" + selectedNode.id + ">a"));
+        //     $("#" + selectedNode.id + ">a").click(event);
+
+        //     // inst.select_node(selectedNode, true);
+        // }
+    }
+
+
+    var highlightClickedIcons = function(event, $targetIcon) {
+        /***
+         * Based on the icon that was selected and any modifier keys
+         * update the thumbnail selections
+        */
+
+        // Get the visible icons that might need selecting
+        var $visibleIcons = $("#dataIcons li.row:visible");
+
+        // Get the start point for a range select if there is one
+        // and it is visible
+        var $lastSelected = $('#dataIcons .lastSelected:visible');
+
+        // Calculate the index of the last selected item if there was one
+        var lastSelectedIndex = -1;
+        $lastSelected.each(function(index, el) {
+            lastSelectedIndex = $visibleIcons.index(el);
+        });
+
+        // Get the index of the target item
+        var targetIndex = $visibleIcons.index($targetIcon);
+
+        // Remove the starting point as a new one is about to be applied
+        $lastSelected.removeClass('lastSelected');
+
+        // Get the platform specific multi-select key
+        var multiSelectKey = OME.multi_key() + "Key";
+
+        var selectedIcons = [];
+        var unselectedIcons = [];
+
+        // If this is a range select
+        if (event.shiftKey && lastSelectedIndex != -1) {
+            // Find the start and end of the range
+            var start = Math.min(lastSelectedIndex, targetIndex);
+            var end = Math.max(lastSelectedIndex, targetIndex);
+
+            // Mark the icons for selection
+            $visibleIcons.slice(start, end+1).each(function(index, el) {
+                $(el).addClass('ui-selected');
+            });
+
+
+        // If this is a multi-select
+        } else if (event[multiSelectKey] && lastSelectedIndex != -1) {
+            if ($targetIcon.hasClass('ui-selected')) {
+                $targetIcon.removeClass('ui-selected');
+            } else {
+                $targetIcon.addClass('ui-selected');
+            }
+
+        // This is a single selection or there was no other selection for the range/multi select
+        } else {
+            // Remove all selections
+            $visibleIcons.removeClass("ui-selected fs-selected");
+            // Add selection for this one item
+            $targetIcon.addClass("ui-selected lastSelected");
+        }
+
+        // Mark the most recent selection
+        $targetIcon.addClass('lastSelected');
+    }
+
+    // When we filter, unselect the hidden icons and update
+    // selections in the jstree
+    // var deselectFiltered = function(e, a){
+    //     // check if any selection change is needed
+    //     var $filtered = $("#dataIcons li.ui-selected:hidden");
+    //     if ($filtered.length == 0) return;
+
+    //     // If we've filtered any selected images, de-select icon
+    //     $filtered.removeClass("ui-selected");
+
+    //     var imageId = $filtered.first().data('id');
+    //     syncTreeSelection(imageId);
+    // };
+
+    // use IDs of the selected visible thumbnails to sync tree selection
+    var syncTreeSelection = function() {
+
+        var $selectedIcons = $('.ui-selected');
+        {% if share %}
+            // We don't support multi-selection of images in share
+            $selectedIcons.removeClass('ui-selected');
+            $selectedIcons = $selectedIcons.first().addClass('ui-selected');
+        {% endif %}
+        var imageId = $selectedIcons.first().data('id');
+
+        // Get the node that seems to be the current container
+        // Images only, all that is required for now as center panel only shows images
+        var containerNode;
+        if (imageId) {
+            // don't lookup container if no images selected
+            containerNode = OME.getTreeImageContainerBestGuess(imageId);
+        }
+
+        // Deselect all to begin (supress jstree event)
+        inst.deselect_all(true);
+
+        var fsIds = {};
+        if (containerNode) {
+
+            // Select the selected icons in the tree (supress jstree event)
+            $selectedIcons.each(function(index, el) {
+                var $el = $(el),
+                    fsId = $el.data('fileset');
+                if (fsId != undefined && fsId != '') {
+                    fsIds[fsId] = true;
+                }
+                var selectedNode = inst.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
+                inst.select_node(selectedNode, true);
+                // we also focus the node, so that hotkey events come from the node
+                $("#" + selectedNode.id).children('.jstree-anchor').focus();
+            });
+        } else {
+            console.log('jstree may need to be refreshed');
+        }
+        // Update thumbnail highlighting of filesets
+        highlightFilesets(fsIds);
+
+        // Since we've suppressed jstree events, we need to manually handle selection change...
+        OME.writeSelectedObjs(undefined, $selectedIcons);
+        // Update the buttons in the jstree
+        if (buttonsShowHide) {
+            buttonsShowHide(inst.get_selected(true), inst);
+        }
+        // Trigger the selection changed event
+        $("body").trigger('selection_change.ome');
+
+        return false;
+    }
+
+    // When an image(s) are selected, also indicate others with the same fileset(s).
+    var highlightFilesets = function(fsIds) {
+        var $selectee = $("#dataIcons").find("li.row");
+        $selectee.removeClass('fs-selected');
+        for (var fsid in fsIds) {
+            console.log(fsid);
+            $selectee.filter("[data-fileset='"+ fsid + "']").addClass('fs-selected');
+        }
+    }
+
     // Start listening for Node Loading events on the tree...
     // If a node loads and it's selected, update_thumbs...
     $("#dataTree").on('load_node.jstree', function(event, data){
-        console.log('load_node.jstree', arguments);
         if (data.node.state.selected) {
             update_thumbnails_panel(event, data);
         }
@@ -85,7 +269,6 @@ $(document).ready(function() {
     // This is called directly by various jstree plugins
     // E.g. omecut_plugin.js as well as the jstree in containers.html
     window.update_thumbnails_panel = function(event, data) {
-        var inst = $.jstree.reference('#dataTree');
 
         // Get the current selection
         var selected = inst.get_selected(true);
