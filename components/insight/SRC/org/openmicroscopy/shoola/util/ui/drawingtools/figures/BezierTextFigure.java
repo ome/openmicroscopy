@@ -1,7 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.drawingtools.figures.BezierTextFigure 
- *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
@@ -52,9 +50,6 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class BezierTextFigure
@@ -164,7 +159,10 @@ public class BezierTextFigure
 			LineBreakMeasurer measurer = new LineBreakMeasurer(i, frc);
 
 			// draw
-			g.setColor(FigureUtil.TEXT_COLOR);
+			Color c = AttributeKeys.STROKE_COLOR.get(this);
+			if (c != null) {
+			    g.setColor(c);
+			}
 			int w = (int) width;
 			TextLayout layout;
 			while (measurer.getPosition() < text.length()) {
