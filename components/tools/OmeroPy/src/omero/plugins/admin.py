@@ -412,6 +412,13 @@ present, the user will enter a console""")
             "--nodeonly", action="store_true",
             help="If set, then only tests if the icegridnode is running")
 
+        for name in ("start", "startasync", "restart", "restartasync", "stop",
+                     "stopasync"):
+            self.actions[name].add_argument(
+                "--force-rewrite", action="store_true",
+                help="Force the configuration to be rewritten before checking"
+                " the server status")
+
         for name in ("start", "restart"):
             self.actions[name].add_argument(
                 "--foreground", action="store_true",
@@ -703,15 +710,20 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.rewrite(args, config)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
         if self._isWindows():
             self.checkwindows(args)
 
+        if args.force_rewrite:
+            self.rewrite(args, config, force=True)
+
         if 0 == self.status(args, node_only=True):
             self.ctx.die(876, "Server already running")
+
+        if not args.force_rewrite:
+            self.rewrite(args, config)
 
         self.check_lock(config)
 
@@ -892,6 +904,8 @@ present, the user will enter a console""")
         Returns true if the server was already stopped
         """
         self.check_node(args)
+        if args.force_rewrite:
+            self.rewrite(args, config, force=True)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
             return True
