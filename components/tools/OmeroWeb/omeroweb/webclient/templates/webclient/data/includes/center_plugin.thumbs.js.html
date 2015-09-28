@@ -51,7 +51,6 @@ $(document).ready(function() {
     // for 200ms)
     var loadThumbnailsPanelTimeout = false;
     var loadThumbnailsPanel = function(node, newPage, newField) {
-        console.log('loadThumbnailsPanel...');
         // Reset timeout if within 200ms of the last request
         if (loadThumbnailsPanelTimeout) {
             window.clearTimeout(loadThumbnailsPanelTimeout);
@@ -172,7 +171,6 @@ $(document).ready(function() {
     // This is called directly by various jstree plugins
     // E.g. omecut_plugin.js as well as the jstree in containers.html
     window.update_thumbnails_panel = function(event, data) {
-        console.log('update_thumbnails_panel...');
         var inst = $.jstree.reference('#dataTree');
 
         // Get the container that is currently rendered
