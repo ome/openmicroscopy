@@ -283,7 +283,7 @@ $(document).ready(function() {
 
         var dataset,
             imgNodes = [];
-        if (dtype === "dataset") {
+        if (dtype === "dataset" || dtype === "orphaned") {
             dataset = selected[0];
         } else if (dtype === "image") {
             dataset = inst.get_parent(selected[0]);
@@ -294,12 +294,14 @@ $(document).ready(function() {
                 var node = inst.get_node(n);
                 imgNodes.push(node);
             });
-            if (imgNodes.length === 0 && event.type === "load_node") {
-                data.node.children.forEach(function(nodeId) {
-                    var node = inst.get_node(nodeId);
-                    imgNodes.push(node);
-                });
-            }
+        }
+
+        if (imgNodes.length === 0 && event.type === "load_node" &&
+                (dtype === "dataset" || dtype === "orphaned") ) {
+            data.node.children.forEach(function(nodeId) {
+                var node = inst.get_node(nodeId);
+                imgNodes.push(node);
+            });
         }
 
         var imgJson = [],
