@@ -48,59 +48,59 @@ public class ImageFinder
 {
 
     /** Set of <code>ImageNode</code>s */
-    private Set<ImageDisplay>	imageNodes;
-    
+    private Set<ImageDisplay> imageNodes;
+
     /** Set of corresponding <code>DataObject</code>s */
-    private Set<DataObject>		images;
-    
+    private Set<DataObject> images;
+
     /** Set of <code>ImageNode</code>s */
-    private Set<ImageNode>		visibleImageNodes;
-    
+    private Set<ImageNode> visibleImageNodes;
+
     /** Set of corresponding visible <code>DataObject</code>s */
-    private Set<DataObject>		visibleImages;
-    
+    private Set<DataObject> visibleImages;
+
     /** Creates a new instance. */
     public ImageFinder()
     {
-    	 images = new HashSet<DataObject>();
-         imageNodes = new HashSet<ImageDisplay>();
-         visibleImages = new HashSet<DataObject>();
-         visibleImageNodes = new HashSet<ImageNode>();
+        images = new HashSet<DataObject>();
+        imageNodes = new HashSet<ImageDisplay>();
+        visibleImages = new HashSet<DataObject>();
+        visibleImageNodes = new HashSet<ImageNode>();
     }
-   
-    /** 
-     * Returns the set of {@link ImageNode}s displayed. 
-     * 
+
+    /**
+     * Returns the set of {@link ImageNode}s displayed.
+     *
      * @return See above.
      */
     public Set<ImageDisplay> getImageNodes() { return imageNodes; }
-    
+
     /** 
-     * Returns the set of corresponding <code>DataObject</code>s. 
-     * 
+     * Returns the set of corresponding <code>DataObject</code>s.
+     *
      * @return See above.
      */
     public Set<DataObject> getImages() { return images; }
-    
-    /** 
-     * Returns the set of {@link ImageNode}s displayed. 
-     * 
+
+    /**
+     * Returns the set of {@link ImageNode}s displayed.
+     *
      * @return See above.
      */
     public Set<ImageNode> getVisibleImageNodes()
     { 
-    	return visibleImageNodes; 
+        return visibleImageNodes;
     }
-    
-    /** 
-     * Returns the set of visible <code>DataObject</code>s. 
-     * 
+
+    /**
+     * Returns the set of visible <code>DataObject</code>s.
+     *
      * @return See above.
      */
     public Set<DataObject> getVisibleImages() { return visibleImages; }
-    
-    /** 
-     * Implemented as specified by {@link ImageDisplayVisitor}. 
+
+    /**
+     * Implemented as specified by {@link ImageDisplayVisitor}.
      * @see ImageDisplayVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node)
@@ -109,13 +109,13 @@ public class ImageFinder
         visibleImageNodes.add(node);
         Object ho = node.getHierarchyObject();
         if (ho instanceof WellSampleData) {
-        	WellSampleData wsd = (WellSampleData) ho;
-        	ho = wsd.getImage();
+            WellSampleData wsd = (WellSampleData) ho;
+            ho = wsd.getImage();
         }
         if (ho instanceof ImageData) images.add((ImageData) ho);
     }
 
-    /** 
+    /**
      * Implemented as specified by {@link ImageDisplayVisitor}.
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
