@@ -340,12 +340,30 @@ $(document).ready(function() {
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
 
+        setUpDragSelection();
+
         return;
     }
 
     // Update thumbnails when we switch between plugins
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
+
+    var setUpDragSelection = function() {
+        // plugin to handle drag-select of images
+        $("#dataIcons").selectable({
+            filter: 'li.row',
+            distance: 2,
+            stop: function() {
+                // Make the same selection in the jstree etc
+                syncTreeSelection();
+            },
+            start: function() {
+                // Remove any fileset selection markings
+                $("#dataIcons li.row:visible").removeClass("fs-selected");
+            }
+        });
+    }
 
     // Handle zooming of thumbnails with jQuery slider
     var icon_styles = [];
