@@ -76,6 +76,113 @@ $(document).ready(function() {
         handleClickSelection(event);
     });
 
+    // plugin to handle drag-select of images
+    $("#icon_table").selectable({
+        filter: 'li.row',
+        distance: 2,
+        stop: function() {
+            // Make the same selection in the jstree etc
+            syncTreeSelection();
+        },
+        start: function() {
+            // Remove any fileset selection markings
+            $("#dataIcons li.row:visible").removeClass("fs-selected");
+        }
+    });
+
+    // Start listening for Node Loading events on the tree...
+    // If a node loads and it's selected, update_thumbs...
+    $("#dataTree").on('load_node.jstree', function(event, data){
+        if (data.node.state.selected) {
+            update_thumbnails_panel(event, data);
+        }
+    });
+
+    // We compile the underscore template, ready for rendering
+    var tmplText = $('#containers_icon_template').html();
+    var iconTmpl = _.template(tmplText);
+
+    // This is called directly by various jstree plugins
+    // E.g. omecut_plugin.js as well as the jstree in containers.html
+    window.update_thumbnails_panel = function(event, data) {
+
+        // Get the current selection
+        var selected = inst.get_selected(true);
+        console.log("update_thumbnails_panel", selected);
+
+        if (selected.length === 0) {
+            $("#icon_table").html("");
+            return;
+        }
+        var dtype = selected[0].type;
+        console.log(dtype);
+
+        var dataset,
+            imgNodes = [];
+        if (dtype === "dataset" || dtype === "orphaned") {
+            dataset = selected[0];
+        } else if (dtype === "image") {
+            dataset = inst.get_parent(selected[0]);
+        }
+
+        if (dataset) {
+            inst.get_children_dom(dataset).each(function(i, n){
+                var node = inst.get_node(n);
+                imgNodes.push(node);
+            });
+        }
+
+        if (imgNodes.length === 0 && event.type === "load_node" &&
+                (dtype === "dataset" || dtype === "orphaned") ) {
+            data.node.children.forEach(function(nodeId) {
+                var node = inst.get_node(nodeId);
+                imgNodes.push(node);
+            });
+        }
+
+        var imgJson = [],
+            selFileSets = [];
+        imgNodes.forEach(function(node){
+            console.log('node', node)
+            var iData = {'id': node.data.obj.id,
+                    'name': node.text,
+                    'data': JSON.parse(JSON.stringify(node.data)),
+                    'selected': node.state.selected,
+                };
+            if (iData.selected) {
+                var fsId = node.data.obj.filesetId;
+                if (fsId) {
+                    selFileSets.push(fsId);
+                }
+            }
+            imgJson.push(iData);
+        });
+
+        // Now we know which filesets are selected, we can
+        // go through all images, adding fs-selection flag if in
+        if (selFileSets.length > 0) {
+            imgJson.forEach(function(img){
+                if (selFileSets.indexOf(img.data.obj.filesetId) > -1) {
+                    img.fsSelected = true;
+                }
+            });
+        }
+
+        console.log(imgJson);
+
+        var html = iconTmpl({'images': imgJson});
+        $("#icon_table").html(html);
+
+        // populate arrays etc for speedy icon zooming
+        setupIconZooming();
+
+        return;
+    }
+
+    // Update thumbnails when we switch between plugins
+    $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
+
+
     // handles selection for 'clicks' (not drags)
     var handleClickSelection = function(event) {
 
@@ -252,117 +359,6 @@ $(document).ready(function() {
             console.log(fsid);
             $selectee.filter("[data-fileset='"+ fsid + "']").addClass('fs-selected');
         }
-    }
-
-    // Start listening for Node Loading events on the tree...
-    // If a node loads and it's selected, update_thumbs...
-    $("#dataTree").on('load_node.jstree', function(event, data){
-        if (data.node.state.selected) {
-            update_thumbnails_panel(event, data);
-        }
-    });
-
-    // We compile the underscore template, ready for rendering
-    var tmplText = $('#containers_icon_template').html();
-    var iconTmpl = _.template(tmplText);
-
-    // This is called directly by various jstree plugins
-    // E.g. omecut_plugin.js as well as the jstree in containers.html
-    window.update_thumbnails_panel = function(event, data) {
-
-        // Get the current selection
-        var selected = inst.get_selected(true);
-        console.log("update_thumbnails_panel", selected);
-
-        if (selected.length === 0) {
-            $("#icon_table").html("");
-            return;
-        }
-        var dtype = selected[0].type;
-        console.log(dtype);
-
-        var dataset,
-            imgNodes = [];
-        if (dtype === "dataset" || dtype === "orphaned") {
-            dataset = selected[0];
-        } else if (dtype === "image") {
-            dataset = inst.get_parent(selected[0]);
-        }
-
-        if (dataset) {
-            inst.get_children_dom(dataset).each(function(i, n){
-                var node = inst.get_node(n);
-                imgNodes.push(node);
-            });
-        }
-
-        if (imgNodes.length === 0 && event.type === "load_node" &&
-                (dtype === "dataset" || dtype === "orphaned") ) {
-            data.node.children.forEach(function(nodeId) {
-                var node = inst.get_node(nodeId);
-                imgNodes.push(node);
-            });
-        }
-
-        var imgJson = [],
-            selFileSets = [];
-        imgNodes.forEach(function(node){
-            console.log('node', node)
-            var iData = {'id': node.data.obj.id,
-                    'name': node.text,
-                    'data': JSON.parse(JSON.stringify(node.data)),
-                    'selected': node.state.selected,
-                };
-            if (iData.selected) {
-                var fsId = node.data.obj.filesetId;
-                if (fsId) {
-                    selFileSets.push(fsId);
-                }
-            }
-            imgJson.push(iData);
-        });
-
-        // Now we know which filesets are selected, we can
-        // go through all images, adding fs-selection flag if in 
-        if (selFileSets.length > 0) {
-            imgJson.forEach(function(img){
-                if (selFileSets.indexOf(img.data.obj.filesetId) > -1) {
-                    img.fsSelected = true;
-                }
-            });
-        }
-
-        console.log(imgJson);
-
-        var html = iconTmpl({'images': imgJson});
-        $("#icon_table").html(html);
-
-        // populate arrays etc for speedy icon zooming
-        setupIconZooming();
-
-        setUpDragSelection();
-
-        return;
-    }
-
-    // Update thumbnails when we switch between plugins
-    $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
-
-
-    var setUpDragSelection = function() {
-        // plugin to handle drag-select of images
-        $("#dataIcons").selectable({
-            filter: 'li.row',
-            distance: 2,
-            stop: function() {
-                // Make the same selection in the jstree etc
-                syncTreeSelection();
-            },
-            start: function() {
-                // Remove any fileset selection markings
-                $("#dataIcons li.row:visible").removeClass("fs-selected");
-            }
-        });
     }
 
     // Handle zooming of thumbnails with jQuery slider
