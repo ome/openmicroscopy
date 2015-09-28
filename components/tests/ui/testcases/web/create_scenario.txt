@@ -45,12 +45,14 @@ Check Right And Center Panels For Active Container
 Create Project Using Icon and Check If It Exists
     ${projectId}=                           Create Project                      ${CtxProjectName}
     Project Should Exist                    ${projectId}
+    [Return]                                ${projectId}
 
 Create Project Using Right Click and Check If It Exists
     [Arguments]                             ${RootId}                           ${ProjectName}
     Right Click Create P/D/S                ${RootId}       Project             ${ProjectName}
     ${projectId}=                           Check Right And Center Panels For Active Container                      Project             ${ProjectName}
     Project Should Exist                    ${projectId}
+    [Return]                                ${projectId}
 
 Project Should Exist
     [Arguments]                             ${projectId}    
@@ -63,6 +65,7 @@ Create Dataset Using Icon and Check If Orphaned
     ${datasetId}=                           Create Dataset                      ${CtxDatasetName}
     Run Keyword If                          '${isOrphaned}' == '${orphaned}'    Dataset Exists and Is Orphaned      ${datasetId}
     Run Keyword If                          '${isOrphaned}' == '${notOrphaned}' Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
+    [Return]                                ${datasetId} 
 
 Create Dataset Using Right Click and Check If Orphaned
     [Arguments]                             ${RootId}       ${DatasetName}      ${isOrphaned}
@@ -70,7 +73,8 @@ Create Dataset Using Right Click and Check If Orphaned
     Right Click Create P/D/S                ${RootId}       Dataset             ${DatasetName}
     ${datasetId}=                           Check Right And Center Panels For Active Container                      Dataset             ${DatasetName}
     Run Keyword If                          '${isOrphaned}' == '${orphaned}'    Dataset Exists and Is Orphaned      ${datasetId}
-    Run Keyword If                          '${isOrphaned}' == '${notOrphaned}' Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}    
+    Run Keyword If                          '${isOrphaned}' == '${notOrphaned}' Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
+    [Return]                                ${datasetId}  
 
 Dataset Exists and Is Orphaned
     [Arguments]                             ${datasetId}    
@@ -84,7 +88,7 @@ Dataset Exists and Is Not Orphaned
     Wait Until Page Contains Element        xpath=//li[@id='${treeRootId}']/ul/li[@id='${projectnodeId}']/ul/li[@id='${datasetnodeId}']
 
 Dataset Should Contain Image 
-    [Arguments]                             ${imageId}
+    [Arguments]                             ${imageId}      ${datasetId}
     [Documentation]                         Checks if the newly created dataset contains the image. Very Specific test, needs to be generalised.
     Wait Until Page Contains Element        css=tr.data_heading_id strong
     ${datasetId}                            Get Text                css=tr.data_heading_id strong
@@ -100,12 +104,14 @@ Dataset Should Contain Image
 Create Screen Using Icon and Check If It Exists
     ${screenId}=                            Create Screen                       ${CtxScreenName}
     Screen Should Exist                     ${screenId}
+    [Return]                                ${screenId}
 
 Create Screen Using Right Click and Check If It Exists
     [Arguments]                             ${RootId}                           ${ScreenName}
     Right Click Create P/D/S                ${RootId}       Screen              ${ScreenName}
     ${screenId}=                            Check Right And Center Panels For Active Container      Screen          ${ScreenName}
     Screen Should Exist                     ${screenId}
+    [Return]                                ${screenId}
 
 Screen Should Exist
     [Arguments]                             ${screenId}
@@ -250,8 +256,8 @@ Test Create Dataset Using Right Click
 
     ${imageId}=                                                 Select First Orphaned Image 
     ${treeId}=                                                  Wait For Image Node         ${imageId}
-    Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
-    Dataset Should Contain Image                                ${imageId}
+    ${datasetId}=                                               Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
+    Dataset Should Contain Image                                ${imageId}                  ${datasetId}
 
 
 Test Create Screen Using Icon
