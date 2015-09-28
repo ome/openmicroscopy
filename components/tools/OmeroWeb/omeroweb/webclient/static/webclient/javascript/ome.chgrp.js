@@ -98,11 +98,10 @@ $(function() {
     var checkFilesetSplit = function checkFilesetSplit () {
         // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
         $group_chooser.hide();                      // hide group_chooser while we wait...
-        $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
         var sel = OME.get_tree_selection(),
-            selImages = (sel.indexOf('Image') > -1);
-            dtype = sel.split('=')[0];
-        var ids = sel.split('=')[1];
+            selImages = (sel.indexOf('Image') > -1),
+            dtype = sel.split('=')[0],
+            ids = sel.split('=')[1];
         dryRunTargetObjects = {};
         dryRunTargetObjects[dtype] = ids;
         $.get(webindex_url + "fileset_check/chgrp/?" + sel, function(html){
