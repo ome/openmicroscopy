@@ -91,7 +91,6 @@ Dataset Should Contain Image
     [Arguments]                             ${imageId}      ${datasetId}
     [Documentation]                         Checks if the newly created dataset contains the image. Very Specific test, needs to be generalised.
     Wait Until Page Contains Element        css=tr.data_heading_id strong
-    ${datasetId}                            Get Text                css=tr.data_heading_id strong
     Select Dataset By Id                    ${datasetId}
     ${nodeId}=                              Wait For Dataset Node               ${datasetId}
 
