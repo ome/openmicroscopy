@@ -1028,6 +1028,8 @@ present, the user will enter a console""")
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
+            '@omero.serverdirs.var@': config.get(
+                'omero.serverdirs.var', 'var'),
             }
 
         def copy_template(input_file, output_dir):
