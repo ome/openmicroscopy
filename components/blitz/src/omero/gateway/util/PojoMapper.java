@@ -43,6 +43,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DoubleAnnotation;
+import omero.model.Ellipse;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
@@ -51,17 +52,24 @@ import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Label;
+import omero.model.Line;
 import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
+import omero.model.Mask;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -80,23 +88,31 @@ import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.EllipseData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.FilesetData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.LineData;
 import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.MaskData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.PlateData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.RectangleData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextData;
 import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.TimeAnnotationData;
 import omero.gateway.model.WellData;
@@ -517,6 +533,22 @@ public class PojoMapper
             return Fileset.class;
         else if (MapAnnotationData.class.equals(pojoType))
             return MapAnnotation.class;
+        else if (EllipseData.class.equals(pojoType))
+            return Ellipse.class;
+        else if (LineData.class.equals(pojoType))
+            return Line.class;
+        else if (MaskData.class.equals(pojoType))
+            return Mask.class;
+        else if (PointData.class.equals(pojoType))
+            return Point.class;
+        else if (PolygonData.class.equals(pojoType))
+            return Polygon.class;
+        else if (PolylineData.class.equals(pojoType))
+            return Polyline.class;
+        else if (RectangleData.class.equals(pojoType))
+            return Rect.class;
+        else if (TextData.class.equals(pojoType))
+            return Label.class;
 
         throw new IllegalArgumentException(pojoType.getClass().getSimpleName()+" not supported");
     }
