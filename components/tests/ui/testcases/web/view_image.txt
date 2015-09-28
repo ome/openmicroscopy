@@ -5,6 +5,8 @@ Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
+Library           Collections
+
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
@@ -21,23 +23,28 @@ Test Open Viewer
     ${imageId}=                         Wait For General Panel And Return Id        Image
     # Open Image Viewer 3 different ways and check
     Click Element                       xpath=//button[@title='Open full image viewer in new window']
-    Check Image Viewer                  ${imageName}    2
+    Check Image Viewer                  ${imageName}
     Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
-    Check Image Viewer                  ${imageName}    3
+    Check Image Viewer                  ${imageName}
     Double Click Element                css=#image-${imageId}>a
-    Check Image Viewer                  ${imageName}    4
+    Check Image Viewer                  ${imageName}
 
 
 *** Keywords ***
 
 Check Image Viewer
-    [Arguments]          ${title}       ${windowCount}
+    [Arguments]                         ${title}
+    # Wait untill popup windows is fully initialiazed
+    # Image Viewer title is the image name.
+    Wait Until Keyword Succeeds  ${TIMEOUT}     ${INTERVAL}     Select Window   title=${title}
+    # Loading of image within viewport indicates all is OK
+    Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     ${WAIT}
+    ${titles}=                          Get Window Titles
+    List Should Contain Value           ${titles}               ${title}
     # Should have 2 windows open
     ${windowIds}=                       Get Window Identifiers
-    Length Should Be                    ${windowIds}        ${windowCount}
-    # Image Viewer title is the image name.
-    Select Window                       title=${imageName}
-    # Loading of image within viewport indicates all is OK
-    Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     30
-    # Select parent window #(closing fails on Chrome)
-    Select Window                       title=Webclient
+    Length Should Be                    ${windowIds}            2
+    # Close Popup window
+    Close Window
+    # Select parent window
+    Select Window

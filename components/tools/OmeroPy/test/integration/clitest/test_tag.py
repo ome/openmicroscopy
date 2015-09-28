@@ -65,16 +65,16 @@ class AbstractTagTest(CLITest):
     def create_tagset(self, tag_ids, name):
         tagset = omero.model.TagAnnotationI()
         tagset.textValue = omero.rtypes.rstring(name)
+        tagset.ns = rstring(NSINSIGHTTAGSET)
         tagset = self.update.saveAndReturnObject(tagset)
-
-        tagset.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
-        links = []
-        for tag_id in tag_ids:
-            link = omero.model.AnnotationAnnotationLinkI()
-            link.parent = tagset
-            link.child = omero.model.TagAnnotationI(tag_id, False)
-            links.append(link)
-        self.update.saveArray(links)
+        if tag_ids:
+            links = []
+            for tag_id in tag_ids:
+                link = omero.model.AnnotationAnnotationLinkI()
+                link.parent = tagset
+                link.child = omero.model.TagAnnotationI(tag_id, False)
+                links.append(link)
+            self.update.saveArray(links)
 
         return tagset.id.val
 
@@ -122,7 +122,7 @@ class TestTag(AbstractTagTest):
     # Tag creation commands
     # ========================================================================
     @pytest.mark.parametrize('name_arg', [None, '--name'])
-    @pytest.mark.parametrize('desc_arg', [None, '--desc'])
+    @pytest.mark.parametrize('desc_arg', [None, '--description'])
     def testCreateTag(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
@@ -136,9 +136,6 @@ class TestTag(AbstractTagTest):
 
         if desc_arg:
             self.args += [desc_arg, tag_desc]
-        else:
-            desc_input = 'Please enter a description for this tag: '
-            raw_input(desc_input).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
@@ -147,7 +144,10 @@ class TestTag(AbstractTagTest):
         # Check tag is created
         tag = self.get_object(o)
         assert tag.textValue.val == tag_name
-        assert tag.description.val == tag_desc
+        if desc_arg:
+            assert tag.description.val == tag_desc
+        else:
+            assert tag.description is None
 
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
@@ -166,9 +166,6 @@ class TestTag(AbstractTagTest):
             raw_input(name_input).AndReturn(tag_name)
         if desc_arg:
             self.args += [desc_arg, tag_desc]
-        else:
-            desc_input = 'Please enter a description for this tag set: '
-            raw_input(desc_input).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
@@ -178,7 +175,10 @@ class TestTag(AbstractTagTest):
         tagset = self.get_object(o)
         assert tagset.textValue.val == tag_name
         assert tagset.ns.val == NSINSIGHTTAGSET
-        assert tagset.description.val == tag_desc
+        if desc_arg:
+            assert tagset.description.val == tag_desc
+        else:
+            assert tagset.description is None
 
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
@@ -327,7 +327,9 @@ class TestTagList(AbstractTagTest):
     def setup_class(cls):
         super(TestTagList, cls).setup_class()
         cls.tag_ids = cls.create_tags(2, 'list_tag')
-        cls.tagset_id = cls.create_tagset(cls.tag_ids, '')
+        cls.tagset_id = cls.create_tagset(cls.tag_ids, 'list_set')
+        cls.orphan_ids = cls.create_tags(2, 'orphan_tag')
+        cls.empty_id = cls.create_tagset([], 'empty_set')
 
     # Tag list commands
     # ========================================================================
@@ -341,7 +343,10 @@ class TestTagList(AbstractTagTest):
 
         out, err = capsys.readouterr()
         assert str(self.tagset_id) in out
+        assert str(self.empty_id) in out
         for tag_id in self.tag_ids:
+            assert str(tag_id) in out
+        for tag_id in self.orphan_ids:
             assert str(tag_id) in out
 
     # Tag listsets commands
@@ -356,5 +361,8 @@ class TestTagList(AbstractTagTest):
 
         out, err = capsys.readouterr()
         assert str(self.tagset_id) in out
+        assert str(self.empty_id) in out
         for tag_id in self.tag_ids:
+            assert str(tag_id) not in out
+        for tag_id in self.orphan_ids:
             assert str(tag_id) not in out

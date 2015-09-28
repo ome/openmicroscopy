@@ -47,5 +47,8 @@ end
 pixels = image.getPrimaryPixels();
 
 % Create container service to load raw pixels
+context = java.util.HashMap;
+group = image.getDetails().getGroup().getId().getValue();
+context.put('omero.group', num2str(group));
 store = session.createRawPixelsStore();
-store.setPixelsId(pixels.getId().getValue(), false);
+store.setPixelsId(pixels.getId().getValue(), false, context);

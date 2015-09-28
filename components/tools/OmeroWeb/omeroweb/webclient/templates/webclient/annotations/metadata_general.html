@@ -339,6 +339,7 @@
                         $("#fileanns_container").prepend( $fileanns ).show();
                         $(".tooltip", $fileanns).tooltip_init();
                         OME.filterAnnotationsAddedBy();
+                        OME.fileAnnotationCheckboxDynamicallyAdded();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
@@ -695,26 +696,6 @@
                 {% with obj=manager.acquisition nameText=manager.acquisition.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-                
-
-                <h2 class="data_heading_id">
-                    Plate Run ID: <strong>{{ manager.acquisition.id }}</strong>
-                    <!-- open link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Acquisition">
-                        <span></span>
-                    </button>
-                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                        <input type="text" size="30">
-                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                    </div>
-                </h2>
-                <table style="float:left; width:100px; clear:left">
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
-                    </tr>
-                </table>
-                <div style="clear: both"></div>
 
                 <hr/>
                 
@@ -908,6 +889,19 @@
                         <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
                         </a>
+                        <div class="toolbar">
+                            <input type="button" title="Select Files for Scripts"
+                                class="btn silver btn_script_dark">
+                            <!-- Class "scriptButton" also on <span> as that
+                                 is actually what we're clicking on.
+                            -->
+                        </div>
+                        <script type="text/javascript">
+                            $(".annotations_section .scriptButton").click(
+                                {webindex: "{% url 'webindex' %}"},
+                                OME.showScriptList
+                            );
+                        </script>
                     {% endif %}
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
@@ -918,7 +912,15 @@
                             {% include "webclient/annotations/fileanns.html" %}
                         {% endwith %}
                     </ul>
-
+                    <script type="text/javascript">
+                        $(".annotations_section .toolbar input[type=button]").click(
+                            OME.toggleFileAnnotationCheckboxes
+                        );
+                        $("#fileanns_container").on(
+                            "change", "li input[type=checkbox]",
+                            OME.fileAnnotationCheckboxChanged
+                        );
+                    </script>
             </div>
 
 

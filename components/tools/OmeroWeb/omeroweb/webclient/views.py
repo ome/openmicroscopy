@@ -76,6 +76,7 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.marshal import chgrpMarshal
 
 from omeroweb.feedback.views import handlerInternalError
 
@@ -717,11 +718,9 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     manager.listContainerHierarchy(owner)
     template = 'webclient/data/chgrp_target_tree.html'
 
-    show_projects = target_type in ('project', 'dataset')
     context = {
         'manager': manager,
         'target_type': target_type,
-        'show_projects': show_projects,
         'template': template}
     return context
 
@@ -1078,6 +1077,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            context['canExportAsJpg'] = manager.canExportAsJpg(request)
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
     context['manager'] = manager
@@ -1102,8 +1102,6 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
                           **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel.
-    Currently this doesn't do much except launch the view-port plugin using
-    the image Id (and share Id if necessary)
     """
     context = {}
 
@@ -1570,6 +1568,7 @@ def batch_annotate(request, conn=None, **kwargs):
     ratings = manager.getGroupedRatings(allratings)
 
     figScripts = manager.listFigureScripts(objs)
+    canExportAsJpg = manager.canExportAsJpg(request, objs)
     filesetInfo = None
     iids = []
     if 'well' in objs and len(objs['well']) > 0:
@@ -1607,6 +1606,7 @@ def batch_annotate(request, conn=None, **kwargs):
         'batch_ann': True,
         'index': index,
         'figScripts': figScripts,
+        'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
         'annotationBlocked': annotationBlocked,
         'userRatingAvg': userRatingAvg,
@@ -2900,6 +2900,19 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
+    # If we have a jobId, just process that (Only chgrp supported)
+    jobId = request.REQUEST.get('jobId', None)
+    if jobId is not None:
+        jobId = str(jobId)
+        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
+        rsp = prx.getResponse()
+        if rsp is not None:
+            rv = chgrpMarshal(conn, rsp)
+            rv['finished'] = True
+        else:
+            rv = {'finished': False}
+        return rv
+
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
         callbackDict = request.session['callback'][cbString]
@@ -3594,6 +3607,23 @@ def fileset_check(request, action, conn=None, **kwargs):
                            "fileset_check_dialog_content.html")
 
     return context
+
+
+@login_required()
+def chgrpDryRun(request, conn=None, **kwargs):
+
+    group_id = getIntOrDefault(request, 'group_id', None)
+    targetObjects = {}
+    dtypes = ["Project", "Dataset", "Image", "Screen", "Plate", "Fileset"]
+    for dtype in dtypes:
+        oids = request.REQUEST.get(dtype, None)
+        if oids is not None:
+            obj_ids = [int(oid) for oid in oids.split(",")]
+            targetObjects[dtype] = obj_ids
+
+    handle = conn.chgrpDryRun(targetObjects, group_id)
+    jobId = str(handle)
+    return HttpResponse(jobId)
 
 
 @login_required()

@@ -555,4 +555,13 @@ class GeneralPaneUI
 		annotationUI.onRelatedNodesSet();
 	}
 	
+	/**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+	public Collection<FileAnnotationData> getSelectedFileAnnotations() {
+	    return annotationUI.getSelectedFileAnnotations();
+	}
 }

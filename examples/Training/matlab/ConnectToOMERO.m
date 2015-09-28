@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -53,19 +53,27 @@ try
     delete(t);
     
     %% Admin service
-    % List groups the user is member of
+    % Retrieve the identifier of the groups the user is member/owner of
     user = adminService.getExperimenter(userId);
-    groupIds = toMatlabList(adminService.getMemberOfGroupIds(user), 'double');
+    groupIds1 = toMatlabList(adminService.getMemberOfGroupIds(user));
+    groupIds2 = toMatlabList(adminService.getLeaderOfGroupIds(user));
     
-    % Switch between groups the user is member of
-    for groupId = groupIds'
+    % List all groups the user is member of
+    disp('Group membership');
+    for groupId = groupIds1'
         group = adminService.getGroup(groupId);
-        fprintf(1, 'Switching to group %s (id: %g)\n',...
-            char(group.getName().getValue()), groupId);
-        session.setSecurityContext(group);
-        
-        % Check the current group has been switched
-        assert(groupId == adminService.getEventContext().groupId);
+        fprintf(1, ' Group %s (id: %g, type: %s)\n',...
+            char(group.getName().getValue()), groupId,...
+            char(group.getDetails().getPermissions()));
+    end
+    
+    % List all groups the user is owner of
+    disp('Group ownership');
+    for groupId = groupIds2'
+        group = adminService.getGroup(groupId);
+        fprintf(1, ' Group %s (id: %g, type: %s)\n',...
+            char(group.getName().getValue()), groupId,...
+            char(group.getDetails().getPermissions()));
     end
     
     %% Unencrypted session

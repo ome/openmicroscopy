@@ -37,7 +37,7 @@ before_install:
     - pip install --user scc pytest
     - export PATH=$PATH:$HOME/.local/bin
     - scc travis-merge
-    - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0; fi
+    - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-flake8; fi
 
 # retries the build due to:

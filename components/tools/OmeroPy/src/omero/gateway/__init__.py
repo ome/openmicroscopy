@@ -29,7 +29,7 @@ from omero.util.decorators import timeit
 from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
-from omero.gateway.utils import ServiceOptsDict, GatewayConfig
+from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
 import omero.scripts as scripts
 
 import Ice
@@ -824,8 +824,9 @@ class BlitzObjectWrapper (object):
 
     def _loadAnnotationLinks(self):
         """
-        Loads the annotation links for the object (if not already loaded) and
-        saves them to the object
+        Loads the annotation links and annotations for the object
+        (if not already loaded) and saves them to the object.
+        Also loads file for file annotations.
         """
         # pragma: no cover
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'):
@@ -839,6 +840,7 @@ class BlitzObjectWrapper (object):
                      "fetch l.details.owner join "
                      "fetch l.details.creationEvent "
                      "join fetch l.child as a join fetch a.details.owner "
+                     "left outer join fetch a.file "
                      "join fetch a.details.creationEvent where l.parent.id=%i"
                      % (self.OMERO_CLASS, self._oid))
             links = self._conn.getQueryService().findAllByQuery(
@@ -1532,14 +1534,49 @@ class _BlitzGateway (object):
         """
         Returns default initial zoom level set on the server.
         """
-        return (self.getConfigService().getConfigValue(
-                "omero.client.viewer.initial_zoom_level") or 0)
+        try:
+            initzoom = (self.getConfigService().getConfigValue(
+                        "omero.client.viewer.initial_zoom_level") or 0)
+        except:
+            initzoom = 0
+        return initzoom
+
+    def getInterpolateSetting(self):
+        """
+        Returns default interpolation setting on the server.
+        This is a string but represents a boolean, E.g. 'true'
+
+        :return:    String
+        """
+        try:
+            interpolate = (
+                toBoolean(self.getConfigService().getConfigValue(
+                    "omero.client.viewer.interpolate_pixels")) or True
+            )
+        except:
+            interpolate = True
+        return interpolate
+
+    def getDownloadAsMaxSizeSetting(self):
+        """
+        Returns default max size of images that can be downloaded as
+        jpg, png or tiff, expressed as number of pixels.
+
+        :return:    Integer
+        """
+        x, y = self.getMaxPlaneSize()
+        return x * y
 
     def getWebclientHost(self):
         """
         Returns default initial zoom level set on the server.
         """
-        return self.getConfigService().getConfigValue("omero.client.web.host")
+        try:
+            host = self.getConfigService() \
+                       .getConfigValue("omero.client.web.host")
+        except:
+            host = None
+        return host
 
     def isAnonymous(self):
         """
@@ -4553,6 +4590,10 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 
     OMERO_TYPE = FileAnnotationI
 
+    def __init__(self, *args, **kwargs):
+        super(FileAnnotationWrapper, self).__init__(*args, **kwargs)
+        self._file = None
+
     _attrs = ('file|OriginalFileWrapper',)
 
     def _getQueryString(self):
@@ -4572,6 +4613,16 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     def setValue(self, val):
         """ Not implemented """
         pass
+
+    def getFile(self):
+        """
+        Returns an OriginalFileWrapper for the file.
+        Wrapper object will load the file if it isn't already loaded.
+        File is cached to prevent repeated loading of the file.
+        """
+        if self._file is None:
+            self._file = OriginalFileWrapper(self._conn, self._obj.file)
+        return self._file
 
     def setFile(self, originalfile):
         """

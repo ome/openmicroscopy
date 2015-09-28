@@ -212,8 +212,10 @@ public class RenderingSettingsSaver
                     Map map = rds.pasteRenderingSettings(ctx, refImage.getDefaultPixels().getId(), rootType,
                             ids);
                     result = map;
+                    
+                    boolean refImagePartOfSaved = ((List<Long>)map.get(Boolean.TRUE)).contains(refImage.getId());
     
-                    if (rnd != null && original != null) {
+                    if (rnd != null && original != null && !refImagePartOfSaved) {
                         // reset the reference image to it's previous settings
                         rnd.resetSettings(original, true);
                         rnd.saveCurrentSettings();

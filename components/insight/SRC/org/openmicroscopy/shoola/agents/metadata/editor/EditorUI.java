@@ -1097,4 +1097,13 @@ class EditorUI
 	    userUI.setLDAPDetails(result);
 	}
 
+	/**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+	public Collection<FileAnnotationData> getSelectedFileAnnotations() { 
+	    return generalPane.getSelectedFileAnnotations();
+	}
 }

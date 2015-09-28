@@ -107,10 +107,12 @@ OME.field_selection_changed = function(field) {
 };
 
 // select all images from the specified fileset (if currently visible)
-OME.select_fileset_images = function(filesetId) {
+OME.select_fileset_images = function(filesetIds) {
     var datatree = $.jstree._focused();
-    $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
-        datatree.select_node(this);
+    filesetIds.forEach(function(fsId){
+        $("#dataTree li[data-fileset="+fsId+"]").each(function(){
+            datatree.select_node(this);
+        });
     });
 };
 
@@ -434,7 +436,6 @@ OME.truncateNames = (function(){
     return truncateNames;
 }());
 
-
 // Handle deletion of selected objects in jsTree in container_tags.html and containers.html
 OME.handleDelete = function() {
     var datatree = $.jstree._focused();
@@ -463,7 +464,6 @@ OME.handleDelete = function() {
         if (dtype in dtypes) dtypes[dtype] += 1;
         else dtypes[dtype] = 1;
         if (!q && $this.attr('rel').indexOf('image')<0) q = true;
-        console.log($this, $this.hasClass('isOwned'));
         if (!$this.hasClass('isOwned')) notOwned = true;
     });
     if (notOwned) {
@@ -542,6 +542,78 @@ OME.handleDelete = function() {
     });
 };
 
+OME.formatScriptName = function(name) {
+    // format script name by replacing '_' with ' '
+    name = name.replace(/_/g, " ");
+    if (name.indexOf(".") > 0) {
+        name = name.slice(0, name.indexOf(".")) + "...";
+    }
+    return name
+};
+
+OME.showScriptList = function(event) {
+    // We're almost always going to be triggered from an anchor
+    event.preventDefault();
+
+    // show menu - load if empty
+    // $('#scriptList').css('visibility', 'visible');
+    $('#scriptList').show();
+    if ($("#scriptList li").length == 0){  // if none loaded yet...
+        var $scriptLink = $(this);
+        var $scriptSpinner = $("#scriptSpinner").show();
+        var script_list_url = $(this).attr('href');
+        $.get(script_list_url, function(data) {
+
+            var build_ul = function(script_data) {
+                var html = "";
+                for (var i=0; i<script_data.length; i++) {
+                    var li = script_data[i],   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
+                        name = li.name;
+                    if (li.id) {
+                        name = OME.formatScriptName(name);
+                        html += "<li><a href='" + event.data.webindex + "script_ui/"+ li.id + "/'>" + name + "</a></li>";
+                    } else {
+                        html += "<li class='menuItem'><a href='#'>" + name + "</a>";
+                        // sub-menus have a 'BACK' button at the top
+                        html += "<ul><li class='menu_back'><a href='#'>back</a></li>" + build_ul(li.ul) + "</ul>";
+                        html += "</li>";
+                    }
+                }
+                return html;
+            }
+
+            var html = "<ul class='menulist'>" + build_ul(data) + "</ul>";
+
+            $('#scriptList').append($(html));
+
+            $('#scriptList ul ul').hide();
+            $scriptSpinner.hide();
+      }, "json");
+    }
+};
+
+OME.hideScriptList = function() {
+    $("#scriptList").hide();
+}
+
+OME.toggleFileAnnotationCheckboxes = function(event) {
+    var checkboxes = $("#fileanns_container input[type=checkbox]");
+    checkboxes.toggle().prop("checked", false);
+    checkboxes.parents("li").toggleClass("selected", false);
+}
+
+OME.fileAnnotationCheckboxChanged = function(event) {
+    $(event.target).parents("li").toggleClass("selected");
+}
+
+OME.fileAnnotationCheckboxDynamicallyAdded = function() {
+    var checkboxesAreVisible = $(
+        "#fileanns_container input[type=checkbox]:visible"
+    ).length > 0;
+    if (checkboxesAreVisible) {
+        $("#fileanns_container input[type=checkbox]:not(:visible)").toggle();
+    }
+}
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({

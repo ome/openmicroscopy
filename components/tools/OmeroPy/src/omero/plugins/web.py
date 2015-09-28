@@ -14,6 +14,7 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
+import re
 from omero_ext.argparse import SUPPRESS
 
 HELP = "OMERO.web configuration/deployment tools"
@@ -54,6 +55,10 @@ Example IIS usage:
 
 class WebControl(BaseControl):
 
+    config_choices = ("nginx", "nginx-development",
+                      "nginx-wsgi", "nginx-wsgi-development",
+                      "apache", "apache-fcgi", "apache-wsgi")
+
     def _configure(self, parser):
         sub = parser.sub()
 
@@ -76,7 +81,17 @@ class WebControl(BaseControl):
             group.add_argument(
                 "--no-wait", action="store_true",
                 help="Do not wait on expired sessions clean-up")
-
+            nginx_start_group = x.add_argument_group()
+            nginx_start_group.add_argument(
+                "--workers", type=int, default=5,
+                help="The number of worker processes for handling requests.")
+            nginx_start_group.add_argument(
+                "--worker-connections", type=int, default=1000,
+                help="The maximum number of simultaneous clients.")
+            nginx_start_group.add_argument(
+                "--wsgi-args", type=str, default="",
+                help=("Additional arguments. Check Gunicorn Documentation "
+                      "http://docs.gunicorn.org/en/latest/settings.html"))
         #
         # Advanced
         #
@@ -91,10 +106,7 @@ class WebControl(BaseControl):
             "  apache: Apache 2.2 with mod_fastcgi\n"
             "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n"
             "  apache-wsgi: Apache 2.2+ with mod_wsgi\n")
-        config.add_argument("type", choices=(
-            "nginx", "nginx-development",
-            "nginx-wsgi", "nginx-wsgi-development",
-            "apache", "apache-fcgi", "apache-wsgi"))
+        config.add_argument("type", choices=self.config_choices)
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
         nginx_group.add_argument(
@@ -210,19 +222,38 @@ class WebControl(BaseControl):
         d["OMEROPYTHONROOT"] = self._get_python_dir()
         d["OMEROFALLBACKROOT"] = self._get_fallback_dir()
 
+    def _fastcgi_deprecation(self, settings):
+        if settings.APPLICATION_SERVER in settings.FASTCGI_TYPES:
+            self.ctx.err(
+                "WARNING: FastCGI support is deprecated and will be removed"
+                " in OMERO 5.2. Install Gunicorn and update config.")
+
+    def _assert_config_argtype(self, argtype, settings):
+        mismatch = False
+        if (settings.APPLICATION_SERVER in settings.WSGI_TYPES and
+                "wsgi" not in argtype):
+            mismatch = True
+        if settings.APPLICATION_SERVER in ("development",):
+            mismatch = True
+        if (settings.APPLICATION_SERVER in settings.FASTCGI_TYPES and
+                argtype not in ("nginx", "nginx-development",
+                                "apache", "apache-fcgi")):
+            mismatch = True
+        if mismatch:
+            self.ctx.die(680, ("ERROR: configuration mismatch. "
+                               "omero.web.application_server=%s cannot be"
+                               " used with 'omero web config %s'"
+                               ".") % (settings.APPLICATION_SERVER, argtype))
+
     def config(self, args):
         """Generate a configuration file from a template"""
         from omeroweb import settings
-        if not args.type:
-            self.ctx.die(
-                "Available configuration helpers:\n"
-                " - nginx-wsgi, nginx-wsgi-development\n"
-                " nginx, nginx-development,"
-                " apache, apache-fcgi, apache-wsgi\n")
 
         if args.system:
             self.ctx.err(
                 "WARNING: --system is no longer supported, see --help")
+
+        self._assert_config_argtype(args.type, settings)
 
         server = args.type
         if args.http:
@@ -232,11 +263,13 @@ class WebControl(BaseControl):
         else:
             port = 80
 
+        self._fastcgi_deprecation(settings)  # to be removed in 5.2
+
         if settings.APPLICATION_SERVER in (settings.FASTCGITCP,
                                            settings.WSGITCP):
             if settings.APPLICATION_SERVER_PORT == port:
                 self.ctx.die(
-                    678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
+                    678, "Port conflict: HTTP(%s) and"" wsgi/fastcgi-tcp(%s)."
                     % (port, settings.APPLICATION_SERVER_PORT))
 
         d = {
@@ -249,6 +282,9 @@ class WebControl(BaseControl):
                       "nginx-wsgi", "nginx-wsgi-development",
                       "apache-wsgi"):
             d["HTTPPORT"] = port
+
+        if server in ("nginx", "nginx-development",
+                      "nginx-wsgi", "nginx-wsgi-development"):
             d["MAX_BODY_SIZE"] = args.max_body_size
 
         # FORCE_SCRIPT_NAME always has a starting /, and will not have a
@@ -257,8 +293,11 @@ class WebControl(BaseControl):
 
         try:
             d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+            prefix = re.sub(r'\W+', '', d["FORCE_SCRIPT_NAME"])
+            d["PREFIX_NAME"] = "_%s" % prefix
         except:
             d["FORCE_SCRIPT_NAME"] = "/"
+            d["PREFIX_NAME"] = ""
 
         if server in ("apache", "apache-fcgi", "apache-wsgi"):
             try:
@@ -376,10 +415,13 @@ class WebControl(BaseControl):
         if not args.keep_sessions:
             self.clearsessions(args)
         import omeroweb.settings as settings
-        link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
+        self._fastcgi_deprecation(settings)  # to be removed in 5.2
+
+        link = ("%s:%d" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
         location = self._get_python_dir() / "omeroweb"
         deploy = getattr(settings, 'APPLICATION_SERVER')
+
         if deploy == settings.WSGI:
             self.ctx.out("You are deploying OMERO.web using apache and"
                          " mod_wsgi.")
@@ -427,7 +469,7 @@ using bin\omero web start on Windows with FastCGI.
 
         if deploy == settings.FASTCGITCP:
             cmd = "python manage.py runfcgi workdir=./"
-            cmd += " method=prefork host=%(host)s port=%(port)s"
+            cmd += " method=prefork host=%(host)s port=%(port)d"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
             cmd += " maxchildren=5 minspare=1 maxspare=5"
             cmd += " maxrequests=%(maxrequests)d"
@@ -439,16 +481,28 @@ using bin\omero web start on Windows with FastCGI.
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         elif deploy == settings.WSGITCP:
             try:
+                import gunicorn  # NOQA
+            except ImportError:
+                self.ctx.die(608, "Gunicorn not installed.")
+            try:
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
                 pass
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
-            cmd += " -b %(host)s:%(port)s -w 5"
+            cmd += " --bind %(host)s:%(port)d"
+            cmd += " --workers %(workers)d "
+            cmd += " --worker-connections %(worker_conn)d"
+            cmd += " --max-requests %(maxrequests)d"
+            cmd += " %(wsgi_args)s"
             cmd += " omeroweb.wsgi:application"
             django = (cmd % {
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
-                'port': settings.APPLICATION_SERVER_PORT}).split()
+                'port': settings.APPLICATION_SERVER_PORT,
+                'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
+                'workers': args.workers,
+                'worker_conn': args.worker_connections,
+                'wsgi_args': args.wsgi_args}).split()
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         else:
             django = [sys.executable, "manage.py", "runserver", link,
@@ -460,6 +514,8 @@ using bin\omero web start on Windows with FastCGI.
     def status(self, args):
         self.ctx.out("OMERO.web status... ", newline=False)
         import omeroweb.settings as settings
+        self._fastcgi_deprecation(settings)  # to be removed in 5.2
+
         deploy = getattr(settings, 'APPLICATION_SERVER')
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None:
@@ -508,12 +564,13 @@ using bin\omero web start on Windows with FastCGI.
                 except:
                     self.ctx.out("[FAILED]")
                     self.ctx.out(
-                        "Django FastCGI workers (PID %s) not started?"
-                        % pid_text)
+                        "OMERO.web %s workers (PID %s) not started?"
+                        % (deploy.replace("-tcp", "").upper(), pid_text))
                     return True
                 os.kill(pid, signal.SIGTERM)  # kill whole group
                 self.ctx.out("[OK]")
-                self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
+                self.ctx.out("OMERO.web %s workers (PID %d) killed." %
+                             (deploy.replace("-tcp", "").upper(), pid))
                 return True
             finally:
                 if pid_path.exists():
