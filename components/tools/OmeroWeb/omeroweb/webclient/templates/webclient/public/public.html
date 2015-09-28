@@ -148,8 +148,15 @@
                 var node = datatree.get_node(this);
                 if (node) {
                     if (node.type === 'image') {
+                        popup_url = "{% url 'webindex' %}";
+                        var parent_node = datatree.get_node(datatree.get_parent(node));
+                        if (!parent_node.data.obj.isOwned) {
+                            popup_url += parent_node.data.obj.id + "/img_detail/" + node.data.obj.id ;
+                        } else {
+                            popup_url += "img_detail/" + node.data.obj.id ;
+                        }
                         //Open the image viewer for this image
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
+                        OME.openPopup(popup_url);
                     }
                 }
             })
