@@ -192,7 +192,7 @@ Test Check Search Results
 
     
 Test Default Search Selections
-	[Documentation]		Check that the objects searched for are Projects, Datasets, Images, Screens, Plates (all checkboxes selected by default).
+    [Documentation]     Check that the objects searched for are Projects, Datasets, Images, Screens, Plates (all checkboxes selected by default).
 
     Checkbox Should Be Selected  images
     Checkbox Should Be Selected  datasets
@@ -205,7 +205,7 @@ Test Default Search Selections
     Click Button  id=search_button
     
 Test Additional Search With Selections
-	[Documentation]		Checkbox selections for name description and annotation and search again
+    [Documentation]     Checkbox selections for name description and annotation and search again
 
     Select Checkbox  name    
     Select Checkbox  description    
@@ -213,7 +213,7 @@ Test Additional Search With Selections
     Click Button  id=search_button
     
 Test Check Search Date Field
-	[Documentation]     Check that no date range has been chosen by default.
+    [Documentation]     Check that no date range has been chosen by default.
     
     Page Should Contain Textfield  id=startdateinput
     Textfield Value Should be  id=startdateinput  ${EMPTY}
@@ -221,14 +221,14 @@ Test Check Search Date Field
     Textfield Value Should be  id=enddateinput  ${EMPTY}
 
 Test Check Search Default Group Selection
-	[Documentation]		Check that the default Scope for the search is All Groups
+    [Documentation]     Check that the default Scope for the search is All Groups
 
     @{In group}  Get List Items  id=searchGroup
     ${expected_group}  Get Selected List Label  id=searchGroup
     Should Be Equal  ${expected_group}  ${Default_Srch_Group}
 
 Test Check Search Default User Selection
-	[Documentation]		Check : user matching the username you are logged in as, e.g user-4 user-4.
+    [Documentation]     Check : user matching the username you are logged in as, e.g user-4 user-4.
 
     @{DataOwned by}  Get List Items  id=searchByGroupMember--1
     ${expected_user}  Get Selected List Label  id=searchByGroupMember--1
