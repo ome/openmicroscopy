@@ -598,7 +598,7 @@ public class EditorUtil
         Length y = (Length) details.get(PIXEL_SIZE_Y);
         Length z = (Length) details.get(PIXEL_SIZE_Z);
         Double dx = null, dy = null, dz = null;
-        NumberFormat nf = NumberFormat.getInstance();
+        NumberFormat nf = new DecimalFormat("0.00");
         
         try {
         	x = UIUtilities.transformSize(x);
