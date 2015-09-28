@@ -72,7 +72,7 @@ public class LoginCredentials {
      * @param encryption
      *            See above
      */
-    public void setEncrypyion(boolean encryption) {
+    public void setEncryption(boolean encryption) {
         this.encryption = encryption;
     }
 

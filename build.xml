@@ -409,10 +409,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="release-all" description="Produce all binary release artifacts (unsigned)"
-        depends="release-clients,release-webstart-unsigned,release-zip,release-docs">
-        <!-- Clients must come first to produce the zips needed by webstart,
-        followed by webstart in order to add jars to dist/, followed by zip -->
-    </target>
+        depends="release-clients,release-zip,release-docs">
+   </target>
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="${omero.home}/target/${product.name}-${omero.version}.zip">
@@ -812,86 +810,6 @@ omero.version=${omero.version}
             </jar_update_if>
         </then>
         </if>
-    </target>
-
-    <target name="keystore" depends="init" description="Create keystore">
-        <if><isset property="jarsign.storepassfile"/>
-            <then>
-                <exec executable="keytool" failonerror="true">
-                    <arg value="-genkey"/>
-                    <arg value="-alias"/>
-                    <arg value="${jarsign.alias}"/>
-                    <arg value="-dname"/>
-                    <arg value="CN=omedev, OU=Open Microscopy Team, O=openmicroscopy.org, C=UK"/>
-                    <arg value="-keystore"/>
-                    <arg value="${jarsign.keystore}"/>
-                    <arg value="-storepass:file"/>
-                    <arg value="${jarsign.storepassfile}"/>
-                    <arg value="-validity"/>
-                    <arg value="${jarsign.validity}"/>
-                </exec>
-            </then>
-            <else>
-                <genkey alias="${jarsign.alias}"
-                    keystore="${jarsign.keystore}"
-                    storepass="${jarsign.storepass}"
-                    validity="${jarsign.validity}">
-                    <dname>
-                        <param name="CN" value="omedev"/>
-                        <param name="OU" value="Open Microscopy Team"/>
-                        <param name="O"  value="openmicroscopy.org"/>
-                        <param name="C"  value="UK"/>
-                    </dname>
-                </genkey>
-            </else>
-        </if>
-    </target>
-
-    <target name="server-verify">
-        <apply  executable="jarsigner" failonerror="true">
-            <fileset dir="${dist.dir}/lib/server" includes="*.jar"/>
-            <arg value="-verify"/>
-        </apply>
-    </target>
-
-    <target name="webstart-sign">
-        <exec executable="docs/hudson/omero_insight_sign.py">
-            <arg value="lib/keystore"/>
-            <arg value="omedev"/>
-            <arg value="${dist.dir}"/>
-            <arg value="-kp"/>
-            <arg value="omedev"/>
-            <arg value="-cp"/>
-            <arg value="omedev"/>
-            <arg value="-ts"/>
-            <arg value="no"/>
-        </exec>
-    </target>
-
-    <target name="webstart-verify">
-        <apply  executable="jarsigner" failonerror="true">
-            <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
-            <arg value="-verify"/>
-        </apply>
-    </target>
-
-    <target name="release-webstart-signed" depends="init" description="Generates self-signed webstart jars under dist/lib/insight">
-        <mkdir dir="${dist.dir}/lib/insight"/>
-        <copy todir="${dist.dir}/lib/insight">
-            <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>
-        </copy>
-        <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
-        <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
-        <antcall target="webstart-sign" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="release-webstart-unsigned" depends="init" description="Generates unsigned webstart jars under dist/lib/insight">
-        <mkdir dir="${dist.dir}/lib/insight"/>
-        <copy todir="${dist.dir}/lib/insight">
-            <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>
-        </copy>
-        <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
-        <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
     </target>
 
     <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
