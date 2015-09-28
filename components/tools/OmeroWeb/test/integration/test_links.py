@@ -29,6 +29,7 @@ from weblibrary import _csrf_post_response, _get_response
 from weblibrary import _csrf_delete_response
 
 import json
+from time import sleep
 
 from django.core.urlresolvers import reverse
 
@@ -182,10 +183,17 @@ class TestLinks(IWebTest):
                             "screen": {str(sids[1]): {"plate": pids[:1]}}
                             }
 
-        # Check that link has been deleted, leaving 2nd plate under 1st screen
+        # Since the Delete is ansync - need to check repeatedly for deletion
+        # by counting plates under screen...
         plates_url = reverse("api_plates")
-        rsp = _get_response_json(self.django_client,
-                                 plates_url, {'id': sids[0]})
+        for i in range(10):
+            rsp = _get_response_json(self.django_client,
+                                     plates_url, {'id': sids[0]})
+            if len(rsp['plates']) == 1:
+                break
+            sleep(0.5)
+
+        # Check that link has been deleted, leaving 2nd plate under 1st screen
         assert len(rsp['plates']) == 1
         assert rsp['plates'][0]['id'] == pids[1]
 
