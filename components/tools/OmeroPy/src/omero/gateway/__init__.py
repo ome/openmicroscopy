@@ -1561,11 +1561,18 @@ class _BlitzGateway (object):
         """
         Returns default max size of images that can be downloaded as
         jpg, png or tiff, expressed as number of pixels.
+        Default is 144000000 (12k * 12k image)
 
         :return:    Integer
         """
-        x, y = self.getMaxPlaneSize()
-        return x * y
+        size = 144000000
+        try:
+            size = self.getConfigService().getConfigValue(
+                "omero.client.download_as.max_size")
+            size = int(size)
+        except:
+            pass
+        return size
 
     def getWebclientHost(self):
         """
