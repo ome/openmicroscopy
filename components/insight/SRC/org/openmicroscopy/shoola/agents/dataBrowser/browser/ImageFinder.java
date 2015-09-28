@@ -116,42 +116,40 @@ public class ImageFinder
     }
 
     /** 
-     * Implemented as specified by {@link ImageDisplayVisitor}. 
+     * Implemented as specified by {@link ImageDisplayVisitor}.
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node)
     {
-    	if (node == null) return;
-    	//if (node.containsImages()) {
-    		JComponent desktop = node.getInternalDesktop();
-    		Component[] comps = desktop.getComponents();
-    		if (comps != null) {
-    			Component c;
-    			ImageNode n;
-    			Object ho;
-    			WellSampleData wsd;
-    			for (int i = 0; i < comps.length; i++) {
-					c = comps[i];
-					if (c instanceof ImageNode) {
-						n = (ImageNode) c;
-						ho = n.getHierarchyObject();
-						if (ho instanceof WellSampleData) {
-				        	wsd = (WellSampleData) ho;
-				        	ho = wsd.getImage();
-				        } else if (ho instanceof ImageData) {
-							visibleImages.add((ImageData) ho);
-							visibleImageNodes.add(n);
-						} else if (ho instanceof FileData) {
-							visibleImages.add((FileData) ho);
-							visibleImageNodes.add(n);
-						} else if (ho instanceof ExperimenterData) {
-							visibleImages.add((ExperimenterData) ho);
-							visibleImageNodes.add(n);
-						}
-					}
-				}
-    		}
-    	//}
+        if (node == null) return;
+        JComponent desktop = node.getInternalDesktop();
+        Component[] comps = desktop.getComponents();
+        if (comps != null) {
+            Component c;
+            ImageNode n;
+            Object ho;
+            WellSampleData wsd;
+            for (int i = 0; i < comps.length; i++) {
+                c = comps[i];
+                if (c instanceof ImageNode) {
+                    n = (ImageNode) c;
+                    ho = n.getHierarchyObject();
+                    if (ho instanceof WellSampleData) {
+                        wsd = (WellSampleData) ho;
+                        ho = wsd.getImage();
+                    } else if (ho instanceof ImageData) {
+                        visibleImages.add((ImageData) ho);
+                        visibleImageNodes.add(n);
+                    } else if (ho instanceof FileData) {
+                        visibleImages.add((FileData) ho);
+                        visibleImageNodes.add(n);
+                    } else if (ho instanceof ExperimenterData) {
+                        visibleImages.add((ExperimenterData) ho);
+                        visibleImageNodes.add(n);
+                    }
+                }
+            }
+        }
     }
 
 }
