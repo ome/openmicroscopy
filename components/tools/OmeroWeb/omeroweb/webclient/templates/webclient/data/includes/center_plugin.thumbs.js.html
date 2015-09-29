@@ -176,6 +176,9 @@ $(document).ready(function() {
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
 
+        // add css class to current layout
+        setLayout();
+
         return;
     }
 
@@ -416,6 +419,29 @@ $(document).ready(function() {
         }
     });
 
+    var layout = "icon";
+    // switch between 'icon' or 'table' layout by switching CSS
+    var setLayout = function() {
+        if (layout == "icon"){
+            $("#dataIcons").removeClass("tableLayout");
+            $("#dataIcons").addClass("iconLayout");
+        }
+        else {
+            $("#dataIcons").removeClass("iconLayout");
+            $("#dataIcons").addClass("tableLayout");
+        }
+    }
+    // handle Radio buttons
+    $("#layout_chooser button").click(function(event) {
+        if ($(event.target).attr('id') == 'table_layout') {
+            layout = 'table';
+        } else {
+            layout = 'icon';
+        }
+        setLayout();
+        $("#layout_chooser button").removeClass("checked");
+        $(event.target).addClass("checked");
+    });
 
     // --------------------------------- OLD CODE BELOW HERE -- TODO: REMOVE! ------------------ //
 
