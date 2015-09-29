@@ -48,6 +48,15 @@ $(document).ready(function() {
     */
 
     var inst = $.jstree.reference('#dataTree');
+    // We compile the underscore template, ready for rendering
+    var tmplText = $('#containers_icon_template').html();
+    var iconTmpl = _.template(tmplText);
+    // Variables for layout and thumbnail zooming
+    var layout = "icon";
+    var icon_styles = [];
+    var li_styles = [];
+    var aspect_ratios = [];
+    var iconSize = 65;
 
     // Set up the centre panel header.
     // Could do this in a nicer way (E.g. underscore?)
@@ -98,24 +107,22 @@ $(document).ready(function() {
         }
     });
 
-    // We compile the underscore template, ready for rendering
-    var tmplText = $('#containers_icon_template').html();
-    var iconTmpl = _.template(tmplText);
-
     // This is called directly by various jstree plugins
     // E.g. omecut_plugin.js as well as the jstree in containers.html
     window.update_thumbnails_panel = function(event, data) {
 
         // Get the current selection
         var selected = inst.get_selected(true);
-        console.log("update_thumbnails_panel", selected);
 
         if (selected.length === 0) {
             $("#icon_table").html("");
             return;
         }
         var dtype = selected[0].type;
-        console.log(dtype);
+        if (selected.length > 1 && dtype !== "image") {
+            $("#icon_table").html("");
+            return;
+        }
 
         var dataset,
             imgNodes = [];
@@ -170,14 +177,11 @@ $(document).ready(function() {
 
         console.log(imgJson);
 
-        var html = iconTmpl({'images': imgJson});
+        var html = iconTmpl({'images': imgJson, 'layout': layout});
         $("#icon_table").html(html);
 
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
-
-        // add css class to current layout
-        setLayout();
 
         return;
     }
@@ -365,11 +369,6 @@ $(document).ready(function() {
     }
 
     // Handle zooming of thumbnails with jQuery slider
-    var icon_styles = [];
-    var li_styles = [];
-    var aspect_ratios = [];
-    var iconSize = 65;
-
     var setupIconZooming = function() {
         icon_styles = [];
         li_styles = [];
@@ -419,7 +418,6 @@ $(document).ready(function() {
         }
     });
 
-    var layout = "icon";
     // switch between 'icon' or 'table' layout by switching CSS
     var setLayout = function() {
         if (layout == "icon"){
