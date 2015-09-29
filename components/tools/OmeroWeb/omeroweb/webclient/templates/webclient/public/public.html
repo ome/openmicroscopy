@@ -121,7 +121,6 @@
                     },
                     error: function(response) {
                         inst.enable_node(node);
-                        console.log('Ajax error');
                     }
                 });
             });
@@ -149,8 +148,15 @@
                 var node = datatree.get_node(this);
                 if (node) {
                     if (node.type === 'image') {
+                        popup_url = "{% url 'webindex' %}";
+                        var parent_node = datatree.get_node(datatree.get_parent(node));
+                        if (!parent_node.data.obj.isOwned) {
+                            popup_url += parent_node.data.obj.id + "/img_detail/" + node.data.obj.id ;
+                        } else {
+                            popup_url += "img_detail/" + node.data.obj.id ;
+                        }
                         //Open the image viewer for this image
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
+                        OME.openPopup(popup_url);
                     }
                 }
             })
@@ -238,14 +244,17 @@
 
                                 }
 
-                                // Add images to the jstree data structure
+                                // Add share to the jstree data structure
                                 if (data.hasOwnProperty('shares')) {
                                     $.each(data.shares, function(index, value) {
                                         var node = {
                                             'data': {'id': value.id, 'obj': value},
                                             'text': value.id.toString(),
-                                            'children': value.childCount > 0 ? true : false,
+                                            'children': (this.isOwned || (this.active && !this.expired)) && value.childCount > 0 ? true : false,
                                             'type': 'share',
+                                            'state' : {
+                                                'disabled'  : !this.isOwned && ( !this.active || this.expired )
+                                            },
                                             'li_attr': {
                                                 // 'class': 'share',
                                                 'data-id': value.id
@@ -255,7 +264,7 @@
                                     });
                                 }
 
-                                // Add images to the jstree data structure
+                                // Add discussion to the jstree data structure
                                 if (data.hasOwnProperty('discussions')) {
                                     $.each(data.discussions, function(index, value) {
                                         var node = {
@@ -263,6 +272,9 @@
                                             'text': value.id.toString(),
                                             'children': false,
                                             'type': 'discussion',
+                                            'state' : {
+                                                'disabled'  : !this.isOwned && ( !this.active || this.expired )
+                                            },
                                             'li_attr': {
                                                 // 'class': 'discussion',
                                                 'data-id': value.id
@@ -403,6 +415,7 @@
                     if(confirm_remove.data("clicked_button") == "OK") {
                         var inst = $.jstree.reference('#dataTree');
                         removeImage(inst.get_selected(), inst);
+                        inst.refresh();
                     }
                 }
             );

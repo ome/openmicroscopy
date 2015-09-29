@@ -280,6 +280,10 @@ def expected_shares(user, shares):
         expected.append({
             'id': share.id.val,
             'ownerId': share.owner.id.val,
+            'isOwned':
+                True if user[1].id.val == share.owner.id.val else False,
+            'expired': False,
+            'active': True,
             'childCount': share.getItemCount().val
         })
     return expected
@@ -290,7 +294,11 @@ def expected_discussions(user, discussions):
     for discussion in discussions:
         expected.append({
             'id': discussion.id.val,
-            'ownerId': discussion.owner.id.val
+            'ownerId': discussion.owner.id.val,
+            'isOwned':
+                True if user[1].id.val == discussion.owner.id.val else False,
+            'expired': False,
+            'active': True
         })
     return expected
 

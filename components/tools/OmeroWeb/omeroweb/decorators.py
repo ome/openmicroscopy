@@ -144,7 +144,10 @@ class login_required(object):
         share = conn.getShare(share_id)
         try:
             if share.getOwner().id != conn.getUserId():
-                return self.get_share_connection(request, conn, share_id)
+                if share.active and not share.isExpired():
+                    return self.get_share_connection(request, conn, share_id)
+                logger.debug('Share is unavailable.')
+                return None
         except:
             logger.error('Error retrieving share connection.', exc_info=True)
             return None

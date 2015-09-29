@@ -19,6 +19,7 @@
 
 ''' Helper functions for views that handle object trees '''
 
+import time
 import omero
 
 from omero.rtypes import rlong, unwrap, wrap
@@ -1388,11 +1389,18 @@ def _marshal_share(conn, row):
         @param row The Share row to marshal
         @type row L{list}
     '''
-    share_id, owner_id, child_count = row
+    share_id, active, expired, owner_id, child_count = row
     share = dict()
     share['id'] = unwrap(share_id)
     share['ownerId'] = unwrap(owner_id)
     share['childCount'] = unwrap(child_count)
+    share['isOwned'] = False
+    if unwrap(owner_id) == conn.getUserId() or conn.isAdmin():
+        share['isOwned'] = True
+    share['expired'] = False
+    if unwrap(expired) < time.time():
+        share['expired'] = True
+    share['active'] = unwrap(active)
     return share
 
 
@@ -1433,6 +1441,9 @@ def marshal_shares(conn, member_id=-1, owner_id=-1,
     qs = conn.getQueryService()
     q = '''
         select distinct mem.parent.id,
+            mem.parent.active,
+            extract(epoch from mem.parent.started)
+                +(mem.parent.timeToLive/1000),
             mem.parent.owner.id,
             mem.parent.itemCount
         from ShareMember mem
@@ -1442,7 +1453,7 @@ def marshal_shares(conn, member_id=-1, owner_id=-1,
         ''' % where_clause
 
     for e in qs.projection(q, params, service_opts):
-        shares.append(_marshal_share(conn, e[0:3]))
+        shares.append(_marshal_share(conn, e[0:5]))
     return shares
 
 
@@ -1457,10 +1468,17 @@ def _marshal_discussion(conn, row):
         @param row The Discussion row to marshal
         @type row L{list}
     '''
-    discussion_id, owner_id = row
+    discussion_id, active, expired, owner_id = row
     discussion = dict()
     discussion['id'] = unwrap(discussion_id)
     discussion['ownerId'] = unwrap(owner_id)
+    discussion['isOwned'] = False
+    if unwrap(owner_id) == conn.getUserId() or conn.isAdmin():
+        discussion['isOwned'] = True
+    discussion['expired'] = False
+    if unwrap(expired) < time.time():
+        discussion['expired'] = True
+    discussion['active'] = unwrap(active)
     return discussion
 
 
@@ -1501,6 +1519,9 @@ def marshal_discussions(conn, member_id=-1, owner_id=-1,
     qs = conn.getQueryService()
     q = '''
         select distinct mem.parent.id,
+            mem.parent.active,
+            extract(epoch from mem.parent.started)
+                +(mem.parent.timeToLive/1000),
             mem.parent.owner.id,
             mem.parent.itemCount
         from ShareMember mem
@@ -1510,5 +1531,5 @@ def marshal_discussions(conn, member_id=-1, owner_id=-1,
         ''' % where_clause
 
     for e in qs.projection(q, params, service_opts):
-        discussions.append(_marshal_discussion(conn, e[0:2]))
+        discussions.append(_marshal_discussion(conn, e[0:4]))
     return discussions
