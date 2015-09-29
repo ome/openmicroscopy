@@ -12,6 +12,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
+        name varchar(255),
         ns varchar(255),
         version int4,
         boolValue bool,
@@ -31,9 +32,10 @@
 
     create table annotation_mapValue (
         annotation_id int8 not null,
-        mapValue varchar(255) not null,
-        mapValue_KEY varchar(255),
-        primary key (annotation_id, mapValue_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (annotation_id, index)
     );;
 
     create table annotationannotationlink (
@@ -79,6 +81,7 @@
         blue int4,
         permissions int8 not null,
         green int4,
+        lookupTable varchar(255),
         red int4,
         version int4,
         creation_id int8 not null,
@@ -119,6 +122,7 @@
         green int4 not null,
         inputEnd float8 not null,
         inputStart float8 not null,
+        lookupTable varchar(255),
         noiseReduction bool not null,
         red int4 not null,
         version int4,
@@ -565,6 +569,7 @@
         offsetValue float8,
         serialNumber varchar(255),
         version int4,
+        voltageUnit UnitsElectricPotential,
         voltage float8,
         zoom float8,
         creation_id int8 not null,
@@ -598,8 +603,10 @@
         gain float8,
         integration positive_int,
         offsetValue float8,
+        readOutRateUnit UnitsFrequency,
         readOutRate float8,
         version int4,
+        voltageUnit UnitsElectricPotential,
         voltage float8,
         zoom float8,
         binning int8,
@@ -741,6 +748,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
+        ldap bool not null,
         name varchar(255) not null unique,
         version int4,
         external_id int8 unique,
@@ -749,9 +757,10 @@
 
     create table experimentergroup_config (
         experimentergroup_id int8 not null,
-        config varchar(255) not null,
-        config_KEY varchar(255),
-        primary key (experimentergroup_id, config_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (experimentergroup_id, index)
     );;
 
     create table experimentergroupannotationlink (
@@ -981,9 +990,10 @@
 
     create table genericexcitationsource_map (
         genericexcitationsource_id int8 not null,
-        map varchar(255) not null,
-        map_KEY varchar(255),
-        primary key (genericexcitationsource_id, map_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (genericexcitationsource_id, index)
     );;
 
     create table groupexperimentermap (
@@ -1016,6 +1026,7 @@
         permissions int8 not null,
         name varchar(255) not null,
         partial bool,
+        series nonnegative_int,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -1049,10 +1060,12 @@
 
     create table imagingenvironment (
         id int8 not null,
+        airPressureUnit UnitsPressure,
         airPressure float8,
         co2percent percent_fraction,
         permissions int8 not null,
         humidity percent_fraction,
+        temperatureUnit UnitsTemperature,
         temperature float8,
         version int4,
         creation_id int8 not null,
@@ -1065,9 +1078,10 @@
 
     create table imagingenvironment_map (
         imagingenvironment_id int8 not null,
-        map varchar(255) not null,
-        map_KEY varchar(255),
-        primary key (imagingenvironment_id, map_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (imagingenvironment_id, index)
     );;
 
     create table immersion (
@@ -1170,9 +1184,11 @@
     create table laser (
         frequencyMultiplication positive_int,
         pockelCell bool,
+        repetitionRateUnit UnitsFrequency,
         repetitionRate float8,
         tuneable bool,
-        wavelength positive_float,
+        wavelengthUnit UnitsLength,
+        wavelength float8,
         lightsource_id int8 not null,
         laserMedium int8 not null,
         pulse int8,
@@ -1267,7 +1283,8 @@
         attenuation percent_fraction,
         permissions int8 not null,
         version int4,
-        wavelength positive_float,
+        wavelengthUnit UnitsLength,
+        wavelength float8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
@@ -1284,6 +1301,7 @@
         lotNumber varchar(255),
         manufacturer varchar(255),
         model varchar(255),
+        powerUnit UnitsPower,
         "power" float8,
         serialNumber varchar(255),
         version int4,
@@ -1326,11 +1344,14 @@
     create table logicalchannel (
         id int8 not null,
         permissions int8 not null,
-        emissionWave positive_float,
-        excitationWave positive_float,
+        emissionWaveUnit UnitsLength,
+        emissionWave float8,
+        excitationWaveUnit UnitsLength,
+        excitationWave float8,
         fluor varchar(255),
         name varchar(255),
         ndFilter float8,
+        pinHoleSizeUnit UnitsLength,
         pinHoleSize float8,
         pockelCellSetting int4,
         samplesPerPixel positive_int,
@@ -1367,9 +1388,10 @@
 
     create table metadataimportjob_versionInfo (
         metadataimportjob_id int8 not null,
-        versionInfo varchar(255) not null,
-        versionInfo_KEY varchar(255),
-        primary key (metadataimportjob_id, versionInfo_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (metadataimportjob_id, index)
     );;
 
     create table microbeammanipulation (
@@ -1425,15 +1447,12 @@
         description text,
         permissions int8 not null,
         display bool,
+        displayName varchar(255),
         keywords text[],
         multivalued bool,
         name varchar(255) not null,
         version int4,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
         primary key (id)
     );;
 
@@ -1454,7 +1473,7 @@
 
     create table node (
         id int8 not null,
-        conn varchar(255) not null,
+        conn text not null,
         permissions int8 not null,
         down timestamp,
         scale int4,
@@ -1492,6 +1511,7 @@
         nominalMagnification float8,
         serialNumber varchar(255),
         version int4,
+        workingDistanceUnit UnitsLength,
         workingDistance float8,
         correction int8 not null,
         creation_id int8 not null,
@@ -1614,9 +1634,12 @@
         id int8 not null,
         permissions int8 not null,
         methodology varchar(255),
-        physicalSizeX positive_float,
-        physicalSizeY positive_float,
-        physicalSizeZ positive_float,
+        physicalSizeXUnit UnitsLength,
+        physicalSizeX float8,
+        physicalSizeYUnit UnitsLength,
+        physicalSizeY float8,
+        physicalSizeZUnit UnitsLength,
+        physicalSizeZ float8,
         sha1 varchar(255) not null,
         significantBits positive_int,
         sizeC positive_int not null,
@@ -1624,6 +1647,7 @@
         sizeX positive_int not null,
         sizeY positive_int not null,
         sizeZ positive_int not null,
+        timeIncrementUnit UnitsTime,
         timeIncrement float8,
         version int4,
         waveIncrement int4,
@@ -1637,7 +1661,6 @@
         image int8 not null,
         pixelsType int8 not null,
         relatedTo int8,
-        timeIncrementUnit int8,
         image_index int4 not null,
         primary key (id),
         unique (image, image_index)
@@ -1669,23 +1692,26 @@
 
     create table planeinfo (
         id int8 not null,
+        deltaTUnit UnitsTime,
         deltaT float8,
         permissions int8 not null,
+        exposureTimeUnit UnitsTime,
         exposureTime float8,
+        positionXUnit UnitsLength,
         positionX float8,
+        positionYUnit UnitsLength,
         positionY float8,
+        positionZUnit UnitsLength,
         positionZ float8,
         theC nonnegative_int not null,
         theT nonnegative_int not null,
         theZ nonnegative_int not null,
         version int4,
-        deltaTUnit int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        exposureTimeUnit int8,
         pixels int8 not null,
         primary key (id)
     );;
@@ -1728,7 +1754,9 @@
         "rows" int4,
         status varchar(255),
         version int4,
+        wellOriginXUnit UnitsLength,
         wellOriginX float8,
+        wellOriginYUnit UnitsLength,
         wellOriginY float8,
         creation_id int8 not null,
         external_id int8 unique,
@@ -1921,8 +1949,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        keywords text[][],
-        namespaces text[],
+        name varchar(255),
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -2045,38 +2072,28 @@
         fillColor int4,
         fillRule varchar(255),
         fontFamily varchar(255),
-        fontSize int4,
+        fontSizeUnit UnitsLength,
+        fontSize float8,
         fontStretch varchar(255),
         fontStyle varchar(255),
         fontVariant varchar(255),
         fontWeight varchar(255),
-        g varchar(255),
         locked bool,
         strokeColor int4,
         strokeDashArray varchar(255),
-        strokeDashOffset int4,
         strokeLineCap varchar(255),
-        strokeLineJoin varchar(255),
-        strokeMiterLimit int4,
-        strokeWidth int4,
+        strokeWidthUnit UnitsLength,
+        strokeWidth float8,
         theC int4,
         theT int4,
         theZ int4,
         transform varchar(255),
-        vectorEffect varchar(255),
         version int4,
-        visibility bool,
         cx float8,
         cy float8,
         rx float8,
         ry float8,
         textValue text,
-        anchor varchar(255),
-        baselineShift varchar(255),
-        decoration varchar(255),
-        direction varchar(255),
-        glyphOrientationVertical int4,
-        writingMode varchar(255),
         x float8,
         y float8,
         x1 float8,
@@ -2139,8 +2156,11 @@
         id int8 not null,
         permissions int8 not null,
         name varchar(255) not null,
+        positionXUnit UnitsLength,
         positionX float8,
+        positionYUnit UnitsLength,
         positionY float8,
+        positionZUnit UnitsLength,
         positionZ float8,
         version int4,
         creation_id int8 not null,
@@ -2189,10 +2209,14 @@
 
     create table transmittancerange (
         id int8 not null,
-        cutIn positive_int,
-        cutInTolerance nonnegative_int,
-        cutOut positive_int,
-        cutOutTolerance nonnegative_int,
+        cutInUnit UnitsLength,
+        cutIn float8,
+        cutInToleranceUnit UnitsLength,
+        cutInTolerance float8,
+        cutOutUnit UnitsLength,
+        cutOut float8,
+        cutOutToleranceUnit UnitsLength,
+        cutOutTolerance float8,
         permissions int8 not null,
         transmittance percent_fraction,
         version int4,
@@ -2204,15 +2228,6 @@
         primary key (id)
     );;
 
-    create table unitstime (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
     create table uploadjob (
         job_id int8 not null,
         primary key (job_id)
@@ -2220,9 +2235,10 @@
 
     create table uploadjob_versionInfo (
         uploadjob_id int8 not null,
-        versionInfo varchar(255) not null,
-        versionInfo_KEY varchar(255),
-        primary key (uploadjob_id, versionInfo_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (uploadjob_id, index)
     );;
 
     create table well (
@@ -2281,7 +2297,9 @@
     create table wellsample (
         id int8 not null,
         permissions int8 not null,
+        posXUnit UnitsLength,
         posX float8,
+        posYUnit UnitsLength,
         posY float8,
         timepoint timestamp,
         version int4,
@@ -4354,29 +4372,9 @@
         references externalinfo  ;;
 
     alter table namespace 
-        add constraint FKnamespace_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table namespace 
-        add constraint FKnamespace_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table namespace 
         add constraint FKnamespace_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table namespace 
-        add constraint FKnamespace_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table namespace 
-        add constraint FKnamespace_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
 
     alter table namespaceannotationlink 
         add constraint FKnamespaceannotationlink_creation_id_event 
@@ -4704,11 +4702,6 @@
         references externalinfo  ;;
 
     alter table pixels 
-        add constraint FKpixels_timeincrementunit_unitstime
-        foreign key (timeIncrementUnit) 
-        references unitstime  ;;
-
-    alter table pixels 
         add constraint FKpixels_dimensionOrder_dimensionorder 
         foreign key (dimensionOrder) 
         references dimensionorder  ;;
@@ -4779,11 +4772,6 @@
         references externalinfo  ;;
 
     alter table planeinfo 
-        add constraint FKplaneinfo_exposureTimeUnit_unitstime
-        foreign key (exposureTimeUnit) 
-        references unitstime  ;;
-
-    alter table planeinfo 
         add constraint FKplaneinfo_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
@@ -4797,11 +4785,6 @@
         add constraint FKplaneinfo_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table planeinfo 
-        add constraint FKplaneinfo_deltaTUnit_unitstime
-        foreign key (deltaTUnit) 
-        references unitstime  ;;
 
     alter table planeinfo 
         add constraint FKplaneinfo_pixels_pixels 
@@ -5647,11 +5630,6 @@
         add constraint FKtransmittancerange_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
-
-    alter table unitstime 
-        add constraint FKunitstime_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table uploadjob 
         add constraint FKuploadjob_job_id_job 

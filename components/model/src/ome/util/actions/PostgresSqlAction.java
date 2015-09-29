@@ -233,12 +233,11 @@ public class PostgresSqlAction extends SqlAction.Impl {
         _jdbc().batchUpdate(_lookup("insert_logs"), batchData); //$NON-NLS-1$
     }
 
-    public List<Map<String, Object>> roiByImageAndNs(final long imageId,
-            final String ns) {
+    public List<Map<String, Object>> roiByImage(final long imageId) {
         String queryString;
-        queryString = _lookup("roi_by_image_and_ns"); //$NON-NLS-1$
+        queryString = _lookup("roi_by_image"); //$NON-NLS-1$
         List<Map<String, Object>> mapList = _jdbc().queryForList(queryString,
-                imageId, ns);
+                imageId);
         return mapList;
     }
 

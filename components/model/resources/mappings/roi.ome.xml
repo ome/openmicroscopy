@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -17,8 +15,6 @@
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
                         <optional name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>
-                        <optional name="namespaces" type="string[]"/>
-                        <optional name="keywords" type="string[][]"/>
                 </properties>
         </type>
         <abstract id="ome.model.roi.Shape" discriminator="" annotated="true">
@@ -42,23 +38,14 @@
                                Color keyword : red, blue, black, ...
                         -->
                         <!-- Global -->
-                        <!-- "g" provides limited support for the nestable g
-                              elements in SVG. All shapes with the same roi and the same
-                              g value are in the same group -->
-                        <optional name="g" type="string"/>
                         <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
-                        <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
-                        <optional name="visibility" type="boolean"/>
                         <!-- Fill -->
                         <optional name="fillColor" type="int"/>
                         <optional name="fillRule" type="string"/><!-- even-odd, nonzero -->
                         <!-- Stroke -->
                         <optional name="strokeColor" type="int"/>
                         <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
-                        <optional name="strokeDashOffset" type="int"/>
                         <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
-                        <optional name="strokeLineJoin" type="string"/><!-- miter, round, bevel -->
-                        <optional name="strokeMiterLimit" type="int"/>
                         <optional name="strokeWidth" type="ome.model.units.Length"/><!-- point default -->
                         <!-- Font -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
@@ -82,18 +69,9 @@
         </abstract>
         <type id="ome.model.roi.Label" discriminator="text" superclass="ome.model.roi.Shape">
                 <properties>
-                        <!-- Offset of the text: specifies the coordinates of the top-left
-                             corner of the text box -->
-                        <optional name="x" type="double"/>
-                        <optional name="y" type="double"/>
-                        <!-- Text values -->
+                        <optional name="x" type="double"/>  <!-- left of text box -->
+                        <optional name="y" type="double"/>  <!-- top of text box -->
                         <optional name="textValue" type="text"/>
-                        <optional name="anchor" type="string"/><!-- start, middle, end -->
-                        <optional name="decoration" type="string"/><!-- underline, overline, line-through -->
-                        <optional name="baselineShift" type="string"/><!-- 70%, -70%, 7, sup, sub, normal -->
-                        <optional name="glyphOrientationVertical" type="int"/><!-- 0, 90, 180, 270 -->
-                        <optional name="direction" type="string"/><!-- ltr, rtl -->
-                        <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
                  </properties>
         </type>
         <type id="ome.model.roi.Rect" discriminator="rect" superclass="ome.model.roi.Shape">
@@ -102,7 +80,6 @@
                         <optional name="y" type="double"/>
                         <optional name="width" type="double"/>
                         <optional name="height" type="double"/>
-                        <optional name="rx" type="double"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
