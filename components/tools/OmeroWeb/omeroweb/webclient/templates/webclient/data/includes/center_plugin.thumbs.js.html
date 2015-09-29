@@ -82,35 +82,40 @@ $(document).ready(function() {
         '    <div id="thumb_size_slider" title="Zoom Thumbnails"></div>' +
         '</div>' +
         '<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>';
-    $("#content_details").html(html);
 
 
-    // single click handler on image (container). Selection then update toolbar & metadata pane
-    $( "#icon_table" ).on( "click", "li.row", function(event) {
-        handleClickSelection(event);
-    });
+    var setupDatasetHeader = function() {
+        $("#content_details").html(html);
 
-    // plugin to handle drag-select of images
-    $("#icon_table").selectable({
-        filter: 'li.row',
-        distance: 2,
-        stop: function() {
-            // Make the same selection in the jstree etc
-            syncTreeSelection();
-        },
-        start: function() {
-            // Remove any fileset selection markings
-            $("#dataIcons li.row:visible").removeClass("fs-selected");
-        }
-    });
+        // single click handler on image (container). Selection then update toolbar & metadata pane
+        $( "#icon_table" ).on( "click", "li.row", function(event) {
+            handleClickSelection(event);
+        });
 
-    // Start listening for Node Loading events on the tree...
-    // If a node loads and it's selected, update_thumbs...
-    $("#dataTree").on('load_node.jstree', function(event, data){
-        if (data.node.state.selected) {
-            update_thumbnails_panel(event, data);
-        }
-    });
+        // plugin to handle drag-select of images
+        $("#icon_table").selectable({
+            filter: 'li.row',
+            distance: 2,
+            stop: function() {
+                // Make the same selection in the jstree etc
+                syncTreeSelection();
+            },
+            start: function() {
+                // Remove any fileset selection markings
+                $("#dataIcons li.row:visible").removeClass("fs-selected");
+            }
+        });
+
+        // Start listening for Node Loading events on the tree...
+        // If a node loads and it's selected, update_thumbs...
+        $("#dataTree").on('load_node.jstree', function(event, data){
+            if (data.node.state.selected) {
+                update_thumbnails_panel(event, data);
+            }
+        });
+
+        $("#filtersearch label").inFieldLabels();
+    }
 
     // This is called directly by various jstree plugins
     // E.g. omecut_plugin.js as well as the jstree in containers.html
@@ -120,14 +125,15 @@ $(document).ready(function() {
         var selected = inst.get_selected(true);
 
         if (selected.length === 0) {
-            $("#icon_table").html("");
+            $("#content_details").html("");
             return;
         }
         var dtype = selected[0].type;
         if (selected.length > 1 && dtype !== "image") {
-            $("#icon_table").html("");
+            $("#content_details").html("");
             return;
         }
+        console.log(dtype, event.type);
 
         var dataset,
             imgNodes = [];
@@ -135,6 +141,12 @@ $(document).ready(function() {
             dataset = selected[0];
         } else if (dtype === "image") {
             dataset = inst.get_parent(selected[0]);
+        } else if (dtype === "plate" || dtype === "acquisition") {
+            old_thumbnails_panel(event, data);
+            return;
+        } else if (dtype === "screen") {
+            $("#content_details").html("");
+            return;
         }
 
         if (dataset) {
@@ -182,7 +194,9 @@ $(document).ready(function() {
             });
         }
 
-        console.log(imgJson);
+        if ($("#icon_table").length == 0) {
+            setupDatasetHeader();
+        }
 
         var html = iconTmpl({'images': imgJson, 'layout': layout});
         $("#icon_table").html(html);
@@ -229,7 +243,6 @@ $(document).ready(function() {
             }
         });
     }
-    $("#filtersearch label").inFieldLabels();
 
     // When we filter, unselect the hidden icons and update
     // selections in the jstree
@@ -418,7 +431,6 @@ $(document).ready(function() {
         var $selectee = $("#dataIcons").find("li.row");
         $selectee.removeClass('fs-selected');
         for (var fsid in fsIds) {
-            console.log(fsid);
             $selectee.filter("[data-fileset='"+ fsid + "']").addClass('fs-selected');
         }
     }
@@ -698,12 +710,12 @@ $(document).ready(function() {
             var show = OME.getURLParameter('show');
 
             switch(nodeType) {
-                case 'dataset':
-                    url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
-                    break;
-                case 'orphaned':
-                    url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
-                    break;
+                // case 'dataset':
+                //     url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
+                //     break;
+                // case 'orphaned':
+                //     url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
+                //     break;
                 case 'plate':
                     // Only load plates if it does not have child acquisitions
                     if (!inst.is_parent(node)) {
