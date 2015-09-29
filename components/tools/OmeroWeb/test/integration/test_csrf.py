@@ -291,7 +291,7 @@ class TestCsrf(IWebTest):
                                          request_url,
                                          json.dumps(data),
                                          content_type="application/json")
-        # Response will contain any remaing links from image
+        # Response will contain remaining links from image (see test_links.py)
         response = json.loads(response.content)
         assert response == {"success": True}
 
