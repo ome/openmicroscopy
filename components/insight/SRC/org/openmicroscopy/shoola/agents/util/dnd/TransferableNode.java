@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.dnd.TransferableNode 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -30,12 +30,14 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * The object to transfer during the D&D.
+ * This is just a dummy Transferable, have to handle the transferable
+ * data our own, because of Windows DnD issues.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,18 +46,14 @@ import java.io.IOException;
 class TransferableNode 
 	implements Transferable
 {
-	
-	/** The object to transfer.*/
-	private Object object;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param object The object to transfer.
 	 */
-	TransferableNode (Object object)
+	TransferableNode (String s)
 	{
-		this.object = object; 
 	}
 	
 	/**
@@ -65,7 +63,7 @@ class TransferableNode
 	public Object getTransferData(DataFlavor df)
 		throws UnsupportedFlavorException, IOException
 	{
-	    return object;
+	    return "";
 	}
 	
 	/**

@@ -23,18 +23,15 @@ package org.openmicroscopy.shoola.agents.util.browser;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
@@ -95,7 +92,7 @@ import omero.gateway.model.TagAnnotationData;
  * @since OME2.2
  */
 public abstract class TreeImageDisplay
-    extends DefaultMutableTreeNode implements Serializable
+    extends DefaultMutableTreeNode
 {
     
     /** Identifies the <code>plain</code> style constant. */

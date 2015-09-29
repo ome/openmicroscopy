@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.activation.ActivationDataFlavor;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -101,12 +102,12 @@ public class DnDTree
 	
 	/** The default color.*/
 	private static Color DEFAULT_COLOR = new Color(255, 255, 255, 0);
+
 	
     static {
         try {
-            localFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType);
+            localFlavor = new ActivationDataFlavor(String.class, "Dummy Flavor");
         } catch (Exception e) {
-            // TODO: handle exception
         }
         if (localFlavor != null) {
             supportedFlavors = new DataFlavor[1];
@@ -161,6 +162,9 @@ public class DnDTree
     /** DnD autoscroll insets (this defines the scroll sensitive area) */
     private static final int AUTOSCROLL_INSET = 10;
     
+    /** The data currently dragged */
+    private List<TreeImageDisplay> toTransfer = new ArrayList<TreeImageDisplay>();
+    
 	/** 
 	 * Sets the cursor depending on the selected node.
 	 * 
@@ -190,20 +194,9 @@ public class DnDTree
         }
         //Now check that the src and target are compatible.
         try {
-            Object droppedObject = transferable.getTransferData(localFlavor);
             List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
-            if (droppedObject instanceof List) {
-                List<Object> l = (List) droppedObject;
-                Iterator<Object> i = l.iterator();
-                Object o;
-                while (i.hasNext()) {
-                    o = i.next();
-                    if (o instanceof TreeImageDisplay)
-                        nodes.add((TreeImageDisplay) o);
-                }
-            } else if (droppedObject instanceof TreeImageDisplay) {
-                nodes.add((TreeImageDisplay) droppedObject);
-            }
+            nodes.addAll(toTransfer);
+            
             if (nodes.size() == 0) return;
             //Check the first node
             TreeImageDisplay first = nodes.get(0);
@@ -234,9 +227,10 @@ public class DnDTree
                                 if (canLink(os)) list.add(n);
                             }
                         } else {
-                            if (canLink(os)) list.add(n);
+                            if (canLink(os)) 
+                                list.add(n);
                         }
-                    }   
+                    }
                 }
             }
             if (childCount == nodes.size() || list.size() == 0 ||
@@ -405,7 +399,6 @@ public class DnDTree
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(e);
                 updateRegion();
                 Point componentPosition = new Point(lastPosition);
                 SwingUtilities.convertPointFromScreen(componentPosition,
@@ -589,41 +582,23 @@ public class DnDTree
         TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
         dropLocation = getRowForPath(path);
         setCursor(defaultCursor);
-        Transferable transferable;
         try {
             if (!dropAllowed) {
                 dtde.rejectDrop();
                 repaint();
-                return;
-            }
-            transferable = dtde.getTransferable();
-            if (!transferable.isDataFlavorSupported(localFlavor)) {
-                dtde.rejectDrop();
-                repaint();
+                this.toTransfer.clear();
                 return;
             }
         } catch (Exception e) {
+            this.toTransfer.clear();
             return;
         }
         boolean dropped = false;
         
         try {
             dtde.acceptDrop(DnDConstants.ACTION_MOVE);
-            Object droppedObject = transferable.getTransferData(localFlavor);
             List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
-            if (droppedObject instanceof List) {
-                List l = (List) droppedObject;
-                Iterator i = l.iterator();
-                Object o;
-                while (i.hasNext()) {
-                    o = i.next();
-                    if (o instanceof TreeImageDisplay) {
-                        nodes.add((TreeImageDisplay) o);
-                    }
-                }
-            } else if (droppedObject instanceof TreeImageDisplay) {
-                nodes.add((TreeImageDisplay) droppedObject);
-            }
+            nodes.addAll(this.toTransfer);
             
             if (nodes.size() == 0) {
                 dropped = true;
@@ -644,13 +619,13 @@ public class DnDTree
                 ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes, 
                         action);
                 firePropertyChange(DRAGGED_PROPERTY, null, transfer);
+                this.toTransfer.clear();
             //}
             dropped = true;
         } catch (Exception e) {
             try {
                 dtde.rejectDrop();
             } catch (Exception ex) {
-                //ignore
             }
             repaint();
         }
@@ -670,19 +645,20 @@ public class DnDTree
         TreeNode draggedNode = (TreeNode) path.getLastPathComponent();
         if (draggedNode == null) return;
         TreePath[] paths = getSelectionPaths();
-        List<TreeNode> nodes = new ArrayList<TreeNode>();
+        List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
         TreeNode n;
         if (paths != null) {
             for (int i = 0; i < paths.length; i++) {
                 n = (TreeNode) paths[i].getLastPathComponent();
                 if (n instanceof TreeImageDisplay)
-                    nodes.add(n);
+                    nodes.add((TreeImageDisplay)n);
             }
         }
         
         if (nodes.size() == 0) return;
         createGhostImage(p);
-        Transferable trans = new TransferableNode(nodes);
+        this.toTransfer.addAll(nodes);
+        Transferable trans = new TransferableNode("");
         try {
             setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             if (DragSource.isDragImageSupported()) {
