@@ -58,6 +58,11 @@ $(document).ready(function() {
     var aspect_ratios = [];
     var iconSize = 65;
 
+    var dateFormatOptions = {
+        weekday: "short", year: "numeric", month: "short",
+        day: "numeric", hour: "2-digit", minute: "2-digit"
+    };
+
     // Set up the centre panel header.
     // Could do this in a nicer way (E.g. underscore?)
     // TODO: Do we want to hide header if nothing selected (same as existing webclient behaviour?)
@@ -150,12 +155,14 @@ $(document).ready(function() {
         var imgJson = [],
             selFileSets = [];
         imgNodes.forEach(function(node){
-            console.log('node', node)
             var iData = {'id': node.data.obj.id,
                     'name': node.text,
                     'data': JSON.parse(JSON.stringify(node.data)),
                     'selected': node.state.selected,
                 };
+            var d = node.data.obj.date || node.data.obj.acqDate;
+            var date = new Date(d);
+            iData.date = date.toLocaleTimeString(undefined, dateFormatOptions);
             if (iData.selected) {
                 var fsId = node.data.obj.filesetId;
                 if (fsId) {
