@@ -13,7 +13,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-  <properties file="${ivy.settings.dir}/local.properties.example"/>
+  <properties file="${ivy.settings.dir}/build.properties"/>
   <properties file="${ivy.settings.dir}/local.properties"/>
   <properties file="${ivy.settings.dir}/../target/omero.version"/>
 
