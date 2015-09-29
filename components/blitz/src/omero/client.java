@@ -329,7 +329,9 @@ public class client {
 
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
-        optionallySetProperty(id, "Ice.ACM.Client", "0");
+        if (Ice.Util.intVersion() <= 30500) {
+            optionallySetProperty(id, "Ice.ACM.Client", "0");
+        }
         optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
         optionallySetProperty(id, "Ice.RetryIntervals", "-1");
         optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
