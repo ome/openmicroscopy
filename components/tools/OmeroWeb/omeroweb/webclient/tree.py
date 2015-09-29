@@ -452,7 +452,12 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
     return datasets
 
 
-def _marshal_image(conn, row, row_pixels=None, share_id=None):
+def _marshal_date(time):
+    d = datetime.fromtimestamp(time/1000)
+    return d.isoformat() + 'Z'
+
+
+def _marshal_image(conn, row, row_pixels=None, share_id=None, date=None, acqDate=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
           * id (rlong)
@@ -490,6 +495,10 @@ def _marshal_image(conn, row, row_pixels=None, share_id=None):
         image['sizeZ'] = unwrap(sizeZ)
     if share_id is not None:
         image['shareId'] = share_id
+    if date is not None:
+        image['date'] = _marshal_date(date)
+    if acqDate is not None:
+        image['acqDate'] = _marshal_date(acqDate)
 
     return image
 
@@ -510,7 +519,7 @@ def _marshal_image_deleted(conn, image_id):
 
 def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                    load_pixels=False, group_id=-1, experimenter_id=-1,
-                   page=1, limit=settings.PAGE):
+                   page=1, date=False, limit=settings.PAGE):
 
     ''' Marshals images
 
@@ -564,14 +573,19 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         where_clause.append('image.details.owner.id = :id')
     qs = conn.getQueryService()
 
-    pixelSizes = ""
+    extraValues = ""
     if load_pixels:
-        pixelSizes = """
+        extraValues = """
              ,
              pix.sizeX as sizeX,
              pix.sizeY as sizeY,
              pix.sizeZ as sizeZ
              """
+    if date:
+        extraValues += """,
+            image.details.creationEvent.time as date,
+            image.acquisitionDate as acqDate
+            """
 
     q = """
         select new map(image.id as id,
@@ -579,7 +593,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                image.details.owner.id as ownerId,
                image as image_details_permissions,
                image.fileset.id as filesetId %s)
-        """ % pixelSizes
+        """ % extraValues
 
     from_clause.append('Image image')
 
@@ -659,6 +673,9 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if load_pixels:
             d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
             kwargs['row_pixels'] = d
+        if date:
+            kwargs['acqDate'] = e['acqDate']
+            kwargs['date'] = e['date']
 
         # While marshalling the images, determine if there are any
         # images mentioned in shares that are not in the results

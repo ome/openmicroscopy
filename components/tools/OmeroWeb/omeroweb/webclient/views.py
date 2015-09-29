@@ -738,6 +738,7 @@ def api_image_list(request, conn=None, **kwargs):
         dataset_id = get_long_or_default(request, 'id', None)
         orphaned = get_bool_or_default(request, 'orphaned', False)
         load_pixels = get_bool_or_default(request, 'sizeXYZ', False)
+        date = get_bool_or_default(request, 'date', False)
         experimenter_id = get_long_or_default(request,
                                               'experimenter_id', -1)
     except ValueError:
@@ -759,6 +760,7 @@ def api_image_list(request, conn=None, **kwargs):
                                      load_pixels=load_pixels,
                                      group_id=group_id,
                                      page=page,
+                                     date=date,
                                      limit=limit)
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
