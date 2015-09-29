@@ -31,6 +31,7 @@ import logging
 import traceback
 import json
 import re
+import sys
 
 from time import time
 
@@ -52,7 +53,7 @@ from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
-
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
 from webclient_utils import _formatReport, _purgeCallback
@@ -67,7 +68,6 @@ from forms import MetadataStageLabelForm, MetadataLightSourceForm
 from forms import MetadataDichroicForm, MetadataMicroscopeForm
 from forms import FilesAnnotationForm, WellIndexForm, NewTagsAnnotationFormSet
 
-from controller.index import BaseIndex
 from controller.container import BaseContainer
 from controller.history import BaseCalendar
 from controller.search import BaseSearch
@@ -148,8 +148,31 @@ def get_bool_or_default(request, name, default):
             val = True
     return val
 
+
 ##############################################################################
-# views controll
+# custom index page
+
+
+@never_cache
+@render_response()
+def custom_index(request, conn=None, **kwargs):
+    context = {"version": omero_version, 'build_year': build_year}
+
+    if settings.INDEX_TEMPLATE is not None:
+        try:
+            template_loader.get_template(settings.INDEX_TEMPLATE)
+            context['template'] = settings.INDEX_TEMPLATE
+        except Exception:
+            context['template'] = 'webclient/index.html'
+            context["error"] = traceback.format_exception(*sys.exc_info())[-1]
+    else:
+        context['template'] = 'webclient/index.html'
+
+    return context
+
+
+##############################################################################
+# views
 
 
 def login(request):
@@ -275,67 +298,6 @@ def keepalive_ping(request, conn=None, **kwargs):
     # login_required handles ping, timeout etc, so we don't need to do
     # anything else
     return HttpResponse("OK")
-
-
-@login_required()
-@render_response()
-def feed(request, conn=None, **kwargs):
-    """
-    Viewing this page doesn't perform any action. All we do here is assemble
-    various data for display.
-    Last imports, tag cloud etc are retrived via separate AJAX calls.
-    """
-    template = "webclient/index/index.html"
-
-    controller = BaseIndex(conn)
-
-    context = {'controller': controller}
-    context['template'] = template
-    return context
-
-
-@login_required()
-@render_response()
-def index_last_imports(request, conn=None, **kwargs):
-    """
-    Gets the most recent imports - Used in an AJAX call by home page.
-    """
-
-    controller = BaseIndex(conn)
-    controller.loadLastAcquisitions()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_last_imports.html"
-    return context
-
-
-@login_required()
-@render_response()
-def index_most_recent(request, conn=None, **kwargs):
-    """
-    Gets the most recent 'shares' and 'share' comments. Used by the homepage
-    via AJAX call
-    """
-
-    controller = BaseIndex(conn)
-    controller.loadMostRecent()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_most_recent.html"
-    return context
-
-
-@login_required()
-@render_response()
-def index_tag_cloud(request, conn=None, **kwargs):
-    """ Gets the most used Tags. Used by the homepage via AJAX call """
-
-    controller = BaseIndex(conn)
-    controller.loadTagCloud()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_tag_cloud.html"
-    return context
 
 
 @login_required()
