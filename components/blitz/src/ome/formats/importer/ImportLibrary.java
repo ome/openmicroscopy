@@ -345,6 +345,7 @@ public class ImportLibrary implements IObservable
         notifyObservers(new ImportEvent.FILESET_UPLOAD_PREPARATION(
                 null, 0, usedFiles.length, null, null, null));
 
+        // Copied to ClientPathExclusion
         // TODO: allow looser sanitization according to server configuration
         final FilePathRestrictions portableRequiredRules =
                 FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.WINDOWS_REQUIRED,

@@ -42,7 +42,8 @@ public abstract class AbstractFileExclusion implements FileExclusion {
      * Enum of well-known {@link FileExclusion} names.
      */
     public enum Exclusion {
-        filename(FilenameExclusion.class);
+        filename(FilenameExclusion.class),
+        clientpath(ClientPathExclusion.class);
         Class<?> kls;
         Exclusion(Class<?> kls) {
             this.kls = kls;

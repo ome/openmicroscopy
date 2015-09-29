@@ -394,6 +394,7 @@ public class CommandLineImporter {
             + "  File exclusion:\n"
             + "  ---------------\n\n"
             + "    --exclude=filename      \tExclude files based on filename.\n\n"
+            + "    --exclude=clientpath    \tExclude files based on the original path.\n\n"
             + "\n"
             + "  e.g. $ bin/omero import -- --exclude=filename foo.tiff # First-time imports\n"
             + "       $ bin/omero import -- --exclude=filename foo.tiff # Second-time skips\n"
