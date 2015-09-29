@@ -186,12 +186,24 @@ $(document).ready(function() {
         // setup quicksearch filtering of images
         setupFiltering();
 
+        // init the elementsorter plugin
+        setupSorting();
+
         return;
     }
 
     // Update thumbnails when we switch between plugins
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
+    var setupSorting = function() {
+        // simple emulation of table-sorter for other elements...
+        // performs sort when intialised on 'sort-init' column
+        $(".element_sorter").elementsorter({
+            head: '.thead div',             // Selector for the equivalent of 'table head'
+            body: 'li.row',                 // Selector for the equivalent of 'table rows'
+            sort_key: '.hidden_sort_text'   // optional - how to find the text within each child of a 'row'.
+        });
+    }
 
     var setupFiltering = function() {
         var $filter_input = $('#id_search');
