@@ -183,12 +183,48 @@ $(document).ready(function() {
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
 
+        // setup quicksearch filtering of images
+        setupFiltering();
+
         return;
     }
 
     // Update thumbnails when we switch between plugins
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
+
+    var setupFiltering = function() {
+        var $filter_input = $('#id_search');
+        var filter_txt = $filter_input.val();
+        $filter_input.quicksearch('#dataIcons li.row', {
+            'delay': 300,
+            'bind': 'keyup',
+            'loader': 'span.loading',
+            onAfter: function(){
+                // onAfter can get triggered without text change, E.g. by tree selection!
+                var new_txt = $filter_input.val();
+                if (filter_txt != new_txt){     // test text has changed
+                    filter_txt = new_txt;
+                    deselectFiltered();
+                }
+            }
+        });
+    }
+    $("#filtersearch label").inFieldLabels();
+
+    // When we filter, unselect the hidden icons and update
+    // selections in the jstree
+    var deselectFiltered = function(e, a){
+        // check if any selection change is needed
+        var $filtered = $("#dataIcons li.ui-selected:hidden");
+        if ($filtered.length == 0) return;
+
+        // If we've filtered any selected images, de-select icon
+        $filtered.removeClass("ui-selected");
+
+        var imageId = $filtered.first().data('id');
+        syncTreeSelection(imageId);
+    };
 
     // handles selection for 'clicks' (not drags)
     var handleClickSelection = function(event) {
