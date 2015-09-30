@@ -322,7 +322,7 @@ dt_socket,address=8787,suspend=y" \\
 
         ports = Action(
             "ports",
-            """Allows modifying the ports from a standard OMERO install
+            """Allows modifying the ports from a standard OMERO install (deprecated)
 
 To have multiple OMERO servers running on the same machine several ports
 must be modified from their defaults. Changing the ports on a running server
