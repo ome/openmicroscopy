@@ -457,7 +457,8 @@ def _marshal_date(time):
     return d.isoformat() + 'Z'
 
 
-def _marshal_image(conn, row, row_pixels=None, share_id=None, date=None, acqDate=None):
+def _marshal_image(conn, row, row_pixels=None, share_id=None,
+                   date=None, acqDate=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
           * id (rlong)
@@ -496,9 +497,9 @@ def _marshal_image(conn, row, row_pixels=None, share_id=None, date=None, acqDate
     if share_id is not None:
         image['shareId'] = share_id
     if date is not None:
-        image['date'] = _marshal_date(date)
+        image['date'] = _marshal_date(unwrap(date))
     if acqDate is not None:
-        image['acqDate'] = _marshal_date(acqDate)
+        image['acqDate'] = _marshal_date(unwrap(acqDate))
 
     return image
 
@@ -1232,7 +1233,7 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
 # above marshalling functions had filter functions added as one of those would
 # be called each per object type instead of this one for all
 def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
-                   limit=settings.PAGE):
+                   load_pixels=False, date=False, limit=settings.PAGE):
     ''' Marshals tagged data
 
         @param conn OMERO gateway.
@@ -1320,20 +1321,41 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
     tagged['datasets'] = datasets
 
     # Images
+    extraValues = ""
+    if load_pixels:
+        extraValues = """
+             ,
+             pix.sizeX,
+             pix.sizeY,
+             pix.sizeZ
+             """
+    if date:
+        extraValues += """,
+            obj.details.creationEvent.time,
+            obj.acquisitionDate
+            """
     q = '''
         select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
                obj.fileset.id,
-               lower(obj.name)
-        from Image obj
+               lower(obj.name)%s
+        from Image obj join obj.pixels pix
         %s
-        ''' % common_clause
+        ''' % (extraValues, common_clause)
 
     images = []
     for e in qs.projection(q, params, service_opts):
-        images.append(_marshal_image(conn, e[0:5]))
+        kwargs = {}
+        nextVal = 6
+        if load_pixels:
+            kwargs['row_pixels'] = (e[6], e[7], e[8])
+            nextVal = 9
+        if date:
+            kwargs['date'] = e[nextVal]
+            kwargs['acqDate'] = e[nextVal + 1]
+        images.append(_marshal_image(conn, e[0:5], **kwargs))
     tagged['images'] = images
 
     # Screens
