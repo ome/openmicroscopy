@@ -533,7 +533,7 @@ class ChannelAcquisitionComponent
 		PlaneInfo info;
 		Map<String, Object> details;
 		List<String> notSet;
-		names[0] = "t index";
+		names[0] = "t";
 		values[0][i] = "Delta T";
 		values[1][i] = "Exposure";
 		i++;
@@ -564,7 +564,7 @@ class ChannelAcquisitionComponent
 			}
 			else
 				values[1][i] = "--";
-			names[i] = "t="+(i-1);
+			names[i] = "t="+i;
 			i++;
 		}
 		if (i > 1) {
