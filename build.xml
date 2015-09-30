@@ -768,6 +768,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="create-workdirs" depends="init">
+        <mkdir dir="${dist.dir}/etc/grid"/>
         <mkdir dir="${dist.dir}/var"/>
     </target>
 
