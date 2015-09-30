@@ -48,9 +48,11 @@ $(document).ready(function() {
     */
 
     var inst = $.jstree.reference('#dataTree');
-    // We compile the underscore template, ready for rendering
-    var tmplText = $('#containers_icon_template').html();
+    // We compile the underscore templates, ready for rendering
+    var tmplText = $('#icon_thumbnails_template').html();
     var iconTmpl = _.template(tmplText);
+    var headerText = $('#icon_header_template').html();
+    var headerTmpl = _.template(headerText);
     // Variables for layout and thumbnail zooming
     var layout = "icon";
     var icon_styles = [];
@@ -64,27 +66,8 @@ $(document).ready(function() {
     };
 
     // Set up the centre panel header.
-    // Could do this in a nicer way (E.g. underscore?)
-    // TODO: Do we want to hide header if nothing selected (same as existing webclient behaviour?)
-    var html = '<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">' +
-            '<div id="layout_chooser">' +
-            '    <button id="icon_layout" title="View as Thumbnails" class="checked"/><button id="table_layout" title="View as List"/>' +
-            '</div>' +
-            '<form class="search filtersearch" id="filtersearch" action="#" style="top:4px">' +
-            '    <div>' +
-            '        <label for="id_search"> Filter Images </label>' +
-            '        <input id="id_search" type="text" size="25">' +
-            '    </div>' +
-            '    <span class="loading" style="display: none;"></span>' +
-            '</form>' +
-        '</div>' +
-        '<div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">' +
-        '    <div id="thumb_size_slider" title="Zoom Thumbnails"></div>' +
-        '</div>' +
-        '<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>';
-
-
     var setupDatasetHeader = function() {
+        var html = headerTmpl({'layout': layout});
         $("#content_details").html(html);
 
         // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -159,7 +142,7 @@ $(document).ready(function() {
         var parentNode,
             parentTypes = ["dataset", "orphaned", "tag", "share"],
             imgNodes = [];
-        if (parentTypes.indexOf(dtype) > 0) {
+        if (parentTypes.indexOf(dtype) > -1) {
             parentNode = selected[0];
         } else if (dtype === "image") {
             parentNode = inst.get_parent(selected[0]);
@@ -182,7 +165,7 @@ $(document).ready(function() {
             });
         }
 
-        if (imgNodes.length === 0 && event.type === "load_node" && parentTypes.indexOf(dtype) > 0) {
+        if (imgNodes.length === 0 && event.type === "load_node" && parentTypes.indexOf(dtype) > -1) {
             data.node.children.forEach(function(nodeId) {
                 var node = inst.get_node(nodeId);
                 // In case of tags, only show images
