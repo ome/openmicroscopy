@@ -249,6 +249,12 @@
                             payload['page'] = 0
                         }
 
+                        // If we're loading images, need extra data
+                        if (node.type === 'tag' || node.type === 'dataset') {
+                            payload['sizeXYZ'] = true;
+                            payload['date'] = true;
+                        }
+
                         // Always add the group_id from the current context
                         payload['group'] = {{ active_group.id }};
 

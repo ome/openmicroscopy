@@ -1027,6 +1027,8 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         tag_id = get_long_or_default(request, 'id', None)
         experimenter_id = get_long_or_default(request, 'experimenter_id', -1)
         orphaned = get_bool_or_default(request, 'orphaned', False)
+        load_pixels = get_bool_or_default(request, 'sizeXYZ', False)
+        date = get_bool_or_default(request, 'date', False)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1038,6 +1040,8 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
                                          tag_id=tag_id,
                                          group_id=group_id,
                                          page=page,
+                                         load_pixels=load_pixels,
+                                         date=date,
                                          limit=limit)
         else:
             tagged = {}
