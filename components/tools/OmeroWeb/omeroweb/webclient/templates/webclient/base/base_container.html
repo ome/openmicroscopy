@@ -51,6 +51,13 @@
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js"|add:url_suffix %}"></script>
     <script src="{% static 'webclient/javascript/jquery.infieldlabel-0.1.js' %}" type="text/javascript"></script>
 
+    <!-- Centre panel templating -->
+    <script type="text/javascript" src="{% static '3rdparty/underscore/underscore-1.8.3-min.js' %}"></script>
+    <!-- Include the underscore html template -->
+    <script id="containers_icon_template" type="text/template">
+        {% include "webclient/data/containers_icon_underscore.html" %}
+    </script>
+
     <!-- Toolbar -->
     <script type="text/javascript" src="{% static "3rdparty/jquery.chosen-1.2.0/chosen.jquery.js" %}"></script>
 

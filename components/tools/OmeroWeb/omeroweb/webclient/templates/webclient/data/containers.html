@@ -38,7 +38,6 @@
     {{ block.super }}
 
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jstree.js" %}"></script>
-    <script type="text/javascript" src="{% static '3rdparty/underscore/underscore-1.8.3-min.js' %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.pagination_plugin.js" %}"></script>
@@ -49,11 +48,6 @@
    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
 
     <script type="text/javascript" src="{% static 'webclient/javascript/ome.chgrp.js'|add:url_suffix %}"></script>
-
-
-    <script id="containers_icon_template" type="text/template">
-    {% include "webclient/data/containers_icon_underscore.html" %}
-    </script>
 
     <!-- set-up jstree etc -->
     <script type="text/javascript">
