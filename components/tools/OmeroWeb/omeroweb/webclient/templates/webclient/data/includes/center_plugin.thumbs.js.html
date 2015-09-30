@@ -115,6 +115,27 @@ $(document).ready(function() {
         });
 
         $("#filtersearch label").inFieldLabels();
+
+        $("#thumb_size_slider").slider({
+            max: 200,
+            min: 30,
+            value: iconSize,
+            slide: function(event, ui) {
+                iconSize = ui.value;
+                setIconSize();
+            }
+        });
+        // handle Radio buttons
+        $("#layout_chooser button").click(function(event) {
+            if ($(event.target).attr('id') == 'table_layout') {
+                layout = 'table';
+            } else {
+                layout = 'icon';
+            }
+            setLayout();
+            $("#layout_chooser button").removeClass("checked");
+            $(event.target).addClass("checked");
+        });
     }
 
     // This is called directly by various jstree plugins
@@ -144,7 +165,8 @@ $(document).ready(function() {
         } else if (dtype === "plate" || dtype === "acquisition") {
             old_thumbnails_panel(event, data);
             return;
-        } else if (dtype === "screen") {
+        // All other types have blank centre panel
+        } else {
             $("#content_details").html("");
             return;
         }
@@ -475,15 +497,6 @@ $(document).ready(function() {
             li_styles[s].height = icon_size + "px";
         }
     }
-    $("#thumb_size_slider").slider({
-        max: 200,
-        min: 30,
-        value: iconSize,
-        slide: function(event, ui) {
-            iconSize = ui.value;
-            setIconSize();
-        }
-    });
 
     // switch between 'icon' or 'table' layout by switching CSS
     var setLayout = function() {
@@ -496,17 +509,6 @@ $(document).ready(function() {
             $("#dataIcons").addClass("tableLayout");
         }
     }
-    // handle Radio buttons
-    $("#layout_chooser button").click(function(event) {
-        if ($(event.target).attr('id') == 'table_layout') {
-            layout = 'table';
-        } else {
-            layout = 'icon';
-        }
-        setLayout();
-        $("#layout_chooser button").removeClass("checked");
-        $(event.target).addClass("checked");
-    });
 
     // --------------------------------- OLD CODE BELOW HERE -- TODO: REMOVE! ------------------ //
 
