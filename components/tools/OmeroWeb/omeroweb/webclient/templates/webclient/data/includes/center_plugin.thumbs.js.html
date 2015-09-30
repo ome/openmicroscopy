@@ -155,10 +155,11 @@ $(document).ready(function() {
             return;
         }
 
-        // parent node could be dataset, orphaned or tag
+        // parent node could be dataset, orphaned, share or tag
         var parentNode,
+            parentTypes = ["dataset", "orphaned", "tag", "share"],
             imgNodes = [];
-        if (dtype === "dataset" || dtype === "orphaned" || dtype == "tag") {
+        if (parentTypes.indexOf(dtype) > 0) {
             parentNode = selected[0];
         } else if (dtype === "image") {
             parentNode = inst.get_parent(selected[0]);
@@ -181,8 +182,7 @@ $(document).ready(function() {
             });
         }
 
-        if (imgNodes.length === 0 && event.type === "load_node" &&
-                (dtype === "dataset" || dtype === "orphaned" || dtype === "tag") ) {
+        if (imgNodes.length === 0 && event.type === "load_node" && parentTypes.indexOf(dtype) > 0) {
             data.node.children.forEach(function(nodeId) {
                 var node = inst.get_node(nodeId);
                 // In case of tags, only show images
