@@ -151,6 +151,12 @@ public class GraphPane
 	/** Button to save the graph as JPEG or PNG.*/
 	private JButton export;
 	
+	/** Maximum Z value possible */
+	private int maxZ;
+	
+	/** Maximum T value possible */
+	private int maxT;
+	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
 	 * @see TabPaneInterface#getIndex()
@@ -221,18 +227,22 @@ public class GraphPane
 	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
-		if (zSlider == null || tSlider == null) return;
-		if (coord == null) return;
-		if (state == ANALYSING) return;
+		if (zSlider == null || tSlider == null)
+		    return;
+		if (coord == null) 
+		    return;
+		if (state == ANALYSING) 
+		    return;
 		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
 				tSlider.getValue()-1);
-		if (coord.equals(thisCoord)) return;
-		if (!pixelStats.containsKey(thisCoord)) return;
+		if (coord.equals(thisCoord)) 
+		    return;
 		state = ANALYSING;
 		buildGraphsAndDisplay();
 		formatPlane();
-		if (shape != null)
-			view.selectFigure(shape.getFigure());
+        if (shape != null)
+            view.selectFigure(shape.getFigure(), new Coord3D(
+                    zSlider.getValue() - 1, tSlider.getValue() - 1));
 		state = READY;
 	}
 
@@ -505,9 +515,11 @@ public class GraphPane
 	 * @param view Reference to the View. Mustn't be <code>null</code>.
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 * @param maxZ Number of Z planes
+	 * @param maxT Number of T planes
 	 */
 	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller,
-		MeasurementViewerModel model)
+		MeasurementViewerModel model, int maxZ, int maxT)
 	{
 		if (view == null)
 			throw new IllegalArgumentException("No view.");
@@ -518,6 +530,8 @@ public class GraphPane
 		this.model = model;
 		this.view = view;
 		this.controller = controller;
+		this.maxZ = maxZ;
+		this.maxT = maxT;
 		initComponents();
 		buildGUI();
 	}
@@ -567,11 +581,7 @@ public class GraphPane
 		channelColour = new ArrayList<Color>();
 		Entry entry;
 		Iterator i  = ROIStats.entrySet().iterator();
-		
-	
-		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
-		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
-		
+        
 		Coord3D c3D;
 		Map<StatsType, Map> shapeStats;
 		Map<Integer, ROIShapeStatsSimple> data;
@@ -587,11 +597,6 @@ public class GraphPane
 			c3D = shape.getCoord3D();
 			cT = c3D.getTimePoint();
 			cZ = c3D.getZSection();
-			
-			minT = Math.min(minT, cT);
-			maxT = Math.max(maxT, cT);
-			minZ = Math.min(minZ, cZ);
-			maxZ = Math.max(maxZ, cZ);
 			
 			if (cT == t && cZ == z) hasData = true;
 			
@@ -610,16 +615,13 @@ public class GraphPane
 			buildHistogramNoSelection();
 			return;
 		}
-		maxZ = maxZ+1;
-		minZ = minZ+1;
-		minT = minT+1;
-		maxT = maxT+1;
+        
 		zSlider.setMaximum(maxZ);
-		zSlider.setMinimum(minZ);
+		zSlider.setMinimum(1);
 		tSlider.setMaximum(maxT);
-		tSlider.setMinimum(minT);
-		zSlider.setVisible(maxZ != minZ);
-		tSlider.setVisible(maxT != minT);
+		tSlider.setMinimum(1);
+		zSlider.setVisible(maxZ > 1);
+		tSlider.setVisible(maxT > 1);
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 		formatPlane();

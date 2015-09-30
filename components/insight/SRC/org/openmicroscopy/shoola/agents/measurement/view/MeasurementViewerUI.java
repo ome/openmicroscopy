@@ -25,7 +25,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -34,14 +33,10 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -69,7 +64,6 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
 import omero.gateway.model.ChannelData;
 
@@ -332,7 +326,7 @@ class MeasurementViewerUI
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
         if (showGraph) {
-            graphPane = new GraphPane(this, controller, model);
+            graphPane = new GraphPane(this, controller, model, model.getNumZSections(), model.getNumTimePoints());
             intensityView = new IntensityView(this, model);
             intensityResultsView = new IntensityResultsView(this, model);
         }
@@ -817,24 +811,39 @@ class MeasurementViewerUI
     	updateDrawingArea();
 	}
 	
-    /**
+	/**
      * Selects the passed figure.
      * 
      * @param figure The figure to select.
      */
     void selectFigure(ROIFigure figure)
     {
+        selectFigure(figure, null);
+    }
+    
+    /**
+     * Selects the passed figure on a specific plane.
+     * 
+     * @param figure The figure to select.
+     * @param plane  The plane (can be <code>null</code>)
+     */
+    void selectFigure(ROIFigure figure, Coord3D plane)
+    {
     	if (figure == null) {
     		model.getDrawingView().setToolTipText("");
     		return;
     	}
-    	Coord3D coord3D = figure.getROIShape().getCoord3D();
-    	if (coord3D == null) return;
-    	if (!coord3D.equals(model.getCurrentView()) || model.isBigImage()) {
-    		model.setPlane(coord3D.getZSection(), coord3D.getTimePoint());
+        if (plane == null) {
+            plane = figure.getROIShape().getCoord3D();
+            if (plane == null) {
+                return;
+            }
+        }
+    	if (!plane.equals(model.getCurrentView()) || model.isBigImage()) {
+    		model.setPlane(plane.getZSection(), plane.getTimePoint());
     		SelectPlane request = 
-    			new SelectPlane(model.getPixelsID(), coord3D.getZSection(),
-    							coord3D.getTimePoint());
+    			new SelectPlane(model.getPixelsID(), plane.getZSection(),
+    			        plane.getTimePoint());
     		if (model.isBigImage()) {
     			request.setBounds(figure.getBounds().getBounds());
     		}
@@ -1341,8 +1350,10 @@ class MeasurementViewerUI
 	/** Builds the graphs and displays them in the results pane. */
 	void displayAnalysisResults()
 	{
-		if (inGraphView()) graphPane.displayAnalysisResults();
-		else if (inIntensityView()) intensityView.displayAnalysisResults();
+		if (inGraphView()) 
+		    graphPane.displayAnalysisResults();
+		else if (inIntensityView()) 
+		    intensityView.displayAnalysisResults();
 		else if (inIntensityResultsView())
 			intensityResultsView.displayAnalysisResults();
 	}
