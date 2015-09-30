@@ -188,15 +188,18 @@ $(document).ready(function() {
 
         var imgJson = [],
             selFileSets = [];
+        // Convert jsTree nodes into json for template
         imgNodes.forEach(function(node){
+            var d = node.data.obj.date || node.data.obj.acqDate;
+            var date = new Date(d);
+            date = date.toLocaleTimeString(undefined, dateFormatOptions);
             var iData = {'id': node.data.obj.id,
                     'name': node.text,
                     'data': JSON.parse(JSON.stringify(node.data)),
                     'selected': node.state.selected,
+                    'date': date,
                 };
-            var d = node.data.obj.date || node.data.obj.acqDate;
-            var date = new Date(d);
-            iData.date = date.toLocaleTimeString(undefined, dateFormatOptions);
+            // Note fileset IDs for selected images
             if (iData.selected) {
                 var fsId = node.data.obj.filesetId;
                 if (fsId) {
