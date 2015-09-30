@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -842,8 +842,10 @@ public interface TreeViewer
 	/** 
 	 * Refreshes the view when nodes have been <code>Cut/Paste</code> or
 	 * <code>Copy/Paste</code>. 
+	 * 
+	 * @param target The target node (can be <code>null</code>)
 	 */
-	public void onNodesMoved();
+	public void onNodesMoved(DataObject target);
 
 	/** Displays the tag wizard. */
 	public void showTagWizard();
