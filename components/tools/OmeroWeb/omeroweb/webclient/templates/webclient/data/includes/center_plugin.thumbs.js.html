@@ -155,12 +155,13 @@ $(document).ready(function() {
             return;
         }
 
-        var dataset,
+        // parent node could be dataset, orphaned or tag
+        var parentNode,
             imgNodes = [];
-        if (dtype === "dataset" || dtype === "orphaned") {
-            dataset = selected[0];
+        if (dtype === "dataset" || dtype === "orphaned" || dtype == "tag") {
+            parentNode = selected[0];
         } else if (dtype === "image") {
-            dataset = inst.get_parent(selected[0]);
+            parentNode = inst.get_parent(selected[0]);
         } else if (dtype === "plate" || dtype === "acquisition") {
             old_thumbnails_panel(event, data);
             return;
@@ -170,18 +171,24 @@ $(document).ready(function() {
             return;
         }
 
-        if (dataset) {
-            inst.get_children_dom(dataset).each(function(i, n){
+        if (parentNode) {
+            inst.get_children_dom(parentNode).each(function(i, n){
                 var node = inst.get_node(n);
-                imgNodes.push(node);
+                // In case of tags, only show images
+                if (node.type == "image") {
+                    imgNodes.push(node);
+                }
             });
         }
 
         if (imgNodes.length === 0 && event.type === "load_node" &&
-                (dtype === "dataset" || dtype === "orphaned") ) {
+                (dtype === "dataset" || dtype === "orphaned" || dtype === "tag") ) {
             data.node.children.forEach(function(nodeId) {
                 var node = inst.get_node(nodeId);
-                imgNodes.push(node);
+                // In case of tags, only show images
+                if (node.type == "image") {
+                    imgNodes.push(node);
+                }
             });
         }
 
@@ -646,21 +653,6 @@ $(document).ready(function() {
             } else if (containerNode === old_parent && node.type === 'image') {
                 removeThumbnail(node);
             }
-
-        } else if (event.type === 'delete_node') {
-            // In the case of delete, the data.node passed in must be a node
-            // already as it can't be 'got' because it may be gone already
-            // var node = data.node;
-            // var old_parent = inst.get_node(data.old_parent);
-
-            // if (containerNode === old_parent && node.type === 'image') {
-            //     removeThumbnail(node);
-
-            // // If the current container was deleted
-            // } else if (containerNode == node) {
-            //     //Load the parent (These containers don't have pages or fields)
-            //     loadThumbnailsPanel(old_parent, undefined, undefined)
-            // }
 
         }
     };
