@@ -154,7 +154,6 @@ $(document).ready(function() {
             $("#content_details").html("");
             return;
         }
-        console.log(dtype, event.type);
 
         var dataset,
             imgNodes = [];
@@ -629,17 +628,9 @@ $(document).ready(function() {
             var parent = inst.get_node(data.parent);
             var old_parent = inst.get_node(data.old_parent);
 
-            // So, first update the displayed container data if necessary
-            if (node.type === 'image' && inst.is_selected(node)) {
-                // Update the contentDetails with the new parent
-                setThumbnailsPanel(parent.type, parent.data.obj.id, inst.get_omepath(parent),
-                                   getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-                // And make the containerNode this parent straight away
-                containerNode = parent;
-
             // It is also possible that the moved node was the displayed container itself,
             // but not an image
-            } else if (inst.is_selected(node)) {
+            if (inst.is_selected(node)) {
                 // Update the contentDetails with this node
                 setThumbnailsPanel(node.type, node.data.obj.id, inst.get_omepath(node));
                 // And make the containerNode this node straight away
@@ -656,40 +647,21 @@ $(document).ready(function() {
                 removeThumbnail(node);
             }
 
-        } else if (event.type === 'copy_node') {
-            // The only relevant update is if a node has been added to
-            // the currently displayed container
-
-            var node = inst.get_node(data.node);
-            var parent = inst.get_node(data.parent);
-
-            if (containerNode === parent) {
-                // Reload thumbnails
-                loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            }
-
         } else if (event.type === 'delete_node') {
             // In the case of delete, the data.node passed in must be a node
             // already as it can't be 'got' because it may be gone already
-            var node = data.node;
-            var old_parent = inst.get_node(data.old_parent);
+            // var node = data.node;
+            // var old_parent = inst.get_node(data.old_parent);
 
-            if (containerNode === old_parent && node.type === 'image') {
-                removeThumbnail(node);
+            // if (containerNode === old_parent && node.type === 'image') {
+            //     removeThumbnail(node);
 
-            // If the current container was deleted
-            } else if (containerNode == node) {
-                //Load the parent (These containers don't have pages or fields)
-                loadThumbnailsPanel(old_parent, undefined, undefined)
-            }
+            // // If the current container was deleted
+            // } else if (containerNode == node) {
+            //     //Load the parent (These containers don't have pages or fields)
+            //     loadThumbnailsPanel(old_parent, undefined, undefined)
+            // }
 
-        } else if (event.type ==='create_node') {
-            var node = inst.get_node(data.node);
-            var parent = inst.get_node(data.parent);
-
-            if (containerNode === parent && node.type === 'image') {
-                loadThumbnailsPanel(parent, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            }
         }
     };
 
