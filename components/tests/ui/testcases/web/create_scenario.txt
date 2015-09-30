@@ -61,19 +61,19 @@ Project Should Exist
 
 Create Dataset Using Icon and Check If Orphaned
     [Arguments]                             ${isOrphaned}
-    ${projectId}=                           Run Keyword If                      '${isOrphaned}' == '${notOrphaned}' Get Text            css=tr.data_heading_id strong
-    ${datasetId}=                           Create Dataset                      ${CtxDatasetName}
-    Run Keyword If                          '${isOrphaned}' == '${orphaned}'    Dataset Exists and Is Orphaned      ${datasetId}
-    Run Keyword If                          '${isOrphaned}' == '${notOrphaned}' Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
+    ${projectId}=                           Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'  Get Text            css=tr.data_heading_id strong
+    ${datasetId}=                           Create Dataset                          ${CtxDatasetName}
+    Run Keyword If                          '${isOrphaned}' == '${orphaned}'        Dataset Exists and Is Orphaned      ${datasetId}
+    Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'     Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
     [Return]                                ${datasetId} 
 
 Create Dataset Using Right Click and Check If Orphaned
     [Arguments]                             ${RootId}       ${DatasetName}      ${isOrphaned}
-    ${projectId}=                           Run Keyword If                      '${isOrphaned}' == '${notOrphaned}' Get Text            css=tr.data_heading_id strong
-    Right Click Create P/D/S                ${RootId}       Dataset             ${DatasetName}
-    ${datasetId}=                           Check Right And Center Panels For Active Container                      Dataset             ${DatasetName}
-    Run Keyword If                          '${isOrphaned}' == '${orphaned}'    Dataset Exists and Is Orphaned      ${datasetId}
-    Run Keyword If                          '${isOrphaned}' == '${notOrphaned}' Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
+    ${projectId}=                           Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'  Get Text            css=tr.data_heading_id strong
+    Right Click Create P/D/S                ${RootId}       Dataset                 ${DatasetName}
+    ${datasetId}=                           Check Right And Center Panels For Active Container                          Dataset             ${DatasetName}
+    Run Keyword If                          '${isOrphaned}' == '${orphaned}'        Dataset Exists and Is Orphaned      ${datasetId}
+    Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'     Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
     [Return]                                ${datasetId}  
 
 Dataset Exists and Is Orphaned
