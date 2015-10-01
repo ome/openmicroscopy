@@ -593,28 +593,41 @@ public class EditorUtil
      */
     private static String formatPixelsSize(Map details)
     {
-        String units = null;
+        UnitsLength unit = null;
         Length x = (Length) details.get(PIXEL_SIZE_X);
         Length y = (Length) details.get(PIXEL_SIZE_Y);
         Length z = (Length) details.get(PIXEL_SIZE_Z);
         Double dx = null, dy = null, dz = null;
-        NumberFormat nf = NumberFormat.getInstance();
+        NumberFormat nf = new DecimalFormat("0.00");
+        
         try {
         	x = UIUtilities.transformSize(x);
+        	unit = x.getUnit();
             dx = x.getValue();
-            units = ((LengthI)x).getSymbol();
         } catch (Exception e) {
         }
+        
         try {
-        	y = UIUtilities.transformSize(y);
-            dy = y.getValue();
-            if (units == null) units = ((LengthI)y).getSymbol();
+            if (unit == null) {
+                y = UIUtilities.transformSize(y);
+                dy = y.getValue();
+                unit = y.getUnit();
+            } else {
+                y = new LengthI(y, unit);
+                dy = y.getValue();
+            }
         } catch (Exception e) {
         }
+        
         try {
-        	z = UIUtilities.transformSize(z);
-            dz = z.getValue();
-            if (units == null) units = ((LengthI)z).getSymbol();
+            if (unit == null) {
+                z = UIUtilities.transformSize(z);
+                dz = z.getValue();
+                unit = z.getUnit();
+            } else {
+                z = new LengthI(z, unit);
+                dz = z.getValue();
+            }
         } catch (Exception e) {
         }
 
@@ -636,8 +649,8 @@ public class EditorUtil
         }
         label += ") ";
         if (value.length() == 0) return null;
-        if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
-        return label+units+": </b>"+value;
+        if (unit == null) unit = UnitsLength.MICROMETER;
+        return label+LengthI.lookupSymbol(unit)+": </b>"+value;
     }
 
     /**
