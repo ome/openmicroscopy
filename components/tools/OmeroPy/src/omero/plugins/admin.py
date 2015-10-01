@@ -211,8 +211,12 @@ Examples:
                                           exclusive=False)
 
         Action(
+            "rewrite",
+            "Regenerate the template files using the current configuration")
+
+        Action(
             "jvmcfg",
-            "Reset JVM settings based on the current system")
+            "Display JVM configuration settings based on the current system")
 
         Action(
             "waitup",
@@ -318,7 +322,7 @@ dt_socket,address=8787,suspend=y" \\
 
         ports = Action(
             "ports",
-            """Allows modifying the ports from a standard OMERO install
+            """Allows modifying the ports from a standard OMERO install (deprecated)
 
 To have multiple OMERO servers running on the same machine several ports
 must be modified from their defaults. Changing the ports on a running server
@@ -407,6 +411,13 @@ present, the user will enter a console""")
         self.actions["status"].add_argument(
             "--nodeonly", action="store_true",
             help="If set, then only tests if the icegridnode is running")
+
+        for name in ("start", "startasync", "restart", "restartasync", "stop",
+                     "stopasync"):
+            self.actions[name].add_argument(
+                "--force-rewrite", action="store_true",
+                help="Force the configuration to be rewritten before checking"
+                " the server status")
 
         for name in ("start", "restart"):
             self.actions[name].add_argument(
@@ -611,9 +622,17 @@ present, the user will enter a console""")
         else:
             return "master"
 
+    def _get_etc_dir(self):
+        """Return path to directory containing configuration files"""
+        return self.ctx.dir / "etc"
+
     def _get_grid_dir(self):
-        """Return path to grid directory containing configuration files"""
-        return self.ctx.dir / "etc" / "grid"
+        """Return path to directory containing Gridconfiguration files"""
+        return self._get_etc_dir() / "grid"
+
+    def _get_templates_dir(self):
+        """Return path to directory containing templates"""
+        return self.ctx.dir / "etc" / "templates"
 
     def _cmd(self, *command_arguments):
         """
@@ -691,15 +710,20 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.jvmcfg(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
         if self._isWindows():
             self.checkwindows(args)
 
+        if args.force_rewrite:
+            self.rewrite(args, config, force=True)
+
         if 0 == self.status(args, node_only=True):
             self.ctx.die(876, "Server already running")
+
+        if not args.force_rewrite:
+            self.rewrite(args, config)
 
         self.check_lock(config)
 
@@ -749,7 +773,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
-        self.jvmcfg(args, config, verbose=False)
+        self.rewrite(args, config)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -880,6 +904,8 @@ present, the user will enter a console""")
         Returns true if the server was already stopped
         """
         self.check_node(args)
+        if args.force_rewrite:
+            self.rewrite(args, config, force=True)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
             return True
@@ -928,11 +954,49 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @with_config
-    def jvmcfg(self, args, config, verbose=True):
+    def jvmcfg(self, args, config):
+        """Display JVM settings from the current configuration"""
+
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
-        templates = self._get_grid_dir() / "templates.xml"
-        generated = self._get_grid_dir() / "generated.xml"
+
+        # JVM configuration regeneration
+        templates = self._get_templates_dir() / "grid" / "templates.xml"
+        template_xml = XML(templates.text())
+        try:
+            rv = adjust_settings(config, template_xml)
+        except Exception, e:
+            self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
+                         % (templates, e))
+
+        self.ctx.out("JVM Settings:")
+        self.ctx.out("============")
+        for k, v in sorted(rv.items()):
+            settings = v.pop(0)
+            sb = " ".join([str(x) for x in v])
+            if str(settings) != "Settings()":
+                sb += " # %s" % settings
+            self.ctx.out("%s=%s" % (k, sb))
+
+    @with_config
+    def rewrite(self, args, config, force=False):
+        """
+        Regenerate all the template files under the configuration directory
+        """
+
+        from xml.etree.ElementTree import XML
+        from omero.install.jvmcfg import adjust_settings
+
+        if not force:
+            if 0 == self.status(args, node_only=True):
+                self.ctx.die(
+                    100, "Can't regenerate templates the server is running!")
+            # Reset return value
+            self.ctx.rv = 0
+
+        # JVM configuration regeneration
+        templates = self._get_templates_dir() / "grid" / "templates.xml"
+        generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
@@ -942,16 +1006,6 @@ present, the user will enter a console""")
         except Exception, e:
             self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
                          % (templates, e))
-
-        if verbose:
-            self.ctx.out("JVM Settings:")
-            self.ctx.out("============")
-            for k, v in sorted(rv.items()):
-                settings = v.pop(0)
-                sb = " ".join([str(x) for x in v])
-                if str(settings) != "Settings()":
-                    sb += " # %s" % settings
-                self.ctx.out("%s=%s" % (k, sb))
 
         def clear_tail(elem):
             elem.tail = ""
@@ -965,12 +1019,56 @@ present, the user will enter a console""")
         config2.XML = None  # Prevent re-saving
         config2.close()
         config.save()
+
+        # Define substitution dictionary for template files
+        config = config.as_map()
+        substitutions = {
+            '@omero.ports.prefix@': config.get('omero.ports.prefix', ''),
+            '@omero.ports.ssl@': config.get('omero.ports.ssl', '4064'),
+            '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
+            '@omero.ports.registry@': config.get(
+                'omero.ports.registry', '4061'),
+            }
+
+        def copy_template(input_file, output_dir):
+            """Replace templates"""
+
+            with open(input_file) as template:
+                data = template.read()
+            output_file = path(output_dir / os.path.basename(input_file))
+            if output_file.exists():
+                output_file.remove()
+            with open(output_file, 'w') as f:
+                for key, value in substitutions.iteritems():
+                    data = re.sub(key, value, data)
+                f.write(data)
+
+        # Regenerate various configuration files from templates
+        for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
+            copy_template(cfg_file, self._get_etc_dir())
+        for xml_file in glob(
+                self._get_templates_dir() / "grid" / "*default.xml"):
+            copy_template(xml_file, self._get_etc_dir() / "grid")
+        ice_config = self._get_templates_dir() / "ice.config"
+        copy_template(ice_config, self._get_etc_dir())
+
         return rv
 
     @with_config
     def diagnostics(self, args, config):
+
+        from xml.etree.ElementTree import XML
+        from omero.install.jvmcfg import read_settings
+
         self.check_access(os.R_OK)
-        memory = self.jvmcfg(args, config, verbose=False)
+        templates = self._get_grid_dir() / "templates.xml"
+        template_xml = XML(templates.text())
+        try:
+            memory = read_settings(template_xml)
+        except Exception, e:
+            self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
+                         % (templates, e))
+
         omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
@@ -1284,10 +1382,7 @@ OMERO Diagnostics %s
         # JVM settings
         self.ctx.out("")
         for k, v in sorted(memory.items()):
-            settings = v.pop(0)
             sb = " ".join([str(x) for x in v])
-            if str(settings) != "Settings()":
-                sb += " # %s" % settings
             item("JVM settings", " %s" % (k[0].upper() + k[1:]))
             self.ctx.out("%s" % sb)
 
@@ -1646,65 +1741,11 @@ OMERO Diagnostics %s
 
     @with_rw_config
     def ports(self, args, config):
-        self.check_access()
-        from omero.install.change_ports import change_ports
-        webserverkey = 'omero.web.application_server.port'
-        webserver_default_port = 4080
-        weblistkey = 'omero.web.server_list'
-        weblist_default_port = 4064
-        weblist_template = '[["localhost", %s, "omero"]]'
-
-        if not args.skipcheck:
-            if 0 == self.status(args, node_only=True):
-                self.ctx.die(
-                    100, "Can't change ports while the server is running!")
-
-            # Resetting return value.
-            self.ctx.rv = 0
-
-        if args.prefix:
-            for x in ("registry", "tcp", "ssl", "webserver"):
-                setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
-        change_ports(
-            args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
-
-        # Use the same conditions as change_ports when modifying ports
-        if args.revert:
-            webserver_from = args.webserver
-            webserver_to = str(webserver_default_port)
-            weblist_from = weblist_template % args.ssl
-            weblist_to = weblist_template % str(weblist_default_port)
-        else:
-            webserver_from = str(webserver_default_port)
-            webserver_to = args.webserver
-            weblist_from = weblist_template % str(weblist_default_port)
-            weblist_to = weblist_template % args.ssl
-        try:
-            waport = config[webserverkey]
-        except KeyError:
-            waport = ''
-            webserver_from = ''
-        try:
-            weblist = config[weblistkey]
-        except KeyError:
-            weblist = ''
-            weblist_from = ''
-
-        if waport != webserver_from:
-            self.ctx.out('No match found for %s=%s in %s' % (
-                webserverkey, webserver_from, config.filename))
-        else:
-            config[webserverkey] = webserver_to
-            self.ctx.out('Converted: %s => %s %s in %s' % (
-                webserver_from, webserver_to, webserverkey, config.filename))
-
-        if weblist != weblist_from:
-            self.ctx.out('No match found for %s=%s in %s' % (
-                weblistkey, weblist_from, config.filename))
-        else:
-            config[weblistkey] = weblist_to
-            self.ctx.out('Converted: %s => %s %s in %s' % (
-                weblist_from, weblist_to, weblistkey, config.filename))
+        self.ctx.err(
+            "WARNING: the admin ports subcommand is deprecated. Changes will"
+            " be overwritten the next time the configuration files are"
+            " regenerated. Use the omero.ports.xxx configuration properties"
+            " instead.")
 
     def cleanse(self, args):
         self.check_access()

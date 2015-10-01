@@ -1,0 +1,14 @@
+OMERO.grid Application Descriptions
+-----------------------------------
+
+This directory contains application descriptions for OMERO.grid.
+These files define what applications are started on what hosts within
+your network, and so are key to securing your infrastructure.
+
+All examples assume that processes will be run from the OMERO_HOME directory.
+This simplifies deployment, but is less secure since this directory may not
+belong to you. To further secure your installation, make all path references
+absolute.
+
+See http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/grid.html for
+more information.

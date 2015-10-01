@@ -217,7 +217,7 @@ class TestImport(object):
 
     @pytest.mark.parametrize('hostname', ['localhost', 'servername'])
     @pytest.mark.parametrize('port', [None, 4064, 14064])
-    def testLoginArguments(self, monkeypatch, hostname, port):
+    def testLoginArguments(self, monkeypatch, hostname, port, tmpdir):
         self.args += ['test.fake']
         control = self.cli.controls['import']
         control.command_args = []
@@ -231,6 +231,10 @@ class TestImport(object):
             c.setSessionId(sessionid)
             return c
         monkeypatch.setattr(self.cli, 'conn', new_client)
+        ice_config = tmpdir / 'ice.config'
+        ice_config.write('omero.host=%s\nomero.port=%g' % (
+            hostname, (port or 4064)))
+        monkeypatch.setenv("ICE_CONFIG", ice_config)
         control.set_login_arguments(self.cli.parser.parse_args(self.args))
 
         expected_args = ['-s', '%s' % hostname]
