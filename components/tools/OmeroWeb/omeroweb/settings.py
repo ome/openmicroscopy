@@ -1010,6 +1010,7 @@ PIPELINE_JS = {
             'webgateway/js/ome.roidisplay.js',
             'webgateway/js/ome.scalebardisplay.js',
             'webgateway/js/ome.smartdialog.js',
+            'webgateway/js/ome.roiutils.js',
             '3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',
             'webgateway/js/ome.postit.js',
