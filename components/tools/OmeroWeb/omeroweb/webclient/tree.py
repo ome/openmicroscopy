@@ -604,10 +604,9 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     if load_pixels:
         from_clause.append('image.pixels pix join pix.thumbnails thumbs')
         params.add('thumbOwner', rlong(conn.getUserId()))
-        where_clause.append('thumbs.details.owner.id = :thumbOwner')
-        where_clause.append("""thumbs.id in (select max(tb.id)
-            from Image i join i.pixels p join p.thumbnails as tb
-            where tb.details.owner.id = :thumbOwner group by i.id)""")
+        where_clause.append("""thumbs.id = (select max(t.id)
+            from Thumbnail t where t.pixels = pix.id
+            and t.details.owner.id = :thumbOwner)""")
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
