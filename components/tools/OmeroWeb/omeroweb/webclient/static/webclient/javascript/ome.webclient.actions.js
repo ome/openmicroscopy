@@ -134,10 +134,14 @@ OME.select_fileset_images = function(filesetIds) {
     // in preparation for removing them from the tree on "OK".
     // However, it will not update child counts on datasets that
     // have not been loaded in tree.
-    var datatree = $.jstree._focused();
+    var datatree = $.jstree.reference('#dataTree');
     filesetIds.forEach(function(fsId){
-        $("#dataTree li[data-fileset="+fsId+"]").each(function(){
-            datatree.select_node(this);
+        $("#dataTree li").each(function(){
+            var node = datatree.get_node(this),
+                fsId = node.data.obj.filesetId;
+            if (filesetIds.indexOf(fsId) > -1) {
+                datatree.select_node(node);
+            }
         });
     });
 };

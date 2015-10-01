@@ -110,7 +110,7 @@ $(function() {
                 $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("Move All");
                 var filesetIds = [];
                 $('input[name="fileset"]', html).each(function(){
-                    filesetIds.push($(this).val());
+                    filesetIds.push(parseInt($(this).val(), 10));
                 });
                 if (selImages) {
                     OME.select_fileset_images(filesetIds);
@@ -306,12 +306,6 @@ $(function() {
                 // If we have split filesets, first submission is to confirm 'Move All'?
                 // We hide the split_filesets info panel and rename submit button to 'OK'
                 if ($(".split_filesets_info .split_fileset", $chgrpform).length > 0 && $thisBtn.text() == 'Move All') {
-                    var filesetId = $('input[name="fileset"]', $chgrpform).val();     // TODO - handle > 1 filesetId
-                    var sel = OME.get_tree_selection(),
-                        selImages = (sel.indexOf('Image') > -1);
-                    if (selImages) {
-                        OME.select_fileset_images(filesetId);
-                    }
                     $("#group_chooser").show();
                     $(".split_filesets_info", $chgrpform).hide();
                     $thisBtn.text('OK');
