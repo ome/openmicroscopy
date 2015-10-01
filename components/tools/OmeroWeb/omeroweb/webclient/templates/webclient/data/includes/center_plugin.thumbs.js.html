@@ -65,6 +65,14 @@ $(document).ready(function() {
         day: "numeric", hour: "2-digit", minute: "2-digit"
     };
 
+    // Start listening for Node Loading events on the tree...
+    // If a node loads and it's selected, update_thumbs...
+    $("#dataTree").on('load_node.jstree', function(event, data){
+        if (data.node.state.selected) {
+            update_thumbnails_panel(event, data);
+        }
+    });
+
     // Set up the centre panel header.
     var setupDatasetHeader = function() {
         var html = headerTmpl({'layout': layout});
@@ -86,14 +94,6 @@ $(document).ready(function() {
             start: function() {
                 // Remove any fileset selection markings
                 $("#dataIcons li.row:visible").removeClass("fs-selected");
-            }
-        });
-
-        // Start listening for Node Loading events on the tree...
-        // If a node loads and it's selected, update_thumbs...
-        $("#dataTree").on('load_node.jstree', function(event, data){
-            if (data.node.state.selected) {
-                update_thumbnails_panel(event, data);
             }
         });
 
