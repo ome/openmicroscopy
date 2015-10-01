@@ -69,7 +69,7 @@ import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -546,7 +546,7 @@ public class PojoMapper
         else if (PolylineData.class.equals(pojoType))
             return Polyline.class;
         else if (RectangleData.class.equals(pojoType))
-            return Rect.class;
+            return Rectangle.class;
         else if (TextData.class.equals(pojoType))
             return Label.class;
 

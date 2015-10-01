@@ -68,7 +68,7 @@ public class IceMap {
         _ome2omero.put(ome.model.roi.Point.class, omero.model.SmartPointI.class);
         _ome2omero.put(ome.model.roi.Polygon.class, omero.model.SmartPolygonI.class);
         _ome2omero.put(ome.model.roi.Polyline.class, omero.model.SmartPolylineI.class);
-        _ome2omero.put(ome.model.roi.Rect.class, omero.model.SmartRectI.class);
+        _ome2omero.put(ome.model.roi.Rectangle.class, omero.model.SmartRectI.class);
         _ome2omero.put(ome.model.roi.Label.class, omero.model.SmartTextI.class);
 
         // Units

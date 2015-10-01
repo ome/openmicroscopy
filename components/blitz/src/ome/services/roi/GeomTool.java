@@ -32,7 +32,7 @@ import omero.api.ShapeStats;
 import omero.model.Ellipse;
 import omero.model.Line;
 import omero.model.Point;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Shape;
 import omero.model.SmartEllipseI;
 import omero.model.SmartLineI;
@@ -137,7 +137,7 @@ public class GeomTool {
         return rect;
     }
 
-    public Rect rect(double x, double y, double w, double h) {
+    public Rectangle rect(double x, double y, double w, double h) {
         SmartRectI rect = new SmartRectI();
         rect.setX(rdouble(x));
         rect.setY(rdouble(y));
