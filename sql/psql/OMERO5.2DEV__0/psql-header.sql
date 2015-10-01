@@ -20,6 +20,14 @@ BEGIN;
 -- check PostgreSQL server version and database encoding
 --
 
+CREATE OR REPLACE FUNCTION db_pretty_version(version INTEGER) RETURNS TEXT AS $$
+
+BEGIN
+    RETURN (version/10000)::TEXT || '.' || ((version/100)%%100)::TEXT || '.' || (version%%100)::TEXT;
+
+END;$$ LANGUAGE plpgsql;
+
+
 CREATE FUNCTION assert_db_server_prerequisites(version_prereq INTEGER) RETURNS void AS $$
 
 DECLARE
@@ -27,11 +35,14 @@ DECLARE
     char_encoding TEXT;
 
 BEGIN
-    SELECT CAST(setting AS INTEGER) INTO STRICT version_num FROM pg_settings WHERE name = 'server_version_num';
-    SELECT pg_encoding_to_char(encoding) INTO STRICT char_encoding FROM pg_database WHERE datname = current_database();
+    SELECT CAST(setting AS INTEGER) INTO STRICT version_num
+        FROM pg_settings WHERE name = 'server_version_num';
+    SELECT pg_encoding_to_char(encoding) INTO STRICT char_encoding
+        FROM pg_database WHERE datname = current_database();
 
     IF version_num < version_prereq THEN
-        RAISE EXCEPTION 'database server version %% is less than OMERO prerequisite %%', version_num, version_prereq;
+        RAISE EXCEPTION 'PostgreSQL database server version %% is less than OMERO prerequisite %%',
+	    db_pretty_version(version_num), db_pretty_version(version_prereq);
     END IF;
 
     IF char_encoding != 'UTF8' THEN
@@ -42,8 +53,10 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
-SELECT assert_db_server_prerequisites(90200);
+SELECT assert_db_server_prerequisites(90300);
+
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
+DROP FUNCTION db_pretty_version(INTEGER);
 
 
 CREATE DOMAIN nonnegative_int AS INTEGER CHECK (VALUE >= 0);
