@@ -44,7 +44,7 @@ from omero.model.enums import UnitsLength
 from omero.model import LengthI
 from omero.model import EllipseI
 from omero.model import LineI
-from omero.model import RectI
+from omero.model import RectangleI
 from omero.model import PointI
 from omero.model import PolylineI
 from omero.model import PolygonI
@@ -420,8 +420,8 @@ class EllipseData(ShapeData, ROIDrawingI):
             self.ry.getValue(), self.shapeSettings.getSettings())
 
 ##
-# The RectangleData class contains all the manipulation and create of RectI
-# types.
+# The RectangleData class contains all the manipulation and creation of
+# RectangleI types.
 # It also accepts the ROIDrawingUtils visitor for drawing rectangles.
 #
 
@@ -468,7 +468,7 @@ class RectangleData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
-        return RectI()
+        return RectangleI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor

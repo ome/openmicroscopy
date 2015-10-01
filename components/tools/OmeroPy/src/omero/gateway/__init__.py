@@ -8956,7 +8956,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         Count number of ROIs associated to an image
 
-        :param shapeType: Filter by shape type ("Rect",...).
+        :param shapeType: Filter by shape type ("Rectangle",...).
         :param filterByCurrentUser: Whether or not to filter the count by
                                     the currently logged in user.
         :return: Number of ROIs found for the currently logged in user if
