@@ -165,44 +165,39 @@ public class DnDTree
     /** The data currently dragged */
     private List<TreeImageDisplay> toTransfer = new ArrayList<TreeImageDisplay>();
     
-	/** 
-	 * Sets the cursor depending on the selected node.
-	 * 
-	 * @param node The destination node.
-	 * @param transferable The object hosting the nodes to move.
-	 */
-	private void handleMouseOver(TreeImageDisplay node,
-			Transferable transferable)
-	{
-	    TreeImageDisplay parent = node;
+    /**
+     * Sets the cursor depending on the selected node.
+     * 
+     * @param node
+     *            The destination node.
+     * @param transferable
+     *            The object hosting the nodes to move.
+     */
+    private void handleMouseOver(TreeImageDisplay node,
+            Transferable transferable) {
+        TreeImageDisplay parent = node;
         if (node.isLeaf() && node instanceof TreeImageNode) {
             parent = (TreeImageDisplay) node.getParent();
         }
         Object ot = parent.getUserObject();
-        /*
-        if (ot instanceof GroupData && !administrator) {
-            setCursor(createCursor());
-            dropAllowed = false;
-            return;
-        }
-        */
-        if (!canLink(ot) &&
-                !(ot instanceof ExperimenterData || ot instanceof GroupData)) {
+        if (!canLink(ot)
+                && !(ot instanceof ExperimenterData || ot instanceof GroupData)) {
             dropAllowed = false;
             setCursor(createCursor());
             return;
         }
-        //Now check that the src and target are compatible.
+        // Now check that the src and target are compatible.
         try {
             List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
             nodes.addAll(toTransfer);
-            
-            if (nodes.size() == 0) return;
-            //Check the first node
+
+            if (nodes.size() == 0)
+                return;
+            // Check the first node
             TreeImageDisplay first = nodes.get(0);
             Object child = first.getUserObject();
-            if (ot instanceof GroupData && child instanceof ExperimenterData &&
-                !administrator) {
+            if (ot instanceof GroupData && child instanceof ExperimenterData
+                    && !administrator) {
                 setCursor(createCursor());
                 dropAllowed = false;
                 return;
@@ -210,7 +205,7 @@ public class DnDTree
             List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
             Iterator<TreeImageDisplay> i = nodes.iterator();
             TreeImageDisplay n;
-            
+
             Object os = null;
             int childCount = 0;
             while (i.hasNext()) {
@@ -221,27 +216,28 @@ public class DnDTree
                 } else {
                     if (EditorUtil.isTransferable(ot, os, userID)) {
                         if (ot instanceof GroupData) {
-                            if (os instanceof ExperimenterData &&
-                                    administrator) list.add(n);
+                            if (os instanceof ExperimenterData && administrator)
+                                list.add(n);
                             else {
-                                if (canLink(os)) list.add(n);
+                                if (canLink(os))
+                                    list.add(n);
                             }
                         } else {
-                            if (canLink(os)) 
+                            if (canLink(os))
                                 list.add(n);
                         }
                     }
                 }
             }
-            if (childCount == nodes.size() || list.size() == 0 ||
-                    (list.size() == 1 && parent == list.get(0))) {
+            if (childCount == nodes.size() || list.size() == 0
+                    || (list.size() == 1 && parent == list.get(0))) {
                 setCursor(createCursor());
                 dropAllowed = false;
             }
         } catch (Exception e) {
             dropAllowed = false;
         }
-	}
+    }
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in is the owner
@@ -269,15 +265,6 @@ public class DnDTree
 	 */
 	private Cursor getCursor(int action)
 	{
-		/*
-		switch (action) {
-			case DnDConstants.ACTION_COPY:
-				return DragSource.DefaultCopyDrop;
-			case DnDConstants.ACTION_MOVE:
-				default:
-				return DragSource.DefaultMoveDrop;
-		}
-		*/
 		return defaultCursor;
 	}
 	
@@ -543,7 +530,7 @@ public class DnDTree
         Point p = dtde.getLocation();
         SwingUtilities.convertPointToScreen(p, this);
 
-        if(lastPosition!=null) {
+        if (lastPosition != null) {
             if (Math.abs(p.x - lastPosition.x) > hysteresis
                     || Math.abs(p.y - lastPosition.y) > hysteresis) {
                 // no autoscroll
@@ -571,14 +558,13 @@ public class DnDTree
         repaint();
 	}
 	
-	/**
-	 * Drops the node and it to its destination.
-	 * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
-	 */
-	public void drop(DropTargetDropEvent dtde)
-	{
-	    timer.stop();
-	    Point dropPoint = dtde.getLocation();
+    /**
+     * Drops the node and it to its destination.
+     * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
+     */
+    public void drop(DropTargetDropEvent dtde) {
+        timer.stop();
+        Point dropPoint = dtde.getLocation();
         TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
         dropLocation = getRowForPath(path);
         setCursor(defaultCursor);
@@ -594,12 +580,12 @@ public class DnDTree
             return;
         }
         boolean dropped = false;
-        
+
         try {
             dtde.acceptDrop(DnDConstants.ACTION_MOVE);
             List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
             nodes.addAll(this.toTransfer);
-            
+
             if (nodes.size() == 0) {
                 dropped = true;
                 dtde.dropComplete(dropped);
@@ -607,20 +593,20 @@ public class DnDTree
                 return;
             }
             TreeImageDisplay parent = null;
-            DefaultMutableTreeNode dropNode =
-                (DefaultMutableTreeNode) path.getLastPathComponent();
-            //if (dropNode instanceof TreeImageDisplay) {
-                if (dropNode instanceof TreeImageDisplay)
-                    parent = (TreeImageDisplay) dropNode;
-                if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
-                    parent = (TreeImageDisplay) dropNode.getParent();
-                }
-                int action = DnDConstants.ACTION_MOVE;
-                ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes, 
-                        action);
-                firePropertyChange(DRAGGED_PROPERTY, null, transfer);
-                this.toTransfer.clear();
-            //}
+            DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path
+                    .getLastPathComponent();
+            // if (dropNode instanceof TreeImageDisplay) {
+            if (dropNode instanceof TreeImageDisplay)
+                parent = (TreeImageDisplay) dropNode;
+            if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
+                parent = (TreeImageDisplay) dropNode.getParent();
+            }
+            int action = DnDConstants.ACTION_MOVE;
+            ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes,
+                    action);
+            firePropertyChange(DRAGGED_PROPERTY, null, transfer);
+            this.toTransfer.clear();
+            // }
             dropped = true;
         } catch (Exception e) {
             try {
@@ -631,7 +617,7 @@ public class DnDTree
         }
         dtde.dropComplete(dropped);
         repaint();
-	}
+    }
 	
 	/**
 	 * Starts dragging the node.
@@ -687,11 +673,6 @@ public class DnDTree
 	 */
 	public void dragDropEnd(DragSourceDropEvent dsde)
 	{
-		if (dsde.getDropSuccess() &&
-				dsde.getDropAction() == DnDConstants.ACTION_MOVE)
-		{
-			//pathSource = null;
-		}
 	}
 
 	/**

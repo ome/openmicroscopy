@@ -3587,7 +3587,7 @@ class TreeViewerComponent
 	public void onNodesDeleted(Collection<DataObject> deleted)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (deleted == null || deleted.size() == 0) {
+		if (CollectionUtils.isEmpty(deleted)) {
 			onNodesMoved(null);
 			return;
 		}
