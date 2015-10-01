@@ -580,7 +580,8 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
              ,
              pix.sizeX as sizeX,
              pix.sizeY as sizeY,
-             pix.sizeZ as sizeZ
+             pix.sizeZ as sizeZ,
+             thumbs.version as thumbVersion
              """
     if date:
         extraValues += """,
@@ -599,7 +600,9 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     from_clause.append('Image image')
 
     if load_pixels:
-        from_clause.append('image.pixels pix')
+        from_clause.append('image.pixels pix left outer join pix.thumbnails thumbs')
+        params.add('thumbOwner', rlong(conn.getUserId()))
+        where_clause.append('thumbs.details.owner.id = :thumbOwner')
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
