@@ -605,7 +605,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         from_clause.append('image.pixels pix join pix.thumbnails thumbs')
         params.add('thumbOwner', rlong(conn.getUserId()))
         where_clause.append('thumbs.details.owner.id = :thumbOwner')
-        where_clause.append("""thumbs.version in (select max(tb.version)
+        where_clause.append("""thumbs.id in (select max(tb.id)
             from Image i join i.pixels p join p.thumbnails as tb
             where tb.details.owner.id = :thumbOwner group by i.id)""")
 
