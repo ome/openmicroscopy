@@ -31,14 +31,14 @@ def get_rects_from_rois(conn, imageId):
     for roi in result.rois:
         # go through all the shapes of the ROI
         for shape in roi.copyShapes():
-            if shape.__class__.__name__ == 'RectI':
+            if shape.__class__.__name__ == 'RectangleI':
                 # Need getValue() for omero.model rtypes
                 x = shape.getX().getValue()
                 y = shape.getY().getValue()
                 w = shape.getWidth().getValue()
                 h = shape.getHeight().getValue()
                 rects.append((x, y, w, h))
-                break    # Only use the first Rect we find per ROI
+                break    # Only use the first Rectangle we find per ROI
     return rects
 
 
