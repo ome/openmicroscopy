@@ -91,8 +91,8 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Reagent;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiAnnotationLink;
 import omero.model.RoiAnnotationLinkI;
@@ -1240,10 +1240,10 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -1290,10 +1290,10 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -1538,10 +1538,10 @@ public class DeleteServiceTest extends AbstractServerTest {
         Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));

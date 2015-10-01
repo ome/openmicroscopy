@@ -33,8 +33,8 @@ import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiAnnotationLink;
 import omero.model.RoiAnnotationLinkI;
@@ -66,10 +66,10 @@ public class RoiServiceTest extends AbstractServerTest {
                 .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -103,10 +103,10 @@ public class RoiServiceTest extends AbstractServerTest {
                 .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -147,10 +147,10 @@ public class RoiServiceTest extends AbstractServerTest {
         Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -237,10 +237,10 @@ public class RoiServiceTest extends AbstractServerTest {
         Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -319,10 +319,10 @@ public class RoiServiceTest extends AbstractServerTest {
         Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
