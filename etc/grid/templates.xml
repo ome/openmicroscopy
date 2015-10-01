@@ -25,7 +25,7 @@
     </properties>
 
     <properties id="Basics">
-      <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+      <property name="Ice.MessageSizeMax" value="250000"/> <!-- 64 MB -->
       <property name="Ice.CacheMessageBuffers" value="0"/>
       <property name="Ice.Override.ConnectTimeout" value="5000"/>
     </properties>
