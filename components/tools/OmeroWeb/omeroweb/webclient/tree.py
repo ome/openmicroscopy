@@ -458,7 +458,7 @@ def _marshal_date(time):
 
 
 def _marshal_image(conn, row, row_pixels=None, share_id=None,
-                   date=None, acqDate=None):
+                   date=None, acqDate=None, thumbVersion=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
           * id (rlong)
@@ -500,6 +500,8 @@ def _marshal_image(conn, row, row_pixels=None, share_id=None,
         image['date'] = _marshal_date(unwrap(date))
     if acqDate is not None:
         image['acqDate'] = _marshal_date(unwrap(acqDate))
+    if thumbVersion is not None:
+        image['thumbVersion'] = thumbVersion
 
     return image
 
@@ -600,9 +602,12 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     from_clause.append('Image image')
 
     if load_pixels:
-        from_clause.append('image.pixels pix left outer join pix.thumbnails thumbs')
+        from_clause.append('image.pixels pix join pix.thumbnails thumbs')
         params.add('thumbOwner', rlong(conn.getUserId()))
         where_clause.append('thumbs.details.owner.id = :thumbOwner')
+        where_clause.append("""thumbs.version in (select max(tb.version)
+            from Image i join i.pixels p join p.thumbnails as tb
+            where tb.details.owner.id = :thumbOwner group by i.id)""")
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
@@ -677,6 +682,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if load_pixels:
             d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
             kwargs['row_pixels'] = d
+            kwargs['thumbVersion'] = e['thumbVersion']
         if date:
             kwargs['acqDate'] = e['acqDate']
             kwargs['date'] = e['date']
