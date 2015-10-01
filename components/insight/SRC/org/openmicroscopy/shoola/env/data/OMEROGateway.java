@@ -190,7 +190,7 @@ import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.Project;
 import omero.model.ProjectI;
-import omero.model.RectI;
+import omero.model.RectangleI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -975,7 +975,7 @@ class OMEROGateway
 		        WellSampleI.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
-		else if (RectangleData.class.equals(klass) || RectI.class.equals(klass) ||
+		else if (RectangleData.class.equals(klass) || RectangleI.class.equals(klass) ||
 		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
 		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
 		        PolygonData.class.equals(klass) || PolygonI.class.equals(klass) ||
