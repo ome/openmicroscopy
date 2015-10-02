@@ -340,7 +340,7 @@ class MetadataControl(BaseControl):
             for a in md.get_allanns(args.ns, 'MapAnnotation'):
                 if args.nsre and not re.match(args.nsre, a.get_ns()):
                     continue
-            yield a
+                yield a
 
         md = self._load(args)
         indent = None
@@ -354,7 +354,7 @@ class MetadataControl(BaseControl):
             for a in md.get_allanns(args.ns):
                 if args.nsre and not re.match(args.nsre, a.get_ns()):
                     continue
-            yield a
+                yield a
 
         md = self._load(args)
         indent = None
