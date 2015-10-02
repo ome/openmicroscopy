@@ -3077,6 +3077,56 @@ class EditorModel
 	        downloadFiles(file, override);
 	    }
 	}
+	
+    /**
+     * Starts an asynchronous loading; preserving the original folder structure
+     * 
+     * @param path
+     *            The folder where to download the content.
+     * @param override
+     *            Flag indicating to override the existing file if it exists,
+     *            <code>false</code> otherwise.
+     */
+    void downloadOriginal(String path, boolean override) {
+        if (!(refObject instanceof ImageData))
+            return;
+
+        List<ImageData> images = new ArrayList<ImageData>();
+        List<DataObject> l = getSelectedObjects();
+        if (!CollectionUtils.isEmpty(l)) {
+            Iterator<DataObject> i = l.iterator();
+            DataObject o;
+            List<Long> filesetIds = new ArrayList<Long>();
+            long id;
+            ImageData image;
+            while (i.hasNext()) {
+                o = i.next();
+                if (isArchived(o)) {
+                    image = (ImageData) o;
+                    id = image.getFilesetId();
+                    if (id < 0)
+                        images.add(image);
+                    else if (!filesetIds.contains(id)) {
+                        images.add(image);
+                        filesetIds.add(id);
+                    }
+                }
+            }
+        }
+        if (!CollectionUtils.isEmpty(images)) {
+            DownloadArchivedActivityParam p;
+            UserNotifier un = MetadataViewerAgent.getRegistry()
+                    .getUserNotifier();
+            IconManager icons = IconManager.getInstance();
+            Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+            SecurityContext ctx = getSecurityContext();
+            p = new DownloadArchivedActivityParam(new File(path), images, icon);
+            p.setOverride(override);
+            p.setZip(false);
+            p.setKeepOriginalPaths(true);
+            un.notifyActivity(ctx, p);
+        }
+    }
 
 	/** 
 	 * Starts an asynchronous call to retrieve disk space information. 

@@ -5,13 +5,15 @@ set -e
 set -u
 set -x
 
+now=$(date +"%s")
+
 HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
 ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
-GROUP_NAME=${GROUP_NAME:-robot_group}
+GROUP_NAME=${GROUP_NAME:-robot_group}-$now
 GROUP_PERMS=${GROUP_PERMS:-rwra--}
-GROUP_NAME_2=${GROUP_NAME_2:-robot_group_2}
-USER_NAME=${USER_NAME:-robot_user}
+GROUP_NAME_2=${GROUP_NAME_2:-robot_group_2}-$now
+USER_NAME=${USER_NAME:-robot_user}-$now
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-robot_ice.config}
 IMAGE_NAME=${IMAGE_NAME:-test&sizeZ=3&sizeT=10.fake}

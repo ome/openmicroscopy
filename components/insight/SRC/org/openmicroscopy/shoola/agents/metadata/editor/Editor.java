@@ -288,6 +288,17 @@ public interface Editor
 	 */
 	public void download(File file, boolean override);
 
+    /**
+     * Downloads the archived files, preserving the original folder structure
+     * 
+     * @param file
+     *            The folder where to download the content.
+     * @param override
+     *            Flag indicating to override the existing file if it exists,
+     *            <code>false</code> otherwise.
+     */
+    public void downloadOriginal(String path, boolean override);
+	
 	/**
 	 * Sets the parent of the root object. This will be taken into account
 	 * only if the root is a well sample.
@@ -549,4 +560,13 @@ public interface Editor
     void setLDAPDetails(long userID, String result);
 
     ScriptObject getScriptFromName(String name);
+    
+    /**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+    public Collection<FileAnnotationData> getSelectedFileAnnotations();
+    
 }

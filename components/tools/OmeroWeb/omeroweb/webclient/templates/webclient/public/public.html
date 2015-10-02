@@ -143,6 +143,11 @@
                                             return !obj.hasClass('isDisabled');
                                         }
                                     },
+                                    "toggle_node" : function(obj){
+                                        if (!obj.hasClass('isOwned')) {
+                                            return !obj.hasClass('isDisabled');
+                                        }
+                                    },
                                     "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,

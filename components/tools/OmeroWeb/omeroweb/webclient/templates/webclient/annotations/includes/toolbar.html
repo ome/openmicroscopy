@@ -148,53 +148,96 @@
             {% endif %}
             
             {% if image %}
-              <li>
-                  {% if share and not share.share.isOwned %}
-                      <a href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}"
-                        title="Download as JPEG">
+              {% with ex=canExportAsJpg %}
+              <li {% if not ex %}class="disabled"{% endif %}>
+                <a 
+                  {% if not ex %}
+                      href="#" class="disabled" title="Image is too big to download as JPEG"
                   {% else %}
-                      <a href="{% url 'web_render_image_download' image.id %}" title="Download as JPEG">
+                      {% if share and not share.share.isOwned %}
+                          href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}"
+                      {% else %}
+                          href="{% url 'web_render_image_download' image.id %}"
+                      {% endif %}
+                      title="Download as JPEG"
                   {% endif %}
+                  >
                   Export as JPEG
                 </a>
               </li>
-              <li>
-                  {% if share and not share.share.isOwned %}
-                      <a href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}?format=png"
-                        title="Download as PNG">
+              <li {% if not ex %}class="disabled"{% endif %}>
+                <a 
+                  {% if not ex %}
+                      href="#" class="disabled" title="Image is too big to download as PNG"
                   {% else %}
-                      <a href="{% url 'web_render_image_download' image.id %}?format=png" title="Download as PNG">
+                      {% if share and not share.share.isOwned %}
+                          href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}?format=png"
+                      {% else %}
+                          href="{% url 'web_render_image_download' image.id %}?format=png"
+                      {% endif %}
+                      title="Download as PNG"
                   {% endif %}
+                  >
                   Export as PNG
                 </a>
               </li>
-              <li>
-                  {% if share and not share.share.isOwned %}
-                      <a href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}?format=tif"
-                        title="Download as TIFF">
+              <li {% if not ex %}class="disabled"{% endif %}>
+                <a
+                  {% if not ex %}
+                      href="#" class="disabled" title="Image is too big to download as TIFF"
                   {% else %}
-                      <a href="{% url 'web_render_image_download' image.id %}?format=tif" title="Download as TIFF">
+                      {% if share and not share.share.isOwned %}
+                          href="{% url 'web_render_image_download' share_id=share.share.id iid=image.id %}?format=tif"
+                      {% else %}
+                          href="{% url 'web_render_image_download' image.id %}?format=tif"
+                      {% endif %}
+                      title="Download as TIFF"
                   {% endif %}
+                  >
                   Export as TIFF
                 </a>
               </li>
+              {% endwith %}
             {% else %}
               {% if filesetInfo %}
-              <li>
+              {% with ex=canExportAsJpg %}
+              <li {% if not ex %}class="disabled"{% endif %}>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg&index={{ index }}');"
-                  title="Download as JPEGs (zip)">Export as JPEG</a>
+                  {% if not ex %}
+                      class="disabled" title="Images are too big to download as JPEGs"
+                  {% else %}
+                      onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg&index={{ index }}');"
+                      title="Download as JPEGs (zip)"
+                  {% endif %}
+                  >
+                  Export as JPEG
+                </a>
               </li>
-              <li>
+              <li {% if not ex %}class="disabled"{% endif %}>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png&index={{ index }}');"
-                  title="Download as PNGs (zip)">Export as PNG</a>
+                  {% if not ex %}
+                      class="disabled" title="Images are too big to download as PNGs"
+                  {% else %}
+                      onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png&index={{ index }}');"
+                      title="Download as PNGs (zip)"
+                  {% endif %}
+                  >
+                  Export as PNG
+                </a>
               </li>
-              <li>
+              <li {% if not ex %}class="disabled"{% endif %}>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif&index={{ index }}');"
-                  title="Download as TIFFs (zip)">Export as TIFF</a>
+                  {% if not ex %}
+                      class="disabled" title="Images are too big to download as TIFFs"
+                  {% else %}
+                      onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif&index={{ index }}');"
+                      title="Download as TIFFs (zip)"
+                  {% endif %}
+                  >
+                  Export as TIFF
+                </a>
               </li>
+              {% endwith %}
               {% endif %}
             {% endif %}
         </ul>

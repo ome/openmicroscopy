@@ -628,20 +628,20 @@ class WebGatewayCache (object):
             q = r.get('q', '')
             region = r.get('region', '')
             tile = r.get('tile', '')
-            rv = 'img_%s/%s/%s/%%s-c%s-m%s-q%s-r%s-t%s' % (
+            rv = 'img_%s/%s/%s/{0}-c%s-m%s-q%s-r%s-t%s' % (
                 client_base, pre, str(iid), c, m, q, region, tile)
             if p:
                 logger.debug('rv: {0} {1}'.format(rv, type(rv)))
                 logger.debug('p: {0} {1}'.format(str(p), type(p)))
                 logger.debug('t: {0} {1}'.format(str(t), type(t)))
                 pt = '%s-%s' % (p, str(t))
-                return rv % (pt)
+                return rv.format(pt)
             else:
                 logger.debug('rv: {0} {1}'.format(rv, type(rv)))
                 logger.debug('z: {0} {1}'.format(str(z), type(z)))
                 logger.debug('t: {0} {1}'.format(str(t), type(t)))
                 zt = '%sx%s' % (str(z), str(t))
-                return rv % (zt)
+                return rv.format(zt)
         else:
             return 'img_%s/%s/%s' % (client_base, pre, str(iid))
 

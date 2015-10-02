@@ -26,6 +26,9 @@ $(function() {
         data_owners,
         chgrp_type,
         target_type,
+        // gets populated with selected objects and possibly also
+        // Filesets IDs if filesets would be split.
+        dryRunTargetObjects,
         $chgrpform = $("#chgrp-form"),
         $group_chooser,
         $move_group_tree,
@@ -54,7 +57,7 @@ $(function() {
         //...while we load groups
         // Need to find which groups we can move selected objects to.
         // Object owner must be member of target group.
-        var url = webindex_url + "load_chgrp_groups?" + OME.get_tree_selection();
+        var url = webindex_url + "load_chgrp_groups/?" + OME.get_tree_selection();
         $.getJSON(url, function(data){
             data_owners = data.owners;  // save for later
             var ownernames = [];
@@ -98,20 +101,110 @@ $(function() {
         $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
         var sel = OME.get_tree_selection(),
             selImages = (sel.indexOf('Image') > -1);
-        $.get(webindex_url + "fileset_check/chgrp?" + sel, function(html){
+            dtype = sel.split('=')[0];
+        var ids = sel.split('=')[1];
+        dryRunTargetObjects = {};
+        dryRunTargetObjects[dtype] = ids;
+        $.get(webindex_url + "fileset_check/chgrp/?" + sel, function(html){
             if($('div.split_fileset', html).length > 0) {
                 $(html).appendTo($chgrpform);
                 $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("Move All");
-                var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
+                var filesetIds = [];
+                $('input[name="fileset"]', html).each(function(){
+                    filesetIds.push($(this).val());
+                });
                 if (selImages) {
-                    OME.select_fileset_images(filesetId);
+                    OME.select_fileset_images(filesetIds);
                 }
+                dryRunTargetObjects['Fileset'] = filesetIds.join(",");
             } else {
                 $group_chooser.show();
             }
         });
     };
 
+    // We do a chgrp 'dryRun' to check for loss of annotations etc.
+    var dryRun = function(targetObjects, groupId) {
+        var dryRunUrl = webindex_url + "chgrpDryRun/",
+            data = $.extend({}, targetObjects, {'group_id': groupId});
+        // Show message and start dry-run
+        var msg = "<p style='margin-bottom:0'><img alt='Loading' src='" + static_url + "/../webgateway/img/spinner.gif'> " +
+                  "Checking which linked objects will be moved...</p>";
+        var $dryRunSpinner = $(msg).appendTo($group_chooser);
+        $group_chooser.append('<hr>');
+        $.post(dryRunUrl, data, function(jobId){
+            // keep polling for dry-run completion...
+            var getDryRun = function() {
+                var url = webindex_url + "activities_json/",
+                    data = {'jobId': jobId};
+                $.get(url, data, function(dryRunData) {
+                    if (dryRunData.finished) {
+                        // Handle chgrp errors by showing message...
+                        if (dryRunData.error) {
+                            var errMsg = dryRunData.error;
+                            // More assertive error message
+                            errMsg = errMsg.replace("may not move", "Cannot move");
+                            var errHtml = "<img style='vertical-align: middle; position:relative; top:-3px' src='" +
+                                static_url + "/../webgateway/img/failed.png'> ";
+                            // In messages, replace Image[123] with link to image
+                            var getLinkHtml = function(imageId) {
+                                var id = imageId.replace("Image[", "").replace("]", "");
+                                return "<a href='" + webindex_url + "?show=image-" + id + "'>" + imageId + "</a>";
+                            };
+                            errHtml += errMsg.replace(/Image\[([0-9]*)\]/g, getLinkHtml);
+                            $dryRunSpinner.html(errHtml);
+                            $okbtn.hide();
+                            return;
+                        }
+                        var html = "<b style='font-weight: bold'>Move:</b> ",
+                            move = [], count,
+                            unlink = [], unlinked;
+                        ["Projects", "Datasets", "Screens",
+                         "Plates", "Wells", "Images"].forEach(function(otype){
+                            if (otype in dryRunData.includedObjects) {
+                                count = dryRunData.includedObjects[otype].length;
+                                if (count === 1) otype = otype.slice(0, -1);  // remove s
+                                move.push(count + " " + otype);
+                            }
+                        });
+                        html += move.join(", ");
+
+                        ["Datasets", "Plates", "Images", "Tags", "Files"].forEach(function(otype){
+                            if (otype in dryRunData.unlinkedDetails) {
+                                unlinked = dryRunData.unlinkedDetails[otype];
+                                count = unlinked.length;
+                                if (count === 0) return;
+                                if (count === 1) otype = otype.slice(0, -1);  // remove s
+                                var namesList = [], names;
+                                unlinked.forEach(function(u){
+                                    namesList.push(u.name);
+                                });
+                                names = namesList.join(", ");
+                                names = " <i title='" + namesList.join("\n") + "'>(" + names.slice(0, 40) + (names.length > 40 ? "..." : "") + ")</i>";
+                                unlink.push(count + " " + otype + names);
+                            }
+                        });
+                        if (dryRunData.unlinkedDetails.Comments > 0) {
+                            count = dryRunData.unlinkedDetails.Comments;
+                            unlink.push(count + " Comment" + (count > 1 ? "s" : ""));
+                        }
+                        if (dryRunData.unlinkedDetails.Others > 0) {
+                            count = dryRunData.unlinkedDetails.Others;
+                            unlink.push(count + " Other" + (count > 1 ? "s" : ""));
+                        }
+                        if (unlink.length > 0) {
+                            html += "<br><b style='font-weight: bold'>Not included:</b> " + unlink.join(", ");
+                        }
+                        $dryRunSpinner.html(html);
+                    } else {
+                        // try again...
+                        setTimeout(getDryRun, 200);
+                    }
+                });
+            };
+            getDryRun();
+        });
+    };
 
     // Called from "New..." button, simply add input to form (and hide tree)
     var newContainer = function newContainer() {
@@ -182,12 +275,16 @@ $(function() {
                 $newbtn.show();
             });
         }
+
+        // Now we know target group, can do dry-run to check lost annotations etc...
+        dryRun(dryRunTargetObjects, gid);
     });
 
 
     // After we edit the chgrp dialog to handle Filesets, we need to clean-up
     var resetChgrpForm = function() {
-        $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("OK");
+        $('span', $okbtn).text("OK");
+        $okbtn.show();
         $newbtn.hide();
         $("#move_group_tree").show();
         $("#chgrp_split_filesets").remove();
@@ -198,8 +295,8 @@ $(function() {
         dialogClass: 'chgrp_confirm_dialog',
         autoOpen: false,
         resizable: true,
-        height: 310,
-        width:420,
+        height: 350,
+        width:520,
         modal: true,
         buttons: {
             "New...": function() {

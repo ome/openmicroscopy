@@ -789,7 +789,7 @@ public class TreeCellRenderer
             int v = getPreferredSize().width;
             Rectangle r = getBounds();
             w = w-r.x;
-            if (v > w) {
+            if (v > w && node.isPartialName()) {
                 //truncate the text
                 int targetWidth = (w - getIconGap() - 5);
                 String value = text;

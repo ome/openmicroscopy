@@ -25,47 +25,48 @@
 
 <link rel="stylesheet" href="{% static "3rdparty/jquery.jstree-1.0-rc3/themes/default/style.css" %}" type="text/css" media="screen"/>
 
-{% if manager.containers.projects or manager.containers.datasets %}
+
 <h1>Choose target {{ target_type|capfirst }} in new Group:</h1>
 
 <div id="hierarchyTree" class="jstree jstree-default">
     <ul>
-    <!-- projects and datasets -->
-{% if show_projects %}
-    {% for d in manager.containers.projects %}
-        <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf jstree-closed">
-            <ins class="jstree-icon" style="height:10px">
-                {% if d.countChildren_cached %}<img src="{% static 'webgateway/img/folder_closed.png' %}" />{% endif %}
-            </ins>
-            <a hre="#">
-                <img src="{% static "webclient/image/folder16.png" %}"/>
-                {{ d.name|truncatebefor:"35" }}
-                {% if d.countChildren_cached %}
-                    <span class="children_count">{{ d.countChildren_cached}}</span>
-                {% endif %}
-            </a>
-        {% ifequal target_type 'dataset' %}
-            <ul>
-            {% for c in d.listChildren %}
-                <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last jstree-open jstree-leaf">
-                    <ins class="jstree-icon" style="height:10px"></ins>
-                    <a hre="#">
-                        <img src="{% static "webclient/image/folder_image16.png" %}"/>
-                        {{ c.name|truncatebefor:"35" }}
-                        {% if c.countChildren_cached %}
-                            <span class="children_count">{{ c.countChildren_cached }}</span>
-                        {% endif %}
-                    </a>
-                </li>
-            {% endfor %}
-            </ul>
-        {% endifequal %}
-        </li>
-    {% endfor %}
+    {% ifequal target_type 'project' %}
+        {% if not manager.containers.projects %}<li>[No Projects in Group]</li>{% endif %}
+        {% for d in manager.containers.projects %}
+            <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf jstree-closed">
+                <ins class="jstree-icon" style="height:10px">
+                    {% if d.countChildren_cached %}<img src="{% static 'webgateway/img/folder_closed.png' %}" />{% endif %}
+                </ins>
+                <a hre="#">
+                    <img src="{% static "webclient/image/folder16.png" %}"/>
+                    {{ d.name|truncatebefor:"35" }}
+                    {% if d.countChildren_cached %}
+                        <span class="children_count">{{ d.countChildren_cached}}</span>
+                    {% endif %}
+                </a>
+            {% ifequal target_type 'dataset' %}
+                <ul>
+                {% for c in d.listChildren %}
+                    <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last jstree-open jstree-leaf">
+                        <ins class="jstree-icon" style="height:10px"></ins>
+                        <a hre="#">
+                            <img src="{% static "webclient/image/folder_image16.png" %}"/>
+                            {{ c.name|truncatebefor:"35" }}
+                            {% if c.countChildren_cached %}
+                                <span class="children_count">{{ c.countChildren_cached }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endifequal %}
+            </li>
+        {% endfor %}
+    {% endifequal %}
 
     <!-- Orphaned datasets (if target=='dataset') -->
     {% ifequal target_type 'dataset' %}
-        
+        {% if not manager.containers.datasets %}<li>[No Datasets in Group]</li>{% endif %}
         {% for c in manager.containers.datasets %}
             <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last">
                 <ins class="jstree-icon" style="height:10px"></ins>
@@ -79,9 +80,10 @@
             </li>
         {% endfor %}
     {% endifequal %}
-{% endif %}
+
     <!-- Screens (if target=='screen') -->
     {% ifequal target_type 'screen' %}
+        {% if not manager.containers.screens %}<li>[No Screens in Group]</li>{% endif %}
         {% for c in manager.containers.screens %}
             <li id='screen-{{ c.id }}' rel="screen" class="clear jstree-last">
                 <ins class="jstree-icon" style="height:10px"></ins>
@@ -96,7 +98,4 @@
         {% endfor %}
     {% endifequal %}
     </ul>
-{% else %}
-<h1>No Projects</h1>
-{% endif %}
 </div>

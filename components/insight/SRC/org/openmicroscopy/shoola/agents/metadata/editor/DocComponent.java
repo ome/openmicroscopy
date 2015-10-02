@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -198,7 +199,13 @@ class DocComponent
 
 	/** Flag indicating if it is a XML modulo annotation.*/
 	private boolean isModulo;
-
+	
+	/** Flag inidicating if the component is selectable */
+	private boolean selectable;
+	
+	/** Checkbox which enables the component to be selected */
+	private JCheckBox checkbox;
+	
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
 	 * Returns <code>true</code> if some controls are visible, 
@@ -585,6 +592,7 @@ class DocComponent
 		initButtons();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+		checkbox = new JCheckBox();
 		if (data == null) {
 			label.setText(AnnotationUI.DEFAULT_TEXT);
 		} else {
@@ -720,6 +728,8 @@ class DocComponent
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		if (selectable)
+		    add(checkbox);
 		add(label);
 		JToolBar bar = new JToolBar();
 		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -791,8 +801,10 @@ class DocComponent
 	 * @param deletable Pass <code>false</code> to indicate that the document
 	 *					cannot be deleted regardless of the permissions,
 	 *					<code>true</code> otherwise.
+	 * @param selectable Pass <code>true</code> to add a checkbox, so that the component
+	 *                     can be selected
 	 */
-	DocComponent(Object data, EditorModel model, boolean deletable)
+	DocComponent(Object data, EditorModel model, boolean deletable, boolean selectable)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No Model.");
@@ -800,6 +812,7 @@ class DocComponent
 		this.model = model;
 		this.data = data;
 		this.deletable = deletable;
+		this.selectable = selectable;
 		initComponents();
 		buildGUI();
 	}
@@ -812,7 +825,7 @@ class DocComponent
 	 */
 	DocComponent(Object data, EditorModel model)
 	{
-		this(data, model, true);
+		this(data, model, true, false);
 	}
 	
 	/**
@@ -831,7 +844,7 @@ class DocComponent
 	 * 
 	 * @return See above.
 	 */
-	Object getData() { return data; }
+	public Object getData() { return data; }
 
 	/**
 	 * Returns <code>true</code> if the description of the tag has been 
@@ -860,6 +873,16 @@ class DocComponent
 	 * @return See above.
 	 */
 	boolean isImageLoaded() { return thumbnail != null; }
+	
+	/**
+	 * Returns <code>true</code> if the component is selected,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSelected() {
+	    return selectable && checkbox.isSelected();
+	}
 	
 	/**
 	 * Returns <code>true</code> if the object can be unlinked,

@@ -9,21 +9,25 @@ HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
 ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 GROUP_NAME=${GROUP_NAME:-training_group}
+GROUP_NAME_2=${GROUP_NAME_2:-training_group-2}
 USER_NAME=${USER_NAME:-training_user}
+USER_NAME_2=${USER_NAME_2:-training_user-2}
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-training_ice.config}
 
 # Create training user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
-bin/omero group add $GROUP_NAME --ignore-existing
-bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME --ignore-existing -P $USER_PASSWORD
+bin/omero group add $GROUP_NAME --type read-only --ignore-existing
+bin/omero group add $GROUP_NAME_2 --type read-only --ignore-existing
+bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
+bin/omero user add $USER_NAME_2 $USER_NAME_2 $USER_NAME_2 $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
 bin/omero logout
 
 # Create fake files
 touch test.fake
 
 # Create training user and group
-bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
+bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME
 nProjects=1
 nDatasets=2
 echo "Creating projects and datasets"
@@ -65,6 +69,25 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Logout
 bin/omero logout
 
+# Create data owned by another user in the same group
+bin/omero login $USER_NAME_2@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME
+bin/omero obj new Project name='Project 0'
+bin/omero obj new Dataset name='Dataset 0'
+bin/omero import test.fake --debug ERROR
+bin/omero obj new Screen name='Screen'
+bin/omero obj new Plate name='Plate'
+
+# Create data owned by the same user in the second group
+bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD -g $GROUP_NAME_2
+bin/omero obj new Project name='Project 0'
+bin/omero obj new Dataset name='Dataset 0'
+bin/omero import test.fake --debug ERROR
+bin/omero obj new Screen name='Screen'
+bin/omero obj new Plate name='Plate'
+
+# Logout
+bin/omero logout
+
 # Create ice.config file
 echo "omero.host=$HOSTNAME" > "$CONFIG_FILENAME"
 echo "omero.port=$PORT" >> "$CONFIG_FILENAME"
@@ -76,6 +99,7 @@ echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 echo "omero.imageid=${imageid}" >> "$CONFIG_FILENAME"
 echo "omero.plateid=${plateid}" >> "$CONFIG_FILENAME"
 echo "omero.screenid=${screen##*:}" >> "$CONFIG_FILENAME"
+echo "omero.group2=$GROUP_NAME_2" >> "$CONFIG_FILENAME"
 
 # Remove fake file
 rm *.fake

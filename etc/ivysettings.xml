@@ -67,7 +67,14 @@
            root="http://artifacts.openmicroscopy.org/artifactory/simple/${simple.repository}/"/>
       <ibiblio name="ome-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
-          m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
+          m2compatible="true"
+          root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
+
+      <ibiblio name="unidata.releases" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"/>
+
 
       <url name="com.springsource.repository.bundles.release" cache="maven">
         <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
@@ -92,6 +99,12 @@
     <chain name="ome-resolver" returnFirst="true">
         <resolver ref="user-maven"/>
         <resolver ref="ome-artifactory"/>
+    </chain>
+
+    <!-- Resolver for Unidata dependencies-->
+    <chain name="unidata-resolver" returnFirst="true">
+        <resolver ref="user-maven"/>
+        <resolver ref="unidata.releases"/>
     </chain>
 
     <!-- Spring resolver which has as its first resolver the location
@@ -123,6 +136,9 @@
 
 
   <modules>
+    <module organisation="edu.ucar" name="grib" resolver="ome-resolver"/>
+    <module organisation="edu.ucar" name="bufr" resolver="ome-resolver"/>
+    <module organisation="edu.ucar" resolver="unidata-resolver"/>
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="spring-resolver"/>

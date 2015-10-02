@@ -133,12 +133,13 @@ button::-moz-focus-inner {
     .btn_info {background: url('../../webgateway/img/icon_info.png')center center no-repeat;}
     .btn_add {background: url('../../webgateway/img/icon_add.png')center center no-repeat;}
     .btn_edit {background: url('../../webgateway/img/icon_edit.png')center center no-repeat;}
+    .btn_script_dark {background: url('../../webgateway/img/icon_script_dark.png')center center no-repeat;}
     .btn_figscripts {background: url('../../webgateway/img/icon_figure_scripts.png') center center no-repeat;}
     .btn_fspath {background: url('../../webgateway/img/icon_fs_path.png')center center no-repeat;}
     .btn_hierarchy {background: url('../../webgateway/img/iconmonstr-sitemap-6-icon-16.png') center center no-repeat;}
     .btn_link {background: url('../../webgateway/img/icon_link.png')center center no-repeat;}
 
-	.btn_fspath, .btn_link, .btn_hierarchy {
+	.btn_fspath, .btn_link, .btn_add, .btn_hierarchy {
 	    float:right;
 	    position: relative;
 	    margin-left: 5px;
@@ -160,6 +161,20 @@ button::-moz-focus-inner {
 	    width:29px;
 	    height:18px;
 	    display:block;
+	}
+	.toolbar input.btn_script_dark {
+		margin:0;
+		padding:0;
+		width:22px;
+		height:20px;
+		display:block;
+		cursor:pointer;
+	}
+	.toolbar input.btn_script_dark.button-disabled:hover {
+		/* Overrides the default "button-disabled" class semantics for the
+		 * script button.  They are focused towards use in the toolbar.
+		 */
+		background: url('../../webgateway/img/icon_script_dark.png')center center no-repeat;
 	}
     
     .toolbar_dropdown .btn span {

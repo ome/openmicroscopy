@@ -37,14 +37,14 @@ public enum UNITS {
             UnitsTime.class,
             3007);
 
-    Class<?> quantityType;
+    Class<? extends Unit> quantityType;
     Class<? extends Enum<?>> enumType;
     int sqlType;
     Enum<? extends Enum<?>>[] values;
     Map<String, Enum<? extends Enum<?>>> enumMap;
     Map<Enum<? extends Enum<?>>, String> valueMap;
 
-    UNITS(Class<?> quantityType, Class<? extends Enum<?>> enumType, int sqlType) {
+    UNITS(Class<? extends Unit> quantityType, Class<? extends Enum<?>> enumType, int sqlType) {
         this.quantityType = quantityType;
         this.enumType = enumType;
         this.sqlType = sqlType;

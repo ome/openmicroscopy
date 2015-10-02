@@ -21,7 +21,10 @@ import java.util.Map;
 import omero.RLong;
 import omero.RString;
 import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLink;
+import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Channel;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -34,14 +37,17 @@ import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import omero.model.Roi;
+import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
-
-import static org.testng.AssertJUnit.*;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Tests for deleting user ratings.
@@ -257,4 +263,125 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         annotateSaveDeleteAndCheck(roi, Roi.class.getSimpleName(), roi.getId());
     }
 
+    /* child options to try using in deletion */
+    private enum Option { NONE, INCLUDE, EXCLUDE, BOTH };
+
+    /**
+     * Test deletion of tag sets with variously linked tags.
+     * @param option the child option to use in the deletion
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "child option")
+    public void testDeleteTargetSharedTag(Option option) throws Exception {
+        /* ensure a connection to the server */
+        newUserAndGroup("rwra--");
+
+        /* create two tag sets */
+        final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= 2; i++) {
+            final TagAnnotation tagset = new TagAnnotationI();
+            tagset.setName(rstring("tagset #" + i));
+            tagset.setNs(rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
+            tagsets.add((TagAnnotation) iUpdate.saveAndReturnObject(tagset).proxy());
+        }
+
+        /* create three tags */
+        final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= 3; i++) {
+            final TagAnnotation tag = new TagAnnotationI();
+            tag.setName(rstring("tag #" + i));
+            tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
+        }
+
+        /* define how to link the tag sets to the tags */
+        final SetMultimap<TagAnnotation, TagAnnotation> members = HashMultimap.create();
+        members.put(tagsets.get(0), tags.get(0));
+        members.put(tagsets.get(0), tags.get(1));
+        members.put(tagsets.get(1), tags.get(1));
+        members.put(tagsets.get(1), tags.get(2));
+
+        /* perform the linking */
+        for (final Map.Entry<TagAnnotation, TagAnnotation> toLink : members.entries()) {
+            final AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
+            link.setParent(toLink.getKey());
+            link.setChild(toLink.getValue());
+            iUpdate.saveObject(link);
+        }
+
+        /* delete the first tag set */
+        Delete2 delete = new Delete2();
+        delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tagsets.get(0).getId().getValue()));
+
+        switch (option) {
+        case NONE:
+            break;
+        case INCLUDE:
+            delete.childOptions = Collections.<ChildOption>singletonList(new ChildOption());
+            delete.childOptions.get(0).includeType = Collections.singletonList("Annotation");
+            break;
+        case EXCLUDE:
+            delete.childOptions = Collections.<ChildOption>singletonList(new ChildOption());
+            delete.childOptions.get(0).excludeType = Collections.singletonList("Annotation");
+            break;
+        case BOTH:
+            delete.childOptions = Collections.<ChildOption>singletonList(new ChildOption());
+            delete.childOptions.get(0).includeType = Collections.singletonList("Annotation");
+            delete.childOptions.get(0).excludeType = Collections.singletonList("Annotation");
+            break;
+        default:
+            Assert.fail("unexpected option for delete");
+        }
+        doChange(delete);
+
+        /* check that the tag set is deleted and the other remains */
+        assertDoesNotExist(tagsets.get(0));
+        assertExists(tagsets.get(1));
+
+        /* check that only the expected tags are deleted */
+        switch (option) {
+        case NONE:
+            assertDoesNotExist(tags.get(0));
+            assertExists(tags.get(1));
+            assertExists(tags.get(2));
+            break;
+        case BOTH:
+            /* include overrides exclude */
+        case INCLUDE:
+            assertDoesNotExist(tags.get(0));
+            assertDoesNotExist(tags.get(1));
+            assertExists(tags.get(2));
+            break;
+        case EXCLUDE:
+            assertExists(tags.get(0));
+            assertExists(tags.get(1));
+            assertExists(tags.get(2));
+            /* delete the tag that is not in the second tag set */
+            delete = new Delete2();
+            delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tags.get(0).getId().getValue()));
+            doChange(delete);
+            break;
+        }
+
+        /* delete the second tag set */
+        delete.targetObjects = ImmutableMap.of("Annotation", Collections.singletonList(tagsets.get(1).getId().getValue()));
+        doChange(delete);
+
+        /* check that the tag set and the remaining tags are deleted */
+        assertNoneExist(tagsets);
+        assertNoneExist(tags);
+    }
+
+    /**
+     * @return the child options to try using in deletion
+     */
+    @DataProvider(name = "child option")
+    public Object[][] provideChildOption() {
+        final Option[] values = Option.values();
+        final Object[][] testCases = new Object[values.length][1];
+        int index = 0;
+        for (final Option value : values) {
+            testCases[index++][0] = value;
+        }
+        return testCases;
+    }
 }

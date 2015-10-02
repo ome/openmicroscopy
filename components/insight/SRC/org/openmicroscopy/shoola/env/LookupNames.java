@@ -114,6 +114,9 @@ public class LookupNames
     /** Field to access the <code>master</code> agent. */
     public static final String MASTER_IMPORTER = "OMERO.importer";
 
+    /** Field to access the <code>master</code> agent. */
+    public static final String MASTER_IJ = "OMERO.ij";
+    
     /** Field to access the <code>Version</code> information. */
     public static final String VERSION = "Version";
 
@@ -356,4 +359,6 @@ public class LookupNames
     /** Lookup name for the initial zoom level for big images */
     public static final String BIGIMAGE_INITIAL_ZOOM = "omero.client.viewer.initial_zoom_level";
     
+    /** Lookup name for using pixel interpolation */
+    public static final String INTERPOLATE = "omero.client.viewer.interpolate_pixels";
 }

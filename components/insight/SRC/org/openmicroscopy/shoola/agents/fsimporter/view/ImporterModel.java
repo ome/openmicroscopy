@@ -56,7 +56,9 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
@@ -121,7 +123,13 @@ class ImporterModel
 
     /** The id of the user to import for.*/
     private long userId;
-    
+
+    /**
+     * The result object used to determine setting when saving rois/measurement
+     * post import.
+     */
+    private ResultsObject object;
+
 	/** Initializes the model.*/
 	private void initialize()
 	{
@@ -621,7 +629,9 @@ class ImporterModel
             Map<Integer, List<ROIData>> indexes =
                 new HashMap<Integer, List<ROIData>>();
             int index;
+            boolean mif = false;
             if (CollectionUtils.isNotEmpty(files)) {
+                mif = true;
                 Iterator<FileObject> j = files.iterator();
                 FileObject o;
                 while (j.hasNext()) {
@@ -630,6 +640,9 @@ class ImporterModel
                         index = o.getIndex();
                         rois = reader.readImageJROI(-1, (ImagePlus) o.getFile());
                         indexes.put(index, rois);
+                        if (index < 0) {
+                            mif = false;
+                        }
                     }
                 }
             }
@@ -644,11 +657,14 @@ class ImporterModel
                 id = data.getId();
                 index = data.getSeries();
                 //First check overlay
+                rois = null;
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
                 } else {
-                   rois = reader.readImageJROI(id, img);
+                   if (!mif) {
+                       rois = reader.readImageJROI(id, img);
+                   }
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {
@@ -661,6 +677,7 @@ class ImporterModel
                 }
                 //Save the measurements
                 File f = createFile(data.getName());
+                object = null;
                 if (f != null) {
                     MeasurementsSaver ms = new MeasurementsSaver(
                             component, ctx, new FileAnnotationData(f),
@@ -680,9 +697,18 @@ class ImporterModel
     private File createFile(String imageName)
     {
         File dir = Files.createTempDir();
-        String name = "ImageJ-"+FilenameUtils.getBaseName(
-                FilenameUtils.removeExtension(imageName))+"-Results-";
-        name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String name;
+        String fileName = null;
+        if (object != null) {
+            fileName = object.getTableName();
+        }
+        if (CommonsLangUtils.isBlank(fileName)) {
+            name = "ImageJ-"+FilenameUtils.getBaseName(
+                    FilenameUtils.removeExtension(imageName))+"-Results-";
+            name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        } else {
+            name = FilenameUtils.removeExtension(fileName);
+        }
         name += ".csv";
         try {
             File f = new File(dir, name);
@@ -714,6 +740,16 @@ class ImporterModel
         while (i.hasNext()) {
             i.next().setImage(new ImageI(imageID, false));
         }
+    }
+
+    /**
+     * Sets the results object.
+     *
+     * @param object The object to set.
+     */
+    void setResultsObject(ResultsObject object)
+    {
+        this.object = object;
     }
 
 }

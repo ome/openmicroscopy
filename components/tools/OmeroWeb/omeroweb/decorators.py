@@ -144,7 +144,10 @@ class login_required(object):
         share = conn.getShare(share_id)
         try:
             if share.getOwner().id != conn.getUserId():
-                return self.get_share_connection(request, conn, share_id)
+                if share.active and not share.isExpired():
+                    return self.get_share_connection(request, conn, share_id)
+                logger.debug('Share is unavailable.')
+                return None
         except:
             logger.error('Error retrieving share connection.', exc_info=True)
             return None
@@ -257,6 +260,10 @@ class login_required(object):
                 conn.getEmailSettings()
             request.session['server_settings']['initial_zoom_level'] = \
                 conn.getInitialZoomLevel()
+            request.session['server_settings']['interpolate_pixels'] = \
+                conn.getInterpolateSetting()
+            request.session['server_settings']['download_as_max_size'] = \
+                conn.getDownloadAsMaxSizeSetting()
 
     def get_public_user_connector(self):
         """

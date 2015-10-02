@@ -934,7 +934,7 @@
           </div>
           <div class="odd row">
             <label for="wblitz-interpolate">Interpolate</label>
-            <input id="wblitz-interpolate" type="checkbox" checked/>
+            <input id="wblitz-interpolate" type="checkbox" {% if interpolate %}checked{% endif %}/>
           </div>
             <h1>Current Image</h1>
           <div class="even row">
@@ -964,7 +964,8 @@
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
                 {% ifnotequal roiCount 0 %}
-                    <a id="show-rois-a" href="#" onclick="show_rois(); return false;">Show ROIs</a> |
+                  <!-- 'link is enabled on imageLoad callback -->
+                    <a id="show-rois-a" href="#" style="color:gray">Show ROIs</a> |
                     <a id="hide-rois-a" style="color:gray">Hide</a>
                 {% endifnotequal %}
           </div>
@@ -1042,6 +1043,11 @@
 
     // once image loads, check session via /getImgRDef/ to see if we can paste
     viewport.bind('imageLoad', function() {
+
+      // Enable 'Show ROIs' button
+      $("#show-rois-a").on("click", function () { show_rois(); return false; })
+        .attr("href", "#").css("color", "");
+
       $.getJSON(viewport.viewport_server + "/getImgRDef/",
         function(data){
             if (data.rdef) {
@@ -1066,7 +1072,6 @@
       // disable 'Max Intensity' projection for single-Z images
       var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
       $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
-
     });
 
     // 'Color' checkbox to left of image

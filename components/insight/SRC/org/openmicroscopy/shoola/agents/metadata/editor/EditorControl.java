@@ -73,7 +73,6 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.data.util.TransformsParser;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -300,56 +299,31 @@ class EditorControl
 		//bus.post(new ViewImage(imageID, null));
 	}
 	
-	/** Brings up the folder chooser. */
-	private void download()
-	{
-	    JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+    /** Brings up the folder chooser. */
+    private void download() {
+        JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 
-	    List<FileFilter> filters = new ArrayList<FileFilter>();
-        filters.add(new ZipFilter());
-        
-        int type = FileChooser.SAVE;
+        int type = FileChooser.FOLDER_CHOOSER;
 
-	    FileChooser chooser = new FileChooser(f, type,
-	            FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-	            filters, false);
-        try {
-            if (UIUtilities.getDefaultFolder() != null)
-                chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
-        } catch (Exception ex) {
-        }
+        FileChooser chooser = new FileChooser(f, type,
+                FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION);
 
-        final File file = UIUtilities.generateFileName(
-                UIUtilities.getDefaultFolder(), view
-                        .getSelectedObjects().size() > 1 ? "Original_Files"
-                        : "Original_File", "zip");
-        
-	    IconManager icons = IconManager.getInstance();
-	    chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-	    chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
-	    chooser.setCheckOverride(true);
-	    chooser.setSelectedFile(file);
-	    chooser.addPropertyChangeListener(new PropertyChangeListener() {
+        IconManager icons = IconManager.getInstance();
+        chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+        chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
+        chooser.setCheckOverride(true);
+        chooser.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
                 FileChooser src = (FileChooser) evt.getSource();
                 if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-                    File path = null;
-
-                    File[] files = (File[]) evt.getNewValue();
-                    if (files == null || files.length == 0)
-                        return;
-                    path = files[0];
-
-                    if (path == null) {
-                        path = file;
-                    }
-                    model.download(path, src.isOverride());
+                    String path = (String) evt.getNewValue();
+                    model.downloadOriginal(path, src.isOverride());
                 }
             }
-	    });
-	    chooser.centerDialog();
-	}
+        });
+        chooser.centerDialog();
+    }
 
 	/** Brings up the folder chooser to select where to save the files. 
 	 * 

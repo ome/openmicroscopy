@@ -661,21 +661,17 @@ public class ScriptObject
     public long getGroupID() { return groupID; }
 
     /**
+     * Returns <code>true</code> if the specified object is supported,
+     * <code>false</code> otherwise.
      * 
      * @param data
-     * @param key
-     * @return
+     * @return See above.
      */
-    public boolean isSupportedType(pojos.DataObject data, String key)
+    public boolean isSupportedType(pojos.DataObject data)
     {
-        if (data == null || CommonsLangUtils.isBlank(key)) return false;
-        if (key.contains("_")) {
-            String[] values = key.split("_");
-            Class<?> type = convertDataType(values[0]);
-            return (data.getClass().equals(type));
-        }
-        return false;
+        return getDataTypes().contains(data.getClass());
     }
+    
     /**
      * Overridden to return the name of the script.
      * @see java.lang.Object#toString()

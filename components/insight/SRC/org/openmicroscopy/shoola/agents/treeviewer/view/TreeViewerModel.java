@@ -678,21 +678,12 @@ class TreeViewerModel
 	 * @param klass The type of nodes to handle.
 	 */
         void firePasteRenderingSettings(List<Long> ids, Class klass) {
-                long id = refImage.getId();
-                List<Long> toKeep = new ArrayList<Long>();
-                Iterator<Long> i = ids.iterator();
-                long id1;
-                while (i.hasNext()) {
-                        id1 = i.next();
-                        if (id1 != id) toKeep.add(id1);
-                }
-                if (toKeep.size() == 0) return;
                 state = TreeViewer.SETTINGS_RND;
                 SecurityContext ctx = getSecurityContext();
                 if (ctx == null) {
                         ctx = new SecurityContext(refImage.getGroupId());
                 }
-                currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, refRndSettings, refImage);
+                currentLoader = new RndSettingsSaver(component, ctx, klass, ids, refRndSettings, refImage);
                 currentLoader.load();
 	}
 
