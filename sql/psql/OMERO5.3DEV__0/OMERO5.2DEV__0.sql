@@ -73,7 +73,7 @@ BEGIN
 
     IF version_num < version_prereq THEN
         RAISE EXCEPTION 'PostgreSQL database server version % is less than OMERO prerequisite %',
-	    db_pretty_version(version_num), db_pretty_version(version_prereq);
+            db_pretty_version(version_num), db_pretty_version(version_prereq);
     END IF;
 
     IF char_encoding != 'UTF8' THEN
@@ -107,16 +107,20 @@ DECLARE
 
 BEGIN
     FOR roi_row IN SELECT * FROM roi LOOP
+        IF roi_row.keywords IS NOT NULL THEN
         FOREACH element IN ARRAY roi_row.keywords LOOP
             IF element <> '' THEN
                 RAISE EXCEPTION 'data in roi.keywords row id=%', roi_row.id;
             END IF;
         END LOOP;
+        END IF;
+        IF roi_row.namespaces IS NOT NULL THEN
         FOREACH element IN ARRAY roi_row.namespaces LOOP
             IF element <> '' THEN
                 RAISE EXCEPTION 'data in roi.namespaces row id=%', roi_row.id;
             END IF;
         END LOOP;
+        END IF;
     END LOOP;
 
 END;$$ LANGUAGE plpgsql;
