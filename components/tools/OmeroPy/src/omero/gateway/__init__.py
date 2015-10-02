@@ -1557,6 +1557,16 @@ class _BlitzGateway (object):
             interpolate = True
         return interpolate
 
+    def getDownloadAsMaxSizeSetting(self):
+        """
+        Returns default max size of images that can be downloaded as
+        jpg, png or tiff, expressed as number of pixels.
+
+        :return:    Integer
+        """
+        x, y = self.getMaxPlaneSize()
+        return x * y
+
     def getWebclientHost(self):
         """
         Returns default initial zoom level set on the server.
