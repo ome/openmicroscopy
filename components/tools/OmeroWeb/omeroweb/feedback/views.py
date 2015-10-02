@@ -60,17 +60,11 @@ def get_user_agent(request):
 ###############################################################################
 def send_feedback(request):
     error = None
-    form = ErrorForm(data=request.REQUEST.copy())
+    form = ErrorForm(data=request.POST.copy())
     if form.is_valid():
-        error = request.REQUEST['error']
-        comment = None
-        if (request.REQUEST.get('comment', None) is not None and
-                request.REQUEST['comment'] != ""):
-            comment = request.REQUEST['comment']
-        email = None
-        if (request.REQUEST.get('email', None) is not None and
-                request.REQUEST['email'] != ""):
-            email = request.REQUEST['email']
+        error = form.cleaned_data['error']
+        comment = form.cleaned_data['comment']
+        email = form.cleaned_data['email']
         try:
             sf = SendFeedback(settings.FEEDBACK_URL)
             sf.send_feedback(error=error, comment=comment, email=email,
@@ -85,7 +79,7 @@ def send_feedback(request):
                  % (settings.LOGDIR, datetime.datetime.now())), "w")
             try:
                 try:
-                    fileObj.write(request.REQUEST['error'])
+                    fileObj.write(request.POST['error'])
                 except:
                     logger.error('handler500: Error could not be saved.')
                     logger.error(traceback.format_exc())
@@ -109,13 +103,10 @@ def send_comment(request):
     form = CommentForm()
 
     if request.method == "POST":
-        form = CommentForm(data=request.REQUEST.copy())
+        form = CommentForm(data=request.POST.copy())
         if form.is_valid():
-            comment = request.REQUEST['comment']
-            email = None
-            if (request.REQUEST['email'] is not None or
-                    request.REQUEST['email'] != ""):
-                email = request.REQUEST['email']
+            comment = form.cleaned_data['comment']
+            email = form.cleaned_data['email']
             try:
                 sf = SendFeedback(settings.FEEDBACK_URL)
                 sf.send_feedback(comment=comment, email=email,
