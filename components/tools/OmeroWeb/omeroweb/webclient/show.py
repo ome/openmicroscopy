@@ -111,10 +111,10 @@ class Show(object):
         self.request = request
         self.menu = menu
 
-        path = self.request.REQUEST.get('path', '').split('|')[-1]
+        path = self.request.GET.get('path', '').split('|')[-1]
         self._add_if_supported(path)
 
-        show = self.request.REQUEST.get('show', '')
+        show = self.request.GET.get('show', '')
         for path in show.split('|'):
             self._add_if_supported(path)
 
@@ -200,7 +200,7 @@ class Show(object):
             return self.conn.getObject('Well', attributes=attributes)
         if 'name' in attributes:
             row, column = self.get_well_row_column(attributes['name'])
-            path = self.request.REQUEST.get('path', '')
+            path = self.request.GET.get('path', '')
             for m in self.PATH_REGEX.finditer(path):
                 object_type = m.group('object_type')
                 # May have 'run' here rather than 'acquisition' because
