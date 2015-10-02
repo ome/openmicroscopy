@@ -231,36 +231,6 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 };
 
 
-// This is called by the Pagination controls at the bottom of icon or table pages.
-OME.doPagination = function(page) {
-    var datatree = $.jstree.reference('#dataTree');
-
-    var $container = $("#content_details");
-    var containerId = $container.data('id');
-    var containerType = $container.data('type');
-    var containerPath = $container.data('path');
-    containerPath = JSON.parse(containerPath);
-    var containerNode = datatree.find_omepath(containerPath);
-
-    if (!containerNode) {
-        console.log('WARNING: Had to guess container');
-        containerNode = OME.getTreeBestGuess(containerType, containerId);
-    }
-
-    // Deselect all
-    datatree.deselect_all(true);
-
-    // Set the page for that node in the tree and reload the tree section
-    datatree.change_page(containerNode, page);
-
-    // and then reselect the same node again to trigger update
-    datatree.select_node(containerNode);
-
-    return false;
-};
-
-
-
 // handle deleting of Tag, File, Comment
 // on successful delete via AJAX, the parent .domClass is hidden
 OME.removeItem = function(event, domClass, url, parentId, index) {

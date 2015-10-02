@@ -39,3 +39,25 @@
         </li>
     <% }) %>
 </ul>
+
+<% if (paging) { %>
+<div class="clear"> </div>
+<div class="paging" id="page" data-page="<%= page %>">
+    <% if (page-1 > 0) { %>
+        <input data-page="<%= page-1 %>" class="button_pagination" type="button" value="Previous" alt="Previous"/>
+    <% } %>
+
+    <% for (var p=1; p<=pageCount; p++) { %>
+        <% if (page === p) { print (p) }
+            else { %>
+                <input data-page="<%= p %>" class="button_pagination" type="button" value="<%= p %>" alt="<%= p %>"/>
+            <% } %>
+    <% } %>
+
+    <% if (page < pageCount) { %>
+        <input data-page="<%= page+1 %>" class="button_pagination" type="button" value="Next" alt="Next"/>
+    <% } %>
+
+</div>
+<div class="clear"> </div>
+<% } %>

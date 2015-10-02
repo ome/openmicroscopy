@@ -48,6 +48,7 @@ $(document).ready(function() {
     */
 
     var inst = $.jstree.reference('#dataTree');
+    var parentNode;     // the currently selected node
     // We compile the underscore templates, ready for rendering
     var tmplText = $('#icon_thumbnails_template').html();
     var iconTmpl = _.template(tmplText);
@@ -72,6 +73,14 @@ $(document).ready(function() {
             update_thumbnails_panel(event, data);
         }
     });
+
+    $("#content_details").on("click", "input.button_pagination", function(){
+        var page = $(this).attr('data-page');
+        page = parseInt(page, 10);
+        inst.change_page(parentNode, page);
+        // and then reselect the same node again to trigger update
+        inst.select_node(parentNode);
+    })
 
     // Set up the centre panel header.
     var setupDatasetHeader = function() {
@@ -139,13 +148,12 @@ $(document).ready(function() {
         }
 
         // parent node could be dataset, orphaned, share or tag
-        var parentNode,
             parentTypes = ["dataset", "orphaned", "tag", "share"],
             imgNodes = [];
         if (parentTypes.indexOf(dtype) > -1) {
             parentNode = selected[0];
         } else if (dtype === "image") {
-            parentNode = inst.get_parent(selected[0]);
+            parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
             old_thumbnails_panel(event, data);
             return;
@@ -166,6 +174,7 @@ $(document).ready(function() {
         }
 
         if (imgNodes.length === 0 && event.type === "load_node" && parentTypes.indexOf(dtype) > -1) {
+            parentNode = inst.get_node(data.node);  // need this for pagination etc
             data.node.children.forEach(function(nodeId) {
                 var node = inst.get_node(nodeId);
                 // In case of tags, only show images
@@ -212,7 +221,18 @@ $(document).ready(function() {
             setupDatasetHeader();
         }
 
-        var html = iconTmpl({'images': imgJson, 'layout': layout});
+        var json = {'images': imgJson,
+                    'layout': layout,
+                    'paging': false}
+
+        var childCount = parentNode.data.obj.childCount;
+        if (PAGE_SIZE < childCount) {
+            json.pageCount = parseInt(childCount / PAGE_SIZE, 10) + 1;
+            json.paging = true;
+            json.page = inst.get_page(parentNode);
+        }
+
+        var html = iconTmpl(json);
         $("#icon_table").html(html);
 
         // populate arrays etc for speedy icon zooming

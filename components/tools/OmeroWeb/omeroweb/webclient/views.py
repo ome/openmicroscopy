@@ -511,6 +511,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
+    context['page_size'] = settings.PAGE
     context['template'] = template
 
     return context

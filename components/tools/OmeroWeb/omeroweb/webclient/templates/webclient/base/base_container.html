@@ -113,6 +113,8 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css"|add:url_suffix %}" type="text/css" media="screen"/>
 
     <script>
+
+        var PAGE_SIZE = {{ page_size }};
         $(document).ready(function(){
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');
