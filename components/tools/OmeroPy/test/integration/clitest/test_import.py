@@ -344,6 +344,170 @@ class TestImport(CLITest):
         assert screens
         assert screen.id.val in [s.id.val for s in screens]
 
+    class TargetSource(object):
+
+        def get_prefixes(self):
+            return ()
+
+        def get_arg(self, client, spw=False):
+            raise NotImplemented()
+
+        def verify_containers(self, found1, found2):
+            raise NotImplemented()
+
+    class ClassTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            pass
+
+    class IdModelTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            update = client.sf.getUpdateService()
+            if spw:
+                self.kls = "Screen"
+                self.obj = omero.model.ScreenI()
+            else:
+                self.kls = "Dataset"
+                self.obj = omero.model.DatasetI()
+            self.obj.name = rstring("IdModelTargetSource-Test")
+            self.obj = update.saveAndReturnObject(self.obj)
+            self.oid = self.obj.id.val
+            self.spw = spw
+            return "%s:%s" % (self.kls, self.oid)
+
+        def verify_containers(self, found1, found2):
+            if self.spw:
+                # Since fake files generate their own screen
+                # this is necessary.
+                assert self.oid in found1
+                assert self.oid in found2
+            else:
+                assert (self.oid,) == tuple(found1)
+                assert (self.oid,) == tuple(found2)
+
+    class NameModelTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            # For later
+            self.query = client.sf.getQueryService()
+            if spw:
+                self.kls = "Screen"
+            else:
+                self.kls = "Dataset"
+            self.name = "NameModelTargetSource-Test"
+            self.spw = spw
+            return "%s:name:%s" % (self.kls, self.name)
+
+        def verify_containers(self, found1, found2):
+            if self.spw:
+                # Since fake files generate their own screen
+                # this is necessary.
+                for attempt in (found1, found2):
+                    found = 0
+                    for a in attempt:
+                        if self.name == \
+                                self.query.get("Screen", a).name.val:
+                            found += 1
+                    assert found
+            else:
+                for attempt in (found1, found2):
+                    assert len(attempt) == 1
+                    assert self.name == \
+                        self.query.get("Dataset", attempt[0]).name.val
+
+    class TemplateTargetSource(TargetSource):
+
+        def __init__(self, template):
+            self.template = template
+
+        def get_prefixes(self):
+            return ("a", "b")
+
+        def get_arg(self, client, spw=False):
+            self.spw = spw
+            return self.template
+
+        def verify_containers(self, found1, found2):
+            if self.spw:
+                # Again, we have extra screens here!
+                pass
+            else:
+                assert found1
+                assert found2
+                assert found1 == found2
+
+    SOURCES = (
+        IdModelTargetSource(),
+        NameModelTargetSource(),
+        TemplateTargetSource("(?<C1>.*)"),
+        # ClassTargetSource(),
+    )
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("source", SOURCES)
+    def testTargetArgument(self, spw, source, tmpdir, capfd):
+
+        subdir = tmpdir
+        for x in source.get_prefixes():
+            subdir = subdir.join(x)
+            subdir.mkdir()
+
+        if spw:
+            fakefile = subdir.join("spw.fake")
+            fakefile.mkdir()
+            for x in ("Plate000", "Run000", "WellA000"):
+                fakefile = fakefile.join(x)
+                fakefile.mkdir()
+            fakefile = fakefile.join("Field000.fake")
+            # Note: a fake a la:
+            #
+            #   "SPW&plates=1&plateRows=1&plateCols=1&"
+            #   "fields=1&plateAcqs=1.fake")
+            #
+            # generates its own Screen and is so not
+            # appropriate for this test.
+            fakefile = subdir.join((
+                "SPW&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake"))
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        target = source.get_arg(self.client, spw)
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        def parse_containers():
+            try:
+                self.cli.invoke(self.args, strict=True)
+            except NonZeroReturnCode:
+                o, e = capfd.readouterr()
+                print "O" * 40
+                print o
+                print "E" * 40
+                print e
+                raise
+            o, e = capfd.readouterr()
+
+            if spw:
+                obj = self.get_object(e, 'Plate')
+                containers = self.get_screens(obj.id.val)
+            else:
+                obj = self.get_object(e, 'Image')
+                containers = (self.get_dataset(obj.id.val),)
+
+            assert containers
+            found = [x.id.val for x in containers]
+            return found
+
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = parse_containers()
+        found2 = parse_containers()
+        source.verify_containers(found1, found2)
+
     @pytest.mark.parametrize("level", debug_levels)
     @pytest.mark.parametrize("prefix", [None, '--'])
     def testDebugArgument(self, tmpdir, capfd, level, prefix):
@@ -567,15 +731,10 @@ class TestImport(CLITest):
          "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake",
          "-r")]
 
+    @pytest.mark.broken(reason="needs omero.group setting")
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
     def testTargetInDifferentGroup(self, container, filename, arg,
                                    tmpdir, capfd):
-        """
-        The workflow this test exercises is currently broken. Until
-        it is investigated and fixed the error is trapped early and
-        an exception is raised. The test is modified to test for this
-        fail case. See ticket 12781 (and 11539).
-        """
         new_group = self.new_group(experimenters=[self.user])
         self.sf.getAdminService().getEventContext()  # Refresh
         target = eval("omero.model."+container+"I")()
@@ -590,13 +749,10 @@ class TestImport(CLITest):
         self.args += [arg, '%s' % target.id.val]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
-
-        # o, e = capfd.readouterr()
-        # obj = self.get_object(e, 'Image')
-
-        # assert obj.details.id.val == new_group.id.val
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+        assert obj.details.group.id.val == new_group.id.val
 
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
     def testUnknownTarget(self, container, filename, arg, tmpdir):

@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
@@ -42,8 +42,6 @@ import omero.grid.ImportProcessPrx;
 import omero.grid.ImportProcessPrxHelper;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
-import omero.model.Dataset;
-import omero.model.Screen;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
@@ -328,6 +326,7 @@ public class CommandLineImporter {
             + "  -l READER_FILE\t\t\tUse the list of readers rather than the default\n"
             + "  -d DATASET_ID\t\t\t\tOMERO dataset ID to import image into\n"
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
+            + "  -T TARGET\t\t\t\ttarget for imports\n"
 
             + "  --report\t\t\t\tReport errors to the OME team\n"
             + "  --upload\t\t\t\tUpload broken files and log file (if any) with report. Required --report\n"
@@ -533,13 +532,16 @@ public class CommandLineImporter {
         LongOpt exclude =
                 new LongOpt("exclude", LongOpt.REQUIRED_ARGUMENT, null, 20);
 
+        LongOpt target =
+                new LongOpt("target", LongOpt.REQUIRED_ARGUMENT, null, 21);
+
         LongOpt qaBaseURL = new LongOpt(
-                "qa-baseurl", LongOpt.REQUIRED_ARGUMENT, null, 21);
+                "qa-baseurl", LongOpt.REQUIRED_ARGUMENT, null, 22);
 
         LongOpt noStatsInfo =
-                new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 22);
+                new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 23);
         LongOpt noUpgradeCheck =
-                new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 23);
+                new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -557,14 +559,14 @@ public class CommandLineImporter {
         LongOpt annotationLinkDeprecated =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT, null, 96);
 
-        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:T:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 name, description, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
-                                exclude, noStatsInfo,
+                                exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
                                 plateName, plateDescription,
                                 noThumbnailsDeprecated,
@@ -689,16 +691,21 @@ public class CommandLineImporter {
                 }
                 break;
             }
+            case 'T':
             case 21: {
-                config.qaBaseURL.set(g.getOptarg());
+                config.target.set(g.getOptarg());
                 break;
             }
             case 22: {
+                config.qaBaseURL.set(g.getOptarg());
+                break;
+            }
+            case 23: {
                 log.info("Skipping minimum/maximum computation");
                 config.noStatsInfo.set(true);
                 break;
             }
-            case 23: {
+            case 24: {
                 log.info("Disabling upgrade check");
                 config.checkUpgrade.set(false);
                 break;
@@ -766,8 +773,7 @@ public class CommandLineImporter {
                     datasetString = datasetString.substring(
                             "Dataset:".length());
                 }
-                config.targetId.set(Long.parseLong(datasetString));
-                config.targetClass.set(Dataset.class.getName());
+                config.target.set(datasetString);
                 break;
             }
             case 'r': {
@@ -776,8 +782,7 @@ public class CommandLineImporter {
                     screenString = screenString.substring(
                             "Screen:".length());
                 }
-                config.targetId.set(Long.parseLong(screenString));
-                config.targetClass.set(Screen.class.getName());
+                config.target.set(screenString);
                 break;
             }
             case 'n': {
