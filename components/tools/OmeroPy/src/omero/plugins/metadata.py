@@ -388,7 +388,7 @@ class MetadataControl(BaseControl):
             populate_metadata.log.setLevel(logging.INFO)
         context_class = dict(self.POPULATE_CONTEXTS)[args.context]
 
-        if not os.path.exists(args.file):
+        if args.file and not os.path.exists(args.file):
             try:
                 otype, oid = args.file.split(':')
                 if otype.lower() == 'originalfile':
@@ -399,6 +399,8 @@ class MetadataControl(BaseControl):
             raise Exception("File not found: %s" % args.file)
 
         if args.attach:
+            if not args.file:
+                raise Exception("No file given to attach")
             srcfileann = conn.createFileAnnfromLocalFile(
                 args.file, mimetype=guess_mimetype(args.file),
                 ns=NSBULKANNOTATIONSCONFIG)
