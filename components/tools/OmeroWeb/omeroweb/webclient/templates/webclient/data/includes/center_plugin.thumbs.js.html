@@ -188,13 +188,6 @@ $(document).ready(function() {
                     'selected': node.state.selected,
                     'date': date,
                 };
-            if (node.data.obj.thumbVersion != undefined) {
-                var thumbVersion = node.data.obj.thumbVersion;
-                if (thumbVersion === -1) {
-                    thumbVersion = getRandom()
-                }
-                iData.thumbVersion = thumbVersion
-            }
             // Note fileset IDs for selected images
             if (iData.selected) {
                 var fsId = node.data.obj.filesetId;
@@ -236,10 +229,6 @@ $(document).ready(function() {
 
     // Update thumbnails when we switch between plugins
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
-
-    var getRandom = function() {
-        return (Math.random() + "").slice(2);
-    }
 
     var setupSorting = function() {
         // simple emulation of table-sorter for other elements...
