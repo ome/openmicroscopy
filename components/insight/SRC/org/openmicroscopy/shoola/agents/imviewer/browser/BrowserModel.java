@@ -374,10 +374,10 @@ class BrowserModel
     }
     
     /**
-     * Calculates the size of the unit bar.
+     * Calculates the length of the unit bar.
      * 
      * @param ratio The ratio to multiple the value by.
-     * @return
+     * @return The unit bar length in pixels
      */
     private double getBarSizeInPx(double ratio)
     {
@@ -672,21 +672,23 @@ class BrowserModel
     }
     
     /**
-     * Returns the size of the unit bar.
+     * Returns the original (non-scaled) length of the unit bar in pixels
      * 
      * @return See above.
      */
-    double getOriginalUnitBarSize() { return getBarSizeInPx(1); }
+    double getOriginalUnitBarSize() {
+        return getBarSizeInPx(1);
+    }
     
     /**
-     * Returns the size of the unit bar.
+     * Returns the length of the unit bar in pixels
      * 
      * @return See above.
      */
     double getUnitBarSize() { return getBarSizeInPx(zoomFactor); }
   
     /**
-     * Returns the size of the unit bar for an image composing the grid.
+     * Returns the length of the unit bar (in pixels) for an image composing the grid.
      * 
      * @return See above.
      */

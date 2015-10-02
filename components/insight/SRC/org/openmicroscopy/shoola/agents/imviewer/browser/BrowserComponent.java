@@ -298,7 +298,7 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setUnitBarSize(double)
+     * @see Browser#setUnitBarSize(double, UnitsLength)
      */
     public void setUnitBarSize(double size, UnitsLength unit)
     {
