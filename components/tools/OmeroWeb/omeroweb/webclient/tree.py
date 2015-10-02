@@ -458,7 +458,7 @@ def _marshal_date(time):
 
 
 def _marshal_image(conn, row, row_pixels=None, share_id=None,
-                   date=None, acqDate=None, thumb=None):
+                   date=None, acqDate=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
           * id (rlong)
@@ -500,8 +500,6 @@ def _marshal_image(conn, row, row_pixels=None, share_id=None,
         image['date'] = _marshal_date(unwrap(date))
     if acqDate is not None:
         image['acqDate'] = _marshal_date(unwrap(acqDate))
-    if thumb is not None:
-        image['thumbVersion'] = thumb['version']
 
     return image
 
@@ -582,10 +580,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
              ,
              pix.sizeX as sizeX,
              pix.sizeY as sizeY,
-             pix.sizeZ as sizeZ,
-             thumbs.version as thumbVersion,
-             thumbs.details.owner.id as thumbOwner,
-             thumbs.id as thumbId
+             pix.sizeZ as sizeZ
              """
     if date:
         extraValues += """,
@@ -604,7 +599,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     from_clause.append('Image image')
 
     if load_pixels:
-        from_clause.append('image.pixels pix join pix.thumbnails thumbs')
+        from_clause.append('image.pixels pix')
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
@@ -668,8 +663,6 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         """ % (build_clause(from_clause, 'from', 'join'),
                build_clause(where_clause, 'where', 'and'))
 
-    imgList = []
-    userId = conn.getUserId()
     for e in qs.projection(q, params, service_opts):
         e = unwrap(e)[0]
         d = [e["id"],
@@ -681,17 +674,6 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if load_pixels:
             d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
             kwargs['row_pixels'] = d
-            # Ignore thumbs if they don't belong to user
-            if userId == e['thumbOwner']:
-                kwargs['thumb'] = {'id': e['thumbId'], 'version': e['thumbVersion']}
-            # Handle potential image duplicates because of multiple thumbnails...
-            if len(imgList) > 0 and imgList[-1]['row'][0] == e['id']:
-                prev = imgList[-1]
-                # we want the version with max thumb ID
-                if 'thumb' in prev and 'thumb' in kwargs:
-                    if kwargs['thumb']['id'] > prev['thumb']['id']:
-                        prev['thumb'] = kwargs['thumb']
-                continue
         if date:
             kwargs['acqDate'] = e['acqDate']
             kwargs['date'] = e['date']
@@ -703,9 +685,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
             image_rids.remove(e["id"])
             kwargs['share_id'] = share_id
 
-        imgList.append(kwargs)
-
-    images = [_marshal_image(**kw) for kw in imgList]
+        images.append(_marshal_image(**kwargs))
 
     # If there were any deleted images in the share, marshal and return
     # those
