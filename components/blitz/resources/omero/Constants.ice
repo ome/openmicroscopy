@@ -43,10 +43,12 @@ module omero {
     const int GLACIER2PORT = 4064;
 
     /**
-     * Default Ice.MessageSizeMax (65536kb). Not strictly necessary, but helps to
+     * Default Ice.MessageSizeMax (250mb). Not strictly necessary, but helps to
      * curb memory issues. Must be set before communicator initialization.
+     *
+     * Temporarily set to 250MB
      **/
-    const int MESSAGESIZEMAX = 65536;
+    const int MESSAGESIZEMAX = 250000;
 
     /**
      * Determines the batch size for sending
