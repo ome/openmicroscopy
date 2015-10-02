@@ -9,7 +9,7 @@ etc_dir = os.path.join(os.path.dirname(__file__), "..", "..", "etc")
 properties_file = os.path.join(etc_dir, "omero.properties")
 properties_pattern = re.compile(
     r"(?P<base>versions.bioformats=)(\d+.\d+.\d+.*)")
-localproperties_file = os.path.join(etc_dir, "local.properties.example")
+localproperties_file = os.path.join(etc_dir, "build.properties")
 resolver_pattern = re.compile(r"(?P<base>ome\.resolver=)([a-z\-]+)")
 
 
