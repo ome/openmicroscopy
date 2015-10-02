@@ -9,6 +9,8 @@
 """
 
 import logging
+import mimetypes
+import os
 import re
 import sys
 
@@ -32,6 +34,15 @@ ANNOTATION_TYPES = [t for t in dir(omero.model)
                     if re.match('[A-Za-z0-9]+Annotation$', t)]
 
 NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
+
+
+def guess_mimetype(filename):
+    mt = mimetypes.guess_type(filename, strict=False)[0]
+    if not mt and os.path.splitext(filename) in ('yml', 'yaml'):
+        mt = "application/x-yaml"
+    if not mt:
+        mt = "application/octet-stream"
+    return mt
 
 
 class ObjectLoadException(Exception):
@@ -170,9 +181,11 @@ class MetadataControl(BaseControl):
         populate.add_argument(
             "--context", default=self.POPULATE_CONTEXTS[0][0],
             choices=[a[0] for a in self.POPULATE_CONTEXTS])
-        populate.add_argument("--file", help="Input file")
+        populate.add_argument("--file", help="Input file, or OriginalFile:ID")
+        populate.add_argument("--attach", action="store_true", help=(
+            "Upload input file and attach to parent object"))
         populate.add_argument("--cfg", help=(
-            "YAML configuration file (file to be upload, or OriginalFile:ID)"))
+            "YAML configuration file (file to upload, or OriginalFile:ID)"))
 
         populateroi.add_argument(
             "--measurement", type=int, default=None,
@@ -374,6 +387,24 @@ class MetadataControl(BaseControl):
         else:
             populate_metadata.log.setLevel(logging.INFO)
         context_class = dict(self.POPULATE_CONTEXTS)[args.context]
+
+        if not os.path.exists(args.file):
+            try:
+                otype, oid = args.file.split(':')
+                if otype.lower() == 'originalfile':
+                    cfgfileid = long(oid)
+                raise Exception("Not implemented for remote %s" % args.file)
+            except ValueError:
+                pass
+            raise Exception("File not found: %s" % args.file)
+
+        if args.attach:
+            srcfileann = conn.createFileAnnfromLocalFile(
+                args.file, mimetype=guess_mimetype(args.file),
+                ns=NSBULKANNOTATIONSCONFIG)
+            # srcfileid = srcfileann.getFile().getId()
+            md.linkAnnotation(srcfileann)
+
         if args.cfg:
             cfgfileid = None
             try:
@@ -385,7 +416,7 @@ class MetadataControl(BaseControl):
 
             if not cfgfileid:
                 fileann = conn.createFileAnnfromLocalFile(
-                    args.cfg, mimetype="application/x-yaml",
+                    args.cfg, mimetype=guess_mimetype(args.cfg),
                     ns=NSBULKANNOTATIONSCONFIG)
                 cfgfileid = fileann.getFile().getId()
                 md.linkAnnotation(fileann)
