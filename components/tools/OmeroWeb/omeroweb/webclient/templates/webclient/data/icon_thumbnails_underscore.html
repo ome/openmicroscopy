@@ -24,7 +24,7 @@
 
             <div class="image">
                 <img alt="image"
-                    src="/webclient/render_thumbnail/size/96/<%= img.id %>/"
+                    src="/webclient/render_thumbnail/size/96/<%= img.id %>/<% if (img.thumbVersion) { print ('?version=' + img.thumbVersion)}%>"
                         title="<%= img.name %>"/>
             </div>
             <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
