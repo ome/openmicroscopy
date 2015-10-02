@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
@@ -247,6 +248,20 @@ public class MeasurementAgent
     }
     
     /**
+     * Handles a SelectPlane request
+     * 
+     * @param evt
+     *            The event
+     */
+    private void handleSelectPlaneEvent(SelectPlane evt) {
+        MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
+                evt.getPixelsID());
+        if (viewer != null) {
+            viewer.selectPlane(evt.getDefaultZ(), evt.getDefaultT());
+        }
+    }
+    
+    /**
      * Handles the {@link ActivityProcessEvent} event.
      * 
      * @param evt The event to handle.
@@ -332,6 +347,7 @@ public class MeasurementAgent
 		bus.register(this, ActivityProcessEvent.class);
 		bus.register(this, ReconnectedEvent.class);
 		bus.register(this, ChannelSavedEvent.class);
+		bus.register(this, SelectPlane.class);
 	}
 
     /**
@@ -393,6 +409,8 @@ public class MeasurementAgent
 			handleReconnectedEvent((ReconnectedEvent) e);
 		else if (e instanceof ChannelSavedEvent)
 			handleChannelSavedEvent((ChannelSavedEvent) e);
+		else if (e instanceof SelectPlane)
+            handleSelectPlaneEvent((SelectPlane) e);
 	}
 	
 }

@@ -647,9 +647,8 @@ public class GraphPane
 	public void stateChanged(ChangeEvent evt) {
 		Object src = evt.getSource();
 		if (src == zSlider || src == tSlider) {
-			formatPlane();
 			OneKnobSlider slider = (OneKnobSlider) src;
-			if (!slider.isDragging()) {
+			if (!slider.isDragging() && !slider.getValueIsAdjusting()) {
 				handleSliderReleased();
 			}
 		}

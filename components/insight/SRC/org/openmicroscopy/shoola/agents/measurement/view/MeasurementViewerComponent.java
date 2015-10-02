@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1316,5 +1316,16 @@ class MeasurementViewerComponent
             nodes.add(shape.getData());
         }
         model.fireLoadROIAnnotations(nodes);
+    }
+    
+    /**
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * 
+     * @see MeasurementViewer#selectPlane(int, int)
+     */
+    public void selectPlane(int z, int t) {
+        model.setPlane(z, t);
+        if(view.isShowing() && view.inDataView())
+            controller.analyseSelectedFigures();
     }
 }

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -58,7 +58,9 @@ import javax.swing.event.ChangeListener;
 import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
@@ -1943,7 +1945,7 @@ class ControlPane
                 controller.setZoomFactor(projectionRatioSlider.getValue());
             }
             if (object.equals(zSlider) || object.equals(tSlider))
-                setSelectedXYPlane(zSlider.getValue(), tSlider.getValue());
+                fireSelectPlaneRequest();
             else if (object.equals(lifetimeSlider)) {
                 controller.setSelectedXYPlane(model.getDefaultZ(),
                         model.getRealSelectedT(), lifetimeSlider.getValue());
@@ -1967,6 +1969,15 @@ class ControlPane
             controller.setProjectionRange(true);
     }
 
+    /**
+     * Fires a request to change the plane
+     */
+    private void fireSelectPlaneRequest() {
+        SelectPlane sp = new SelectPlane(model.getImage().getDefaultPixels()
+                .getId(), zSlider.getValue(), tSlider.getValue());
+        ImViewerAgent.getRegistry().getEventBus().post(sp);
+    }
+    
     /**
      * Reacts to wheels moved event related to the {@link #zSlider},
      * {@link #tSlider}, {@link #zSliderGrid} and {@link #zSliderGrid}.
