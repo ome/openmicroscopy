@@ -597,7 +597,38 @@ class ParsingContext(object):
         update_service.saveObject(link, {'omero.group': group})
 
 
-class BulkToMapAnnotationContext(object):
+class _QueryContext(object):
+    """
+    Helper class container query methods
+    """
+    def __init__(self, client):
+        self.client = client
+
+    def projection(self, q, ids, ns=None):
+        """
+        Run a projection query designed to return scalars only
+        :param q: The query to be projected, should contain either `:ids`
+               or `:id` as a parameter
+        :param: ids: Either a list of IDs to be passed as `:ids` parameter or
+                a single scalar id to be passed as `:id` parameter in query
+        :ns: Optional namespace to be passed as `:ns` parameter in query
+        """
+        qs = self.client.getSession().getQueryService()
+        params = omero.sys.ParametersI()
+        try:
+            nids = len(ids)
+            params.addIds(ids)
+        except TypeError:
+            nids = 1
+            params.addId(ids)
+        if ns:
+            params.addString("ns", ns)
+        log.debug("Query: %s len(IDs): %d", q, nids)
+        rss = unwrap(qs.projection(q, params))
+        return [r for rs in rss for r in rs]
+
+
+class BulkToMapAnnotationContext(_QueryContext):
     """
     Processor for creating MapAnnotations from BulkAnnotations.
     """
@@ -610,7 +641,8 @@ class BulkToMapAnnotationContext(object):
                default is to use the a bulk-annotation attached to
                target_object
         """
-        self.client = client
+        super(BulkToMapAnnotationContext, self).__init__(client)
+
         # Reload object to get .details
         self.target_object = self.get_target(target_object)
         if ofileid:
@@ -655,13 +687,10 @@ class BulkToMapAnnotationContext(object):
         otype = self.target_object.ice_staticId().split('::')[-1]
         q = """SELECT child.file.id FROM %sAnnotationLink link
                WHERE parent.id=:id AND child.ns=:ns ORDER by id""" % otype
-        params = omero.sys.ParametersI()
-        params.addId(unwrap(self.target_object.getId()))
-        params.addString('ns', omero.constants.namespaces.NSBULKANNOTATIONS)
-        qs = self.client.getSession().getQueryService()
-        r = qs.projection(q, params)
+        r = self.projection(q, unwrap(self.target_object.getId()),
+                            omero.constants.namespaces.NSBULKANNOTATIONS)
         if r:
-            return unwrap(r[-1][0])
+            return r[-1]
 
     @staticmethod
     def create_map_annotation(targets, rowkvs):
@@ -746,7 +775,7 @@ class BulkToMapAnnotationContext(object):
         log.info('Created %d MapAnnotations', len(ids))
 
 
-class DeleteMapAnnotationContext(object):
+class DeleteMapAnnotationContext(_QueryContext):
     """
     Processor for deleting MapAnnotations in the BulkAnnotations namespace
     on these types: Image WellSample Well PlateAcquisition Plate Screen
@@ -757,23 +786,13 @@ class DeleteMapAnnotationContext(object):
         :param client: OMERO client object
         :param target_object: The object to be processed
         """
-        self.client = client
+        super(DeleteMapAnnotationContext, self).__init__(client)
         self.target_object = target_object
 
     def parse(self):
         return self.populate()
 
     def populate(self):
-        def projection(q, ids, ns=None):
-            qs = self.client.getSession().getQueryService()
-            params = omero.sys.ParametersI()
-            params.addIds(ids)
-            if ns:
-                params.addString("ns", ns)
-            log.debug("Query: %s len(IDs): %d", q, len(ids))
-            rss = unwrap(qs.projection(q, params))
-            return [r for rs in rss for r in rs]
-
         # Hierarchy: Screen, Plate, {PlateAcquistion, Well}, WellSample, Image
         parentids = {
             "Screen": None,
@@ -792,15 +811,16 @@ class DeleteMapAnnotationContext(object):
                  "WHERE parent.id in (:ids)")
             parentids["Screen"] = ids
         if parentids["Screen"]:
-            parentids["Plate"] = projection(q, parentids["Screen"])
+            parentids["Plate"] = self.projection(q, parentids["Screen"])
 
         if isinstance(target, PlateI):
             parentids["Plate"] = ids
         if parentids["Plate"]:
             q = "SELECT id FROM PlateAcquisition WHERE plate.id IN (:ids)"
-            parentids["PlateAcquisition"] = projection(q, parentids["Plate"])
+            parentids["PlateAcquisition"] = self.projection(
+                q, parentids["Plate"])
             q = "SELECT id FROM Well WHERE plate.id IN (:ids)"
-            parentids["Well"] = projection(q, parentids["Plate"])
+            parentids["Well"] = self.projection(q, parentids["Plate"])
 
         if isinstance(target, PlateAcquisitionI):
             parentids["PlateAcquisition"] = ids
@@ -811,20 +831,20 @@ class DeleteMapAnnotationContext(object):
             # PlateAcquisition since this only refers to the fields in
             # the well
             q = "SELECT id FROM WellSample WHERE plateAcquisition.id IN (:ids)"
-            parentids["WellSample"] = projection(
+            parentids["WellSample"] = self.projection(
                 q, parentids["PlateAcquisition"])
 
         if isinstance(target, WellI):
             parentids["Well"] = ids
         if parentids["Well"]:
             q = "SELECT id FROM WellSample WHERE well.id IN (:ids)"
-            parentids["WellSample"] = projection(q, parentids["Well"])
+            parentids["WellSample"] = self.projection(q, parentids["Well"])
 
         if isinstance(target, WellSampleI):
             parentids["WellSample"] = ids
         if parentids["WellSample"]:
             q = "SELECT image.id FROM WellSample WHERE id IN (:ids)"
-            parentids["Image"] = projection(q, parentids["WellSample"])
+            parentids["Image"] = self.projection(q, parentids["WellSample"])
 
         if isinstance(target, ImageI):
             parentids["Image"] = ids
@@ -840,7 +860,7 @@ class DeleteMapAnnotationContext(object):
                 q = ("SELECT child.id FROM %sAnnotationLink WHERE "
                      "child.class=MapAnnotation AND parent.id in (:ids) "
                      "AND child.ns=:ns")
-                r = projection(q % objtype, objids, ns)
+                r = self.projection(q % objtype, objids, ns)
                 mapannids.extend(r)
             log.debug("%s: %d MapAnnotations", objtype, len(set(r)))
 
