@@ -312,7 +312,9 @@ class MetadataControl(BaseControl):
 
     def _output_ann(self, mdobj, func, parents, indent):
         try:
-            anns = func(mdobj)
+            # Dereference the generator here so that we can catch
+            # NotImplementedError
+            anns = list(func(mdobj))
         except NotImplementedError:
             self.ctx.err('WARNING: Failed to get annotations for %s' %
                          mdobj.get_name())
