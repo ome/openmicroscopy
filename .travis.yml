@@ -35,6 +35,8 @@ before_install:
     - git config --global user.email snoopycrimecop@gmail.com
     - git config --global user.name 'Snoopy Crime Cop'
     - pip install --user scc pytest
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements_python26.txt; fi
+    - if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements_python27.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
     - scc travis-merge
     - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
