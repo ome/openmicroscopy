@@ -42,9 +42,18 @@ from omero.model import ScreenAnnotationLinkI
 from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn
 from omero.grid import StringColumn, WellColumn
+from omero.util.metadata_utils import KeyValueListPassThrough
+from omero.util.metadata_utils import KeyValueListTransformer
 from omero import client
 
 from populate_roi import ThreadPool
+
+try:
+    import yaml
+    YAML_ENABLED = True
+except ImportError:
+    YAML_ENABLED = False
+
 
 log = logging.getLogger("omero.util.populate_metadata")
 
@@ -593,7 +602,7 @@ class BulkToMapAnnotationContext(object):
     Processor for creating MapAnnotations from BulkAnnotations.
     """
 
-    def __init__(self, client, target_object, ofileid=None):
+    def __init__(self, client, target_object, ofileid=None, cfgfileid=None):
         """
         :param client: OMERO client object
         :param target_object: The object to be annotated
@@ -602,14 +611,45 @@ class BulkToMapAnnotationContext(object):
                target_object
         """
         self.client = client
-        self.target_object = target_object
+        # Reload object to get .details
+        self.target_object = self.get_target(target_object)
         if ofileid:
             self.ofileid = ofileid
         else:
             self.ofileid = self.get_bulk_annotation_file()
         if not self.ofileid:
             raise MetadataError("Unable to find bulk-annotations file")
-        self.value_resolver = ValueResolver(self.client, self.target_object)
+        if cfgfileid:
+            self.default_cfg, self.column_cfgs = self.get_config(cfgfileid)
+
+    def get_target(self, target_object):
+        qs = self.client.getSession().getQueryService()
+        return qs.find(target_object.ice_staticId().split('::')[-1],
+                       target_object.id.val)
+
+    def get_config(self, cfgfileid):
+        if not YAML_ENABLED:
+            raise ImportError("yaml (PyYAML) module required")
+
+        rfs = self.client.getSession().createRawFileStore()
+        try:
+            rfs.setFileId(cfgfileid)
+            rawdata = rfs.read(0, rfs.size())
+        finally:
+            rfs.close()
+
+        cfg = list(yaml.load_all(rawdata))
+        if len(cfg) != 1:
+            raise Exception(
+                "Expected YAML file with one document, found %d" % len(cfg))
+        cfg = cfg[0]
+
+        default_cfg = cfg.get("defaults")
+        column_cfgs = cfg.get("columns")
+        if not default_cfg and not column_cfgs:
+            raise Exception(
+                "Configuration defaults and columns were both empty")
+        return default_cfg, column_cfgs
 
     def get_bulk_annotation_file(self):
         otype = self.target_object.ice_staticId().split('::')[-1]
@@ -621,18 +661,27 @@ class BulkToMapAnnotationContext(object):
         qs = self.client.getSession().getQueryService()
         r = qs.projection(q, params)
         if r:
-            return unwrap(r[0][0])
+            return unwrap(r[-1][0])
 
-    def create_map_annotation(self, target, keys, values):
+    @staticmethod
+    def create_map_annotation(targets, rowkvs):
         ma = MapAnnotationI()
         ma.setNs(rstring(omero.constants.namespaces.NSBULKANNOTATIONS))
-        mv = [NamedValue(k, str(v)) for k, v in izip(keys, values)]
+        mv = []
+        for k, vs in rowkvs:
+            if not isinstance(vs, (tuple, list)):
+                vs = [vs]
+            mv.extend(NamedValue(k, str(v)) for v in vs)
         ma.setMapValue(mv)
-        otype = target.ice_staticId().split('::')[-1]
-        link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
-        link.setParent(target)
-        link.setChild(ma)
-        return link
+
+        links = []
+        for target in targets:
+            otype = target.ice_staticId().split('::')[-1]
+            link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
+            link.setParent(target)
+            link.setChild(ma)
+            links.append(link)
+        return links
 
     def parse(self):
         tableid = self.ofileid
@@ -665,24 +714,32 @@ class BulkToMapAnnotationContext(object):
                 idcols.append((omeroclass, n))
 
         headers = [c.name for c in data.columns]
-        rows = izip(*(c.values for c in data.columns))
+        if self.default_cfg or self.column_cfgs:
+            tr = KeyValueListTransformer(
+                headers, self.default_cfg, self.column_cfgs)
+        else:
+            tr = KeyValueListPassThrough(headers)
 
         mas = []
-
-        for row in rows:
-            values = row
+        for row in izip(*(c.values for c in data.columns)):
+            rowkvs = tr.transform(row)
+            targets = []
             for omerotype, n in idcols:
-                target = omerotype(values[n], False)
-                ma = self.create_map_annotation(target, headers, values)
+                if row[n] > 0:
+                    targets.append(omerotype(row[n], False))
+                else:
+                    log.warn("Invalid Id:%d found in row %s", row[n], row)
+            if targets:
+                malinks = self.create_map_annotation(targets, rowkvs)
                 log.debug('\n\t'.join("%s=%s" % (v.name, v.value)
-                          for v in ma.getChild().getMapValue()))
-                mas.append(ma)
+                          for v in malinks[0].getChild().getMapValue()))
+                mas.extend(malinks)
 
         self.mapannotations = mas
 
     def write_to_omero(self):
         sf = self.client.getSession()
-        group = str(self.value_resolver.target_object.details.group.id.val)
+        group = str(self.target_object.details.group.id.val)
         update_service = sf.getUpdateService()
         ids = update_service.saveAndReturnIds(
             self.mapannotations, {'omero.group': group})

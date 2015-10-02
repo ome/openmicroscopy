@@ -31,6 +31,19 @@ GUI clients.
 ANNOTATION_TYPES = [t for t in dir(omero.model)
                     if re.match('[A-Za-z0-9]+Annotation$', t)]
 
+NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
+
+
+class ObjectLoadException(Exception):
+    """
+    Raised when a requested object could not be loaded
+    """
+    def __init__(self, klass, oid):
+        self.klass = klass
+        self.oid = oid
+        super(ObjectLoadException, self).__init__(
+            "Failed to get object %s:%s" % (klass, oid))
+
 
 class Metadata(object):
     """
@@ -70,15 +83,20 @@ class Metadata(object):
         return self.obj_wrapper.loadOriginalMetadata()
 
     def get_bulkanns(self):
-        return self.wrap(self.obj_wrapper.listAnnotations(
-            namespaces.NSBULKANNOTATIONS))
+        return self.get_allanns(namespaces.NSBULKANNOTATIONS)
 
     def get_measures(self):
-        return self.wrap(self.obj_wrapper.listAnnotations(
-            namespaces.NSMEASUREMENT))
+        return self.get_allanns(namespaces.NSMEASUREMENT)
 
-    def get_allanns(self):
-        return self.wrap(self.obj_wrapper.listAnnotations())
+    def get_allanns(self, ns=None, anntype=None):
+        # Sooner or later we're going to end up with an object that has 1000s
+        # of annotations, and since listAnnotations() returns a generator we
+        # might as well do the same
+        for a in self.obj_wrapper.listAnnotations(ns):
+            aw = self.wrap(a)
+            if anntype and aw.get_type() != anntype:
+                continue
+            yield aw
 
     def wrap(self, obj):
         if obj is None:
@@ -134,10 +152,17 @@ class MetadataControl(BaseControl):
             dry_or_not.add_argument("-f", "--force", action="store_false",
                                     dest="dry_run")
 
-        for x in (bulkanns, measures):
+        for x in (bulkanns, measures, mapanns, allanns):
             x.add_argument(
                 "--parents", action="store_true",
                 help="Also search parents for annotations")
+
+        for x in (mapanns, allanns):
+            x.add_argument(
+                "--ns", default=None, help="Restrict to this namespace")
+            x.add_argument(
+                "--nsre",
+                help="Restrict to this namespace (regular expression)")
 
         rois.add_argument(
             "--delete", action="store_true", help="Delete all ROIs")
@@ -146,20 +171,32 @@ class MetadataControl(BaseControl):
             "--context", default=self.POPULATE_CONTEXTS[0][0],
             choices=[a[0] for a in self.POPULATE_CONTEXTS])
         populate.add_argument("--file", help="Input file")
+        populate.add_argument("--cfg", help=(
+            "YAML configuration file (file to be upload, or OriginalFile:ID)"))
 
         populateroi.add_argument(
             "--measurement", type=int, default=None,
             help="Index of the measurement to populate. By default, all")
 
-    def _load(self, args):
+    def _clientconn(self, args):
         client = self.ctx.conn(args)
         conn = BlitzGateway(client_obj=client)
+        return client, conn
+
+    def _load(self, args, die_on_failure=True):
+        # In most cases we want to die immediately if an object can't be
+        # loaded. To raise an exception instead pass die_on_failure=False
+        # and catch ObjectLoadException
+        client, conn = self._clientconn(args)
         conn.SERVICE_OPTS.setOmeroGroup('-1')
         klass = args.obj.ice_staticId().split("::")[-1]
         oid = args.obj.id.val
         wrapper = conn.getObject(klass, oid)
         if not wrapper:
-            raise Exception("Failed to get object %s:%s" % (klass, oid))
+            e = ObjectLoadException(klass, oid)
+            if die_on_failure:
+                self.ctx.die(100, str(e))
+            raise e
         return Metadata(wrapper)
 
     def _format_ann(self, md, obj, indent=None):
@@ -210,7 +247,10 @@ class MetadataControl(BaseControl):
             self.ctx.out("Roi count: %s" % md.get_roi_count())
         except AttributeError:
             pass
-        self.ctx.out("Bulk annotations: %s" % len(md.get_bulkanns()))
+        self.ctx.out("Bulk annotations: %d" %
+                     sum(1 for a in md.get_bulkanns()))
+        self.ctx.out("Measurement tables: %d" %
+                     sum(1 for a in md.get_measures()))
         try:
             parent = md.get_parent().get_name()
             self.ctx.out("Parent: %s" % parent)
@@ -242,7 +282,12 @@ class MetadataControl(BaseControl):
     def original(self, args):
         "Print the original metadata in ini format"
         md = self._load(args)
-        source, global_om, series_om = md.get_original()
+        try:
+            source, global_om, series_om = md.get_original()
+        except AttributeError:
+            self.ctx.die(100, 'Failed to get original metadata for %s' %
+                         md.get_name())
+
         om = (("Global", global_om),
               ("Series", series_om))
 
@@ -252,9 +297,9 @@ class MetadataControl(BaseControl):
             for k, v in tuples:
                 self.ctx.out("%s=%s" % (k, v))
 
-    def _output_ann(self, mdobj, funcstr, parents, indent):
+    def _output_ann(self, mdobj, func, parents, indent):
         try:
-            anns = getattr(mdobj, funcstr)()
+            anns = func(mdobj)
         except NotImplementedError:
             self.ctx.err('WARNING: Failed to get annotations for %s' %
                          mdobj.get_name())
@@ -267,7 +312,7 @@ class MetadataControl(BaseControl):
             self.ctx.out(self._format_ann(mdobj, a, indent))
         if parents:
             for p in mdobj.get_parents():
-                self._output_ann(p, funcstr, parents, indent)
+                self._output_ann(p, func, parents, indent)
 
     def bulkanns(self, args):
         ("Provide a list of the NSBULKANNOTATION tables linked "
@@ -276,7 +321,8 @@ class MetadataControl(BaseControl):
         indent = None
         if args.report:
             indent = 0
-        self._output_ann(md, 'get_bulkanns', args.parents, indent)
+        self._output_ann(
+            md, lambda md: md.get_bulkanns(), args.parents, indent)
 
     def measures(self, args):
         ("Provide a list of the NSMEASUREMENT tables linked "
@@ -285,40 +331,68 @@ class MetadataControl(BaseControl):
         indent = None
         if args.report:
             indent = 0
-        self._output_ann(md, 'get_measures', args.parents, indent)
+        self._output_ann(
+            md, lambda md: md.get_measures(), args.parents, indent)
 
     def mapanns(self, args):
         "Provide a list of all MapAnnotations linked to the given object"
+        def get_anns(md):
+            for a in md.get_allanns(args.ns, 'MapAnnotation'):
+                if args.nsre and not re.match(args.nsre, a.get_ns()):
+                    continue
+                yield a
+
         md = self._load(args)
-        mas = md.get_allanns()
-        for ma in mas:
-            if ma.get_type() == 'MapAnnotation':
-                if args.report:
-                    self.ctx.out(self._format_ann(md, ma, 0))
-                else:
-                    self.ctx.out(self._format_ann(md, ma))
+        indent = None
+        if args.report:
+            indent = 0
+        self._output_ann(md, get_anns, args.parents, indent)
 
     def allanns(self, args):
         "Provide a list of all annotations linked to the given object"
+        def get_anns(md):
+            for a in md.get_allanns(args.ns):
+                if args.nsre and not re.match(args.nsre, a.get_ns()):
+                    continue
+                yield a
+
         md = self._load(args)
-        for a in md.get_allanns():
-            if args.report:
-                self.ctx.out(self._format_ann(md, a, 0))
-            else:
-                self.ctx.out(self._format_ann(md, a))
+        indent = None
+        if args.report:
+            indent = 0
+        self._output_ann(md, get_anns, args.parents, indent)
 
     # WRITE
 
     def populate(self, args):
         "Add metadata (bulk-annotations) to an object"
-        client = self.ctx.conn(args)
+        md = self._load(args)
+        client, conn = self._clientconn(args)
         # TODO: Configure logging properly
         if args.report:
             populate_metadata.log.setLevel(logging.DEBUG)
         else:
             populate_metadata.log.setLevel(logging.INFO)
         context_class = dict(self.POPULATE_CONTEXTS)[args.context]
-        ctx = context_class(client, args.obj, args.file)
+        if args.cfg:
+            cfgfileid = None
+            try:
+                otype, oid = args.cfg.split(':')
+                if otype.lower() == 'originalfile':
+                    cfgfileid = long(oid)
+            except ValueError:
+                pass
+
+            if not cfgfileid:
+                fileann = conn.createFileAnnfromLocalFile(
+                    args.cfg, mimetype="application/x-yaml",
+                    ns=NSBULKANNOTATIONSCONFIG)
+                cfgfileid = fileann.getFile().getId()
+                md.linkAnnotation(fileann)
+
+            ctx = context_class(client, args.obj, args.file, cfgfileid)
+        else:
+            ctx = context_class(client, args.obj, args.file)
         ctx.parse()
         if not args.dry_run:
             ctx.write_to_omero()
