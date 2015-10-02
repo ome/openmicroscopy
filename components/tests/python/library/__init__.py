@@ -301,30 +301,80 @@ class ITest(object):
     the file and then return the list of images.
     """
 
-    def importMIF(self, seriesCount=1, name=None, client=None,
+    def importMIF(self, seriesCount=0, name=None, client=None,
                   with_companion=False, skip="all", **kwargs):
         if client is None:
             client = self.client
         if name is None:
             name = "importMIF"
+
+        try:
+            globalMetadata = kwargs.pop("GlobalMetadata")
+        except:
+            globalMetadata = None
+        if globalMetadata:
+            with_companion = True
+
         append = ""
+
+        # Only include series count if enabled; in the case of plates,
+        # this will be unused
+        if seriesCount >= 1:
+            append = "series=%d%s" % (seriesCount, append)
+
         if kwargs:
             for k, v in kwargs.items():
                 append += "&%s=%s" % (k, v)
 
         query = client.sf.getQueryService()
-        fake = create_path(name, "&series=%d%s.fake" % (seriesCount, append))
+        fake = create_path(name, "&%s.fake" % append)
         if with_companion:
-            open(fake.abspath() + ".ini", "w")
+            ini = open(fake.abspath() + ".ini", "w")
+            if globalMetadata:
+                ini.write("[GlobalMetadata]\n")
+                for k, v in globalMetadata.items():
+                    ini.write("%s=%s\n" % (k, v))
+            ini.close()
+
         pixelIds = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
-        assert seriesCount == len(pixelIds)
+
+        if seriesCount >= 1:
+            assert seriesCount == len(pixelIds)
 
         images = []
         for pixIdStr in pixelIds:
             pixels = query.get("Pixels", long(pixIdStr))
             images.append(pixels.getImage())
         return images
+
+    def importPlates(
+        self, client=None,
+        plates=1, plateAcqs=1,
+        plateCols=1, plateRows=1,
+        fields=1, **kwargs
+    ):
+
+        if client is None:
+            client = self.client
+
+        kwargs["plates"] = plates
+        kwargs["plateAcqs"] = plateAcqs
+        kwargs["plateCols"] = plateCols
+        kwargs["plateRows"] = plateRows
+        kwargs["fields"] = fields
+        images = self.importMIF(client=client, **kwargs)
+        images = [x.id.val for x in images]
+
+        query = client.sf.getQueryService()
+        plates = query.findAllByQuery((
+            "select p from Plate p "
+            "join p.wells as w "
+            "join w.wellSamples as ws "
+            "join ws.image as i "
+            "where i.id in (:ids)"),
+            omero.sys.ParametersI().addIds(images))
+        return plates
 
     def createTestImage(self, sizeX=16, sizeY=16, sizeZ=1, sizeC=1, sizeT=1,
                         session=None):
@@ -802,12 +852,17 @@ class ITest(object):
         """
         return self.new_object(DatasetI, name=name, description=description)
 
-    def new_tag(self, name=None):
+    def new_tag(self, name=None, ns=None):
         """
         Creates a new tag object.
         :param name: The tag name. If None, a UUID string will be used
+        :param ns: The namespace for the annotation. If None, do not set.
         """
-        return self.new_object(TagAnnotationI, name=name)
+        tag = self.new_object(TagAnnotationI, name=name)
+        tag.setTextValue(rstring(name))
+        if ns is not None:
+            tag.setNs(rstring(ns))
+        return tag
 
     def make_image(self, name=None, description=None, date=0, client=None):
         """
@@ -846,15 +901,16 @@ class ITest(object):
         dataset = self.new_dataset(name=name, description=description)
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
 
-    def make_tag(self, name=None, client=None):
+    def make_tag(self, name=None, client=None, ns=None):
         """
         Creates a new tag instance and returns the persisted object.
         :param name: The tag name. If None, a UUID string will be used
         :param client: The client to use to create the object
+        :param ns: The namespace for the annotation
         """
         if client is None:
             client = self.client
-        tag = self.new_tag(name=name)
+        tag = self.new_tag(name=name, ns=ns)
         return client.sf.getUpdateService().saveAndReturnObject(tag)
 
     def createDatasets(self, count, baseName, client=None):
@@ -877,13 +933,14 @@ class ITest(object):
         return update.saveAndReturnArray(dsets)
 
     def make_file_annotation(self, name=None, binary=None, format=None,
-                             client=None):
+                             client=None, ns=None):
         """
         Creates a new DatasetI instance and returns the persisted object.
         If no name has been provided, a UUID string shall be used.
 
         :param name: the name of the project
         :param client: The client to use to create the object
+        :param ns: The namespace for the annotation
         """
 
         if client is None:
@@ -895,9 +952,11 @@ class ITest(object):
             format = "application/octet-stream"
         if binary is None:
             binary = "12345678910"
+        if name is None:
+            name = str(self.uuid())
 
         oFile = OriginalFileI()
-        oFile.setName(rstring(str(self.uuid())))
+        oFile.setName(rstring(name))
         oFile.setPath(rstring(str(self.uuid())))
         oFile.setSize(rlong(len(binary)))
         oFile.hasher = ChecksumAlgorithmI()
@@ -914,6 +973,8 @@ class ITest(object):
 
         fa = FileAnnotationI()
         fa.setFile(oFile)
+        if ns is not None:
+            fa.setNs(rstring(ns))
         return update.saveAndReturnObject(fa)
 
     def link(self, obj1, obj2, client=None):
