@@ -3,7 +3,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -22,32 +22,26 @@
 {% endcomment %}
 
 {% block title %}
-  OMERO webstart
+  OMERO.web
 {% endblock %}
 
 {% block login %}
-<script>
-  $(function(){
-    if (window.opener && $.contains(window.opener.location, "webclient")) {
-        $("#goWebclientMsg span").text("return");
-        $("#goWebclientMsg a").click(function(){
-          window.close();
-          return false;
-        });
-    }
-  });
-</script>
 
-    {% if error %}<h1 class="error">Following error occured: WEBSTART_TEMPLATE, '{{ error }}'</h1>{% endif %}
+    {% if error %}<h1 class="error">Following error occurred: INDEX_TEMPLATE, '{{ error }}'</h1>{% endif %}
 
     <form class="standard_form inlined">
-      <h1 style="text-align: center">{% trans "Launch OMERO.insight via webstart" %}: </h1>
-      <p style="text-align: center">
-        {% include "webstart/includes/webstart_insight_script.html" %}
-      </p>
+      <h1 style="text-align: center">This is index template example.</h1>
       <p id="goWebclientMsg" style="text-align: center; margin-top: 15px; margin-bottom:0px; position: relative; top:15px">
         To <span>go</span> to the webclient, click <a href="{% url 'webindex' %}">here</a>
       </p>
     </form>
 
 {% endblock %}
+
+
+
+
+
+
+
+

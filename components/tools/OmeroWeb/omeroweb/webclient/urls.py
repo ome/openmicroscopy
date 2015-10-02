@@ -35,9 +35,6 @@ urlpatterns = patterns(
     # Home page is the main 'Data' page
     url(r'^$', views.load_template, {'menu': 'userdata'}, name="webindex"),
 
-    # 'Feed' / 'recent'
-    url(r'^feed/$', views.feed, name="web_feed"),
-
     # render main template
     url(r'^(?P<menu>((?i)userdata|public|history|search|help|usertags))/$',
         views.load_template,
@@ -48,12 +45,6 @@ urlpatterns = patterns(
     url(r'^history/$',
         views.load_template, {'menu': 'history'},
         name="history"),
-
-    url(r'^last_imports/$',
-        views.index_last_imports,
-        name="index_last_imports"),
-    url(r'^most_recent/$', views.index_most_recent, name="index_most_recent"),
-    url(r'^tag_cloud/$', views.index_tag_cloud, name="index_tag_cloud"),
 
     url(r'^login/$', views.login, name="weblogin"),
     url(r'^logout/$', views.logout, name="weblogout"),
