@@ -108,18 +108,18 @@ DECLARE
 BEGIN
     FOR roi_row IN SELECT * FROM roi LOOP
         IF roi_row.keywords IS NOT NULL THEN
-        FOREACH element IN ARRAY roi_row.keywords LOOP
-            IF element <> '' THEN
-                RAISE EXCEPTION 'data in roi.keywords row id=%', roi_row.id;
-            END IF;
-        END LOOP;
+            FOREACH element IN ARRAY roi_row.keywords LOOP
+                IF element <> '' THEN
+                    RAISE EXCEPTION 'data in roi.keywords row id=%', roi_row.id;
+                END IF;
+            END LOOP;
         END IF;
         IF roi_row.namespaces IS NOT NULL THEN
-        FOREACH element IN ARRAY roi_row.namespaces LOOP
-            IF element <> '' THEN
-                RAISE EXCEPTION 'data in roi.namespaces row id=%', roi_row.id;
-            END IF;
-        END LOOP;
+            FOREACH element IN ARRAY roi_row.namespaces LOOP
+                IF element <> '' THEN
+                    RAISE EXCEPTION 'data in roi.namespaces row id=%', roi_row.id;
+                END IF;
+            END LOOP;
         END IF;
     END LOOP;
 
