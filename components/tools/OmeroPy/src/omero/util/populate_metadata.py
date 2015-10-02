@@ -652,7 +652,8 @@ class BulkToMapAnnotationContext(_QueryContext):
         if not self.ofileid:
             raise MetadataError("Unable to find bulk-annotations file")
         if cfgfileid:
-            self.default_cfg, self.column_cfgs = self.get_config(cfgfileid)
+            self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
+                self.get_config(cfgfileid)
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
@@ -678,10 +679,11 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         default_cfg = cfg.get("defaults")
         column_cfgs = cfg.get("columns")
+        advanced_cfgs = cfg.get("advanced", {})
         if not default_cfg and not column_cfgs:
             raise Exception(
                 "Configuration defaults and columns were both empty")
-        return default_cfg, column_cfgs
+        return default_cfg, column_cfgs, advanced_cfgs
 
     def get_bulk_annotation_file(self):
         otype = self.target_object.ice_staticId().split('::')[-1]
@@ -724,6 +726,14 @@ class BulkToMapAnnotationContext(_QueryContext):
         finally:
             table.close()
 
+    def _get_additional_targets(self, target):
+        iids = []
+        if self.advanced_cfgs.get('well_to_images') and isinstance(
+                target, omero.model.Well):
+            q = 'SELECT image.id FROM WellSample WHERE well.id=:id'
+            iids = self.projection(q, unwrap(target.getId()))
+        return [omero.model.ImageI(i, False) for i in iids]
+
     def populate(self, table):
         def idcolumn_to_omeroclass(col):
             clsname = re.search('::(\w+)Column$', col.ice_staticId()).group(1)
@@ -755,13 +765,19 @@ class BulkToMapAnnotationContext(_QueryContext):
             targets = []
             for omerotype, n in idcols:
                 if row[n] > 0:
-                    targets.append(omerotype(row[n], False))
+                    obj = omerotype(row[n], False)
+                    targets.append(obj)
+                    targets.extend(self._get_additional_targets(obj))
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
             if targets:
                 malinks = self.create_map_annotation(targets, rowkvs)
-                log.debug('\n\t'.join("%s=%s" % (v.name, v.value)
-                          for v in malinks[0].getChild().getMapValue()))
+                log.debug('Map:\n\t' + ('\n\t'.join("%s=%s" % (
+                    v.name, v.value) for v in
+                    malinks[0].getChild().getMapValue())))
+                log.debug('Targets:\n\t' + ('\n\t'.join("%s:%d" % (
+                    t.ice_staticId().split('::')[-1], t.id._val)
+                    for t in targets)))
                 mas.extend(malinks)
 
         self.mapannotations = mas
