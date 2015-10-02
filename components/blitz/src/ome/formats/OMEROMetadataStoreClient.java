@@ -259,6 +259,9 @@ public class OMEROMetadataStoreClient
     private Map<LSID, List<LSID>> referenceCache =
         new HashMap<LSID, List<LSID>>();
 
+    private Map<LSID, Set<LSID>> referenceCacheCheck =
+        new HashMap<LSID, Set<LSID>>();
+
     /** Our authoritative LSID container cache. */
     private Map<Class<? extends IObject>, Map<String, IObjectContainer>>
         authoritativeContainerCache =
@@ -1193,6 +1196,7 @@ public class OMEROMetadataStoreClient
             containerCache =
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, List<LSID>>();
+            referenceCacheCheck = new HashMap<LSID, Set<LSID>>();
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
             userSpecifiedAnnotations = null;
@@ -1444,7 +1448,7 @@ public class OMEROMetadataStoreClient
      */
     public Map<LSID, List<LSID>> getReferenceCache()
     {
-        return referenceCache;
+        return Collections.unmodifiableMap(referenceCache);
     }
 
     /* (non-Javadoc)
@@ -1485,17 +1489,23 @@ public class OMEROMetadataStoreClient
     public void addReference(LSID source, LSID target)
     {
         List<LSID> targets = null;
+        Set<LSID> targetsCheck = null;
         if (referenceCache.containsKey(source))
         {
             targets = referenceCache.get(source);
+            targetsCheck = referenceCacheCheck.get(source);
         }
         else
         {
             targets = new ArrayList<LSID>();
+            targetsCheck = new HashSet<LSID>();
             referenceCache.put(source, targets);
+            referenceCacheCheck.put(source, targetsCheck);
         }
-        if (!targets.contains(target))
+        // Adding to a list is VERY slow.
+        if (!targetsCheck.contains(target))
         {
+            targetsCheck.add(target);
             targets.add(target);
         }
     }
