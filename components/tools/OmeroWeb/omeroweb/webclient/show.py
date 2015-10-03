@@ -348,6 +348,9 @@ class Show(object):
             # Need to see if first item has parents
             if first_selected is not None:
                 for p in first_selected.getAncestry():
+                    if p.OMERO_CLASS == "Well":
+                        self._initially_select = ['well.id-%s' % p.getId()]
+                        return self._find_first_selected()
                     if first_obj == "tag":
                         # Parents of tags must be tags (no OMERO_CLASS)
                         self._initially_open.insert(0, "tag-%s" % p.getId())
