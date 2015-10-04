@@ -1011,6 +1011,7 @@ present, the user will enter a console""")
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
+            '@Ice.Default.Host@': config.get('Ice.Default.Host', '127.0.0.1')
             }
 
         def copy_template(input_file, output_dir):
