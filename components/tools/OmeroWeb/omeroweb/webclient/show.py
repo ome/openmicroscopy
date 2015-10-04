@@ -349,8 +349,8 @@ class Show(object):
             if first_selected is not None:
                 for p in first_selected.getAncestry():
                     # If 'Well' is a parent, we have stared with Image.
-                    # We want to start again at 'Well' to _load_first_selected with
-                    # well, so we get 'acquisition' in ancestors.
+                    # We want to start again at 'Well' to _load_first_selected
+                    # with well, so we get 'acquisition' in ancestors.
                     if p.OMERO_CLASS == "Well":
                         self._initially_select = ['well.id-%s' % p.getId()]
                         return self._find_first_selected()
