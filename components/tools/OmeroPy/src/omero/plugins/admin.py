@@ -37,7 +37,7 @@ from omero.plugins.prefs import \
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
-from omero_ext.argparse import FileType
+from omero_ext.argparse import FileType, SUPPRESS
 from omero_version import ice_compatibility
 
 try:
@@ -320,24 +320,7 @@ dt_socket,address=8787,suspend=y" \\
             "--finish", action="store_true",
             help="Re-enables the background indexer after for indexing")
 
-        ports = Action(
-            "ports",
-            """Allows modifying the ports from a standard OMERO install (deprecated)
-
-To have multiple OMERO servers running on the same machine several ports
-must be modified from their defaults. Changing the ports on a running server
-will be prevented, use --skipcheck to override this.
-
-Examples:
-
-  # Set ports to registry:14061, tcp:14063, ssl:14064, web:14080
-  %(prog)s --prefix=1
-  # Set ports back to defaults: 4061, 4063, 4064, 4080
-  %(prog)s --prefix=1 --revert
-  # Set ports to: 4444, 5555, 6666, 7777
-  %(prog)s --registry=4444 --tcp=5555 --ssl=6666 --webserver=7777
-
-""").parser
+        ports = Action("ports", SUPPRESS).parser
         ports.add_argument(
             "--prefix",
             help="Adds a prefix to each port ON TOP OF any other settings")
