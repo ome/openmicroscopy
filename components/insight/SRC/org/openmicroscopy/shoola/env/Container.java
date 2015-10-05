@@ -263,13 +263,6 @@ public final class Container
 	 */
 	public String getFileRelative(String directory, String file)
 	{ 
-		if (IOUtil.isJavaWebStart()) {
-			StringBuffer relPath = new StringBuffer(directory);
-	        if (UIUtilities.isWindowsOS()) relPath.append("/");
-	        else relPath.append(File.separatorChar);
-	        relPath.append(file);
-	        return relPath.toString();
-		}
 		return resolveFilePath(file, directory);
 	}
 	/**

@@ -390,7 +390,7 @@ class ToolBar
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));
 		
-		interpolation.setSelected(pref!=null ? pref.isInterpolation() : true);
+		interpolation.setSelected(controller.isInterpolation());
 		interpolation.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent arg0) {

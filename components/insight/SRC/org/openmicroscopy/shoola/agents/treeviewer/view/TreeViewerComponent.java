@@ -3561,9 +3561,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#onNodesMoved()
+	 * @see TreeViewer#onNodesMoved(DataObject)
 	 */
-	public void onNodesMoved()
+	public void onNodesMoved(DataObject target)
 	{
 		if (model.getState() != SAVE) return;
 		model.setState(READY);
@@ -3574,7 +3574,7 @@ class TreeViewerComponent
 		DataBrowserFactory.discardAll();
 		
 		Browser browser = model.getSelectedBrowser();
-		browser.refreshTree(null, null);
+		browser.refreshTree(null, target);
 		model.getMetadataViewer().setRootObject(null, -1, null);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -3587,13 +3587,13 @@ class TreeViewerComponent
 	public void onNodesDeleted(Collection<DataObject> deleted)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (deleted == null || deleted.size() == 0) {
-			onNodesMoved();
+		if (CollectionUtils.isEmpty(deleted)) {
+			onNodesMoved(null);
 			return;
 		}
 		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, deleted);
 		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
-			onNodesMoved();
+			onNodesMoved(null);
 	}
 
 	/**

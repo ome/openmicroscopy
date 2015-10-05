@@ -18,12 +18,6 @@ then
   ./build.py release-src
 fi
 
-if [ -z "${RELEASE-}" ]; then
-  pushd target
-  ../docs/hudson/omero_insight_sign.py ../lib/keystore omedev OMERO.server-*.zip -kp omedev -cp omedev -ts no -oz OMERO.server-*.zip
-  popd
-fi
-
 # Log information
 echo BUILD_NUMBER=$BUILD_NUMBER > target/$OMERO_BRANCH.log
 echo OMERO_BRANCH=$OMERO_BRANCH >> target/$OMERO_BRANCH.log

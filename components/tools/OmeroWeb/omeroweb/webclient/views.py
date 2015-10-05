@@ -31,6 +31,7 @@ import logging
 import traceback
 import json
 import re
+import sys
 
 from time import time
 
@@ -52,7 +53,7 @@ from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
-
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
 from webclient_utils import _formatReport, _purgeCallback
@@ -67,7 +68,6 @@ from forms import MetadataStageLabelForm, MetadataLightSourceForm
 from forms import MetadataDichroicForm, MetadataMicroscopeForm
 from forms import FilesAnnotationForm, WellIndexForm, NewTagsAnnotationFormSet
 
-from controller.index import BaseIndex
 from controller.container import BaseContainer
 from controller.history import BaseCalendar
 from controller.search import BaseSearch
@@ -77,6 +77,7 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.marshal import chgrpMarshal
 
 from omeroweb.feedback.views import handlerInternalError
 
@@ -148,8 +149,31 @@ def get_bool_or_default(request, name, default):
             val = True
     return val
 
+
 ##############################################################################
-# views controll
+# custom index page
+
+
+@never_cache
+@render_response()
+def custom_index(request, conn=None, **kwargs):
+    context = {"version": omero_version, 'build_year': build_year}
+
+    if settings.INDEX_TEMPLATE is not None:
+        try:
+            template_loader.get_template(settings.INDEX_TEMPLATE)
+            context['template'] = settings.INDEX_TEMPLATE
+        except Exception:
+            context['template'] = 'webclient/index.html'
+            context["error"] = traceback.format_exception(*sys.exc_info())[-1]
+    else:
+        context['template'] = 'webclient/index.html'
+
+    return context
+
+
+##############################################################################
+# views
 
 
 def login(request):
@@ -275,67 +299,6 @@ def keepalive_ping(request, conn=None, **kwargs):
     # login_required handles ping, timeout etc, so we don't need to do
     # anything else
     return HttpResponse("OK")
-
-
-@login_required()
-@render_response()
-def feed(request, conn=None, **kwargs):
-    """
-    Viewing this page doesn't perform any action. All we do here is assemble
-    various data for display.
-    Last imports, tag cloud etc are retrived via separate AJAX calls.
-    """
-    template = "webclient/index/index.html"
-
-    controller = BaseIndex(conn)
-
-    context = {'controller': controller}
-    context['template'] = template
-    return context
-
-
-@login_required()
-@render_response()
-def index_last_imports(request, conn=None, **kwargs):
-    """
-    Gets the most recent imports - Used in an AJAX call by home page.
-    """
-
-    controller = BaseIndex(conn)
-    controller.loadLastAcquisitions()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_last_imports.html"
-    return context
-
-
-@login_required()
-@render_response()
-def index_most_recent(request, conn=None, **kwargs):
-    """
-    Gets the most recent 'shares' and 'share' comments. Used by the homepage
-    via AJAX call
-    """
-
-    controller = BaseIndex(conn)
-    controller.loadMostRecent()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_most_recent.html"
-    return context
-
-
-@login_required()
-@render_response()
-def index_tag_cloud(request, conn=None, **kwargs):
-    """ Gets the most used Tags. Used by the homepage via AJAX call """
-
-    controller = BaseIndex(conn)
-    controller.loadTagCloud()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_tag_cloud.html"
-    return context
 
 
 @login_required()
@@ -1318,11 +1281,9 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     manager.listContainerHierarchy(owner)
     template = 'webclient/data/chgrp_target_tree.html'
 
-    show_projects = target_type in ('project', 'dataset')
     context = {
         'manager': manager,
         'target_type': target_type,
-        'show_projects': show_projects,
         'template': template}
     return context
 
@@ -1647,6 +1608,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            context['canExportAsJpg'] = manager.canExportAsJpg(request)
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
     context['manager'] = manager
@@ -2156,6 +2118,7 @@ def batch_annotate(request, conn=None, **kwargs):
     ratings = manager.getGroupedRatings(allratings)
 
     figScripts = manager.listFigureScripts(objs)
+    canExportAsJpg = manager.canExportAsJpg(request, objs)
     filesetInfo = None
     iids = []
     if 'well' in objs and len(objs['well']) > 0:
@@ -2177,6 +2140,7 @@ def batch_annotate(request, conn=None, **kwargs):
         'batch_ann': True,
         'index': index,
         'figScripts': figScripts,
+        'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
         'annotationBlocked': annotationBlocked,
         'userRatingAvg': userRatingAvg,
@@ -3429,6 +3393,19 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
+    # If we have a jobId, just process that (Only chgrp supported)
+    jobId = request.REQUEST.get('jobId', None)
+    if jobId is not None:
+        jobId = str(jobId)
+        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
+        rsp = prx.getResponse()
+        if rsp is not None:
+            rv = chgrpMarshal(conn, rsp)
+            rv['finished'] = True
+        else:
+            rv = {'finished': False}
+        return rv
+
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
         callbackDict = request.session['callback'][cbString]
@@ -4305,6 +4282,23 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
         }
     }
     return result
+
+
+@login_required()
+def chgrpDryRun(request, conn=None, **kwargs):
+
+    group_id = getIntOrDefault(request, 'group_id', None)
+    targetObjects = {}
+    dtypes = ["Project", "Dataset", "Image", "Screen", "Plate", "Fileset"]
+    for dtype in dtypes:
+        oids = request.REQUEST.get(dtype, None)
+        if oids is not None:
+            obj_ids = [int(oid) for oid in oids.split(",")]
+            targetObjects[dtype] = obj_ids
+
+    handle = conn.chgrpDryRun(targetObjects, group_id)
+    jobId = str(handle)
+    return HttpResponse(jobId)
 
 
 @login_required()

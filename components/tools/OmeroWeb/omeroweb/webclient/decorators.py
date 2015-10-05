@@ -136,13 +136,6 @@ class render_response(omeroweb.decorators.render_response):
                 context['ui']['dropdown_menu'] = request.session.get(
                     'server_settings').get('ui').get('dropdown_menu')
 
-        if (settings.WEBSTART and
-            (not settings.WEBSTART_ADMINS_ONLY or
-             (conn.isAdmin() or (settings.WEBSTART_ADMINS_ONLY and
-                                 len(list(conn.listOwnedGroups())) > 0)))):
-
-            context['insight_url'] = request.build_absolute_uri(
-                reverse("webstart_insight"))
         self.load_settings(request, context, conn)
 
     def load_settings(self, request, context, conn):

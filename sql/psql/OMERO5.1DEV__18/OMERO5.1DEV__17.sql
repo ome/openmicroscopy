@@ -403,7 +403,7 @@ create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
             limit 1) then
 
                 -- CANCEL DELETE
-                RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+                RAISE EXCEPTION '%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
 
         end if;
         return OLD; -- proceed

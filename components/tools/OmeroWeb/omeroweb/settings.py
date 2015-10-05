@@ -53,11 +53,6 @@ else:
     OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
     OMERO_HOME = os.path.normpath(OMERO_HOME)
 
-INSIGHT_JARS = os.path.join(OMERO_HOME, "lib", "insight").replace('\\', '/')
-WEBSTART = False
-if os.path.isdir(INSIGHT_JARS):
-    WEBSTART = True
-
 # Logging
 LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\', '/')
 
@@ -282,30 +277,6 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.allowed_hosts":
         ["ALLOWED_HOSTS", '["*"]', json.loads, None],
 
-    # WEBSTART
-    "omero.web.webstart_template":
-        ["WEBSTART_TEMPLATE", None, identity, None],
-    "omero.web.webstart_jar":
-        ["WEBSTART_JAR", "omero.insight.jar", str, None],
-    "omero.web.webstart_icon":
-        ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str, None],
-    "omero.web.webstart_heap":
-        ["WEBSTART_HEAP", "1024m", str, None],
-    "omero.web.webstart_host":
-        ["WEBSTART_HOST", CUSTOM_HOST, str, None],
-    "omero.web.webstart_port":
-        ["WEBSTART_PORT", "4064", str, None],
-    "omero.web.webstart_class":
-        ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str, None],
-    "omero.web.webstart_title":
-        ["WEBSTART_TITLE", "OMERO.insight", str, None],
-    "omero.web.webstart_vendor":
-        ["WEBSTART_VENDOR", "The Open Microscopy Environment", str, None],
-    "omero.web.webstart_homepage":
-        ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str, None],
-    "omero.web.webstart_admins_only":
-        ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
-
     # Internal email notification for omero.web.admins,
     # loaded from config.xml directly
     "omero.mail.from":
@@ -382,7 +353,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER_PORT", 4080, int, "Upstream application port"],
     "omero.web.application_server.max_requests":
         ["APPLICATION_SERVER_MAX_REQUESTS", 0, int,
-         ("The maximum number ofrequests a worker will process before "
+         ("The maximum number of requests a worker will process before "
           "restarting.")],
     "omero.web.prefix":
         ["FORCE_SCRIPT_NAME",
@@ -561,7 +532,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          identity,
          ("Define template used as an index page ``http://your_host/omero/``."
           "If None user is automatically redirected to the login page."
-          "For example use 'webstart/start.html'. ")],
+          "For example use 'webclient/index.html'. ")],
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
@@ -883,9 +854,8 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__),
 # staticfiles app will traverse if the FileSystemFinder finder is enabled,
 # e.g. if you use the collectstatic or findstatic management command or use
 # the static file serving view.
-if WEBSTART:
-    # from CUSTOM_SETTINGS_MAPPINGS
-    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)  # noqa
+# from CUSTOM_SETTINGS_MAPPINGS
+# STATICFILES_DIRS += (("webapp/custom_static", path/to/statics),)  # noqa
 
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate
 # the context in RequestContext. These callables take a request object as
@@ -925,7 +895,6 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webredirect',
-    'omeroweb.webstart',
     'pipeline',
 )
 
@@ -1010,6 +979,7 @@ PIPELINE_JS = {
             'webgateway/js/ome.roidisplay.js',
             'webgateway/js/ome.scalebardisplay.js',
             'webgateway/js/ome.smartdialog.js',
+            'webgateway/js/ome.roiutils.js',
             '3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',
             'webgateway/js/ome.postit.js',

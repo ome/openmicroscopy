@@ -204,6 +204,27 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
+    def canExportAsJpg(self, request, objDict=None):
+        """
+        Can't export as Jpg, Png, Tiff if bigger than approx 12k * 12k.
+        Limit set by OOM error in omeis.providers.re.RGBIntBuffer
+        """
+        can = True
+        try:
+            limit = request.session['server_settings'][
+                'download_as_max_size']
+        except:
+            limit = 144000000
+        if self.image:
+            if (self.image.getSizeX() * self.image.getSizeY()) > limit:
+                can = False
+        elif objDict is not None:
+            if 'image' in objDict:
+                for i in objDict['image']:
+                    if (i.getSizeX() * i.getSizeY()) > limit:
+                        can = False
+        return can
+
     def canDownload(self, objDict=None):
         """
         Returns False if any of selected object cannot be downloaded
