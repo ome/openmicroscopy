@@ -261,6 +261,7 @@ class ValueResolver(object):
             'where s.id = :id'), parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
+        self.target_name = unwrap(self.target_object.getName())
         self.images_by_id = dict()
         self.wells_by_location = dict()
         self.wells_by_id = dict()
@@ -300,6 +301,7 @@ class ValueResolver(object):
             'where p.id = :id'), parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
+        self.target_name = unwrap(self.target_object.getName())
         self.wells_by_location = dict()
         self.wells_by_id = dict()
         wells_by_location = dict()
@@ -444,13 +446,32 @@ class ParsingContext(object):
                 widths.append(None)
         return widths
 
+    def subselect_plate(self, rows, names):
+        """
+        If we're processing a plate but the bulk-annotations file contains
+        a plate columne then select rows for this plate only
+        """
+        for i, name in enumerate(names):
+            if name.lower() == 'plate':
+                valuerows = [row for row in rows if row[i] ==
+                             self.value_resolver.target_name]
+                log.debug(
+                    'Selected %d/%d rows for plate "%s"', len(valuerows),
+                    len(rows), self.value_resolver.target_name)
+        return rows
+
     def parse_from_handle(self, data):
         rows = list(csv.reader(data, delimiter=','))
         log.debug('Header: %r' % rows[0])
         self.header_resolver = HeaderResolver(self.target_object, rows[0])
         self.columns = self.header_resolver.create_columns()
         log.debug('Columns: %r' % self.columns)
-        self.populate(rows[1:])
+
+        valuerows = rows[1:]
+        log.debug('Got %d rows', len(valuerows))
+        if PlateI is self.value_resolver.target_class:
+            valuerows = self.subselect_plate(valuerows, rows[0])
+        self.populate(valuerows)
         self.post_process()
         log.debug('Column widths: %r' % self.get_column_widths())
         log.debug('Columns: %r' % [
