@@ -572,48 +572,48 @@ public class GraphPane
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) {
 			buildHistogramNoSelection();
-			return;
 		}
-		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
-		pixelStats = new HashMap<Coord3D, Map<Integer, ROIShapeStatsSimple>>();
-		shapeMap = new HashMap<Coord3D, ROIShape>();
-		channelName = new ArrayList<String>();
-		channelColour = new ArrayList<Color>();
-		Entry entry;
-		Iterator i  = ROIStats.entrySet().iterator();
-        
-		Coord3D c3D;
-		Map<StatsType, Map> shapeStats;
-		Map<Integer, ROIShapeStatsSimple> data;
-		int t = model.getDefaultT();
-		int z = model.getDefaultZ();
-		boolean hasData = false;
-		int cT, cZ;
-		while (i.hasNext())
-		{
-			entry = (Entry) i.next();
-			shape = (ROIShape) entry.getKey();
-			
-			c3D = shape.getCoord3D();
-			cT = c3D.getTimePoint();
-			cZ = c3D.getZSection();
-			
-			if (cT == t && cZ == z) hasData = true;
-			
-			shapeMap.put(c3D, shape);
-			if (shape.getFigure() instanceof MeasureTextFigure)
-				return;
-			shapeStats = AnalysisStatsWrapper.convertStats(
-					(Map) entry.getValue());
-			if (shapeStats != null) {
-				shapeStatsList.put(c3D, shapeStats);
-				data = shapeStats.get(StatsType.PIXELDATA);
-				pixelStats.put(c3D, data);
-			}
-		}
-		if (!hasData) {
-			buildHistogramNoSelection();
-			return;
+		else {
+    		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
+    		pixelStats = new HashMap<Coord3D, Map<Integer, ROIShapeStatsSimple>>();
+    		shapeMap = new HashMap<Coord3D, ROIShape>();
+    		channelName = new ArrayList<String>();
+    		channelColour = new ArrayList<Color>();
+    		Entry entry;
+    		Iterator i  = ROIStats.entrySet().iterator();
+            
+    		Coord3D c3D;
+    		Map<StatsType, Map> shapeStats;
+    		Map<Integer, ROIShapeStatsSimple> data;
+    		int t = model.getDefaultT();
+    		int z = model.getDefaultZ();
+    		boolean hasData = false;
+    		int cT, cZ;
+    		while (i.hasNext())
+    		{
+    			entry = (Entry) i.next();
+    			shape = (ROIShape) entry.getKey();
+    			
+    			c3D = shape.getCoord3D();
+    			cT = c3D.getTimePoint();
+    			cZ = c3D.getZSection();
+    			
+    			if (cT == t && cZ == z) hasData = true;
+    			
+    			shapeMap.put(c3D, shape);
+    			if (shape.getFigure() instanceof MeasureTextFigure)
+    				return;
+    			shapeStats = AnalysisStatsWrapper.convertStats(
+    					(Map) entry.getValue());
+    			if (shapeStats != null) {
+    				shapeStatsList.put(c3D, shapeStats);
+    				data = shapeStats.get(StatsType.PIXELDATA);
+    				pixelStats.put(c3D, data);
+    			}
+    		}
+    		if (!hasData) {
+    			buildHistogramNoSelection();
+    		}
 		}
         
 		zSlider.setMaximum(maxZ);

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -79,10 +79,6 @@ public class Analyser
 			PixelsData pixels, Collection channels, List shapes)
 	{
 		super(viewer, ctx);
-		if (CollectionUtils.isEmpty(channels))
-			throw new IllegalArgumentException("No channels specified.");
-		if (CollectionUtils.isEmpty(shapes))
-			throw new IllegalArgumentException("No shapes specified.");
 		this.pixels = pixels;
 		this.channels = channels;
 		this.shapes = shapes;
@@ -94,7 +90,11 @@ public class Analyser
      */
     public void load()
     {
-    	handle = idView.analyseShapes(ctx, pixels, channels, shapes, this);
+        if (CollectionUtils.isNotEmpty(shapes)
+                && CollectionUtils.isNotEmpty(channels))
+            handle = idView.analyseShapes(ctx, pixels, channels, shapes, this);
+        else
+            viewer.setStatsShapes(null);
     }
     
     /**
@@ -129,9 +129,13 @@ public class Analyser
     
     /**
      * Cancels the data loading.
+     * 
      * @see MeasurementViewerLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel() {
+        if (handle != null)
+            handle.cancel();
+    }
     
     /**
      * Feeds the result back to the viewer.
@@ -139,7 +143,8 @@ public class Analyser
      */
     public void handleResult(Object result)
     {
-    	if (viewer.getState() == MeasurementViewer.DISCARDED) return;
+    	if (viewer.getState() == MeasurementViewer.DISCARDED) 
+    	    return;
     	viewer.setStatsShapes((Map) result);
     }
 
