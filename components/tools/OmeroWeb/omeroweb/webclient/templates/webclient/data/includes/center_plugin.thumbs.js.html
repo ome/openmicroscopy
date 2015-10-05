@@ -108,19 +108,21 @@ $(document).ready(function() {
             handleClickSelection(event);
         });
 
-        // plugin to handle drag-select of images
-        $("#icon_table").selectable({
-            filter: 'li.row',
-            distance: 2,
-            stop: function() {
-                // Make the same selection in the jstree etc
-                syncTreeSelection();
-            },
-            start: function() {
-                // Remove any fileset selection markings
-                $("#dataIcons li.row:visible").removeClass("fs-selected");
-            }
-        });
+        // plugin to handle drag-select of images (share is single-select only)
+        if (parentNode.type !== "share") {
+            $("#icon_table").selectable({
+                filter: 'li.row',
+                distance: 2,
+                stop: function() {
+                    // Make the same selection in the jstree etc
+                    syncTreeSelection();
+                },
+                start: function() {
+                    // Remove any fileset selection markings
+                    $("#dataIcons li.row:visible").removeClass("fs-selected");
+                }
+            });
+        }
 
         $("#filtersearch label").inFieldLabels();
 
@@ -430,11 +432,11 @@ $(document).ready(function() {
     var syncTreeSelection = function() {
 
         var $selectedIcons = $('.ui-selected');
-        {% if share %}
+        if (parentNode.type == 'share') {
             // We don't support multi-selection of images in share
             $selectedIcons.removeClass('ui-selected');
             $selectedIcons = $selectedIcons.first().addClass('ui-selected');
-        {% endif %}
+        }
         var imageId = $selectedIcons.first().data('id');
 
         // Get the node that seems to be the current container
