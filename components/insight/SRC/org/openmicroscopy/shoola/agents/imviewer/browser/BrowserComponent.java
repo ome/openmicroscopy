@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -135,6 +135,13 @@ class BrowserComponent
         if (!hasImage) {
         	view.locateScrollBars();
         }
+        paintImage();
+    }
+    
+    /**
+     * (Re)paints the image
+     */
+    private void paintImage() {
         view.paintMainImage();
         viewSplitImages();
     }
@@ -665,6 +672,7 @@ class BrowserComponent
          */
         public void setInterpolation(boolean interpolation) {
             model.setInterpolation(interpolation);
+            paintImage();
         }
 	    
 }
