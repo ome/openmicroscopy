@@ -107,6 +107,7 @@ $(document).ready(function() {
                 $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
 
                 // Load html from url
+                console.log("loading", url);
                 $("div#content_details").load(url);
                 setThumbnailsPanel(nodeType, nodeId, inst.get_omepath(node), newPage, newField);
 
