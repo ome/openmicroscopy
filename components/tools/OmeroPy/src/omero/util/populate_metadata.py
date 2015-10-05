@@ -464,6 +464,9 @@ class ParsingContext(object):
     def parse_from_handle(self, data):
         rows = list(csv.reader(data, delimiter=','))
         log.debug('Header: %r' % rows[0])
+        for h in rows[0]:
+            if not h:
+                raise Exception('Empty column header in CSV: %s' % rows[0])
         self.header_resolver = HeaderResolver(self.target_object, rows[0])
         self.columns = self.header_resolver.create_columns()
         log.debug('Columns: %r' % self.columns)
