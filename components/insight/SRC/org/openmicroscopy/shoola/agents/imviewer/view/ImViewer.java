@@ -1299,30 +1299,30 @@ public interface ImViewer
     /**
      * Reloads the 'saved by' thumbnails of the the rendering panel
      */
-    public void reloadRenderingThumbs();
+    void reloadRenderingThumbs();
     
     /**
      * Returns if interpolation is enabled or not
      * @return See above.
      */
-    public boolean isInterpolation();
+    boolean isInterpolation();
 
     /**
      * En-/Disables interpolation
      * 
      * @param interpolation
      */
-    public void setInterpolation(boolean interpolation);
+    void setInterpolation(boolean interpolation);
     
     /**
      * Set the {@link ImageAcquisitionData}
      * @param data The {@link ImageAcquisitionData}
      */
-    public void setImageAcquisitionData(ImageAcquisitionData data);
+    void setImageAcquisitionData(ImageAcquisitionData data);
     
     /**
      * Get the {@link ImageAcquisitionData}
      * @return See above
      */
-    public ImageAcquisitionData getImageAcquisitionData();
+    ImageAcquisitionData getImageAcquisitionData();
 }
