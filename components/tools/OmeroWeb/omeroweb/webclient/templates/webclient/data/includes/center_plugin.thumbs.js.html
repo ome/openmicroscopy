@@ -80,7 +80,23 @@ $(document).ready(function() {
         inst.change_page(parentNode, page);
         // and then reselect the same node again to trigger update
         inst.select_node(parentNode);
-    })
+    });
+
+    // double-click handler on image - launches image viewer
+    $("#content_details").on("dblclick", "li.row", function(event) {
+        console.log(this);
+        var $this = $(this),
+            iid = $this.attr('id').split("-")[1],
+            url;
+        // Image only has share ID if user doesn't own the share.
+        if ($this.attr('data-share')) {
+            url = "{% url 'web_image_viewer' 99 0 %}".replace('/99/', "/" + $this.attr('data-share') + "/" );
+        } else {
+            url = "{% url 'web_image_viewer' 0 %}";
+        }
+        url = url.replace('/0/', "/" + iid + "/" );
+        OME.openPopup(url);
+    });
 
     // Set up the centre panel header.
     var setupDatasetHeader = function() {
@@ -203,6 +219,11 @@ $(document).ready(function() {
                 if (fsId) {
                     selFileSets.push(fsId);
                 }
+            }
+            // If image is in share and share is not owned by user...
+            if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
+                // share ID will be needed to open image viewer
+                iData.shareId = node.data.obj.shareId;
             }
             imgJson.push(iData);
         });
@@ -705,12 +726,12 @@ $(document).ready(function() {
                         url += "&show=" + show;
                     }
                     break;
-                case 'tag':
-                    url += 'load_data_by_tag/?o_id=' + nodeId;
-                    break;
-                case 'share':
-                    url += 'load_public/' + nodeId + '/?view=icon'
-                    break;
+                // case 'tag':
+                //     url += 'load_data_by_tag/?o_id=' + nodeId;
+                //     break;
+                // case 'share':
+                //     url += 'load_public/' + nodeId + '/?view=icon'
+                //     break;
                 default:
                     url = undefined;
             }
