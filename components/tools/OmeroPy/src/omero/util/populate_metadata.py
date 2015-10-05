@@ -485,11 +485,14 @@ class ParsingContext(object):
             data.close()
 
     def populate(self, rows):
-        for row in rows:
+        nrows = len(rows)
+
+        for (r, row) in enumerate(rows):
             values = list()
             row = [(self.columns[i], value) for i, value in enumerate(row)]
             for column, original_value in row:
-                log.debug('Original value %s, %s' % (original_value, column))
+                log.debug('Row %d/%d Original value %s, %s',
+                          r + 1, nrows, original_value, column.name)
                 value = self.value_resolver.resolve(
                     column, original_value, row)
                 if value.__class__ is Skip:
