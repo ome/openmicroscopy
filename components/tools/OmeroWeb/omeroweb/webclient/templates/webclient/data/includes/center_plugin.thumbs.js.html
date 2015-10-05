@@ -166,7 +166,7 @@ $(document).ready(function() {
         }
 
         // parent node could be dataset, orphaned, share or tag
-            parentTypes = ["dataset", "orphaned", "tag", "share"],
+        var parentTypes = ["dataset", "orphaned", "tag", "share"],
             imgNodes = [];
         if (parentTypes.indexOf(dtype) > -1) {
             parentNode = selected[0];
@@ -222,6 +222,14 @@ $(document).ready(function() {
                     selFileSets.push(fsId);
                 }
             }
+            // Thumb version: random to break cache if thumbnails are -1 'in progress'
+            if (node.data.obj.thumbVersion != undefined) {
+                var thumbVersion = node.data.obj.thumbVersion;
+                if (thumbVersion === -1) {
+                    thumbVersion = getRandom();
+                }
+                iData.thumbVersion = thumbVersion;
+            }
             // If image is in share and share is not owned by user...
             if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
                 // share ID will be needed to open image viewer
@@ -272,6 +280,10 @@ $(document).ready(function() {
 
     // Update thumbnails when we switch between plugins
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
+
+    var getRandom = function() {
+        return (Math.random() + "").slice(2);
+    }
 
     var setupSorting = function() {
         // simple emulation of table-sorter for other elements...
