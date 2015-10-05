@@ -2096,7 +2096,6 @@
         transform varchar(255),
         vectorEffect varchar(255),
         version int4,
-        visibility bool,
         cx float8,
         cy float8,
         rx float8,
