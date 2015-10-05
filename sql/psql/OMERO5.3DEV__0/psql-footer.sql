@@ -1729,7 +1729,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.2DEV',  0,    'OMERO5.2DEV',   0,             'Initializing');
+             values ('OMERO5.3DEV',  0,    'OMERO5.3DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3030,9 +3030,9 @@ ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.2DEV' and
+  where currentVersion = 'OMERO5.3DEV' and
         currentPatch = 0 and
-        previousVersion = 'OMERO5.2DEV' and
+        previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 
 COMMIT;
