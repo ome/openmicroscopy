@@ -94,7 +94,7 @@ from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenI, PlateI, \
     ProjectDatasetLinkI, DatasetImageLinkI, \
     ScreenPlateLinkI
-from omero import ValidationException, ApiUsageException, ServerError, CmdError
+from omero import ApiUsageException, ServerError, CmdError
 from omero.rtypes import rlong, rlist
 
 import tree
@@ -793,7 +793,7 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
     return HttpJsonResponse({'acquisitions': plate_acquisitions})
 
 
-def get_object_link(conn, parent_type, parent_id, child_type, child_id):
+def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     """ This is just used internally by api_link DELETE below """
     if parent_type == 'orphaned':
         return None
@@ -806,45 +806,47 @@ def get_object_link(conn, parent_type, parent_id, child_type, child_id):
             return None
     elif parent_type == 'project':
         if child_type == 'dataset':
-            link_type = 'ProjectDataset'
+            link_type = 'ProjectDatasetLink'
     elif parent_type == 'dataset':
         if child_type == 'image':
-            link_type = 'DatasetImage'
+            link_type = 'DatasetImageLink'
     elif parent_type == 'screen':
         if child_type == 'plate':
-            link_type = 'ScreenPlate'
+            link_type = 'ScreenPlateLink'
 
     if not link_type:
         raise Http404("json data needs 'parent_type' and 'child_type'")
 
     params = omero.sys.ParametersI()
-    params.add('pid', rlong(parent_id))
-    params.add('cid', rlong(child_id))
+    params.addIds(child_ids)
 
     qs = conn.getQueryService()
     q = """
-        from %sLink olink
-        where olink.parent.id = :pid
-        and olink.child.id = :cid
+        from %s olink
+        where olink.child.id in (:ids)
         """ % link_type
+    if parent_id:
+        params.add('pid', rlong(parent_id))
+        q += " and olink.parent.id = :pid"
+
     res = qs.findAllByQuery(q, params, conn.SERVICE_OPTS)
 
-    if len(res) > 0:
-        return res[0]
-    else:
+    if parent_id is not None and len(res) == 0:
         raise Http404("No link found for %s-%s to %s-%s"
-                      % (parent_type, parent_id, child_type, child_id))
+                      % (parent_type, parent_id, child_type, child_ids))
+    return link_type, res
 
 
 @login_required()
-def api_link(request, conn=None, **kwargs):
-    """ Creates or Deletes a link between 2 objects specified by a json
+def api_links(request, conn=None, **kwargs):
+    """ Creates or Deletes links between objects specified by a json
     blob in the request body.
+    e.g. {"dataset":{"10":{"image":[1,2,3]}}}
     When creating a link, fails silently if ValidationException
     (E.g. adding an image to a Dataset that already has that image).
     """
 
-    def get_link(parent_type, parent_id, child_type, child_id):
+    def create_link(parent_type, parent_id, child_type, child_id):
         # TODO Handle more types of link
         if parent_type == 'experimenter':
             if child_type == 'dataset' or child_type == 'plate':
@@ -877,57 +879,88 @@ def api_link(request, conn=None, **kwargs):
                 return l
         return None
 
-    response = {}
+    response = {'success': False}
 
-    # Handle link creation
-    if request.method == 'POST':
-        json_data = json.loads(request.body)
+    # Handle link creation/deletion
+    json_data = json.loads(request.body)
+
+    # json is [parent_type][parent_id][child_type][childIds]
+    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+
+    linksToSave = []
+    for parent_type, parents in json_data.items():
+        if parent_type == "orphaned":
+            continue
+        for parent_id, children in parents.items():
+            for child_type, child_ids in children.items():
+                if request.method == 'DELETE':
+                    objLnks = get_object_links(conn, parent_type,
+                                               parent_id,
+                                               child_type,
+                                               child_ids)
+                    if objLnks is None:
+                        continue
+                    linkType, links = objLnks
+                    linkIds = [r.id.val for r in links]
+                    logger.info("api_link: Deleting %s links" % len(linkIds))
+                    conn.deleteObjects(linkType, linkIds)
+                    # webclient needs to know what is orphaned
+                    linkType, remainingLinks = get_object_links(conn,
+                                                                parent_type,
+                                                                None,
+                                                                child_type,
+                                                                child_ids)
+                    # return remaining links in same format as json above
+                    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+                    for rl in remainingLinks:
+                        pid = rl.parent.id.val
+                        cid = rl.child.id.val
+                        # Deleting links still in progress above - ignore these
+                        if pid == int(parent_id):
+                            continue
+                        if parent_type not in response:
+                            response[parent_type] = {}
+                        if pid not in response[parent_type]:
+                            response[parent_type][pid] = {child_type: []}
+                        response[parent_type][pid][child_type].append(cid)
+
+                elif request.method == 'POST':
+                    for child_id in child_ids:
+                        parent_id = int(parent_id)
+                        link = create_link(parent_type, parent_id,
+                                           child_type, child_id)
+                        if link and link != 'orphan':
+                            linksToSave.append(link)
+
+    if request.method == 'POST' and len(linksToSave) > 0:
+        # Need to set context to correct group (E.g parent group)
+        p = conn.getQueryService().get(parent_type.title(), parent_id,
+                                       conn.SERVICE_OPTS)
+        conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
+        logger.info("api_link: Saving %s links" % len(linksToSave))
 
         try:
-            ptype = json_data['parent_type']
-            pid = json_data['parent_id']
-            link = get_link(ptype,
-                            pid,
-                            json_data['child_type'],
-                            json_data['child_id'])
-
-            if link:
-                if link != 'orphan':
-                    # Need to set context to correct group (E.g parent group)
-                    p = conn.getQueryService().get(ptype.title(), pid,
-                                                   conn.SERVICE_OPTS)
-                    conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
-                    conn.saveObject(link)
-                response['success'] = True
-
-        # We assume that the failed creation of the link due to
-        # a ValidationException is due to the prexisting status
-        # of the link. This could be confirmed by parsing the
-        # message of the exception. That is why success is marked to
-        # be true
-        # At worst this may wrongly report that a link already existed
-        # when in-fact, one of the object in the link did not exist
-        except ValidationException:
+            # We try to save all at once, for speed.
+            conn.saveArray(linksToSave)
+            response['success'] = True
+        except:
+            logger.info("api_link: Exception on saveArray with %s links"
+                        % len(linksToSave))
+            # If this fails, e.g. ValidationException because link
+            # already exists, try to save individual links
+            for l in linksToSave:
+                try:
+                    conn.saveObject(l)
+                except:
+                    pass
             response['success'] = True
 
     elif request.method == 'DELETE':
-        json_data = json.loads(request.body)
-
-        # Get the parent-child link to delete (will raise 404 if not found)
-        link = get_object_link(conn,
-                               json_data['parent_type'],
-                               long(json_data['parent_id']),
-                               json_data['child_type'],
-                               long(json_data['child_id']))
-        # If the link exists delete it
-        if link is not None:
-            conn.deleteObjectDirect(link)
-        # If it was deleted then that is a success. Equally if 'orphan', it
-        # didn't exist and the end result is correct, so mark it as a
-        # success.
-        # No try/except here - exceptions will be raised and handled by client
+        # If we got here, DELETE was OK
         response['success'] = True
 
+    # Currently we don't use the response for anything.
+    # Could return more info in future if useful?
     return HttpJsonResponse(response)
 
 

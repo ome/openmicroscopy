@@ -84,7 +84,6 @@ $(document).ready(function() {
 
     // double-click handler on image - launches image viewer
     $("#content_details").on("dblclick", "li.row", function(event) {
-        console.log(this);
         var $this = $(this),
             iid = $this.attr('id').split("-")[1],
             url;
