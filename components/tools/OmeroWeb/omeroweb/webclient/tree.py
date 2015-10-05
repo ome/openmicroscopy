@@ -459,7 +459,7 @@ def _marshal_date(time):
 
 
 def _marshal_image(conn, row, row_pixels=None, share_id=None,
-                   date=None, acqDate=None):
+                   date=None, acqDate=None, thumbVersion=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
           * id (rlong)
@@ -501,7 +501,8 @@ def _marshal_image(conn, row, row_pixels=None, share_id=None,
         image['date'] = _marshal_date(unwrap(date))
     if acqDate is not None:
         image['acqDate'] = _marshal_date(unwrap(acqDate))
-
+    if thumbVersion is not None:
+        image['thumbVersion'] = thumbVersion
     return image
 
 
@@ -581,7 +582,8 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
              ,
              pix.sizeX as sizeX,
              pix.sizeY as sizeY,
-             pix.sizeZ as sizeZ
+             pix.sizeZ as sizeZ,
+             thumbs.version as thumbVersion
              """
     if date:
         extraValues += """,
@@ -600,7 +602,13 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     from_clause.append('Image image')
 
     if load_pixels:
-        from_clause.append('image.pixels pix')
+        from_clause.append('image.pixels pix join pix.thumbnails thumbs')
+        where_clause.append("""thumbs.id = (
+                select max(t.id)
+                from Thumbnail t
+                where t.pixels = pix.id
+                and t.details.owner.id = image.details.owner.id
+            )""")
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
@@ -674,6 +682,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         kwargs = {'conn': conn, 'row': d[0:5]}
         if load_pixels:
             d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
+            kwargs['thumbVersion'] = e['thumbVersion']
             kwargs['row_pixels'] = d
         if date:
             kwargs['acqDate'] = e['acqDate']
@@ -687,6 +696,35 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
             kwargs['share_id'] = share_id
 
         images.append(_marshal_image(**kwargs))
+
+    # If we're loading user's thumbnails, and there are any images not owned by user...
+    if load_pixels:
+        userId = conn.getUserId()
+        notOwnedImgs = [i['id'] for i in images if i['ownerId'] != userId]
+        if len(notOwnedImgs) > 0:
+            # ...need to load them in a separate query
+            params = omero.sys.ParametersI()
+            params.addIds(notOwnedImgs)
+            params.add('thumbOwner', wrap(userId))
+            q = """select image.id, thumbs.version from Image image join image.pixels pix join pix.thumbnails thumbs
+            where image.id in (:ids) and thumbs.details.owner.id = :thumbOwner
+            and thumbs.id = (
+                select max(t.id)
+                from Thumbnail t
+                where t.pixels = pix.id
+            )
+            """
+            thumbVersions = {}
+            for t in qs.projection(q, params, service_opts):
+                iid, tv = unwrap(t)
+                thumbVersions[iid] = tv
+            # For all images, set thumb version if we have it...
+            for i in images:
+                if i['id'] in thumbVersions:
+                    i['thumbVersion'] = thumbVersions[i['id']]
+                else:
+                    # ...otherwise remove
+                    i.pop('thumbVersion')
 
     # If there were any deleted images in the share, marshal and return
     # those
