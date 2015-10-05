@@ -458,6 +458,7 @@ class ParsingContext(object):
                 log.debug(
                     'Selected %d/%d rows for plate "%s"', len(valuerows),
                     len(rows), self.value_resolver.target_name)
+                return valuerows
         return rows
 
     def parse_from_handle(self, data):
