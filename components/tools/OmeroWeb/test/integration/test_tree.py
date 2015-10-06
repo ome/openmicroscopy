@@ -1773,8 +1773,8 @@ class TestTree(lib.ITest):
     def test_marshal_images_dataset_date(self, userA,
                                          project_hierarchy_userA_groupA):
         """
-        Test marshalling images for userA, groupA, datasetA
-        Images have no pixels, so should load with 'null' sizeX/Y/Z
+        Test marshalling dates for images in datasetA
+        Images have creation Date and Acquisition Dates set
         """
         conn = get_connection(userA)
         dataset = project_hierarchy_userA_groupA[2]
