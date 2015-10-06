@@ -1070,6 +1070,13 @@
                                 payload['orphaned'] = true;
                             }
 
+                            // Extra data needed for showing thumbs in centre panel
+                            if (node.type === 'dataset' || node.type === 'orphaned') {
+                                payload['sizeXYZ'] = true;
+                                payload['date'] = true;
+                                payload['thumbVersion'] = true;
+                            }
+
                             // Always add the group_id from the current context
                             payload['group'] = {{ active_group.id }};
 
@@ -1084,16 +1091,12 @@
                             } else if (node.type === 'project') {
                                 url = '{% url 'api_datasets' %}';
                             } else if (node.type === 'dataset') {
-                                payload['sizeXYZ'] = true;
-                                payload['date'] = true;
                                 url = '{% url 'api_images' %}';
                             } else if (node.type === 'screen') {
                                 url = '{% url 'api_plates' %}';
                             } else if (node.type === 'plate') {
                                 url = '{% url 'api_plate_acquisitions' %}';
                             } else if (node.type === 'orphaned') {
-                                payload['sizeXYZ'] = true;
-                                payload['date'] = true;
                                 url = '{% url 'api_images' %}';
                             } else if (node.id === '#') {
                                 // This handles multiple experimenters in the tree

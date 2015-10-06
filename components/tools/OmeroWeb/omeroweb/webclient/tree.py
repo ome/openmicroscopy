@@ -522,7 +522,8 @@ def _marshal_image_deleted(conn, image_id):
 
 def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                    load_pixels=False, group_id=-1, experimenter_id=-1,
-                   page=1, date=False, limit=settings.PAGE):
+                   page=1, date=False, thumb_version=False,
+                   limit=settings.PAGE):
 
     ''' Marshals images
 
@@ -582,9 +583,12 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
              ,
              pix.sizeX as sizeX,
              pix.sizeY as sizeY,
-             pix.sizeZ as sizeZ,
-             thumbs.version as thumbVersion
+             pix.sizeZ as sizeZ
              """
+    if thumb_version:
+        extraValues += """,
+            thumbs.version as thumbVersion
+            """
     if date:
         extraValues += """,
             image.details.creationEvent.time as date,
@@ -601,8 +605,11 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
 
     from_clause.append('Image image')
 
-    if load_pixels:
-        from_clause.append('image.pixels pix join pix.thumbnails thumbs')
+    if load_pixels or thumb_version:
+        from_clause.append('image.pixels pix')
+
+    if thumb_version:
+        from_clause.append('pix.thumbnails thumbs')
         where_clause.append("""thumbs.id = (
                 select max(t.id)
                 from Thumbnail t
@@ -682,8 +689,9 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         kwargs = {'conn': conn, 'row': d[0:5]}
         if load_pixels:
             d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
-            kwargs['thumbVersion'] = e['thumbVersion']
             kwargs['row_pixels'] = d
+        if thumb_version:
+            kwargs['thumbVersion'] = e['thumbVersion']
         if date:
             kwargs['acqDate'] = e['acqDate']
             kwargs['date'] = e['date']
@@ -699,7 +707,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
 
     # If we're loading user's thumbnails, and there are
     # any images not owned by user...
-    if load_pixels:
+    if thumb_version:
         userId = conn.getUserId()
         notOwnedImgs = [i['id'] for i in images if i['ownerId'] != userId]
         if len(notOwnedImgs) > 0:
