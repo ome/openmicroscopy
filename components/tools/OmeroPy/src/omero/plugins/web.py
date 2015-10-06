@@ -188,8 +188,8 @@ class WebControl(BaseControl):
     def _get_fallback_dir(self):
         return self.ctx.dir / "lib" / "fallback"
 
-    def _get_templates_dir(self):
-        return self.ctx.dir / "etc" / "templates"
+    def _get_web_templates_dir(self):
+        return self.ctx.dir / "etc" / "templates" / "web"
 
     def _set_nginx_fastcgi(self, d, settings):
         script_info = (
@@ -334,7 +334,7 @@ class WebControl(BaseControl):
             self._set_apache_wsgi(d, settings)
 
         template_file = "%s.conf.template" % server
-        c = file(self._get_templates_dir() / template_file).read()
+        c = file(self._get_web_templates_dir() / template_file).read()
         self.ctx.out(c % d)
 
     def syncmedia(self, args):

@@ -43,8 +43,8 @@ class TestWeb(object):
         dist_dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
             ".." / "dist"  # FIXME: should not be hard-coded
         dist_dir = dist_dir.abspath()
-        monkeypatch.setattr(WebControl, '_get_templates_dir',
-                            lambda x: dist_dir / "etc" / "templates")
+        monkeypatch.setattr(WebControl, '_get_web_templates_dir',
+                            lambda x: dist_dir / "etc" / "templates" / "web")
 
     def add_prefix(self, prefix, monkeypatch):
 
