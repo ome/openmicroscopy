@@ -1685,6 +1685,19 @@ class TestTree(lib.ITest):
                                    experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
+    def test_marshal_images_thumb_version(self, userA, image_pixels_userA):
+        """
+        Test marshalling image, loading thumbnail version
+        """
+        conn = get_connection(userA)
+        # Thumbnail not yet created: version will be -1
+        expected = expected_images(userA, [image_pixels_userA],
+                                   extraValues={'thumbVersion': -1})
+        marshaled = marshal_images(conn=conn,
+                                   thumb_version=True,
+                                   experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
     def test_marshal_images_another_user(self, userA, userB,
                                          images_userB_groupA):
         """
@@ -1788,8 +1801,8 @@ class TestTree(lib.ITest):
         images = conn.getUpdateService().saveAndReturnArray(images)
         # All images created at same time
         utcCreate = datetime.fromtimestamp(utcCreate/1000).isoformat() + 'Z'
-        extraValues={'acqDate': '2015-10-06T12:10:10Z',
-                     'date': utcCreate}
+        extraValues = {'acqDate': acqDate,
+                       'date': utcCreate}
         expected = expected_images(userA, images,
                                    extraValues=extraValues)
         marshaled = marshal_images(conn=conn,
