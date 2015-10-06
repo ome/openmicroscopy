@@ -44,7 +44,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.commons.collections.CollectionUtils;
-
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
@@ -52,8 +52,10 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrap
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import omero.log.Logger;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -138,9 +140,6 @@ public class GraphPane
 	
 	/** The histogram chart. */
 	private HistogramPlot histogramChart;
-	
-	/** The state of the Graph pane. */
-	private int state = READY;
 	
 	/** Reference to the view.*/
 	private MeasurementViewerUI view;
@@ -231,19 +230,23 @@ public class GraphPane
 		    return;
 		if (coord == null) 
 		    return;
-		if (state == ANALYSING) 
-		    return;
 		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
 				tSlider.getValue()-1);
 		if (coord.equals(thisCoord)) 
 		    return;
-		state = ANALYSING;
-		buildGraphsAndDisplay();
-		formatPlane();
-        if (shape != null)
-            view.selectFigure(shape.getFigure(), new Coord3D(
-                    zSlider.getValue() - 1, tSlider.getValue() - 1));
-		state = READY;
+		
+        SelectPlane request = new SelectPlane(model.getPixelsID(),
+                thisCoord.getZSection(), thisCoord.getTimePoint());
+        EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+        bus.post(request);
+        
+        try {
+            if (shape != null
+                    && shape.getFigure().getROI().getShape(thisCoord) != null)
+                view.selectFigure(shape.getFigure(), thisCoord);
+        } catch (NoSuchROIException e) {
+            // just ignore if there is no shape for the specific plane
+        }
 	}
 
 	/**
@@ -391,8 +394,11 @@ public class GraphPane
 	private void buildGraphsAndDisplay()
 	{
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
+		if (pixelStats == null)
+		    return;
 		Map<Integer, ROIShapeStatsSimple> data = pixelStats.get(coord);
-		if (data == null) return;
+		if (data == null) 
+		    return;
 		shape = shapeMap.get(coord);
 		double[][] dataXY;
 		Color c;

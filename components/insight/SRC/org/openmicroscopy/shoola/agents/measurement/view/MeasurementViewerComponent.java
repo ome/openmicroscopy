@@ -406,7 +406,6 @@ class MeasurementViewerComponent
 			    model.setMagnification(magnification);
 			    view.onMagnificationChanged();
 			}
-			if (!model.isBigImage()) return;
 		}
 		model.setPlane(defaultZ, defaultT);
 		Drawing drawing = model.getDrawing();
