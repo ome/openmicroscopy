@@ -570,7 +570,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
-    from_clause = []
+    from_join_clauses = []
     where_clause = []
     if experimenter_id is not None and experimenter_id != -1:
         params.addId(experimenter_id)
@@ -603,13 +603,14 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                image.fileset.id as filesetId %s)
         """ % extraValues
 
-    from_clause.append('Image image')
+    from_join_clauses.append('Image image')
 
     if load_pixels or thumb_version:
-        from_clause.append('image.pixels pix')
+        # We use 'left outer join', since we still want images if no pixels
+        from_join_clauses.append('left outer join image.pixels pix')
 
     if thumb_version:
-        from_clause.append('pix.thumbnails thumbs')
+        from_join_clauses.append('join pix.thumbnails thumbs')
         where_clause.append("""thumbs.id = (
                 select max(t.id)
                 from Thumbnail t
@@ -620,7 +621,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
         params.add('did', rlong(dataset_id))
-        from_clause.append('image.datasetLinks dlink')
+        from_join_clauses.append('join image.datasetLinks dlink')
         where_clause.append('dlink.parent.id = :did')
 
     # If this is a query to get images with no parent datasets (orphans)
@@ -676,7 +677,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     q += """
         %s %s
         order by lower(image.name), image.id
-        """ % (build_clause(from_clause, 'from', 'join'),
+        """ % (' from ' + ' '.join(from_join_clauses),
                build_clause(where_clause, 'where', 'and'))
 
     for e in qs.projection(q, params, service_opts):
@@ -1380,7 +1381,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
              pix.sizeY,
              pix.sizeZ
              """
-        extraObjs = " join obj.pixels pix"
+        extraObjs = " left outer join obj.pixels pix"
     if date:
         extraValues += """,
             obj.details.creationEvent.time,
