@@ -1372,6 +1372,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Images
     extraValues = ""
+    extraObjs = ""
     if load_pixels:
         extraValues = """
              ,
@@ -1379,6 +1380,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
              pix.sizeY,
              pix.sizeZ
              """
+        extraObjs = " join obj.pixels pix"
     if date:
         extraValues += """,
             obj.details.creationEvent.time,
@@ -1391,9 +1393,9 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.details.permissions,
                obj.fileset.id,
                lower(obj.name)%s
-        from Image obj join obj.pixels pix
+        from Image obj %s
         %s
-        ''' % (extraValues, common_clause)
+        ''' % (extraValues, extraObjs, common_clause)
 
     images = []
     for e in qs.projection(q, params, service_opts):

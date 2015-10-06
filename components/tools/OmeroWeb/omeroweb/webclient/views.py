@@ -1035,7 +1035,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         # Get ALL data (all owners) under specified tags
         if tag_id is not None:
             tagged = tree.marshal_tagged(conn=conn,
-                                         experimenter_id=-1,
+                                         experimenter_id=experimenter_id,
                                          tag_id=tag_id,
                                          group_id=group_id,
                                          page=page,
