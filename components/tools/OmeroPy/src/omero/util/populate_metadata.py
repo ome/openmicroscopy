@@ -723,9 +723,10 @@ class BulkToMapAnnotationContext(_QueryContext):
             return r[-1]
 
     @staticmethod
-    def create_map_annotation(targets, rowkvs):
+    def create_map_annotation(
+            targets, rowkvs, ns=omero.constants.namespaces.NSBULKANNOTATIONS):
         ma = MapAnnotationI()
-        ma.setNs(rstring(omero.constants.namespaces.NSBULKANNOTATIONS))
+        ma.setNs(rstring(ns))
         mv = []
         for k, vs in rowkvs:
             if not isinstance(vs, (tuple, list)):
