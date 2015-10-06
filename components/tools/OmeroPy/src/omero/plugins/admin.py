@@ -1034,6 +1034,8 @@ present, the user will enter a console""")
                 self._get_templates_dir() / "grid" / "*default.xml"):
             copy_template(xml_file, self._get_etc_dir() / "grid")
         ice_config = self._get_templates_dir() / "ice.config"
+        substitutions['@Ice.Default.Host@'] = config.get(
+            'Ice.Default.Host', 'localhost')
         copy_template(ice_config, self._get_etc_dir())
 
         return rv
