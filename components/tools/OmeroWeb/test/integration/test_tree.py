@@ -169,7 +169,7 @@ def expected_datasets(user, datasets):
 
 # TODO Is there a way to test load_pixels when these fake images don't
 # actually have any pixels?
-def expected_images(user, images, shareId=None):
+def expected_images(user, images, extraValues=None):
     expected = []
     for image in images:
         i = {
@@ -178,8 +178,8 @@ def expected_images(user, images, shareId=None):
             'ownerId': image.details.owner.id.val,
             'permsCss': get_perms(user, image, "Image"),
         }
-        if shareId is not None:
-            i['shareId'] = shareId
+        if extraValues is not None:
+            i.update(extraValues)
         if image.fileset is not None:
             i['filesetId'] = image.fileset.id.val
         expected.append(i)
@@ -1773,7 +1773,8 @@ class TestTree(lib.ITest):
         conn = get_connection(userA)
         share = shares_userA_owned[0]
         images = images_userA_groupA
-        expected = expected_images(userA, images, share.id.val)
+        expected = expected_images(userA, images,
+                                   extraValues={'shareId': share.id.val})
         marshaled = marshal_images(conn=conn,
                                    share_id=share.id.val)
         assert marshaled == expected
