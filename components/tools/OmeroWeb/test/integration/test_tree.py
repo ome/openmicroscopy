@@ -1752,6 +1752,51 @@ class TestTree(lib.ITest):
                                    dataset_id=dataset.id.val)
         assert marshaled == expected
 
+    def test_marshal_images_dataset_no_pixels(self, userA,
+                                              project_hierarchy_userA_groupA):
+        """
+        Test marshalling images for userA, groupA, datasetA
+        Images have no pixels, so should load with 'null' sizeX/Y/Z
+        """
+        conn = get_connection(userA)
+        dataset = project_hierarchy_userA_groupA[2]
+        images = project_hierarchy_userA_groupA[4:6]
+        expected = expected_images(userA, images,
+                                   extraValues={'sizeX': None,
+                                                'sizeY': None,
+                                                'sizeZ': None})
+        marshaled = marshal_images(conn=conn,
+                                   dataset_id=dataset.id.val,
+                                   load_pixels=True)
+        assert marshaled == expected
+
+    def test_marshal_images_dataset_date(self, userA,
+                                         project_hierarchy_userA_groupA):
+        """
+        Test marshalling images for userA, groupA, datasetA
+        Images have no pixels, so should load with 'null' sizeX/Y/Z
+        """
+        conn = get_connection(userA)
+        dataset = project_hierarchy_userA_groupA[2]
+        images = project_hierarchy_userA_groupA[4:6]
+        utcAcq = 1444129810716
+        acqDate = '2015-10-06T12:10:10Z'
+        for i in images:
+            # get Creation date and set Acquisition Date.
+            utcCreate = i.details.creationEvent._time.val
+            i.setAcquisitionDate(rtime(utcAcq))
+        images = conn.getUpdateService().saveAndReturnArray(images)
+        # All images created at same time
+        utcCreate = datetime.fromtimestamp(utcCreate/1000).isoformat() + 'Z'
+        extraValues={'acqDate': '2015-10-06T12:10:10Z',
+                     'date': utcCreate}
+        expected = expected_images(userA, images,
+                                   extraValues=extraValues)
+        marshaled = marshal_images(conn=conn,
+                                   dataset_id=dataset.id.val,
+                                   date=True)
+        assert marshaled == expected
+
     def test_marshal_images_dataset_crosslink(self, userC,
                                               project_hierarchy_crosslink):
         """
