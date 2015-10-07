@@ -35,8 +35,8 @@ import omero.gateway.util.Requests;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
@@ -328,7 +328,7 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
         roi.setImage(image);
 
         for (int i = 0; i < 3; i++) {
-            Rect rect = new RectI();
+            Rectangle rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(20));
             rect.setWidth(rdouble(40));

@@ -4,7 +4,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import junit.framework.TestCase;
 
@@ -38,11 +38,11 @@ public class ShapeProcessorTest extends TestCase
 	public void testShapeExists()
 	{
 		assertEquals(1, store.countCachedContainers(Roi.class, null));
-		assertEquals(1, store.countCachedContainers(Rect.class, null));
+		assertEquals(1, store.countCachedContainers(Rectangle.class, null));
 		LSID roiLSID1 = new LSID(Roi.class, ROI_INDEX);
-		LSID shapeLSID1 = new LSID(Rect.class, ROI_INDEX + 1, SHAPE_INDEX);
+		LSID shapeLSID1 = new LSID(Rectangle.class, ROI_INDEX + 1, SHAPE_INDEX);
 		Roi roi = (Roi) store.getSourceObject(roiLSID1);
-		Rect shape = (Rect) store.getSourceObject(shapeLSID1);
+		Rectangle shape = (Rectangle) store.getSourceObject(shapeLSID1);
 		assertNotNull(roi);
 		assertNotNull(shape);
 		assertEquals("Foobar", roi.getDescription().getValue());
@@ -54,7 +54,7 @@ public class ShapeProcessorTest extends TestCase
 	{
 		store.postProcess();
 		assertEquals(2, store.countCachedContainers(Roi.class, null));
-		assertEquals(1, store.countCachedContainers(Rect.class, null));
+		assertEquals(1, store.countCachedContainers(Rectangle.class, null));
 		LSID roiLSID1 = new LSID(Roi.class, ROI_INDEX);
 		LSID roiLSID2 = new LSID(Roi.class, ROI_INDEX + 1);
 		Roi roi1 = (Roi) store.getSourceObject(roiLSID1);

@@ -72,7 +72,7 @@ import omero.model.Pixels;
 import omero.model.PointI;
 import omero.model.PolygonI;
 import omero.model.PolylineI;
-import omero.model.RectI;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.Time;
@@ -515,7 +515,7 @@ public class OmeroReader extends FormatReader {
                 else if(shape instanceof EllipseI){
                     storeOmeroEllipse(shape,store, roiNum, shapeNum);
                 }
-                else if(shape instanceof RectI){
+                else if(shape instanceof RectangleI){
                     storeOmeroRect(shape,store, roiNum, shapeNum);
                 }
                 else if(shape instanceof PolygonI || shape instanceof PolylineI) {
@@ -578,11 +578,11 @@ public class OmeroReader extends FormatReader {
         return new NonNegativeInteger(r.getValue());
     }
 
-    /** Converts omero.model.Shape (omero.model.RectI in this case) to ome.xml.model.* and updates the MetadataStore */
+    /** Converts omero.model.Shape (omero.model.RectangleI in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroRect(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
 
-        RectI shape1 = (RectI) shape;
+        RectangleI shape1 = (RectangleI) shape;
 
         double x1 = shape1.getX().getValue();
         double y1 = shape1.getY().getValue();

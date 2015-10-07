@@ -58,7 +58,7 @@ class TestTicket2290(lib.ITest):
         roi.namespaces = [self.uuid(), self.uuid()]
         roi.keywords = [["a", "b"], ["c", "d"]]
         roi.image = img
-        rect = omero.model.RectI()
+        rect = omero.model.RectangleI()
         roi.addShape(rect)
         roi = self.update.saveAndReturnObject(roi)
 
@@ -69,7 +69,7 @@ class TestTicket2290(lib.ITest):
         roi.keywords = [["a", "b"], ["c", "d"]]
         roi.image = img
         roi = self.update.saveAndReturnObject(roi)
-        rect = omero.model.RectI()
+        rect = omero.model.RectangleI()
         roi.addShape(rect)
         rect.roi = roi
         rect = self.update.saveAndReturnObject(rect)
@@ -81,6 +81,6 @@ class TestTicket2290(lib.ITest):
         roi.keywords = [["a", "b"], ["c", "d"]]
         roi.image = img
         roi = self.update.saveAndReturnObject(roi)
-        rect = omero.model.RectI()
+        rect = omero.model.RectangleI()
         roi.addShape(rect)
         roi = self.update.saveAndReturnObject(roi)

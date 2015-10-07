@@ -14,7 +14,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Random;
 
-public class SmartRectI extends omero.model.RectI implements SmartShape {
+public class SmartRectI extends omero.model.RectangleI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
         Shape s = asAwtShape();

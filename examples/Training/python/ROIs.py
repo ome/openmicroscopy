@@ -48,7 +48,7 @@ roi = omero.model.RoiI()
 roi.setImage(image._obj)
 
 # create a rectangle shape and add to ROI
-rect = omero.model.RectI()
+rect = omero.model.RectangleI()
 rect.x = rdouble(x)
 rect.y = rdouble(y)
 rect.width = rdouble(width)
@@ -106,7 +106,7 @@ for roi in result.rois:
         shape['theZ'] = s.getTheZ().getValue()
         if s.getTextValue():
             shape['textValue'] = s.getTextValue().getValue()
-        if type(s) == omero.model.RectI:
+        if type(s) == omero.model.RectangleI:
             shape['type'] = 'Rectangle'
             shape['x'] = s.getX().getValue()
             shape['y'] = s.getY().getValue()

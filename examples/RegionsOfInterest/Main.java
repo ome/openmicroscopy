@@ -106,7 +106,7 @@ public class Main {
         // Some examples of what bioformats
         // can already parse
         // Circle and Ellipse as above
-        Rect rect = new RectI();
+        Rectangle rect = new RectangleI();
         rect.setX(rdouble(2.4));
         rect.setY(rdouble(1.5));
         rect.setWidth(rdouble(10));
@@ -193,7 +193,7 @@ public class Main {
         text.setDirection(rstring("rtl"));
         text.setWritingMode(rstring("tb-rl"));
 
-        Rect singlePlane = new RectI();
+        Rectangle singlePlane = new RectangleI();
         singlePlane.setX(rdouble(2.4));
         singlePlane.setY(rdouble(1.5));
         singlePlane.setWidth(rdouble(10));

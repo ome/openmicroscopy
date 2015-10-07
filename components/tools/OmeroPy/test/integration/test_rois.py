@@ -23,8 +23,8 @@ class TestRois(lib.ITest):
         """
         img = self.new_image("#3703")
         roi = omero.model.RoiI()
-        roi.addShape(omero.model.RectI())
-        roi.addShape(omero.model.RectI())
+        roi.addShape(omero.model.RectangleI())
+        roi.addShape(omero.model.RectangleI())
         roi.setShape(0, None)
         img.addRoi(roi)
 
@@ -53,23 +53,23 @@ class TestRois(lib.ITest):
 
         # Test ROI shape
         roi1 = omero.model.RoiI()
-        roi1.addShape(omero.model.RectI())
-        roi1.addShape(omero.model.RectI())
+        roi1.addShape(omero.model.RectangleI())
+        roi1.addShape(omero.model.RectangleI())
         roi1.setImage(img)
         roi1 = owner.sf.getUpdateService().saveAndReturnObject(roi1)
 
         roi2 = omero.model.RoiI()
-        roi2.addShape(omero.model.RectI())
+        roi2.addShape(omero.model.RectangleI())
         roi2.addShape(omero.model.EllipseI())
         roi2.setImage(img)
         roi2 = owner.sf.getUpdateService().saveAndReturnObject(roi2)
 
         wrapper = ImageWrapper(conn, img)
         assert wrapper.getROICount() == 2
-        assert wrapper.getROICount("Rect") == 2
+        assert wrapper.getROICount("Rectangle") == 2
         assert wrapper.getROICount("Ellipse") == 1
         assert wrapper.getROICount("Line") == 0
-        assert wrapper.getROICount(["Rect", "Ellipse"]) == 2
+        assert wrapper.getROICount(["Rectangle", "Ellipse"]) == 2
 
         # Test ROI permissions
         roi3 = omero.model.RoiI()
@@ -82,10 +82,10 @@ class TestRois(lib.ITest):
         assert wrapper.getROICount("Ellipse", None) == 2
         assert wrapper.getROICount("Ellipse", 1) == 1
         assert wrapper.getROICount("Ellipse", True) == 1
-        assert wrapper.getROICount("Rect") == 2
-        assert wrapper.getROICount("Rect", None) == 2
-        assert wrapper.getROICount("Rect", 1) == 2
-        assert wrapper.getROICount("Rect", True) == 2
+        assert wrapper.getROICount("Rectangle") == 2
+        assert wrapper.getROICount("Rectangle", None) == 2
+        assert wrapper.getROICount("Rectangle", 1) == 2
+        assert wrapper.getROICount("Rectangle", True) == 2
 
         # Member gateway
         conn = BlitzGateway(client_obj=member)
@@ -96,10 +96,10 @@ class TestRois(lib.ITest):
         assert wrapper.getROICount("Ellipse", None) == 2
         assert wrapper.getROICount("Ellipse", 1) == 1
         assert wrapper.getROICount("Ellipse", True) == 1
-        assert wrapper.getROICount("Rect") == 2
-        assert wrapper.getROICount("Rect", None) == 2
-        assert wrapper.getROICount("Rect", 1) == 0
-        assert wrapper.getROICount("Rect", True) == 0
+        assert wrapper.getROICount("Rectangle") == 2
+        assert wrapper.getROICount("Rectangle", None) == 2
+        assert wrapper.getROICount("Rectangle", 1) == 0
+        assert wrapper.getROICount("Rectangle", True) == 0
 
     def test8990(self):
         # RoiOptions.userId
@@ -132,7 +132,7 @@ class TestRois(lib.ITest):
                 self.ns = ns
                 self.z = z
                 self.t = t
-                self.shape = omero.model.RectI()
+                self.shape = omero.model.RectangleI()
                 self.shape.setTheZ(omero.rtypes.rint(z))
                 self.shape.setTheT(omero.rtypes.rint(t))
                 self.obj = omero.model.RoiI()

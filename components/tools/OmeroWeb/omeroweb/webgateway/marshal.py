@@ -233,7 +233,7 @@ def shapeMarshal(shape):
     set_if('theT', shape.getTheT())
     set_if('theZ', shape.getTheZ())
     shape_type = type(shape)
-    if shape_type == omero.model.RectI:
+    if shape_type == omero.model.RectangleI:
         rv['type'] = 'Rectangle'
         rv['x'] = shape.getX().getValue()
         rv['y'] = shape.getY().getValue()

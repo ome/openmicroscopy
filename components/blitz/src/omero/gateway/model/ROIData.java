@@ -32,7 +32,7 @@ import omero.model.Mask;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
@@ -74,7 +74,7 @@ public class ROIData
         while (i.hasNext()) {
             shape = i .next();
             s = null;
-            if (shape instanceof Rect) 
+            if (shape instanceof Rectangle)
                 s = new RectangleData(shape);
             else if (shape instanceof Ellipse)
                 s = new EllipseData(shape);

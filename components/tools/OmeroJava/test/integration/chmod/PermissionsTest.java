@@ -49,7 +49,7 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.Pixels;
 import omero.model.Plate;
-import omero.model.RectI;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.TagAnnotation;
@@ -135,7 +135,7 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         Roi roi = new RoiI();
-        roi.addShape(new RectI());
+        roi.addShape(new RectangleI());
         roi.setImage((Image) image.proxy());
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         annotationObjects.add(roi.proxy());

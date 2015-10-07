@@ -70,7 +70,7 @@ import omero.model.PlateAcquisition;
 import omero.model.Point;
 import omero.model.Polyline;
 import omero.model.Reagent;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.Shape;
@@ -1042,7 +1042,7 @@ public class ImporterTest extends AbstractServerTest {
             j = shapes.iterator();
             while (j.hasNext()) {
                 shape = j.next();
-                if (shape instanceof Rect || shape instanceof Line
+                if (shape instanceof Rectangle || shape instanceof Line
                         || shape instanceof Ellipse
                         || shape instanceof Polyline || shape instanceof Mask
                         || shape instanceof Point)

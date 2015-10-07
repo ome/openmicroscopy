@@ -32,7 +32,7 @@ import numpy
 from omero.model import ImageI
 from omero.model import RoiI
 from omero.model import EllipseI
-from omero.model import RectI
+from omero.model import RectangleI
 from omero.model import PolygonI
 from omero.model import MaskI
 from omero.model import NamespaceI
@@ -334,7 +334,7 @@ def shapeWrapper(serverSideShape):
     print serverSideShape.__class__.__name__
     if serverSideShape.__class__.__name__ == 'EllipseI':
         return EllipseData(serverSideShape)
-    if serverSideShape.__class__.__name__ == 'RectI':
+    if serverSideShape.__class__.__name__ == 'RectangleI':
         return RectData(serverSideShape)
     if serverSideShape.__class__.__name__ == 'MaskI':
         return MaskData(serverSideShape)
@@ -1289,7 +1289,7 @@ class RectData(ShapeData):
     def __init__(self, rectShape=None):
         ShapeData.__init__(self)
         if (rectShape is None):
-            self.setValue(RectI())
+            self.setValue(RectangleI())
             self.setX(0)
             self.setY(0)
             self.setWidth(0)

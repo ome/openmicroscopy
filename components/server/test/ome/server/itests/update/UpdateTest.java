@@ -43,7 +43,7 @@ import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.roi.Line;
-import ome.model.roi.Rect;
+import ome.model.roi.Rectangle;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.model.units.Length;
@@ -553,7 +553,7 @@ public class UpdateTest extends AbstractUpdateTest {
 
         roi = iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            Rect rect = new Rect();
+            Rectangle rect = new Rectangle();
             rect.setX(19.0);
             rect.setY(21.0);
             rect.setWidth(10.0);
