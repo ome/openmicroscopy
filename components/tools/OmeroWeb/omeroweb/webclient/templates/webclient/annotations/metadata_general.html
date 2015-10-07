@@ -835,6 +835,16 @@
             <div style="clear:both"></div>
             <hr style="margin-top:0" />
 
+
+            <!-- MAP ANNOTATIONS -->
+            <div class="annotations_section">
+
+                {% include "webclient/annotations/mapannotations.html" %}
+
+            </div>
+
+            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
             <div class="annotations_section">
 
                 <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Tables</h2>
@@ -963,16 +973,6 @@
 
 
             <hr/>
-
-            <!-- MAP ANNOTATIONS -->
-            <div class="annotations_section">
-
-                {% include "webclient/annotations/mapannotations.html" %}
-
-            </div>
-
-
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
 
 
             {% if manager.xml_annotations or manager.boolean_annotations or manager.double_annotations or manager.long_annotations or manager.term_annotations or manager.time_annotations %}
