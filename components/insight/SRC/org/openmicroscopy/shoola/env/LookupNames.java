@@ -361,4 +361,7 @@ public class LookupNames
     
     /** Lookup name for using pixel interpolation */
     public static final String INTERPOLATE = "omero.client.viewer.interpolate_pixels";
+
+    /** Lookup name for measurement tool ROIs limit */
+    public static final String ROI_COUNT_LIMIT = "omero.client.viewer.roi_limit";
 }
