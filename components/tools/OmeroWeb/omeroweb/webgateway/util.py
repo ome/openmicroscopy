@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 # helper method
 def getIntOrDefault(request, name, default):
     try:
-        index = request.REQUEST.get(name, default)
+        index = request.GET.get(name, default)
         if index is not None:
             index = int(index)
     except ValueError:
