@@ -151,11 +151,11 @@ def imageMarshal(image, key=None, request=None):
 
     server_settings = request.session.get('server_settings', {})
 
-    init_zoom = server_settings.get('initial_zoom_level' , 0)
+    init_zoom = server_settings.get('initial_zoom_level', 0)
     if init_zoom < 0:
         init_zoom = levels + init_zoom
 
-    interpolate = server_settings.get('interpolate_pixels' , True)
+    interpolate = server_settings.get('interpolate_pixels', True)
 
     try:
         rv.update({

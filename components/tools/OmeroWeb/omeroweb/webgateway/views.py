@@ -1875,8 +1875,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
 
     rid = getImgDetailsFromReq(request)
     server_settings = request.session.get('server_settings', {})
-    interpolate = server_settings.get('interpolate_pixels' , True)
-    roiLimit = server_settings.get('roi_limit' , 100)
+    interpolate = server_settings.get('interpolate_pixels', True)
+    roiLimit = server_settings.get('roi_limit', 100)
 
     try:
         image = conn.getObject("Image", iid)
