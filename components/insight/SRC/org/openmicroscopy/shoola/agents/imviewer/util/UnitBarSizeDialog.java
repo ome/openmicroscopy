@@ -40,9 +40,10 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Sets the value of the scale bar.
@@ -69,6 +70,9 @@ public class UnitBarSizeDialog
     
     /** The label used to enter the value. */
     private JTextField label;
+    
+    /** The unit of the scalebar */
+    private UnitsLength unit;
     
     /** Fires a property change if the value entered is a valid number. */
     private void handleSelection()
@@ -109,7 +113,7 @@ public class UnitBarSizeDialog
         });
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(new JLabel("Value (in "+EditorUtil.MICRONS_NO_BRACKET+"): "));
+        p.add(new JLabel("Value (in "+LengthI.lookupSymbol(unit)+"): "));
         p.add(label);
         getContentPane().add(UIUtilities.buildComponentPanel(p));
     }
@@ -118,10 +122,12 @@ public class UnitBarSizeDialog
      * Creates a new instance.
      * 
      * @param parent The window's parent.
+     * @param unit The unit of the scalebar
      */
-    public UnitBarSizeDialog(JFrame parent)
+    public UnitBarSizeDialog(JFrame parent, UnitsLength unit)
     {
         super(parent);
+        this.unit = unit;
         setProperties();
         buildGUI();
         pack();

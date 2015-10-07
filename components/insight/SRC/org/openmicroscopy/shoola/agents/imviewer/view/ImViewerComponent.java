@@ -74,6 +74,9 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import omero.log.LogMessage;
 import omero.log.Logger;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
@@ -523,7 +526,9 @@ class ImViewerComponent
 	 */
 	ImViewerComponent(ImViewerModel model)
 	{
-		if (model == null) throw new NullPointerException("No model.");
+		if (model == null) 
+		    throw new NullPointerException("No model.");
+		
 		this.model = model;
 		controller = new ImViewerControl();
 		view = new ImViewerUI(model.getImageTitle());
@@ -1540,14 +1545,14 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeX()
 	 */
-	public double getPixelsSizeX()
+	public Length getPixelsSizeX()
 	{
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
-				return -1;
+				return new LengthI(1, UnitsLength.PIXEL);
 		}
 		return model.getPixelsSizeX();
 	}
@@ -1556,14 +1561,14 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeY()
 	 */
-	public double getPixelsSizeY()
+	public Length getPixelsSizeY()
 	{
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
-				return -1;
+			    return new LengthI(1, UnitsLength.PIXEL);
 		}
 		return model.getPixelsSizeY();
 	}
@@ -1572,14 +1577,14 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeZ()
 	 */
-	public double getPixelsSizeZ()
+	public Length getPixelsSizeZ()
 	{
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
-				return -1;
+			    return new LengthI(1, UnitsLength.PIXEL);
 		}
 		return model.getPixelsSizeZ();
 	}
@@ -1668,8 +1673,9 @@ class ImViewerComponent
 	 */
 	public void setUnitBarSize(double size)
 	{
-		if (model.getState() == DISCARDED) return;
-		model.getBrowser().setUnitBarSize(size);
+		if (model.getState() == DISCARDED) 
+		    return;
+		model.getBrowser().setUnitBarSize(size, model.getScaleBarUnit());
 		controller.setPreferences();
 	}
 
@@ -1680,7 +1686,7 @@ class ImViewerComponent
 	public void showUnitBarSelection()
 	{
 		if (model.getState() == DISCARDED) return;
-		UnitBarSizeDialog d = new UnitBarSizeDialog(view);
+		UnitBarSizeDialog d = new UnitBarSizeDialog(view, model.getScaleBarUnit());
 		d.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(d);
 	}
@@ -2803,12 +2809,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getUnitInRefUnits()
-	 */
-	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#makeMovie()
 	 */
 	public void makeMovie()
@@ -2820,8 +2820,7 @@ class ImViewerComponent
 	/** Build the view.*/
 	private void buildView()
 	{
-		int index = UnitBarSizeAction.getDefaultIndex(
-				UIUtilities.transformSize(5*getPixelsSizeX()).getValue());
+		int index = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		setUnitBarSize(UnitBarSizeAction.getValue(index));
 		view.setDefaultScaleBarMenu(index);
 		colorModel = model.getColorModel();

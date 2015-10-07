@@ -468,7 +468,7 @@ class ImViewerUI
 	 */
 	private JMenu createScaleBarLengthSubMenu(ViewerPreferences pref)
 	{
-		scaleBarMenu = new JMenu(SCALE_BAR_TEXT+model.getUnits()+")");
+		scaleBarMenu = new JMenu(SCALE_BAR_TEXT+LengthI.lookupSymbol(model.getScaleBarUnit())+")");
 		scaleBarGroup = new ButtonGroup();
 		if (pref != null && pref.getScaleBarIndex() > 0)
 			defaultIndex = pref.getScaleBarIndex();
@@ -558,7 +558,7 @@ class ImViewerUI
 				controller.getAction(ImViewerControl.UNIT_BAR));
 		unitBarItem.setSelected(model.isUnitBar());
 		unitBarItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
-		scaleBarMenu.setText(SCALE_BAR_TEXT+model.getUnits()+")");
+		scaleBarMenu.setText(SCALE_BAR_TEXT+LengthI.lookupSymbol(model.getScaleBarUnit())+")");
 	}
 	
 	/**
@@ -1318,7 +1318,7 @@ class ImViewerUI
 	{
 		int n;
 		int max = model.getMaxZ();
-		double d = model.getPixelsSizeZ();
+		double d = model.getPixelsSizeZ().getValue();
 		String units;
 		Length o;
 		StringBuffer buffer = new StringBuffer();
