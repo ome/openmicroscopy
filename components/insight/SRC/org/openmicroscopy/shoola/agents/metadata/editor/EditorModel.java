@@ -150,6 +150,9 @@ import omero.gateway.model.XMLAnnotationData;
 class EditorModel 
 {
 	
+    /** Default maximum export size, 12kx12kx image */
+    static int DEFAULT_MAX_EXPORT_SIZE = 144000000;
+    
 	/** Identifies <code>all</code> the objects.*/
 	static final int ALL = PermissionMenu.ALL;
 	
@@ -4562,5 +4565,34 @@ class EditorModel
             return exp.isLDAP();
         }
         return false;
+    }
+
+    /**
+     * Checks if the image can be exported, i. e. it does not exceed the maximum
+     * size for being able to get exported as jpg, png or tif
+     * 
+     * @return See above
+     */
+    boolean isExportable() {
+        if (getPixels() == null)
+            return false;
+
+        int imgSize = getPixels().getSizeX() * getPixels().getSizeY();
+        int maxSize = DEFAULT_MAX_EXPORT_SIZE;
+        String tmp = (String) MetadataViewerAgent.getRegistry().lookup(
+                LookupNames.MAX_EXPORT_SIZE);
+        if (tmp != null) {
+            try {
+                maxSize = Integer.parseInt(tmp);
+            } catch (NumberFormatException e) {
+                MetadataViewerAgent
+                        .getRegistry()
+                        .getLogger()
+                        .warn(this,
+                                "Non integer value provided for "
+                                        + LookupNames.MAX_EXPORT_SIZE);
+            }
+        }
+        return imgSize <= maxSize;
     }
 }
