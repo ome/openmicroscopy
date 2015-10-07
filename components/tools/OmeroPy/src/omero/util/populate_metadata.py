@@ -795,7 +795,8 @@ class BulkToMapAnnotationContext(_QueryContext):
             for omerotype, n in idcols:
                 if row[n] > 0:
                     obj = omerotype(row[n], False)
-                    targets.append(obj)
+                    # Josh: disabling to prevent duplication in UI
+                    # targets.append(obj)
                     targets.extend(self._get_additional_targets(obj))
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
