@@ -963,11 +963,7 @@
 {% block roi_buttons %}
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
-                {% ifnotequal roiCount 0 %}
-                  <!-- 'link is enabled on imageLoad callback -->
-                    <a id="show-rois-a" href="#" style="color:gray">Show ROIs</a> |
-                    <a id="hide-rois-a" style="color:gray">Hide</a>
-                {% endifnotequal %}
+                <!-- removed show/hide rois buttons -->
           </div>
 {% endblock roi_buttons %}
           <div class="odd row">
