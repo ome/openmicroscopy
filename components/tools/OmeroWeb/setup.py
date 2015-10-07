@@ -21,7 +21,6 @@ if "test" in sys.argv:
     os.environ.setdefault('OMERO_HOME', os.path.abspath(
         os.path.join("..", "..", "..", "dist")))
 
-
     sys.path.insert(0, os.path.join("..", "target", "lib", "fallback"))
     LIB = os.path.join("..", "target", "lib", "python")
     sys.path.insert(0, LIB)
@@ -31,7 +30,7 @@ if "test" in sys.argv:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omeroweb.settings")
 
     import django
-    if django.VERSION > (1,7):
+    if django.VERSION > (1, 7):
         django.setup()
 
 from ez_setup import use_setuptools
