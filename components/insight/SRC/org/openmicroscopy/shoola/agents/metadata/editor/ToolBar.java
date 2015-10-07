@@ -211,7 +211,7 @@ class ToolBar
         if (model.isMultiSelection()) b = false;
         else {
             b = model.getRefObject() instanceof ImageData &&
-                    !model.isLargeImage();
+                    !model.isLargeImage() && !model.isLargeImage();
         }
         exportAsOmeTiffItem.setEnabled(b);
         saveAsMenu.add(exportAsOmeTiffItem);
@@ -227,7 +227,7 @@ class ToolBar
         JMenuItem item;
         Object ho = model.getRefObject();
         boolean enabled = (ho instanceof ImageData ||
-                ho instanceof WellSampleData || ho instanceof DatasetData);
+                ho instanceof WellSampleData || ho instanceof DatasetData) && !model.isLargeImage();
         while (i.hasNext()) {
             e = i.next();
             item = new JMenuItem(icons.getIcon(
