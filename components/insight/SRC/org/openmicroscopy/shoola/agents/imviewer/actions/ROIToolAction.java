@@ -68,6 +68,9 @@ public class ROIToolAction
     /** Flag indicating the component has been pressed.*/
     private boolean pressed;
 
+    /** Flag to disable the action by all means */
+    private boolean forceDisable = false;
+    
     /**
      * Sets the enabled flag depending on the selected tab.
      * @see ViewerAction#onTabSelection()
@@ -77,7 +80,7 @@ public class ROIToolAction
         if (ImViewerAgent.isRunAsPlugin()) {
             setEnabled(false);
         } else {
-            setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+            setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX && !forceDisable);
         }
     }
 
@@ -93,6 +96,17 @@ public class ROIToolAction
         else setEnabled(false);
     }
 
+    /**
+     * Forces the action to stay disabled
+     * 
+     * @param b
+     *            Pass <code>true</code> to make sure the action will be
+     *            disabled
+     */
+    public void forceDisable(boolean b) {
+        this.forceDisable = b;
+    }
+    
     /**
      * Creates a new instance.
      *

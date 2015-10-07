@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
@@ -68,6 +69,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import omero.gateway.SecurityContext;
@@ -87,6 +89,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
@@ -126,6 +129,9 @@ class ImViewerComponent
 	
 	/** The message if rendering setting to annotation. */
 	static final String						ANNOTATION = "The annotations";
+	
+	/** Default limit of ROIs the measurement tool can handle */
+	private static final int ROI_COUNT_LIMIT = 100;
 	
 	/** The Model sub-component. */
 	private ImViewerModel       			model;
@@ -2632,6 +2638,7 @@ class ImViewerComponent
 		if (model.getMetadataViewer() != null)
 			model.getMetadataViewer().addPropertyChangeListener(controller);
 		fireStateChange();
+		model.fireROICountLoading();
 	}
 
 	/** 
@@ -2864,7 +2871,34 @@ class ImViewerComponent
 		renderXYPlane();
 		fireStateChange();
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#onROICountLoaded(int)
+	 */
+	public void onROICountLoaded(int roiCount) {
+	    ROIToolAction action = (ROIToolAction) controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
+	    action.forceDisable(roiCount>getROICountLimit());
+	}
 
+    /**
+     * Get the maximum number of ROIs the measurement tool can handle
+     * 
+     * @return
+     */
+    private int getROICountLimit() {
+        String tmp = (String) ImViewerAgent.getRegistry().lookup(
+                LookupNames.ROI_COUNT_LIMIT);
+        if (tmp == null)
+            return ROI_COUNT_LIMIT;
+
+        try {
+            return Integer.parseInt(tmp);
+        } catch (NumberFormatException e) {
+            return ROI_COUNT_LIMIT;
+        }
+    }
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#onChannelSelection(int)

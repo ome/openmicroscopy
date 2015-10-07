@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
+import org.openmicroscopy.shoola.agents.events.metadata.ROICountLoaded;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -535,6 +536,17 @@ public class ImViewerAgent
         displayMode = evt.getDisplayMode();
         ImViewerFactory.setDisplayMode(displayMode);
     }
+    
+    /**
+     * Handles the ROI count loaded event
+     * @param e The event
+     */
+    private void handleROICountLoaded(ROICountLoaded e) {
+        ImViewer viewer = ImViewerFactory.getImageViewerFromImage(null, e.getImageId());
+        if (viewer != null) {
+            viewer.onROICountLoaded(e.getRoiCount());
+        }
+    }
 
     /**
      * Checks if the passed image is actually opened in the viewer.
@@ -603,6 +615,7 @@ public class ImViewerAgent
         bus.register(this, ChannelSavedEvent.class);
         bus.register(this, DisplayModeEvent.class);
         bus.register(this, RndSettingsCopied.class);
+        bus.register(this, ROICountLoaded.class);
     }
 
     /**
@@ -673,6 +686,8 @@ public class ImViewerAgent
             handleDisplayModeEvent((DisplayModeEvent) e);
         else if (e instanceof RndSettingsCopied)
             handleRndSettingsCopied((RndSettingsCopied) e);
+        else if (e instanceof ROICountLoaded)
+            handleROICountLoaded((ROICountLoaded) e);
     }
 
 }

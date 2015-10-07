@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.OverlaysRenderer;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
+import org.openmicroscopy.shoola.agents.imviewer.ROICountLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.TileLoader;
@@ -2784,6 +2785,16 @@ class ImViewerModel
     	Iterator<Tile> i = tiles.values().iterator();
 		while (i.hasNext())
 			i.next().setImage(null);
+    }
+    
+    /**
+     * Initiates an asynchronous call to load the number of ROIs for the current
+     * image
+     */
+    void fireROICountLoading() {
+        ROICountLoader l = new ROICountLoader(component, ctx, -1, image.getId(),
+                getUserDetails().getId());
+        l.load();
     }
 
 	/**
