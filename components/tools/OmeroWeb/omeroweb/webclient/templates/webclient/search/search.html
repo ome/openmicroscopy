@@ -307,9 +307,9 @@
 
                         <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
                         <select name="ownedBy" id="searchByGroupMember--1">
-                            <option value="-1">All Users</option>
+                            <option value="-1" selected="selected">All Users</option>
                             {% for user in myColleagues %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                <option value="{{ user.id }}">
                                     {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
