@@ -3043,7 +3043,7 @@ class ImViewerModel
      * Returns if interpolation is enabled or not
      * @return
      */
-    public boolean isInterpolation() {
+    boolean isInterpolation() {
         return browser.isInterpolation();
     }
 
@@ -3051,7 +3051,7 @@ class ImViewerModel
      * En-/Disables interpolation
      * @param interpolation
      */
-    public void setInterpolation(boolean interpolation) {
+    void setInterpolation(boolean interpolation) {
         browser.setInterpolation(interpolation);
     }
 

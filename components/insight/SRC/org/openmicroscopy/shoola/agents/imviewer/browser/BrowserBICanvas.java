@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserBICanvas 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -70,7 +70,7 @@ class BrowserBICanvas
     {
         super.paintComponent(g);
     	Graphics2D g2D = (Graphics2D) g;
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        ImagePaintingFactory.setGraphicRenderingSettings(g2D, model.isInterpolation());
         if (model.isBigImage()) {
         	g2D.setColor(BACKGROUND);
         	g2D.drawRect(0, 0, getWidth()-1, getHeight()-1);

@@ -1159,20 +1159,22 @@ class ImViewerControl
 	 */
 	public void componentMoved(ComponentEvent e) {}
 	
-	/**
-	 * Returns if interpolation is enabled or not
-	 * @return
-	 */
-        public boolean isInterpolation() {
-            return model.isInterpolation();
-        }
-    
-        /**
-         * En-/Disables interpolation
-         * @param interpolation
-         */
-        public void setInterpolation(boolean interpolation) {
-            model.setInterpolation(interpolation);
-            ImViewerFactory.setInterpolation(interpolation);
-        }
+    /**
+     * Returns if interpolation is enabled or not
+     * 
+     * @return
+     */
+    boolean isInterpolation() {
+        return model.isInterpolation();
+    }
+
+    /**
+     * En-/Disables interpolation
+     * 
+     * @param interpolation
+     */
+    void setInterpolation(boolean interpolation) {
+        model.setInterpolation(interpolation);
+        ImViewerFactory.setInterpolation(interpolation);
+    }
 }
