@@ -1874,7 +1874,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
     """
 
     rid = getImgDetailsFromReq(request)
-    interpolate = request.session['server_settings']['interpolate_pixels']
+    server_settings = request.session.get('server_settings', {})
+    interpolate = server_settings.get('interpolate_pixels' , True)
 
     try:
         image = conn.getObject("Image", iid)
