@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
@@ -42,6 +41,7 @@ import org.openmicroscopy.shoola.agents.metadata.GroupEditor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
 import org.openmicroscopy.shoola.agents.metadata.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
@@ -440,8 +440,26 @@ class MetadataViewerModel
 					ctx, Arrays.asList((DataObject) node), loaderID);
 			loaders.put(loaderID, loader);
 			loader.load();
+			
 			state = MetadataViewer.LOADING_METADATA;
 		}
+	}
+	
+    /**
+     * Starts an asynchronous call to load the number of ROIs
+     */
+	void fireROICountLoading() {
+	    ImageData image = null;
+        if (refObject instanceof ImageData) 
+            image = (ImageData) refObject;
+        else if (refObject instanceof WellSampleData)
+            image = ((WellSampleData) refObject).getImage();
+        if (image == null)
+            return;
+        
+	    ROICountLoader loader = new ROICountLoader(component, ctx, ++loaderID, image.getId(), getUserID());
+	    loaders.put(loaderID, loader);
+	    loader.load();
 	}
 	
 	/**

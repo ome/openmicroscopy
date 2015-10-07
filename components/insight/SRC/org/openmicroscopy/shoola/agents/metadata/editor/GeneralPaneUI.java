@@ -556,4 +556,14 @@ class GeneralPaneUI
 	public Collection<FileAnnotationData> getSelectedFileAnnotations() {
 	    return annotationUI.getSelectedFileAnnotations();
 	}
+	
+	/**
+     * Updates the number of ROIs
+     * 
+     * @param roiCount
+     *            The number of ROIs
+     */
+	public void updateROICount(int roiCount) {
+	    propertiesUI.updateROICount(roiCount);
+	}
 }

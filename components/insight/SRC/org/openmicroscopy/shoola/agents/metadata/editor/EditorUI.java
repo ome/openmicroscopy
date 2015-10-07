@@ -1095,4 +1095,8 @@ class EditorUI
 	public Collection<FileAnnotationData> getSelectedFileAnnotations() { 
 	    return generalPane.getSelectedFileAnnotations();
 	}
+	
+	public void updateROICount(int roiCount) {
+        generalPane.updateROICount(roiCount);
+    }
 }

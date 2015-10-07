@@ -421,6 +421,7 @@ class MetadataViewerComponent
 		model.setRootObject(root, ctx);
 		if (model.isSingleMode()) {
 			model.fireStructuredDataLoading(root);
+			model.fireROICountLoading();
 			fireStateChange();
 		}
 		view.setRootObject();
@@ -439,6 +440,7 @@ class MetadataViewerComponent
 	{
 		if (model.isSingleMode()) {
 			model.fireStructuredDataLoading(model.getRefObject());
+			model.fireROICountLoading();
 		} else {
 			model.setRelatedNodes(model.getRelatedNodes());
 		}
@@ -1340,5 +1342,13 @@ class MetadataViewerComponent
 	        return;
 	    
 	    model.fireLoadRndSettings();
+	}
+
+	/**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#updateROICount(int)
+     */
+	public void updateROICount(int roiCount) {
+	    model.getEditor().updateROICount(roiCount);
 	}
 }

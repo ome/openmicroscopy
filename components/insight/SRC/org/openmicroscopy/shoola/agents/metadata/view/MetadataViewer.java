@@ -701,10 +701,18 @@ public interface MetadataViewer
          */
 	void applyCopiedRndSettings();
 	
-        /**
-         * Returns if there are copied rendering settings which could be pasted.
-         * 
-         * @return See above.
-         */
-        boolean hasRndSettingsCopied();
+    /**
+     * Returns if there are copied rendering settings which could be pasted.
+     * 
+     * @return See above.
+     */
+    boolean hasRndSettingsCopied();
+
+    /**
+     * Updates the number of ROIs
+     * 
+     * @param roiCount
+     *            The number of ROIs
+     */
+    public void updateROICount(int roiCount);
 }

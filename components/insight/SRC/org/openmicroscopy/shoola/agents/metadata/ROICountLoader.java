@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.EditorLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,8 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import omero.log.LogMessage;
-import org.openmicroscopy.shoola.agents.metadata.editor.PropertiesUI;
+import org.openmicroscopy.shoola.agents.events.metadata.ROICountLoaded;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
 /** 
  * An async. loader which updates the UI components with
@@ -42,19 +43,13 @@ import org.openmicroscopy.shoola.agents.metadata.editor.PropertiesUI;
  * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ROICountLoader
-	extends DSCallAdapter
+	extends MetadataLoader
 {
     /** Reference to the registry */
     private final Registry registry;
     
     /** Reference to the ImageDataView */
     private final ImageDataView imView;
-    
-    /** The security context.*/
-    private final SecurityContext ctx;
-    
-    /** Reference to the {@link PropertiesUI} showing the number of ROIs */
-    private PropertiesUI propUI;
     
     /** The id of the image the ROIs are related to. */
     private long            imageID;
@@ -67,23 +62,22 @@ public class ROICountLoader
     
     /**
      * Creates a new instance
+     * 
+     * @param viewer Reference to the viewer
      * @param ctx The SecurityContext
-     * @param propUI Reference to the UI.
-     * @param imageID The image id to load the ROIs for
+     * @param loaderID The loader ID
+     * @param imageId The image id to load the ROIs for
      * @param userID The user id
      */
-    public ROICountLoader(SecurityContext ctx, PropertiesUI propUI, long imageID,
-            long userID)
-    {
-    	if (ctx == null)
-    		throw new NullPointerException("No security context.");
-    	this.ctx = ctx;
-    	this.imageID = imageID;
+    public ROICountLoader(MetadataViewer viewer, SecurityContext ctx,
+            int loaderID, long imageId, long userID) {
+        super(viewer, ctx, loaderID);
+        this.imageID = imageId;
         this.userID = userID;
-    	this.propUI = propUI;
-    	registry = MetadataViewerAgent.getRegistry();
-    	imView = (ImageDataView) 
-    	registry.getDataServicesView(ImageDataView.class);
+
+        registry = MetadataViewerAgent.getRegistry();
+        imView = (ImageDataView) registry
+                .getDataServicesView(ImageDataView.class);
     }
     
     /**
@@ -142,7 +136,8 @@ public class ROICountLoader
             }
         }
         
-        propUI.updateROICount(n);
+        ROICountLoaded evt = new ROICountLoaded(imageID, n);
+        registry.getEventBus().post(evt);
     }
     
     

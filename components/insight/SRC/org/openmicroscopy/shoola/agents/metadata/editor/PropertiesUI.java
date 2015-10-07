@@ -234,6 +234,9 @@ public class PropertiesUI
 	/** The label showing the ROI count */
 	private JLabel roiCountLabel;
 	
+	/** The number of ROIs */
+	private int roiCount = -1;
+	
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
 	{
@@ -869,9 +872,11 @@ public class PropertiesUI
         content.add(label, c);
         c.gridx++;
         roiCountLabel = UIUtilities.createComponent(null);
-        roiCountLabel.setText("...");
+        if (this.roiCount < 0)
+            roiCountLabel.setText("...");
+        else
+            roiCountLabel.setText("" + this.roiCount);
         content.add(roiCountLabel, c);
-        loadROICount(image);
         
         return content;
     }
@@ -1613,20 +1618,14 @@ public class PropertiesUI
 	 */
 	public void changedUpdate(DocumentEvent e) {}
         
-        /** 
-         * Starts an asyc. call to load the number of ROIs
-         */
-        void loadROICount(ImageData image) {
-            ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-            ROICountLoader l = new ROICountLoader(new SecurityContext(image.getGroupId()), this, image.getId(), exp.getId());
-            l.load();
-        }
-        
-        /**
-         * Updates label showing the ROI count
-         * @param n Number of ROIs of the current image
-         */
-        public void updateROICount(int n) {
-            roiCountLabel.setText(""+n);
-        }
+    /**
+     * Updates label showing the ROI count
+     * 
+     * @param n
+     *            Number of ROIs of the current image
+     */
+    public void updateROICount(int n) {
+        this.roiCount = n;
+        roiCountLabel.setText("" + n);
+    }
 }
