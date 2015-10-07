@@ -1164,8 +1164,11 @@ class IntensityView
 		if (state == State.ANALYSING)
 			return;
 		this.ROIStats = model.getAnalysisResults();
-		if (ROIStats == null || ROIStats.size() == 0) 
+		if (ROIStats == null || ROIStats.size() == 0) {
+		    clearMaps();
+		    onFigureRemoved();
 			return;
+		}
 		state = State.ANALYSING;
 		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
@@ -1300,10 +1303,11 @@ class IntensityView
 			channelSelection.setEnabled(row);
 			saveButton.setEnabled(row);
 		} else {
-			boolean size = channelSelection.getModel().getSize() > 0;
-			channelSelection.setEnabled(size);
-			showIntensityTable.setEnabled(size);
-			saveButton.setEnabled(size);
+            boolean enabled = channelSelection.getModel().getSize() > 0
+                    && (ROIStats != null && ROIStats.size() > 0);
+            channelSelection.setEnabled(enabled);
+            showIntensityTable.setEnabled(enabled);
+            saveButton.setEnabled(enabled);
 		}
 	}
 	

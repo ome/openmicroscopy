@@ -684,7 +684,9 @@ class MeasurementViewerModel
 	 *
 	 * @return See above.
 	 */
-	Coord3D getCurrentView() { return currentPlane; }
+	Coord3D getCurrentView() { 
+	    return currentPlane; 
+	    }
 
 	/**
 	 * Returns <code>true</code> if the size in microns can be displayed, this
@@ -1316,7 +1318,8 @@ class MeasurementViewerModel
 	 */
 	void fireAnalyzeShape(List<ROIShape> shapeList)
 	{
-	    if (CollectionUtils.isEmpty(shapeList)) return;
+	    if (CollectionUtils.isEmpty(shapeList)) 
+	        return;
 		state = MeasurementViewer.ANALYSE_SHAPE;
 		if (currentLoader != null) currentLoader.cancel();
 		List<ROIShape> l = new ArrayList<ROIShape>(shapeList.size());
@@ -1327,6 +1330,10 @@ class MeasurementViewerModel
             shape = i.next();
             z = shape.getZ();
             t = shape.getT();
+            // only analyze the shape of the current active plane
+            if (currentPlane.getZSection() != z
+                    || currentPlane.getTimePoint() != t)
+                continue;
             if (z >= 0 && t >= 0) {
                 l.add(shape);
             } else if (z == -1 && t >= 0) {

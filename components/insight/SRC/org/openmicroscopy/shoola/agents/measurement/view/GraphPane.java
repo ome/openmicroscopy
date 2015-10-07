@@ -44,7 +44,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.commons.collections.CollectionUtils;
-
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
@@ -52,8 +52,10 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrap
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import omero.log.Logger;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -139,9 +141,6 @@ public class GraphPane
 	/** The histogram chart. */
 	private HistogramPlot histogramChart;
 	
-	/** The state of the Graph pane. */
-	private int state = READY;
-	
 	/** Reference to the view.*/
 	private MeasurementViewerUI view;
 	
@@ -150,6 +149,12 @@ public class GraphPane
 
 	/** Button to save the graph as JPEG or PNG.*/
 	private JButton export;
+	
+	/** Maximum Z value possible */
+	private int maxZ;
+	
+	/** Maximum T value possible */
+	private int maxT;
 	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
@@ -221,19 +226,27 @@ public class GraphPane
 	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
-		if (zSlider == null || tSlider == null) return;
-		if (coord == null) return;
-		if (state == ANALYSING) return;
+		if (zSlider == null || tSlider == null)
+		    return;
+		if (coord == null) 
+		    return;
 		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
 				tSlider.getValue()-1);
-		if (coord.equals(thisCoord)) return;
-		if (!pixelStats.containsKey(thisCoord)) return;
-		state = ANALYSING;
-		buildGraphsAndDisplay();
-		formatPlane();
-		if (shape != null)
-			view.selectFigure(shape.getFigure());
-		state = READY;
+		if (coord.equals(thisCoord)) 
+		    return;
+		
+        SelectPlane request = new SelectPlane(model.getPixelsID(),
+                thisCoord.getZSection(), thisCoord.getTimePoint());
+        EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+        bus.post(request);
+        
+        try {
+            if (shape != null
+                    && shape.getFigure().getROI().getShape(thisCoord) != null)
+                view.selectFigure(shape.getFigure(), thisCoord);
+        } catch (NoSuchROIException e) {
+            // just ignore if there is no shape for the specific plane
+        }
 	}
 
 	/**
@@ -381,8 +394,11 @@ public class GraphPane
 	private void buildGraphsAndDisplay()
 	{
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
+		if (pixelStats == null)
+		    return;
 		Map<Integer, ROIShapeStatsSimple> data = pixelStats.get(coord);
-		if (data == null) return;
+		if (data == null) 
+		    return;
 		shape = shapeMap.get(coord);
 		double[][] dataXY;
 		Color c;
@@ -505,9 +521,11 @@ public class GraphPane
 	 * @param view Reference to the View. Mustn't be <code>null</code>.
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 * @param maxZ Number of Z planes
+	 * @param maxT Number of T planes
 	 */
 	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller,
-		MeasurementViewerModel model)
+		MeasurementViewerModel model, int maxZ, int maxT)
 	{
 		if (view == null)
 			throw new IllegalArgumentException("No view.");
@@ -518,6 +536,8 @@ public class GraphPane
 		this.model = model;
 		this.view = view;
 		this.controller = controller;
+		this.maxZ = maxZ;
+		this.maxT = maxT;
 		initComponents();
 		buildGUI();
 	}
@@ -558,68 +578,56 @@ public class GraphPane
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) {
 			buildHistogramNoSelection();
-			return;
 		}
-		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
-		pixelStats = new HashMap<Coord3D, Map<Integer, ROIShapeStatsSimple>>();
-		shapeMap = new HashMap<Coord3D, ROIShape>();
-		channelName = new ArrayList<String>();
-		channelColour = new ArrayList<Color>();
-		Entry entry;
-		Iterator i  = ROIStats.entrySet().iterator();
-		
-	
-		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
-		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
-		
-		Coord3D c3D;
-		Map<StatsType, Map> shapeStats;
-		Map<Integer, ROIShapeStatsSimple> data;
-		int t = model.getDefaultT();
-		int z = model.getDefaultZ();
-		boolean hasData = false;
-		int cT, cZ;
-		while (i.hasNext())
-		{
-			entry = (Entry) i.next();
-			shape = (ROIShape) entry.getKey();
-			
-			c3D = shape.getCoord3D();
-			cT = c3D.getTimePoint();
-			cZ = c3D.getZSection();
-			
-			minT = Math.min(minT, cT);
-			maxT = Math.max(maxT, cT);
-			minZ = Math.min(minZ, cZ);
-			maxZ = Math.max(maxZ, cZ);
-			
-			if (cT == t && cZ == z) hasData = true;
-			
-			shapeMap.put(c3D, shape);
-			if (shape.getFigure() instanceof MeasureTextFigure)
-				return;
-			shapeStats = AnalysisStatsWrapper.convertStats(
-					(Map) entry.getValue());
-			if (shapeStats != null) {
-				shapeStatsList.put(c3D, shapeStats);
-				data = shapeStats.get(StatsType.PIXELDATA);
-				pixelStats.put(c3D, data);
-			}
+		else {
+    		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
+    		pixelStats = new HashMap<Coord3D, Map<Integer, ROIShapeStatsSimple>>();
+    		shapeMap = new HashMap<Coord3D, ROIShape>();
+    		channelName = new ArrayList<String>();
+    		channelColour = new ArrayList<Color>();
+    		Entry entry;
+    		Iterator i  = ROIStats.entrySet().iterator();
+            
+    		Coord3D c3D;
+    		Map<StatsType, Map> shapeStats;
+    		Map<Integer, ROIShapeStatsSimple> data;
+    		int t = model.getDefaultT();
+    		int z = model.getDefaultZ();
+    		boolean hasData = false;
+    		int cT, cZ;
+    		while (i.hasNext())
+    		{
+    			entry = (Entry) i.next();
+    			shape = (ROIShape) entry.getKey();
+    			
+    			c3D = shape.getCoord3D();
+    			cT = c3D.getTimePoint();
+    			cZ = c3D.getZSection();
+    			
+    			if (cT == t && cZ == z) hasData = true;
+    			
+    			shapeMap.put(c3D, shape);
+    			if (shape.getFigure() instanceof MeasureTextFigure)
+    				return;
+    			shapeStats = AnalysisStatsWrapper.convertStats(
+    					(Map) entry.getValue());
+    			if (shapeStats != null) {
+    				shapeStatsList.put(c3D, shapeStats);
+    				data = shapeStats.get(StatsType.PIXELDATA);
+    				pixelStats.put(c3D, data);
+    			}
+    		}
+    		if (!hasData) {
+    			buildHistogramNoSelection();
+    		}
 		}
-		if (!hasData) {
-			buildHistogramNoSelection();
-			return;
-		}
-		maxZ = maxZ+1;
-		minZ = minZ+1;
-		minT = minT+1;
-		maxT = maxT+1;
+        
 		zSlider.setMaximum(maxZ);
-		zSlider.setMinimum(minZ);
+		zSlider.setMinimum(1);
 		tSlider.setMaximum(maxT);
-		tSlider.setMinimum(minT);
-		zSlider.setVisible(maxZ != minZ);
-		tSlider.setVisible(maxT != minT);
+		tSlider.setMinimum(1);
+		zSlider.setVisible(maxZ > 1);
+		tSlider.setVisible(maxT > 1);
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 		formatPlane();
@@ -645,9 +653,8 @@ public class GraphPane
 	public void stateChanged(ChangeEvent evt) {
 		Object src = evt.getSource();
 		if (src == zSlider || src == tSlider) {
-			formatPlane();
 			OneKnobSlider slider = (OneKnobSlider) src;
-			if (!slider.isDragging()) {
+			if (!slider.isDragging() && !slider.getValueIsAdjusting()) {
 				handleSliderReleased();
 			}
 		}
