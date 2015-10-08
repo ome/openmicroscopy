@@ -351,12 +351,6 @@
 
         <if><equals arg1="auto" arg2="${ice.compatibility}"/>
             <then>
-                <if><matches string="${executable.ice.version}" pattern="^3[.]4"/>
-                    <then>
-                        <property name="versions.ice" value="${versions.ice34}"/>
-                        <property name="versions.ice_lib" value="${versions.ice34_lib}"/>
-                    </then>
-                </if>
                 <if><matches string="${executable.ice.version}" pattern="^3[.]5"/>
                     <then>
                         <property name="versions.ice" value="${versions.ice35}"/>
@@ -364,13 +358,6 @@
                     </then>
                 </if>
             </then>
-            <elseif>
-                <equals arg1="3.4" arg2="${ice.compatibility}"/>
-                <then>
-                    <property name="versions.ice" value="${versions.ice34}"/>
-                    <property name="versions.ice_lib" value="${versions.ice34_lib}"/>
-                </then>
-            </elseif>
             <elseif>
                 <equals arg1="3.5" arg2="${ice.compatibility}"/>
                 <then>
