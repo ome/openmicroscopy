@@ -4335,7 +4335,7 @@ def chgrp(request, conn=None, **kwargs):
     Adds the callback handle to the request.session['callback']['jobId']
     """
     # Get the target group_id
-    group_id = request.POST.get('group_id', None)
+    group_id = getIntOrDefault(request, 'group_id', None)
     if group_id is None:
         raise AttributeError("chgrp: No group_id specified")
     group_id = long(group_id)
