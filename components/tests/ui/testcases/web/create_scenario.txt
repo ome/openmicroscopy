@@ -89,16 +89,10 @@ Dataset Exists and Is Not Orphaned
 
 Dataset Should Contain Image 
     [Arguments]                             ${imageId}      ${datasetId}
-    [Documentation]                         Checks if the newly created dataset contains the image. Very Specific test, needs to be generalised.
     Wait Until Page Contains Element        css=tr.data_heading_id strong
     Select Dataset By Id                    ${datasetId}
     ${nodeId}=                              Wait For Dataset Node               ${datasetId}
-
-    Wait Until Element Is Visible           xpath=//li[@id='${nodeId}']/ul/li[1]/a
-    Click Element                           xpath=//li[@id='${nodeId}']/ul/li[1]/a
-    Wait Until Page Contains Element        xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'Image ID:')]
-    ${imageId1}                             Get Text        css=tr.data_heading_id strong
-    Should Be Equal                         ${imageId1}     ${imageId}
+    Wait Until Element Is Visible           xpath=//li[@id='${nodeId}']/ul/li[@data-id='${imageId}']
 
 Create Screen Using Icon and Check If It Exists
     ${screenId}=                            Create Screen                       ${CtxScreenName}
