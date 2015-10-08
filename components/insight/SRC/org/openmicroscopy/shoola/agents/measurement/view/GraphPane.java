@@ -29,10 +29,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -44,7 +46,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.commons.collections.CollectionUtils;
-
+import org.jhotdraw.draw.Figure;
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
@@ -218,24 +221,33 @@ public class GraphPane
 		return value;
 	}
 	
-	/** The slider has changed value and the mouse button released. */
-	private void handleSliderReleased()
-	{
-		if (zSlider == null || tSlider == null) return;
-		if (coord == null) return;
-		if (state == ANALYSING) return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
-				tSlider.getValue()-1);
-		if (coord.equals(thisCoord)) return;
-		if (!pixelStats.containsKey(thisCoord)) return;
-		state = ANALYSING;
-		buildGraphsAndDisplay();
-		formatPlane();
-		if (shape != null)
-			view.selectFigure(shape.getFigure());
-		state = READY;
-	}
+    /** The slider has changed value and the mouse button released. */
+    private void handleSliderReleased() {
+        int newZ = zSlider.getValue() - 1;
+        int newT = tSlider.getValue() - 1;
+        if (checkPlane(newZ, newT)) {
+            SelectPlane evt = new SelectPlane(model.getPixelsID(),
+                    zSlider.getValue() - 1, tSlider.getValue() - 1);
+            MeasurementAgent.getRegistry().getEventBus().post(evt);
+        }
+    }
 
+	/**
+     * Controls if the specified coordinates are valid.
+     * Returns <code>true</code> if the passed values are in the correct ranges,
+     * <code>false</code> otherwise.
+     * 
+     * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
+     * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
+     * @return See above.
+     */
+    private boolean checkPlane(int z, int t)
+    {
+        if (z < 0 || model.getNumZSections() <= z) return false;
+        if (t < 0 || model.getNumTimePoints() <= t) return false;
+        return true; 
+    }
+    
 	/**
 	 * Saves the graph as JPEG or PNG.
 	 *
@@ -579,6 +591,7 @@ public class GraphPane
 		int z = model.getDefaultZ();
 		boolean hasData = false;
 		int cT, cZ;
+		Set<Figure> statsMissingFigures = new HashSet<Figure>();
 		while (i.hasNext())
 		{
 			entry = (Entry) i.next();
@@ -593,13 +606,22 @@ public class GraphPane
 			minZ = Math.min(minZ, cZ);
 			maxZ = Math.max(maxZ, cZ);
 			
-			if (cT == t && cZ == z) hasData = true;
-			
 			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 				return;
 			shapeStats = AnalysisStatsWrapper.convertStats(
 					(Map) entry.getValue());
+			
+			if (cT == t && cZ == z)  {
+			    if (shapeStats != null)
+			        // data for current plane is there, can be displayed
+			        hasData = true;
+			    else
+			        // data is missing for current plane, analysis has to be
+			        // kicked off for the specific figure
+			        statsMissingFigures.add(shape.getFigure());
+			}
+			
 			if (shapeStats != null) {
 				shapeStatsList.put(c3D, shapeStats);
 				data = shapeStats.get(StatsType.PIXELDATA);
@@ -607,6 +629,8 @@ public class GraphPane
 			}
 		}
 		if (!hasData) {
+		    if (!statsMissingFigures.isEmpty())
+		        controller.analyseFigures(statsMissingFigures);
 			buildHistogramNoSelection();
 			return;
 		}
@@ -614,6 +638,8 @@ public class GraphPane
 		minZ = minZ+1;
 		minT = minT+1;
 		maxT = maxT+1;
+		zSlider.removeChangeListener(this);
+		tSlider.removeChangeListener(this);
 		zSlider.setMaximum(maxZ);
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
@@ -622,6 +648,8 @@ public class GraphPane
 		tSlider.setVisible(maxT != minT);
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
+		zSlider.addChangeListener(this);
+        tSlider.addChangeListener(this);
 		formatPlane();
 		buildGraphsAndDisplay();
 	}

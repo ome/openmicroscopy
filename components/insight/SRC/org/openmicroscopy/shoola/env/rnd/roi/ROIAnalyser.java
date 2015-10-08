@@ -35,6 +35,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
 
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import omero.gateway.model.PixelsData;
 
@@ -80,7 +81,23 @@ public class ROIAnalyser
     {
         if (z < 0 || sizeZ <= z) return false;
         if (t < 0 || sizeT <= t) return false;
-        return true;
+        return true; 
+    }
+    
+    /**
+     * Checks if z and t match the given plane.
+     * 
+     * @param z
+     *            The z plane to check
+     * @param t
+     *            The t plane to check
+     * @param plane
+     *            The plane to check against
+     * @return See above
+     */
+    private boolean matchesPlane(int z, int t, Coord3D plane) {
+        return (z == plane.getZSection() || plane.getZSection() < 0)
+                && (t == plane.getTimePoint() || plane.getTimePoint() < 0);
     }
 
     /**
@@ -120,6 +137,7 @@ public class ROIAnalyser
      * @param ctx The security context.
      * @param shapes The shapes to analyze.
      * @param channels Collection of selected channels.
+     * @param plane The plane to analyze the shapes for, can be <code>null</code>
      * @return A map whose keys are the {@link ROIShape} objects specified
      *         and whose values are a map (keys: channel index, value
      *         the corresponding {@link AbstractROIShapeStats} objects computed by
@@ -129,7 +147,7 @@ public class ROIAnalyser
      */
     public Map<ROIShape, Map<Integer, AbstractROIShapeStats>> analyze(
             SecurityContext ctx, ROIShape[] shapes,
-            Collection<Integer> channels)
+            Collection<Integer> channels, Coord3D plane)
     throws DataSourceException
     {
         if (shapes == null) throw new NullPointerException("No shapes.");
@@ -151,23 +169,25 @@ public class ROIAnalyser
             close = i == shapes.length-1;
             if (checkPlane(shape.getZ(), shape.getT())) {
                 stats = new HashMap<Integer, AbstractROIShapeStats>(n);
-                j = channels.iterator();
-                List<Point> points = shape.getFigure().getPoints();
-                int count = 0;
-                boolean last = false;
-                while (j.hasNext()) {
-                    w = j.next();
-                    if (checkChannel(w.intValue())) {
-                        computer =  new ROIShapeStatsSimple();
-                        runner.register(computer);
-                        if (close) {
-                            last = count == channels.size()-1;
+                if (plane == null || matchesPlane(shape.getZ(), shape.getT(), plane)) {
+                    j = channels.iterator();
+                    List<Point> points = shape.getFigure().getPoints();
+                    int count = 0;
+                    boolean last = false;
+                    while (j.hasNext()) {
+                        w = j.next();
+                        if (checkChannel(w.intValue())) {
+                            computer =  new ROIShapeStatsSimple();
+                            runner.register(computer);
+                            if (close) {
+                                last = count == channels.size()-1;
+                            }
+                            runner.iterate(ctx, shape, points, w.intValue(), last);
+                            runner.remove(computer);
+                            stats.put(w, computer);
                         }
-                        runner.iterate(ctx, shape, points, w.intValue(), last);
-                        runner.remove(computer);
-                        stats.put(w, computer);
+                        count++;
                     }
-                    count++;
                 }
                 r.put(shape, stats);
             }

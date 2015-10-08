@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.PixelsData;
@@ -127,11 +128,12 @@ public interface ImageDataView
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
+     * @param plane     The plane to analyze the shapes for, can be <code>null</code>
      * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
-    		Collection channels, List shapes, AgentEventListener observer);
+    		Collection channels, List shapes, Coord3D plane, AgentEventListener observer);
     
     /**
      * Retrieves all the rendering settings associated to a given set of pixels.
