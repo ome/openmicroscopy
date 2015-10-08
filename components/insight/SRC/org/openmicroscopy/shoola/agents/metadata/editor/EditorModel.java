@@ -161,6 +161,9 @@ class EditorModel
 	
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
+	
+	/** The default size limit for exporting images, if no server side value is provided */
+	private static final int DOWNLOAD_MAX_SIZE = 144000000;
 
 	/** Enum to distinguish between different kind of 
 	 * {@link MapAnnotationData}, see {@link #getMapAnnotations(MapAnnotationType)}
@@ -4286,6 +4289,46 @@ class EditorModel
 	 */
 	boolean isLargeImage() { return largeImage; }
 
+    /**
+     * Checks if the image doesn't exceed the maximum download size for being
+     * exported as JPG, PNG or TIF
+     * 
+     * @return See above.
+     */
+    boolean isExportable() {
+        ImageData img = null;
+        if (refObject instanceof ImageData) {
+            img = (ImageData) refObject;
+        } else if (refObject instanceof WellSampleData) {
+            img = ((WellSampleData) refObject).getImage();
+        }
+
+        if (img == null)
+            return false;
+
+        PixelsData data = img.getDefaultPixels();
+        int n = data.getSizeX() * data.getSizeY();
+        return n <= getMaxDownloadSizeForExport();
+    }
+	
+    /**
+     * Get the maximum size for images being exported as jpg, png or tif.
+     * 
+     * @return See above.
+     */
+    private int getMaxDownloadSizeForExport() {
+        String tmp = (String) MetadataViewerAgent.getRegistry().lookup(
+                LookupNames.DOWNLOAD_MAX_SIZE);
+        if (tmp == null)
+            return DOWNLOAD_MAX_SIZE;
+
+        try {
+            return Integer.parseInt(tmp);
+        } catch (NumberFormatException e) {
+            return DOWNLOAD_MAX_SIZE;
+        }
+    }
+    
 	/**
 	 * Indicates if the image is a big image or not.
 	 * 

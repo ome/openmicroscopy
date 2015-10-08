@@ -361,4 +361,7 @@ public class LookupNames
     
     /** Lookup name for using pixel interpolation */
     public static final String INTERPOLATE = "omero.client.viewer.interpolate_pixels";
+    
+    /** Lookup name for download size restriction */
+    public static final String DOWNLOAD_MAX_SIZE = "omero.client.download_as_max_size";
 }
