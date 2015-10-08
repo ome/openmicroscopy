@@ -616,7 +616,7 @@ class WebGatewayCache (object):
         if len(pre) == 0:
             pre = '0'
         if r:
-            r = r.GET
+            r = r.REQUEST
             c = FN_REGEX.sub('-', r.get('c', ''))
             m = r.get('m', '')
             p = r.get('p', '')
