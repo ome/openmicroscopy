@@ -99,11 +99,7 @@ DECLARATION BLOCK:
 [$hdr] \#include <omero/model/NamedValue.h>
 [$hdr] \#include <omero/templates.h>
 [$hdr] \#include <IceUtil/Config.h>
-[$hdr] \#if ICE_INT_VERSION / 100 >= 304
-[$hdr] #   include <Ice/Handle.h>
-[$hdr] \#else
-[$hdr] #   include <IceUtil/Handle.h>
-[$hdr] #endif
+[$hdr] \#include <Ice/Handle.h>
 
 [$hdr] #ifndef OMERO_CLIENT
 [$hdr] #   ifdef OMERO_CLIENT_EXPORTS
@@ -242,25 +238,17 @@ Note how the whitespace for the python definitions is important.
 [$hdr]     class OMERO_CLIENT ${PojoI};
 [$hdr]   }
 [$hdr] }
-[$hdr] \#if ICE_INT_VERSION / 100 >= 304
 [$hdr] namespace IceInternal {
 [$hdr]   OMERO_CLIENT ::Ice::Object* upCast(::omero::model::${PojoI}*);
 [$hdr] }
-[$hdr] #endif
 [$hdr] namespace omero {
 [$hdr]   namespace model {
-[$hdr] \#if ICE_INT_VERSION / 100 >= 304
 [$hdr]   typedef IceInternal::Handle<${PojoI}> ${PojoI}Ptr;
-[$hdr] \#else
-[$hdr]   typedef IceUtil::Handle<${PojoI}> ${PojoI}Ptr;
-[$hdr] #endif
 [$hdr]     class OMERO_CLIENT ${PojoI} : virtual public ${Pojo} {
 
 [$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] \#include <omero/RTypesI.h>
-[$cpp] \#if ICE_INT_VERSION / 100 >= 304
 [$cpp] ::Ice::Object* IceInternal::upCast(::omero::model::${PojoI}* p) { return p; }
-[$cpp] #endif
 [$cpp] using omero::rtypes::rlong;
 [$cpp] namespace omero {
 [$cpp]   namespace model {

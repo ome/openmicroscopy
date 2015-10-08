@@ -75,9 +75,7 @@ namespace omero {
 
         // Set the default encoding if this is Ice 3.5 or later
         // and none is set.
-#if ICE_INT_VERSION / 100 >= 305
         optionallySetProperty(id, "Ice.Default.EncodingVersion", "1.0");
-#endif
 
         // C++ only
         std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
