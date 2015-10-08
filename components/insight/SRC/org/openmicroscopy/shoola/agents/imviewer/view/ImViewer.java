@@ -1319,4 +1319,10 @@ public interface ImViewer
      * @return See above
      */
     ImageAcquisitionData getImageAcquisitionData();
+    
+    /**
+     * Handles the ROI count
+     * @param roiCount The number of ROIs the current image has
+     */
+    void onROICountLoaded(int roiCount);
 }

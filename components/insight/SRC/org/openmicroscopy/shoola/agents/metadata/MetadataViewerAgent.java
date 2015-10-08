@@ -28,9 +28,9 @@ import java.util.List;
 import ome.model.units.BigResult;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
+import org.openmicroscopy.shoola.agents.events.metadata.ROICountLoaded;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -338,6 +338,17 @@ public class MetadataViewerAgent
     }
     
     /**
+     * Handles a {@link ROICountLoaded} event, i. e. passes the number
+     * of ROIs on to the respective viewer for the image
+     */
+    private void handleROICountLoaded(ROICountLoaded e) {
+        MetadataViewer viewer = MetadataViewerFactory.getViewerFromId(
+                ImageData.class.getName(), e.getImageId());
+        if(viewer!=null) 
+            viewer.updateROICount(e.getRoiCount());
+    }
+    
+    /**
      * Updates the view when the mode is changed.
      * 
      * @param evt The event to handle.
@@ -383,6 +394,7 @@ public class MetadataViewerAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, CopyRndSettings.class);
         bus.register(this, RndSettingsPasted.class);
+        bus.register(this, ROICountLoaded.class);
     }
 
     /**
@@ -431,6 +443,8 @@ public class MetadataViewerAgent
                    	 handleCopyRndSettings((CopyRndSettings) e);
 		else if (e instanceof RndSettingsPasted) 
                     	handleRndSettingsPasted((RndSettingsPasted) e);
+		else if (e instanceof ROICountLoaded) 
+            handleROICountLoaded((ROICountLoaded) e);
 	}
 
 }

@@ -2490,8 +2490,6 @@ class ImViewerUI
 	 */
 	void setMeasurementLaunchingStatus(boolean b)
 	{ 
-		Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
-		a.setEnabled(!b);
 		toolBar.setMeasurementLaunchingStatus(b);
 	}
 	

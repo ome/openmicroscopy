@@ -1243,4 +1243,12 @@ class EditorComponent
     public Collection<FileAnnotationData> getSelectedFileAnnotations() {
         return view.getSelectedFileAnnotations();
     }
+    
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#updateROICount(int)
+     */
+    public void updateROICount(int roiCount) {
+        view.updateROICount(roiCount);
+    }
 }

@@ -564,4 +564,11 @@ public interface Editor
      */
     public Collection<FileAnnotationData> getSelectedFileAnnotations();
     
+    /**
+     * Updates the number of ROIs
+     * 
+     * @param roiCount
+     *            The number of ROIs
+     */
+    public void updateROICount(int roiCount);
 }

@@ -20,103 +20,103 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata;
-
+package org.openmicroscopy.shoola.agents.imviewer;
 
 import java.util.Collection;
 
+import omero.gateway.SecurityContext;
+import omero.gateway.model.ROIResult;
+import omero.log.LogMessage;
+
+import org.openmicroscopy.shoola.agents.events.metadata.ROICountLoaded;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import omero.gateway.model.ROIResult;
-import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
-import omero.log.LogMessage;
-import org.openmicroscopy.shoola.agents.events.metadata.ROICountLoaded;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
-/** 
- * An async. loader which updates the UI components with
- * the number of ROIs the image associated to the PreviewToolBar has.
+/**
+ * An async. loader which load the number of ROIs for the certain image
  *
- * @author  Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-public class ROICountLoader
-	extends MetadataLoader
-{
+public class ROICountLoader extends ImageDataLoader {
     /** Reference to the registry */
     private final Registry registry;
-    
+
     /** Reference to the ImageDataView */
     private final ImageDataView imView;
-    
+
     /** The id of the image the ROIs are related to. */
-    private long            imageID;
-    
+    private long imageID;
+
     /** The id of the user. */
-    private long            userID;
-    
+    private long userID;
+
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
-    
+    private CallHandle handle;
+
     /**
      * Creates a new instance
      * 
-     * @param viewer Reference to the viewer
-     * @param ctx The SecurityContext
-     * @param loaderID The loader ID
-     * @param imageId The image id to load the ROIs for
-     * @param userID The user id
+     * @param viewer
+     *            Reference to the viewer
+     * @param ctx
+     *            The SecurityContext
+     * @param loaderID
+     *            The loader ID
+     * @param imageId
+     *            The image id to load the ROIs for
+     * @param userID
+     *            The user id
      */
-    public ROICountLoader(MetadataViewer viewer, SecurityContext ctx,
-            int loaderID, long imageId, long userID) {
+    public ROICountLoader(ImViewer viewer, SecurityContext ctx, int loaderID,
+            long imageId, long userID) {
         super(viewer, ctx, loaderID);
         this.imageID = imageId;
         this.userID = userID;
 
-        registry = MetadataViewerAgent.getRegistry();
+        registry = ImViewerAgent.getRegistry();
         imView = (ImageDataView) registry
                 .getDataServicesView(ImageDataView.class);
     }
-    
+
     /**
      * Handles a null result
      */
-    public void handleNullResult() 
-    {
-    	LogMessage msg = new LogMessage();
+    public void handleNullResult() {
+        LogMessage msg = new LogMessage();
         msg.print("No data returned.");
         registry.getLogger().error(this, msg);
     }
-    
+
     /** Handles the cancellation */
-    public void handleCancellation() 
-    {
+    public void handleCancellation() {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
     }
-    
+
     /**
      * Handles exceptions
+     * 
      * @see DSCallAdapter#handleException(Throwable)
      */
-    public void handleException(Throwable exc) 
-    {
-    	String s = "Data Retrieval Failure: ";
+    public void handleException(Throwable exc) {
+        String s = "Data Retrieval Failure: ";
         LogMessage msg = new LogMessage();
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
-                                               s, exc);
+        registry.getUserNotifier()
+                .notifyError("Data Retrieval Failure", s, exc);
     }
-    
+
     /** Fires an asynchronous data loading. */
-    public  void load() {
+    public void load() {
         handle = imView.loadROIFromServer(ctx, imageID, userID, this);
     }
-    
+
     /** Cancels any ongoing data loading. */
     public void cancel() {
         handle.cancel();
@@ -128,18 +128,16 @@ public class ROICountLoader
      */
     public void handleResult(Object result) {
         int n = 0;
-        
-        Collection c = (Collection)result;
-        for(Object obj : c) {
-            if(obj instanceof ROIResult) {
-                n += ((ROIResult)obj).getROIs().size();
+
+        Collection c = (Collection) result;
+        for (Object obj : c) {
+            if (obj instanceof ROIResult) {
+                n += ((ROIResult) obj).getROIs().size();
             }
         }
-        
+
         ROICountLoaded evt = new ROICountLoaded(imageID, n);
         registry.getEventBus().post(evt);
     }
-    
-    
-    
+
 }
