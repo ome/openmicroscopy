@@ -596,7 +596,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             ds.description = rstring(str(description))
         dsid = self.saveAndReturnId(ds)
         if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
+            iids = [int(i) for i in img_ids]
             links = []
             for iid in iids:
                 link = omero.model.DatasetImageLinkI()

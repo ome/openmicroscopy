@@ -2760,7 +2760,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 if folder_type == "dataset":
                     oid = manager.createDataset(
                         name, description,
-                        img_ids=request.POST.get('img_ids', None))
+                        img_ids=request.POST.getlist('image', None))
                 else:
                     oid = getattr(manager, "create" +
                                   folder_type.capitalize())(name, description)
@@ -2781,7 +2781,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         if o_type == "share":
             images_to_share = list(
                 conn.getObjects("Image",
-                                request.POST.getlist('image')))
+                                request.GET.getlist('image')))
             if request.method == 'POST':
                 form = BasketShareForm(
                     initial={'experimenters': experimenters,
@@ -2805,7 +2805,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     'experimenters': experimenters,
                     'images': images_to_share,
                     'enable': True,
-                    'selected': request.POST.getlist('image')
+                    'selected': request.GET.getlist('image')
                 }
                 form = BasketShareForm(initial=initial)
         template = "webclient/public/share_form.html"
