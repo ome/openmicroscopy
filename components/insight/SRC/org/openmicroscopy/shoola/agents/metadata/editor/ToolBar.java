@@ -211,7 +211,7 @@ class ToolBar
         if (model.isMultiSelection()) b = false;
         else {
             b = model.getRefObject() instanceof ImageData &&
-                    !model.isLargeImage() && !model.isLargeImage();
+                    !model.isLargeImage();
         }
         exportAsOmeTiffItem.setEnabled(b);
         saveAsMenu.add(exportAsOmeTiffItem);
