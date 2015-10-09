@@ -1355,10 +1355,7 @@ class IntensityView
 		Object src = evt.getSource();
 		if (src == zSlider || src == tSlider) {
 			formatPlane();
-			OneKnobSlider slider = (OneKnobSlider) src;
-			if (!slider.isDragging()) {
-				handleSliderReleased();
-			}
+			handleSliderReleased();
 		}
 	}
 	
