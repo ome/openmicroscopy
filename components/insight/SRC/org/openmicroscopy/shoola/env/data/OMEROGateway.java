@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -115,6 +116,7 @@ import omero.ValidationException;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
+import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
@@ -1451,7 +1453,12 @@ class OMEROGateway
             throws DSOutOfServiceException, DSAccessException {
         if (isConnected()) {
             try {
-                return gw.getConfigService(new SecurityContext(-1)).getClientConfigValues();
+                IConfigPrx cs = gw.getConfigService(new SecurityContext(-1));
+                Map<String, String> result = new HashMap<String, String>();
+                result.putAll(cs.getClientConfigValues());
+                result.put(LookupNames.MAX_PLANE_HEIGHT, cs.getConfigValue(LookupNames.MAX_PLANE_HEIGHT));
+                result.put(LookupNames.MAX_PLANE_WIDTH, cs.getConfigValue(LookupNames.MAX_PLANE_WIDTH));
+                return result;
             } catch (Exception e) {
                 handleException(e, "Cannot access config service. ");
             }
