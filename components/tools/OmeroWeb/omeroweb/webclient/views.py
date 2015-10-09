@@ -2779,9 +2779,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
         if o_type == "share":
-            images_to_share = list(
-                conn.getObjects("Image",
-                                request.GET.getlist('image')))
+            img_ids = request.GET.getlist('image',
+                                          request.POST.getlist('image'))
+            images_to_share = list(conn.getObjects("Image", img_ids))
             if request.method == 'POST':
                 form = BasketShareForm(
                     initial={'experimenters': experimenters,
