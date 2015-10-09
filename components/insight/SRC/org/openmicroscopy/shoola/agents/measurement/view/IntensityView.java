@@ -33,6 +33,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,7 +56,7 @@ import javax.swing.event.ChangeListener;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.Figure;
-
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
@@ -255,6 +256,9 @@ class IntensityView
 	/** Table Model. */
 	private IntensityModel				tableModel;
 	
+	/** Reference to the controller */
+	private MeasurementViewerControl controller;
+	
 	/** Indicates the selected plane.*/
 	private void formatPlane()
 	{
@@ -273,36 +277,40 @@ class IntensityView
 	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
-		if (zSlider == null || tSlider == null || coord == null || 
-				state != State.READY)
-			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
-				tSlider.getValue()-1);
-		if (coord.equals(thisCoord)) return;
-		if (!pixelStats.containsKey(thisCoord)) return;
-	
-		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
-		String string = (String)nameColour[1];
-		if (!nameMap.containsKey(string))
-		{
-			state=State.READY;
-			return;
-		}
-		selectedChannelName = string;
-		int channel = nameMap.get(string);
-		if (channel == -1)
-			return;
-		if (!pixelStats.get(thisCoord).containsKey(channel))
+		if (zSlider == null || tSlider == null || coord == null|| 
+                state != State.READY)
 			return;
 		
-		state = State.ANALYSING;
-		populateData(thisCoord, channel);
-		formatPlane();
-		//repaint();
-		if (shape!=null)
-			view.selectFigure(shape.getFigure());
-		state = State.READY;
+		int newZ = zSlider.getValue() - 1;
+        int newT = tSlider.getValue() - 1;
+        
+		Coord3D thisCoord = new Coord3D(newZ,  newT);
+        if (coord.equals(thisCoord))
+            return;
+		
+        if (checkPlane(newZ, newT)) {
+            state = State.ANALYSING;
+            SelectPlane evt = new SelectPlane(model.getPixelsID(),
+                    zSlider.getValue() - 1, tSlider.getValue() - 1);
+            MeasurementAgent.getRegistry().getEventBus().post(evt);
+        }
 	}
+	
+	/**
+     * Controls if the specified coordinates are valid.
+     * Returns <code>true</code> if the passed values are in the correct ranges,
+     * <code>false</code> otherwise.
+     * 
+     * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
+     * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
+     * @return See above.
+     */
+    private boolean checkPlane(int z, int t)
+    {
+        if (z < 0 || model.getNumZSections() <= z) return false;
+        if (t < 0 || model.getNumTimePoints() <= t) return false;
+        return true; 
+    }
 
 	/** Initializes the table model.*/
 	private void initTableModel()
@@ -744,49 +752,6 @@ class IntensityView
 		channelStdDev = stdDevStats.get(coord);
 		channelSum = sumStats.get(coord);
 		shape = shapeMap.get(coord);
-		
-		/*
-		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
-		if (pixels == null) return;
-		Iterator<Point> pixelIterator = pixels.keySet().iterator();
-		double minX, maxX, minY, maxY;
-		if (!pixelIterator.hasNext()) return;
-		Point point = pixelIterator.next();
-		minX = (point.getX());
-		maxX = (point.getX());
-		minY = (point.getY());
-		maxY = (point.getY());
-		while (pixelIterator.hasNext())
-		{
-			point = pixelIterator.next();
-			minX = Math.min(minX, point.getX());
-			maxX = Math.max(maxX, point.getX());
-			minY = Math.min(minY, point.getY());
-			maxY = Math.max(maxY, point.getY());
-		}
-		int sizeX, sizeY;
-		sizeX = (int) (maxX-minX)+1;
-		sizeY = (int) ((maxY-minY)+1);
-		Double[][] data = new Double[sizeX][sizeY];
-		Iterator<Entry<Point, Double>> i = pixels.entrySet().iterator();
-		int x, y;
-		Double value;
-		Entry<Point, Double> entry;
-		while (i.hasNext())
-		{
-			entry = i.next();
-			point = entry.getKey();
-			x = (int) (point.getX()-minX);
-			y = (int) (point.getY()-minY);
-			if (x >= sizeX || y >= sizeY) continue;
-			
-			if (pixels.containsKey(point)) value = entry.getValue();
-			else value = 0.0;
-			data[x][y] = value;
-		}
-		tableModel = new IntensityModel(data);
-		intensityDialog.setModel(tableModel);
-		*/
 	}
 		
 	/**
@@ -1112,8 +1077,9 @@ class IntensityView
 	 * 
 	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
+	 * @param controller Reference to the Controller. Mustn't be <code>null</code>.
 	 */
-	IntensityView(MeasurementViewerUI view, MeasurementViewerModel model)
+	IntensityView(MeasurementViewerUI view, MeasurementViewerModel model, MeasurementViewerControl controller)
 	{
 		if (view == null)
 			throw new IllegalArgumentException("No view.");
@@ -1121,6 +1087,7 @@ class IntensityView
 			throw new IllegalArgumentException("No model.");
 		this.view = view;
 		this.model = model;
+		this.controller = controller;
 		selectedChannelName = "";
 		initComponents();
 		buildGUI();
@@ -1161,8 +1128,6 @@ class IntensityView
 	 */
 	void displayAnalysisResults()
 	{
-		if (state == State.ANALYSING)
-			return;
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) 
 			return;
@@ -1185,6 +1150,10 @@ class IntensityView
 
 		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
 		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
+		
+		int cT = model.getDefaultT();
+        int cZ = model.getDefaultZ();
+        
 		clearAllValues();
 		Coord3D c3D;
 		Map<StatsType, Map> shapeStats;
@@ -1192,6 +1161,8 @@ class IntensityView
 		int channel;
 		Iterator<ChannelData> i;
 		List<ChannelData> metadata = model.getMetadata();
+		Set<Figure> statsMissingFigures = new HashSet<Figure>();
+		boolean hasData = false;
 		while (j.hasNext())
 		{
 			entry = (Entry) j.next();
@@ -1221,6 +1192,15 @@ class IntensityView
 				pixelStats.put(c3D, shapeStats.get(StatsType.PIXELDATA));
 			}
 			
+			if (cT == c3D.getTimePoint() && cZ == c3D.getZSection())  {
+                if (shapeStats != null)
+                    // data for current plane is there, can be displayed
+                    hasData = true;
+                else
+                    // data is missing for current plane, analysis has to be
+                    // kicked off for the specific figure
+                    statsMissingFigures.add(shape.getFigure());
+            }
 			
 			/* really inefficient but hey.... quick hack just now till refactor */
 			channelName.clear();
@@ -1245,6 +1225,16 @@ class IntensityView
 				}
 			}
 		}
+		
+		if (!hasData) {
+            if (!statsMissingFigures.isEmpty()) {
+                state = State.ANALYSING;
+                controller.analyseFigures(statsMissingFigures);
+            }
+            clearMaps();
+            return;
+        }
+		
 		if (channelName.size() != channelColour.size() || nameMap.size() == 0)
 		{
 			createComboBox();
@@ -1273,6 +1263,8 @@ class IntensityView
 		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
 		String string = (String) nameColour[1];
 		selectedChannel = nameMap.get(string);
+		zSlider.removeChangeListener(this);
+        tSlider.removeChangeListener(this);
 		zSlider.setMaximum(maxZ);
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
@@ -1281,6 +1273,8 @@ class IntensityView
 		tSlider.setVisible((maxT != minT));
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
+		zSlider.addChangeListener(this);
+        tSlider.addChangeListener(this);
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		shape = shapeMap.get(coord);
 		populateData(coord, selectedChannel);
