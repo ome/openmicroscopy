@@ -481,6 +481,18 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.cache.timeout":
         ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
 
+    # Social media integration
+    "omero.web.twitter.enabled":
+        ["TWITTER_ENABLED",
+         "false",
+         parse_boolean,
+         "Enable Twitter cards."],
+    "omero.web.twitter.siteuser":
+        ["TWITTER_SITE_USER",
+         None,
+         leave_none_unset,
+         "Twitter site username."],
+
     # Application configuration
     "omero.web.server_list":
         ["SERVER_LIST",
