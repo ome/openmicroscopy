@@ -1952,6 +1952,20 @@ def full_viewer(request, iid, conn=None, **kwargs):
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
+        twitter = None
+        twitter_img = None
+
+        if settings.TWITTER_ENABLED and hasattr(settings, 'TWITTER_SITE_USER'):
+            twitter = settings.TWITTER_SITE_USER
+        if twitter:
+            prefix = kwargs.get(
+                'thumbprefix', 'webgateway.views.render_thumbnail')
+
+            def urlprefix(iid):
+                return reverse(prefix, args=(iid,))
+
+            twitter_img = request.build_absolute_uri(urlprefix(iid))
+
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
@@ -1962,6 +1976,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
              'viewport_server': kwargs.get(
                  # remove any trailing slash
                  'viewport_server', reverse('webgateway')).rstrip('/'),
+
+             'twitter': twitter,
+             'twitter_img': twitter_img,
 
              'object': 'image:%i' % int(iid)}
 

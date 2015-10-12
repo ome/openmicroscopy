@@ -1,5 +1,6 @@
 {% extends "webgateway/core_html.html" %}
 {% load i18n %}
+{% load common_filters %}
 
 {% comment %}
 <!--
@@ -42,6 +43,14 @@
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.iehacks.css"|add:url_suffix %}" media="all" />
 <![endif]-->
 
+{% if twitter %}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="{{ twitter|escape }}">
+    <meta name="twitter:title" content="{{ image.getName|truncateafter:'67'|escape }}">
+    <meta name="twitter:description" content="{{ image.getDescription|default:image.getOwner.getName|truncateafter:'197'|escape }}">
+    <meta name="twitter:creator" content="{{ twitter|escape }}">
+    <meta name="twitter:image" content="{{ twitter_img }}280">
+{% endif %}
 {% endblock %}
 
 {% block script %}
