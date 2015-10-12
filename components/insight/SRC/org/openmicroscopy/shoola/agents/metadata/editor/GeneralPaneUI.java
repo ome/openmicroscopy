@@ -36,7 +36,7 @@ import javax.swing.JSeparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
-
+import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPane.AnnotationType;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
@@ -99,6 +99,27 @@ class GeneralPaneUI
 	private JXTaskPane 					propertiesTaskPane;
 	
 	/** The component hosting the annotation component. */
+    private AnnotationTaskPane                  tagsTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  roiTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  mapTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  attachmentTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  otherTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  ratingTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  commentTaskPane;
+    
+	/** The component hosting the annotation component. */
 	private JXTaskPane 					annotationTaskPane;
 	
 	/** Collection of annotations UI components. */
@@ -149,6 +170,24 @@ class GeneralPaneUI
 		propertiesTaskPane.setCollapsed(false);
 		propertiesTaskPane.add(propertiesUI);
 		
+		// new annotation taskpanes
+		
+		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAGS, view, model, controller);
+	    
+	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROIS, view, model, controller);
+	    
+	    mapTaskPane = new AnnotationTaskPane(AnnotationType.MAP, view, model, controller);
+	    
+	    attachmentTaskPane = new AnnotationTaskPane(AnnotationType.ATTACHMENTS, view, model, controller);
+	    
+	    otherTaskPane = new AnnotationTaskPane(AnnotationType.OTHER, view, model, controller);
+	    
+	    ratingTaskPane = new AnnotationTaskPane(AnnotationType.RATING, view, model, controller);
+	    
+	    commentTaskPane = new AnnotationTaskPane(AnnotationType.COMMENTS, view, model, controller); 
+		
+		
+		// old annotation taskpane - to be removed later!
 		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
 		annotationTaskPane.setCollapsed(false);
 		
@@ -166,6 +205,7 @@ class GeneralPaneUI
 		c.gridy++;
 		p.add(textualAnnotationsUI, c);
 		annotationTaskPane.add(p);
+		// --
 	}
 	
 	/** Builds and lays out the components. */
@@ -190,6 +230,27 @@ class GeneralPaneUI
 		
 		add(annotationTaskPane, c);
 		c.gridy++;
+		
+		add(tagsTaskPane, c);
+        c.gridy++;
+        
+        add(roiTaskPane, c);
+        c.gridy++;
+        
+        add(mapTaskPane, c);
+        c.gridy++;
+        
+        add(attachmentTaskPane, c);
+        c.gridy++;
+        
+        add(otherTaskPane, c);
+        c.gridy++;
+        
+        add(ratingTaskPane, c);
+        c.gridy++;
+        
+        add(commentTaskPane, c);
+        c.gridy++;
         
         add(browserTaskPane, c);
         
@@ -232,6 +293,15 @@ class GeneralPaneUI
             propertiesUI.buildUI();
             annotationUI.buildUI();
             textualAnnotationsUI.buildUI();
+            
+            tagsTaskPane.refreshUI();
+            roiTaskPane.refreshUI();
+            mapTaskPane.refreshUI();
+            attachmentTaskPane.refreshUI(); 
+            otherTaskPane.refreshUI(); 
+            ratingTaskPane.refreshUI();
+            commentTaskPane.refreshUI();  
+            
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
             
             boolean multi = model.isMultiSelection();
