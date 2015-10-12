@@ -91,16 +91,16 @@ Create Edit Group
     Wait Until Page Contains Element    id=id_name
     ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_name']@value
     Should Be Equal                     "${group_name}"    "${createdName}"
-    Input Text              name    ${group_name}-Edited
-    Click Button            Save
-    Location Should Be      ${GROUPS URL}
-    Page Should Contain     ${group_name}-Edited
+    Input Text                          name    ${group_name}-Edited
+    Click Button                        Save
+    Location Should Be                  ${GROUPS URL}
+    Wait Until Page Contains            ${group_name}-Edited
     
 
 Create Edit User
-    Click Link              link=Users
+    Click Link                          link=Users
     
-    Click Link              link=Add new User
+    Click Link                          link=Add new User
     
     ${user_name}            Unique name     test_user
     Input Text              omename         ${user_name}
@@ -134,10 +134,10 @@ Create Edit User
     Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
     Wait Until Page Contains  Password reset OK
 
-    Input Text              first_name    ${user_name}-Edited
-    Click Button            Save
-    Location Should Be      ${USERS URL}
-    Page Should Contain     ${user_name}-Edited
+    Input Text                  first_name    ${user_name}-Edited
+    Click Button                Save
+    Location Should Be          ${USERS URL}
+    Wait Until Page Contains    ${user_name}-Edited
 
 Check Admin Edit Self
 
