@@ -155,10 +155,12 @@ public class AnnotationTaskPane extends JXTaskPane {
         case ATTACHMENTS:
             ui = new AttachmentsTaskPaneUI(model, view, controller);
             break;
+        case COMMENTS:
+            ui = new CommentsTaskPaneUI(model, view, controller);
+            break;
         case ROIS:
         case OTHER:
         case RATING:
-        case COMMENTS:
         default:
             ui = new DummyTaskPaneUI(model, view, controller);
             MetadataViewerAgent
