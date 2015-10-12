@@ -152,8 +152,10 @@ public class AnnotationTaskPane extends JXTaskPane {
         case MAP:
             ui = new MapTaskPaneUI(model, view, controller);
             break;
-        case ROIS:
         case ATTACHMENTS:
+            ui = new AttachmentsTaskPaneUI(model, view, controller);
+            break;
+        case ROIS:
         case OTHER:
         case RATING:
         case COMMENTS:
