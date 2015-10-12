@@ -53,6 +53,7 @@
         <fileset dir="${target.dir}"        includes="omeroVersion.m"/>
       </copy>
       <replace file="${target.dir}/matlab/ice.config" token="@omero.ports.prefix@@omero.ports.ssl@" value="4064"/>
+      <replace file="${target.dir}/matlab/ice.config" token="@Ice.Default.Host@" value="localhost"/>
       <zip destfile="target/${ivy.module}.zip">
         <zipfileset dir="${target.dir}/matlab" includes="**/*"/>
       </zip>
