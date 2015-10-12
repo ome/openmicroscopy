@@ -36,7 +36,6 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
             EditorControl controller) {
         super(model, view, controller);
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
         tagsDocList = new ArrayList<DocComponent>();
