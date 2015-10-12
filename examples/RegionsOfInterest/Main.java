@@ -173,7 +173,6 @@ public class Main {
         roi.addShape(text);
 
         // Other options which may come with time
-        text.setVectorEffect(rstring("non-scaling-stroke"));
         text.setFontStretch(rstring("wider"));
         text.setFontStyle(rstring("italic"));
         text.setFontVariant(rstring("small-caps"));
@@ -181,17 +180,8 @@ public class Main {
         text.setFillRule(rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(rstring("10 20 30 10"));
-        text.setStrokeDashOffset(rint(1));
         text.setStrokeLineCap(rstring("butt"));
-        text.setStrokeLineJoin(rstring("bevel"));
-        text.setStrokeMiterLimit(rint(1));
         text.setStrokeWidth(rint(10));
-        text.setAnchor(rstring("middle"));
-        text.setDecoration(rstring("underline"));
-        text.setBaselineShift(rstring("70%"));
-        text.setGlyphOrientationVertical(rint(90));
-        text.setDirection(rstring("rtl"));
-        text.setWritingMode(rstring("tb-rl"));
 
         Rect singlePlane = new RectI();
         singlePlane.setX(rdouble(2.4));

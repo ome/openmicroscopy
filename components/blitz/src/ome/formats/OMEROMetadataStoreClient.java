@@ -6462,16 +6462,6 @@ public class OMEROMetadataStoreClient
         ignoreMissing("setROIName", name, ROIIndex);
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROINamespace(java.lang.String, int)
-     */
-    @Override
-    public void setROINamespace(String namespace, int ROIIndex)
-    {
-        Roi o = getROI(ROIIndex);
-        o.setNamespaces(new String[]{namespace});
-    }
-
     //////// Reagent /////////
 
     /**
@@ -8127,16 +8117,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setEllipseVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterGroupAnnotationRef(java.lang.String, int, int)
      */
     @Override
@@ -8210,16 +8190,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLabelVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setLabelVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Label o = getLabel(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineFillRule(ome.xml.model.enums.FillRule, int, int)
      */
     @Override
@@ -8268,16 +8238,6 @@ public class OMEROMetadataStoreClient
     {
         Line o = getLine(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setLineVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Line o = getLine(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     /* (non-Javadoc)
@@ -8351,16 +8311,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setMaskVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Mask o = getMask(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPointFillRule(ome.xml.model.enums.FillRule, int, int)
      */
     @Override
@@ -8409,16 +8359,6 @@ public class OMEROMetadataStoreClient
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setPointVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Point o = getPoint(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     //////// Polygon /////////
@@ -8610,16 +8550,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setPolygonVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Polygon o = getPolygon(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolygonPoints(java.lang.String, int, int)
      */
     @Override
@@ -8679,16 +8609,6 @@ public class OMEROMetadataStoreClient
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setPolylineVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Polyline o = getPolyline(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     /* (non-Javadoc)
@@ -8773,17 +8693,6 @@ public class OMEROMetadataStoreClient
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectangleVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setRectangleVisible(Boolean visible, int ROIIndex,
-            int shapeIndex)
-    {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     /* (non-Javadoc)

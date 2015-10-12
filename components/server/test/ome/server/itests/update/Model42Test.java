@@ -6,8 +6,6 @@
  */
 package ome.server.itests.update;
 
-import java.util.Arrays;
-
 import ome.model.IObject;
 import ome.model.acquisition.Dichroic;
 import ome.model.acquisition.Filter;
@@ -15,10 +13,7 @@ import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.LightPath;
 import ome.model.acquisition.Microscope;
-import ome.model.core.Image;
 import ome.model.enums.MicroscopeType;
-import ome.model.meta.Namespace;
-import ome.model.roi.Roi;
 
 import org.testng.annotations.Test;
 
@@ -27,36 +22,6 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "4.2", "integration" })
 public class Model42Test extends AbstractUpdateTest {
-
-    @Test
-    public void testNamespace() {
-        Namespace ns = new Namespace();
-        ns.setName("openmicroscopy.org/test/foo");
-        ns.setDescription("Namespace used for testing\n"
-                + "If this were a real namespace \n"
-                + "you could explain to the user how \n" + "interpret values.");
-        ns.setKeywords(Arrays.asList("key1, key2"));
-        ns.setDisplay(false); // This namespace is of interest to users
-        ns.setMultivalued(false); // Users should pick one keyword
-
-        loginRoot(); // System-type
-        ns = iUpdate.saveAndReturnObject(ns);
-    }
-
-    @Test
-    public void testRoiKeywords() {
-        Image img = new_Image("model42");
-        Roi roi = new Roi();
-        roi.setImage(img);
-        roi.setNamespaces(Arrays.asList("ns0", "ns0"));
-        roi.setKeywords(Arrays.asList(new String[] { "ns0-0", "ns0-1" },
-                new String[] { "ns1-0", "ns1-1" }));
-        roi = iUpdate.saveAndReturnObject(roi);
-        assertEquals("ns0-0", roi.getKeywords().get(0)[0]);
-        assertEquals("ns0-1", roi.getKeywords().get(0)[1]);
-        assertEquals("ns1-0", roi.getKeywords().get(1)[0]);
-        assertEquals("ns1-1", roi.getKeywords().get(1)[1]);
-    }
 
     @Test
     public void testLightPath() {

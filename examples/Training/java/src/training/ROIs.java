@@ -202,12 +202,10 @@ public class ROIs
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
         text.setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
-        text.setVisibility(omero.rtypes.rbool(true));
         text.setLocked(omero.rtypes.rbool(true));
 
 
         // Other options which may come with time
-        text.setVectorEffect(omero.rtypes.rstring("non-scaling-stroke"));
         text.setFontStretch(omero.rtypes.rstring("wider"));
         text.setFontStyle(omero.rtypes.rstring("italic"));
         text.setFontVariant(omero.rtypes.rstring("small-caps"));
@@ -215,17 +213,8 @@ public class ROIs
         text.setFillRule(omero.rtypes.rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(omero.rtypes.rstring("10 20 30 10"));
-        text.setStrokeDashOffset(omero.rtypes.rint(1));
         text.setStrokeLineCap(omero.rtypes.rstring("butt"));
-        text.setStrokeLineJoin(omero.rtypes.rstring("bevel"));
-        text.setStrokeMiterLimit(omero.rtypes.rint(1));
         text.setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
-        text.setAnchor(omero.rtypes.rstring("middle"));
-        text.setDecoration(omero.rtypes.rstring("underline"));
-        text.setBaselineShift(omero.rtypes.rstring("70%"));
-        text.setGlyphOrientationVertical(omero.rtypes.rint(90));
-        text.setDirection(omero.rtypes.rstring("rtl"));
-        text.setWritingMode(omero.rtypes.rstring("tb-rl"));
         text.setTheZ(omero.rtypes.rint(0));
         text.setTheT(omero.rtypes.rint(0));
         roi.addShape(text);
