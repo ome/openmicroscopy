@@ -162,6 +162,8 @@ public class AnnotationTaskPane extends JXTaskPane {
             ui = new OtherTaskPaneUI(model, view, controller);
             break;
         case RATING:
+            ui = new RatingTaskPaneUI(model, view, controller);
+            break;
         case ROIS:
         default:
             ui = new DummyTaskPaneUI(model, view, controller);
