@@ -48,10 +48,10 @@ ivy.log.conflict.resolution=false
 ivy.log.resolved.revision=false
 
 # The resolver to use for OME dependencies like Bio-Formats
-ome.resolver=ome-resolver
+ome.resolver=ome-simple-artifactory
 # The name of the OME artifactory repository to use when ome.resolver is
 # switched to ome-simple-artifactory
-simple.repository=ome.unstable
+simple.repository=ome.regions
 
 ############################################
 # Testing
