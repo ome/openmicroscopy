@@ -147,6 +147,8 @@ public class AnnotationTaskPane extends JXTaskPane {
     private void buildUI() {
         switch (type) {
         case TAGS:
+            ui = new TagsTaskPaneUI(model, view, controller);
+            break;
         case MAP:
         case ROIS:
         case ATTACHMENTS:
