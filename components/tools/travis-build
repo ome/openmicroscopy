@@ -25,7 +25,7 @@ get_ice()
   if [ ! -f "download/$ice" ]; then
     mkdir -p download
     cd download
-    wget "http://users.openmicroscopy.org.uk/~rleigh/$ice"
+    wget "http://downloads.openmicroscopy.org/ice/experimental/$ice"
     cd ..
   fi
   tar -xvf "download/$ice"
