@@ -149,8 +149,8 @@ def imageMarshal(image, key=None, request=None):
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
 
-    server_settings = request.session.get('server_settings', {})
-
+    server_settings = request.session.get('server_settings',
+                                          {}) if request else {}
     init_zoom = server_settings.get('initial_zoom_level', 0)
     if init_zoom < 0:
         init_zoom = levels + init_zoom
