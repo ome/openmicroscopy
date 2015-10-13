@@ -23,6 +23,7 @@
 # Version: 1.0
 #
 
+from django.conf import settings
 from django.conf.urls import url, patterns
 
 from omeroweb.webclient import views
@@ -153,7 +154,7 @@ urlpatterns = patterns(
         {'download': True},
         name="web_render_image_download"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$',
-        views.image_viewer,
+        settings.VIEWER_VIEW,
         name="web_image_viewer"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$',
         webgateway.imageData_json,
