@@ -1533,9 +1533,9 @@ class _BlitzGateway (object):
     def getRoiLimitSetting(self):
         try:
             roi_limit = (int(self.getConfigService().getConfigValue(
-                             "omero.client.viewer.roi_limit")) or 100)
+                             "omero.client.viewer.roi_limit")) or 2000)
         except:
-            roi_limit = 100
+            roi_limit = 2000
         return roi_limit
 
     def getInitialZoomLevel(self):
