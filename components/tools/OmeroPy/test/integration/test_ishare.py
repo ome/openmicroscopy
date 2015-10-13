@@ -984,6 +984,9 @@ class TestIShare(lib.ITest):
             user_client.__del__()
 
     def test13018(self):
+        """
+        Test that share can't be activated when inactive
+        """
         owner = self.new_client()
         member, mobj = self.new_client_and_user()
 
@@ -999,6 +1002,10 @@ class TestIShare(lib.ITest):
         o_share.setActive(sid, False)
         with pytest.raises(omero.ValidationException):
             m_share.activate(sid)
+
+        with pytest.raises(omero.ValidationException):
+            obj = omero.model.ShareI(sid, False)
+            member.sf.setSecurityContext(obj)
 
     # Helpers
 
