@@ -1,42 +1,38 @@
-    server {
-        listen       %(HTTPPORT)d;
-        server_name  $hostname;
+upstream omeroweb%(PREFIX_NAME)s {
+    server %(FASTCGI_EXTERNAL)s fail_timeout=0;
+}
 
-        sendfile on;
-        client_max_body_size %(MAX_BODY_SIZE)s;
+server {
+    listen %(HTTPPORT)d;
+    server_name $hostname;
 
-        # maintenance page serve from here
-        location @maintenance {
-            root %(ROOT)s/etc/templates/error;
-            try_files $uri /maintainance.html =502;
-        }
+    sendfile on;
+    client_max_body_size %(MAX_BODY_SIZE)s;
 
-        # weblitz django apps serve media from here
-        location %(STATIC_URL)s {
-            alias %(OMEROWEBROOT)s/static;
-        }
-
-        location %(FORCE_SCRIPT_NAME)s {
-
-            error_page 502 @maintenance;
-
-            fastcgi_pass %(FASTCGI_EXTERNAL)s;
-
-            %(FASTCGI_PATH_SCRIPT_INFO)s
-
-            fastcgi_param REQUEST_METHOD $request_method;
-            fastcgi_param QUERY_STRING $query_string;
-            fastcgi_param CONTENT_TYPE $content_type;
-            fastcgi_param CONTENT_LENGTH $content_length;
-            fastcgi_param SERVER_NAME $server_name;
-            fastcgi_param SERVER_PROTOCOL $server_protocol;
-            fastcgi_param SERVER_PORT $server_port;
-            fastcgi_pass_header Authorization;
-            fastcgi_intercept_errors on;
-            fastcgi_read_timeout 60;
-            # Uncomment if nginx SSL module is enabled or you are using nginx 1.1.11 or later
-            # -- See: #10273, http://nginx.org/en/CHANGES
-            # fastcgi_param HTTPS $https;
-        }
-
+    # maintenance page serve from here
+    location @maintenance%(PREFIX_NAME)s {
+        root %(ROOT)s/etc/templates/error;
+        try_files $uri /maintainance.html =502;
     }
+
+    # weblitz django apps serve media from here
+    location %(STATIC_URL)s {
+        alias %(OMEROWEBROOT)s/static;
+    }
+
+    location @proxy_to_app%(PREFIX_NAME)s {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+
+        proxy_pass http://omeroweb%(PREFIX_NAME)s;
+    }
+
+    location %(FORCE_SCRIPT_NAME)s {
+
+        error_page 502 @maintenance%(PREFIX_NAME)s;
+        # checks for static file, if not found proxy to app
+        try_files $uri @proxy_to_app%(PREFIX_NAME)s;
+    }
+
+}
