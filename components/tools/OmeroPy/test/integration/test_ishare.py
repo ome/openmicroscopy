@@ -985,7 +985,8 @@ class TestIShare(lib.ITest):
 
     def test13018(self):
         """
-        Test that share can't be activated when inactive
+        Test that image in share is unavailable when share
+        is inactive or expired
         """
         owner = self.new_client()
         member, mobj = self.new_client_and_user()
@@ -1006,6 +1007,30 @@ class TestIShare(lib.ITest):
         with pytest.raises(omero.ValidationException):
             obj = omero.model.ShareI(sid, False)
             member.sf.setSecurityContext(obj)
+
+        # test inactive share, if member has no access to the image
+        s = o_share.getShare(sid)
+        m_conn = self.new_client(session=s.uuid)
+        with pytest.raises(omero.SecurityViolation):
+            m_conn.sf.getQueryService().find("Image", image.id.val)
+        m_conn.__del__()
+
+        # activate again
+        o_share.setActive(sid, True)
+
+        # test expired share, if member has no access to the image
+        expiration = long(time.time() * 1000) + 86400
+        o_share.setExpiration(sid, rtime(expiration))
+        self.assert_expiration(expiration, o_share.getShare(sid))
+
+        m_conn = self.new_client(session=s.uuid)
+        # Forced closing
+        o_session = owner.sf.getSessionService()
+        o_session.closeSession(o_share.getShare(sid))
+
+        with pytest.raises(omero.SecurityViolation):
+            m_conn.sf.getQueryService().find("Image", image.id.val)
+        m_conn.__del__()
 
     # Helpers
 
