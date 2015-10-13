@@ -983,6 +983,23 @@ class TestIShare(lib.ITest):
         finally:
             user_client.__del__()
 
+    def test13018(self):
+        owner = self.new_client()
+        member, mobj = self.new_client_and_user()
+
+        createTestImage(owner.sf)
+        image = owner.sf.getQueryService().findAll("Image", None)[0]
+
+        o_share = owner.sf.getShareService()
+        sid = o_share.createShare("", None, [image], [mobj], [], True)
+
+        m_share = member.sf.getShareService()
+        m_share.activate(sid)
+
+        o_share.setActive(sid, False)
+        with pytest.raises(omero.ValidationException):
+            m_share.activate(sid)
+
     # Helpers
 
     def assert_access(self, client, sid, success=True):
