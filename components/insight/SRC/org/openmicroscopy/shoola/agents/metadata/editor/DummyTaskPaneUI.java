@@ -36,4 +36,8 @@ public class DummyTaskPaneUI extends AnnotationTaskPaneUI {
 
     }
 
+    @Override 
+    void clearDisplay() {
+        
+    }
 }

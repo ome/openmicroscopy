@@ -45,9 +45,14 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
     }
 
     @Override
-    void refreshUI() {
+    void clearDisplay() {
         removeAll();
         tagsDocList.clear();
+    }
+    
+    @Override
+    void refreshUI() {
+        clearDisplay();
 
         Collection<TagAnnotationData> tags = model.getTags();
         Iterator<TagAnnotationData> it;
@@ -85,8 +90,6 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
                 add(doc);
             }
         }
-
-        revalidate();
     }
     
     @Override

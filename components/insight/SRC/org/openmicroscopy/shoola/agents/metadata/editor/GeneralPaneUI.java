@@ -21,22 +21,36 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
+import javax.swing.JPopupMenu;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPane.AnnotationType;
+import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
@@ -134,6 +148,12 @@ class GeneralPaneUI
 	/** The tool bar.*/
 	private ToolBar toolbar;
 	
+	/** The button to filter the annotations i.e. show all, mine, others. */
+    private JButton                         filterButton;
+    
+    /** The current annotation filter level */
+    private Filter annotationsFilter;
+    
 	/**;
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -152,6 +172,29 @@ class GeneralPaneUI
        browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
        browserTaskPane.addPropertyChangeListener(controller);
 		
+       IconManager icons = IconManager.getInstance();
+       annotationsFilter = Filter.SHOW_ALL;
+       filterButton = new JButton(annotationsFilter.name);
+       filterButton.setToolTipText("Filter tags and attachments.");
+       UIUtilities.unifiedButtonLookAndFeel(filterButton);
+       Font font = filterButton.getFont();
+       filterButton.setFont(font.deriveFont(font.getStyle(), 
+               font.getSize()-2));
+       filterButton.setIcon(icons.getIcon(IconManager.UP_DOWN_9_12));
+       filterButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+       filterButton.addMouseListener(new MouseAdapter() {
+           /** 
+            * Brings up the menu. 
+            * @see MouseListener#mouseReleased(MouseEvent)
+            */
+           public void mouseReleased(MouseEvent me)
+           {
+               Object source = me.getSource();
+               if (source instanceof Component)
+                   displayFilterMenu((Component) source, me.getPoint());
+           } 
+       });
+       
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
 		annotationUI = new AnnotationDataUI(view, model, controller);
@@ -201,13 +244,67 @@ class GeneralPaneUI
 		p.setLayout(new GridBagLayout());
 		p.add(annotationUI,c );
 		c.gridy++;
-		p.add(new JSeparator(), c);
-		c.gridy++;
-		p.add(textualAnnotationsUI, c);
-		annotationTaskPane.add(p);
+//		p.add(new JSeparator(), c);
+//		c.gridy++;
+//		p.add(textualAnnotationsUI, c);
+//		annotationTaskPane.add(p);
 		// --
 	}
 	
+	/**
+     * Creates and displays the menu 
+     * @param src The invoker.
+     * @param p   The location where to show the menu.
+     */
+    private void displayFilterMenu(Component src, Point p)
+    {
+        JPopupMenu menu = new JPopupMenu();
+        ButtonGroup group = new ButtonGroup();
+        JCheckBoxMenuItem item = createFilterMenuItem(Filter.SHOW_ALL);
+        group.add(item);
+        menu.add(item);
+        item = createFilterMenuItem(Filter.ADDED_BY_ME);
+        group.add(item);
+        menu.add(item);
+        item = createFilterMenuItem(Filter.ADDED_BY_OTHERS);
+        group.add(item);
+        menu.add(item);
+        menu.show(src, p.x, p.y);
+    }
+    
+    /**
+     * Creates a menu item.
+     * 
+     * @param index The index associated to the item.
+     * @return See above.
+     */
+    private JCheckBoxMenuItem createFilterMenuItem(final Filter filter)
+    {
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(filter.name);
+        Font f = item.getFont();
+        item.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+        item.setSelected(filter == annotationsFilter);
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                annotationsFilter = filter;
+                filterButton.setText(annotationsFilter.name);
+                applyFilter();
+            }
+        });
+        return item;
+    }
+    
+    private void applyFilter() {
+        tagsTaskPane.filter(annotationsFilter);
+        roiTaskPane.filter(annotationsFilter);
+        mapTaskPane.filter(annotationsFilter);
+        attachmentTaskPane.filter(annotationsFilter);
+        otherTaskPane.filter(annotationsFilter);
+        ratingTaskPane.filter(annotationsFilter);
+        commentTaskPane.filter(annotationsFilter);
+    }
+    
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
@@ -228,8 +325,14 @@ class GeneralPaneUI
 		add(propertiesTaskPane, c);
 		c.gridy++;
 		
-		add(annotationTaskPane, c);
-		c.gridy++;
+		JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.add(filterButton);
+        add(p, c);
+        c.gridy++;
+        
+//		add(annotationTaskPane, c);
+//		c.gridy++;
 		
 		add(tagsTaskPane, c);
         c.gridy++;
@@ -397,8 +500,18 @@ class GeneralPaneUI
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
     	textualAnnotationsUI.clearDisplay();
+    	
+    	tagsTaskPane.clearDisplay();
+        roiTaskPane.clearDisplay();
+        mapTaskPane.clearDisplay();
+        attachmentTaskPane.clearDisplay();
+        otherTaskPane.clearDisplay();
+        ratingTaskPane.clearDisplay();
+        commentTaskPane.clearDisplay();
+        
     	browserTaskPane.removeAll();
     	browserTaskPane.setCollapsed(true);
+    	
 		revalidate();
 		repaint();
 	}

@@ -126,6 +126,13 @@ public class AnnotationTaskPane extends JXTaskPane {
     }
 
     /**
+     * Wipes the display
+     */
+    public void clearDisplay() {
+        ui.clearDisplay();
+    }
+    
+    /**
      * Refreshes the display
      */
     public void refreshUI() {

@@ -177,5 +177,10 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
      * Builds, respectively also refreshes the UI
      */
     abstract void refreshUI();
+    
+    /**
+     * Wipes the display
+     */
+    abstract void clearDisplay();
 
 }

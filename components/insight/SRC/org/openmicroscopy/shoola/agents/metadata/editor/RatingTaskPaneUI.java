@@ -68,6 +68,11 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
     }
 
     @Override
+    void clearDisplay() {
+        
+    }
+    
+    @Override
     void refreshUI() {
         StringBuilder buffer = new StringBuilder();
         if (!model.isMultiSelection()) {

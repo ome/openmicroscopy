@@ -279,10 +279,8 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         return l;
     }
 
-    /**
-     * Completely resets the component
-     */
-    public void clear() {
+    @Override
+    void clearDisplay() {
         mapTables.clear();
         tablePanel.removeAll();
         c.gridy = 0;

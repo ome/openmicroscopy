@@ -57,8 +57,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     void refreshUI() {
-        removeAll();
-        filesDocList.clear();
+        clearDisplay();
 
         Collection<FileAnnotationData> files = model.getAllAttachments();
         Iterator<FileAnnotationData> it;
@@ -96,10 +95,14 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
                 add(doc);
             }
         }
-
-        revalidate();
     }
 
+    @Override 
+    void clearDisplay() {
+        removeAll();
+        filesDocList.clear();
+    }
+    
     @Override
     List<JButton> getToolbarButtons() {
         List<JButton> buttons = new ArrayList<JButton>();

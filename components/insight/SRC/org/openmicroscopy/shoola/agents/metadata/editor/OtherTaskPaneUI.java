@@ -44,10 +44,15 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     }
 
     @Override
-    void refreshUI() {
+    void clearDisplay() {
         removeAll();
         otherList.clear();
-
+    }
+    
+    @Override
+    void refreshUI() {
+        clearDisplay();
+        
         Collection<AnnotationData> files = model.getAllOtherAnnotations();
         Iterator<AnnotationData> it;
 
@@ -84,7 +89,5 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
                 add(doc);
             }
         }
-
-        revalidate();
     }
 }
