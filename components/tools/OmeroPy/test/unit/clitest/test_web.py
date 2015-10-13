@@ -74,7 +74,7 @@ class TestWeb(object):
             name = "omeroweb"
         return name
 
-    def add_fastcgi_hostport(self, host, port, monkeypatch):
+    def add_hostport(self, host, port, monkeypatch):
         if host:
             monkeypatch.setattr(settings, 'APPLICATION_SERVER_HOST', host,
                                 raising=False)
@@ -133,51 +133,7 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
     @pytest.mark.parametrize('server_type', [
-        "nginx", "nginx-development", "nginx --system"])
-    @pytest.mark.parametrize('http', [False, 8081])
-    @pytest.mark.parametrize('prefix', [None, '/test'])
-    @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
-    @pytest.mark.parametrize('cgiport', [None, '12345'])
-    def testNginxConfig(self, server_type, http, prefix, cgihost, cgiport,
-                        max_body_size, capsys, monkeypatch):
-
-        static_prefix = self.add_prefix(prefix, monkeypatch)
-        expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
-
-        self.args += ["config"]
-        self.args += server_type.split()
-        if http:
-            self.args += ["--http", str(http)]
-        if max_body_size:
-            self.args += ["--max-body-size", max_body_size]
-        self.set_templates_dir(monkeypatch)
-        self.cli.invoke(self.args, strict=True)
-        o, e = capsys.readouterr()
-        lines = self.clean_generated_file(o)
-
-        if server_type.split()[0] == "nginx":
-            missing = self.required_lines_in([
-                "server {",
-                "listen       %s;" % (http or 80),
-                "client_max_body_size %s;" % (max_body_size or '0'),
-                "location %s {" % static_prefix[:-1],
-                "location %s {" % (prefix or "/"),
-                "fastcgi_pass %s;" % expected_cgi,
-                ], lines)
-        else:
-            missing = self.required_lines_in([
-                "server {",
-                "listen       %s;" % (http or 8080),
-                "client_max_body_size %s;" % (max_body_size or '0'),
-                "location %s {" % static_prefix[:-1],
-                "location %s {" % (prefix or "/"),
-                "fastcgi_pass %s;" % expected_cgi,
-                ], lines)
-        assert not missing, 'Line not found: ' + str(missing)
-
-    @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
-    @pytest.mark.parametrize('server_type', [
-        "nginx-wsgi", "nginx-wsgi-development"])
+        "nginx", "nginx-development"])
     @pytest.mark.parametrize('http', [False, 8081])
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
@@ -190,7 +146,7 @@ class TestWeb(object):
         self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
         upstream_name = self.add_upstream_name(prefix, monkeypatch)
-        expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
+        expected_cgi = self.add_hostport(cgihost, cgiport, monkeypatch)
 
         self.args += ["config"]
         self.args += server_type.split()
@@ -226,78 +182,6 @@ class TestWeb(object):
         assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
-    @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
-    @pytest.mark.parametrize('cgiport', [None, '12345'])
-    def testApacheConfig(self, prefix, cgihost, cgiport, capsys, monkeypatch):
-
-        static_prefix = self.add_prefix(prefix, monkeypatch)
-        expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
-
-        self.args += ["config", "apache"]
-        self.set_templates_dir(monkeypatch)
-        self.cli.invoke(self.args, strict=True)
-        o, e = capsys.readouterr()
-
-        lines = self.clean_generated_file(o)
-
-        if prefix:
-            missing = self.required_lines_in([
-                ('FastCGIExternalServer "/var/run/omero.fcgi" -host %s'
-                 ' -idle-timeout 60' % expected_cgi),
-                ('Alias %s/error ' % prefix, 'etc/templates/error'),
-                ('Alias %s ' % static_prefix[:-1],
-                 'lib/python/omeroweb/static'),
-                ('Alias %s "/var/run/omero.fcgi/"' % prefix),
-                ], lines)
-        else:
-            missing = self.required_lines_in([
-                ('FastCGIExternalServer "/var/run/omero.fcgi" -host %s'
-                 ' -idle-timeout 60' % expected_cgi),
-                ('Alias /error ', 'etc/templates/error'),
-                ('Alias /static ', 'lib/python/omeroweb/static'),
-                ('Alias / "/var/run/omero.fcgi/"'),
-                ], lines)
-        assert not missing, 'Line not found: ' + str(missing)
-
-    @pytest.mark.parametrize('prefix', [None, '/test'])
-    @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
-    @pytest.mark.parametrize('cgiport', [None, '12345'])
-    def testApacheFcgiConfig(self, prefix, cgihost, cgiport,
-                             capsys, monkeypatch):
-
-        static_prefix = self.add_prefix(prefix, monkeypatch)
-        expected_cgi = self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
-
-        self.args += ["config", "apache-fcgi"]
-        self.set_templates_dir(monkeypatch)
-        self.cli.invoke(self.args, strict=True)
-        o, e = capsys.readouterr()
-
-        lines = self.clean_generated_file(o)
-
-        if prefix:
-            missing = self.required_lines_in([
-                ('Alias %s/error ' % prefix, 'etc/templates/error'),
-                ('Alias %s' % static_prefix[:-1],
-                 'lib/python/omeroweb/static'),
-                'RewriteCond %%{REQUEST_URI} !^(%s|%s.fcgi|%s/error)' %
-                (static_prefix[:-1], prefix, prefix),
-                'RewriteRule ^%s(/|$)(.*) %s.fcgi/$2 [PT]' % (prefix, prefix),
-                'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
-                'ProxyPass %s.fcgi/ fcgi://%s/' % (prefix, expected_cgi),
-                ], lines)
-        else:
-            missing = self.required_lines_in([
-                ('Alias /error ', 'etc/templates/error'),
-                ('Alias /static ', 'lib/python/omeroweb/static'),
-                'RewriteCond %{REQUEST_URI} !^(/static|/.fcgi|/error)',
-                'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]',
-                'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
-                'ProxyPass /.fcgi/ fcgi://%s/' % expected_cgi,
-                ], lines)
-        assert not missing, 'Line not found: ' + str(missing)
-
-    @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('app_server', ['wsgi'])
     @pytest.mark.parametrize('http', [False, 8081])
     def testApacheWSGIConfig(self, prefix, app_server, http, capsys,
@@ -315,7 +199,7 @@ class TestWeb(object):
             username = getpass.getuser()
         icepath = os.path.dirname(Ice.__file__)
 
-        self.args += ["config", "apache-wsgi"]
+        self.args += ["config", "apache"]
         if http:
             self.args += ["--http", str(http)]
 
@@ -352,13 +236,9 @@ class TestWeb(object):
         assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('server_type', [
-        ["nginx", 'fastcgi-tcp'],
-        ["nginx-wsgi", 'wsgi-tcp'],
-        ["nginx-development", 'fastcgi-tcp'],
-        ["nginx-wsgi-development", 'wsgi-tcp'],
-        ["apache", 'fastcgi-tcp'],
-        ["apache-fcgi", 'fastcgi-tcp'],
-        ["apache-wsgi", 'wsgi']])
+        ["nginx", 'wsgi-tcp'],
+        ["nginx-development", 'wsgi-tcp'],
+        ["apache", 'wsgi']])
     def testFullTemplateDefaults(self, server_type, capsys, monkeypatch):
         app_server = server_type[-1]
         del server_type[-1]
@@ -377,15 +257,10 @@ class TestWeb(object):
         assert not d, 'Files are different:\n' + d
 
     @pytest.mark.parametrize('server_type', [
-        ['nginx', '--http', '1234', '--max-body-size', '2m', 'fastcgi-tcp'],
+        ['nginx', '--http', '1234', '--max-body-size', '2m', 'wsgi-tcp'],
         ['nginx-development', '--http', '1234', '--max-body-size', '2m',
-         'fastcgi-tcp'],
-        ['nginx-wsgi', '--http', '1234', '--max-body-size', '2m', 'wsgi-tcp'],
-        ['nginx-wsgi-development', '--http', '1234', '--max-body-size', '2m',
          'wsgi-tcp'],
-        ['apache', 'fastcgi-tcp'],
-        ['apache-wsgi', '--http', '1234', 'wsgi'],
-        ['apache-fcgi', 'fastcgi-tcp']])
+        ['apache', '--http', '1234', 'wsgi']])
     def testFullTemplateWithOptions(self, server_type, capsys, monkeypatch):
         prefix = '/test'
         cgihost = '0.0.0.0'
@@ -394,17 +269,13 @@ class TestWeb(object):
         del server_type[-1]
         self.add_application_server(app_server, monkeypatch)
         self.add_prefix(prefix, monkeypatch)
-        self.add_fastcgi_hostport(cgihost, cgiport, monkeypatch)
+        self.add_hostport(cgihost, cgiport, monkeypatch)
 
         self.args += ["config"] + server_type
         self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
 
         o, e = capsys.readouterr()
-        # to be removed in 5.2
-        if "wsgi" not in app_server:
-            assert e.split(os.linesep)[0].startswith(
-                "WARNING: FastCGI support is deprecated")
         o = self.normalise_generated(o)
         d = self.compare_with_reference(
             server_type[0] + '-withoptions.conf', o)
