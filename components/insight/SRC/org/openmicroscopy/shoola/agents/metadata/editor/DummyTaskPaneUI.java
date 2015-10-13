@@ -2,6 +2,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 import javax.swing.JLabel;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 /**
  * An empty {@link AnnotationTaskPaneUI}
  * 
@@ -24,7 +26,9 @@ public class DummyTaskPaneUI extends AnnotationTaskPaneUI {
     public DummyTaskPaneUI(EditorModel model, EditorUI view,
             EditorControl controller) {
         super(model, view, controller);
-        add(new JLabel("Not implemented yet"));
+        JLabel l = new JLabel("Not implemented yet");
+        l.setBackground(UIUtilities.BACKGROUND_COLOR);
+        add(l);
     }
 
     @Override

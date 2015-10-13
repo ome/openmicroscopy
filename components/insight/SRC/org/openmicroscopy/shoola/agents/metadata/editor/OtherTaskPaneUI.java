@@ -39,7 +39,7 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
 
         otherList = new ArrayList<DocComponent>();
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
     }
 

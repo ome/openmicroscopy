@@ -5,11 +5,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
 
 import omero.gateway.model.TagAnnotationData;
 
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.WrapLayout;
 
 /**
  * A {@link AnnotationTaskPaneUI} for displaying {@link TagAnnotationData}
@@ -36,6 +38,7 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
             EditorControl controller) {
         super(model, view, controller);
 
+        setLayout(new WrapLayout(WrapLayout.LEFT));
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
         tagsDocList = new ArrayList<DocComponent>();
@@ -84,6 +87,31 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
         }
 
         revalidate();
+    }
+    
+    @Override
+    List<JButton> getToolbarButtons() {
+        List<JButton> buttons = new ArrayList<JButton>();
+
+        IconManager icons = IconManager.getInstance();
+
+        JButton addTagsButton = new JButton(icons.getIcon(IconManager.PLUS_12));
+        UIUtilities.unifiedButtonLookAndFeel(addTagsButton);
+        addTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        addTagsButton.setToolTipText("Add Tags.");
+        addTagsButton.addActionListener(controller);
+        addTagsButton.setActionCommand(""+EditorControl.ADD_TAGS);
+        buttons.add(addTagsButton);
+        
+        JButton removeTagsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+        UIUtilities.unifiedButtonLookAndFeel(removeTagsButton);
+        removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        removeTagsButton.setToolTipText("Remove Tags.");
+        removeTagsButton.addMouseListener(controller);
+        removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
+        buttons.add(removeTagsButton);
+        
+        return buttons;
     }
 
 }

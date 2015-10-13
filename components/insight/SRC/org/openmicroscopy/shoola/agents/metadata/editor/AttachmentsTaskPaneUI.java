@@ -1,15 +1,22 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import omero.gateway.model.FileAnnotationData;
 
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.WrapLayout;
 
 /**
  * A {@link AnnotationTaskPaneUI} for displaying {@link FileAnnotationData}
@@ -21,6 +28,12 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
 
     /** Hold the {@link DocComponent}s representing the file annotations */
     private List<DocComponent> filesDocList;
+
+    /**
+     * The selection menu to attach either local documents or already upload
+     * files.
+     */
+    private JPopupMenu docSelectionMenu;
 
     /**
      * Creates a new instance
@@ -38,7 +51,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
 
         filesDocList = new ArrayList<DocComponent>();
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new WrapLayout(WrapLayout.LEFT));
         setBackground(UIUtilities.BACKGROUND_COLOR);
     }
 
@@ -85,6 +98,65 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
         }
 
         revalidate();
+    }
+
+    @Override
+    List<JButton> getToolbarButtons() {
+        List<JButton> buttons = new ArrayList<JButton>();
+
+        IconManager icons = IconManager.getInstance();
+
+        final JButton addDocsButton = new JButton(
+                icons.getIcon(IconManager.PLUS_12));
+        addDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        addDocsButton.setToolTipText("Attach a document.");
+        addDocsButton.addMouseListener(new MouseAdapter() {
+
+            public void mouseReleased(MouseEvent e) {
+                if (addDocsButton.isEnabled()) {
+                    Point p = e.getPoint();
+                    createDocSelectionMenu().show(addDocsButton, p.x, p.y);
+                }
+            }
+
+        });
+        UIUtilities.unifiedButtonLookAndFeel(addDocsButton);
+        buttons.add(addDocsButton);
+
+        final JButton removeDocsButton = new JButton(
+                icons.getIcon(IconManager.MINUS_12));
+        UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
+        removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        removeDocsButton.setToolTipText("Remove Attachments.");
+        removeDocsButton.addMouseListener(controller);
+        removeDocsButton.setActionCommand("" + EditorControl.REMOVE_DOCS);
+        buttons.add(removeDocsButton);
+
+        return buttons;
+    }
+
+    /**
+     * Creates the selection menu.
+     * 
+     * @return See above.
+     */
+    private JPopupMenu createDocSelectionMenu() {
+        if (docSelectionMenu != null)
+            return docSelectionMenu;
+        docSelectionMenu = new JPopupMenu();
+        JMenuItem item = new JMenuItem("Local document...");
+        item.setToolTipText("Import a local document to the server "
+                + "and attach it.");
+        item.addActionListener(controller);
+        item.setActionCommand("" + EditorControl.ADD_LOCAL_DOCS);
+        docSelectionMenu.add(item);
+        item = new JMenuItem("Uploaded document...");
+        item.setToolTipText("Attach a document already uploaded "
+                + "to the server.");
+        item.addActionListener(controller);
+        item.setActionCommand("" + EditorControl.ADD_UPLOADED_DOCS);
+        docSelectionMenu.add(item);
+        return docSelectionMenu;
     }
 
 }

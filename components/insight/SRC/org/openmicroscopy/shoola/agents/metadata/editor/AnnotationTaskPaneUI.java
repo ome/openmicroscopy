@@ -1,6 +1,17 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.LayoutManager;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JButton;
 import javax.swing.JPanel;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * Parent class for the UI components displaying annotations
@@ -18,14 +29,13 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
      */
     public enum Filter {
         /** Show all annotations */
-        SHOW_ALL("Show all"), 
-        
+        SHOW_ALL("Show all"),
+
         /** Show only annotations added by the user */
-        ADDED_BY_ME("Show added by me"), 
-        
+        ADDED_BY_ME("Show added by me"),
+
         /** Show only annotations added by other users */
-        ADDED_BY_OTHERS(
-                "Show added by others");
+        ADDED_BY_OTHERS("Show added by others");
 
         /** Human readable name for the filter */
         String name = "";
@@ -53,6 +63,9 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
     /** The default {@link Filter}, set to 'show all' */
     Filter filter = Filter.SHOW_ALL;
 
+    /** The panel holding the actual content */
+    private JPanel contentPane;
+
     /**
      * Creates a new instance
      * 
@@ -68,6 +81,12 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
         this.model = model;
         this.view = view;
         this.controller = controller;
+
+        this.contentPane = new JPanel();
+        this.contentPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+        super.setLayout(new BorderLayout());
+        super.add(getToolbar(), BorderLayout.NORTH);
+        super.add(contentPane, BorderLayout.CENTER);
     }
 
     /**
@@ -82,7 +101,80 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
     }
 
     /**
-     * Refresh the UI
+     * Creates the toolbar, if needed (see {@link #getToolbarButtons()}
+     */
+    private JPanel getToolbar() {
+        JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        List<JButton> buttons = getToolbarButtons();
+        if (CollectionUtils.isNotEmpty(buttons)) {
+            for (JButton b : buttons) {
+                p.add(b);
+            }
+        }
+        return p;
+    }
+
+    /**
+     * Get a reference to the content pane
+     */
+    JPanel getContentPane() {
+        return contentPane;
+    }
+
+    @Override
+    public void setLayout(LayoutManager mgr) {
+        if (contentPane == null)
+            super.setLayout(mgr);
+        else
+            contentPane.setLayout(mgr);
+    }
+
+    @Override
+    public Component add(Component comp) {
+        return contentPane.add(comp);
+    }
+
+    @Override
+    public Component add(String name, Component comp) {
+        return contentPane.add(name, comp);
+    }
+
+    @Override
+    public Component add(Component comp, int index) {
+        return contentPane.add(comp, index);
+    }
+
+    @Override
+    public void add(Component comp, Object constraints) {
+        contentPane.add(comp, constraints);
+    }
+
+    @Override
+    public void add(Component comp, Object constraints, int index) {
+        contentPane.add(comp, constraints, index);
+    }
+
+    @Override
+    public void remove(int index) {
+        contentPane.remove(index);
+    }
+
+    @Override
+    public void removeAll() {
+        contentPane.removeAll();
+    }
+
+    /**
+     * Get the toolbar buttons; override this method if a toolbar is needed
+     */
+    List<JButton> getToolbarButtons() {
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Builds, respectively also refreshes the UI
      */
     abstract void refreshUI();
 

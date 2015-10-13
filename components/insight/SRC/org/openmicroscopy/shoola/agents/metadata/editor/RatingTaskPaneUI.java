@@ -1,12 +1,16 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
@@ -22,17 +26,14 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         PropertyChangeListener {
 
     /** The rating component */
-    RatingComponent rating;
+    private RatingComponent rating;
+    
+    /** Label showing the other user's rating */
+    private JLabel otherRating;
 
-    /** Button to remove the rating */
-    JButton unrateButton;
-
-    /** The last selected value. */
-    private int selectedValue;
-
-    /** The initial value of the rating. */
-    private int initialValue;
-
+    /** The original rating value */
+    private int originalValue;
+    
     /**
      * Creates a new instance
      * 
@@ -47,19 +48,65 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
             EditorControl controller) {
         super(model, view, controller);
 
-        selectedValue = 0;
-        initialValue = selectedValue;
+        originalValue = 0;
 
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
-        rating = new RatingComponent(selectedValue, RatingComponent.MEDIUM_SIZE);
+        rating = new RatingComponent(originalValue, RatingComponent.MEDIUM_SIZE);
         rating.setOpaque(false);
         rating.setBackground(UIUtilities.BACKGROUND_COLOR);
         rating.addPropertyChangeListener(this);
+        add(rating);
+        
+        add(Box.createHorizontalStrut(2));
+        
+        otherRating = new JLabel();
+        otherRating.setBackground(UIUtilities.BACKGROUND_COLOR);
+        Font font = otherRating.getFont();
+        otherRating.setFont(font.deriveFont(Font.ITALIC, font.getSize()-2));
+        add(otherRating);
+    }
 
+    @Override
+    void refreshUI() {
+        StringBuilder buffer = new StringBuilder();
+        if (!model.isMultiSelection()) {
+            originalValue = model.getUserRating();
+            int n = model.getRatingCount(EditorModel.ALL);
+            if (n > 0) {
+                buffer.append("(avg:"+model.getRatingAverage(EditorModel.ALL)+
+                        " | "+n+" vote");
+                if (n > 1) buffer.append("s");
+                buffer.append(")");
+            }
+            otherRating.setVisible(n > 0);
+            
+        } else {
+            originalValue = model.getRatingAverage(EditorModel.ME);
+            int n = model.getRatingCount(EditorModel.ME);
+            if (n > 0) {
+                buffer.append("out of "+n);
+                 buffer.append(" rating");
+                if (n > 1) buffer.append("s");
+            }
+            otherRating.setVisible(true);
+        }
+        
+        otherRating.setText(buffer.toString()); 
+        
+        rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+        rating.setValue(originalValue);
+        rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+    }
+
+    
+    @Override
+    List<JButton> getToolbarButtons() {
+        List<JButton> buttons = new ArrayList<JButton>();
+        
         IconManager icons = IconManager.getInstance();
-
-        unrateButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+        
+        JButton unrateButton = new JButton(icons.getIcon(IconManager.MINUS_12));
         UIUtilities.unifiedButtonLookAndFeel(unrateButton);
         unrateButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         unrateButton.setToolTipText("Unrate.");
@@ -69,17 +116,9 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
                 view.saveData(true);
             }
         });
-
-        add(rating);
-        add(Box.createHorizontalStrut(2));
-        add(unrateButton);
-    }
-
-    @Override
-    void refreshUI() {
-        rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
-        rating.setValue(model.getAllUserRating());
-        rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+        buttons.add(unrateButton);
+        
+        return buttons;
     }
 
     /**
@@ -91,8 +130,8 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         String name = evt.getPropertyName();
         if (RatingComponent.RATE_PROPERTY.equals(name)) {
             int newValue = (Integer) evt.getNewValue();
-            if (newValue != selectedValue) {
-                selectedValue = newValue;
+            if (newValue != originalValue) {
+                originalValue = newValue;
                 view.saveData(true);
             }
         } else if (RatingComponent.RATE_END_PROPERTY.equals(name)) {
