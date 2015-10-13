@@ -542,6 +542,13 @@
                         $("#ratingsSummary").show();
                     });
                 }
+
+                // Set up collapsible panes
+                $('.can-collapse').click(function () {
+                  $(this).toggleClass('closed').next().slideToggle();
+                });
+
+                $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
             });
             
     </script>
@@ -584,11 +591,10 @@
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
                   
-
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-                  
-                  
-                  
+            <h1 class="can-collapse defclose">
+                Image Details
+            </h1>
+            <div> 
                   
             <!-- Image Description -->      
             {% with obj=manager.image %}
@@ -608,6 +614,8 @@
                 {% include "webclient/annotations/includes/core_metadata.html" %}
             {% endwith %}
 
+            </div>
+
 
             {% else %}
                 {% if manager.dataset %}
@@ -619,9 +627,12 @@
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
 
-                <hr/>
                 
                 <!-- Dataset Description -->
+                <h1 class="can-collapse defclose">
+                    Dataset Details
+                </h1>
+                <div> 
                 {% with obj=manager.dataset %}
                     {% include "webclient/annotations/includes/description.html" %}
                 {% endwith %}
@@ -632,6 +643,7 @@
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>                    
                 </table>
+                </div>
                 {% else %}
                     {% if manager.project %}
 
@@ -642,9 +654,12 @@
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
 
-                    <hr/>
                     
                     <!--Project Description -->
+                    <h1 class="can-collapse defclose">
+                        Project Details
+                    </h1>
+                    <div>
                     {% with obj=manager.project %}
                         {% include "webclient/annotations/includes/description.html" %}
                     {% endwith %}
@@ -655,6 +670,7 @@
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
                         </tr>
                     </table>
+                    </div>
                     {% endif %}
                 {% endif %}
             {% endif %}
@@ -682,16 +698,19 @@
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
-            <hr/>
             
             <!-- Image (in WellSample) Description -->
+            <h1 class="can-collapse defclose">
+                Well Details
+            </h1>
+            <div>
             {% with obj=image %}
                 {% include "webclient/annotations/includes/description.html" %}
             {% endwith %}
 
             <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
             {% include "webclient/annotations/includes/core_metadata.html" %}
-
+            </div>
             {% endwith %}{# "image=manager.well.getWellSample.image" #}
 
             {% else %}
@@ -704,9 +723,12 @@
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
 
-                <hr/>
                 
                 <!-- Acquisition Description -->
+                <h1 class="can-collapse defclose">
+                    Run Details
+                </h1>
+                <div>
                 {% with obj=manager.acquisition %}
                     {% include "webclient/annotations/includes/description.html" %}
                 {% endwith %}
@@ -717,6 +739,8 @@
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>
                 </table>
+                </div>
+
                 {% else %}
                     {% if manager.plate %}
 
@@ -727,9 +751,12 @@
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
                     
-                    <hr/>
                     
                     <!-- Plate Description -->
+                    <h1 class="can-collapse defclose">
+                        Plate Details
+                    </h1>
+                    <div>
                     {% with obj=manager.plate %}
                         {% include "webclient/annotations/includes/description.html" %}
                     {% endwith %}
@@ -747,6 +774,7 @@
                         </tr>
                         {% endcomment %}-->
                     </table>
+                    </div>
                     {% else %}
                         {% if manager.screen %}
 
@@ -757,10 +785,13 @@
                             {% include "webclient/annotations/includes/name.html" %}
                         {% endwith %}
                             
-                        <hr/>   
                             
 
                         <!-- Screen Description -->
+                        <h1 class="can-collapse defclose">
+                            Plate Details
+                        </h1>
+                        <div>
                         {% with obj=manager.screen %}
                             {% include "webclient/annotations/includes/description.html" %}
                         {% endwith %}
@@ -775,19 +806,11 @@
                                 <td id='child_count'>{{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'plate' 'plates' %}</td>
                             </tr>
                         </table>
+                        </div>
                         {% endif %}
                     {% endif %}
                 {% endif %}
             {% endif %}
-        
-        
-        
-            
-            
-            
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-            
-            
             
             
             
@@ -796,7 +819,7 @@
         
     <!-- ANNOTATIONS -->
     <!--<h1>{% trans "Annotations" %}</h1>-->
-            <div>
+            <!-- <div>
                 <h2 style="float: left">
                     Annotations
                 </h2>
@@ -809,8 +832,11 @@
                 </select>
             </div>
             <div style="clear:both"></div>
-            <hr style="margin-top:0" />
+            <hr style="margin-top:0" /> -->
 
+            <h1 class="can-collapse defclose">
+                Rating
+            </h1>
             <div class="annotations_section">
 
             <!-- RATING -->
@@ -858,15 +884,12 @@
              </div>
             
             
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-            
             
             <!-- TAGS -->               
+            <h1 class="can-collapse defclose">
+                Tags
+            </h1>
             <div class="annotations_section">
-                
-                <h2>{% trans "Tags" %}</h2>
-                
-                
                 
                 {% if manager.canAnnotate %}
                     <div>
@@ -884,13 +907,11 @@
             </div>
             
             
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-            
-            
-            
             <!-- FILES -->
+            <h1 class="can-collapse defclose">
+                Attachments
+            </h1>
             <div class="annotations_section">
-                <h2>{% trans "Attachments" %}</h2>
 
                     {% if manager.canAnnotate %}
                         <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
@@ -912,6 +933,7 @@
                     {% endif %}
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
+                <div style="clear:both"></div>
                 <!-- display existing file annotations -->
 
                     <ul id="fileanns_container" class="lnfiles">
@@ -931,9 +953,11 @@
             </div>
 
 
-            <hr/>
 
             <!-- MAP ANNOTATIONS -->
+            <h1 class="can-collapse defclose">
+                Key-Value Pairs
+            </h1>
             <div class="annotations_section">
 
                 {% include "webclient/annotations/mapannotations.html" %}
@@ -941,11 +965,11 @@
             </div>
 
 
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-
-
             {% if manager.xml_annotations or manager.boolean_annotations or manager.double_annotations or manager.long_annotations or manager.term_annotations or manager.time_annotations %}
             <!-- CUSTOM ANNOTATIONS -->
+            <h1 class="can-collapse defclose">
+                Others
+            </h1>
             <div class="annotations_section">
                 <h2>{% trans "Others" %}:</h2>
                 
@@ -1009,12 +1033,14 @@
                         {% endfor %}
                     </table>
             </div>
-            <hr/>
             {% endif %}
 
             
             
             <!-- COMMENTS -->
+            <h1 class="can-collapse defclose">
+                Comments
+            </h1>
             <div class="annotations_section">
                 
                     {% if manager.canAnnotate %}
