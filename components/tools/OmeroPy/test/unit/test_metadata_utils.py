@@ -210,6 +210,8 @@ class TestKeyValueListTransformer(object):
         (" ", {"omitempty": True}, ("a1", [])),
         (" , ", {"split": ",", "omitempty": True}, ("a1", [])),
         ("ab, c", {"clientvalue": "*-{{ value }}-*"}, ("a1", ["*-ab, c-*"])),
+        (" ", {"clientvalue": "*-{{ value }}-*", "omitempty": True},
+            ("a1", [])),
     ])
     def test_transform1(self, inout):
         cfg = expected(name="a1", **inout[1])
