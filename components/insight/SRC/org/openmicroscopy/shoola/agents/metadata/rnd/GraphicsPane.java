@@ -133,7 +133,10 @@ class GraphicsPane
 
     /** The items shown in the 'saved by' taskpane */
     private List<ViewedByItem> viewedByItems;
-    
+
+    /** The selected item.*/
+    private RndProxyDef selectedDef;
+
     /**
      * Formats the specified value.
      * 
@@ -564,11 +567,12 @@ class GraphicsPane
     }
     
     /**
-     * Draws a border around the ViewedByItem whichs represents
+     * Draws a border around the ViewedByItem which represents
      * the given RndProxyDef
      * @param def The RndProxyDef to highlight
      */
     void highlight(RndProxyDef def) {
+        selectedDef = def;
         for(ViewedByItem item : viewedByItems) {
             if(item.getRndDef().getData().getId().getValue()==def.getData().getId().getValue()) {
                 ((JPanel)item.getParent()).setBorder(BorderFactory.createLineBorder(UIUtilities.STEELBLUE, 2));
@@ -578,7 +582,14 @@ class GraphicsPane
             }
         }
     }
-    
+
+    /**
+     * Returns the selected rendering settings if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef() { return selectedDef; }
+
     /**
      * Returns the slider used to set the codomain interval.
      * 

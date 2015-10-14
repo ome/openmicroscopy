@@ -314,4 +314,14 @@ class RendererUI
         pane.onChannelUpdated();
     }
 
+    /**
+     * Returns the selected rendering settings if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef()
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        return pane.getSelectedDef();
+    }
 }

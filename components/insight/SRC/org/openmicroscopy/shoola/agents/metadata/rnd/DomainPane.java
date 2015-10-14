@@ -1035,7 +1035,16 @@ public class DomainPane
 			cb.setText(data.getChannelLabeling());
 		}
     }
-    
+
+    /**
+     * Returns the selected rendering settings if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef()
+    {
+        return graphicsPane.getSelectedDef();
+    }
     /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.

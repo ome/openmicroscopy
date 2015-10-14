@@ -90,6 +90,16 @@ public class ViewImageObject
     }
 
     /**
+     * Sets the user ID.
+     *
+     * @param selectedUserID The value to set.
+     */
+    public void setSelectedUser(long selectedUserID)
+    {
+        this.selectedUserID = selectedUserID;
+    }
+
+    /**
      * Sets the context of the node.
      * 
      * @param parent The parent of the image or <code>null</code>
@@ -133,7 +143,7 @@ public class ViewImageObject
      * @param selectedUserID The id of the user who set the
      *                       the rendering settings.
      */
-    public void setSettings(RndProxyDef	settings, long selectedUserID)
+    public void setSettings(RndProxyDef settings, long selectedUserID)
     {
         this.settings = settings;
         this.selectedUserID = selectedUserID;
