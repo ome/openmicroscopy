@@ -550,8 +550,8 @@
                     var open = [];
                     $('#metadata_general .can-collapse').each(function(){
                         var $this = $(this);
-                        if (!$this.hasClass('closed')) {
-                            open.push($(this).attr('data-name'));
+                        if (!$this.hasClass('closed') && $this.attr('data-name')) {
+                            open.push($this.attr('data-name'));
                         }
                     });
                     $("#metadata_general").data('open_panes', open);
