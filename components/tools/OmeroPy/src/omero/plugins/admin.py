@@ -1062,13 +1062,15 @@ present, the user will enter a console""")
 
         self.check_access(os.R_OK)
         templates = self._get_grid_dir() / "templates.xml"
-        template_xml = XML(templates.text())
-        try:
-            memory = read_settings(template_xml)
-        except Exception, e:
-            self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
-                         % (templates, e))
-
+        if templates.exists():
+            template_xml = XML(templates.text())
+            try:
+                memory = read_settings(template_xml)
+            except Exception, e:
+                self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
+                             % (templates, e))
+        else:
+            memory = None
         omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
@@ -1381,10 +1383,11 @@ OMERO Diagnostics %s
 
         # JVM settings
         self.ctx.out("")
-        for k, v in sorted(memory.items()):
-            sb = " ".join([str(x) for x in v])
-            item("JVM settings", " %s" % (k[0].upper() + k[1:]))
-            self.ctx.out("%s" % sb)
+        if memory:
+            for k, v in sorted(memory.items()):
+                sb = " ".join([str(x) for x in v])
+                item("JVM settings", " %s" % (k[0].upper() + k[1:]))
+                self.ctx.out("%s" % sb)
 
         # OMERO.web diagnostics
         self.ctx.out("")
