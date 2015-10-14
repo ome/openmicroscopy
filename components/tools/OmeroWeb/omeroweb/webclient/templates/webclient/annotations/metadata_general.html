@@ -544,10 +544,9 @@
                 }
 
                 // Set up collapsible panes
-                $('.can-collapse').click(function () {
+                $('#metadata_general .can-collapse').click(function () {
                   $(this).toggleClass('closed').next().slideToggle();
                 });
-
                 $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
             });
             

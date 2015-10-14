@@ -54,11 +54,10 @@
                 };
                 $(".metadata_details").click(toggleInvalidRows);
 
-                
-                $('.can-collapse').click(function () {
+                // Setup toggling of panels
+                $('#metadata_tab .can-collapse').click(function () {
                   $(this).toggleClass('closed').next().slideToggle();
                 });
-
                 $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
 
                 // Load Original Metadata...
