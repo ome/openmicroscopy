@@ -44,6 +44,7 @@ from omero.grid import ImageColumn, LongColumn, PlateColumn
 from omero.grid import StringColumn, WellColumn
 from omero.util.metadata_utils import KeyValueListPassThrough
 from omero.util.metadata_utils import KeyValueListTransformer
+from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
 from omero import client
 
 from populate_roi import ThreadPool

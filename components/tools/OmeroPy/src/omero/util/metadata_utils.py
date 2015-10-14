@@ -27,7 +27,15 @@ data for clients.
 """
 
 from collections import deque
+from omero.constants import namespaces
 import re
+
+
+# Namespace for Bulk-Annotations configuration files
+NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
+
+# Namespace for raw input for a Bulk-Annotations table
+NSBULKANNOTATIONSRAW = namespaces.NSBULKANNOTATIONS + "/raw"
 
 
 class BulkAnnotationConfiguration(object):
