@@ -216,17 +216,22 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
             Color c = UIUtilities.BACKGROUND_COLOUR_ODD;
             for (Object obj : annotationToDisplay) {
                 TextualAnnotationData data = (TextualAnnotationData) obj;
-                TextualAnnotationComponent comp = new TextualAnnotationComponent(
-                        model, data);
-                comp.addPropertyChangeListener(controller);
-                comp.setAreaColor(c);
-                add(comp, constraints);
-                constraints.gridy++;
+                if (filter == Filter.SHOW_ALL
+                        || (filter == Filter.ADDED_BY_ME
+                                && model.isLinkOwner(data) || (filter == Filter.ADDED_BY_OTHERS && model
+                                .isAnnotatedByOther(data)))) {
+                    TextualAnnotationComponent comp = new TextualAnnotationComponent(
+                            model, data);
+                    comp.addPropertyChangeListener(controller);
+                    comp.setAreaColor(c);
+                    add(comp, constraints);
+                    constraints.gridy++;
 
-                if (c == UIUtilities.BACKGROUND_COLOUR_ODD)
-                    c = UIUtilities.BACKGROUND_COLOUR_EVEN;
-                else
-                    c = UIUtilities.BACKGROUND_COLOUR_ODD;
+                    if (c == UIUtilities.BACKGROUND_COLOUR_ODD)
+                        c = UIUtilities.BACKGROUND_COLOUR_EVEN;
+                    else
+                        c = UIUtilities.BACKGROUND_COLOUR_ODD;
+                }
             }
         }
     }
