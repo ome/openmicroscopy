@@ -182,11 +182,19 @@ class MetadataControl(BaseControl):
         populate.add_argument(
             "--context", default=self.POPULATE_CONTEXTS[0][0],
             choices=[a[0] for a in self.POPULATE_CONTEXTS])
-        populate.add_argument("--file", help="Input file, or OriginalFile:ID")
+
+        datafile = populate.add_mutually_exclusive_group()
+        datafile.add_argument("--file", help="Input file")
+        datafile.add_argument(
+            "--fileid", type=long, help="Input OriginalFile ID")
+
+        cfgfile = populate.add_mutually_exclusive_group()
+        cfgfile.add_argument("--cfg", help="YAML configuration file")
+        cfgfile.add_argument(
+            "--cfgid", type=long, help="YAML configuration OriginalFile ID")
+
         populate.add_argument("--attach", action="store_true", help=(
-            "Upload input file and attach to parent object"))
-        populate.add_argument("--cfg", help=(
-            "YAML configuration file (file to upload, or OriginalFile:ID)"))
+            "Upload input or configuration files and attach to parent object"))
 
         populateroi.add_argument(
             "--measurement", type=int, default=None,
@@ -389,46 +397,30 @@ class MetadataControl(BaseControl):
             populate_metadata.log.setLevel(logging.DEBUG)
         else:
             populate_metadata.log.setLevel(logging.INFO)
+
         context_class = dict(self.POPULATE_CONTEXTS)[args.context]
 
-        if args.file and not os.path.exists(args.file):
-            try:
-                otype, oid = args.file.split(':')
-                if otype.lower() == 'originalfile':
-                    cfgfileid = long(oid)
-                raise Exception("Not implemented for remote %s" % args.file)
-            except ValueError:
-                pass
-            raise Exception("File not found: %s" % args.file)
+        fileid = args.fileid
+        cfgid = args.cfgid
 
-        if args.attach:
-            if not args.file:
-                raise Exception("No file given to attach")
-            srcfileann = conn.createFileAnnfromLocalFile(
-                args.file, mimetype=guess_mimetype(args.file),
-                ns=NSBULKANNOTATIONSCONFIG)
-            # srcfileid = srcfileann.getFile().getId()
-            md.linkAnnotation(srcfileann)
-
-        if args.cfg:
-            cfgfileid = None
-            try:
-                otype, oid = args.cfg.split(':')
-                if otype.lower() == 'originalfile':
-                    cfgfileid = long(oid)
-            except ValueError:
-                pass
-
-            if not cfgfileid:
+        if args.attach and not args.dry_run:
+            if args.file:
                 fileann = conn.createFileAnnfromLocalFile(
-                    args.cfg, mimetype=guess_mimetype(args.cfg),
-                    ns=NSBULKANNOTATIONSCONFIG)
-                cfgfileid = fileann.getFile().getId()
+                    args.file, mimetype=guess_mimetype(args.file),
+                    ns=NSBULKANNOTATIONSRAW)
+                fileid = fileann.getFile().getId()
                 md.linkAnnotation(fileann)
 
-            ctx = context_class(client, args.obj, args.file, cfgfileid)
-        else:
-            ctx = context_class(client, args.obj, args.file)
+            if args.cfg:
+                cfgann = conn.createFileAnnfromLocalFile(
+                    args.cfg, mimetype=guess_mimetype(args.cfg),
+                    ns=NSBULKANNOTATIONSCONFIG)
+                cfgid = cfgann.getFile().getId()
+                md.linkAnnotation(cfgann)
+
+        # Note some contexts only support a subset of these args
+        ctx = context_class(client, args.obj, file=args.file, fileid=fileid,
+                            cfg=args.cfg, cfgid=cfgid, attach=args.attach)
         ctx.parse()
         if not args.dry_run:
             ctx.write_to_omero()

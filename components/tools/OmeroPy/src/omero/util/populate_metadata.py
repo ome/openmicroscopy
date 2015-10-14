@@ -421,7 +421,17 @@ class ValueResolver(object):
 class ParsingContext(object):
     """Generic parsing context for CSV files."""
 
-    def __init__(self, client, target_object, file):
+    def __init__(self, client, target_object, file=None, fileid=None,
+                 cfg=None, cfgid=None, attach=False):
+        if not file:
+            raise MetadataError('file required for %s' % type(self))
+        if fileid and not file:
+            raise MetadataError('fileid not supported for %s' % type(self))
+        if cfg:
+            raise MetadataError('cfg not supported for %s' % type(self))
+        if cfgid:
+            raise MetadataError('cfgid not supported for %s' % type(self))
+
         self.client = client
         self.target_object = target_object
         self.file = file
@@ -662,43 +672,57 @@ class BulkToMapAnnotationContext(_QueryContext):
     Processor for creating MapAnnotations from BulkAnnotations.
     """
 
-    def __init__(self, client, target_object, ofileid=None, cfgfileid=None):
+    def __init__(self, client, target_object, file=None, fileid=None,
+                 cfg=None, cfgid=None, attach=False):
         """
         :param client: OMERO client object
         :param target_object: The object to be annotated
-        :param ofileid: The OriginalFile ID of the bulk-annotations table,
+        :param file: Not supported
+        :param fileid: The OriginalFile ID of the bulk-annotations table,
                default is to use the a bulk-annotation attached to
                target_object
+        :param cfg: Path to a configuration file, ignored if cfgid given
+        :param cfgid: OriginalFile ID of configuration file, either cfgid or
+               cfg must be given
         """
         super(BulkToMapAnnotationContext, self).__init__(client)
 
+        if file and not fileid:
+            raise MetadataError('file not supported for %s' % type(self))
+
         # Reload object to get .details
         self.target_object = self.get_target(target_object)
-        if ofileid:
-            self.ofileid = ofileid
+        if fileid:
+            self.ofileid = fileid
         else:
             self.ofileid = self.get_bulk_annotation_file()
         if not self.ofileid:
             raise MetadataError("Unable to find bulk-annotations file")
-        if cfgfileid:
-            self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
-                self.get_config(cfgfileid)
+
+        self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
+            self.get_config(cfg=cfg, cfgid=cfgid)
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
         return qs.find(target_object.ice_staticId().split('::')[-1],
                        target_object.id.val)
 
-    def get_config(self, cfgfileid):
+    def get_config(self, cfg=None, cfgid=None):
         if not YAML_ENABLED:
             raise ImportError("yaml (PyYAML) module required")
 
-        rfs = self.client.getSession().createRawFileStore()
-        try:
-            rfs.setFileId(cfgfileid)
-            rawdata = rfs.read(0, rfs.size())
-        finally:
-            rfs.close()
+        if cfgid:
+            try:
+                rfs = self.client.getSession().createRawFileStore()
+                rfs.setFileId(cfgid)
+                rawdata = rfs.read(0, rfs.size())
+            finally:
+                rfs.close()
+        elif cfg:
+            with open(cfg, 'r') as f:
+                rawdata = f.read()
+        else:
+            raise Exception("Configuration file required")
 
         cfg = list(yaml.load_all(rawdata))
         if len(cfg) != 1:
@@ -827,16 +851,31 @@ class DeleteMapAnnotationContext(_QueryContext):
     on these types: Image WellSample Well PlateAcquisition Plate Screen
     """
 
-    def __init__(self, client, target_object, dummy=None):
+    def __init__(self, client, target_object, file=None, fileid=None,
+                 cfg=None, cfgid=None, attach=False):
         """
         :param client: OMERO client object
         :param target_object: The object to be processed
+        :param file, fileid, cfg, cfgid: Ignored
+        :param attach: Delete all attached config files (recursive,
+               default False)
         """
         super(DeleteMapAnnotationContext, self).__init__(client)
         self.target_object = target_object
+        self.attach = attach
 
     def parse(self):
         return self.populate()
+
+    def _get_annotations_for_deletion(self, objtype, objids, anntype, ns):
+        r = []
+        if objids:
+            q = ("SELECT child.id FROM %sAnnotationLink WHERE "
+                 "child.class=%s AND parent.id in (:ids) "
+                 "AND child.ns=:ns")
+            r = self.projection(q % (objtype, anntype), objids, ns)
+            log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
+        return r
 
     def populate(self):
         # Hierarchy: Screen, Plate, {PlateAcquistion, Well}, WellSample, Image
@@ -897,24 +936,35 @@ class DeleteMapAnnotationContext(_QueryContext):
 
         log.debug("Parent IDs: %s", parentids)
 
-        mapannids = []
+        self.mapannids = []
+        self.fileannids = []
         not_annotatable = ('WellSample',)
+
         ns = omero.constants.namespaces.NSBULKANNOTATIONS
         for objtype, objids in parentids.iteritems():
-            r = []
-            if objids and objtype not in not_annotatable:
-                q = ("SELECT child.id FROM %sAnnotationLink WHERE "
-                     "child.class=MapAnnotation AND parent.id in (:ids) "
-                     "AND child.ns=:ns")
-                r = self.projection(q % objtype, objids, ns)
-                mapannids.extend(r)
-            log.debug("%s: %d MapAnnotations", objtype, len(set(r)))
+            if objtype in not_annotatable:
+                continue
+            r = self._get_annotations_for_deletion(
+                objtype, objids, 'MapAnnotation', ns)
+            self.mapannids.extend(r)
 
-        log.info("Total: %d MapAnnotations in %s", len(set(mapannids)), ns)
-        self.mapannids = mapannids
+        log.info("Total: %d MapAnnotation(s) in %s",
+                 len(set(self.mapannids)), ns)
+
+        if self.attach:
+            ns = NSBULKANNOTATIONSCONFIG
+            for objtype, objids in parentids.iteritems():
+                if objtype in not_annotatable:
+                    continue
+                r = self._get_annotations_for_deletion(
+                    objtype, objids, 'FileAnnotation', ns)
+                self.fileannids.extend(r)
+
+            log.info("Total: %d FileAnnotation(s) in %s",
+                     len(set(self.fileannids)), ns)
 
     def write_to_omero(self):
-        to_delete = {"MapAnnotation": self.mapannids}
+        to_delete = {"Annotation": self.mapannids + self.fileannids}
         delCmd = omero.cmd.Delete2(targetObjects=to_delete)
         handle = self.client.getSession().submit(delCmd)
 
@@ -926,9 +976,12 @@ class DeleteMapAnnotationContext(_QueryContext):
             callback.loop(loops, delay)
             rsp = callback.getResponse()
             if isinstance(rsp, omero.cmd.OK):
-                deleted = rsp.deletedObjects.get(
-                    "ome.model.annotations.MapAnnotation", [])
-                log.info("Deleted %d MapAnnotations", len(deleted))
+                ndma = len(rsp.deletedObjects.get(
+                    "ome.model.annotations.MapAnnotation", []))
+                log.info("Deleted %d MapAnnotation(s)", ndma)
+                ndfa = len(rsp.deletedObjects.get(
+                    "ome.model.annotations.FileAnnotation", []))
+                log.info("Deleted %d FileAnnotation(s)", ndfa)
             else:
                 log.error("Delete failed: %s", rsp)
         finally:
