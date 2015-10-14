@@ -3833,7 +3833,7 @@ class _BlitzGateway (object):
         self.c.submit(delete, self.SERVICE_OPTS)
 
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
-                      deleteChildren=False):
+                      deleteChildren=False, dryRun=False, wait=False):
         """
         Generic method for deleting using the delete queue. Options allow to
         delete 'independent' Annotations (Tag, Term, File) and to delete
@@ -3873,7 +3873,7 @@ class _BlitzGateway (object):
 
         graph = graph_spec.lstrip('/').split('/')
         obj_ids = map(long, obj_ids)
-        delete = Delete2(targetObjects={graph[0]: obj_ids})
+        delete = Delete2(targetObjects={graph[0]: obj_ids}, dryRun=dryRun)
 
         exc = list()
         if not deleteAnns and graph[0] not in ["Annotation",
@@ -3905,6 +3905,7 @@ class _BlitzGateway (object):
             skiphead.targetObjects = delete.targetObjects
             skiphead.childOptions = delete.childOptions
             skiphead.startFrom = [graph[-1]]
+            skiphead.dryRun = dryRun
             delete = skiphead
 
         logger.debug('Deleting %s [%s]. Options: %s' %
@@ -3913,6 +3914,12 @@ class _BlitzGateway (object):
         logger.debug('Delete2: \n%s' % str(delete))
 
         handle = self.c.sf.submit(delete, self.SERVICE_OPTS)
+        if wait:
+            try:
+                self._waitOnCmd(handle)
+            finally:
+                handle.close()
+
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500,
