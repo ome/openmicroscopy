@@ -13,6 +13,8 @@ import time
 import library as lib
 import pytest
 import omero
+import Glacier2
+
 from omero.rtypes import rtime, rlong, rlist
 from omero.gateway import BlitzGateway
 
@@ -1010,8 +1012,8 @@ class TestIShare(lib.ITest):
 
         # test inactive share, if member has no access to the image
         s = o_share.getShare(sid)
-        m_conn = self.new_client(session=s.uuid)
-        assert not m_conn.sf.getQueryService().find("Image", image.id.val)
+        with pytest.raises(Glacier2.PermissionDeniedException):
+            self.new_client(session=s.uuid)
 
         # activate again
         o_share.setActive(sid, True)
@@ -1021,14 +1023,11 @@ class TestIShare(lib.ITest):
         o_share.setExpiration(sid, rtime(expiration))
         self.assert_expiration(expiration, o_share.getShare(sid))
 
-        m_conn = self.new_client(session=s.uuid)
+        with pytest.raises(Glacier2.PermissionDeniedException):
+            self.new_client(session=s.uuid)
         # Forced closing
         o_session = owner.sf.getSessionService()
         o_session.closeSession(o_share.getShare(sid))
-
-        with pytest.raises(omero.SecurityViolation):
-            m_conn.sf.getQueryService().find("Image", image.id.val)
-        m_conn.__del__()
 
     # Helpers
 
