@@ -408,26 +408,6 @@ class EditorUI
 		model.fireAnnotationSaving(object, metadata, async);
 	}
 
-	/**
-	 * Returns the list of tags currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<TagAnnotationData> getCurrentTagsSelection()
-	{
-		return generalPane.getCurrentTagsSelection();
-	}
-	
-	/**
-	 * Returns the list of attachments currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<FileAnnotationData> getCurrentAttachmentsSelection()
-	{
-		return generalPane.getCurrentAttachmentsSelection();
-	}
-	
 	/** Shows the image's info. */
     void showChannelData()
     { 
@@ -539,7 +519,7 @@ class EditorUI
 			data instanceof DoubleAnnotationData ||
 			data instanceof LongAnnotationData ||
 			data instanceof BooleanAnnotationData) {
-			generalPane.removeObject(data);
+			generalPane.removeAnnotation((AnnotationData)data);
 			if (data.getId() >= 0)
 				saveData(true);
 		}

@@ -12,9 +12,15 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.RatingAnnotationData;
+
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import edu.emory.mathcs.backport.java.util.Collections;
+
 
 /**
  * A {@link AnnotationTaskPaneUI} for displaying the user rating
@@ -34,6 +40,9 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
     /** The original rating value */
     private int originalValue;
     
+    /** The selected rating value */
+    private int selectedValue;
+    
     /**
      * Creates a new instance
      * 
@@ -49,7 +58,8 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         super(model, view, controller);
 
         originalValue = 0;
-
+        selectedValue = 0;
+        
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
         rating = new RatingComponent(originalValue, RatingComponent.MEDIUM_SIZE);
@@ -136,11 +146,30 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         if (RatingComponent.RATE_PROPERTY.equals(name)) {
             int newValue = (Integer) evt.getNewValue();
             if (newValue != originalValue) {
-                originalValue = newValue;
+                selectedValue = newValue;
                 view.saveData(true);
             }
         } else if (RatingComponent.RATE_END_PROPERTY.equals(name)) {
             view.saveData(true);
         }
     }
+
+    @Override
+    List<AnnotationData> getAnnotationsToSave() {
+        if (selectedValue != originalValue)
+            return Collections.singletonList(new RatingAnnotationData(selectedValue));
+        else
+            return Collections.emptyList();
+    }
+
+    @Override
+    List<Object> getAnnotationsToRemove() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    void onRelatedNodesSet() {
+        rating.setEnabled(model.canAddAnnotationLink());
+    }
+
 }

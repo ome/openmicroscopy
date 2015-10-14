@@ -1,6 +1,11 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.swing.JLabel;
+
+import omero.gateway.model.AnnotationData;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -23,7 +28,7 @@ public class DummyTaskPaneUI extends AnnotationTaskPaneUI {
      * @param controller
      *            Reference to the {@link EditorControl}r
      */
-    public DummyTaskPaneUI(EditorModel model, EditorUI view,
+    DummyTaskPaneUI(EditorModel model, EditorUI view,
             EditorControl controller) {
         super(model, view, controller);
         JLabel l = new JLabel("Not implemented yet");
@@ -40,4 +45,21 @@ public class DummyTaskPaneUI extends AnnotationTaskPaneUI {
     void clearDisplay() {
         
     }
+
+    @Override
+    List<AnnotationData> getAnnotationsToSave() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    List<Object> getAnnotationsToRemove() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    void onRelatedNodesSet() {
+        
+    }
+    
+    
 }

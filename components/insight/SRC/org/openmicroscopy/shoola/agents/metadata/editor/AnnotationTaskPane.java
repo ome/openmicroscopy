@@ -2,10 +2,12 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 import java.awt.Container;
 import java.awt.Font;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
+import omero.gateway.model.AnnotationData;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
@@ -88,7 +90,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      * @param controller
      *            Reference to the {@link EditorControl}
      */
-    public AnnotationTaskPane(AnnotationType type, EditorUI view,
+    AnnotationTaskPane(AnnotationType type, EditorUI view,
             EditorModel model, EditorControl controller) {
         setTitle(type.name);
         this.type = type;
@@ -121,21 +123,50 @@ public class AnnotationTaskPane extends JXTaskPane {
      * @param n
      *            The number of annotations available
      */
-    public void setAnnotationCount(int n) {
+    void setAnnotationCount(int n) {
         setTitle(type.name + " (" + n + ")");
+    }
+
+    /**
+     * Checks if there is data which has to be saved
+     * 
+     * @return <code>true</code> if there is data which has to be saved,
+     *         <code>false</code> otherwise
+     */
+    boolean hasDataToSave() {
+        return !ui.getAnnotationsToSave().isEmpty()
+                || !ui.getAnnotationsToRemove().isEmpty();
+    }
+
+    /**
+     * Get the annotations which have to be saved
+     * 
+     * @return See above
+     */
+    List<AnnotationData> getAnnotationsToSave() {
+        return ui.getAnnotationsToSave();
+    }
+
+    /**
+     * Get the annotations which ahve to be deleted
+     * 
+     * @return See above
+     */
+    List<Object> getAnnotationsToRemove() {
+        return ui.getAnnotationsToRemove();
     }
 
     /**
      * Wipes the display
      */
-    public void clearDisplay() {
+    void clearDisplay() {
         ui.clearDisplay();
     }
-    
+
     /**
      * Refreshes the display
      */
-    public void refreshUI() {
+    void refreshUI() {
         ui.refreshUI();
     }
 
@@ -144,8 +175,21 @@ public class AnnotationTaskPane extends JXTaskPane {
      * 
      * @param filter
      */
-    public void filter(Filter filter) {
+    void filter(Filter filter) {
         ui.filter(filter);
+    }
+
+    void onRelatedNodesSet() {
+        ui.onRelatedNodesSet();
+    }
+    
+    /**
+     * Get a reference to the {@link AnnotationTaskPaneUI}
+     * 
+     * @return See above
+     */
+     AnnotationTaskPaneUI getTaskPaneUI() {
+        return ui;
     }
 
     /**

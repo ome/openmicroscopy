@@ -100,12 +100,6 @@ class GeneralPaneUI
 	/** The UI component displaying the object's properties. */
 	private PropertiesUI				propertiesUI;
 	
-	/** The UI component displaying the textual annotations. */
-	private TextualAnnotationsUI		textualAnnotationsUI;
-	
-	/** Component hosting the tags, rating, URLs and attachments. */
-	private AnnotationDataUI			annotationUI;
-	
 	/** The component hosting the {@link #browser}. */
 	private JXTaskPane 					browserTaskPane;
 
@@ -132,9 +126,6 @@ class GeneralPaneUI
     
     /** The component hosting the annotation component. */
     private AnnotationTaskPane                  commentTaskPane;
-    
-	/** The component hosting the annotation component. */
-	private JXTaskPane 					annotationTaskPane;
 	
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
@@ -196,13 +187,9 @@ class GeneralPaneUI
        });
        
 		propertiesUI = new PropertiesUI(model, controller);
-		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
-		annotationUI = new AnnotationDataUI(view, model, controller);
 
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);
-		components.add(textualAnnotationsUI);
-		components.add(annotationUI);
 		Iterator<AnnotationUI> i = components.iterator();
 		while (i.hasNext()) {
 			i.next().addPropertyChangeListener(EditorControl.SAVE_PROPERTY,
@@ -212,9 +199,7 @@ class GeneralPaneUI
 		propertiesTaskPane = EditorUtil.createTaskPane("");
 		propertiesTaskPane.setCollapsed(false);
 		propertiesTaskPane.add(propertiesUI);
-		
-		// new annotation taskpanes
-		
+
 		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAGS, view, model, controller);
 	    
 	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROIS, view, model, controller);
@@ -228,27 +213,6 @@ class GeneralPaneUI
 	    ratingTaskPane = new AnnotationTaskPane(AnnotationType.RATING, view, model, controller);
 	    
 	    commentTaskPane = new AnnotationTaskPane(AnnotationType.COMMENTS, view, model, controller); 
-		
-		
-		// old annotation taskpane - to be removed later!
-		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
-		annotationTaskPane.setCollapsed(false);
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new GridBagLayout());
-		p.add(annotationUI,c );
-		c.gridy++;
-//		p.add(new JSeparator(), c);
-//		c.gridy++;
-//		p.add(textualAnnotationsUI, c);
-//		annotationTaskPane.add(p);
-		// --
 	}
 	
 	/**
@@ -330,9 +294,6 @@ class GeneralPaneUI
         p.add(filterButton);
         add(p, c);
         c.gridy++;
-        
-//		add(annotationTaskPane, c);
-//		c.gridy++;
 		
 		add(tagsTaskPane, c);
         c.gridy++;
@@ -394,8 +355,6 @@ class GeneralPaneUI
                 init = true;
             }
             propertiesUI.buildUI();
-            annotationUI.buildUI();
-            textualAnnotationsUI.buildUI();
             
             tagsTaskPane.refreshUI();
             roiTaskPane.refreshUI();
@@ -459,22 +418,22 @@ class GeneralPaneUI
 	DataToSave prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
+		
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+		toAdd.addAll(tagsTaskPane.getAnnotationsToSave());
+		toAdd.addAll(attachmentTaskPane.getAnnotationsToSave());
+		toAdd.addAll(otherTaskPane.getAnnotationsToSave());
+		toAdd.addAll(ratingTaskPane.getAnnotationsToSave());
+		toAdd.addAll(mapTaskPane.getAnnotationsToSave());
+		toAdd.addAll(commentTaskPane.getAnnotationsToSave());
+
 		List<Object> toRemove = new ArrayList<Object>();
-		List<AnnotationData> l = annotationUI.getAnnotationToSave();
-		//To add
-		if (CollectionUtils.isNotEmpty(l))
-			toAdd.addAll(l);
-		l = textualAnnotationsUI.getAnnotationToSave();
-		if (CollectionUtils.isNotEmpty(l))
-			toAdd.addAll(l);
-		//To remove
-		List<Object> ll = annotationUI.getAnnotationToRemove();
-		if (CollectionUtils.isNotEmpty(ll))
-			toRemove.addAll(ll);
-		ll = textualAnnotationsUI.getAnnotationToRemove();
-		if (CollectionUtils.isNotEmpty(ll))
-			toRemove.addAll(ll);
+		toRemove.addAll(tagsTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(attachmentTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(otherTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(ratingTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(mapTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(commentTaskPane.getAnnotationsToRemove());
 		
 		return new DataToSave(toAdd, toRemove);
 	}
@@ -498,8 +457,6 @@ class GeneralPaneUI
 		}	
 		clearData(oldObject);
 		propertiesUI.clearDisplay();
-		annotationUI.clearDisplay();
-    	textualAnnotationsUI.clearDisplay();
     	
     	tagsTaskPane.clearDisplay();
         roiTaskPane.clearDisplay();
@@ -514,26 +471,6 @@ class GeneralPaneUI
     	
 		revalidate();
 		repaint();
-	}
-	
-	/**
-	 * Returns the list of tags currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<TagAnnotationData> getCurrentTagsSelection()
-	{
-		return annotationUI.getCurrentTagsSelection();
-	}
-	
-	/**
-	 * Returns the list of attachments currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<FileAnnotationData> getCurrentAttachmentsSelection() 
-	{
-		return annotationUI.getCurrentAttachmentsSelection();
 	}
 	
 	/** Shows the image's info. */
@@ -566,6 +503,25 @@ class GeneralPaneUI
 			pp = p.next();
 			if (pp.hasDataToSave()) return true;
 		}
+		
+		if(tagsTaskPane.hasDataToSave())
+		    return true;
+        
+		if(mapTaskPane.hasDataToSave())
+            return true;
+		
+		if(attachmentTaskPane.hasDataToSave())
+            return true;
+		
+		if(otherTaskPane.hasDataToSave())
+            return true;
+		
+		if(ratingTaskPane.hasDataToSave())
+            return true;
+		
+		if(commentTaskPane.hasDataToSave())
+            return true;
+		
 		return false;
 	}
 	
@@ -616,7 +572,7 @@ class GeneralPaneUI
 	 */
 	boolean attachFiles(File[] files)
 	{ 
-		return annotationUI.attachFiles(files); 
+	    return ((AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI()).attachFiles(files);
 	}
 
 	/**
@@ -626,7 +582,7 @@ class GeneralPaneUI
 	 */
 	void removeAttachedFile(Object file)
 	{ 
-		annotationUI.removeAttachedFile(file);
+	    ((AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI()).removeAttachedFile(file);
 	}
 	
 	/**
@@ -636,7 +592,7 @@ class GeneralPaneUI
 	 */
 	List<FileAnnotationData> removeAttachedFiles()
 	{
-		return annotationUI.removeAttachedFiles();
+	    return ((AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI()).removeAttachedFiles();
 	}
 	
 	/**
@@ -646,7 +602,7 @@ class GeneralPaneUI
 	 */
 	List<TagAnnotationData> removeTags()
 	{
-		return annotationUI.removeTags();
+	    return ((TagsTaskPaneUI) tagsTaskPane.getTaskPaneUI()).removeTags();
 	}
 	
 	/**
@@ -656,7 +612,7 @@ class GeneralPaneUI
 	 */
 	List<AnnotationData> removeOtherAnnotations()
 	{
-		return annotationUI.removeOtherAnnotation();
+	    return ((OtherTaskPaneUI) otherTaskPane.getTaskPaneUI()).removeOtherAnnotation();
 	}
 	
 	/**
@@ -667,7 +623,7 @@ class GeneralPaneUI
 	 */
 	boolean hasAttachmentsToUnlink()
 	{ 
-		return annotationUI.hasAttachmentsToUnlink();
+	    return ((AttachmentsTaskPaneUI)attachmentTaskPane.getTaskPaneUI()).hasAttachmentsToUnlink();
 	}
 	
 	/**
@@ -678,7 +634,7 @@ class GeneralPaneUI
 	 */
 	boolean hasTagsToUnlink()
 	{
-		return annotationUI.hasTagsToUnlink();
+	    return ((TagsTaskPaneUI)tagsTaskPane.getTaskPaneUI()).hasTagsToUnlink();
 	}
 	
 	/**
@@ -689,29 +645,60 @@ class GeneralPaneUI
 	 */
 	boolean hasOtherAnnotationsToUnlink()
 	{
-		return annotationUI.hasOtherAnnotationsToUnlink();
+	    return ((OtherTaskPaneUI)otherTaskPane.getTaskPaneUI()).hasOtherAnnotationsToUnlink();
 	}
 	
 	/**
-	 * Removes the annotation from the view.
-	 * 
-	 * @param annotation The annotation to remove.
-	 */
-	void removeObject(DataObject annotation)
-	{
-		if (annotation == null) return;
-		if (annotation instanceof TagAnnotationData ||
-			annotation instanceof TermAnnotationData ||
-			annotation instanceof XMLAnnotationData ||
-			annotation instanceof LongAnnotationData ||
-			annotation instanceof DoubleAnnotationData ||
-			annotation instanceof BooleanAnnotationData)
-			annotationUI.removeAnnotation((AnnotationData) annotation);
-		else if (annotation instanceof TextualAnnotationData)
-			textualAnnotationsUI.removeTextualAnnotation(
-					(TextualAnnotationData) annotation);
-	}
-	
+     * Removes a annotation from the view.
+     * 
+     * @param annotation The annotation to remove.
+     */
+    void removeAnnotation(AnnotationData annotation)
+    {
+        if (annotation == null)
+            return;
+        
+        List<AnnotationData> toKeep = new ArrayList<AnnotationData>();
+        AnnotationData data;
+        if (annotation instanceof TagAnnotationData) {
+            List<TagAnnotationData> tags = getCurrentTagsSelection();
+            Iterator<TagAnnotationData> i = tags.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                if (data.getId() != annotation.getId())
+                    toKeep.add(data);
+            }
+            handleObjectsSelection(TagAnnotationData.class, toKeep);
+        } else if (annotation instanceof TermAnnotationData ||
+                annotation instanceof XMLAnnotationData ||
+                annotation instanceof BooleanAnnotationData ||
+                annotation instanceof LongAnnotationData ||
+                annotation instanceof DoubleAnnotationData) {
+            List<AnnotationData> tags = getCurrentOtherSelection();
+            Iterator<AnnotationData> i = tags.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                if (data.getId() != annotation.getId())
+                    toKeep.add(data);
+            }
+            handleObjectsSelection(AnnotationData.class, toKeep);
+        } 
+        else if(annotation instanceof TextualAnnotationData) {
+            ((CommentsTaskPaneUI)commentTaskPane.getTaskPaneUI()).removeTextualAnnotation((TextualAnnotationData)annotation);
+        }
+        
+    }
+    
+    List<TagAnnotationData> getCurrentTagsSelection() {
+        TagsTaskPaneUI p = (TagsTaskPaneUI) tagsTaskPane.getTaskPaneUI();
+        return p.getCurrentSelection();
+    }
+    
+    List<AnnotationData> getCurrentOtherSelection() {
+        OtherTaskPaneUI p = (OtherTaskPaneUI) otherTaskPane.getTaskPaneUI();
+        return p.getCurrentSelection();
+    }
+    
 	/**
 	 * Handles the selection of objects via the selection wizard.
 	 * 
@@ -720,14 +707,27 @@ class GeneralPaneUI
 	 */
 	void handleObjectsSelection(Class type, Collection objects)
 	{
-		if (objects == null) return;
-		annotationUI.handleObjectsSelection(type, objects, true);
+        if (objects == null)
+            return;
+
+        if (TagAnnotationData.class.equals(type)) 
+            ((TagsTaskPaneUI)tagsTaskPane.getTaskPaneUI()).handleObjectsSelection(type, objects, true);
+        else if (FileAnnotationData.class.equals(type)) 
+            ((AttachmentsTaskPaneUI)attachmentTaskPane.getTaskPaneUI()).handleObjectsSelection(type, objects, true);
+        else if (AnnotationData.class.equals(type)) 
+            ((OtherTaskPaneUI)otherTaskPane.getTaskPaneUI()).handleObjectsSelection(type, objects, true);
 	}
 	
 	/** Updates the UI when the related nodes have been set.*/
 	void onRelatedNodesSet()
 	{
-		annotationUI.onRelatedNodesSet();
+	    tagsTaskPane.onRelatedNodesSet();
+	    roiTaskPane.onRelatedNodesSet();
+	    mapTaskPane.onRelatedNodesSet();
+	    attachmentTaskPane.onRelatedNodesSet();
+	    otherTaskPane.onRelatedNodesSet();
+	    ratingTaskPane.onRelatedNodesSet();
+	    commentTaskPane.onRelatedNodesSet();
 	}
 	
 	/**
@@ -737,6 +737,7 @@ class GeneralPaneUI
      * @return See above
      */
 	public Collection<FileAnnotationData> getSelectedFileAnnotations() {
-	    return annotationUI.getSelectedFileAnnotations();
+	    AttachmentsTaskPaneUI p = (AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI();
+	    return p.getSelectedFileAnnotations();
 	}
 }

@@ -10,6 +10,8 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import omero.gateway.model.AnnotationData;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -183,4 +185,22 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
      */
     abstract void clearDisplay();
 
+    /**
+     * Get the annotations which have to be saved
+     * 
+     * @return See above
+     */
+    abstract List<AnnotationData> getAnnotationsToSave();
+
+    /**
+     * Get the annotations which have to be saved
+     * 
+     * @return See above
+     */
+    abstract List<Object> getAnnotationsToRemove();
+    
+    /** 
+     * Informs the UI when the related nodes have been set.
+     * */
+    abstract void onRelatedNodesSet();
 }

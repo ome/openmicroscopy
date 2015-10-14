@@ -33,6 +33,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
@@ -106,6 +107,25 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         super(model, view, controller);
         buildUI();
     }
+
+    
+    @Override
+    List<AnnotationData> getAnnotationsToSave() {
+        List<MapAnnotationData> tmp = getMapAnnotations(true, true);
+        List<AnnotationData> result = new ArrayList<AnnotationData>();
+        result.addAll(tmp);
+        return result;
+    }
+
+
+    @Override
+    List<Object> getAnnotationsToRemove() {
+       List<MapAnnotationData> tmp = getEmptyMapAnnotations();
+       List<Object> result = new ArrayList<Object>();
+       result.addAll(tmp);
+       return result;
+    }
+
 
     /**
      * Builds the component
@@ -296,21 +316,21 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
      *            {@link AnnotationDataUI#ADDED_BY_ME}, see
      *            {@link AnnotationDataUI#ADDED_BY_OTHERS}
      */
-    public void filter(int filter) {
+    public void filter(Filter filter) {
         for (MapTable table : mapTables) {
             table.getParent().setVisible(false);
 
             if (isUsers(table.getData())
-                    && (filter == AnnotationDataUI.ADDED_BY_ME || filter == AnnotationDataUI.SHOW_ALL)) {
+                    && (filter == Filter.ADDED_BY_ME || filter == Filter.SHOW_ALL)) {
                 table.getParent().setVisible(true);
             }
 
             if (isOtherUsers(table.getData())
-                    && (filter == AnnotationDataUI.ADDED_BY_OTHERS || filter == AnnotationDataUI.SHOW_ALL)) {
+                    && (filter == Filter.ADDED_BY_OTHERS || filter == Filter.SHOW_ALL)) {
                 table.getParent().setVisible(true);
             }
 
-            if (isOther(table.getData()) && filter == AnnotationDataUI.SHOW_ALL) {
+            if (isOther(table.getData()) && filter == Filter.SHOW_ALL) {
                 table.getParent().setVisible(true);
             }
         }
@@ -428,7 +448,6 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
      *            The data to show
      * @return See above
      */
-    @SuppressWarnings("unchecked")
     private MapTable createMapTable(MapAnnotationData m) {
         boolean editable = (isUsers(m) && (model.canAnnotate()))
                 || (model.canEdit(m) && MapAnnotationData.NS_CLIENT_CREATED
@@ -740,5 +759,13 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         setVisible(!mapTables.isEmpty());
         adjustScrollPane();
     }
+
+
+    @Override
+    void onRelatedNodesSet() {
+        refreshButtonStates();
+    }
+    
+    
 
 }

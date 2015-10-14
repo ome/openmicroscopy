@@ -1006,10 +1006,12 @@ class AnnotationDataUI
 	/** Updates the UI when the related nodes have been set.*/
 	void onRelatedNodesSet()
 	{
-		if (!addTagsButton.isEnabled()) return;
+		if (!addTagsButton.isEnabled())
+		    return;
 		boolean b = model.canAddAnnotationLink();
 		addTagsButton.setEnabled(b);
 		addDocsButton.setEnabled(b);
+		
 		b = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(b);
 		removeDocsButton.setEnabled(b);
@@ -1037,20 +1039,6 @@ class AnnotationDataUI
 				data = doc.getData();
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotationData) data;
-					/*
-					for (int j = 0; j < files.length; j++) {
-						if (fa.getId() <= 0) {
-							if (!fa.getFilePath().equals(
-									files[j].getAbsolutePath()))
-								toAdd.add(files[j]);
-							list.add(fa);
-						} else {
-							if (fa.getFileName().equals(files[j].getName())) {
-								toReplace.add(fa);
-							} else toAdd.add(files[j]);
-						}
-					}
-					*/
 					for (int j = 0; j < files.length; j++) {
 						if (fa.getId() >= 0 &&
 								fa.getFileName().equals(files[j].getName())) {
@@ -1060,11 +1048,10 @@ class AnnotationDataUI
 				}
 			}
 		}
-		//if (data == null) {
-			for (int i = 0; i < files.length; i++) {
-				toAdd.add(files[i]);
-			}
-		//}
+		for (int i = 0; i < files.length; i++) {
+			toAdd.add(files[i]);
+		}
+		
 		if (toAdd.size() > 0) {
 			data = null;
 			try {

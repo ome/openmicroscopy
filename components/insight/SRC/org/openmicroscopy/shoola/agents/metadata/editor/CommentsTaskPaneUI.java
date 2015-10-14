@@ -55,11 +55,34 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
      * @param controller
      *            Reference to the {@link EditorControl}
      */
-    public CommentsTaskPaneUI(EditorModel model, EditorUI view,
+    CommentsTaskPaneUI(EditorModel model, EditorUI view,
             EditorControl controller) {
         super(model, view, controller);
         initComponents();
     }
+    
+    
+
+    @Override
+    List<AnnotationData> getAnnotationsToSave() {
+        List<AnnotationData> l = new ArrayList<AnnotationData>();
+        String text = commentArea.getText();
+        if (CommonsLangUtils.isNotBlank(text))
+            l.add(new TextualAnnotationData(text));
+        return l;
+    }
+
+
+
+    @Override
+    List<Object> getAnnotationsToRemove() {
+        List<Object> l = new ArrayList<Object>();
+        if (annotationToRemove != null)
+            l.addAll(annotationToRemove);
+        return l;
+    }
+
+
 
     @Override
     void refreshUI() {
@@ -353,4 +376,13 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
      */
     public void changedUpdate(DocumentEvent e) {
     }
+
+
+
+    @Override
+    void onRelatedNodesSet() {
+        addButton.setEnabled(model.canAddAnnotationLink());
+    }
+    
+    
 }
