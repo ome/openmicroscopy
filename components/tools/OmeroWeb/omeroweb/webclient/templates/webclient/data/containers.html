@@ -1327,7 +1327,9 @@
                                 return true;
                             // For dnd checking if it can copy/move
                             } else if (operation === 'copy_node' || operation === 'move_node') {
-                                if (!OME.nodeHasPermission(node_parent, 'canLink')) {
+                                // Only allow 'drop' if we 'canLink' or target is 'experimenter'
+                                if (!OME.nodeHasPermission(node_parent, 'canLink') &&
+                                        node_parent.type !== 'experimenter') {
                                     return false;
                                 }
 
