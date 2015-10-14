@@ -361,4 +361,11 @@ public class LookupNames
     
     /** Lookup name for using pixel interpolation */
     public static final String INTERPOLATE = "omero.client.viewer.interpolate_pixels";
+    
+    /** Lookup name for the maximum plane width */
+    public static final String MAX_PLANE_WIDTH = "omero.pixeldata.max_plane_width";
+    
+    /** Lookup name for the maximum plane height */
+    public static final String MAX_PLANE_HEIGHT = "omero.pixeldata.max_plane_height";
+    
 }

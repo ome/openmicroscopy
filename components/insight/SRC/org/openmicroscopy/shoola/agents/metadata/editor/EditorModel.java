@@ -4278,13 +4278,25 @@ class EditorModel
 	    return objects;
 	}
 
-	/**
-	 * Returns <code>true</code> if the image is a large image,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isLargeImage() { return largeImage; }
+    /**
+     * Returns <code>true</code> if the image is a large image,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isLargeImage() {
+        try {
+            int maxPlaneW = Integer.parseInt((String) MetadataViewerAgent
+                    .getRegistry().lookup(LookupNames.MAX_PLANE_WIDTH));
+            int maxPlaneH = Integer.parseInt((String) MetadataViewerAgent
+                    .getRegistry().lookup(LookupNames.MAX_PLANE_HEIGHT));
+            return getPixels().getSizeX() * getPixels().getSizeY() > maxPlaneW
+                    * maxPlaneH;
+        } catch (Exception e) {
+        }
+
+        return largeImage;
+    }
 
 	/**
 	 * Indicates if the image is a big image or not.
