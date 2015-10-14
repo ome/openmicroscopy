@@ -1,5 +1,5 @@
 --
--- Copyright 2006-2014 University of Dundee. All rights reserved.
+-- Copyright 2006-2015 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -339,6 +339,7 @@
   CREATE INDEX i_DatasetImageLink_child ON datasetimagelink(child);
   CREATE INDEX i_detector_owner ON detector(owner_id);
   CREATE INDEX i_detector_group ON detector(group_id);
+  CREATE INDEX i_Detector_voltage ON detector(voltage);
   CREATE INDEX i_Detector_type ON detector(type);
   CREATE INDEX i_Detector_instrument ON detector(instrument);
   CREATE INDEX i_detectorannotationlink_owner ON detectorannotationlink(owner_id);
@@ -347,6 +348,8 @@
   CREATE INDEX i_DetectorAnnotationLink_child ON detectorannotationlink(child);
   CREATE INDEX i_detectorsettings_owner ON detectorsettings(owner_id);
   CREATE INDEX i_detectorsettings_group ON detectorsettings(group_id);
+  CREATE INDEX i_DetectorSettings_voltage ON detectorsettings(voltage);
+  CREATE INDEX i_DetectorSettings_readOutRate ON detectorsettings(readOutRate);
   CREATE INDEX i_DetectorSettings_binning ON detectorsettings(binning);
   CREATE INDEX i_DetectorSettings_detector ON detectorsettings(detector);
   CREATE INDEX i_dichroic_owner ON dichroic(owner_id);
@@ -429,6 +432,8 @@
   CREATE INDEX i_ImageAnnotationLink_child ON imageannotationlink(child);
   CREATE INDEX i_imagingenvironment_owner ON imagingenvironment(owner_id);
   CREATE INDEX i_imagingenvironment_group ON imagingenvironment(group_id);
+  CREATE INDEX i_ImagingEnvironment_temperature ON imagingenvironment(temperature);
+  CREATE INDEX i_ImagingEnvironment_airPressure ON imagingenvironment(airPressure);
   CREATE INDEX i_instrument_owner ON instrument(owner_id);
   CREATE INDEX i_instrument_group ON instrument(group_id);
   CREATE INDEX i_Instrument_microscope ON instrument(microscope);
@@ -446,7 +451,9 @@
   CREATE INDEX i_Laser_type ON laser(type);
   CREATE INDEX i_Laser_laserMedium ON laser(laserMedium);
   CREATE INDEX i_Laser_pulse ON laser(pulse);
+  CREATE INDEX i_Laser_wavelength ON laser(wavelength);
   CREATE INDEX i_Laser_pump ON laser(pump);
+  CREATE INDEX i_Laser_repetitionRate ON laser(repetitionRate);
   CREATE INDEX i_lightpath_owner ON lightpath(owner_id);
   CREATE INDEX i_lightpath_group ON lightpath(group_id);
   CREATE INDEX i_LightPath_dichroic ON lightpath(dichroic);
@@ -464,10 +471,12 @@
   CREATE INDEX i_LightPathExcitationFilterLink_child ON lightpathexcitationfilterlink(child);
   CREATE INDEX i_lightsettings_owner ON lightsettings(owner_id);
   CREATE INDEX i_lightsettings_group ON lightsettings(group_id);
+  CREATE INDEX i_LightSettings_wavelength ON lightsettings(wavelength);
   CREATE INDEX i_LightSettings_lightSource ON lightsettings(lightSource);
   CREATE INDEX i_LightSettings_microbeamManipulation ON lightsettings(microbeamManipulation);
   CREATE INDEX i_lightsource_owner ON lightsource(owner_id);
   CREATE INDEX i_lightsource_group ON lightsource(group_id);
+  CREATE INDEX i_LightSource_power ON lightsource("power");
   CREATE INDEX i_LightSource_instrument ON lightsource(instrument);
   CREATE INDEX i_lightsourceannotationlink_owner ON lightsourceannotationlink(owner_id);
   CREATE INDEX i_lightsourceannotationlink_group ON lightsourceannotationlink(group_id);
@@ -477,8 +486,11 @@
   CREATE INDEX i_link_group ON link(group_id);
   CREATE INDEX i_logicalchannel_owner ON logicalchannel(owner_id);
   CREATE INDEX i_logicalchannel_group ON logicalchannel(group_id);
+  CREATE INDEX i_LogicalChannel_pinHoleSize ON logicalchannel(pinHoleSize);
   CREATE INDEX i_LogicalChannel_illumination ON logicalchannel(illumination);
   CREATE INDEX i_LogicalChannel_contrastMethod ON logicalchannel(contrastMethod);
+  CREATE INDEX i_LogicalChannel_excitationWave ON logicalchannel(excitationWave);
+  CREATE INDEX i_LogicalChannel_emissionWave ON logicalchannel(emissionWave);
   CREATE INDEX i_LogicalChannel_otf ON logicalchannel(otf);
   CREATE INDEX i_LogicalChannel_detectorSettings ON logicalchannel(detectorSettings);
   CREATE INDEX i_LogicalChannel_lightSourceSettings ON logicalchannel(lightSourceSettings);
@@ -494,8 +506,6 @@
   CREATE INDEX i_microscope_owner ON microscope(owner_id);
   CREATE INDEX i_microscope_group ON microscope(group_id);
   CREATE INDEX i_Microscope_type ON microscope(type);
-  CREATE INDEX i_namespace_owner ON namespace(owner_id);
-  CREATE INDEX i_namespace_group ON namespace(group_id);
   CREATE INDEX i_namespaceannotationlink_owner ON namespaceannotationlink(owner_id);
   CREATE INDEX i_namespaceannotationlink_group ON namespaceannotationlink(group_id);
   CREATE INDEX i_NamespaceAnnotationLink_parent ON namespaceannotationlink(parent);
@@ -514,6 +524,7 @@
   CREATE INDEX i_objective_group ON objective(group_id);
   CREATE INDEX i_Objective_immersion ON objective(immersion);
   CREATE INDEX i_Objective_correction ON objective(correction);
+  CREATE INDEX i_Objective_workingDistance ON objective(workingDistance);
   CREATE INDEX i_Objective_instrument ON objective(instrument);
   CREATE INDEX i_objectiveannotationlink_owner ON objectiveannotationlink(owner_id);
   CREATE INDEX i_objectiveannotationlink_group ON objectiveannotationlink(group_id);
@@ -536,6 +547,9 @@
   CREATE INDEX i_Pixels_relatedTo ON pixels(relatedTo);
   CREATE INDEX i_Pixels_pixelsType ON pixels(pixelsType);
   CREATE INDEX i_Pixels_dimensionOrder ON pixels(dimensionOrder);
+  CREATE INDEX i_Pixels_physicalSizeX ON pixels(physicalSizeX);
+  CREATE INDEX i_Pixels_physicalSizeY ON pixels(physicalSizeY);
+  CREATE INDEX i_Pixels_physicalSizeZ ON pixels(physicalSizeZ);
   CREATE INDEX i_Pixels_timeIncrement ON pixels(timeIncrement);
   CREATE INDEX i_pixelsoriginalfilemap_owner ON pixelsoriginalfilemap(owner_id);
   CREATE INDEX i_pixelsoriginalfilemap_group ON pixelsoriginalfilemap(group_id);
@@ -545,6 +559,9 @@
   CREATE INDEX i_planeinfo_group ON planeinfo(group_id);
   CREATE INDEX i_PlaneInfo_pixels ON planeinfo(pixels);
   CREATE INDEX i_PlaneInfo_deltaT ON planeinfo(deltaT);
+  CREATE INDEX i_PlaneInfo_positionX ON planeinfo(positionX);
+  CREATE INDEX i_PlaneInfo_positionY ON planeinfo(positionY);
+  CREATE INDEX i_PlaneInfo_positionZ ON planeinfo(positionZ);
   CREATE INDEX i_PlaneInfo_exposureTime ON planeinfo(exposureTime);
   CREATE INDEX i_planeinfoannotationlink_owner ON planeinfoannotationlink(owner_id);
   CREATE INDEX i_planeinfoannotationlink_group ON planeinfoannotationlink(group_id);
@@ -552,6 +569,8 @@
   CREATE INDEX i_PlaneInfoAnnotationLink_child ON planeinfoannotationlink(child);
   CREATE INDEX i_plate_owner ON plate(owner_id);
   CREATE INDEX i_plate_group ON plate(group_id);
+  CREATE INDEX i_Plate_wellOriginX ON plate(wellOriginX);
+  CREATE INDEX i_Plate_wellOriginY ON plate(wellOriginY);
   CREATE INDEX i_plateacquisition_owner ON plateacquisition(owner_id);
   CREATE INDEX i_plateacquisition_group ON plateacquisition(group_id);
   CREATE INDEX i_PlateAcquisition_plate ON plateacquisition(plate);
@@ -614,6 +633,8 @@
   CREATE INDEX i_shape_owner ON shape(owner_id);
   CREATE INDEX i_shape_group ON shape(group_id);
   CREATE INDEX i_Shape_roi ON shape(roi);
+  CREATE INDEX i_Shape_strokeWidth ON shape(strokeWidth);
+  CREATE INDEX i_Shape_fontSize ON shape(fontSize);
   CREATE INDEX i_shapeannotationlink_owner ON shapeannotationlink(owner_id);
   CREATE INDEX i_shapeannotationlink_group ON shapeannotationlink(group_id);
   CREATE INDEX i_ShapeAnnotationLink_parent ON shapeannotationlink(parent);
@@ -623,6 +644,9 @@
   CREATE INDEX i_ShareMember_child ON sharemember(child);
   CREATE INDEX i_stagelabel_owner ON stagelabel(owner_id);
   CREATE INDEX i_stagelabel_group ON stagelabel(group_id);
+  CREATE INDEX i_StageLabel_positionX ON stagelabel(positionX);
+  CREATE INDEX i_StageLabel_positionY ON stagelabel(positionY);
+  CREATE INDEX i_StageLabel_positionZ ON stagelabel(positionZ);
   CREATE INDEX i_statsinfo_owner ON statsinfo(owner_id);
   CREATE INDEX i_statsinfo_group ON statsinfo(group_id);
   CREATE INDEX i_thumbnail_owner ON thumbnail(owner_id);
@@ -630,6 +654,10 @@
   CREATE INDEX i_Thumbnail_pixels ON thumbnail(pixels);
   CREATE INDEX i_transmittancerange_owner ON transmittancerange(owner_id);
   CREATE INDEX i_transmittancerange_group ON transmittancerange(group_id);
+  CREATE INDEX i_TransmittanceRange_cutIn ON transmittancerange(cutIn);
+  CREATE INDEX i_TransmittanceRange_cutOut ON transmittancerange(cutOut);
+  CREATE INDEX i_TransmittanceRange_cutInTolerance ON transmittancerange(cutInTolerance);
+  CREATE INDEX i_TransmittanceRange_cutOutTolerance ON transmittancerange(cutOutTolerance);
   CREATE INDEX i_well_owner ON well(owner_id);
   CREATE INDEX i_well_group ON well(group_id);
   CREATE INDEX i_Well_plate ON well(plate);
@@ -643,9 +671,15 @@
   CREATE INDEX i_WellReagentLink_child ON wellreagentlink(child);
   CREATE INDEX i_wellsample_owner ON wellsample(owner_id);
   CREATE INDEX i_wellsample_group ON wellsample(group_id);
+  CREATE INDEX i_WellSample_posX ON wellsample(posX);
+  CREATE INDEX i_WellSample_posY ON wellsample(posY);
   CREATE INDEX i_WellSample_plateAcquisition ON wellsample(plateAcquisition);
   CREATE INDEX i_WellSample_well ON wellsample(well);
   CREATE INDEX i_WellSample_image ON wellsample(image);
+
+CREATE INDEX annotation_name ON annotation(name);
+CREATE INDEX namespace_displayname ON namespace(displayname);
+CREATE INDEX roi_name ON roi(name);
 
 --
 -- Finally, a function for showing our permissions
@@ -873,7 +907,6 @@ CREATE SEQUENCE seq_stagelabel; INSERT INTO _lock_ids (name, id) SELECT 'seq_sta
 CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
-CREATE SEQUENCE seq_unitstime; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstime', nextval('_lock_seq');
 CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellreagentlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellreagentlink', nextval('_lock_seq');
@@ -935,139 +968,248 @@ CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
-    AS '
+CREATE TABLE _updated_annotations (
+    event_id BIGINT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id BIGINT NOT NULL,
+    CONSTRAINT FK_updated_annotations_event_id
+        FOREIGN KEY (event_id)
+        REFERENCES event);
+
+CREATE INDEX _updated_annotations_event_index
+    ON _updated_annotations (event_id);
+
+CREATE INDEX _updated_annotations_row_index
+    ON _updated_annotations (event_id, entity_type, entity_id);
+
+CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
+
     DECLARE
-        rec RECORD;
-        eid int8;
-        cnt int8;
+        pid BIGINT;
+        eid BIGINT;
+
     BEGIN
-
-        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_updated_annotations'') THEN
-            CREATE TEMP TABLE _updated_annotations (entitytype varchar, entityid int8) ON COMMIT DELETE ROWS;
-        END IF;
-
-
-        FOR rec IN SELECT id, parent FROM annotationannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.annotations.Annotation'');
+        SELECT INTO eid _current_or_new_event();
+ 
+        FOR pid IN SELECT DISTINCT parent FROM annotationannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.annotations.Annotation', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.annotations.Annotation' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM channelannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Channel'');
+        FOR pid IN SELECT DISTINCT parent FROM channelannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Channel', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Channel' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM datasetannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.containers.Dataset'');
+        FOR pid IN SELECT DISTINCT parent FROM datasetannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.containers.Dataset', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Dataset' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM detectorannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Detector'');
+        FOR pid IN SELECT DISTINCT parent FROM detectorannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Detector', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Detector' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM dichroicannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Dichroic'');
+        FOR pid IN SELECT DISTINCT parent FROM dichroicannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Dichroic', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Dichroic' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM experimenterannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Experimenter'');
+        FOR pid IN SELECT DISTINCT parent FROM experimenterannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Experimenter', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Experimenter' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM experimentergroupannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.ExperimenterGroup'');
+        FOR pid IN SELECT DISTINCT parent FROM experimentergroupannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.ExperimenterGroup', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.ExperimenterGroup' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM filesetannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.fs.Fileset'');
+        FOR pid IN SELECT DISTINCT parent FROM filesetannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.fs.Fileset', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.fs.Fileset' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM filterannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Filter'');
+        FOR pid IN SELECT DISTINCT parent FROM filterannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Filter', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Filter' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Image'');
+        FOR pid IN SELECT DISTINCT parent FROM imageannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Image' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM instrumentannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Instrument'');
+        FOR pid IN SELECT DISTINCT parent FROM instrumentannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Instrument', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Instrument' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM lightpathannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.LightPath'');
+        FOR pid IN SELECT DISTINCT parent FROM lightpathannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.LightPath', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightPath' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM lightsourceannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.LightSource'');
+        FOR pid IN SELECT DISTINCT parent FROM lightsourceannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.LightSource', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightSource' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM namespaceannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Namespace'');
+        FOR pid IN SELECT DISTINCT parent FROM namespaceannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Namespace', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Namespace' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM nodeannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Node'');
+        FOR pid IN SELECT DISTINCT parent FROM nodeannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Node', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Node' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM objectiveannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Objective'');
+        FOR pid IN SELECT DISTINCT parent FROM objectiveannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Objective', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Objective' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM originalfileannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.OriginalFile'');
+        FOR pid IN SELECT DISTINCT parent FROM originalfileannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.OriginalFile', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.OriginalFile' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM planeinfoannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.PlaneInfo'');
+        FOR pid IN SELECT DISTINCT parent FROM planeinfoannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.PlaneInfo', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.PlaneInfo' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM plateannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.Plate'');
+        FOR pid IN SELECT DISTINCT parent FROM plateannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Plate', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Plate' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM plateacquisitionannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.PlateAcquisition'');
+        FOR pid IN SELECT DISTINCT parent FROM plateacquisitionannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.PlateAcquisition', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.PlateAcquisition' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM projectannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.containers.Project'');
+        FOR pid IN SELECT DISTINCT parent FROM projectannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.containers.Project', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Project' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM reagentannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.Reagent'');
+        FOR pid IN SELECT DISTINCT parent FROM reagentannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Reagent', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Reagent' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM roiannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.roi.Roi'');
+        FOR pid IN SELECT DISTINCT parent FROM roiannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.roi.Roi', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Roi' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM screenannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.Screen'');
+        FOR pid IN SELECT DISTINCT parent FROM screenannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Screen', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Screen' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM sessionannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Session'');
+        FOR pid IN SELECT DISTINCT parent FROM sessionannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Session', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Session' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM shapeannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.roi.Shape'');
+        FOR pid IN SELECT DISTINCT parent FROM shapeannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.roi.Shape', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Shape' AND ua.entity_id = pid);
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM wellannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.Well'');
+        FOR pid IN SELECT DISTINCT parent FROM wellannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Well', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Well' AND ua.entity_id = pid);
         END LOOP;
-
-        SELECT INTO cnt count(*) FROM _updated_annotations;
-        IF cnt <> 0 THEN
-            SELECT INTO eid _current_or_new_event();
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, entityid, entitytype, eid
-                   FROM _updated_annotations;
-        END IF;
 
         RETURN new;
-
-    END;'
-LANGUAGE plpgsql;
+    END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER annotation_trigger
         AFTER UPDATE ON annotation
@@ -1080,11 +1222,14 @@ CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     AS '
     DECLARE
         eid int8;
-    BEGIN
 
+    BEGIN
         SELECT INTO eid _current_or_new_event();
-        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, new.parent, TG_ARGV[0], eid;
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], new.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
 
         RETURN new;
 
@@ -1313,11 +1458,14 @@ CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
     AS '
     DECLARE
         eid int8;
-    BEGIN
 
+    BEGIN
         SELECT INTO eid _current_or_new_event();
-        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, old.parent, TG_ARGV[0], eid;
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], old.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
 
         RETURN old;
 
@@ -1433,6 +1581,27 @@ CREATE TRIGGER well_annotation_link_delete_trigger
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.Well');
 
+
+-- move annotation updates from updated_annotations to eventlog REINDEX entries
+
+CREATE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+
+    DECLARE
+        row RECORD;
+
+    BEGIN
+        FOR row IN SELECT * FROM _updated_annotations ORDER BY event_id FOR UPDATE
+        LOOP
+            DELETE FROM _updated_annotations WHERE _updated_annotations = row;
+
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
+                WHERE NOT EXISTS (SELECT 1 FROM eventlog AS el
+                    WHERE el.entityid = row.entity_id AND el.entitytype = row.entity_type AND el.event = row.event_id);
+
+        END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
 
 --
 -- END #1390
@@ -1560,7 +1729,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  12,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.2DEV',  0,    'OMERO5.2DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -1572,6 +1741,7 @@ alter table event alter column experimentergroup drop not null;
 -- Here we will create the root account and the necessary groups
 --
 alter table experimenter alter ldap set default false;
+alter table experimentergroup alter ldap set default false;
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
         values (0,0,0,'root','root','root');
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
@@ -1621,11 +1791,8 @@ alter table event alter column type set not null;
 alter table event alter column experimentergroup set not null;
 
 
-
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
-alter table unitstime alter column measurementsystem drop not null;
-
 
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'WideField';
@@ -2339,54 +2506,6 @@ insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'rgb';
 insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'greyscale';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'Ys';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'Zs';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'Es';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'Ps';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'Ts';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'Gs';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'Ms';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'ks';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'hs';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'das';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'s';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'ds';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'cs';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'ms';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'µs';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'ns';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'ps';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'fs';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'as';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'zs';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'ys';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'min';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'h';
-insert into unitstime (id,permissions,value)
-    select ome_nextval('seq_unitstime'),-52,'d';
 
 -- Adding bit depth to pixelstype (#2724)
 update pixelstype set bitsize = 1 where value = 'bit';
@@ -2401,11 +2520,8 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
-update unitstime set measurementsystem = 'SI.SECOND';
-
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
-alter table unitstime alter column measurementsystem set not null;
 
 --
 -- Cryptographic functions for specifying UUID
@@ -2434,15 +2550,15 @@ insert into configuration values ('omero.db.uuid',uuid());
 alter  table pixels add column path text;
 alter  table pixels add column name text;
 alter  table pixels add column repo varchar(36);
-alter  table pixels add column params text[2][];
 create index pixels_repo_index on pixels (repo);
 -- No unique index on (path, repo, name) since it depends on params
 
 alter  table originalfile alter column mimetype set default 'application/octet-stream';
 alter  table originalfile add column repo varchar(36);
-alter  table originalfile add column params text[2][];
 create index originalfile_mime_index on originalfile (mimetype);
+create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
+create index originalfile_hash_index on originalfile (hash);
 create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
 
 --
@@ -2460,6 +2576,21 @@ create unique index well_col_row on well (plate, "column", "row");
 create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
+create index annotation_discriminator on annotation(discriminator);
+create index annotation_ns on annotation(ns);
+
+CREATE INDEX experimentergroup_config_name ON experimentergroup_config(name);
+CREATE INDEX experimentergroup_config_value ON experimentergroup_config(value);
+CREATE INDEX genericexcitationsource_map_name ON genericexcitationsource_map(name);
+CREATE INDEX genericexcitationsource_map_value ON genericexcitationsource_map(value);
+CREATE INDEX imagingenvironment_map_name ON imagingenvironment_map(name);
+CREATE INDEX imagingenvironment_map_value ON imagingenvironment_map(value);
+CREATE INDEX annotation_mapValue_name ON annotation_mapValue(name);
+CREATE INDEX annotation_mapValue_value ON annotation_mapValue(value);
+CREATE INDEX metadataimportjob_versionInfo_name ON metadataimportjob_versionInfo(name);
+CREATE INDEX metadataimportjob_versionInfo_value ON metadataimportjob_versionInfo(value);
+CREATE INDEX uploadjob_versionInfo_name ON uploadjob_versionInfo(name);
+CREATE INDEX uploadjob_versionInfo_value ON uploadjob_versionInfo(value);
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255),
     changed TIMESTAMP WITHOUT TIME ZONE);
@@ -2475,20 +2606,17 @@ insert into password values (1,'');
 -- Prevent the deletion of mimetype = "Directory" objects
 create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
     begin
-        if OLD.repo is not null then
-            if OLD.mimetype = 'Directory' then
-                --
-                -- If any children are found, prevent deletion
-                --
-                if exists(select id from originalfile
-                           where path = OLD.path || OLD.name || '/'
-                           limit 1) then
+        --
+        -- If any children are found, prevent deletion
+        --
+        if OLD.mimetype = 'Directory' and exists(
+            select id from originalfile
+            where repo = OLD.repo and path = OLD.path || OLD.name || '/'
+            limit 1) then
 
-                    -- CANCEL DELETE
-                    RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+                -- CANCEL DELETE
+                RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
 
-                end if;
-            end if;
         end if;
         return OLD; -- proceed
     end;
@@ -2498,19 +2626,19 @@ create trigger _fs_dir_delete
 before delete on originalfile
     for each row execute procedure _fs_dir_delete();
 
--- Prevent Directory entries in the originalfile table from having their mimetype changed.
-CREATE OR REPLACE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
+-- Prevent Directory and Repository entries in the originalfile table from having their mimetype changed.
+CREATE OR REPLACE FUNCTION _fs_protected_mimetype() RETURNS "trigger" AS $$
     BEGIN
-        IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
-            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
+        IF OLD.mimetype IN ('Directory', 'Repository') AND (NEW.mimetype IS NULL OR NEW.mimetype != OLD.mimetype) THEN
+            RAISE EXCEPTION 'cannot change media type %% of file id=%%', OLD.mimetype, OLD.id;
         END IF;
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER _fs_directory_mimetype
+CREATE TRIGGER _fs_protected_mimetype
     BEFORE UPDATE ON originalfile
-    FOR EACH ROW EXECUTE PROCEDURE _fs_directory_mimetype();
+    FOR EACH ROW EXECUTE PROCEDURE _fs_protected_mimetype();
 
 -- Prevent SQL DELETE from removing the root experimenter from the system or user group.
 CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
@@ -2595,14 +2723,21 @@ create table _fs_deletelog (
     group_id bigint not null,
     path text not null,
     name varchar(255) not null,
-    repo varchar(36) not null,
-    params text[2][]);
+    repo varchar(36) not null);
+
+create index _fs_deletelog_event on _fs_deletelog(event_id);
+create index _fs_deletelog_file on _fs_deletelog(file_id);
+create index _fs_deletelog_owner on _fs_deletelog(owner_id);
+create index _fs_deletelog_group on _fs_deletelog(group_id);
+create index _fs_deletelog_path on _fs_deletelog(path);
+create index _fs_deletelog_name on _fs_deletelog(name);
+create index _fs_deletelog_repo on _fs_deletelog(repo);
 
 create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
     begin
         if OLD.repo is not null then
-            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo, params)
-                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo, OLD.params;
+            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo)
+                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo;
         end if;
         return OLD;
     END;
@@ -2612,12 +2747,292 @@ create trigger _fs_log_delete
 after delete on originalfile
     for each row execute procedure _fs_log_delete();
 
+ALTER TABLE laser
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE lightsettings
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE logicalchannel
+    ALTER COLUMN emissionwave TYPE positive_float,
+    ALTER COLUMN excitationwave TYPE positive_float;
+
+ALTER TABLE pixels
+    ALTER COLUMN physicalsizex TYPE positive_float,
+    ALTER COLUMN physicalsizey TYPE positive_float,
+    ALTER COLUMN physicalsizez TYPE positive_float;
+
+ALTER TABLE transmittancerange
+    ALTER COLUMN cutin TYPE positive_float,
+    ALTER COLUMN cutintolerance TYPE nonnegative_float,
+    ALTER COLUMN cutout TYPE positive_float,
+    ALTER COLUMN cutouttolerance TYPE nonnegative_float;
+
+-- image.series should never be null
+
+ALTER TABLE image ALTER COLUMN series SET DEFAULT 0;
+ALTER TABLE image ALTER COLUMN series SET NOT NULL;
+
+CREATE FUNCTION image_series_default_zero() RETURNS "trigger" AS $$
+    BEGIN
+        IF NEW.series IS NULL THEN
+            NEW.series := 0;
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER image_series_default_zero
+    BEFORE INSERT OR UPDATE ON image
+    FOR EACH ROW EXECUTE PROCEDURE image_series_default_zero();
+
+-- ensure that all annotation namespaces are noted in namespace table
+
+CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF NOT (NEW.ns IS NULL OR EXISTS (SELECT 1 FROM namespace WHERE name = NEW.ns LIMIT 1)) THEN
+            INSERT INTO namespace (id, name, permissions)
+                SELECT ome_nextval('seq_namespace'), NEW.ns, -52;
+        END IF;
+
+        RETURN NULL;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION update_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF OLD.name <> NEW.name AND EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot rename namespace that is still used by annotation';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION delete_from_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot delete namespace that is still used by annotation';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER add_to_namespace
+    AFTER INSERT OR UPDATE ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE add_to_namespace();
+
+CREATE TRIGGER update_namespace
+    BEFORE UPDATE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE update_namespace();
+
+CREATE TRIGGER delete_from_namespace
+    BEFORE DELETE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE delete_from_namespace();
+
+-- Replace globals' annotation count tables with views.
+
+DROP TABLE count_experimenter_annotationlinks_by_owner;
+DROP TABLE count_experimentergroup_annotationlinks_by_owner;
+DROP TABLE count_namespace_annotationlinks_by_owner;
+DROP TABLE count_node_annotationlinks_by_owner;
+DROP TABLE count_session_annotationlinks_by_owner;
+
+CREATE VIEW count_experimenter_annotationlinks_by_owner (experimenter_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimenterannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_experimentergroup_annotationlinks_by_owner (experimentergroup_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimentergroupannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_namespace_annotationlinks_by_owner (namespace_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM namespaceannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_node_annotationlinks_by_owner (node_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM nodeannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_session_annotationlinks_by_owner (session_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM sessionannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+-- A property value is null if and only if the corresponding unit is null.
+
+ALTER TABLE detector ADD CONSTRAINT voltage_unitpair
+    CHECK (voltage IS NULL AND voltageUnit IS NULL
+        OR voltage IS NOT NULL AND voltageUnit IS NOT NULL);
+
+ALTER TABLE detectorsettings ADD CONSTRAINT voltage_unitpair
+    CHECK (voltage IS NULL AND voltageUnit IS NULL
+        OR voltage IS NOT NULL AND voltageUnit IS NOT NULL);
+
+ALTER TABLE detectorsettings ADD CONSTRAINT readOutRate_unitpair
+    CHECK (readOutRate IS NULL AND readOutRateUnit IS NULL
+        OR readOutRate IS NOT NULL AND readOutRateUnit IS NOT NULL);
+
+ALTER TABLE imagingenvironment ADD CONSTRAINT temperature_unitpair
+    CHECK (temperature IS NULL AND temperatureUnit IS NULL
+        OR temperature IS NOT NULL AND temperatureUnit IS NOT NULL);
+
+ALTER TABLE imagingenvironment ADD CONSTRAINT airPressure_unitpair
+    CHECK (airPressure IS NULL AND airPressureUnit IS NULL
+        OR airPressure IS NOT NULL AND airPressureUnit IS NOT NULL);
+
+ALTER TABLE laser ADD CONSTRAINT wavelength_unitpair
+    CHECK (wavelength IS NULL AND wavelengthUnit IS NULL
+        OR wavelength IS NOT NULL AND wavelengthUnit IS NOT NULL);
+
+ALTER TABLE laser ADD CONSTRAINT repetitionRate_unitpair
+    CHECK (repetitionRate IS NULL AND repetitionRateUnit IS NULL
+        OR repetitionRate IS NOT NULL AND repetitionRateUnit IS NOT NULL);
+
+ALTER TABLE lightsettings ADD CONSTRAINT wavelength_unitpair
+    CHECK (wavelength IS NULL AND wavelengthUnit IS NULL
+        OR wavelength IS NOT NULL AND wavelengthUnit IS NOT NULL);
+
+ALTER TABLE lightsource ADD CONSTRAINT power_unitpair
+    CHECK (power IS NULL AND powerUnit IS NULL
+        OR power IS NOT NULL AND powerUnit IS NOT NULL);
+
+ALTER TABLE logicalchannel ADD CONSTRAINT pinHoleSize_unitpair
+    CHECK (pinHoleSize IS NULL AND pinHoleSizeUnit IS NULL
+        OR pinHoleSize IS NOT NULL AND pinHoleSizeUnit IS NOT NULL);
+
+ALTER TABLE logicalchannel ADD CONSTRAINT excitationWave_unitpair
+    CHECK (excitationWave IS NULL AND excitationWaveUnit IS NULL
+        OR excitationWave IS NOT NULL AND excitationWaveUnit IS NOT NULL);
+
+ALTER TABLE logicalchannel ADD CONSTRAINT emissionWave_unitpair
+    CHECK (emissionWave IS NULL AND emissionWaveUnit IS NULL
+        OR emissionWave IS NOT NULL AND emissionWaveUnit IS NOT NULL);
+
+ALTER TABLE objective ADD CONSTRAINT workingDistance_unitpair
+    CHECK (workingDistance IS NULL AND workingDistanceUnit IS NULL
+        OR workingDistance IS NOT NULL AND workingDistanceUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT physicalSizeX_unitpair
+    CHECK (physicalSizeX IS NULL AND physicalSizeXUnit IS NULL
+        OR physicalSizeX IS NOT NULL AND physicalSizeXUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT physicalSizeY_unitpair
+    CHECK (physicalSizeY IS NULL AND physicalSizeYUnit IS NULL
+        OR physicalSizeY IS NOT NULL AND physicalSizeYUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT physicalSizeZ_unitpair
+    CHECK (physicalSizeZ IS NULL AND physicalSizeZUnit IS NULL
+        OR physicalSizeZ IS NOT NULL AND physicalSizeZUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT timeIncrement_unitpair
+    CHECK (timeIncrement IS NULL AND timeIncrementUnit IS NULL
+        OR timeIncrement IS NOT NULL AND timeIncrementUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT deltaT_unitpair
+    CHECK (deltaT IS NULL AND deltaTUnit IS NULL
+        OR deltaT IS NOT NULL AND deltaTUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT positionX_unitpair
+    CHECK (positionX IS NULL AND positionXUnit IS NULL
+        OR positionX IS NOT NULL AND positionXUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT positionY_unitpair
+    CHECK (positionY IS NULL AND positionYUnit IS NULL
+        OR positionY IS NOT NULL AND positionYUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT positionZ_unitpair
+    CHECK (positionZ IS NULL AND positionZUnit IS NULL
+        OR positionZ IS NOT NULL AND positionZUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT exposureTime_unitpair
+    CHECK (exposureTime IS NULL AND exposureTimeUnit IS NULL
+        OR exposureTime IS NOT NULL AND exposureTimeUnit IS NOT NULL);
+
+ALTER TABLE plate ADD CONSTRAINT wellOriginX_unitpair
+    CHECK (wellOriginX IS NULL AND wellOriginXUnit IS NULL
+        OR wellOriginX IS NOT NULL AND wellOriginXUnit IS NOT NULL);
+
+ALTER TABLE plate ADD CONSTRAINT wellOriginY_unitpair
+    CHECK (wellOriginY IS NULL AND wellOriginYUnit IS NULL
+        OR wellOriginY IS NOT NULL AND wellOriginYUnit IS NOT NULL);
+
+ALTER TABLE shape ADD CONSTRAINT strokeWidth_unitpair
+    CHECK (strokeWidth IS NULL AND strokeWidthUnit IS NULL
+        OR strokeWidth IS NOT NULL AND strokeWidthUnit IS NOT NULL);
+
+ALTER TABLE shape ADD CONSTRAINT fontSize_unitpair
+    CHECK (fontSize IS NULL AND fontSizeUnit IS NULL
+        OR fontSize IS NOT NULL AND fontSizeUnit IS NOT NULL);
+
+ALTER TABLE stagelabel ADD CONSTRAINT positionX_unitpair
+    CHECK (positionX IS NULL AND positionXUnit IS NULL
+        OR positionX IS NOT NULL AND positionXUnit IS NOT NULL);
+
+ALTER TABLE stagelabel ADD CONSTRAINT positionY_unitpair
+    CHECK (positionY IS NULL AND positionYUnit IS NULL
+        OR positionY IS NOT NULL AND positionYUnit IS NOT NULL);
+
+ALTER TABLE stagelabel ADD CONSTRAINT positionZ_unitpair
+    CHECK (positionZ IS NULL AND positionZUnit IS NULL
+        OR positionZ IS NOT NULL AND positionZUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutIn_unitpair
+    CHECK (cutIn IS NULL AND cutInUnit IS NULL
+        OR cutIn IS NOT NULL AND cutInUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutOut_unitpair
+    CHECK (cutOut IS NULL AND cutOutUnit IS NULL
+        OR cutOut IS NOT NULL AND cutOutUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutInTolerance_unitpair
+    CHECK (cutInTolerance IS NULL AND cutInToleranceUnit IS NULL
+        OR cutInTolerance IS NOT NULL AND cutInToleranceUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutOutTolerance_unitpair
+    CHECK (cutOutTolerance IS NULL AND cutOutToleranceUnit IS NULL
+        OR cutOutTolerance IS NOT NULL AND cutOutToleranceUnit IS NOT NULL);
+
+ALTER TABLE wellsample ADD CONSTRAINT posX_unitpair
+    CHECK (posX IS NULL AND posXUnit IS NULL
+        OR posX IS NOT NULL AND posXUnit IS NOT NULL);
+
+ALTER TABLE wellsample ADD CONSTRAINT posY_unitpair
+    CHECK (posY IS NULL AND posYUnit IS NULL
+        OR posY IS NOT NULL AND posYUnit IS NOT NULL);
+
+
+-- Temporary workaround for the width of map types
+
+ALTER TABLE experimentergroup_config ALTER COLUMN name TYPE TEXT;
+ALTER TABLE experimentergroup_config ALTER COLUMN value TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE annotation_mapValue ALTER COLUMN name TYPE TEXT;
+ALTER TABLE annotation_mapValue ALTER COLUMN value TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN value TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 12 and
-        previousVersion = 'OMERO5.1DEV' and
+  where currentVersion = 'OMERO5.2DEV' and
+        currentPatch = 0 and
+        previousVersion = 'OMERO5.2DEV' and
         previousPatch = 0;
 
 COMMIT;
