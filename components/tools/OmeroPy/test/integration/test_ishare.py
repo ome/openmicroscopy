@@ -1011,9 +1011,7 @@ class TestIShare(lib.ITest):
         # test inactive share, if member has no access to the image
         s = o_share.getShare(sid)
         m_conn = self.new_client(session=s.uuid)
-        with pytest.raises(omero.SecurityViolation):
-            m_conn.sf.getQueryService().find("Image", image.id.val)
-        m_conn.__del__()
+        assert not m_conn.sf.getQueryService().find("Image", image.id.val)
 
         # activate again
         o_share.setActive(sid, True)
