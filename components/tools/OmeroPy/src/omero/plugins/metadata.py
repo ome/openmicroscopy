@@ -21,6 +21,9 @@ from omero.cli import ProxyStringType
 from omero.constants import namespaces
 from omero.gateway import BlitzGateway
 from omero.util import populate_metadata, populate_roi
+from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
+from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
+
 
 HELP = """Metadata utilities
 
@@ -32,8 +35,6 @@ GUI clients.
 
 ANNOTATION_TYPES = [t for t in dir(omero.model)
                     if re.match('[A-Za-z0-9]+Annotation$', t)]
-
-NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
 
 
 def guess_mimetype(filename):
