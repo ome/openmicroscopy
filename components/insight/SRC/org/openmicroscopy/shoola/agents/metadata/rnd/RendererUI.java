@@ -289,7 +289,14 @@ class RendererUI
     {
         if (CollectionUtils.isEmpty(results)) return;
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-        RndProxyDef activeDef = CollectionUtils.isEmpty(model.getRenderingControls()) ? null : model.getRenderingControls().get(0).getRndSettingsCopy();
+        RndProxyDef activeDef = null;
+        if (model.getAlternativeRndSettings() != null) {
+            activeDef = model.getAlternativeRndSettings();
+        } else {
+            if (CollectionUtils.isNotEmpty(model.getRenderingControls())) {
+                activeDef = model.getRenderingControls().get(0).getRndSettingsCopy();
+            }
+        }
         pane.displayViewedBy(results, activeDef);
     }
 

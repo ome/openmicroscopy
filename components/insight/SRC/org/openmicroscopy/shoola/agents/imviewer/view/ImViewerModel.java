@@ -560,7 +560,7 @@ class ImViewerModel
 	private void initializeMetadataViewer()
 	{
 		metadataViewer = MetadataViewerFactory.getViewer("",
-				MetadataViewer.RND_SPECIFIC);
+				MetadataViewer.RND_SPECIFIC, alternativeSettings);
 		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
 				getSecurityContext());
 		

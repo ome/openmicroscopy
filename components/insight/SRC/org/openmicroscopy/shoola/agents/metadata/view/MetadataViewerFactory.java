@@ -23,10 +23,13 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import omero.model.NamedValue;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
@@ -70,10 +73,10 @@ public class MetadataViewerFactory
      */
     public static MetadataViewer getViewer(List<Object> data, Class type)
     {
-        if (data == null || data.size() == 0)
+        if (CollectionUtils.isEmpty(data))
             throw new IllegalArgumentException("No data to edit");
         MetadataViewerModel model = new MetadataViewerModel(data, 
-                MetadataViewer.RND_GENERAL);
+                MetadataViewer.RND_GENERAL, null);
         model.setDataType(type);
         return singleton.createViewer(model);
     }
@@ -86,7 +89,7 @@ public class MetadataViewerFactory
      */
     public static MetadataViewer getViewer(Object refObject)
     {
-        return getViewer(refObject, MetadataViewer.RND_GENERAL);
+        return getViewer(refObject, MetadataViewer.RND_GENERAL, null);
     }
 
     /**
@@ -96,11 +99,14 @@ public class MetadataViewerFactory
      * @param index 	One of the following constants: 
      * 					{@link MetadataViewer#RND_GENERAL} or
      * 					{@link MetadataViewer#RND_SPECIFIC}.
+     * @param def The alternative rendering settings if any.
      * @return See above.
      */
-    public static MetadataViewer getViewer(Object refObject, int index)
+    public static MetadataViewer getViewer(Object refObject, int index,
+            RndProxyDef def)
     {
-        MetadataViewerModel model = new MetadataViewerModel(refObject, index);
+        MetadataViewerModel model = new MetadataViewerModel(refObject, index,
+                def);
         return singleton.createViewer(model);
     }
 

@@ -155,7 +155,10 @@ class MetadataViewerModel
 	
 	/** The active loaders.*/
 	private Map<Integer, MetadataLoader> loaders;
-	
+
+	/** The alternative rendering settings.*/
+	private RndProxyDef def;
+
     /**
      * Creates a new context if <code>null</code>.
      *
@@ -216,11 +219,11 @@ class MetadataViewerModel
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
-	 * @param refObject	The reference object.
-	 * @param index		One of the rendering constants defined by the 
-	 * 					<code>MetadataViewer</code> I/F.
+	 * @param refObject The reference object.
+	 * @param index One of the rendering constants defined by the 
+	 *              <code>MetadataViewer</code> I/F.
 	 */
-	MetadataViewerModel(Object refObject, int index)
+	MetadataViewerModel(Object refObject, int index, RndProxyDef def)
 	{
 		state = MetadataViewer.NEW;
 		switch (index) {
@@ -231,6 +234,7 @@ class MetadataViewerModel
 			default:
 				this.index = MetadataViewer.RND_GENERAL;
 		}
+		this.def = def;
 		this.refObject = refObject;
 		loaderID = 0;
 		loaders = new HashMap<Integer, MetadataLoader>();
@@ -239,7 +243,7 @@ class MetadataViewerModel
 		singleMode = true;
 		userID = MetadataViewerAgent.getUserDetails().getId();
 	}
-	
+
 	/**
 	 * Called by the <code>MetadataViewer</code> after creation to allow this
 	 * object to store a back reference to the embedding component.
@@ -1134,7 +1138,7 @@ class MetadataViewerModel
      * 
      * @return See above
      */
-    public boolean hasRndSettingsCopied() {
+    boolean hasRndSettingsCopied() {
         Renderer rnd = component.getRenderer();
         ImageData img = getImage();
         
@@ -1146,5 +1150,14 @@ class MetadataViewerModel
                 || (copyRenderingSettingsFrom != null && img != null &&
                 copyRenderingSettingsFrom.getId() != img.getId());
     }
-    
+
+    /**
+     * Returns the alternative rendering settings.
+     *
+     * @return See above.
+     */
+    RndProxyDef getAlternativeRenderingSettings()
+    {
+        return def;
+    }
 }
