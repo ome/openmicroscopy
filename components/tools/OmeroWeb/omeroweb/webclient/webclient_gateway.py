@@ -841,7 +841,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             linkIds = [l.id.val for l in links]
             self.deleteObjects("ExperimenterAnnotationLink", linkIds)
             # No error handling?
-            self.deleteObjects("/Annotation", [ann.id.val])
+            self.deleteObjects("Annotation", [ann.id.val])
 
     def cropExperimenterPhoto(self, box, oid=None):
         """
