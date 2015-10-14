@@ -86,11 +86,10 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     void refreshUI() {
+        clearDisplay();
+        buildGUI();
         displayAnnotations(model.getTextualAnnotationsByDate());
     }
-
-    /** Reference to the control. */
-    private EditorControl controller;
 
     /**
      * Area displaying the latest textual annotation made by the currently
@@ -118,7 +117,6 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         commentArea = new OMEWikiComponent(false);
         commentArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         commentArea.addPropertyChangeListener(controller);
-        // commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
         commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         commentArea.setComponentBorder(EDIT_BORDER);
         commentArea.addFocusListener(new FocusListener() {
@@ -324,20 +322,13 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
      * @see AnnotationUI#clearDisplay()
      */
     protected void clearDisplay() {
-    }
-
-    /**
-     * Clears the data to save.
-     * 
-     * @see AnnotationUI#clearData(Object)
-     */
-    protected void clearData(Object oldObject) {
-        if (annotationToRemove != null)
+        if (annotationToRemove != null) 
             annotationToRemove.clear();
         annotationToDisplay = null;
         setAreaText("");
-        addButton.setEnabled(false);
+        addButton.setEnabled(model.canAddAnnotationLink());
     }
+
 
     /** Saves the comment */
     private void saveComment() {
