@@ -1,0 +1,10 @@
+---
+name: test_bulk_to_map_annotation_context
+version: 1
+
+defaults:
+    include: yes
+
+#columns:
+
+#advanced:
