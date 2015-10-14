@@ -79,11 +79,18 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     void clearDisplay() {
-        
+        originalValue = 0;
+        selectedValue = 0;
+        rating.removePropertyChangeListener(this);
+        rating.setValue(originalValue);
+        rating.addPropertyChangeListener(this);
+        otherRating.setText("");
+        otherRating.setVisible(false);
     }
     
     @Override
     void refreshUI() {
+        clearDisplay();
         StringBuilder buffer = new StringBuilder();
         if (!model.isMultiSelection()) {
             originalValue = model.getUserRating();
@@ -107,11 +114,12 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
             otherRating.setVisible(true);
         }
         
+        selectedValue = originalValue;
         otherRating.setText(buffer.toString()); 
         
-        rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+        rating.removePropertyChangeListener(this);
         rating.setValue(originalValue);
-        rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+        rating.addPropertyChangeListener(this);
     }
 
     
@@ -145,7 +153,7 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         String name = evt.getPropertyName();
         if (RatingComponent.RATE_PROPERTY.equals(name)) {
             int newValue = (Integer) evt.getNewValue();
-            if (newValue != originalValue) {
+            if (newValue != selectedValue) {
                 selectedValue = newValue;
                 view.saveData(true);
             }
@@ -164,6 +172,11 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     List<Object> getAnnotationsToRemove() {
+        if (selectedValue != originalValue && selectedValue == 0) {
+            RatingAnnotationData rating = model.getUserRatingAnnotation();
+            if (rating != null) 
+                return Collections.singletonList(rating);
+        }
         return Collections.emptyList();
     }
 
