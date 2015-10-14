@@ -543,10 +543,29 @@
                     });
                 }
 
-                // Set up collapsible panes
+                // Handle click on collapsible panes
                 $('#metadata_general .can-collapse').click(function () {
-                  $(this).toggleClass('closed').next().slideToggle();
+                    $(this).toggleClass('closed').next().slideToggle();
+                    // remember which panes are expanded
+                    var open = [];
+                    $('#metadata_general .can-collapse').each(function(){
+                        var $this = $(this);
+                        if (!$this.hasClass('closed')) {
+                            open.push($(this).attr('data-name'));
+                        }
+                    });
+                    $("#metadata_general").data('open_panes', open);
                 });
+                // Expand any previously opened panes
+                var open_panes = $("#metadata_general").data('open_panes');
+                if (open_panes === undefined) {
+                    open_panes = ["details"];     // by default, just 'details' is open
+                }
+                open_panes.forEach(function(name) {
+                    // remove 'defclose' flag from open panes
+                    $('#metadata_general .can-collapse[data-name="' + name + '"]').removeClass('defclose');
+                });
+                // Any panes that still have 'defclose' flag, we close
                 $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
             });
             
@@ -590,7 +609,7 @@
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
                   
-            <h1 class="can-collapse">
+            <h1 class="can-collapse defclose" data-name="details">
                 Image Details
             </h1>
             <div> 
@@ -628,7 +647,7 @@
 
                 
                 <!-- Dataset Description -->
-                <h1 class="can-collapse">
+                <h1 class="can-collapse defclose" data-name="details">
                     Dataset Details
                 </h1>
                 <div> 
@@ -655,7 +674,7 @@
 
                     
                     <!--Project Description -->
-                    <h1 class="can-collapse">
+                    <h1 class="can-collapse defclose" data-name="details">
                         Project Details
                     </h1>
                     <div>
@@ -699,7 +718,7 @@
 
             
             <!-- Image (in WellSample) Description -->
-            <h1 class="can-collapse">
+            <h1 class="can-collapse defclose" data-name="details">
                 Well Details
             </h1>
             <div>
@@ -724,7 +743,7 @@
 
                 
                 <!-- Acquisition Description -->
-                <h1 class="can-collapse">
+                <h1 class="can-collapse defclose" data-name="details">
                     Run Details
                 </h1>
                 <div>
@@ -752,7 +771,7 @@
                     
                     
                     <!-- Plate Description -->
-                    <h1 class="can-collapse">
+                    <h1 class="can-collapse defclose" data-name="details">
                         Plate Details
                     </h1>
                     <div>
@@ -787,7 +806,7 @@
                             
 
                         <!-- Screen Description -->
-                        <h1 class="can-collapse">
+                        <h1 class="can-collapse defclose" data-name="details">
                             Screen Details
                         </h1>
                         <div>
@@ -820,7 +839,7 @@
 
 
             <!-- TAGS -->               
-            <h1 class="can-collapse defclose">
+            <h1 class="can-collapse defclose" data-name="tags">
                 Tags
             </h1>
             <div class="annotations_section">
@@ -843,7 +862,7 @@
 
 
             <!-- MAP ANNOTATIONS -->
-            <h1 class="can-collapse defclose">
+            <h1 class="can-collapse defclose" data-name="keyvaluepairs">
                 Key-Value Pairs
             </h1>
             <div class="annotations_section">
@@ -855,7 +874,7 @@
 
 
             <!-- FILES -->
-            <h1 class="can-collapse defclose">
+            <h1 class="can-collapse defclose" data-name="attachments">
                 Attachments
             </h1>
             <div class="annotations_section">
@@ -901,7 +920,7 @@
 
 
             <!-- RATING -->
-            <h1 class="can-collapse defclose">
+            <h1 class="can-collapse defclose" data-name="ratings">
                 Ratings
             </h1>
             <div class="annotations_section">
@@ -950,7 +969,7 @@
 
             <!-- 'OTHER' ANNOTATIONS -->
             {% if manager.xml_annotations or manager.boolean_annotations or manager.double_annotations or manager.long_annotations or manager.term_annotations or manager.time_annotations %}
-            <h1 class="can-collapse defclose">
+            <h1 class="can-collapse defclose" data-name="others">
                 Others
             </h1>
             <div class="annotations_section">
@@ -1021,7 +1040,7 @@
 
             
             <!-- COMMENTS -->
-            <h1 class="can-collapse defclose">
+            <h1 class="can-collapse defclose" data-name="comments">
                 Comments
             </h1>
             <div class="annotations_section">
