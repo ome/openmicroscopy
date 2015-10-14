@@ -62,7 +62,9 @@ class BulkAnnotationConfiguration(object):
         :params column_cfgs: Array of dicts of column configurations
         """
         self.default_cfg = self.get_default_cfg(default_cfg)
-        self.column_cfgs = [self.get_column_config(c) for c in column_cfgs]
+        self.column_cfgs = []
+        if column_cfgs:
+            self.column_cfgs = [self.get_column_config(c) for c in column_cfgs]
 
     @staticmethod
     def get_default_cfg(cfg):
