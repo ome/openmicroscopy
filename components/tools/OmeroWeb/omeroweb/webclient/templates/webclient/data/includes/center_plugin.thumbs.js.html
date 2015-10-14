@@ -226,6 +226,9 @@ $(document).ready(function() {
                 var thumbVersion = node.data.obj.thumbVersion;
                 if (thumbVersion === -1) {
                     thumbVersion = getRandom();
+                    // We cache this to prevent new thumbnails requested on every
+                    // selection change. Refreshing of tree will reset thumbVersion.
+                    node.data.obj.thumbVersion = thumbVersion;
                 }
                 iData.thumbVersion = thumbVersion;
             }
