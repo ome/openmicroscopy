@@ -1132,7 +1132,8 @@ class BaseContainer(BaseController):
                 if already_there:
                     if long(parent[1]) != long(destination[1]):
                         self.conn.deleteObjects(
-                            "ProjectDatasetLink", [up_pdl._obj.id.val])
+                            "ProjectDatasetLink", [up_pdl._obj.id.val],
+                            wait=True)
                 else:
                     new_pr = self.conn.getObject("Project", destination[1])
                     if parent[0] not in ('experimenter', 'orphaned'):
@@ -1149,7 +1150,8 @@ class BaseContainer(BaseController):
                     if p.parent.id.val == long(parent[1]):
                         up_pdl = p
                         self.conn.deleteObjects(
-                            "ProjectDatasetLink", [up_pdl._obj.id.val])
+                            "ProjectDatasetLink", [up_pdl._obj.id.val],
+                            wait=True)
             elif destination[0] == 'orphaned':
                 return ('Cannot move dataset to %s.' %
                         self.conn.getOrphanedContainerSettings()[1])
@@ -1174,7 +1176,8 @@ class BaseContainer(BaseController):
                     # delete link to not duplicate
                     if long(parent[1]) != long(destination[1]):
                         self.conn.deleteObjects(
-                            "DatasetImageLink", [up_dsl._obj.id.val])
+                            "DatasetImageLink", [up_dsl._obj.id.val],
+                            wait=True)
                 else:
                     # update link to new destination
                     new_ds = self.conn.getObject("Dataset", destination[1])
@@ -1199,7 +1202,8 @@ class BaseContainer(BaseController):
                         if dsls[0].parent.id.val == long(parent[1]):
                             up_dsl = dsls[0]
                             self.conn.deleteObjects(
-                                "DatasetImageLink", [up_dsl._obj.id.val])
+                                "DatasetImageLink", [up_dsl._obj.id.val],
+                                wait=True)
                     else:
                         return ('This image is linked in multiple places.'
                                 ' Please unlink the image first.')
@@ -1223,7 +1227,7 @@ class BaseContainer(BaseController):
                 if already_there:
                     if long(parent[1]) != long(destination[1]):
                         self.conn.deleteObjects(
-                            "ScreenPlateLink", [up_spl._obj.id.val])
+                            "ScreenPlateLink", [up_spl._obj.id.val], wait=True)
                 else:
                     new_sc = self.conn.getObject("Screen", destination[1])
                     if parent[0] not in ('experimenter', 'orphaned'):
@@ -1243,7 +1247,8 @@ class BaseContainer(BaseController):
                     for spl in spls:
                         if spl.parent.id.val == long(parent[1]):
                             self.conn.deleteObjects(
-                                "ScreenPlateLink", [spl._obj.id.val])
+                                "ScreenPlateLink", [spl._obj.id.val],
+                                wait=True)
                             break
             else:
                 return 'Destination not supported.'
@@ -1277,18 +1282,19 @@ class BaseContainer(BaseController):
                             tag_owner_id is None or
                             unwrap(al.details.owner.id) == tag_owner_id)):
                         self.conn.deleteObjects(
-                            "TagAnnotationLink", [al._obj.id.val])
+                            "TagAnnotationLink", [al._obj.id.val], wait=True)
             elif self.file:
                 for al in self.file.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjects(
-                            "FileAnnotationLink", [al._obj.id.val])
+                            "FileAnnotationLink", [al._obj.id.val], wait=True)
             elif self.comment:
                 # remove the comment from specified parent
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObjects(
-                            "CommentAnnotationLink", [al._obj.id.val])
+                            "CommentAnnotationLink", [al._obj.id.val],
+                            wait=True)
                 # if comment is orphan, delete it directly
                 orphan = True
 
@@ -1308,26 +1314,30 @@ class BaseContainer(BaseController):
                         break
                 if orphan:
                     self.conn.deleteObjects(
-                        "CommentAnnotation", [self.comment._obj.id.val])
+                        "CommentAnnotation", [self.comment._obj.id.val],
+                        wait=True)
 
             elif self.dataset is not None:
                 if dtype == 'project':
                     for pdl in self.dataset.getParentLinks([parentId]):
                         if pdl is not None:
                             self.conn.deleteObjects(
-                                "ProjectDatasetLink", [pdl._obj.id.val])
+                                "ProjectDatasetLink", [pdl._obj.id.val],
+                                wait=True)
             elif self.plate is not None:
                 if dtype == 'screen':
                     for spl in self.plate.getParentLinks([parentId]):
                         if spl is not None:
                             self.conn.deleteObjects(
-                                "ScreenPlateLink", [spl._obj.id.val])
+                                "ScreenPlateLink", [spl._obj.id.val],
+                                wait=True)
             elif self.image is not None:
                 if dtype == 'dataset':
                     for dil in self.image.getParentLinks([parentId]):
                         if dil is not None:
                             self.conn.deleteObjects(
-                                "DatasetImageLink", [dil._obj.id.val])
+                                "DatasetImageLink", [dil._obj.id.val],
+                                wait=True)
             else:
                 raise AttributeError(
                     "Attribute not specified. Cannot be removed.")
@@ -1337,7 +1347,7 @@ class BaseContainer(BaseController):
             dil = self.dataset.getParentLinks('image', images)
             if dil is not None:
                 self.conn.deleteObjects(
-                    "DatasetImageLink", [dil._obj.id.val])
+                    "DatasetImageLink", [dil._obj.id.val], wait=True)
         else:
             raise AttributeError(
                 "Attribute not specified. Cannot be removed.")
@@ -1422,7 +1432,7 @@ class BaseContainer(BaseController):
             # gets every links for child
             dsls = self.conn.getDatasetImageLinks(source[1])
             dslIds = [dsl._obj.id.val for dsl in dsls]
-            self.conn.deleteObjects("DatasetImageLink", dslIds)
+            self.conn.deleteObjects("DatasetImageLink", dslIds, wait=True)
         else:
             im = self.conn.getObject("Image", source[1])
             ds = self.conn.getObject("Dataset", destination[1])
