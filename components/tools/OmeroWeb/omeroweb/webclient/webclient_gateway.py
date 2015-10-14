@@ -838,8 +838,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             links = exp._getAnnotationLinks()
             # there should be only one ExperimenterAnnotationLink
             # but if there is more then one all of them should be deleted.
-            for l in links:
-                self.deleteObjectDirect(l)
+            linkIds = [l.id.val for l in links]
+            self.deleteObjects("ExperimenterAnnotationLink", linkIds)
             # No error handling?
             self.deleteObjects("/Annotation", [ann.id.val])
 
@@ -1953,7 +1953,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 correct_dataset = False
                 for plink in i.getParentLinks():
                     if plink.parent.id != target_ds:
-                        self.deleteObjectDirect(plink._obj)
+                        self.deleteObjects(
+                            "DatasetImageLink", [plink._obj.id.val])
                     else:
                         correct_dataset = True
                 if not correct_dataset:
@@ -2129,11 +2130,14 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.setLongValue(rlong(rating))
                     ratingAnn.save()
                 else:
-                    self._conn.deleteObjectDirect(ratingLink._obj)
-                    self._conn.deleteObjectDirect(ratingAnn._obj)
+                    self._conn.deleteObjects(
+                        "AnnotationLink", [ratingLink._obj.id.val])
+                    self._conn.deleteObjects(
+                        "Annotation", [ratingAnn._obj.id.val])
             # otherwise, unlink and create a new rating
             else:
-                self._conn.deleteObjectDirect(ratingLink._obj)
+                self._conn.deleteObjects(
+                    "AnnotationLink", [ratingLink._obj.id.val])
                 addRating(rating)
         else:
             addRating(rating)
