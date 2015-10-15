@@ -559,22 +559,22 @@ class ImViewerModel
 	/** Initializes the {@link #metadataViewer}. */
 	private void initializeMetadataViewer()
 	{
-		metadataViewer = MetadataViewerFactory.getViewer("",
-				MetadataViewer.RND_SPECIFIC, alternativeSettings);
-		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
-				getSecurityContext());
-		
-		// there might already exist another MetadataViewer with modified
-		// rendering settings; if so copy it's original settings
-                MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
-                        ImageData.class.getName(), image.getId());
-                if (otherViewer != null) {
-                    Renderer otherRenderer = otherViewer.getRenderer();
-                    if (otherRenderer != null)
-                        originalDef = otherRenderer.getInitialRndSettings();
-                }
+	    metadataViewer = MetadataViewerFactory.getViewer("",
+	            MetadataViewer.RND_SPECIFIC, alternativeSettings);
+	    metadataViewer.setRootObject(image, metadataViewer.getUserID(),
+	            getSecurityContext());
+
+	    // there might already exist another MetadataViewer with modified
+	    // rendering settings; if so copy its original settings
+	    MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
+	            ImageData.class.getName(), image.getId());
+	    if (otherViewer != null) {
+	        Renderer otherRenderer = otherViewer.getRenderer();
+	        if (otherRenderer != null)
+	            originalDef = otherRenderer.getInitialRndSettings();
+	    }
 	}
-	
+
 	/**
    	 * Reloads the 'saved by' thumbnails of the the rendering panel
     	 */
