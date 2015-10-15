@@ -8,6 +8,7 @@ ${imageIcon}                    webclient/image/image16.png
 ${shareIcon}                    webclient/image/left_sidebar_icon_public.png
 ${screenIcon}                   webclient/image/folder_screen16.png
 ${orphanedIcon}                 webclient/image/folder_yellow16.png
+${plateIcon}                    webclient/image/folder_plate16.png
 
 *** Keywords ***
 
@@ -187,6 +188,13 @@ Select First Dataset With Children
     Wait Until Right Panel Loads    Dataset                  ${datasetId}
     [Return]                        ${datasetId}
 
+Select First Datast With Name
+    [Arguments]                     ${DatasetName}
+    ${nodeId}=                      Wait For Dataset Node Text      ${DatasetName}
+    Click Node                      ${nodeId}
+    Wait For General Panel          Dataset
+    [Return]                        ${nodeId}
+
 Select First Image
     ${imageId}=                     Select Node By Icon      ${imageIcon}
     Wait Until Right Panel Loads    Image                    ${imageId}
@@ -207,7 +215,18 @@ Select First Share
 Select First Screen
     ${screenId}=                    Select Node By Icon      ${screenIcon}
     Wait Until Right Panel Loads    Screen                   ${screenId}
-    [Return]                         ${screenId}
+    [Return]                        ${screenId}
+
+Select First Screen With Children
+    ${screenId}=                    Select Node With Children By Icon    ${screenIcon}
+    Wait Until Element Is Visible   xpath=//li[@data-id='${screenId}']/ul/li
+    Wait Until Right Panel Loads    Screen                   ${screenId}
+    [Return]                        ${screenId}
+
+Select First Plate
+    ${plateId}=                     Select Node By Icon      ${plateIcon}
+    Wait Until Right Panel Loads    Plate                    ${plateId}
+    [Return]                        ${plateId}
 
 Select Orphaned Images Section
     ${firstNodeId}=                 Get NodeId By Icon       ${orphanedIcon}
@@ -282,6 +301,11 @@ Wait For Screen Node
     ${nodeId}=                      Get NodeId By Icon And Id       ${screenIcon}        ${screenId}
     [Return]                        ${nodeId}
 
+Wait For Plate Node
+    [Arguments]                     ${plateId}
+    ${nodeId}=                      Get NodeId By Icon And Id       ${plateIcon}         ${plateId}
+    [Return]                        ${nodeId}
+
 # Or checking Nodes don't exist by ID (only checks what's loaded in jsTree)
 
 Node Should Not Exist In Tree
@@ -300,6 +324,12 @@ Image Should Not Exist In Tree
     [Arguments]                     ${imageId}
     Node Should Not Exist In Tree   ${imageIcon}        ${imageId}
 
+Dataset Should Contain Image 
+    [Arguments]                             ${imageId}      ${datasetId}
+    Wait Until Page Contains Element        css=tr.data_heading_id strong
+    Select Dataset By Id                    ${datasetId}
+    ${nodeId}=                              Wait For Dataset Node               ${datasetId}
+    Wait Until Element Is Visible           xpath=//li[@id='${nodeId}']/ul/li[@data-id='${imageId}']
 
 # Selecting Nodes by ID
 
@@ -317,7 +347,19 @@ Select Dataset By Id
 
 Select Image By Id
     [Arguments]                     ${imageId}
-    ${nodeId}=                      Wait For Image Node    ${imageId}
+    ${nodeId}=                      Wait For Image Node     ${imageId}
+    Click Node                      ${nodeId}
+    [Return]                        ${nodeId}
+
+Select Screen By Id
+    [Arguments]                     ${screenId}
+    ${nodeId}=                      Wait For Screen Node    ${screenId}
+    Click Node                      ${nodeId}
+    [Return]                        ${nodeId}
+
+Select Plate By Id
+    [Arguments]                     ${plateId}
+    ${nodeId}=                      Wait For Plate Node    ${plateId}
     Click Node                      ${nodeId}
     [Return]                        ${nodeId}
 
