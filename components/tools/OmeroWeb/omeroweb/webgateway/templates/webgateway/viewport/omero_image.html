@@ -1047,7 +1047,7 @@
     viewport.bind('imageLoad', function() {
 
       // Enable 'Show ROIs' button
-    {% if roiCount > 0 and roiCount < roiLimit  %}
+    {% if roiCount > 0 and roiCount <= roiLimit  %}
         $("#show-rois-a").on("click", function () { show_rois(); return false; })
             .attr("href", "#").css("color", "");
     {% endif %}
