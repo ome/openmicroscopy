@@ -122,14 +122,8 @@ public class PropertiesUI
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Add Description";
     
-    /** The text for the id. */
-    private static final String ID_TEXT = "ID: ";
-    
     /** The text for the creation date. */
     private static final String CREATIONDATE_TEXT = "Creation Date: ";
-    
-    /** The text for the owner. */
-    private static final String OWNER_TEXT = "Owner: ";
     
     /** Text indicating to edit the description.*/
     private static final String EDIT_DESC_TEXT = "Edit the description.";
@@ -162,15 +156,6 @@ public class PropertiesUI
     
     /** The component hosting the {@link #descriptionWiki}. */
     private JPanel				descriptionPanel;
-    
-    /** The component hosting the id of the <code>DataObject</code>. */
-    private JTextField				idLabel;
-    
-    /** 
-     * The component hosting the owner of the <code>DataObject</code>.
-     * if not the current user. 
-     */
-    private JLabel				ownerLabel;
     
     /** The label displaying the parent of the node. */
     private JLabel				parentLabel;
@@ -283,15 +268,7 @@ public class PropertiesUI
        	wellLabel.setOpaque(false);
        	wellLabel.setFont(newFont);
        	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	
-       	idLabel = new JTextField();
-       	idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
-       	idLabel.setEditable(false);
-       	idLabel.setBorder(BorderFactory.createEmptyBorder());
         
-       	ownerLabel = new JLabel();
-       	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	ownerLabel.setFont(f.deriveFont(Font.BOLD));
     	typePane = createTextPane();
     	typePane.setEditable(false);
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
@@ -874,18 +851,8 @@ public class PropertiesUI
 
         p.add(Box.createVerticalStrut(2));
         
-        JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
-        l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(l);
-        p.add(Box.createVerticalStrut(2));
-        
-        l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
-        l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(l);
-        p.add(Box.createVerticalStrut(2));
-        
         int w = 10;
-        l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
+        JPanel l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
         l = UIUtilities.buildComponentPanel(parentLabel, 0, 0);
@@ -1134,18 +1101,7 @@ public class PropertiesUI
         descriptionWiki.removeDocumentListener(this);
 
         boolean b = model.canEdit();
-        String t = text;
-        if (model.getRefObjectID() > 0)
-            t += " "+ID_TEXT+model.getRefObjectID();
-        if (refObject instanceof WellSampleData) {
-            WellSampleData wsd = (WellSampleData) refObject;
-            t += " (Image ID: "+wsd.getImage().getId()+")";
-        }
-        idLabel.setText(t);
-        String ownerName = model.getOwnerName();
-        ownerLabel.setText("");
-        if (ownerName != null && ownerName.length() > 0)
-            ownerLabel.setText(OWNER_TEXT+ownerName);
+        
         originalDescription = model.getRefObjectDescription();
         if (CommonsLangUtils.isEmpty(originalDescription))
             originalDescription = DEFAULT_DESCRIPTION_TEXT;
@@ -1332,8 +1288,6 @@ public class PropertiesUI
 	    if (oldObject == null) return;
 	    if (!model.isSameObject(oldObject)) {
 	        channelsArea.setText("");
-	        idLabel.setText("");
-	        ownerLabel.setText("");
 	        parentLabel.setText("");
 	        wellLabel.setText("");
 	        gpLabel.setText("");

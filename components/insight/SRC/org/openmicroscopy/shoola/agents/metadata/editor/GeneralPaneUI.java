@@ -41,11 +41,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -88,7 +93,12 @@ import omero.gateway.model.XMLAnnotationData;
 class GeneralPaneUI 
 	extends JPanel//JScrollPane
 {
-
+    /** The text for the id. */
+    private static final String ID_TEXT = "ID: ";
+    
+    /** The text for the owner. */
+    private static final String OWNER_TEXT = "Owner: ";
+    
     /** Text indicating to edit the name. */
     private static final String EDIT_NAME_TEXT = "Edit the name";
     
@@ -156,6 +166,15 @@ class GeneralPaneUI
     
     boolean nameModified = false;
     
+    /** The component hosting the id of the <code>DataObject</code>. */
+    private JTextField              idLabel;
+    
+    /** 
+     * The component hosting the owner of the <code>DataObject</code>.
+     * if not the current user. 
+     */
+    private JLabel              ownerLabel;
+    
 	/**;
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -186,6 +205,15 @@ class GeneralPaneUI
                 }
             }
         });
+       
+       idLabel = new JTextField();
+       idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
+       idLabel.setEditable(false);
+       idLabel.setBorder(BorderFactory.createEmptyBorder());
+       
+       ownerLabel = new JLabel();
+       ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       ownerLabel.setFont(ownerLabel.getFont().deriveFont(Font.BOLD));
        
        IconManager icons = IconManager.getInstance();
        annotationsFilter = Filter.SHOW_ALL;
@@ -221,7 +249,6 @@ class GeneralPaneUI
 		}
 		previews = new ArrayList<PreviewPanel>();
 		propertiesTaskPane = EditorUtil.createTaskPane("");
-		propertiesTaskPane.setCollapsed(false);
 		propertiesTaskPane.add(propertiesUI);
 
 		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAGS, view, model, controller);
@@ -310,18 +337,29 @@ class GeneralPaneUI
 		add(toolbar, c);
 		c.gridy++;
 		
+		namePane.setBorder(BorderFactory.createEmptyBorder(2,2,0,2));
 		add(namePane, c);
 		c.gridy++;
 		
-		add(propertiesTaskPane, c);
-		c.gridy++;
+		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+		p.add(idLabel);
+		p.add(Box.createHorizontalGlue());
+		p.add(ownerLabel);
+		add(p, c);
+        c.gridy++;
 		
-		JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(filterButton);
         add(p, c);
         c.gridy++;
 		
+        add(propertiesTaskPane, c);
+        c.gridy++;
+        
 		add(tagsTaskPane, c);
         c.gridy++;
         
@@ -384,6 +422,22 @@ class GeneralPaneUI
             
             namePane.buildUI(model.getRefObjectName(), model.canEdit());
             
+            Object refObject = model.getRefObject();
+            
+            String text = model.getObjectTypeAsString(refObject);
+            if (model.getRefObjectID() > 0)
+                text += " "+ID_TEXT+model.getRefObjectID();
+            if (refObject instanceof WellSampleData) {
+                WellSampleData wsd = (WellSampleData) refObject;
+                text += " (Image ID: "+wsd.getImage().getId()+")";
+            }
+            idLabel.setText(text);
+            
+            String ownerName = model.getOwnerName();
+            ownerLabel.setText("");
+            if (ownerName != null && ownerName.length() > 0)
+                ownerLabel.setText(OWNER_TEXT+ownerName);
+            
             propertiesUI.buildUI();
             
             tagsTaskPane.refreshUI();
@@ -398,7 +452,6 @@ class GeneralPaneUI
             
             boolean multi = model.isMultiSelection();
             boolean showBrowser = false;
-            Object refObject = model.getRefObject();
     
             if (refObject instanceof ImageData && !multi && model.getChannelData()==null) {
                 propertiesUI.onChannelDataLoading();
@@ -604,6 +657,8 @@ class GeneralPaneUI
 		}
 		setCursor(Cursor.getDefaultCursor());
 		nameModified = false;
+		idLabel.setText("");
+		ownerLabel.setText("");
 	}
 	
 	/**
