@@ -192,6 +192,17 @@ class RendererUI
     }
 
     /**
+     * Resets the settings.
+     *
+     * @param settings the value to set.
+     */
+    void resetViewedBy(RndProxyDef settings)
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.resetViewedBy(settings);
+    }
+
+    /**
      * This is a method which is triggered from the {@link RendererControl} 
      * if the color model has changed.
      */

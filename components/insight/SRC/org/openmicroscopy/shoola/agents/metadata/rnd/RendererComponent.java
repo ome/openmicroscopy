@@ -904,6 +904,10 @@ class RendererComponent
 		    }
 			if (update) {
 				view.resetDefaultRndSettings();
+				if (settings == null) {
+				    settings = model.getInitialRndSettings();
+				}
+				view.resetViewedBy(settings);
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
 				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false),

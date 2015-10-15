@@ -31,11 +31,11 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 
 import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
-
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.ResetRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
@@ -59,7 +59,9 @@ import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -520,6 +522,22 @@ public class TreeViewerAgent
         viewer.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, evt.getSource(),
                 evt.getLocation());
     }
+
+    /**
+     * Resets the rendering settings..
+     *
+     * @param evt The event to handle.
+     */
+    private void handleResetRndSettings(ResetRndSettings evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.resetRndSettings(evt.getImageID(), evt.getSettings());
+    }
+
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -589,6 +607,7 @@ public class TreeViewerAgent
         bus.register(this, SaveEvent.class);
         bus.register(this, DownloadEvent.class);
         bus.register(this, ScriptDisplay.class);
+        bus.register(this, ResetRndSettings.class);
     }
 
     /**
@@ -657,6 +676,8 @@ public class TreeViewerAgent
             handleDownloadEvent((DownloadEvent) e);
         else if (e instanceof ScriptDisplay) {
             handleScriptDisplay((ScriptDisplay) e);
+        } else if (e instanceof ResetRndSettings) {
+            handleResetRndSettings((ResetRndSettings) e);
         }
 	}
 
