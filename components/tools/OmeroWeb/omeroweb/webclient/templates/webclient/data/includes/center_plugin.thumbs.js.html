@@ -118,7 +118,9 @@ $(document).ready(function() {
                 },
                 start: function() {
                     // Remove any fileset selection markings
-                    $("#dataIcons li.row:visible").removeClass("fs-selected");
+                    $("#dataIcons li.row:visible")
+                        .removeClass("fs-selected")
+                        .removeClass("lastSelected");
                 }
             });
         }
@@ -381,6 +383,10 @@ $(document).ready(function() {
         // Get the start point for a range select if there is one
         // and it is visible
         var $lastSelected = $('#dataIcons .lastSelected:visible');
+        if ($lastSelected.length === 0) {
+            // possible after drag select - just pick selected
+            $lastSelected = $('#dataIcons .ui-selected:visible');
+        }
 
         // Calculate the index of the last selected item if there was one
         var lastSelectedIndex = -1;
