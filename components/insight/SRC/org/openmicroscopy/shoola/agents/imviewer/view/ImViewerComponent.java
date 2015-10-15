@@ -642,11 +642,6 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);
-				/*
-				if (model.isImageLoaded())
-					model.fireRenderingControlLoading(model.getPixelsID());
-				else model.fireImageLoading();
-				*/
 				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
 				} else {
