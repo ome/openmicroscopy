@@ -845,19 +845,9 @@ class RendererComponent
      */
 	public void resetSettings()
 	{
-		try {
-		        model.makeHistorySnapshot();
-			model.resetDefaults();
-			view.resetDefaultRndSettings();
-			firePropertyChange(RENDER_PLANE_PROPERTY, 
-					Boolean.valueOf(false), Boolean.valueOf(true));
-			firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
-   		 			Boolean.valueOf(true));
-		} catch (Throwable e) {
-			handleException(e);
-		}
+		resetSettings(null, true);
 	}
-	
+
         /**
          * Implemented as specified by the {@link Renderer} interface.
          * 
@@ -906,13 +896,17 @@ class RendererComponent
 	public void resetSettings(RndProxyDef settings, boolean update)
 	{
 		try {
-		        model.makeHistorySnapshot();
-			model.resetSettings(settings);
+		    model.makeHistorySnapshot();
+		    if (settings != null) {
+		        model.resetSettings(settings);
+		    } else {
+		        model.resetDefaults();
+		    }
 			if (update) {
 				view.resetDefaultRndSettings();
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
-				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false),
 	   		 			Boolean.valueOf(true));
 				controller.updatePasteAction();
 			}
