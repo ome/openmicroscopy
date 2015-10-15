@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +47,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -58,13 +59,16 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.BooleanAnnotationData;
-import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.DoubleAnnotationData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TermAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
@@ -85,6 +89,9 @@ class GeneralPaneUI
 	extends JPanel//JScrollPane
 {
 
+    /** Text indicating to edit the name. */
+    private static final String EDIT_NAME_TEXT = "Edit the name";
+    
 	/** The default text. */
 	private static final String			DETAILS = "'s details";
 	
@@ -145,6 +152,10 @@ class GeneralPaneUI
     /** The current annotation filter level */
     private Filter annotationsFilter;
     
+    private EditableTextComponent namePane;
+    
+    boolean nameModified = false;
+    
 	/**;
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -163,6 +174,19 @@ class GeneralPaneUI
        browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
        browserTaskPane.addPropertyChangeListener(controller);
 		
+       namePane = new EditableTextComponent(model.canEdit(), false, EDIT_NAME_TEXT);
+       namePane.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if(evt.getPropertyName().equals(EditableTextComponent.EDIT_PROPERTY)) {
+                    updateName((String)evt.getNewValue());
+                    nameModified = true;
+                    view.saveData(true);
+                    nameModified = false;
+                }
+            }
+        });
+       
        IconManager icons = IconManager.getInstance();
        annotationsFilter = Filter.SHOW_ALL;
        filterButton = new JButton(annotationsFilter.name);
@@ -286,6 +310,9 @@ class GeneralPaneUI
 		add(toolbar, c);
 		c.gridy++;
 		
+		add(namePane, c);
+		c.gridy++;
+		
 		add(propertiesTaskPane, c);
 		c.gridy++;
 		
@@ -354,6 +381,9 @@ class GeneralPaneUI
                 buildGUI();
                 init = true;
             }
+            
+            namePane.buildUI(model.getRefObjectName(), model.canEdit());
+            
             propertiesUI.buildUI();
             
             tagsTaskPane.refreshUI();
@@ -436,6 +466,39 @@ class GeneralPaneUI
 		toRemove.addAll(commentTaskPane.getAnnotationsToRemove());
 		
 		return new DataToSave(toAdd, toRemove);
+	}
+	
+	void updateName(String name) {
+	    Object object =  model.getRefObject();
+        if (object instanceof ProjectData) {
+            ProjectData p = (ProjectData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof DatasetData) {
+            DatasetData p = (DatasetData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof ImageData) {
+            ImageData p = (ImageData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof TagAnnotationData) {
+            TagAnnotationData p = (TagAnnotationData) object;
+          if (name.length() > 0) p.setTagValue(name);
+        } else if (object instanceof ScreenData) {
+            ScreenData p = (ScreenData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof PlateData) {
+            PlateData p = (PlateData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof WellSampleData) {
+            WellSampleData well = (WellSampleData) object;
+            ImageData img = well.getImage();
+          if (name.length() > 0) img.setName(name);
+        } else if (object instanceof FileData) {
+            FileData f = (FileData) object;
+            if (f.getId() > 0) return;
+        } else if (object instanceof PlateAcquisitionData) {
+            PlateAcquisitionData pa = (PlateAcquisitionData) object;
+          if (name.length() > 0) pa.setName(name);
+        }
 	}
 	
 	/** Updates display when the parent of the root node is set. */
@@ -522,7 +585,7 @@ class GeneralPaneUI
 		if(commentTaskPane.hasDataToSave())
             return true;
 		
-		return false;
+		return nameModified;
 	}
 	
 	/** 
@@ -540,6 +603,7 @@ class GeneralPaneUI
 			ui.clearDisplay();
 		}
 		setCursor(Cursor.getDefaultCursor());
+		nameModified = false;
 	}
 	
 	/**
@@ -721,6 +785,7 @@ class GeneralPaneUI
 	/** Updates the UI when the related nodes have been set.*/
 	void onRelatedNodesSet()
 	{
+	    nameModified = false;
 	    tagsTaskPane.onRelatedNodesSet();
 	    roiTaskPane.onRelatedNodesSet();
 	    mapTaskPane.onRelatedNodesSet();
