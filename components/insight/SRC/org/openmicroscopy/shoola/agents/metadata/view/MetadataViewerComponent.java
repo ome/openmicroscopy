@@ -905,8 +905,11 @@ class MetadataViewerComponent
 	 */
 	public void onRndLoaded(boolean reload)
 	{
-		getRenderer().addPropertyChangeListener(controller);
-		firePropertyChange(RND_LOADED_PROPERTY, Boolean.valueOf(!reload), 
+	    Renderer rnd = getRenderer();
+	    if (rnd != null) {
+	        rnd.addPropertyChangeListener(controller);
+	    }
+		firePropertyChange(RND_LOADED_PROPERTY, Boolean.valueOf(!reload),
 				Boolean.valueOf(reload));
 	}
 
