@@ -277,7 +277,7 @@ class IntensityView
 	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
-		if (zSlider == null || tSlider == null || coord == null|| 
+		if (zSlider == null || tSlider == null || coord == null || 
                 state != State.READY)
 			return;
 		
@@ -1231,6 +1231,7 @@ class IntensityView
                 state = State.ANALYSING;
                 controller.analyseFigures(statsMissingFigures);
             }
+            channelSummaryTable.setVisible(false);
             clearMaps();
             return;
         }
