@@ -88,8 +88,10 @@ Test Cut Paste Image
     Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
     Click Element                               id=cutButton
     Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
+    ${nodeId}                                   Select Orphaned Images Section
+    Wait Until Element Is Visible               xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
     # Dataset should be selected, paste back
-    Dataset Should Be Selected By Id            ${datasetId}
+    Select Dataset By Id                        ${datasetId}
     Click Element                               id=pasteButton
     Wait Until Page Contains Element            xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
 
@@ -114,3 +116,200 @@ Test Chgrp
     Click Element                           id=launch_activities
     Wait Until Page Contains                Project moved to Group              60
 
+Test Drag And Drop Image
+
+    Select Experimenter
+    ${did}=                                     Create Dataset
+    Click Element                               refreshButton
+
+    Select Experimenter
+    ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
+    Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
+    Drag And Drop                               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']     xpath=//li[@data-id='${did}']
+
+    Select Dataset By Id                        ${did}
+    Dataset Should Contain Image                ${imageId}     ${did} 
+
+    #Bring database state back to original
+    Select Image By Id                          ${imageId}
+    Drag And Drop                               xpath=//li[@data-id='${did}']//li[@data-id='${imageId}']        xpath=//li[@data-id='${pId}']//li[@data-id='${datasetId}']
+    Select Dataset By Id                        ${datasetId}
+    Dataset Should Contain Image                ${imageId}     ${datasetId} 
+
+Test Drag and Drop Orphaned Image
+
+    ${did}=                                     Select First Dataset
+    ${datasetNode}=                             Wait For Dataset Node                                           ${did}
+
+    ${nodeId}=                                  Select Orphaned Images Section
+    ${imageId}=                                 Select First Orphaned Image
+    ${imageNode}=                               Wait For Image Node                                             ${imageId}
+
+    Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
+    Select Dataset By Id                        ${did}
+    Dataset Should Contain Image                ${imageId}     ${did} 
+
+Test Drag and Drop Orphaned Dataset
+                                 
+    ${pid}=                                     Select First Project With Children
+    ${projectNode}                              Wait For Project Node                                           ${pid}
+
+    ${datasetNode}=                             Select First Datast With Name                                   testCreateContainerRobot                                      
+    Sleep                                       0.5
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${projectNode}']/a
+    Select Project By Id                        ${pid}
+    Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
+    
+
+Test Drag and Drop Plate
+    
+    Select Experimenter
+    ${screenId}                                 Create Screen
+    Click Element                               refreshButton
+    ${screenNode}                               Wait For Screen Node                                            ${screenId}
+
+    ${screenId1}                                Select First Screen With Children
+    ${plateId}                                  Select First Plate
+    ${plateNode}                                Wait For Plate Node                                             ${plateId}
+
+    Drag And Drop                               xpath=//li[@id='${plateNode}']/a                                xpath=//li[@id='${screenNode}']/a
+    Select Screen By Id                         ${screenId}
+    Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
+
+Test Drag and Drop Dataset On Experimenter
+    [Documentation]                             This is currently a negative test, this will Fail once Will's PR for this functionality is merged. The test needs to be updated then.
+
+    Select Experimenter
+    ${projectNode}=                             Select First Project With Name                                  testCreateContainerRobot
+    ${did}=                                     Create Dataset
+    Click Element                               refreshButton
+    ${datasetNode}                              Wait For Dataset Node                                           ${did}
+
+    Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${treeRootId}']/a
+
+    Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
+
+Test Drag and Drop Negative Tests
+
+    Select Experimenter
+    ${pid}                                      Create Project
+    Click Element                               refreshButton
+
+    Select Experimenter
+    ${did}=                                     Create Dataset
+    Click Element                               refreshButton
+
+    Select Experimenter
+    ${screenId}                                 Create Screen
+    Click Element                               refreshButton
+
+    ${projectNode}                              Wait For Project Node                                           ${pid}
+    ${datasetNode}                              Wait For Dataset Node                                           ${did}
+    ${screenNode}                               Wait For Screen Node                                            ${screenId}
+
+    #Drag Project on Project
+    ${pid1}=                                    Select First Project With Children
+    ${projectNode1}                             Wait For Project Node                                           ${pid}
+
+    Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${projectNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${projectNode1}']//li[@id='${projectNode}']
+
+    #Drag Project on Dataset
+    ${datasetNode1}=                            Select First Datast With Name                                   testCreateContainerRobot
+    Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${datasetNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${datasetNode1}']//li[@id='${projectNode}']                                                                
+
+    #Drag Project on Image
+    ${imageId1}=                                Select And Expand Image
+    ${imageNode1}=                              Wait For Image Node                                             ${imageId1}
+    Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${imageNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${projectNode}']  
+
+    #Drag Project on Screen
+    ${screenId1}                                Select First Screen With Children
+    ${screenNode1}                              Wait For Screen Node                                            ${screenId1}
+    Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${screenNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${screenNode1}']//li[@id='${projectNode}']
+
+    #Drag Project on Plate
+    ${screenId1}                                Select First Screen With Children
+    ${plateId1}                                 Select First Plate
+    ${plateNode1}                               Wait For Plate Node                                             ${plateId1}
+    Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${plateNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${projectNode}']
+
+    #Drag Dataset on Dataset
+    ${datasetNode1}=                            Select First Datast With Name                                   Delete
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${datasetNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${datasetNode1}']//li[@id='${datasetNode}']
+
+    #Drag Dataset on Image
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${imageNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${datasetNode}'] 
+
+    #Drag Dataset on Screen
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${screenNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${screenNode1}']//li[@id='${datasetNode}']
+
+    #Drag Dataset on Plate
+    Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${plateNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${projectNode}']
+
+    #Drag Image on Project
+    Drag And Drop                               xpath=//li[@id='${imageNode1}']/a                               xpath=//li[@id='${projectNode}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${projectNode}']//li[@id='${imageNode1}']                      
+
+    #Drag Image on Screen
+    Drag And Drop                               xpath=//li[@id='${imageNode1}']/a                               xpath=//li[@id='${screenNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${screenNode1}']//li[@id='${imageNode1}']
+
+    #Drag Image on Plate
+    Drag And Drop                               xpath=//li[@id='${imageNode1}']/a                               xpath=//li[@id='${plateNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${imageNode1}']
+
+    #Drag Image on Experimenter
+    ${nodeId}=                                  Select Orphaned Images Section
+    Drag And Drop                               xpath=//li[@id='${imageNode1}']/a                               xpath=//li[@id='${treeRootId}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${nodeId}']//li[@id='${imageNode1}']
+
+    #Drag Screen on Screen
+    ${screenId1}                                Select First Screen With Children
+    ${screenNode1}                              Wait For Screen Node                                            ${screenId1}
+
+    Drag And Drop                               xpath=//li[@id='${screenNode}']/a                               xpath=//li[@id='${screenNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${screenNode1}']//li[@id='${screenNode}']
+
+    #Drag Screen on Plate
+    ${screenId1}                                Select First Screen With Children
+    ${plateId}                                  Select First Plate
+    ${plateNode1}                               Wait For Plate Node                                             ${plateId}
+
+    Drag And Drop                               xpath=//li[@id='${screenNode}']/a                                xpath=//li[@id='${plateNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${screenNode}']
+
+    #Drag Screen on Project
+    Drag And Drop                               xpath=//li[@id='${screenNode}']/a                                xpath=//li[@id='${projectNode}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${projectNode}']//li[@id='${screenNode}']
+
+    #Drag Screen on Dataset
+    Drag And Drop                               xpath=//li[@id='${screenNode}']/a                                xpath=//li[@id='${datasetNode}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${datasetNode}']//li[@id='${screenNode}']
+
+    #Drag Screen on Image
+    Drag And Drop                               xpath=//li[@id='${screenNode}']/a                                xpath=//li[@id='${imageNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${screenNode}']
+
+    #Drag Plate on Project
+    Drag And Drop                               xpath=//li[@id='${plateNode1}']/a                                xpath=//li[@id='${projectNode}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${projectNode}']//li[@id='${plateNode1}']
+
+    #Drag Plate on Dataset
+    Drag And Drop                               xpath=//li[@id='${plateNode1}']/a                                xpath=//li[@id='${datasetNode}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${datasetNode}']//li[@id='${plateNode1}']
+
+    #Drag Plate on Image
+    Drag And Drop                               xpath=//li[@id='${plateNode1}']/a                                xpath=//li[@id='${imageNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${plateNode1}']
+
+[Teardown]    Close Browser
