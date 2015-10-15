@@ -287,6 +287,23 @@ public class ImViewerFactory
 	}
 
 	/**
+	 * Indicates that rendering settings have been modified.
+	 * 
+	 * @param ImageID The Identifier of the pixels set.
+	 */
+	public static void rndSettingsChanged(long imageID)
+	{
+	    Iterator<ImViewer> v = singleton.viewers.iterator();
+	    ImViewerComponent comp;
+	    while (v.hasNext()) {
+	        comp = (ImViewerComponent) v.next();
+	        if (comp.getModel().getImageID() == imageID) {
+	            comp.onSettingsChanged();
+	        }
+	    }
+	}
+
+	/**
 	 * Stores the passed event in the correct viewer.
 	 * 
 	 * @param evt The event to store.

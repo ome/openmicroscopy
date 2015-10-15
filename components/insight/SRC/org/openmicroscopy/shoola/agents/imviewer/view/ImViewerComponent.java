@@ -1020,8 +1020,6 @@ class ImViewerComponent
 			}
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
-			//else 
-			//	renderXYPlane();
 		} catch (Exception e) {
 			Registry reg = ImViewerAgent.getRegistry();
 			LogMessage msg = new LogMessage();
@@ -3430,5 +3428,10 @@ class ImViewerComponent
      */
     public ImageAcquisitionData getImageAcquisitionData() {
         return this.acquisitionData;
+    }
+
+    void onSettingsChanged()
+    {
+        view.resetDefaults();
     }
 }

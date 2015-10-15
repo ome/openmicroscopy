@@ -1319,4 +1319,5 @@ public interface ImViewer
      * @return See above
      */
     ImageAcquisitionData getImageAcquisitionData();
+
 }

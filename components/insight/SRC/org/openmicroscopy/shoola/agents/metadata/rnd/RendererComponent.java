@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -602,12 +603,14 @@ class RendererComponent
 				}
 			}
 			view.setColorModelChanged();
-			//if (model.isGeneralIndex()) model.saveRndSettings();
 			firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
    		 			Boolean.valueOf(true));
 			if (update)
 				firePropertyChange(RENDER_PLANE_PROPERTY,
 						Boolean.valueOf(false), Boolean.valueOf(true));
+			RndSettingsChanged evt = new RndSettingsChanged(
+                    model.getRefImage().getId());
+            MetadataViewerAgent.getRegistry().getEventBus().post(evt);
 		} catch (Exception e) {
 			handleException(e);
 		}

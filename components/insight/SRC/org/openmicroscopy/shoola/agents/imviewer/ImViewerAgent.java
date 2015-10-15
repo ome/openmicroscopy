@@ -27,15 +27,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
+
 import ome.model.units.BigResult;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
@@ -59,7 +60,9 @@ import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -350,6 +353,17 @@ public class ImViewerAgent
     }
 
     /**
+     * Handles the {@link RndSettingsChanged} event.
+     *
+     * @param evt The event to handle.
+     */
+    public void handleRndSettingsChangedEvent(RndSettingsChanged evt)
+    {
+        if (evt == null) return;
+        ImViewerFactory.rndSettingsChanged(evt.getImageID());
+    }
+    
+    /**
      * Indicates to bring up the window if a related window gained focus
      *
      * @param evt The event to handle.
@@ -603,6 +617,7 @@ public class ImViewerAgent
         bus.register(this, ChannelSavedEvent.class);
         bus.register(this, DisplayModeEvent.class);
         bus.register(this, RndSettingsCopied.class);
+        bus.register(this, RndSettingsChanged.class);
     }
 
     /**
@@ -673,6 +688,9 @@ public class ImViewerAgent
             handleDisplayModeEvent((DisplayModeEvent) e);
         else if (e instanceof RndSettingsCopied)
             handleRndSettingsCopied((RndSettingsCopied) e);
+        else if (e instanceof RndSettingsChanged) {
+            handleRndSettingsChangedEvent((RndSettingsChanged) e);
+        }
     }
 
 }

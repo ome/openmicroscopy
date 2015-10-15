@@ -35,7 +35,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -255,6 +257,10 @@ class MetadataViewerUI
 				evt.getPropertyName())) {
 			model.applyRenderingSettings(
 					(RndProxyDef) evt.getNewValue());
+			//post an event
+			RndSettingsChanged e = new RndSettingsChanged(
+			        model.getImage().getId());
+			MetadataViewerAgent.getRegistry().getEventBus().post(e);
 		}
 	}
 	
