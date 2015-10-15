@@ -2220,10 +2220,10 @@ def su(request, user, conn=None, **kwargs):
         return HttpResponse(t.render(c))
 
 
-def _annotations(request, objtype, objid, conn=None, **kwargs):
+def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     """
-    Retrieve annotations for object specified by object type and identifier,
-    optionally traversing object model graph.
+    Retrieve Bulk FileAnnotations for object specified by object type and
+    identifier optionally traversing object model graph.
     Returns dictionary containing annotations in NSBULKANNOTATIONS namespace
     if successful, error information otherwise
 
@@ -2281,7 +2281,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     data = []
     for link in obj.copyAnnotationLinks():
         annotation = link.child
-        if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
+        if (not isinstance(annotation, omero.model.FileAnnotation) or
+                unwrap(annotation.getNs()) != NSBULKANNOTATIONS):
             continue
         owner = annotation.details.owner
         ownerName = "%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName))
@@ -2298,7 +2299,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     return dict(data=data)
 
 
-annotations = login_required()(jsonp(_annotations))
+annotations = login_required()(jsonp(_bulk_file_annotations))
 
 
 def _table_query(request, fileid, conn=None, **kwargs):
@@ -2400,7 +2401,7 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
                         'columns' (an array of column names) and 'rows'
                         (an array of rows, each an array of values)
     """
-    a = _annotations(request, objtype, objid, conn, **kwargs)
+    a = _bulk_file_annotations(request, objtype, objid, conn, **kwargs)
     if 'error' in a:
         return a
 
