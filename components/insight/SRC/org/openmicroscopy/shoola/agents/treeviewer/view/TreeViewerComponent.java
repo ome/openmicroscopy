@@ -2658,7 +2658,7 @@ class TreeViewerComponent
 			"paste. \n Please first copy settings.");
 			return;
 		}
-		if (ids == null || ids.size() == 0) {
+		if (CollectionUtils.isEmpty(ids)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "Please select the nodes \n" +
 			"you wish to apply the settings to.");
