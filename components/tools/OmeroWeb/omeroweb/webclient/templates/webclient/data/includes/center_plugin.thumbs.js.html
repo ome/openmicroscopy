@@ -172,13 +172,16 @@ $(document).ready(function() {
         } else if (dtype === "image") {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
-            old_thumbnails_panel(event, data);
+            load_spw(event, data);
             return;
         // All other types have blank centre panel
         } else {
-            $("#content_details").html("");
+            clearThumbnailsPanel();
             return;
         }
+
+        // clear html and stored data before adding back html
+        clearThumbnailsPanel();
 
         if (parentNode) {
             inst.get_children_dom(parentNode).each(function(i, n){
@@ -560,10 +563,13 @@ $(document).ready(function() {
         }
     }
 
-    // --------------------------------- OLD CODE BELOW HERE -- TODO: REMOVE! ------------------ //
 
-
-    var old_thumbnails_panel = function(event, data) {
+    // This is called for plates or acquisitions (runs) only.
+    // Was previously used for loading ALL data types but now
+    // images are retrieved from jsTree directly so we only need to
+    // load plates.
+    // TODO: More cleanup needed to remove all non-SPW code
+    var load_spw = function(event, data) {
         // Get the container that is currently rendered
         // If any of these are not defined then nothing was selected
         var $contentDetails = $("div#content_details");
@@ -596,21 +602,11 @@ $(document).ready(function() {
         // Get the current selection
         var selected = inst.get_selected(true);
 
-        // If there are no selections then just clear the centre panel
-        if (selected.length === 0) {
-            clearThumbnailsPanel();
-            return;
-        }
-
         // If there are selections then determine if the currently
         // rendered container is one of them.
         var containerNode = false;
         if (currentNode) {
             $.each(selected, function(index, node) {
-                // If an image is selected then the container will be its parent
-                if (node.type === 'image') {
-                    node = inst.get_node(inst.get_parent(node));
-                }
                 if (node === currentNode) {
                     containerNode = node;
                     // Break out of each
@@ -643,11 +639,6 @@ $(document).ready(function() {
             // There was no current node or it was not selected
             // Load the first of the selected nodes
             containerNode = selected[0];
-
-            // If an image is selected then the container will be its parent
-            if (selected[0].type === 'image') {
-                containerNode = inst.get_node(inst.get_parent(selected[0]));
-            }
 
             // While the new selection may not be the same path as the old one
             // if it is an equivalent node, we can save a reload and simply update
@@ -691,8 +682,6 @@ $(document).ready(function() {
             } else if (containerNode === parent) {
                 // Reload thumbnails
                 loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            } else if (containerNode === old_parent && node.type === 'image') {
-                removeThumbnail(node);
             }
 
         }
@@ -798,10 +787,6 @@ $(document).ready(function() {
         $contentDetails.data('path', JSON.stringify(path));
         $("div#page").data('page', page);
         $contentDetails.data('field', field);
-    };
-
-    var removeThumbnail = function(node) {
-        $("#image_icon-" + node.data.obj.id).remove();
     };
 
     var getPageOr1 = function(inst, node) {
