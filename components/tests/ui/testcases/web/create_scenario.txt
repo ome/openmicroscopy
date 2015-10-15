@@ -87,13 +87,6 @@ Dataset Exists and Is Not Orphaned
     ${projectnodeId}=                       Wait for Project Node               ${projectId}
     Wait Until Page Contains Element        xpath=//li[@id='${treeRootId}']/ul/li[@id='${projectnodeId}']/ul/li[@id='${datasetnodeId}']
 
-Dataset Should Contain Image 
-    [Arguments]                             ${imageId}      ${datasetId}
-    Wait Until Page Contains Element        css=tr.data_heading_id strong
-    Select Dataset By Id                    ${datasetId}
-    ${nodeId}=                              Wait For Dataset Node               ${datasetId}
-    Wait Until Element Is Visible           xpath=//li[@id='${nodeId}']/ul/li[@data-id='${imageId}']
-
 Create Screen Using Icon and Check If It Exists
     ${screenId}=                            Create Screen                       ${CtxScreenName}
     Screen Should Exist                     ${screenId}
