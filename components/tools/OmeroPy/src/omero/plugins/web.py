@@ -176,6 +176,12 @@ class WebControl(BaseControl):
 
         self.ctx.err(LONGHELP % CONFIG_TABLE)
 
+    def _check_lib_installed(self):
+        try:
+            import django  # NOQA
+        except:
+            self.ctx.err("Django not installed!")
+
     def _get_python_dir(self):
         return self.ctx.dir / "lib" / "python"
 
@@ -391,6 +397,7 @@ class WebControl(BaseControl):
 
     def collectstatic(self):
         """Ensure that static media is copied to the correct location"""
+        self._check_lib_installed()
         location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
         rv = self.ctx.call(args, cwd=location)
@@ -400,6 +407,7 @@ class WebControl(BaseControl):
     def clearsessions(self, args):
         """Clean out expired sessions."""
         self.ctx.out("Clearing expired sessions. This may take some time... ")
+        self._check_lib_installed()
         location = self._get_python_dir() / "omeroweb"
         cmd = [sys.executable, "manage.py", "clearsessions"]
         if not args.no_wait:
@@ -513,6 +521,7 @@ using bin\omero web start on Windows with FastCGI.
 
     def status(self, args):
         self.ctx.out("OMERO.web status... ", newline=False)
+        self._check_lib_installed()
         import omeroweb.settings as settings
         self._fastcgi_deprecation(settings)  # to be removed in 5.2
 
@@ -543,6 +552,7 @@ using bin\omero web start on Windows with FastCGI.
 
     def stop(self, args):
         self.ctx.out("Stopping OMERO.web... ", newline=False)
+        self._check_lib_installed()
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER')
         if deploy in (settings.FASTCGI_TYPES + settings.WSGI_TYPES):
