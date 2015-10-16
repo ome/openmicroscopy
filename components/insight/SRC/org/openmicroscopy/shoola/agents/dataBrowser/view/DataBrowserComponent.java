@@ -37,7 +37,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
@@ -54,7 +53,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.FlushVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.hiviewer.LaunchViewer;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -1721,7 +1720,6 @@ class DataBrowserComponent
 		EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
 		DataObject data = null;
 		Object uo = node.getHierarchyObject();
-		ViewImage event;
 		Object go;
 		ViewImageObject object;
 		if (uo instanceof ImageData) {
@@ -1738,7 +1736,7 @@ class DataBrowserComponent
 							img, LookupNames.IMAGE_J);
 					bus.post(evt);
 				} else {
-					bus.post(new ViewImage(ctx, object, null));
+					bus.post(new LaunchViewer(ctx, object));
 				}
 			} else {
 				if (internal)
@@ -1764,8 +1762,7 @@ class DataBrowserComponent
 						wellSample.getImage(), LookupNames.IMAGE_J);
 				bus.post(evt);
 			} else {
-				bus.post(new ViewImage(model.getSecurityContext(), object, 
-						null));
+				bus.post(new LaunchViewer(model.getSecurityContext(), object));
 			}
 		}
 	}

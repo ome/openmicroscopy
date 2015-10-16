@@ -31,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 
 import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
+import org.openmicroscopy.shoola.agents.events.hiviewer.LaunchViewer;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
@@ -38,6 +39,8 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.ResetRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
@@ -66,6 +69,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 
@@ -524,7 +528,7 @@ public class TreeViewerAgent
     }
 
     /**
-     * Resets the rendering settings..
+     * Resets the rendering settings.
      *
      * @param evt The event to handle.
      */
@@ -538,6 +542,28 @@ public class TreeViewerAgent
         viewer.resetRndSettings(evt.getImageID(), evt.getSettings());
     }
 
+    /**
+     * Opens the image
+     *
+     * @param evt The event to handle.
+     */
+    private void handleLaunchViewer(LaunchViewer evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        ViewImageObject data = evt.getData();
+        if (data == null) return;
+        RndProxyDef def = viewer.getSelectedViewedBy();
+        if (def != null) {
+            data.setSelectedRndDef(def.getDataID());
+        }
+        getRegistry().getEventBus().post(
+                new ViewImage(evt.getSecurityContext(), data, null));
+    }
+    
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -608,6 +634,7 @@ public class TreeViewerAgent
         bus.register(this, DownloadEvent.class);
         bus.register(this, ScriptDisplay.class);
         bus.register(this, ResetRndSettings.class);
+        bus.register(this, LaunchViewer.class);
     }
 
     /**
@@ -678,6 +705,8 @@ public class TreeViewerAgent
             handleScriptDisplay((ScriptDisplay) e);
         } else if (e instanceof ResetRndSettings) {
             handleResetRndSettings((ResetRndSettings) e);
+        } else if (e instanceof LaunchViewer) {
+            handleLaunchViewer((LaunchViewer) e);
         }
 	}
 
