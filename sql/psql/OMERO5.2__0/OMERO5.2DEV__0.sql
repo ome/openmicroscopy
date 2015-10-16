@@ -22,7 +22,6 @@
 
 BEGIN;
 
-
 --
 -- check OMERO database version
 --
@@ -45,6 +44,9 @@ END;$$ LANGUAGE plpgsql;
 
 SELECT omero_assert_db_version('OMERO5.2DEV', 0);
 DROP FUNCTION omero_assert_db_version(varchar, int);
+
+INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
+             VALUES ('OMERO5.2',     0,            'OMERO5.2DEV',   0);
 
 -- https://trello.com/c/EwmJfe5u/89-critical-indexing-large-annotation-changes
 
