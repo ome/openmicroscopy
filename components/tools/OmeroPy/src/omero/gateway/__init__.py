@@ -3832,6 +3832,16 @@ class _BlitzGateway (object):
         delete = Delete2(targetObjects={type: [obj.getId().val]})
         self.c.submit(delete, self.SERVICE_OPTS)
 
+    def deleteObject(self, obj):
+        """
+        Delete a single object.
+
+        :param obj:     Object to delete
+        :type obj:      IObject"""
+
+        objType = obj.__class__.__name__.rstrip('I')
+        self.deleteObjects(objType, [obj.id.val], wait=True)
+
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
                       deleteChildren=False, dryRun=False, wait=False):
         """
