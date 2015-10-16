@@ -21,9 +21,9 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -42,8 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -337,25 +335,21 @@ class GeneralPaneUI
 		add(toolbar, c);
 		c.gridy++;
 		
-		namePane.setBorder(BorderFactory.createEmptyBorder(2,2,0,2));
+		namePane.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 		add(namePane, c);
 		c.gridy++;
 		
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		p.add(idLabel);
-		p.add(Box.createHorizontalGlue());
-		p.add(ownerLabel);
-		add(p, c);
-        c.gridy++;
+		idLabel.setBorder(BorderFactory.createEmptyBorder(2,2,0,2));
+		add(idLabel, c);
+		c.gridy++;
 		
-		p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(filterButton);
-        add(p, c);
-        c.gridy++;
+		JPanel p = new JPanel(new BorderLayout());
+		p.setBorder(BorderFactory.createEmptyBorder(0,2,2,2));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(ownerLabel, BorderLayout.WEST);
+		p.add(filterButton, BorderLayout.EAST);
+		add(p, c);
+		c.gridy++;
 		
         add(propertiesTaskPane, c);
         c.gridy++;
