@@ -579,6 +579,9 @@
                         if (selected.length > 0 && selected[0].type !== node.type) {
                             return false;
                         }
+                        if (selected.length > 0 && (node.type === 'tag' || node.type === 'tagset')) {
+                            return false;
+                        }
 
                         // Also disallow the selection if it is a multi-select and the new target
                         // is already selected
