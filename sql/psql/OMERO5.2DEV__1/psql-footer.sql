@@ -1584,15 +1584,16 @@ CREATE TRIGGER well_annotation_link_delete_trigger
 
 -- move annotation updates from updated_annotations to eventlog REINDEX entries
 
-CREATE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
 
     DECLARE
-        row RECORD;
+        curs CURSOR FOR SELECT * FROM _updated_annotations ORDER BY event_id LIMIT 100000 FOR UPDATE;
+        row _updated_annotations%rowtype;
 
     BEGIN
-        FOR row IN SELECT * FROM _updated_annotations ORDER BY event_id FOR UPDATE
+        FOR row IN curs
         LOOP
-            DELETE FROM _updated_annotations WHERE _updated_annotations = row;
+            DELETE FROM _updated_annotations WHERE CURRENT OF curs;
 
             INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
                 SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
@@ -1729,7 +1730,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.2DEV',  0,    'OMERO5.2DEV',   0,             'Initializing');
+             values ('OMERO5.2DEV',  1,    'OMERO5.2DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3031,7 +3032,7 @@ ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.2DEV' and
-        currentPatch = 0 and
+        currentPatch = 1 and
         previousVersion = 'OMERO5.2DEV' and
         previousPatch = 0;
 
