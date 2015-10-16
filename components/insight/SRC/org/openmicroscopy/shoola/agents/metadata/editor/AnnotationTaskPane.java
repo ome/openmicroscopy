@@ -73,10 +73,10 @@ public class AnnotationTaskPane extends JXTaskPane {
         ATTACHMENTS("Attachments"),
 
         /** Other annotations */
-        OTHER("Other"),
+        OTHER("Others"),
 
         /** Rating */
-        RATING("Rating"),
+        RATING("Ratings"),
 
         /** User comments */
         COMMENTS("Comments");

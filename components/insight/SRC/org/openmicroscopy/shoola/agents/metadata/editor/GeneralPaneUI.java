@@ -101,7 +101,7 @@ class GeneralPaneUI
     private static final String EDIT_NAME_TEXT = "Edit the name";
     
 	/** The default text. */
-	private static final String			DETAILS = "'s details";
+	private static final String			DETAILS = " Details";
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -248,7 +248,8 @@ class GeneralPaneUI
 		previews = new ArrayList<PreviewPanel>();
 		propertiesTaskPane = EditorUtil.createTaskPane("");
 		propertiesTaskPane.add(propertiesUI);
-
+		propertiesTaskPane.setCollapsed(false);
+		
 		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAGS, view, model, controller);
 	    
 	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROIS, view, model, controller);
@@ -313,8 +314,8 @@ class GeneralPaneUI
         roiTaskPane.filter(annotationsFilter);
         mapTaskPane.filter(annotationsFilter);
         attachmentTaskPane.filter(annotationsFilter);
-        otherTaskPane.filter(annotationsFilter);
         ratingTaskPane.filter(annotationsFilter);
+        otherTaskPane.filter(annotationsFilter);
         commentTaskPane.filter(annotationsFilter);
     }
     
