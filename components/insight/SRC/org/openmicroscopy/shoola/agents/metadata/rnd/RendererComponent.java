@@ -1346,10 +1346,19 @@ class RendererComponent
 	public ModuloInfo getModuloT() { return model.getModuloT(); }
 	
 	/**
-         * Implemented as specified by the {@link Renderer} interface.
-         * @see Renderer#updatePasteAction()
-         */
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#updatePasteAction()
+	 */
 	public void updatePasteAction() {
 	    controller.updatePasteAction();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getSelectedDef()
+	 */
+	public RndProxyDef getSelectedDef()
+	{
+	    return  view.getSelectedDef();
 	}
 }

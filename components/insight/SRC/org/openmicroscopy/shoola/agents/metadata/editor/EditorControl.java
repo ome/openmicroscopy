@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import omero.log.LogMessage;
 import omero.log.Logger;
 
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -776,6 +777,7 @@ class EditorControl
 				view.reloadScript();
 				break;
 			case VIEW_IMAGE:
+			    
 				Object refObject = view.getRefObject();
 				ImageData img = null;
 				if (refObject instanceof ImageData) {
@@ -785,6 +787,13 @@ class EditorControl
 		        }
 				if (img != null) {
 					ViewImageObject vio = new ViewImageObject(img);
+					if (model.getRenderer() != null) {
+					    RndProxyDef def = model.getRenderer().getSelectedDef();
+					    if (def != null) {
+					        vio.setSelectedRndDef(
+					                def.getData().getId().getValue());
+					    }
+					}
 					MetadataViewerAgent.getRegistry().getEventBus().post(
 						new ViewImage(model.getSecurityContext(), vio, null));
 				}
