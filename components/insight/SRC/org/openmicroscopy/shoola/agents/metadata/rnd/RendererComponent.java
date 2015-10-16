@@ -1262,6 +1262,10 @@ class RendererComponent
 					image, LookupNames.IMAGE_J));
 		} else {
 		    ViewImageObject vio = new ViewImageObject(image);
+		    RndProxyDef def = view.getSelectedDef();
+		    if (def != null) {
+		        vio.setSettings(def, def.getOwnerID());
+		    }
 			bus.post(new ViewImage(model.getSecurityContext(), vio, null));
 		}
 	}
