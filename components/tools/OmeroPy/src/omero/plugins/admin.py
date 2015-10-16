@@ -1062,13 +1062,15 @@ present, the user will enter a console""")
 
         self.check_access(os.R_OK)
         templates = self._get_grid_dir() / "templates.xml"
-        template_xml = XML(templates.text())
-        try:
-            memory = read_settings(template_xml)
-        except Exception, e:
-            self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
-                         % (templates, e))
-
+        if templates.exists():
+            template_xml = XML(templates.text())
+            try:
+                memory = read_settings(template_xml)
+            except Exception, e:
+                self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
+                             % (templates, e))
+        else:
+            memory = None
         omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
@@ -1249,39 +1251,40 @@ OMERO Diagnostics %s
                     win32service.CloseServiceHandle(hsc)
                 win32service.CloseServiceHandle(hscm)
 
-        if not args.no_logs:
+        def parse_logs():
 
-            def log_dir(log, cat, cat2, knownfiles):
+            log_dir = self.ctx.dir / "var" / "log"
+            self.ctx.out("")
+            item("Log dir", "%s" % log_dir.abspath())
+            if not log_dir.exists():
                 self.ctx.out("")
-                item(cat, "%s" % log.abspath())
-                exists(log)
-                self.ctx.out("")
+                self.ctx.out("No logs available")
+                return
+            else:
+                exists(log_dir)
 
-                if log.exists():
-                    files = log.files()
-                    files = set([x.basename() for x in files])
-                    # Adding known names just in case
-                    for x in knownfiles:
-                        files.add(x)
-                    files = list(files)
-                    files.sort()
-                    for x in files:
-                        item(cat2, x)
-                        exists(log / x)
-                    item(cat2, "Total size")
-                    sz = 0
-                    for x in log.walkfiles():
-                        sz += x.size
-                    self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
-
-            log_dir(
-                self.ctx.dir / "var" / "log", "Log dir", "Log files",
-                ["Blitz-0.log", "Tables-0.log", "Processor-0.log",
-                 "Indexer-0.log", "FileServer.log", "MonitorServer.log",
-                 "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
+            known_log_files = [
+                "Blitz-0.log", "Tables-0.log", "Processor-0.log",
+                "Indexer-0.log", "FileServer.log", "MonitorServer.log",
+                "DropBox.log", "TestDropBox.log", "OMEROweb.log"]
+            files = log_dir.files()
+            files = set([x.basename() for x in files])
+            # Adding known names just in case
+            for x in known_log_files:
+                files.add(x)
+            files = list(files)
+            files.sort()
+            for x in files:
+                item("Log files", x)
+                exists(log_dir / x)
+            item("Log files", "Total size")
+            sz = 0
+            for x in log_dir.walkfiles():
+                sz += x.size
+            self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+            self.ctx.out("")
 
             # Parsing well known issues
-            self.ctx.out("")
             ready = re.compile(".*?ome.services.util.ServerVersionCheck\
             .*OMERO.Version.*Ready..*?")
             db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
@@ -1317,6 +1320,9 @@ OMERO Diagnostics %s
                                 break
             except:
                 self.ctx.err("Error while parsing logs")
+
+        if not args.no_logs:
+            parse_logs()
 
         self.ctx.out("")
 
@@ -1381,10 +1387,11 @@ OMERO Diagnostics %s
 
         # JVM settings
         self.ctx.out("")
-        for k, v in sorted(memory.items()):
-            sb = " ".join([str(x) for x in v])
-            item("JVM settings", " %s" % (k[0].upper() + k[1:]))
-            self.ctx.out("%s" % sb)
+        if memory:
+            for k, v in sorted(memory.items()):
+                sb = " ".join([str(x) for x in v])
+                item("JVM settings", " %s" % (k[0].upper() + k[1:]))
+                self.ctx.out("%s" % sb)
 
         # OMERO.web diagnostics
         self.ctx.out("")
