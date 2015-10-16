@@ -46,7 +46,7 @@ unlinks other users' annotations from data. The change to private will
 fail if different users' data is too closely related to be separated.
 
 More information is available at:
-http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/\
+http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/\
 server-permissions.html
         """
 
