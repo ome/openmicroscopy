@@ -2124,6 +2124,7 @@ class OmeroWebObjectWrapper (object):
             self.linkAnnotation(AnnotationWrapper(self._conn, ratingAnn))
 
         if ratingLink is not None:
+            linkType = ratingLink._obj.__class__.__name__.rstrip('I')
             ratingAnn = ratingLink.getChild()
             # if rating is only used by this object, we can update or delete
             if getLinkCount(ratingAnn.id) == 1:
@@ -2132,13 +2133,14 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.save()
                 else:
                     self._conn.deleteObjects(
-                        "AnnotationLink", [ratingLink._obj.id.val], wait=True)
+                        linkType, [ratingLink._obj.id.val],
+                        wait=True)
                     self._conn.deleteObjects(
-                        "Annotation", [ratingAnn._obj.id.val], wait=True)
+                        "LongAnnotation", [ratingAnn._obj.id.val], wait=True)
             # otherwise, unlink and create a new rating
             else:
                 self._conn.deleteObjects(
-                    "AnnotationLink", [ratingLink._obj.id.val], wait=True)
+                    linkType, [ratingLink._obj.id.val], wait=True)
                 addRating(rating)
         else:
             addRating(rating)
