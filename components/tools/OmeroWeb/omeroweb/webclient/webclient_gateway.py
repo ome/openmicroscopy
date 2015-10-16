@@ -842,7 +842,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             self.deleteObjects(
                 "ExperimenterAnnotationLink", linkIds, wait=True)
             # No error handling?
-            self.deleteObjects("Annotation", [ann.id.val], wait=True)
+            self.deleteObject(ann)
 
     def cropExperimenterPhoto(self, box, oid=None):
         """
@@ -1954,8 +1954,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 correct_dataset = False
                 for plink in i.getParentLinks():
                     if plink.parent.id != target_ds:
-                        self.deleteObjects(
-                            "DatasetImageLink", [plink._obj.id.val], wait=True)
+                        self.deleteObject(plink._obj)
                     else:
                         correct_dataset = True
                 if not correct_dataset:
@@ -2124,7 +2123,6 @@ class OmeroWebObjectWrapper (object):
             self.linkAnnotation(AnnotationWrapper(self._conn, ratingAnn))
 
         if ratingLink is not None:
-            linkType = ratingLink._obj.__class__.__name__.rstrip('I')
             ratingAnn = ratingLink.getChild()
             # if rating is only used by this object, we can update or delete
             if getLinkCount(ratingAnn.id) == 1:
@@ -2132,15 +2130,11 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.setLongValue(rlong(rating))
                     ratingAnn.save()
                 else:
-                    self._conn.deleteObjects(
-                        linkType, [ratingLink._obj.id.val],
-                        wait=True)
-                    self._conn.deleteObjects(
-                        "LongAnnotation", [ratingAnn._obj.id.val], wait=True)
+                    self._conn.deleteObject(ratingLink._obj)
+                    self._conn.deleteObject(ratingAnn._obj)
             # otherwise, unlink and create a new rating
             else:
-                self._conn.deleteObjects(
-                    linkType, [ratingLink._obj.id.val], wait=True)
+                self._conn.deleteObject(ratingLink._obj)
                 addRating(rating)
         else:
             addRating(rating)
