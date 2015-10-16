@@ -28,8 +28,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
@@ -105,6 +108,10 @@ public class ViewCmd
 		    Object uo = d.getUserObject();
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 			ViewImageObject vo = new ViewImageObject((ImageData) uo);
+			RndProxyDef def = model.getSelectedViewedBy();
+			if (def != null) {
+			    vo.setSelectedRndDef(def.getDataID());
+			}
 			TreeImageDisplay p = d.getParentDisplay();
 			TreeImageDisplay gp = null;
 			DataObject po = null;

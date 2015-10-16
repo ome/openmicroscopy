@@ -4960,4 +4960,21 @@ class TreeViewerComponent
            rnd.resetSettings(settings, true);
        }
    }
+
+   public RndProxyDef getSelectedViewedBy()
+   {
+       MetadataViewer viewer = model.getMetadataViewer();
+       if (viewer == null) return null;
+       Object ho = viewer.getRefObject();
+       ImageData img = null;
+       if (ho instanceof ImageData) {
+           img = (ImageData) ho;
+       } else if (ho instanceof WellSampleData) {
+           img = ((WellSampleData) ho).getImage();
+       }
+       if (img == null) return null;
+       Renderer rnd = viewer.getRenderer();
+       if (rnd == null) return null;
+       return rnd.getSelectedDef();
+   }
 }

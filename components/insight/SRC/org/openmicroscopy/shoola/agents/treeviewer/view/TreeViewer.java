@@ -1199,4 +1199,12 @@ public interface TreeViewer
      * @param settings The settings to reset
      */
     void resetRndSettings(long imageID, RndProxyDef settings);
+
+    /**
+     * Returns the rendering setting of the selected viewed by item if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedViewedBy();
+
 }
