@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2DEV__0 to OMERO5.2DEV__1.
+--- OMERO5 development release upgrade from OMERO5.2DEV__0 to OMERO5.2__0.
 ---
 
 BEGIN;
@@ -74,11 +74,11 @@ $$ LANGUAGE plpgsql;
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
-    WHERE currentVersion  = 'OMERO5.2DEV' AND
-          currentPatch    = 1             AND
+    WHERE currentVersion  = 'OMERO5.2'    AND
+          currentPatch    = 0             AND
           previousVersion = 'OMERO5.2DEV' AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.2DEV__1'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.2__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
