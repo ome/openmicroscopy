@@ -584,8 +584,7 @@ class GraphicsPane
         selectedDef = def;
         for(ViewedByItem item : viewedByItems) {
             JPanel p = (JPanel) item.getParent();
-            if (item.getRndDef().getData().getId().getValue() ==
-                    def.getData().getId().getValue()) {
+            if (item.getRndDef().getDataID() == def.getDataID()) {
                 p.setBorder(BorderFactory.createLineBorder(
                         UIUtilities.STEELBLUE, 2));
             }

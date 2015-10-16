@@ -790,8 +790,7 @@ class EditorControl
 					if (model.getRenderer() != null) {
 					    RndProxyDef def = model.getRenderer().getSelectedDef();
 					    if (def != null) {
-					        vio.setSelectedRndDef(
-					                def.getData().getId().getValue());
+					        vio.setSelectedRndDef(def.getDataID());
 					    }
 					}
 					MetadataViewerAgent.getRegistry().getEventBus().post(
