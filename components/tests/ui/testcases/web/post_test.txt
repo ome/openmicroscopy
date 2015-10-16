@@ -125,6 +125,8 @@ Test Drag And Drop Image
     Select Experimenter
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
+
+    Sleep                                       0.5
     Drag And Drop                               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']     xpath=//li[@data-id='${did}']
 
     Select Dataset By Id                        ${did}
@@ -145,6 +147,7 @@ Test Drag and Drop Orphaned Image
     ${imageId}=                                 Select First Orphaned Image
     ${imageNode}=                               Wait For Image Node                                             ${imageId}
 
+    Sleep                                       0.5
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
@@ -177,7 +180,7 @@ Test Drag and Drop Plate
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
 
 Test Drag and Drop Dataset On Experimenter
-    [Documentation]                             This is currently a negative test, this will Fail once Will's PR for this functionality is merged. The test needs to be updated then.
+    [Documentation]                             This test will currently fail on 5.1 Series
 
     Select Experimenter
     ${projectNode}=                             Select First Project With Name                                  testCreateContainerRobot
@@ -188,7 +191,7 @@ Test Drag and Drop Dataset On Experimenter
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${treeRootId}']/a
 
-    Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
+    Wait Until Element is Visible               xpath=//li[@id='${treeRootId}']/ul/li[@id='${datasetNode}']
 
 Test Drag and Drop Negative Tests
 
