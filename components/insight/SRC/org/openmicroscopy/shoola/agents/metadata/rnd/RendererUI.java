@@ -298,7 +298,17 @@ class RendererUI
         if (model.getAlternativeRndSettings() != null) {
             activeDef = model.getAlternativeRndSettings();
         } else {
-            if (CollectionUtils.isNotEmpty(model.getRenderingControls())) {
+            Iterator<ViewedByItem> i = results.iterator();
+            ViewedByItem item;
+            while (i.hasNext()) {
+                item = i.next();
+                if (item.isSelected()) {
+                    activeDef = item.getRndDef();
+                    item.setSelected(false);
+                }
+            }
+            if (activeDef == null && 
+                CollectionUtils.isNotEmpty(model.getRenderingControls())) {
                 activeDef = model.getRenderingControls().get(0).getRndSettingsCopy();
             }
         }

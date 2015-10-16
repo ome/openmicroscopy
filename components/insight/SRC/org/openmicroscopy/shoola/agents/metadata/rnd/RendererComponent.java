@@ -1264,7 +1264,7 @@ class RendererComponent
 		    ViewImageObject vio = new ViewImageObject(image);
 		    RndProxyDef def = view.getSelectedDef();
 		    if (def != null) {
-		        vio.setSettings(def, def.getOwnerID());
+		        vio.setSelectedRndDef(def.getData().getId().getValue());
 		    }
 			bus.post(new ViewImage(model.getSecurityContext(), vio, null));
 		}

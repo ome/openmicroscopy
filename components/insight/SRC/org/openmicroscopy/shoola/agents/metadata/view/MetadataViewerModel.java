@@ -159,6 +159,9 @@ class MetadataViewerModel
 	/** The alternative rendering settings.*/
 	private RndProxyDef def;
 
+	/** The selected rendering settings in "User Settings".*/
+	private long selectedViewedByDef;
+
     /**
      * Creates a new context if <code>null</code>.
      *
@@ -222,10 +225,14 @@ class MetadataViewerModel
 	 * @param refObject The reference object.
 	 * @param index One of the rendering constants defined by the 
 	 *              <code>MetadataViewer</code> I/F.
+	 * @param def The alternative settings if any.
+	 * @param selectedViewedByDef The selected viewed elements.
 	 */
-	MetadataViewerModel(Object refObject, int index, RndProxyDef def)
+	MetadataViewerModel(Object refObject, int index, RndProxyDef def,
+	        long selectedViewedByDef)
 	{
 		state = MetadataViewer.NEW;
+		this.selectedViewedByDef = selectedViewedByDef;
 		switch (index) {
 			case MetadataViewer.RND_GENERAL:
 			case MetadataViewer.RND_SPECIFIC:
@@ -243,6 +250,13 @@ class MetadataViewerModel
 		singleMode = true;
 		userID = MetadataViewerAgent.getUserDetails().getId();
 	}
+
+	/**
+	 * Returns the selected viewed by def.
+	 *
+	 * @return See above.
+	 */
+	long getSelectedViewedByDef() { return selectedViewedByDef; }
 
 	/**
 	 * Called by the <code>MetadataViewer</code> after creation to allow this

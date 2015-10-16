@@ -76,7 +76,7 @@ public class MetadataViewerFactory
         if (CollectionUtils.isEmpty(data))
             throw new IllegalArgumentException("No data to edit");
         MetadataViewerModel model = new MetadataViewerModel(data, 
-                MetadataViewer.RND_GENERAL, null);
+                MetadataViewer.RND_GENERAL, null, -1);
         model.setDataType(type);
         return singleton.createViewer(model);
     }
@@ -89,7 +89,7 @@ public class MetadataViewerFactory
      */
     public static MetadataViewer getViewer(Object refObject)
     {
-        return getViewer(refObject, MetadataViewer.RND_GENERAL, null);
+        return getViewer(refObject, MetadataViewer.RND_GENERAL, null, -1);
     }
 
     /**
@@ -100,13 +100,14 @@ public class MetadataViewerFactory
      * 					{@link MetadataViewer#RND_GENERAL} or
      * 					{@link MetadataViewer#RND_SPECIFIC}.
      * @param def The alternative rendering settings if any.
+     * @param selectedViewedByDef The selected rendering settings.
      * @return See above.
      */
     public static MetadataViewer getViewer(Object refObject, int index,
-            RndProxyDef def)
+            RndProxyDef def, long selectedViewedByDef)
     {
         MetadataViewerModel model = new MetadataViewerModel(refObject, index,
-                def);
+                def, selectedViewedByDef);
         return singleton.createViewer(model);
     }
 

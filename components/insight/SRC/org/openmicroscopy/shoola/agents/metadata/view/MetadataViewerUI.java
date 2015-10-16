@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -207,16 +208,24 @@ class MetadataViewerUI
             viewedByItems.clear();
     
             Map m = model.getViewedBy();
-            Iterator i = m.keySet().iterator();
+            Iterator i = m.entrySet().iterator();
             ViewedByItem item;
             ExperimenterData exp;
+            Entry e;
+            long id = model.getSelectedViewedByDef();
+            
+            RndProxyDef def;
             while (i.hasNext()) {
-                exp = (ExperimenterData) i.next();
+                e = (Entry) i.next();
+                exp = (ExperimenterData) e.getKey();
                 ImageData img = model.getImage();
                 if (img != null) {
+                    def = (RndProxyDef) e.getValue();
                     boolean isOwnerSetting = img.getOwner().getId() == exp.getId();
-                    item = new ViewedByItem(exp, (RndProxyDef) m.get(exp),
-                            isOwnerSetting);
+                    item = new ViewedByItem(exp, def, isOwnerSetting);
+                    if (def.getData().getId().getValue() == id) {
+                        item.setSelected(true);
+                    }
                     item.addPropertyChangeListener(ViewedByItem.VIEWED_BY_PROPERTY,
                             this);
                     viewedByItems.add(item);

@@ -634,11 +634,13 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#activate(RndProxyDef, long, int)
+	 * @see ImViewer#activate(RndProxyDef, long, int, long)
 	 */
-	public void activate(RndProxyDef settings, long userID, int displayMode)
+	public void activate(RndProxyDef settings, long userID, int displayMode,
+	        long selectedRndDefID)
 	{
 		model.setDisplayMode(displayMode);
+		model.setSelectedRndDef(selectedRndDefID);
 		switch (model.getState()) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);

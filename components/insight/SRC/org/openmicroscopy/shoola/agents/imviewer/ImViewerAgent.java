@@ -196,7 +196,7 @@ public class ImViewerAgent
 
         if (view != null) {
             view.activate(object.getSettings(), object.getSelectedUserID(),
-                    displayMode);
+                    displayMode, object.getSelectedRndDef());
             view.setContext(object.getParent(), object.getGrandParent());
         }
     }
@@ -441,7 +441,7 @@ public class ImViewerAgent
                         null, true);
                 if (view != null) {
                     view.activate(null, getUserDetails().getId(),
-                            displayMode);
+                            displayMode, -1);
                     JComponent src = evt.getSource();
                     if (src != null) src.setEnabled(true);
                 }

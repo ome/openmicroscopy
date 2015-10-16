@@ -59,6 +59,9 @@ public class ViewImageObject
     /** The id of the image to view. Used when no <code>ImageData</code>set. */
     private long imageID;
 
+    /** The id of the selected rendering object.*/
+    private long rndDefID;
+
     /**
      * Creates a new instance.
      *
@@ -70,6 +73,7 @@ public class ViewImageObject
             throw new IllegalArgumentException("Image ID not valid.");
         this.imageID = imageID;
         selectedUserID = -1;
+        rndDefID = -1;
     }
 
     /**
@@ -87,17 +91,25 @@ public class ViewImageObject
         this.image = image;
         selectedUserID = -1;
         imageID = -1;
+        rndDefID = -1;
     }
 
     /**
-     * Sets the user ID.
+     * Sets the identifier of the rendering settings, this should only be used
+     * for settings used under "Users settings".
      *
-     * @param selectedUserID The value to set.
+     * @param rndDefID The value to set.
      */
-    public void setSelectedUser(long selectedUserID)
+    public void setSelectedRndDef(long rndDefID)
     {
-        this.selectedUserID = selectedUserID;
+        this.rndDefID = rndDefID;
     }
+
+    /**
+     * Returns the identifier of the rendering settings.
+     * @return See above.
+     */
+    public long getSelectedRndDef() { return rndDefID; }
 
     /**
      * Sets the context of the node.
