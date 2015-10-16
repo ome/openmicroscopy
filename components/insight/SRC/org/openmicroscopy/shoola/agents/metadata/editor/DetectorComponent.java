@@ -102,7 +102,7 @@ class DetectorComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		binningBox = EditorUtil.createComboBox(array);
 		
 		l = model.getChannelEnumerations(Editor.DETECTOR_TYPE);
@@ -113,7 +113,7 @@ class DetectorComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		
 		detectorBox = EditorUtil.createComboBox(array);
 	}

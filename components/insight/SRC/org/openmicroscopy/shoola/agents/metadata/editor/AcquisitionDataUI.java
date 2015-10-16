@@ -96,7 +96,6 @@ class AcquisitionDataUI
 		UNSET_ENUM = new ArrayList<String>();
 		UNSET_ENUM.add("Other");
 		UNSET_ENUM.add("Unknown");
-		UNSET_ENUM.add(AnnotationDataUI.NO_SET_TEXT);
 	}
 	
 	/** Reference to the controller. */

@@ -205,7 +205,7 @@ class LightSourceComponent
             						AcquisitionDataUI.BOOLEAN_NO);
             		} else {
             			laserTuneableBox.setSelectedItem(
-            					AnnotationDataUI.NO_SET_TEXT);
+            			        AnnotationUI.NO_SET_TEXT);
             			set = false;
             		}
             		laserTuneableBox.setEditedColor(UIUtilities.EDITED_COLOR);
@@ -223,7 +223,7 @@ class LightSourceComponent
             		} else {
             			set = false;
             			laserPockelCellBox.setSelectedItem(
-            					AnnotationDataUI.NO_SET_TEXT);
+            			        AnnotationUI.NO_SET_TEXT);
             		}
             		laserPockelCellBox.setEditedColor(UIUtilities.EDITED_COLOR);
             		area = laserPockelCellBox;//parent.replaceCombobox(laserPockelCellBox);
@@ -338,7 +338,7 @@ class LightSourceComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		laserPulseBox = EditorUtil.createComboBox(array);
 	}
 	
@@ -380,7 +380,7 @@ class LightSourceComponent
 		String[] values = new String[3];
 		values[0] = AcquisitionDataUI.BOOLEAN_YES;
 		values[1] = AcquisitionDataUI.BOOLEAN_NO;
-		values[2] = AnnotationDataUI.NO_SET_TEXT;
+		values[2] = AnnotationUI.NO_SET_TEXT;
 		laserTuneableBox = EditorUtil.createComboBox(values);
 		laserPockelCellBox = EditorUtil.createComboBox(values);
 		
@@ -389,7 +389,7 @@ class LightSourceComponent
 		values[1] = EditorUtil.EMITTING_DIODE_TYPE;
 		values[2] = EditorUtil.FILAMENT_TYPE;
 		values[3] = EditorUtil.LASER_TYPE;
-		values[4] = AnnotationDataUI.NO_SET_TEXT;
+		values[4] = AnnotationUI.NO_SET_TEXT;
 		lightTypeBox = EditorUtil.createComboBox(values);
 		/*
 		lightTypeBox.addActionListener(new ActionListener() {
