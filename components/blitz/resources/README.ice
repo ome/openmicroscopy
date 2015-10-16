@@ -17,7 +17,7 @@
 // target to generate html under dist/docs/api/slice2html. The latest
 // copy of which is available here:
 //
-// http://downloads.openmicroscopy.org/latest/omero5.1/api/slice2html/
+// http://downloads.openmicroscopy.org/latest/omero5.2/api/slice2html/
 
 /**
 
