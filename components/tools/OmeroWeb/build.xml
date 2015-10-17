@@ -34,30 +34,6 @@
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
     <target name="tools-init">
-        <condition property="django.missing.or.outdated">
-            <not>
-                <resourcecontains resource="${basedir}/../target/lib/python/django/__init__.py" substring="VERSION = (1, 6, 0, 'final', 0)"/>
-            </not>
-        </condition>
-        <if>
-            <istrue value="${django.missing.or.outdated}"/>
-            <then>
-                <delete dir="${basedir}/../target/lib/python/django"/>
-                <untar compression="gzip" src="${lib.dir}/repository/Django-1.6.tar.gz" dest="${basedir}/../target/lib/python">
-                    <patternset>
-                        <include name="Django-1.6/django/**"/>
-                    </patternset>
-                    <mapper>
-                        <filtermapper>
-                            <replacestring from="Django-1.6/" to=""/>
-                        </filtermapper>
-                    </mapper>
-                </untar>
-                <touch>
-                    <fileset dir="${basedir}/../target/lib/python/django"/>
-                </touch>
-            </then>
-        </if>
         <if><not><available file="${basedir}/../target/lib/python/pipeline"/></not>
             <then>
                 <untar compression="gzip" src="${lib.dir}/repository/django-pipeline-1.3.20.tar.gz" dest="${basedir}/../target/lib/python">

@@ -17,17 +17,21 @@ for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
     if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
         sys.path.insert(0, os.path.abspath(tools))
 
-os.environ.setdefault('OMERO_HOME', os.path.abspath(
-    os.path.join("..", "..", "..", "dist")))
+if "test" in sys.argv:
+    os.environ.setdefault('OMERO_HOME', os.path.abspath(
+        os.path.join("..", "..", "..", "dist")))
 
+    sys.path.insert(0, os.path.join("..", "target", "lib", "fallback"))
+    LIB = os.path.join("..", "target", "lib", "python")
+    sys.path.insert(0, LIB)
+    OMEROWEB_LIB = os.path.join(LIB, "omeroweb")
+    sys.path.insert(1, OMEROWEB_LIB)
 
-sys.path.insert(0, os.path.join("..", "target", "lib", "fallback"))
-LIB = os.path.join("..", "target", "lib", "python")
-sys.path.insert(0, LIB)
-OMEROWEB_LIB = os.path.join(LIB, "omeroweb")
-sys.path.insert(1, OMEROWEB_LIB)
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omeroweb.settings")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omeroweb.settings")
+    import django
+    if django.VERSION > (1, 7):
+        django.setup()
 
 from ez_setup import use_setuptools
 use_setuptools(to_dir='../../../lib/repository')

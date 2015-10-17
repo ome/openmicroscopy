@@ -3405,7 +3405,6 @@ class ImViewerComponent
      */
     public void setInterpolation(boolean interpolation) {
         model.setInterpolation(interpolation);
-        refresh();
     }
 
     /**

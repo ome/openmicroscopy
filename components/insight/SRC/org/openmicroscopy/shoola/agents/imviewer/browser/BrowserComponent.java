@@ -136,6 +136,13 @@ class BrowserComponent
         if (!hasImage) {
         	view.locateScrollBars();
         }
+        paintImage();
+    }
+    
+    /**
+     * (Re)paints the image
+     */
+    private void paintImage() {
         view.paintMainImage();
         viewSplitImages();
     }
@@ -666,6 +673,7 @@ class BrowserComponent
          */
         public void setInterpolation(boolean interpolation) {
             model.setInterpolation(interpolation);
+            paintImage();
         }
 	    
 }

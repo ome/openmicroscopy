@@ -48,14 +48,16 @@ def redirect_urlpatterns():
         return patterns(
             '',
             url(r'^$', never_cache(
-                RedirectView.as_view(url=reverse_lazy('webindex'))),
+                RedirectView.as_view(url=reverse_lazy('webindex'),
+                                     permanent=True)),
                 name="index")
             )
     else:
         return patterns(
             '',
             url(r'^$', never_cache(
-                RedirectView.as_view(url=reverse_lazy('webindex_custom'))),
+                RedirectView.as_view(url=reverse_lazy('webindex_custom'),
+                                     permanent=True)),
                 name="index"),
             )
 

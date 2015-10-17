@@ -6,6 +6,8 @@ ${projectIcon}                  webclient/image/folder16.png
 ${datasetIcon}                  webclient/image/folder_image16.png
 ${imageIcon}                    webclient/image/image16.png
 ${shareIcon}                    webclient/image/left_sidebar_icon_public.png
+${screenIcon}                   webclient/image/folder_screen16.png
+${orphanedIcon}                 webclient/image/folder_yellow16.png
 
 *** Keywords ***
 
@@ -74,6 +76,11 @@ Create Dataset
     ${did}=     Create Container    dataset    ${newName}
     [Return]    ${did}
 
+Create Screen
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${did}=     Create Container    screen    ${newName}
+    [Return]    ${did}
+
 Create Button Should Be Enabled
     [Arguments]                 ${oType}
     Element Should Be Enabled   add${oType}Button
@@ -92,11 +99,12 @@ Create Container
     Element Should Be Visible   new-container-form
     Input Text                  name    ${newName}
     # Make sure we pick 'OK' button from visible dialog
+
     Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
     # Wait until metadata panel reloads based on status.
     # This is work arround as unfortunately there is no Wait Until Page NOT Contains Element
     # This is important when two the same objects are created in a row.
-    Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element    xpath=//tr[contains(@class,'data_heading_id')]/td/strong[not(contains(text(), '${oldId}'))]  ${WAIT}
+    Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element    xpath=//tr[contains(@class,'data_heading_id')]/td/strong[not(text() = '${oldId}')]  ${WAIT}
     Wait Until Page Contains            ${dType.title()} ID:  ${WAIT}
     Wait Until Element Is Visible       css=tr.data_heading_id  ${WAIT}
     ${newId}    Get Text                css=tr.data_heading_id strong
@@ -151,31 +159,71 @@ Select Node With Children By Icon
     [Return]                        ${objId}
 
 Select First Project
-    ${projectId}=                   Select Node By Icon    ${projectIcon}
+    ${projectId}=                   Select Node By Icon      ${projectIcon}
+    Wait Until Right Panel Loads    Project                  ${projectId}
     [Return]                        ${projectId}
 
 Select First Project With Children
     ${projectId}=                   Select Node With Children By Icon    ${projectIcon}
     Wait Until Element Is Visible   xpath=//li[@data-id='${projectId}']/ul/li
+    Wait Until Right Panel Loads    Project                  ${projectId}
     [Return]                        ${projectId}
 
+Select First Project With Name
+    [Arguments]                     ${ProjectName}
+    ${nodeId}=                      Wait For Project Node Text      ${ProjectName}
+    Click Node                      ${nodeId}
+    Wait For General Panel          Project
+    [Return]                        ${nodeId}
+
 Select First Dataset
-    ${datasetId}=                   Select Node By Icon    ${datasetIcon}
+    ${datasetId}=                   Select Node By Icon      ${datasetIcon}
+    Wait Until Right Panel Loads    Dataset                  ${datasetId}
     [Return]                        ${datasetId}
 
 Select First Dataset With Children
     ${datasetId}=                   Select Node With Children By Icon    ${datasetIcon}
     Wait Until Element Is Visible   xpath=//li[@data-id='${datasetId}']/ul/li
+    Wait Until Right Panel Loads    Dataset                  ${datasetId}
     [Return]                        ${datasetId}
 
 Select First Image
-    ${imageId}=                     Select Node By Icon    ${imageIcon}
+    ${imageId}=                     Select Node By Icon      ${imageIcon}
+    Wait Until Right Panel Loads    Image                    ${imageId}
     [Return]                        ${imageId}
 
+Select First Orphaned Image
+    ${nodeId}                       Select Orphaned Images Section
+    Wait Until Element Is Visible   xpath=//li[@id='${nodeId}']/ul/li[1]/a
+    Click Element                   xpath=//li[@id='${nodeId}']/ul/li[1]/a
+    Wait Until Page Contains Element                        xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'Image ID:')]
+    ${newId}                        Get Text                css=tr.data_heading_id strong
+    [Return]                        ${newId}
+
 Select First Share
-    ${shareId}=                     Select Node By Icon    ${shareIcon}
+    ${shareId}=                     Select Node By Icon      ${shareIcon}
     [Return]                        ${shareId}
 
+Select First Screen
+    ${screenId}=                    Select Node By Icon      ${screenIcon}
+    Wait Until Right Panel Loads    Screen                   ${screenId}
+    [Return]                         ${screenId}
+
+Select Orphaned Images Section
+    ${firstNodeId}=                 Get NodeId By Icon       ${orphanedIcon}
+    Click Node                                               ${firstNodeId}
+    Wait Until Page Contains Element                         xpath=//p[contains(@class,"description")][contains(text(),'This is a virtual container with orphaned images.')]
+    Node Should Be Selected By Icon                          ${orphanedIcon}
+    Wait Until Element Is Visible                            xpath=//li[@id='${firstNodeId}']/ul/li
+    #Something weird happening in here, if the sleep is removed this seems to fail a couple of tests which are depenedent on Selecting Orphaned Images Section
+    #To Do : Investigate this failure in better detail.
+    # Sleep                           0.5
+    [Return]                        ${firstNodeId}
+
+Wait Until Right Panel Loads
+    [Arguments]                     ${containerType}         ${containerId}
+    Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${containerType} ID:')]
+    Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]/td/strong[(text() = '${containerId}')]
 
 # Methods for querying nodes by TEXT
 
@@ -227,6 +275,11 @@ Wait For Image Node
 Wait For Share Node
     [Arguments]                     ${shareId}
     ${nodeId}=                      Get NodeId By Icon And Id       ${shareIcon}        ${shareId}
+    [Return]                        ${nodeId}
+
+Wait For Screen Node
+    [Arguments]                     ${screenId}
+    ${nodeId}=                      Get NodeId By Icon And Id       ${screenIcon}        ${screenId}
     [Return]                        ${nodeId}
 
 # Or checking Nodes don't exist by ID (only checks what's loaded in jsTree)
