@@ -185,26 +185,17 @@ $(document).ready(function() {
         // clear html and stored data before adding back html
         clearThumbnailsPanel();
 
-        if (parentNode) {
-            inst.get_children_dom(parentNode).each(function(i, n){
-                var node = inst.get_node(n);
-                // In case of tags, only show images
-                if (node.type == "image") {
-                    imgNodes.push(node);
-                }
-            });
+        if (!parentNode) {
+            // need this for pagination etc
+            parentNode = inst.get_node(data.node);
         }
 
-        if (imgNodes.length === 0 && event.type === "load_node" && parentTypes.indexOf(dtype) > -1) {
-            parentNode = inst.get_node(data.node);  // need this for pagination etc
-            data.node.children.forEach(function(nodeId) {
-                var node = inst.get_node(nodeId);
-                // In case of tags, only show images
-                if (node.type == "image") {
-                    imgNodes.push(node);
-                }
-            });
-        }
+
+        imgNodes = [];
+        parentNode.children.forEach(function(ch){
+            var childNode = inst.get_node(ch);
+            imgNodes.push(childNode);
+        });
 
         var imgJson = [],
             selFileSets = [];
