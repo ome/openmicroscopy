@@ -143,6 +143,7 @@
                     var root = inst.get_node('ul > li:first');
                     inst.open_node(root, function() {
                         var node = inst.locate_node(param, root)[0];
+                        if (!node) return;
                         inst.select_node(node);
                         inst.open_node(node);
                         // we also focus the node, to scroll to it and setup hotkey events
