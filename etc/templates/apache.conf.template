@@ -3,8 +3,6 @@
 # this file should be loaded *after* ssl.conf
 #
 # -D options to control configurations
-#  OmeroWebClientRedirect - redirect / to /omero/webclient
-#  OmeroWebAdminRedirect  - redirect / to /omero/webadmin
 #  OmeroForceSSL - redirect all http requests to https
 
 ###
@@ -54,24 +52,32 @@
 ### Stanza for OMERO.web created %(NOW)s
 ###
 
-FastCGIExternalServer "/var/run/omero.fcgi" -host %(FASTCGI_EXTERNAL)s -idle-timeout 60
+<VirtualHost _default_:%(HTTPPORT)d>
 
-<Directory "%(OMEROWEBROOT)s/static">
-    Options -Indexes FollowSymLinks
+  DocumentRoot %(OMEROWEBROOT)s
+
+  WSGIDaemonProcess omeroweb%(PREFIX_NAME)s processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKROOT)s:%(OMEROWEBROOT)s
+  
+  WSGIProcessGroup omeroweb%(PREFIX_NAME)s
+
+  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py
+
+  <Directory %(OMEROWEBROOT)s>
     Order allow,deny
     Allow from all
-</Directory>
+  </Directory>
 
-<Directory "%(ROOT)s/etc/templates/error">
-    Options -Indexes FollowSymLinks
-    Order allow,deny
-    Allow from all
-</Directory>
+  Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
+  <Directory "%(OMEROWEBROOT)s/static">
+      Options -Indexes FollowSymLinks
+      Order allow,deny
+      Allow from all
+  </Directory>
 
-<Location %(WEB_PREFIX)s/>
-    ErrorDocument 500 %(WEB_PREFIX)s/error/maintainance.html
-</Location>
+</VirtualHost>
 
-Alias %(WEB_PREFIX)s/error %(ROOT)s/etc/templates/error
-Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
-Alias %(FORCE_SCRIPT_NAME)s "/var/run/omero.fcgi/"
+# see https://code.google.com/p/modwsgi/wiki/ConfigurationIssues
+WSGISocketPrefix run/wsgi
+# WSGISocketPrefix /var/run/wsgi
+
+
