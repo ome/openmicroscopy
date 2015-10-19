@@ -195,7 +195,10 @@ $(document).ready(function() {
         imgNodes = [];
         parentNode.children.forEach(function(ch){
             var childNode = inst.get_node(ch);
-            imgNodes.push(childNode);
+            // Ignore non-images under tags or 'deleted' under shares
+            if (childNode.type == "image") {
+                imgNodes.push(node);
+            }
         });
 
         var imgJson = [],
