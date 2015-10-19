@@ -335,9 +335,10 @@ public class ImViewerAgent
             if (view != null ) {
                 if (view.getPixelsID() != id) {
                     view.pasteRenderingSettings();
+                    view.saveRndSettings(true);
                 }
                 view.reloadRenderingThumbs();
-            }     
+            }
         }
     }
     /**
