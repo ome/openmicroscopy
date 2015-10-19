@@ -290,7 +290,7 @@ try
     % context of the specified group
     disp('Retrieving screens owned by the session user in a different group')
     screens = getScreens(session, 'group', group2);
-    fprintf(1, '  Found %g plates\n', numel(screens));
+    fprintf(1, '  Found %g screens\n', numel(screens));
     for i = 1 : numel(screens),
         print_object(screens(i));
     end
