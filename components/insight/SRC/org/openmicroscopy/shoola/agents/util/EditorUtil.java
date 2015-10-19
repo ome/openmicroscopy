@@ -143,7 +143,6 @@ public class EditorUtil
     public static final String MANDATORY_DESCRIPTION = "* indicates the " +
             "required fields.";
 
-
     /** Identifies the <code>Group owner</code> field. */
     public static final String GROUP_OWNER = "Group's owner";
 
@@ -188,10 +187,6 @@ public class EditorUtil
 
     /** Text describing the <code>Group</code> permission. */
     public static final String GROUP_VISIBLE = "Collaborative";
-
-    /** Text describing the <code>Group</code> permission. */
-    public static final String	 ROUP_DESCRIPTION =
-            "Visible to members of the Group only.";
 
     /** Text describing the <code>Private</code> permission. */
     public static final String PRIVATE = "Private";
@@ -238,7 +233,7 @@ public class EditorUtil
     /** Identifies the <code>Timepoints</code> field. */
     public static final String TIMEPOINTS = "Number of timepoints";
 
-    /** Identifies the <code>Timepoints</code> field. */
+    /** Identifies the <code>Channels</code> field. */
     public static final String CHANNELS = "Channels";
 
     /** Identifies the <code>PixelType</code> field. */
@@ -532,12 +527,7 @@ public class EditorUtil
     /** Collection of filters to select the supported type of scripts. */
     public static final List<CustomizedFileFilter> SCRIPTS_FILTERS;
 
-    /** List of files format with companion files.*/
-    public static final List<String> FORMATS_WITH_COMPANION;
-
     static {
-        FORMATS_WITH_COMPANION = new ArrayList<String>();
-        FORMATS_WITH_COMPANION.add("deltavision");
 
         SCRIPTS_FILTERS = new ArrayList<CustomizedFileFilter>();
         SCRIPTS_FILTERS.add(new CppFilter());
