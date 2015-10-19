@@ -499,18 +499,6 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
                 adjustScrollPane();
             }
         });
-        t.addFocusListener(new FocusListener() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                MapTableModel m = (MapTableModel) t.getModel();
-                if (m.isDirty())
-                    view.saveData(true);
-            }
-
-            @Override
-            public void focusGained(FocusEvent e) {
-            }
-        });
         mapTables.add(t);
         return t;
     }
@@ -783,6 +771,7 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     void onRelatedNodesSet() {
+        clearDisplay();
         refreshButtonStates();
     }
     
