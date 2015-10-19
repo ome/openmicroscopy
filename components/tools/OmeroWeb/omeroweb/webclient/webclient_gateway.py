@@ -596,7 +596,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             ds.description = rstring(str(description))
         dsid = self.saveAndReturnId(ds)
         if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
+            iids = [int(i) for i in img_ids]
             links = []
             for iid in iids:
                 link = omero.model.DatasetImageLinkI()
@@ -2454,15 +2454,6 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
             self.link = 'link' in kwargs and kwargs['link'] or None
 
 omero.gateway.WellWrapper = WellWrapper
-
-
-class TagWrapper(OmeroWebObjectWrapper, omero.gateway.TagAnnotationWrapper):
-    """
-    omero_model_TagAnnotationI class wrapper overwrite
-    omero.gateway.TagAnnotationWrapper and extends OmeroWebObjectWrapper.
-    """
-
-omero.gateway.TagAnnotationWrapper = TagWrapper
 
 
 class PlateAcquisitionWrapper(OmeroWebObjectWrapper,

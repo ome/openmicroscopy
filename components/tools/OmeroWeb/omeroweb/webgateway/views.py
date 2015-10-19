@@ -250,7 +250,7 @@ def getImgDetailsFromReq(request, as_string=False):
     @rtype:             Dict or String
     """
 
-    r = request.REQUEST
+    r = request.GET
     rv = {}
     for k in ('z', 't', 'q', 'm', 'zm', 'x', 'y', 'p'):
         if k in r:
@@ -437,7 +437,7 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
     """
 
     MAX_WIDTH = 250
-    color = request.REQUEST.get("color", "fff")
+    color = request.GET.get("color", "fff")
     colours = {"f00": (255, 0, 0), "0f0": (0, 255, 0), "00f": (0, 0, 255),
                "ff0": (255, 255, 0), "fff": (255, 255, 255), "000": (0, 0, 0)}
     lineColour = colours["f00"]
@@ -658,7 +658,7 @@ def _get_signature_from_request(request):
     @return:        String
     """
 
-    r = request.REQUEST
+    r = request.GET
     rv = r.get('m', '_') + r.get('p', '_') + r.get('c', '_') + r.get('q', '_')
     return rv
 
@@ -678,7 +678,7 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
     @param retry:       Try an extra attempt at this method
     @return:            Tuple (L{omero.gateway.ImageWrapper} image, quality)
     """
-    r = request.REQUEST
+    r = request.GET
     logger.debug('Preparing Image:%r saveDefs=%r '
                  'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
                                                   r, str(conn)))
@@ -743,8 +743,8 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
         raise Http404
     img, compress_quality = pi
 
-    tile = request.REQUEST.get('tile', None)
-    region = request.REQUEST.get('region', None)
+    tile = request.GET.get('tile', None)
+    region = request.GET.get('region', None)
     level = None
 
     if tile:
@@ -818,7 +818,7 @@ def render_image(request, iid, z=None, t=None, conn=None, **kwargs):
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
 
-    format = request.REQUEST.get('format', 'jpeg')
+    format = request.GET.get('format', 'jpeg')
     rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     if 'download' in kwargs and kwargs['download']:
         if format == 'png':
@@ -878,7 +878,7 @@ def render_ome_tiff(request, ctx, cid, conn=None, **kwargs):
             raise Http404
         imgs.extend(list(obj.listChildren()))
         selection = filter(None,
-                           request.REQUEST.get('selection', '').split(','))
+                           request.GET.get('selection', '').split(','))
         if len(selection):
             logger.debug(selection)
             logger.debug(imgs)
@@ -905,9 +905,9 @@ def render_ome_tiff(request, ctx, cid, conn=None, **kwargs):
 
     imgs = filter(lambda x: not x.requiresPixelsPyramid(), imgs)
 
-    if request.REQUEST.get('dryrun', False):
+    if request.GET.get('dryrun', False):
         rv = json.dumps(len(imgs))
-        c = request.REQUEST.get('callback', None)
+        c = request.GET.get('callback', None)
         if c is not None and not kwargs.get('_internal', False):
             rv = '%s(%s)' % (c, rv)
         return HttpJavascriptResponse(rv)
@@ -1014,14 +1014,14 @@ def render_movie(request, iid, axis, pos, conn=None, **kwargs):
         # Prepare a filename we'll use for temp cache, and check if file is
         # already there
         opts = {}
-        opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
-        opts['fps'] = int(request.REQUEST.get('fps', 4))
+        opts['format'] = 'video/' + request.GET.get('format', 'quicktime')
+        opts['fps'] = int(request.GET.get('fps', 4))
         opts['minsize'] = (512, 512, 'Black')
         ext = '.avi'
         key = "%s-%s-%s-%d-%s-%s" % (iid, axis, pos, opts['fps'],
                                      _get_signature_from_request(request),
-                                     request.REQUEST.get('format',
-                                                         'quicktime'))
+                                     request.GET.get('format',
+                                                     'quicktime'))
 
         pos = int(pos)
         pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
@@ -1119,7 +1119,7 @@ def debug(f):
     """
 
     def wrap(request, *args, **kwargs):
-        debug = request.REQUEST.getlist('debug')
+        debug = request.GET.getlist('debug')
         if 'slow' in debug:
             time.sleep(5)
         if 'fail' in debug:
@@ -1153,7 +1153,7 @@ def jsonp(f):
             if isinstance(rv, HttpResponse):
                 return rv
             rv = json.dumps(rv)
-            c = request.REQUEST.get('callback', None)
+            c = request.GET.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
             if kwargs.get('_internal', False):
@@ -1263,7 +1263,7 @@ def imageData_json(request, conn=None, _internal=False, **kwargs):
     image = conn.getObject("Image", iid)
     if image is None:
         return HttpJavascriptResponseServerError('""')
-    if request.REQUEST.get('getDefaults') == 'true':
+    if request.GET.get('getDefaults') == 'true':
         image.resetDefaults(save=False)
     rv = imageMarshal(image, key=key, request=request)
     return rv
@@ -1305,7 +1305,7 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
-    thumbsize = int(request.REQUEST.get('size', 64))
+    thumbsize = int(request.GET.get('size', 64))
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
@@ -1349,7 +1349,7 @@ def listImages_json(request, did, conn=None, **kwargs):
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix),
-            'tiled': request.REQUEST.get('tiled', False),
+            'tiled': request.GET.get('tiled', False),
             }
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
@@ -1467,7 +1467,7 @@ def searchOptFromRequest(request):
     """
 
     try:
-        r = request.REQUEST
+        r = request.GET
         opts = {
             'search': unicode(r.get('text', '')).encode('utf8'),
             'ctx': r.get('ctx', ''),
@@ -1573,7 +1573,6 @@ def save_image_rdef_json(request, iid, conn=None, **kwargs):
     @return:            http response 'true' or 'false'
     """
     server_id = request.session['connector'].server_id
-    r = request.REQUEST
     pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn,
                              saveDefs=True)
     if pi is None:
@@ -1583,8 +1582,8 @@ def save_image_rdef_json(request, iid, conn=None, **kwargs):
         webgateway_cache.invalidateObject(server_id, user_id, pi[0])
         pi[0].getThumbnail()
         json_data = 'true'
-    if r.get('callback', None):
-        json_data = '%s(%s)' % (r['callback'], json_data)
+    if request.GET.get('callback', None):
+        json_data = '%s(%s)' % (request.GET['callback'], json_data)
     return HttpJavascriptResponse(json_data)
 
 
@@ -1604,7 +1603,7 @@ def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
     """
 
     json_data = 'false'
-    r = request.REQUEST
+    r = request.GET
     if conn is None:
         img = None
     else:
@@ -1724,21 +1723,23 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         return True
 
     # If we've got an rdef encoded in request instead of ImageId...
-    if request.REQUEST.get('c') is not None:
+    r = request.GET or request.POST
+    if r.get('c') is not None:
         # make a map of settings we need
         rdef = {
-            'c': str(request.REQUEST.get('c'))    # channels
+            'c': str(r.get('c'))    # channels
         }
-        if request.REQUEST.get('pixel_range'):
-            rdef['pixel_range'] = str(request.REQUEST.get('pixel_range'))
-        if request.REQUEST.get('m'):
-            rdef['m'] = str(request.REQUEST.get('m'))   # model (grey)
-        if request.REQUEST.get('z'):
-            rdef['z'] = str(request.REQUEST.get('z'))    # z & t pos
-        if request.REQUEST.get('t'):
-            rdef['t'] = str(request.REQUEST.get('t'))
-        if request.REQUEST.get('imageId'):
-            rdef['imageId'] = int(request.REQUEST.get('imageId'))
+        if r.get('pixel_range'):
+            rdef['pixel_range'] = str(r.get('pixel_range'))
+        if r.get('m'):
+            rdef['m'] = str(r.get('m'))   # model (grey)
+        if r.get('z'):
+            rdef['z'] = str(r.get('z'))    # z & t pos
+        if r.get('t'):
+            rdef['t'] = str(r.get('t'))
+        imageId = request.GET.get('imageId', request.POST.get('imageId', None))
+        if imageId:
+            rdef['imageId'] = int(imageId)
 
         if request.method == "GET":
             request.session.modified = True
@@ -1874,7 +1875,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
     """
 
     rid = getImgDetailsFromReq(request)
-    interpolate = request.session['server_settings']['interpolate_pixels']
+    server_settings = request.session.get('server_settings', {})
+    interpolate = server_settings.get('interpolate_pixels', True)
+    roiLimit = server_settings.get('roi_limit', 2000)
 
     try:
         image = conn.getObject("Image", iid)
@@ -1886,6 +1889,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
              'opts': rid,
              'interpolate': interpolate,
              'build_year': build_year,
+             'roiLimit': roiLimit,
              'roiCount': image.getROICount(),
              'viewport_server': kwargs.get(
                  # remove any trailing slash
@@ -1909,16 +1913,16 @@ def download_as(request, iid=None, conn=None, **kwargs):
     Downloads the image as a single jpeg/png/tiff or as a zip (if more than
     one image)
     """
-    format = request.REQUEST.get('format', 'png')
+    format = request.GET.get('format', 'png')
     if format not in ('jpeg', 'png', 'tif'):
         format = 'png'
 
     imgIds = []
     wellIds = []
     if iid is None:
-        imgIds = request.REQUEST.getlist('image')
+        imgIds = request.GET.getlist('image')
         if len(imgIds) == 0:
-            wellIds = request.REQUEST.getlist('well')
+            wellIds = request.GET.getlist('well')
             if len(wellIds) == 0:
                 return HttpResponseServerError(
                     "No images or wells specified in request."
@@ -1931,7 +1935,7 @@ def download_as(request, iid=None, conn=None, **kwargs):
         images = list(conn.getObjects("Image", imgIds))
     elif wellIds:
         try:
-            index = int(request.REQUEST.get("index", 0))
+            index = int(request.GET.get("index", 0))
         except ValueError:
             index = 0
         for w in conn.getObjects("Well", wellIds):
@@ -1991,7 +1995,7 @@ def download_as(request, iid=None, conn=None, **kwargs):
             finally:
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
 
-            zipName = request.REQUEST.get(
+            zipName = request.GET.get(
                 'zipname', 'Download_as_%s' % format)
             zipName = zipName.replace(" ", "_")
             if not zipName.endswith('.zip'):
@@ -2023,8 +2027,8 @@ def archived_files(request, iid=None, conn=None, **kwargs):
 
     imgIds = []
     wellIds = []
-    imgIds = request.REQUEST.getlist('image')
-    wellIds = request.REQUEST.getlist('well')
+    imgIds = request.GET.getlist('image')
+    wellIds = request.GET.getlist('well')
     if iid is None:
         if len(imgIds) == 0 and len(wellIds) == 0:
             return HttpResponseServerError(
@@ -2039,7 +2043,7 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         images = list(conn.getObjects("Image", imgIds))
     elif wellIds:
         try:
-            index = int(request.REQUEST.get("index", 0))
+            index = int(request.GET.get("index", 0))
         except ValueError:
             index = 0
         wells = conn.getObjects("Well", wellIds)
@@ -2095,7 +2099,7 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     else:
 
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
-        zipName = request.REQUEST.get('zipname', image.getName())
+        zipName = request.GET.get('zipname', image.getName())
 
         try:
             zipName = zip_archived_files(images, temp, zipName)

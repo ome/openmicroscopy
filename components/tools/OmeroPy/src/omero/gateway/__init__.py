@@ -1530,6 +1530,14 @@ class _BlitzGateway (object):
                 int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
+    def getRoiLimitSetting(self):
+        try:
+            roi_limit = (int(self.getConfigService().getConfigValue(
+                             "omero.client.viewer.roi_limit")) or 2000)
+        except:
+            roi_limit = 2000
+        return roi_limit
+
     def getInitialZoomLevel(self):
         """
         Returns default initial zoom level set on the server.

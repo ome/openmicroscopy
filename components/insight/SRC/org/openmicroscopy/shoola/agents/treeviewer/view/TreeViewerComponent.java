@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -2657,7 +2658,7 @@ class TreeViewerComponent
 			"paste. \n Please first copy settings.");
 			return;
 		}
-		if (ids == null || ids.size() == 0) {
+		if (CollectionUtils.isEmpty(ids)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "Please select the nodes \n" +
 			"you wish to apply the settings to.");
@@ -4937,4 +4938,43 @@ class TreeViewerComponent
         }
         return null;
     }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#resetRndSettings(long, RndProxyDef)
+     */
+   public void resetRndSettings(long imageID, RndProxyDef settings)
+   {
+       MetadataViewer viewer = model.getMetadataViewer();
+       if (viewer == null) return;
+       Object ho = viewer.getRefObject();
+       ImageData img = null;
+       if (ho instanceof ImageData) {
+           img = (ImageData) ho;
+       } else if (ho instanceof WellSampleData) {
+           img = ((WellSampleData) ho).getImage();
+       }
+       if (img == null || img.getId() != imageID) return;
+       Renderer rnd = viewer.getRenderer();
+       if (rnd != null) {
+           rnd.resetSettings(settings, true);
+       }
+   }
+
+   public RndProxyDef getSelectedViewedBy()
+   {
+       MetadataViewer viewer = model.getMetadataViewer();
+       if (viewer == null) return null;
+       Object ho = viewer.getRefObject();
+       ImageData img = null;
+       if (ho instanceof ImageData) {
+           img = (ImageData) ho;
+       } else if (ho instanceof WellSampleData) {
+           img = ((WellSampleData) ho).getImage();
+       }
+       if (img == null) return null;
+       Renderer rnd = viewer.getRenderer();
+       if (rnd == null) return null;
+       return rnd.getSelectedDef();
+   }
 }

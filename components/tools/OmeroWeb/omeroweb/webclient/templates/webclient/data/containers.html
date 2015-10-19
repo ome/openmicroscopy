@@ -599,7 +599,6 @@
                                 return false;
                              }
                         });
-
                     }
 
                     var ajax_data = {
@@ -608,13 +607,14 @@
                             "description" : new_container_desc
                         }
                     if (img_ids.length > 0){
-                        ajax_data['img_ids'] = img_ids.join(",");
+                        ajax_data['image'] = img_ids;
                     }
                     $.ajax({
                         url: url,
                         data: ajax_data,
                         dataType: "json",
                         type: "POST",
+                        traditional: true,
                         success: function(r){
 
                             var data = {

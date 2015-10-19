@@ -3604,7 +3604,8 @@ class EditorModel
 			renderer.onSettingsApplied(rndControl);
 		} else {
 		    renderer = RendererFactory.createRenderer(getSecurityContext(),
-                    rndControl, getImage(), getRndIndex(), getXMLAnnotations());
+                    rndControl, getImage(), getRndIndex(), getXMLAnnotations(),
+                    parent.getAlternativeRenderingSettings());
 		}
 	}
 

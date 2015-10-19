@@ -265,9 +265,12 @@ public interface ImViewer
 	 * 
 	 * @param settings The settings set by another user.
 	 * @param userID   The id of the user who set the settings.
-	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
+	 * @param displayMode The mode used.
+	 * @param selectedSettingsID Settings used
+	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.
 	 */
-	public void activate(RndProxyDef settings, long userID, int displayMode);
+	public void activate(RndProxyDef settings, long userID, int displayMode,
+	        long selectedSettingsID);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -1319,4 +1322,5 @@ public interface ImViewer
      * @return See above
      */
     ImageAcquisitionData getImageAcquisitionData();
+
 }

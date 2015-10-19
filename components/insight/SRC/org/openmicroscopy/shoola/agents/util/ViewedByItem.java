@@ -66,6 +66,9 @@ public class ViewedByItem extends JLabel {
     /** The image with the rendering settings. */
     private BufferedImage image;
 
+    /** Flag indicating that the item should be selected by default.*/
+    private boolean selected;
+
     /**
      * Creates a new instance.
      * 
@@ -117,6 +120,24 @@ public class ViewedByItem extends JLabel {
 
         });
     }
+
+    /**
+     * Indicates that the element should be selected by default or not.
+     *
+     * @param selected The value to set.
+     */
+    public void setSelected(boolean selected)
+    {
+        this.selected = selected;
+    }
+
+    /**
+     * Returns <code>true</code> if the item is selected,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isSelected() { return selected; }
 
     /**
      * Returns the experimenter the settings belong to.

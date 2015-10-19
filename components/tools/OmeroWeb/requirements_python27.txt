@@ -1,0 +1,8 @@
+# Python installation requirements for OMERO.web
+# ==============================================
+#
+# This file is meant to be consumed by pip
+#
+#     pip install -r requirements.txt
+#
+Django==1.8.4

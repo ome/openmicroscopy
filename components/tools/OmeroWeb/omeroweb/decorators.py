@@ -258,6 +258,8 @@ class login_required(object):
                 conn.getDropdownMenuSettings()
             request.session['server_settings']['email'] = \
                 conn.getEmailSettings()
+            request.session['server_settings']['roi_limit'] = \
+                conn.getRoiLimitSetting()
             request.session['server_settings']['initial_zoom_level'] = \
                 conn.getInitialZoomLevel()
             request.session['server_settings']['interpolate_pixels'] = \
@@ -301,7 +303,7 @@ class login_required(object):
                 server_id = settings.PUBLIC_SERVER_ID
             username = settings.PUBLIC_USER
             password = settings.PUBLIC_PASSWORD
-            is_secure = request.REQUEST.get('ssl', False)
+            is_secure = request.GET.get('ssl', False)
             logger.debug('Is SSL? %s' % is_secure)
             # Try and use a cached OMERO.webpublic user session key.
             public_user_connector = self.get_public_user_connector()
@@ -342,7 +344,7 @@ class login_required(object):
 
         userip = get_client_ip(request)
         session = request.session
-        request = request.REQUEST
+        request = request.GET
         is_secure = request.get('ssl', False)
         logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
@@ -350,7 +352,7 @@ class login_required(object):
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
-            # instead we'll depend on the request.session and request.REQUEST
+            # instead we'll depend on the request.session and request.GET
             # values
             if connector is not None:
                 server_id = connector.server_id
@@ -431,7 +433,7 @@ class login_required(object):
         returns the result.
         """
         def wrapped(request, *args, **kwargs):
-            url = request.REQUEST.get('url')
+            url = request.GET.get('url')
             if url is None or len(url) == 0:
                 url = request.get_full_path()
 
@@ -472,7 +474,7 @@ class login_required(object):
                     else:
                         kwargs['conn'] = conn
 
-                    # kwargs['error'] = request.REQUEST.get('error')
+                    # kwargs['error'] = request.GET.get('error')
                     kwargs['url'] = url
 
             retval = f(request, *args, **kwargs)
