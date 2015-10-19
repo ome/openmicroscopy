@@ -222,9 +222,13 @@ $(document).ready(function() {
                 }
             }
             // Thumb version: random to break cache if thumbnails are -1 'in progress'
-            if (node.data.obj.thumbVersion != undefined) {
+            // or we're refresing 1 or all thumbnails
+            if (node.data.obj.thumbVersion != undefined ||
+                    event.type === "refreshThumbnails" ||
+                    event.type === "refreshThumb") {
                 var thumbVersion = node.data.obj.thumbVersion;
-                if (thumbVersion === -1) {
+                if (thumbVersion === -1 || event.type === "refreshThumbnails" || (
+                        event.type === "refreshThumb" && data.imageId === iData.id)) {
                     thumbVersion = getRandom();
                     // We cache this to prevent new thumbnails requested on every
                     // selection change. Refreshing of tree will reset thumbVersion.

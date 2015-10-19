@@ -381,20 +381,35 @@ OME.initToolbarDropdowns = function() {
 OME.refreshThumbnails = function(options) {
     options = options || {};
     var rdm = Math.random(),
-        thumbs_selector = "#dataIcons img",
+        // thumbs_selector = "#dataIcons img",
         search_selector = ".search_thumb",
         spw_selector = "#spw img";
     // handle Dataset thumbs, search rusults and SPW thumbs
     if (options.imageId) {
-        thumbs_selector = "#image_icon-" + options.imageId + " img";
+        // thumbs_selector = "#image_icon-" + options.imageId + " img";
         search_selector = "#image-" + options.imageId + " img.search_thumb";
         spw_selector += "#image-" + options.imageId;
     }
-    $(thumbs_selector + ", " + spw_selector + ", " + search_selector).each(function(){
-        var $this = $(this),
-            base_src = $this.attr('src').split('?')[0];
-        $this.attr('src', base_src + "?_="+rdm);
-    });
+    // Try SPW data or Search data by directly updating thumb src...
+    var $thumbs = $(spw_selector + ", " + search_selector);
+    if ($thumbs.length > 0){
+        $thumbs.each(function(){
+            var $this = $(this),
+                base_src = $this.attr('src').split('?')[0];
+            $this.attr('src', base_src + "?_="+rdm);
+        });
+    } else if (window.update_thumbnails_panel) {
+        // ...Otherwise update thumbs via jsTree
+        // (avoids revert of src on selection change)
+        var type = 'refreshThumbnails',
+            data = {};
+        if (options.imageId) {
+            type = "refreshThumb";
+            data = {'imageId': options.imageId};
+        }
+        var e = {'type': type};
+        update_thumbnails_panel(e, data);
+    }
 
     // Update viewport via global variable
     if (!options.ignorePreview && OME.preview_viewport && OME.preview_viewport.loadedImg.id) {
