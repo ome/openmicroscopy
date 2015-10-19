@@ -197,7 +197,7 @@ $(document).ready(function() {
             var childNode = inst.get_node(ch);
             // Ignore non-images under tags or 'deleted' under shares
             if (childNode.type == "image") {
-                imgNodes.push(node);
+                imgNodes.push(childNode);
             }
         });
 
