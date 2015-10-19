@@ -109,7 +109,7 @@ ids = toJavaList(ids, 'java.lang.Long');
 proxy = session.getContainerService();
 context = ip.Results.context;
 if ~isempty(ip.Results.group)
-    context.put('omero.group', num2str(ip.Results.group));
+    context.put('omero.group', java.lang.String(num2str(ip.Results.group)));
 end
 objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters, context);
 
