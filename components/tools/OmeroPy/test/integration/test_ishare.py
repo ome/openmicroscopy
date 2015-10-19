@@ -1018,6 +1018,10 @@ class TestIShare(lib.ITest):
         # activate again
         o_share.setActive(sid, True)
 
+        # test that the image is now loadable again.
+        t_conn = self.new_client(session=s.uuid)
+        t_conn.sf.getQueryService().find("Image", image.id.val)
+
         # test expired share, if member has no access to the image
         expiration = long(time.time() * 1000) + 500
         o_share.setExpiration(sid, rtime(expiration))
