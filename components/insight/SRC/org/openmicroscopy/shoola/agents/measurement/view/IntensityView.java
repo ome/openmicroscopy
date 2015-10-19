@@ -1227,10 +1227,10 @@ class IntensityView
 		}
 		
 		if (!hasData) {
-            if (!statsMissingFigures.isEmpty()) {
-                state = State.ANALYSING;
+            if (!statsMissingFigures.isEmpty()) 
                 controller.analyseFigures(statsMissingFigures);
-            }
+            else
+                state = State.READY;
             channelSummaryTable.setVisible(false);
             clearMaps();
             return;
@@ -1318,6 +1318,8 @@ class IntensityView
 	    }
 		zSlider.setEnabled(!analyse);
 		tSlider.setEnabled(!analyse);
+		if(!analyse)
+		    state = State.READY;
 	}
 	
 	/**
