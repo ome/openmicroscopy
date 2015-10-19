@@ -974,13 +974,6 @@ public class EditorUtil
                 return count > 0;
             }
             int n = 1;
-            try {
-                String format = image.getFormat();
-                if (format != null &&
-                        FORMATS_WITH_COMPANION.contains(format.toLowerCase()))
-                    n = 2;
-            } catch (Exception e) {
-            }
             Iterator<Entry<Long, Long>> i = counts.entrySet().iterator();
             long value = 0;
             Entry<Long, Long> entry;
