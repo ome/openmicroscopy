@@ -713,8 +713,6 @@ present, the user will enter a console""")
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
-        if self._isWindows():
-            self.checkwindows(args)
 
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
@@ -725,6 +723,8 @@ present, the user will enter a console""")
         if not args.force_rewrite:
             self.rewrite(args, config)
 
+        if self._isWindows():
+            self.checkwindows(args)
         self.check_lock(config)
 
         self._initDir()
