@@ -337,13 +337,13 @@
                 <div class="plane_info">
                 <table class="exposureTimeData"><tr>
                     <td>
-                        <div>t index </div>
+                        <div>t</div>
                         <div>Delta T</div>
                         <div style="white-space:nowrap;">Exposure</div>
                     </td>
                     {% for pi in ch.plane_info %}
                         <td>
-                            <div>t={{ pi.theT }} </div>
+                            <div>t={{ pi.theT|add:"1" }} </div>
                             <div>{{ pi.deltaT|timeformat }} </div>
                             <div>{{ pi.exposureTime|timeformat }}</div>
                         </td>
