@@ -258,6 +258,8 @@ class login_required(object):
                 conn.getDropdownMenuSettings()
             request.session['server_settings']['email'] = \
                 conn.getEmailSettings()
+            request.session['server_settings']['roi_limit'] = \
+                conn.getRoiLimitSetting()
             request.session['server_settings']['initial_zoom_level'] = \
                 conn.getInitialZoomLevel()
             request.session['server_settings']['interpolate_pixels'] = \

@@ -1875,7 +1875,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
     """
 
     rid = getImgDetailsFromReq(request)
-    interpolate = request.session['server_settings']['interpolate_pixels']
+    server_settings = request.session.get('server_settings', {})
+    interpolate = server_settings.get('interpolate_pixels', True)
+    roiLimit = server_settings.get('roi_limit', 2000)
 
     try:
         image = conn.getObject("Image", iid)
@@ -1887,6 +1889,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
              'opts': rid,
              'interpolate': interpolate,
              'build_year': build_year,
+             'roiLimit': roiLimit,
              'roiCount': image.getROICount(),
              'viewport_server': kwargs.get(
                  # remove any trailing slash
