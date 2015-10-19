@@ -544,8 +544,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
             if (Boolean.FALSE.equals(active)) {
                throw new SecurityViolation(prefix + " is inactive");
-            } else if (started.getTime() + timeToLive > System.currentTimeMillis()) {
-                throw new SecurityViolation(prefix + " has expired");
+            } else if ((System.currentTimeMillis() - started.getTime()) > timeToLive) {
+                String msg = String.format("%s has expired: %s, timeToLive=%s",
+                        prefix, started, timeToLive);
+                throw new SecurityViolation(msg);
             }
         }
     }

@@ -1019,9 +1019,10 @@ class TestIShare(lib.ITest):
         o_share.setActive(sid, True)
 
         # test expired share, if member has no access to the image
-        expiration = long(time.time() * 1000) + 86400
+        expiration = long(time.time() * 1000) + 500
         o_share.setExpiration(sid, rtime(expiration))
         self.assert_expiration(expiration, o_share.getShare(sid))
+        time.sleep(0.5)
 
         with pytest.raises(Glacier2.PermissionDeniedException):
             self.new_client(session=s.uuid)
