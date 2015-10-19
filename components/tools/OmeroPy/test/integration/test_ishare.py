@@ -1028,11 +1028,12 @@ class TestIShare(lib.ITest):
         self.assert_expiration(expiration, o_share.getShare(sid))
         time.sleep(0.5)
 
-        with pytest.raises(Glacier2.PermissionDeniedException):
-            self.new_client(session=s.uuid)
         # Forced closing
         o_session = owner.sf.getSessionService()
         o_session.closeSession(o_share.getShare(sid))
+
+        with pytest.raises(Glacier2.PermissionDeniedException):
+            self.new_client(session=s.uuid)
 
     # Helpers
 
