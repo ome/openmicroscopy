@@ -897,16 +897,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "omeroweb.custom_context_processor.url_suffix"
 )
 
-# TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings.
-# Each Loader class knows how to import templates from a particular source.
-# Optionally, a tuple can be used instead of a string. The first item in the
-# tuple should be the Loader's module, subsequent items are passed to the
-# Loader during initialization.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-
 # INSTALLED_APPS: A tuple of strings designating all applications that are
 # enabled in this Django installation. Each string should be a full Python
 # path to a Python package that contains a Django application, as created by
