@@ -804,5 +804,10 @@ public interface Renderer
      * Enables/Disables the paste action
      */
     void updatePasteAction();
-    
+
+    /**
+     * Returns the selected rendering settings under "User Settings".
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef();
 }
