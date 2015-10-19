@@ -3025,6 +3025,21 @@ class ImViewerComponent
 		}
 		return model.isBigImage();
 	}
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#isExportable()
+     */
+    public boolean isExportable() {
+        switch (model.getState()) {
+        case NEW:
+        case DISCARDED:
+        case LOADING_IMAGE_DATA:
+            return false;
+        }
+        return model.isExportable();
+    }
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.

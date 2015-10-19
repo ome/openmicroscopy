@@ -1098,6 +1098,14 @@ public interface ImViewer
 	 */
 	public boolean isBigImage();
 
+	/**
+     * Checks if the image can be exported, i. e. it does not exceed the maximum
+     * size for being able to get exported as jpg, png or tif
+     * 
+     * @return See above
+     */
+	public boolean isExportable();
+	
 	/** Refreshes the view. */
 	public void refresh();
 
