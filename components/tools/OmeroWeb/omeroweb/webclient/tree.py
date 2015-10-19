@@ -703,11 +703,11 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         q = """select image.id, thumbs.version from Image image
             join image.pixels pix join pix.thumbnails thumbs
             where image.id in (:ids)
-            and thumbs.details.owner.id = :thumbOwner
             and thumbs.id = (
                 select max(t.id)
                 from Thumbnail t
                 where t.pixels = pix.id
+                and t.details.owner.id = :thumbOwner
             )
             """
         thumbVersions = {}
