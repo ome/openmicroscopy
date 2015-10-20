@@ -71,10 +71,8 @@ class RobotControl(BaseControl):
         if settings.APPLICATION_SERVER in settings.WSGI_TYPES:
             d["WEBHOST"] = d["HOST"]
         else:
-            app_host = getattr(settings, 'APPLICATION_SERVER_HOST', None)
-            app_port = getattr(settings, 'APPLICATION_SERVER_PORT', None)
-            d["WEBHOST"] = ("%s:%s" %
-                            (app_host, app_port)) if app_port else app_host
+            d["WEBHOST"] = "%s:%s" % (settings.APPLICATION_SERVER_HOST,
+                                      settings.APPLICATION_SERVER_PORT)
 
         # Read robot.template file and substitute keywords
         c = file(self.ctx.dir / "etc" / "templates" / "robot.template").read()
