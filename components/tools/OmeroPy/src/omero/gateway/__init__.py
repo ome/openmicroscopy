@@ -7126,30 +7126,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         self._author = e.firstName.val + " " + e.lastName.val
         return self._author
 
-    def getDataset(self):
-        """
-        XXX: Deprecated since 4.3.2, use listParents(). (See #6660)
-        Gets the Dataset that image is in, or None.
-        Returns None if Image is in more than one Dataset.
-
-        :return:    Dataset
-        :rtype:     :class:`DatasetWrapper`
-        """
-
-        try:
-            q = """
-            select ds from Image i join i.datasetLinks dl join dl.parent ds
-            where i.id = %i
-            """ % self._obj.id.val
-            query = self._conn.getQueryService()
-            ds = query.findAllByQuery(q, None, self._conn.SERVICE_OPTS)
-            if ds and len(ds) == 1:
-                return DatasetWrapper(self._conn, ds[0])
-        except:  # pragma: no cover
-            logger.debug('on getDataset')
-            logger.debug(traceback.format_exc())
-            return None
-
     def getProject(self):
         """
         Gets the Project that image is in, or None.
