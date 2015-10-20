@@ -3826,7 +3826,13 @@ class _BlitzGateway (object):
         linked to others in the database
 
         :param obj:     Object to delete
-        :type obj:      IObject"""
+        :type obj:      IObject
+
+        ** Deprecated ** Use :meth:`deleteObject` or :meth:`deleteObjects`.
+        """
+        warnings.warn(
+            "Deprecated. Use deleteObject() or deleteObjects()",
+            DeprecationWarning)
 
         type = obj.__class__.__name__.rstrip('I')
         delete = Delete2(targetObjects={type: [obj.getId().val]})
