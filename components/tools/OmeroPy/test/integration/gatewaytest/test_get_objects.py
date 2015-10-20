@@ -544,9 +544,8 @@ class TestGetObject (object):
         image = author_testimg_tiny
         # This should return image wrapper
         pr = image.getProject()
-        ds = image.getDataset()
+        ds = image.getParent()
 
-        assert ds == image.getParent()
         assert image.listParents()[0] == image.getParent()
         assert ds == image.getParent(withlinks=True)[0]
         assert image.getParent(withlinks=True) == \
