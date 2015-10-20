@@ -3843,7 +3843,8 @@ class _BlitzGateway (object):
         Delete a single object.
 
         :param obj:     Object to delete
-        :type obj:      IObject"""
+        :type obj:      IObject
+        """
 
         objType = obj.__class__.__name__.rstrip('I')
         self.deleteObjects(objType, [obj.id.val], wait=True)
