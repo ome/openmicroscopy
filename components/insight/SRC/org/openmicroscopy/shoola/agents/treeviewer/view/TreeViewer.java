@@ -576,7 +576,12 @@ public interface TreeViewer
 	 * another object.
 	 */
 	public void showPreSavingDialog();
-
+	
+	/**
+	 * Saves the metadata
+	 */
+    public void saveMetadata();
+    
 	/** 
 	 * Retrieves the user groups. 
 	 * 

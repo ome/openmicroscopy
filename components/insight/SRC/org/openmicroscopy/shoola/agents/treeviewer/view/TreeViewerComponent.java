@@ -1377,11 +1377,7 @@ class TreeViewerComponent
 		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified " +
-					"data \n before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-			else mv.clearDataToSave();
+		    mv.saveData();
 		}
 		boolean sameSelection = false;
 		if (view.getDisplayMode() != SEARCH_MODE) {
@@ -1465,11 +1461,7 @@ class TreeViewerComponent
         }
         MetadataViewer mv = model.getMetadataViewer();
         if (hasDataToSave()) {
-            MessageBox dialog = new MessageBox(view, "Save data",
-                    "Do you want to save the modified " +
-                    "data \n before selecting a new item?");
-            if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-            else mv.clearDataToSave();
+            mv.saveData();
         }
         List<Object> siblings = (List<Object>) l.get(0);
         int size = siblings.size();
@@ -1657,11 +1649,7 @@ class TreeViewerComponent
 		}
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified \n" +
-					"data before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-			else mv.clearDataToSave();
+			mv.saveData();
 		}
 		Browser browser = model.getSelectedBrowser();
 		ExperimenterData exp = null;
@@ -2457,6 +2445,15 @@ class TreeViewerComponent
 		}
 	}
 
+    public void saveMetadata() {
+        MetadataViewer metadata = model.getMetadataViewer();
+        if (metadata == null)
+            return;
+        if (!(metadata.hasDataToSave()))
+            return;
+        model.getMetadataViewer().saveData();
+    }
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#retrieveUserGroups(Point, GroupData)
