@@ -454,7 +454,7 @@ $(document).ready(function() {
     // use IDs of the selected visible thumbnails to sync tree selection
     var syncTreeSelection = function() {
 
-        var $selectedIcons = $('.ui-selected');
+        var $selectedIcons = $('#dataIcons li.ui-selected');
         if (parentNode.type == 'share') {
             // We don't support multi-selection of images in share
             $selectedIcons.removeClass('ui-selected');
