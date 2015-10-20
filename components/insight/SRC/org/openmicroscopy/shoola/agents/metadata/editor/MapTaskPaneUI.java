@@ -30,8 +30,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -332,9 +330,9 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
      * Show only specific types of MapAnnotations
      * 
      * @param filter
-     *            One of: {@link AnnotationDataUI#SHOW_ALL}, see
-     *            {@link AnnotationDataUI#ADDED_BY_ME}, see
-     *            {@link AnnotationDataUI#ADDED_BY_OTHERS}
+     *            One of: {@link Filter#SHOW_ALL}, see
+     *            {@link Filter#ADDED_BY_ME}, see
+     *            {@link Filter#ADDED_BY_OTHERS}
      */
     public void filter(Filter filter) {
         for (MapTable table : mapTables) {
