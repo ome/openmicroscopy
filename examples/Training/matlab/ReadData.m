@@ -31,7 +31,7 @@ try
     datasetId = p.datasetid;
     imageId = p.imageid;
     plateId = p.plateid;
-    group2 = p.group2
+    groupId = eventContext.groupId;
 
     print_object = @(x) fprintf(1, '  %s (id: %d, owner: %d, group: %d)\n',...
         char(x.getName().getValue()), x.getId().getValue(),...
@@ -83,8 +83,8 @@ try
 
     % Retrieve all the unloaded projects owned by the session user in the
     % context of the specified group
-    disp('Retrieving projects owned by the session user in a different group')
-    projects = getProjects(session, 'group', group2);
+    disp('Retrieving projects owned by the session user in a specified group')
+    projects = getProjects(session, 'group', groupId);
     fprintf(1, '  Found %g projects\n', numel(projects));
     for i = 1 : numel(projects),
         print_object(projects(i));
@@ -140,8 +140,8 @@ try
 
     % Retrieve all the unloaded datasets owned by the session user in the
     % context of the specified group
-    disp('Retrieving datasets owned by the session user in a different group')
-    datasets = getDatasets(session, 'group', group2);
+    disp('Retrieving datasets owned by the session user in a specified group')
+    datasets = getDatasets(session, 'group', groupId);
     fprintf(1, '  Found %g datasets\n', numel(datasets));
     for i = 1 : numel(datasets),
         print_object(datasets(i));
@@ -181,8 +181,8 @@ try
 
     % Retrieve all the images owned by the session user in the
     % context of the specified group
-    disp('Retrieving images owned by the session user in a different group')
-    images = getImages(session, 'group', group2);
+    disp('Retrieving images owned by the session user in a specified group')
+    images = getImages(session, 'group', groupId);
     fprintf(1, '  Found %g images\n', numel(images));
     for i = 1 : numel(images),
         print_object(images(i));
@@ -278,18 +278,8 @@ try
 
     % Retrieve all the screens owned by the session user in the
     % context of the specified group
-    disp('Retrieving screens owned by the session user in a different group')
-    screens = getScreens(session, 'group', group2);
-    fprintf(1, '  Found %g screens\n', numel(screens));
-    for i = 1 : numel(screens),
-        print_object(screens(i));
-    end
-    fprintf(1, '\n');
-
-    % Retrieve all the screens owned by the session user in the
-    % context of the specified group
-    disp('Retrieving screens owned by the session user in a different group')
-    screens = getScreens(session, 'group', group2);
+    disp('Retrieving screens owned by the session user in a specified group')
+    screens = getScreens(session, 'group', groupId);
     fprintf(1, '  Found %g screens\n', numel(screens));
     for i = 1 : numel(screens),
         print_object(screens(i));
@@ -308,8 +298,8 @@ try
 
     % Retrieve all the plates owned by the session user in the
     % context of the specified group
-    disp('Retrieving plates owned by the session user in a different group')
-    plates = getPlates(session, 'group', group2);
+    disp('Retrieving plates owned by the session user in a specified group')
+    plates = getPlates(session, 'group', groupId);
     fprintf(1, '  Found %g plates\n', numel(plates));
     for i = 1 : numel(plates),
         print_object(plates(i));
