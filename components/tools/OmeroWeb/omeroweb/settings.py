@@ -741,6 +741,7 @@ if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     LOGGING['loggers']['django']['level'] = 'INFO'
     LOGGING['loggers']['']['level'] = 'INFO'
 
+
 def report_settings(module):
     from django.views.debug import cleanse_setting
     custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {})
@@ -852,10 +853,10 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__),
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': TEMPLATE_DIRS,
+        'DIRS': TEMPLATE_DIRS,  # noqa
         'APP_DIRS': True,
         'OPTIONS': {
-            'debug': DEBUG,
+            'debug': DEBUG,  # noqa
             'context_processors': [
                 # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
                 # list if you haven't customized them:
