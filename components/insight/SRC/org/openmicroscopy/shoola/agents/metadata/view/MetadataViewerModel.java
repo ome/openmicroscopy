@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
@@ -53,12 +52,14 @@ import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
@@ -560,33 +561,72 @@ class MetadataViewerModel
 		
 	}
 	
-	/**
-	 * Fires an asynchronous call to save the data, add (resp. remove)
-	 * annotations to (resp. from) the object.
-	 * 
-	 * @param object The annotation/link to add or remove.
-	 * @param metadata	The acquisition metadata to save.
-	 * @param data		The object to update.
-	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
-     * 				 	<code>false</code> otherwise.
-	 */
-	void fireSaving(DataToSave object, 
-			List<Object> metadata, Collection<DataObject> data, boolean asynch)
-	{
-		List<AnnotationData> toAdd = null;
-		List<Object> toRemove = null;
-		if (object != null) {
-			toAdd = object.getToAdd();
-			toRemove = object.getToRemove();
-		}
-		loaderID++;
-        DataSaver loader = new DataSaver(component, ctx, data, toAdd,
-                toRemove, metadata, loaderID);
-        loaders.put(loaderID, loader);
-        loader.load();
-        state = MetadataViewer.SAVING;
-	}
+    /**
+     * Fires an asynchronous call to save the data, add (resp. remove)
+     * annotations to (resp. from) the object.
+     * 
+     * @param object
+     *            The annotation/link to add or remove.
+     * @param metadata
+     *            The acquisition metadata to save.
+     * @param data
+     *            The object to update.
+     * @param asynch
+     *            Pass <code>true</code> to save data asynchronously,
+     *            <code>false</code> otherwise.
+     */
+    void fireSaving(DataToSave object, List<Object> metadata,
+            Collection<DataObject> data, boolean asynch) {
+        List<AnnotationData> toAdd = null;
+        List<Object> toRemove = null;
+        if (object != null) {
+            toAdd = object.getToAdd();
+            toRemove = object.getToRemove();
+        }
+        if (asynch) {
+            DataSaver loader = new DataSaver(component, ctx, data, toAdd,
+                    toRemove, metadata, loaderID);
+            loaderID++;
+            loaders.put(loaderID, loader);
+            loader.load();
+            state = MetadataViewer.SAVING;
+        } else {
+            OmeroMetadataService os = MetadataViewerAgent.getRegistry()
+                    .getMetadataService();
+            if (metadata != null) {
+                Iterator<Object> i = metadata.iterator();
+                while (i.hasNext()) {
+                    try {
+                        os.saveAcquisitionData(ctx, i.next());
+                    } catch (DSOutOfServiceException e) {
+                        handleException(e);
+                    } catch (DSAccessException e) {
+                        handleException(e);
+                    }
+                }
+            }
+            try {
+                os.saveBatchData(ctx, data, toAdd, toRemove, userID);
+            } catch (DSOutOfServiceException e) {
+                handleException(e);
+            } catch (DSAccessException e) {
+                handleException(e);
+            }
+        }
+    }
 	
+    /**
+     * Notifies the user about the exception
+     */
+    private void handleException(Exception e) {
+        MetadataViewerAgent
+                .getRegistry()
+                .getUserNotifier()
+                .notifyError("Could not save metadata",
+                        "Could not save metadata before closing application.",
+                        e);
+    }
+
 	/**
 	 * Fires an asynchronous call to update the passed experimenter.
 	 * 
