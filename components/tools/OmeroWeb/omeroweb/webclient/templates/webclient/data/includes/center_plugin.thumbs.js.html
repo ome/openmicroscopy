@@ -355,18 +355,6 @@ $(document).ready(function() {
 
         syncTreeSelection();
 
-        // if (imageId) {
-        //     // don't lookup container if no images selected
-        //     var containerNode = OME.getTreeImageContainerBestGuess(imageId);
-
-        //     var selectedNode = inst.locate_node('image-' + imageId, containerNode)[0];
-        //     console.log("selectedNode", selectedNode);
-
-        //     console.log($("#" + selectedNode.id + ">a"));
-        //     $("#" + selectedNode.id + ">a").click(event);
-
-        //     // inst.select_node(selectedNode, true);
-        // }
     }
 
 
@@ -437,19 +425,6 @@ $(document).ready(function() {
         $targetIcon.addClass('lastSelected');
     }
 
-    // When we filter, unselect the hidden icons and update
-    // selections in the jstree
-    // var deselectFiltered = function(e, a){
-    //     // check if any selection change is needed
-    //     var $filtered = $("#dataIcons li.ui-selected:hidden");
-    //     if ($filtered.length == 0) return;
-
-    //     // If we've filtered any selected images, de-select icon
-    //     $filtered.removeClass("ui-selected");
-
-    //     var imageId = $filtered.first().data('id');
-    //     syncTreeSelection(imageId);
-    // };
 
     // use IDs of the selected visible thumbnails to sync tree selection
     var syncTreeSelection = function() {
@@ -486,7 +461,9 @@ $(document).ready(function() {
                 var selectedNode = inst.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
                 inst.select_node(selectedNode, true);
                 // we also focus the node, so that hotkey events come from the node
-                $("#" + selectedNode.id).children('.jstree-anchor').focus();
+                if (selectedNode) {
+                    $("#" + selectedNode.id).children('.jstree-anchor').focus();
+                }
             });
         } else {
             console.log('jstree may need to be refreshed');
