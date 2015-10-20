@@ -963,7 +963,6 @@ public class EditorUtil
             if (counts == null || counts.size() <= 0) {
                 return count > 0;
             }
-            int n = 1;
             Iterator<Entry<Long, Long>> i = counts.entrySet().iterator();
             long value = 0;
             Entry<Long, Long> entry;
@@ -972,7 +971,7 @@ public class EditorUtil
                 value += (Long) entry.getValue();
             }
             value += count;
-            return value > n;
+            return value > 0;
         } else if (object instanceof ScreenData)
             counts = ((ScreenData) object).getAnnotationsCounts();
         else if (object instanceof PlateData)
