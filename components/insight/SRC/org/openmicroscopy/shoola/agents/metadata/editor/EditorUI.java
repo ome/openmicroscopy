@@ -137,11 +137,6 @@ class EditorUI
 
 	/** The tool bar with various controls. */
 	private ToolBar						toolBar;
-
-    /** 
-     * Flag indicating that the data has already been saved and no new changes.
-     */
-    private boolean						saved;
 	
     /** The tab pane hosting the metadata. */
     private JTabbedPane					tabPane;
@@ -335,7 +330,6 @@ class EditorUI
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
 		if (!(uo instanceof DataObject)) {
-			//saved = false;
 			setDataToSave(false);
 			toolBar.setStatus(false);
 			toolBar.buildUI();
@@ -381,7 +375,6 @@ class EditorUI
      */
 	void saveData(boolean async)
 	{
-		saved = true;
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		toolBar.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
@@ -391,7 +384,6 @@ class EditorUI
 		} else if  (model.getRefObject() instanceof GroupData) {
 			AdminObject o = groupUI.getAdminObject();
 			if (o == null) {
-				saved = false;
 				setCursor(Cursor.getDefaultCursor());
 				toolBar.setDataToSave(true);
 				return;
@@ -431,7 +423,6 @@ class EditorUI
 	 */
 	boolean hasDataToSave()
 	{
-		if (saved) return false;
 		Object ref = model.getRefObject();
 		if (!(ref instanceof DataObject)) return false;
 		if (ref instanceof ExperimenterData)
@@ -448,7 +439,6 @@ class EditorUI
 	/** Clears data to save. */
 	void clearData()
 	{
-		saved = false;
 		userUI.clearData(null);
 		groupUI.clearData(null);
 		generalPane.clearData(null);
@@ -532,7 +522,6 @@ class EditorUI
 	 */
 	private void removeLinks(int level, Collection l)
 	{
-		saved = true;
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		toolBar.setDataToSave(false);
 		Iterator<AnnotationData> i = l.iterator();
