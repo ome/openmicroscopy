@@ -68,11 +68,13 @@ class RobotControl(BaseControl):
         d["WEBPREFIX"] = static_prefix
         d["QWEBPREFIX"] = urllib.quote(static_prefix, '')
         d["QSEP"] = urllib.quote('/', '')
-        if settings.APPLICATION_SERVER in settings.FASTCGI_TYPES:
-            d["WEBHOST"] = d["HOST"]
+        app_host = getattr(settings, 'APPLICATION_SERVER_HOST', None)
+        app_port = getattr(settings, 'APPLICATION_SERVER_PORT', None)
+        if app_host:
+            d["WEBHOST"] = ("%s:%s" %
+                            (app_host, app_port)) if app_port else app_host
         else:
-            d["WEBHOST"] = "%s:%s" % (settings.APPLICATION_SERVER_HOST,
-                                      settings.APPLICATION_SERVER_PORT)
+            d["WEBHOST"] = d["HOST"]
 
         # Read robot.template file and substitute keywords
         c = file(self.ctx.dir / "etc" / "templates" / "robot.template").read()
