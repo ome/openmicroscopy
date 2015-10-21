@@ -188,7 +188,7 @@ Select First Dataset With Children
     Wait Until Right Panel Loads    Dataset                  ${datasetId}
     [Return]                        ${datasetId}
 
-Select First Datast With Name
+Select First Dataset With Name
     [Arguments]                     ${DatasetName}
     ${nodeId}=                      Wait For Dataset Node Text      ${DatasetName}
     Click Node                      ${nodeId}
