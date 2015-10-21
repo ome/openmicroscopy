@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -44,16 +45,22 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+
 import ome.model.units.BigResult;
 import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.LookupNames;
+
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
+
+import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -495,8 +502,41 @@ class BrowserModel
      * 
      * @return See above.
      */
-    BufferedImage getDisplayedImage() { return displayedImage; }
-    
+    BufferedImage getDisplayedImage() {
+        if (displayedImage == null && isBigImage()) {
+            BufferedImage bi = new BufferedImage(getTiledImageSizeX(),
+                    getTiledImageSizeY(), BufferedImage.TYPE_INT_RGB);
+            //build it from the tiles.
+           // Create a graphics which can be used to draw into the buffered image
+            Graphics2D g2D = bi.createGraphics();
+            ImagePaintingFactory.setGraphicRenderingSettings(g2D,
+                    isInterpolation());
+            Map<Integer, Tile> tiles = getTiles();
+            //Check the size of the tiles
+            int rows = getRows();
+            int columns = getColumns();
+            Tile tile;
+            int index;
+            Object img;
+            Region region;
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < columns; j++) {
+                    index = i*columns+j;
+                    tile = tiles.get(index);
+                    region = tile.getRegion();
+                    img = tile.getImage();
+                    if (img != null) {
+                        g2D.drawImage((BufferedImage) img,
+                                region.getX(), region.getY(), null);
+                    }
+                }
+            }
+            g2D.dispose();
+            return bi;
+        }
+        return displayedImage;
+    }
+
     /**
      * Returns the image to paint on screen. This image is a transformed 
      * version of the projected image. We apply several transformations to the
