@@ -1520,7 +1520,7 @@ class ImViewerComponent
 		}
 		if (includeROI) {
 			if (layers == null) return model.getDisplayedImage();
-			return createImageWithROI(model.getDisplayedImage());//model.getBrowser().getRenderedImage());
+			return createImageWithROI(model.getDisplayedImage());
 		}
 		return model.getDisplayedImage();
 	}
