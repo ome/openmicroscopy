@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2012-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved. Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -195,7 +195,7 @@ class TestChgrp(lib.ITest):
 
         # Shouldn't be necessary to change group, but we're gonna
         owner_g.SERVICE_OPTS.setOmeroGroup("-1")
-        handle = owner_g.deleteObjects("/Image", [image.id.val])
+        handle = owner_g.deleteObjects("Image", [image.id.val])
         self.waitOnCmd(owner_g.c, handle)
 
     def testChgrpOneImageFilesetErr(self):

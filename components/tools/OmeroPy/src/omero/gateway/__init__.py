@@ -3834,14 +3834,31 @@ class _BlitzGateway (object):
         linked to others in the database
 
         :param obj:     Object to delete
-        :type obj:      IObject"""
+        :type obj:      IObject
+
+        ** Deprecated ** Use :meth:`deleteObject` or :meth:`deleteObjects`.
+        """
+        warnings.warn(
+            "Deprecated. Use deleteObject() or deleteObjects()",
+            DeprecationWarning)
 
         type = obj.__class__.__name__.rstrip('I')
         delete = Delete2(targetObjects={type: [obj.getId().val]})
         self.c.submit(delete, self.SERVICE_OPTS)
 
+    def deleteObject(self, obj):
+        """
+        Delete a single object.
+
+        :param obj:     Object to delete
+        :type obj:      IObject
+        """
+
+        objType = obj.__class__.__name__.rstrip('I')
+        self.deleteObjects(objType, [obj.id.val], wait=True)
+
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
-                      deleteChildren=False):
+                      deleteChildren=False, dryRun=False, wait=False):
         """
         Generic method for deleting using the delete queue. Options allow to
         delete 'independent' Annotations (Tag, Term, File) and to delete
@@ -3881,7 +3898,7 @@ class _BlitzGateway (object):
 
         graph = graph_spec.lstrip('/').split('/')
         obj_ids = map(long, obj_ids)
-        delete = Delete2(targetObjects={graph[0]: obj_ids})
+        delete = Delete2(targetObjects={graph[0]: obj_ids}, dryRun=dryRun)
 
         exc = list()
         if not deleteAnns and graph[0] not in ["Annotation",
@@ -3913,6 +3930,7 @@ class _BlitzGateway (object):
             skiphead.targetObjects = delete.targetObjects
             skiphead.childOptions = delete.childOptions
             skiphead.startFrom = [graph[-1]]
+            skiphead.dryRun = dryRun
             delete = skiphead
 
         logger.debug('Deleting %s [%s]. Options: %s' %
@@ -3921,6 +3939,12 @@ class _BlitzGateway (object):
         logger.debug('Delete2: \n%s' % str(delete))
 
         handle = self.c.sf.submit(delete, self.SERVICE_OPTS)
+        if wait:
+            try:
+                self._waitOnCmd(handle)
+            finally:
+                handle.close()
+
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500,
@@ -7109,30 +7133,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             % self._obj.details.owner.id.val, None, self._conn.SERVICE_OPTS)
         self._author = e.firstName.val + " " + e.lastName.val
         return self._author
-
-    def getDataset(self):
-        """
-        XXX: Deprecated since 4.3.2, use listParents(). (See #6660)
-        Gets the Dataset that image is in, or None.
-        Returns None if Image is in more than one Dataset.
-
-        :return:    Dataset
-        :rtype:     :class:`DatasetWrapper`
-        """
-
-        try:
-            q = """
-            select ds from Image i join i.datasetLinks dl join dl.parent ds
-            where i.id = %i
-            """ % self._obj.id.val
-            query = self._conn.getQueryService()
-            ds = query.findAllByQuery(q, None, self._conn.SERVICE_OPTS)
-            if ds and len(ds) == 1:
-                return DatasetWrapper(self._conn, ds[0])
-        except:  # pragma: no cover
-            logger.debug('on getDataset')
-            logger.debug(traceback.format_exc())
-            return None
 
     def getProject(self):
         """
