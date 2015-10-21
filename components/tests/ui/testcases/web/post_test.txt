@@ -135,15 +135,15 @@ Test Cut Paste Image
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
     Click Element                               id=cutButton
-    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
+    ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}
+    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
     ${nodeId}                                   Select Orphaned Images Section
     Wait Until Element Is Visible               xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
     # Dataset should be selected, paste back
-    Select Dataset By Id                        ${datasetId}
-    ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}
+    Select Dataset By Id                        ${datasetId}    
     Click Element                               id=pasteButton
     Click Node                                  ${datasetNode}                                
-    Wait Until Page Contains Element            xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
+    Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
 
 Test Cut Paste Orphaned Image
     [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
@@ -208,17 +208,18 @@ Test Drag And Drop Image
 
     Select Experimenter
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
-    Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']/a
-
-    Sleep                                       0.5
-    Drag And Drop                               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']/a     xpath=//li[@data-id='${did}']/a
+    ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a
+    
+    ${datasetNode1}=                            Wait For Dataset Node                                             ${did}                                  
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
 
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
 
     #Bring database state back to original
     Select Image By Id                          ${imageId}
-    Drag And Drop                               xpath=//li[@data-id='${did}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@data-id='${datasetId}']/a
+    Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId} 
 
@@ -231,7 +232,6 @@ Test Drag and Drop Orphaned Image
     ${imageId}=                                 Select First Orphaned Image
     ${imageNode}=                               Wait For Image Node                                             ${imageId}
 
-    Sleep                                       0.5
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
@@ -242,7 +242,7 @@ Test Drag and Drop Orphaned Dataset
     ${projectNode}                              Wait For Project Node                                           ${pid}
 
     ${datasetNode}=                             Select First Dataset With Name                                  testCreateContainerRobot                                      
-    Sleep                                       0.5
+
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${projectNode}']/a
     Select Project By Id                        ${pid}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
@@ -303,7 +303,7 @@ Test Drag and Drop Negative Tests
     Page Should Not Contain Element             xpath=//li[@id='${projectNode1}']//li[@id='${projectNode}']
 
     #Drag Project on Dataset
-    ${datasetNode1}=                            Select First Datast With Name                                   testCreateContainerRobot
+    ${datasetNode1}=                            Select First Dataset With Name                                   testCreateContainerRobot
     Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${datasetNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${datasetNode1}']//li[@id='${projectNode}']                                                                
 
@@ -327,7 +327,7 @@ Test Drag and Drop Negative Tests
     Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${projectNode}']
 
     #Drag Dataset on Dataset
-    ${datasetNode1}=                            Select First Datast With Name                                   Delete
+    ${datasetNode1}=                            Select First Dataset With Name                                  Delete
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${datasetNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${datasetNode1}']//li[@id='${datasetNode}']
 
