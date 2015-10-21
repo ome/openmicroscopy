@@ -741,16 +741,6 @@ if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     LOGGING['loggers']['django']['level'] = 'INFO'
     LOGGING['loggers']['']['level'] = 'INFO'
 
-# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is
-# True, the fancy error page will display a detailed report for any
-# TemplateSyntaxError. This report contains
-# the relevant snippet of the template, with the appropriate line highlighted.
-# Note that Django only displays fancy error pages if DEBUG is True,
-# alternatively error is handled by:
-#    handler404 = "omeroweb.feedback.views.handler404"
-#    handler500 = "omeroweb.feedback.views.handler500"
-TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
-
 
 def report_settings(module):
     from django.views.debug import cleanse_setting
@@ -857,6 +847,44 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__),
 # from CUSTOM_SETTINGS_MAPPINGS
 # STATICFILES_DIRS += (("webapp/custom_static", path/to/statics),)  # noqa
 
+# TEMPLATES: A list containing the settings for all template engines
+# to be used with Django. Each item of the list is a dictionary containing
+# the options for an individual engine.
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': TEMPLATE_DIRS,  # noqa
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug': DEBUG,  # noqa
+            'context_processors': [
+                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                # list if you haven't customized them:
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'omeroweb.custom_context_processor.url_suffix',
+            ],
+        },
+    },
+]
+
+# Django 1.6 only
+# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is
+# True, the fancy error page will display a detailed report for any
+# TemplateSyntaxError. This report contains
+# the relevant snippet of the template, with the appropriate line highlighted.
+# Note that Django only displays fancy error pages if DEBUG is True,
+# alternatively error is handled by:
+#    handler404 = "omeroweb.feedback.views.handler404"
+#    handler500 = "omeroweb.feedback.views.handler500"
+TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
+
+# Django 1.6 only
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate
 # the context in RequestContext. These callables take a request object as
 # their argument and return a dictionary of items to be merged into the
@@ -868,16 +896,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.contrib.messages.context_processors.messages",
     "omeroweb.custom_context_processor.url_suffix"
-)
-
-# TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings.
-# Each Loader class knows how to import templates from a particular source.
-# Optionally, a tuple can be used instead of a string. The first item in the
-# tuple should be the Loader's module, subsequent items are passed to the
-# Loader during initialization.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
 )
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are

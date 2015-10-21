@@ -186,12 +186,13 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
                             ' of the available choices.'),
     }
 
-    def __init__(self, queryset, cache_choices=False, required=True,
+    def __init__(self, queryset, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
         super(GroupModelMultipleChoiceField, self).__init__(
-            queryset, None, cache_choices, required, widget, label, initial,
-            help_text, *args, **kwargs)
+            queryset=queryset, empty_label=None, required=required,
+            widget=widget, label=label, initial=initial,
+            help_text=help_text, *args, **kwargs)
 
     def to_python(self, value):
         if self.required and not value:
@@ -368,12 +369,13 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
                             ' of the available choices.'),
     }
 
-    def __init__(self, queryset, cache_choices=False, required=True,
+    def __init__(self, queryset, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
         super(ExperimenterModelMultipleChoiceField, self).__init__(
-            queryset, None, cache_choices, required, widget, label, initial,
-            help_text, *args, **kwargs)
+            queryset=queryset, empty_label=None, required=required,
+            widget=widget, label=label, initial=initial,
+            help_text=help_text, *args, **kwargs)
 
     def to_python(self, value):
         if self.required and not value:
