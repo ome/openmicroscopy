@@ -1786,12 +1786,17 @@ OMERO Diagnostics %s
         config = config.as_map()
         return config.get("omero.data.dir", "/OMERO")
 
-    def checkupgrade(self, args):
+    @with_config
+    def checkupgrade(self, args, config):
         """
         Checks whether a server upgrade is available,
         exits with return code 1 if yes
         """
-        uc = UpgradeCheck('server')
+
+        config = config.as_map()
+        url = config.get(
+            "omero.ugprades.url", "http://upgrade.openmicroscopy.org.uk")
+        uc = UpgradeCheck('server', url=upgrade_url)
         uc.run()
         if uc.isUpgradeNeeded():
             self.ctx.die(1, uc.getUpgradeUrl())
