@@ -519,10 +519,10 @@ $(document).ready(function() {
         var icon_size = iconSize;
         for (var s=0; s<icon_styles.length; s++) {
             if (aspect_ratios[s] < 1) {
-                icon_styles[s].width = (icon_size * aspect_ratios[s]) >> 0 + "px";
+                icon_styles[s].width = Math.round(icon_size * aspect_ratios[s]) + 1 + "px";
                 icon_styles[s].height = icon_size + "px";
             } else if (aspect_ratios[s] > 1) {
-                icon_styles[s].height = (icon_size / aspect_ratios[s]) >> 0 + "px";
+                icon_styles[s].height = Math.round(icon_size / aspect_ratios[s]) + 1 + "px";
                 icon_styles[s].width = icon_size + "px";
             } else {
                 icon_styles[s].width = icon_size + "px";
