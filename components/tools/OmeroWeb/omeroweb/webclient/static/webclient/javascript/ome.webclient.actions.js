@@ -239,36 +239,6 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 };
 
 
-// This is called by the Pagination controls at the bottom of icon or table pages.
-OME.doPagination = function(page) {
-    var datatree = $.jstree.reference('#dataTree');
-
-    var $container = $("#content_details");
-    var containerId = $container.data('id');
-    var containerType = $container.data('type');
-    var containerPath = $container.data('path');
-    containerPath = JSON.parse(containerPath);
-    var containerNode = datatree.find_omepath(containerPath);
-
-    if (!containerNode) {
-        console.log('WARNING: Had to guess container');
-        containerNode = OME.getTreeBestGuess(containerType, containerId);
-    }
-
-    // Deselect all
-    datatree.deselect_all(true);
-
-    // Set the page for that node in the tree and reload the tree section
-    datatree.change_page(containerNode, page);
-
-    // and then reselect the same node again to trigger update
-    datatree.select_node(containerNode);
-
-    return false;
-};
-
-
-
 // handle deleting of Tag, File, Comment
 // on successful delete via AJAX, the parent .domClass is hidden
 OME.removeItem = function(event, domClass, url, parentId, index) {
@@ -411,20 +381,35 @@ OME.initToolbarDropdowns = function() {
 OME.refreshThumbnails = function(options) {
     options = options || {};
     var rdm = Math.random(),
-        thumbs_selector = "#dataIcons img",
+        // thumbs_selector = "#dataIcons img",
         search_selector = ".search_thumb",
         spw_selector = "#spw img";
     // handle Dataset thumbs, search rusults and SPW thumbs
     if (options.imageId) {
-        thumbs_selector = "#image_icon-" + options.imageId + " img";
+        // thumbs_selector = "#image_icon-" + options.imageId + " img";
         search_selector = "#image-" + options.imageId + " img.search_thumb";
         spw_selector += "#image-" + options.imageId;
     }
-    $(thumbs_selector + ", " + spw_selector + ", " + search_selector).each(function(){
-        var $this = $(this),
-            base_src = $this.attr('src').split('?')[0];
-        $this.attr('src', base_src + "?_="+rdm);
-    });
+    // Try SPW data or Search data by directly updating thumb src...
+    var $thumbs = $(spw_selector + ", " + search_selector);
+    if ($thumbs.length > 0){
+        $thumbs.each(function(){
+            var $this = $(this),
+                base_src = $this.attr('src').split('?')[0];
+            $this.attr('src', base_src + "?_="+rdm);
+        });
+    } else if (window.update_thumbnails_panel) {
+        // ...Otherwise update thumbs via jsTree
+        // (avoids revert of src on selection change)
+        var type = 'refreshThumbnails',
+            data = {};
+        if (options.imageId) {
+            type = "refreshThumb";
+            data = {'imageId': options.imageId};
+        }
+        var e = {'type': type};
+        update_thumbnails_panel(e, data);
+    }
 
     // Update viewport via global variable
     if (!options.ignorePreview && OME.preview_viewport && OME.preview_viewport.loadedImg.id) {

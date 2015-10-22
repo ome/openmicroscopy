@@ -1,0 +1,63 @@
+
+
+<ul id="dataIcons" class="element_sorter <%= layout %>Layout">
+    <li class="thead"> 
+        <div></div> 
+        <!-- 'sort-init' will perform sort on this column when element_sorter plugin inits -->
+        <div class='sort-alpha sort-init'>Name</div>
+        <div class='sort-date'>Date</div> 
+        <div class='sort-numeric'>Size X</div> 
+        <div class='sort-numeric'>Size Y</div> 
+        <div class='sort-numeric'>Size Z</div>
+    </li>
+
+    <% _.each(images, function(img) { %>
+        <li class="row <% if(img.selected) {print ('ui-selected')} %>
+            <% if(img.fsSelected) {print ('fs-selected')} %> "
+            id="image_icon-<%= img.id %>"
+            data-fileset="<%= img.data.obj.filesetId %>"
+            data-type="image"
+            data-id="<%= img.id %>"
+            data-perms="<%= img.data.obj.permsCss %>"
+            <% if(img.shareId) { %> data-share="<%= img.shareId %>" <% }%>
+            data-owned="">
+
+            <div class="image">
+                <img alt="image"
+                    src="<%= webindex %>render_thumbnail/size/96/<%= img.id %>/<% if(img.shareId) {print( img.shareId + '/')} %><% if (img.thumbVersion) { print ('?version=' + img.thumbVersion)}%>"
+                        title="<%= img.name %>"/>
+            </div>
+            <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
+            <div class="desc" valign="middle">
+                 <%= img.name %>
+                <span class="hidden_sort_text"> <%= img.name %> </span>
+            </div>
+            <div class="date" valign="middle"><%= img.date %></div>
+            <div class="sizeX" valign="middle"><%= img.data.obj.sizeX %></div>
+            <div class="sizeY" valign="middle"><%= img.data.obj.sizeY %></div>
+            <div class="sizeZ" valign="middle"><%= img.data.obj.sizeZ %></div>
+        </li>
+    <% }) %>
+</ul>
+
+<% if (paging) { %>
+<div class="clear"> </div>
+<div class="paging" id="page" data-page="<%= page %>">
+    <% if (page-1 > 0) { %>
+        <input data-page="<%= page-1 %>" class="button_pagination" type="button" value="Previous" alt="Previous"/>
+    <% } %>
+
+    <% for (var p=1; p<=pageCount; p++) { %>
+        <% if (page === p) { print (p) }
+            else { %>
+                <input data-page="<%= p %>" class="button_pagination" type="button" value="<%= p %>" alt="<%= p %>"/>
+            <% } %>
+    <% } %>
+
+    <% if (page < pageCount) { %>
+        <input data-page="<%= page+1 %>" class="button_pagination" type="button" value="Next" alt="Next"/>
+    <% } %>
+
+</div>
+<div class="clear"> </div>
+<% } %>

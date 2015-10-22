@@ -648,6 +648,13 @@
   License File: jquery.txt
 
 
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/underscore/*
+  Project:      Underscore.js
+  Web Site:     http://underscorejs.org/
+  License:      MIT license.
+  License File: jquery.txt
+
+
   //
   // Used but not distributed
   //

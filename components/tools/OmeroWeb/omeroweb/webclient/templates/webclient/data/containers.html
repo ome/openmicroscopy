@@ -827,7 +827,7 @@
 
                                     // If at any point the node doesn't exist, simply give up as the path has
                                     // become invalid
-                                    if (node === false) {
+                                    if (!node) {
                                         return;
                                     }
 
@@ -838,6 +838,9 @@
                                     // Otherwise select it
                                     } else {
                                         inst.select_node(node);
+                                        inst.open_node(node);
+                                        // we also focus the node, to scroll to it and setup hotkey events
+                                        $("#" + node.id).children('.jstree-anchor').focus();
                                         // Handle multiple selection. E.g. extra images in same dataset
                                         for(var n=1; n<nodeIds.length; n++) {
                                             node = inst.locate_node(nodeIds[n], parentNode)[0];
@@ -1065,6 +1068,13 @@
                             // Specify that orphans are specifically sought
                             if (node.type === 'orphaned') {
                                 payload['orphaned'] = true;
+                            }
+
+                            // Extra data needed for showing thumbs in centre panel
+                            if (node.type === 'dataset' || node.type === 'orphaned') {
+                                payload['sizeXYZ'] = true;
+                                payload['date'] = true;
+                                payload['thumbVersion'] = true;
                             }
 
                             // Always add the group_id from the current context

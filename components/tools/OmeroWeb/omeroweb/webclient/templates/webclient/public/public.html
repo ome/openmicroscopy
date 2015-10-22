@@ -211,6 +211,11 @@
                                 payload['member_id'] = node.data.obj.id
                             }
 
+                            if (node.type === 'share') {
+                                payload['sizeXYZ'] = true;
+                                payload['date'] = true;
+                            }
+
                             return payload;
                         },
                         'cache': false,

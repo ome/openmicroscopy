@@ -453,7 +453,13 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
     return datasets
 
 
-def _marshal_image(conn, row, row_pixels=None, share_id=None):
+def _marshal_date(time):
+    d = datetime.fromtimestamp(time/1000)
+    return d.isoformat() + 'Z'
+
+
+def _marshal_image(conn, row, row_pixels=None, share_id=None,
+                   date=None, acqDate=None, thumbVersion=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
           * id (rlong)
@@ -491,7 +497,12 @@ def _marshal_image(conn, row, row_pixels=None, share_id=None):
         image['sizeZ'] = unwrap(sizeZ)
     if share_id is not None:
         image['shareId'] = share_id
-
+    if date is not None:
+        image['date'] = _marshal_date(unwrap(date))
+    if acqDate is not None:
+        image['acqDate'] = _marshal_date(unwrap(acqDate))
+    if thumbVersion is not None:
+        image['thumbVersion'] = thumbVersion
     return image
 
 
@@ -511,7 +522,8 @@ def _marshal_image_deleted(conn, image_id):
 
 def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                    load_pixels=False, group_id=-1, experimenter_id=-1,
-                   page=1, limit=settings.PAGE):
+                   page=1, date=False, thumb_version=False,
+                   limit=settings.PAGE):
 
     ''' Marshals images
 
@@ -558,21 +570,30 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     if page is not None and page > 0:
         params.page((page-1) * limit, limit)
 
-    from_clause = []
+    from_join_clauses = []
     where_clause = []
     if experimenter_id is not None and experimenter_id != -1:
         params.addId(experimenter_id)
         where_clause.append('image.details.owner.id = :id')
     qs = conn.getQueryService()
 
-    pixelSizes = ""
+    extraValues = ""
     if load_pixels:
-        pixelSizes = """
+        extraValues = """
              ,
              pix.sizeX as sizeX,
              pix.sizeY as sizeY,
              pix.sizeZ as sizeZ
              """
+    if thumb_version:
+        extraValues += """,
+            thumbs.version as thumbVersion
+            """
+    if date:
+        extraValues += """,
+            image.details.creationEvent.time as date,
+            image.acquisitionDate as acqDate
+            """
 
     q = """
         select new map(image.id as id,
@@ -580,17 +601,27 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                image.details.owner.id as ownerId,
                image as image_details_permissions,
                image.fileset.id as filesetId %s)
-        """ % pixelSizes
+        """ % extraValues
 
-    from_clause.append('Image image')
+    from_join_clauses.append('Image image')
 
-    if load_pixels:
-        from_clause.append('image.pixels pix')
+    if load_pixels or thumb_version:
+        # We use 'left outer join', since we still want images if no pixels
+        from_join_clauses.append('left outer join image.pixels pix')
+
+    if thumb_version:
+        from_join_clauses.append('join pix.thumbnails thumbs')
+        where_clause.append("""thumbs.id = (
+                select max(t.id)
+                from Thumbnail t
+                where t.pixels = pix.id
+                and t.details.owner.id = image.details.owner.id
+            )""")
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
         params.add('did', rlong(dataset_id))
-        from_clause.append('image.datasetLinks dlink')
+        from_join_clauses.append('join image.datasetLinks dlink')
         where_clause.append('dlink.parent.id = :did')
 
     # If this is a query to get images with no parent datasets (orphans)
@@ -646,7 +677,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     q += """
         %s %s
         order by lower(image.name), image.id
-        """ % (build_clause(from_clause, 'from', 'join'),
+        """ % (' from ' + ' '.join(from_join_clauses),
                build_clause(where_clause, 'where', 'and'))
 
     for e in qs.projection(q, params, service_opts):
@@ -660,6 +691,11 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if load_pixels:
             d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
             kwargs['row_pixels'] = d
+        if thumb_version:
+            kwargs['thumbVersion'] = e['thumbVersion']
+        if date:
+            kwargs['acqDate'] = e['acqDate']
+            kwargs['date'] = e['date']
 
         # While marshalling the images, determine if there are any
         # images mentioned in shares that are not in the results
@@ -669,6 +705,38 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
             kwargs['share_id'] = share_id
 
         images.append(_marshal_image(**kwargs))
+
+    # If we're loading user's thumbnails, and there are
+    # any images not owned by user...
+    if thumb_version:
+        userId = conn.getUserId()
+        notOwnedImgs = [i['id'] for i in images if i['ownerId'] != userId]
+        if len(notOwnedImgs) > 0:
+            # ...need to load them in a separate query
+            params = omero.sys.ParametersI()
+            params.addIds(notOwnedImgs)
+            params.add('thumbOwner', wrap(userId))
+            q = """select image.id, thumbs.version from Image image
+                join image.pixels pix join pix.thumbnails thumbs
+                where image.id in (:ids)
+                and thumbs.details.owner.id = :thumbOwner
+                and thumbs.id = (
+                    select max(t.id)
+                    from Thumbnail t
+                    where t.pixels = pix.id
+                )
+                """
+            thumbVersions = {}
+            for t in qs.projection(q, params, service_opts):
+                iid, tv = unwrap(t)
+                thumbVersions[iid] = tv
+            # For all images, set thumb version if we have it...
+            for i in images:
+                if i['id'] in thumbVersions:
+                    i['thumbVersion'] = thumbVersions[i['id']]
+                else:
+                    # ...otherwise remove
+                    i.pop('thumbVersion')
 
     # If there were any deleted images in the share, marshal and return
     # those
@@ -1216,7 +1284,7 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
 # above marshalling functions had filter functions added as one of those would
 # be called each per object type instead of this one for all
 def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
-                   limit=settings.PAGE):
+                   load_pixels=False, date=False, limit=settings.PAGE):
     ''' Marshals tagged data
 
         @param conn OMERO gateway.
@@ -1304,20 +1372,43 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
     tagged['datasets'] = datasets
 
     # Images
+    extraValues = ""
+    extraObjs = ""
+    if load_pixels:
+        extraValues = """
+             ,
+             pix.sizeX,
+             pix.sizeY,
+             pix.sizeZ
+             """
+        extraObjs = " left outer join obj.pixels pix"
+    if date:
+        extraValues += """,
+            obj.details.creationEvent.time,
+            obj.acquisitionDate
+            """
     q = '''
         select distinct obj.id,
                obj.name,
                obj.details.owner.id,
                obj.details.permissions,
                obj.fileset.id,
-               lower(obj.name)
-        from Image obj
+               lower(obj.name)%s
+        from Image obj %s
         %s
-        ''' % common_clause
+        ''' % (extraValues, extraObjs, common_clause)
 
     images = []
     for e in qs.projection(q, params, service_opts):
-        images.append(_marshal_image(conn, e[0:5]))
+        kwargs = {}
+        nextVal = 6
+        if load_pixels:
+            kwargs['row_pixels'] = (e[6], e[7], e[8])
+            nextVal = 9
+        if date:
+            kwargs['date'] = e[nextVal]
+            kwargs['acqDate'] = e[nextVal + 1]
+        images.append(_marshal_image(conn, e[0:5], **kwargs))
     tagged['images'] = images
 
     # Screens

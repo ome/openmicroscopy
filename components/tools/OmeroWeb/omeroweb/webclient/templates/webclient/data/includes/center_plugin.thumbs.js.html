@@ -47,7 +47,629 @@ $(document).ready(function() {
 
     */
 
-    // Load the thumbnails (Will wait until there are no new requests
+    var inst = $.jstree.reference('#dataTree');
+    var parentNode;     // the currently selected node
+    // We compile the underscore templates, ready for rendering
+    var tmplText = $('#icon_thumbnails_template').html();
+    var iconTmpl = _.template(tmplText);
+    var headerText = $('#icon_header_template').html();
+    var headerTmpl = _.template(headerText);
+    // Variables for layout and thumbnail zooming
+    var layout = "icon";
+    var icon_styles = [];
+    var li_styles = [];
+    var aspect_ratios = [];
+    var iconSize = 65;
+
+    var dateFormatOptions = {
+        weekday: "short", year: "numeric", month: "short",
+        day: "numeric", hour: "2-digit", minute: "2-digit"
+    };
+
+    // Start listening for Node Loading events on the tree...
+    // If a node loads and it's selected, update_thumbs...
+    $("#dataTree").on('load_node.jstree', function(event, data){
+        if (data.node.state.selected) {
+            update_thumbnails_panel(event, data);
+        }
+    });
+
+    $("#content_details").on("click", "input.button_pagination", function(){
+        var page = $(this).attr('data-page');
+        page = parseInt(page, 10);
+        inst.deselect_all(true);
+        inst.change_page(parentNode, page);
+        // and then reselect the same node again to trigger update
+        inst.select_node(parentNode);
+    });
+
+    // double-click handler on image - launches image viewer
+    $("#content_details").on("dblclick", "li.row", function(event) {
+        var $this = $(this),
+            iid = $this.attr('id').split("-")[1],
+            url;
+        // Image only has share ID if user doesn't own the share.
+        if ($this.attr('data-share')) {
+            url = "{% url 'web_image_viewer' 99 0 %}".replace('/99/', "/" + $this.attr('data-share') + "/" );
+        } else {
+            url = "{% url 'web_image_viewer' 0 %}";
+        }
+        url = url.replace('/0/', "/" + iid + "/" );
+        OME.openPopup(url);
+    });
+
+    // Set up the centre panel header.
+    var setupDatasetHeader = function() {
+        var html = headerTmpl({'layout': layout});
+        $("#content_details").html(html);
+
+        // single click handler on image (container). Selection then update toolbar & metadata pane
+        $( "#icon_table" ).on( "click", "li.row", function(event) {
+            handleClickSelection(event);
+        });
+
+        // plugin to handle drag-select of images (share is single-select only)
+        if (parentNode.type !== "share") {
+            $("#icon_table").selectable({
+                filter: 'li.row',
+                distance: 2,
+                stop: function() {
+                    // Make the same selection in the jstree etc
+                    syncTreeSelection();
+                },
+                start: function() {
+                    // Remove any fileset selection markings
+                    $("#dataIcons li.row:visible")
+                        .removeClass("fs-selected")
+                        .removeClass("lastSelected");
+                }
+            });
+        }
+
+        $("#filtersearch label").inFieldLabels();
+
+        $("#thumb_size_slider").slider({
+            max: 200,
+            min: 30,
+            value: iconSize,
+            slide: function(event, ui) {
+                iconSize = ui.value;
+                setIconSize();
+            }
+        });
+        // handle Radio buttons
+        $("#layout_chooser button").click(function(event) {
+            if ($(event.target).attr('id') == 'table_layout') {
+                layout = 'table';
+            } else {
+                layout = 'icon';
+            }
+            setLayout();
+            $("#layout_chooser button").removeClass("checked");
+            $(event.target).addClass("checked");
+        });
+    }
+
+    // This is called directly by various jstree plugins
+    // E.g. omecut_plugin.js as well as the jstree in containers.html
+    window.update_thumbnails_panel = function(event, data) {
+
+        // Get the current selection
+        var selected = inst.get_selected(true);
+
+        if (selected.length === 0) {
+            $("#content_details").html("");
+            return;
+        }
+        var dtype = selected[0].type;
+        if (selected.length > 1 && dtype !== "image") {
+            $("#content_details").html("");
+            return;
+        }
+
+        // parent node could be dataset, orphaned, share or tag
+        var parentTypes = ["dataset", "orphaned", "tag", "share"],
+            imgNodes = [];
+        if (parentTypes.indexOf(dtype) > -1) {
+            parentNode = selected[0];
+        } else if (dtype === "image") {
+            parentNode = inst.get_node(inst.get_parent(selected[0]));
+        } else if (dtype === "plate" || dtype === "acquisition") {
+            load_spw(event, data);
+            return;
+        // All other types have blank centre panel
+        } else {
+            clearThumbnailsPanel();
+            return;
+        }
+
+        // clear html and stored data before adding back html
+        clearThumbnailsPanel();
+
+        if (!parentNode) {
+            // need this for pagination etc
+            parentNode = inst.get_node(data.node);
+        }
+
+
+        imgNodes = [];
+        parentNode.children.forEach(function(ch){
+            var childNode = inst.get_node(ch);
+            // Ignore non-images under tags or 'deleted' under shares
+            if (childNode.type == "image") {
+                imgNodes.push(childNode);
+            }
+        });
+
+        var imgJson = [],
+            selFileSets = [];
+        // Convert jsTree nodes into json for template
+        imgNodes.forEach(function(node){
+            var d = node.data.obj.date || node.data.obj.acqDate;
+            var date = new Date(d);
+            date = date.toLocaleTimeString(undefined, dateFormatOptions);
+            var iData = {'id': node.data.obj.id,
+                    'name': node.text,
+                    'data': JSON.parse(JSON.stringify(node.data)),
+                    'selected': node.state.selected,
+                    'date': date,
+                };
+            // Note fileset IDs for selected images
+            if (iData.selected) {
+                var fsId = node.data.obj.filesetId;
+                if (fsId) {
+                    selFileSets.push(fsId);
+                }
+            }
+            // Thumb version: random to break cache if thumbnails are -1 'in progress'
+            // or we're refresing 1 or all thumbnails
+            if (node.data.obj.thumbVersion != undefined ||
+                    event.type === "refreshThumbnails" ||
+                    event.type === "refreshThumb") {
+                var thumbVersion = node.data.obj.thumbVersion;
+                if (thumbVersion === -1 || event.type === "refreshThumbnails" || (
+                        event.type === "refreshThumb" && data.imageId === iData.id)) {
+                    thumbVersion = getRandom();
+                    // We cache this to prevent new thumbnails requested on every
+                    // selection change. Refreshing of tree will reset thumbVersion.
+                    node.data.obj.thumbVersion = thumbVersion;
+                }
+                iData.thumbVersion = thumbVersion;
+            }
+            // If image is in share and share is not owned by user...
+            if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
+                // share ID will be needed to open image viewer
+                iData.shareId = node.data.obj.shareId;
+            }
+            imgJson.push(iData);
+        });
+
+        // Now we know which filesets are selected, we can
+        // go through all images, adding fs-selection flag if in
+        if (selFileSets.length > 0) {
+            imgJson.forEach(function(img){
+                if (selFileSets.indexOf(img.data.obj.filesetId) > -1) {
+                    img.fsSelected = true;
+                }
+            });
+        }
+
+        if ($("#icon_table").length == 0) {
+            setupDatasetHeader();
+        }
+
+        var json = {'images': imgJson,
+                    'webindex': '{% url "webindex" %}',
+                    'layout': layout,
+                    'paging': false}
+
+        var childCount = parentNode.data.obj.childCount;
+        if (PAGE_SIZE < childCount) {
+            json.pageCount = parseInt(childCount / PAGE_SIZE, 10) + 1;
+            json.paging = true;
+            json.page = inst.get_page(parentNode);
+        }
+
+        var html = iconTmpl(json);
+        $("#icon_table").html(html);
+
+        // populate arrays etc for speedy icon zooming
+        setupIconZooming();
+
+        // setup quicksearch filtering of images
+        setupFiltering();
+
+        // init the elementsorter plugin
+        setupSorting();
+
+        return;
+    }
+
+    // Update thumbnails when we switch between plugins
+    $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
+
+    var getRandom = function() {
+        return (Math.random() + "").slice(2);
+    }
+
+    var setupSorting = function() {
+        // simple emulation of table-sorter for other elements...
+        // performs sort when intialised on 'sort-init' column
+        $(".element_sorter").elementsorter({
+            head: '.thead div',             // Selector for the equivalent of 'table head'
+            body: 'li.row',                 // Selector for the equivalent of 'table rows'
+            sort_key: '.hidden_sort_text'   // optional - how to find the text within each child of a 'row'.
+        });
+    }
+
+    var setupFiltering = function() {
+        var $filter_input = $('#id_search');
+        var filter_txt = $filter_input.val();
+        $filter_input.quicksearch('#dataIcons li.row', {
+            'delay': 300,
+            'bind': 'keyup',
+            'loader': 'span.loading',
+            onAfter: function(){
+                // onAfter can get triggered without text change, E.g. by tree selection!
+                var new_txt = $filter_input.val();
+                if (filter_txt != new_txt){     // test text has changed
+                    filter_txt = new_txt;
+                    deselectFiltered();
+                }
+            }
+        });
+    }
+
+    // When we filter, unselect the hidden icons and update
+    // selections in the jstree
+    var deselectFiltered = function(e, a){
+        // check if any selection change is needed
+        var $filtered = $("#dataIcons li.ui-selected:hidden");
+        if ($filtered.length == 0) return;
+
+        // If we've filtered any selected images, de-select icon
+        $filtered.removeClass("ui-selected");
+
+        var imageId = $filtered.first().data('id');
+        syncTreeSelection(imageId);
+    };
+
+    // handles selection for 'clicks' (not drags)
+    var handleClickSelection = function(event) {
+
+        // It is possible to select the image itself or its individual container
+        // Handle that here
+        var $targetIcon;
+        if (event.target.nodeName.toLowerCase() == 'li') {
+            $targetIcon = $(event.target);
+        } else if (event.target.nodeName.toLowerCase() == 'img') {
+            $targetIcon = $(event.target).parent().parent();
+        } else {
+            $targetIcon = $(event.target).parent();
+        }
+
+        var imageId = $targetIcon.attr('data-id');
+
+        // Add ui-selected class to range of icons etc
+        highlightClickedIcons(event, $targetIcon);
+
+        syncTreeSelection();
+
+    }
+
+
+    var highlightClickedIcons = function(event, $targetIcon) {
+        /***
+         * Based on the icon that was selected and any modifier keys
+         * update the thumbnail selections
+        */
+
+        // Get the visible icons that might need selecting
+        var $visibleIcons = $("#dataIcons li.row:visible");
+
+        // Get the start point for a range select if there is one
+        // and it is visible
+        var $lastSelected = $('#dataIcons .lastSelected:visible');
+        if ($lastSelected.length === 0) {
+            // possible after drag select - just pick selected
+            $lastSelected = $('#dataIcons .ui-selected:visible');
+        }
+
+        // Calculate the index of the last selected item if there was one
+        var lastSelectedIndex = -1;
+        $lastSelected.each(function(index, el) {
+            lastSelectedIndex = $visibleIcons.index(el);
+        });
+
+        // Get the index of the target item
+        var targetIndex = $visibleIcons.index($targetIcon);
+
+        // Remove the starting point as a new one is about to be applied
+        $lastSelected.removeClass('lastSelected');
+
+        // Get the platform specific multi-select key
+        var multiSelectKey = OME.multi_key() + "Key";
+
+        var selectedIcons = [];
+        var unselectedIcons = [];
+
+        // If this is a range select
+        if (event.shiftKey && lastSelectedIndex != -1) {
+            // Find the start and end of the range
+            var start = Math.min(lastSelectedIndex, targetIndex);
+            var end = Math.max(lastSelectedIndex, targetIndex);
+
+            // Mark the icons for selection
+            $visibleIcons.slice(start, end+1).each(function(index, el) {
+                $(el).addClass('ui-selected');
+            });
+
+
+        // If this is a multi-select
+        } else if (event[multiSelectKey] && lastSelectedIndex != -1) {
+            if ($targetIcon.hasClass('ui-selected')) {
+                $targetIcon.removeClass('ui-selected');
+            } else {
+                $targetIcon.addClass('ui-selected');
+            }
+
+        // This is a single selection or there was no other selection for the range/multi select
+        } else {
+            // Remove all selections
+            $visibleIcons.removeClass("ui-selected fs-selected");
+            // Add selection for this one item
+            $targetIcon.addClass("ui-selected lastSelected");
+        }
+
+        // Mark the most recent selection
+        $targetIcon.addClass('lastSelected');
+    }
+
+
+    // use IDs of the selected visible thumbnails to sync tree selection
+    var syncTreeSelection = function() {
+
+        var $selectedIcons = $('#dataIcons li.ui-selected');
+        if (parentNode.type == 'share') {
+            // We don't support multi-selection of images in share
+            $selectedIcons.removeClass('ui-selected');
+            $selectedIcons = $selectedIcons.first().addClass('ui-selected');
+        }
+        var imageId = $selectedIcons.first().data('id');
+
+        // Get the node that seems to be the current container
+        // Images only, all that is required for now as center panel only shows images
+        var containerNode;
+        if (imageId) {
+            // don't lookup container if no images selected
+            containerNode = OME.getTreeImageContainerBestGuess(imageId);
+        }
+
+        // Deselect all to begin (supress jstree event)
+        inst.deselect_all(true);
+
+        var fsIds = {};
+        if (containerNode) {
+
+            // Select the selected icons in the tree (supress jstree event)
+            $selectedIcons.each(function(index, el) {
+                var $el = $(el),
+                    fsId = $el.data('fileset');
+                if (fsId != undefined && fsId != '') {
+                    fsIds[fsId] = true;
+                }
+                var selectedNode = inst.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
+                inst.select_node(selectedNode, true);
+                // we also focus the node, so that hotkey events come from the node
+                if (selectedNode) {
+                    $("#" + selectedNode.id).children('.jstree-anchor').focus();
+                }
+            });
+        } else {
+            console.log('jstree may need to be refreshed');
+        }
+        // Update thumbnail highlighting of filesets
+        highlightFilesets(fsIds);
+
+        // Since we've suppressed jstree events, we need to manually handle selection change...
+        OME.writeSelectedObjs(undefined, $selectedIcons);
+        // Update the buttons in the jstree
+        if (buttonsShowHide) {
+            buttonsShowHide(inst.get_selected(true), inst);
+        }
+        // Trigger the selection changed event
+        $("body").trigger('selection_change.ome');
+
+        return false;
+    }
+
+    // When an image(s) are selected, also indicate others with the same fileset(s).
+    var highlightFilesets = function(fsIds) {
+        var $selectee = $("#dataIcons").find("li.row");
+        $selectee.removeClass('fs-selected');
+        for (var fsid in fsIds) {
+            $selectee.filter("[data-fileset='"+ fsid + "']").addClass('fs-selected');
+        }
+    }
+
+    // Handle zooming of thumbnails with jQuery slider
+    var setupIconZooming = function() {
+        icon_styles = [];
+        li_styles = [];
+        aspect_ratios = [];
+        // manipulate thumbnail styles directly (approx 2x faster than using jQuery)
+        $("#dataIcons img").each(function(){
+            icon_styles.push(this.style);
+        });
+
+        var sizeX, sizeY;
+        $("#dataIcons li").each(function(){
+            if (! $(this).hasClass('thead')) {
+                li_styles.push(this.style);
+                sizeX = $(".sizeX", $(this)).text();
+                sizeY = $(".sizeY", $(this)).text();
+                aspect_ratios.push(parseFloat(sizeX) / parseFloat(sizeY));
+            }
+        });
+
+        setIconSize();
+    }
+
+    var setIconSize = function(icon_size) {
+        var icon_size = iconSize;
+        for (var s=0; s<icon_styles.length; s++) {
+            if (aspect_ratios[s] < 1) {
+                icon_styles[s].width = Math.round(icon_size * aspect_ratios[s]) + 1 + "px";
+                icon_styles[s].height = icon_size + "px";
+            } else if (aspect_ratios[s] > 1) {
+                icon_styles[s].height = Math.round(icon_size / aspect_ratios[s]) + 1 + "px";
+                icon_styles[s].width = icon_size + "px";
+            } else {
+                icon_styles[s].width = icon_size + "px";
+                icon_styles[s].height = icon_size + "px";
+            }
+            li_styles[s].width = icon_size + "px";
+            li_styles[s].height = icon_size + "px";
+        }
+    }
+
+    // switch between 'icon' or 'table' layout by switching CSS
+    var setLayout = function() {
+        if (layout == "icon"){
+            $("#dataIcons").removeClass("tableLayout");
+            $("#dataIcons").addClass("iconLayout");
+        }
+        else {
+            $("#dataIcons").removeClass("iconLayout");
+            $("#dataIcons").addClass("tableLayout");
+        }
+    }
+
+
+    // This is called for plates or acquisitions (runs) only.
+    // Was previously used for loading ALL data types but now
+    // images are retrieved from jsTree directly so we only need to
+    // load plates.
+    // TODO: More cleanup needed to remove all non-SPW code
+    var load_spw = function(event, data) {
+        // Get the container that is currently rendered
+        // If any of these are not defined then nothing was selected
+        var $contentDetails = $("div#content_details");
+
+        // Get details about the currently displayed container
+        var currentType = $contentDetails.data('type');
+        var currentId = $contentDetails.data('id');
+        var currentPath = $contentDetails.data('path')
+        var currentNode = false;
+        var currentPage = $("div#page").data('page');
+        var currentField = $contentDetails.data('field');
+
+        if (currentPage === undefined) {
+            currentPage = 1;
+        }
+
+        if (currentField === undefined) {
+            currentField = 0;
+        }
+
+        // Retrieve current container node
+        if (currentType != undefined &&
+            currentId != undefined &&
+            currentPath != undefined) {
+
+            currentPath = JSON.parse(currentPath);
+            currentNode = inst.find_omepath(currentPath);
+        }
+
+        // Get the current selection
+        var selected = inst.get_selected(true);
+
+        // If there are selections then determine if the currently
+        // rendered container is one of them.
+        var containerNode = false;
+        if (currentNode) {
+            $.each(selected, function(index, node) {
+                if (node === currentNode) {
+                    containerNode = node;
+                    // Break out of each
+                    return false;
+                }
+
+            });
+        }
+
+        if (event.type === 'changed' || event.type === 'center_plugin_changed.ome') {
+            // If the containerNode is the current container then this is
+            // a selection change within the container or a pagination/field
+            // change
+            if (containerNode) {
+                // This is a page change
+                if (getPageOr1(inst, containerNode) !== currentPage) {
+                    loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), undefined);
+
+                // Fields are only applicable for acquisitions
+                } else if (containerNode.type === 'acquisition' &&
+                           getfieldOr0(inst, containerNode) !== currentField) {
+                    loadThumbnailsPanel(containerNode, undefined, getfieldOr0(inst, containerNode));
+                }
+
+                // Return as this was either a page/field change or image
+                // selection only
+                return;
+            }
+
+            // There was no current node or it was not selected
+            // Load the first of the selected nodes
+            containerNode = selected[0];
+
+            // While the new selection may not be the same path as the old one
+            // if it is an equivalent node, we can save a reload and simply update
+            // the recorded path, but only if it is the same page/field
+            if (currentNode &&
+                inst.omecompare(containerNode, currentNode) &&
+                (currentPage === inst.get_page(containerNode || (containerNode.type === 'acquisition' && currentField === inst.get_field(containerNode))))) {
+                $contentDetails.data('path', JSON.stringify(inst.get_omepath(containerNode)));
+                return;
+            }
+
+            // Load the thumbnails for this container with the appropriate page/field
+            // E.g. public.html tree doesn't support pages/fields
+            var nodePage = inst.get_page ? inst.get_page(containerNode) : 1;
+            var nodeField = inst.get_field ? inst.get_field(containerNode) : 0;
+            loadThumbnailsPanel(containerNode, nodePage, nodeField);
+            return;
+
+        } else if (event.type === 'move_node') {
+            // The only relevant update is if a node has been added or removed
+            // from the currently displayed container, however, if this was a
+            // move of a selected image, the containerNode will be wrong as it
+            // points to the old location of the node
+
+            var node = inst.get_node(data.node);
+            var parent = inst.get_node(data.parent);
+            var old_parent = inst.get_node(data.old_parent);
+
+            // It is also possible that the moved node was the displayed container itself,
+            // but not an image
+            if (inst.is_selected(node)) {
+                // Update the contentDetails with this node
+                setThumbnailsPanel(node.type, node.data.obj.id, inst.get_omepath(node));
+                // And make the containerNode this node straight away
+                containerNode = node;
+            }
+
+            // Is the moved node in the displayed container?
+            if (containerNode === parent && containerNode === old_parent) {
+                // Do nothing as it was reordered only
+            } else if (containerNode === parent) {
+                // Reload thumbnails
+                loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
+            }
+
+        }
+    };
+
+        // Load the thumbnails (Will wait until there are no new requests
     // for 200ms)
     var loadThumbnailsPanelTimeout = false;
     var loadThumbnailsPanel = function(node, newPage, newField) {
@@ -69,12 +691,12 @@ $(document).ready(function() {
             var show = OME.getURLParameter('show');
 
             switch(nodeType) {
-                case 'dataset':
-                    url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
-                    break;
-                case 'orphaned':
-                    url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
-                    break;
+                // case 'dataset':
+                //     url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
+                //     break;
+                // case 'orphaned':
+                //     url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
+                //     break;
                 case 'plate':
                     // Only load plates if it does not have child acquisitions
                     if (!inst.is_parent(node)) {
@@ -92,12 +714,12 @@ $(document).ready(function() {
                         url += "&show=" + show;
                     }
                     break;
-                case 'tag':
-                    url += 'load_data_by_tag/?o_id=' + nodeId;
-                    break;
-                case 'share':
-                    url += 'load_public/' + nodeId + '/?view=icon'
-                    break;
+                // case 'tag':
+                //     url += 'load_data_by_tag/?o_id=' + nodeId;
+                //     break;
+                // case 'share':
+                //     url += 'load_public/' + nodeId + '/?view=icon'
+                //     break;
                 default:
                     url = undefined;
             }
@@ -107,7 +729,6 @@ $(document).ready(function() {
                 $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
 
                 // Load html from url
-                console.log("loading", url);
                 $("div#content_details").load(url);
                 setThumbnailsPanel(nodeType, nodeId, inst.get_omepath(node), newPage, newField);
 
@@ -150,10 +771,6 @@ $(document).ready(function() {
         $contentDetails.data('field', field);
     };
 
-    var removeThumbnail = function(node) {
-        $("#image_icon-" + node.data.obj.id).remove();
-    };
-
     var getPageOr1 = function(inst, node) {
         if ('get_page' in inst) {
             return inst.get_page(node);
@@ -167,189 +784,6 @@ $(document).ready(function() {
         }
         return 0;
     };
-
-    // This is called directly by various jstree plugins
-    // E.g. omecut_plugin.js as well as the jstree in containers.html
-    window.update_thumbnails_panel = function(event, data) {
-        var inst = $.jstree.reference('#dataTree');
-
-        // Get the container that is currently rendered
-        // If any of these are not defined then nothing was selected
-        var $contentDetails = $("div#content_details");
-
-        // Get details about the currently displayed container
-        var currentType = $contentDetails.data('type');
-        var currentId = $contentDetails.data('id');
-        var currentPath = $contentDetails.data('path')
-        var currentNode = false;
-        var currentPage = $("div#page").data('page');
-        var currentField = $contentDetails.data('field');
-
-        if (currentPage === undefined) {
-            currentPage = 1;
-        }
-
-        if (currentField === undefined) {
-            currentField = 0;
-        }
-
-        // Retrieve current container node
-        if (currentType != undefined &&
-            currentId != undefined &&
-            currentPath != undefined) {
-
-            currentPath = JSON.parse(currentPath);
-            currentNode = inst.find_omepath(currentPath);
-        }
-
-        // Get the current selection
-        var selected = inst.get_selected(true);
-
-        // If there are no selections then just clear the centre panel
-        if (selected.length === 0) {
-            clearThumbnailsPanel();
-            return;
-        }
-
-        // If there are selections then determine if the currently
-        // rendered container is one of them.
-        var containerNode = false;
-        if (currentNode) {
-            $.each(selected, function(index, node) {
-                // If an image is selected then the container will be its parent
-                if (node.type === 'image') {
-                    node = inst.get_node(inst.get_parent(node));
-                }
-                if (node === currentNode) {
-                    containerNode = node;
-                    // Break out of each
-                    return false;
-                }
-
-            });
-        }
-
-        if (event.type === 'changed' || event.type === 'center_plugin_changed.ome') {
-            // If the containerNode is the current container then this is
-            // a selection change within the container or a pagination/field
-            // change
-            if (containerNode) {
-                // This is a page change
-                if (getPageOr1(inst, containerNode) !== currentPage) {
-                    loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), undefined);
-
-                // Fields are only applicable for acquisitions
-                } else if (containerNode.type === 'acquisition' &&
-                           getfieldOr0(inst, containerNode) !== currentField) {
-                    loadThumbnailsPanel(containerNode, undefined, getfieldOr0(inst, containerNode));
-                }
-
-                // Return as this was either a page/field change or image
-                // selection only
-                return;
-            }
-
-            // There was no current node or it was not selected
-            // Load the first of the selected nodes
-            containerNode = selected[0];
-
-            // If an image is selected then the container will be its parent
-            if (selected[0].type === 'image') {
-                containerNode = inst.get_node(inst.get_parent(selected[0]));
-            }
-
-            // While the new selection may not be the same path as the old one
-            // if it is an equivalent node, we can save a reload and simply update
-            // the recorded path, but only if it is the same page/field
-            if (currentNode &&
-                inst.omecompare(containerNode, currentNode) &&
-                (currentPage === inst.get_page(containerNode || (containerNode.type === 'acquisition' && currentField === inst.get_field(containerNode))))) {
-                $contentDetails.data('path', JSON.stringify(inst.get_omepath(containerNode)));
-                return;
-            }
-
-            // Load the thumbnails for this container with the appropriate page/field
-            // E.g. public.html tree doesn't support pages/fields
-            var nodePage = inst.get_page ? inst.get_page(containerNode) : 1;
-            var nodeField = inst.get_field ? inst.get_field(containerNode) : 0;
-            loadThumbnailsPanel(containerNode, nodePage, nodeField);
-            return;
-
-        } else if (event.type === 'move_node') {
-            // The only relevant update is if a node has been added or removed
-            // from the currently displayed container, however, if this was a
-            // move of a selected image, the containerNode will be wrong as it
-            // points to the old location of the node
-
-            var node = inst.get_node(data.node);
-            var parent = inst.get_node(data.parent);
-            var old_parent = inst.get_node(data.old_parent);
-
-            // So, first update the displayed container data if necessary
-            if (node.type === 'image' && inst.is_selected(node)) {
-                // Update the contentDetails with the new parent
-                setThumbnailsPanel(parent.type, parent.data.obj.id, inst.get_omepath(parent),
-                                   getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-                // And make the containerNode this parent straight away
-                containerNode = parent;
-
-            // It is also possible that the moved node was the displayed container itself,
-            // but not an image
-            } else if (inst.is_selected(node)) {
-                // Update the contentDetails with this node
-                setThumbnailsPanel(node.type, node.data.obj.id, inst.get_omepath(node));
-                // And make the containerNode this node straight away
-                containerNode = node;
-            }
-
-            // Is the moved node in the displayed container?
-            if (containerNode === parent && containerNode === old_parent) {
-                // Do nothing as it was reordered only
-            } else if (containerNode === parent) {
-                // Reload thumbnails
-                loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            } else if (containerNode === old_parent && node.type === 'image') {
-                removeThumbnail(node);
-            }
-
-        } else if (event.type === 'copy_node') {
-            // The only relevant update is if a node has been added to
-            // the currently displayed container
-
-            var node = inst.get_node(data.node);
-            var parent = inst.get_node(data.parent);
-
-            if (containerNode === parent) {
-                // Reload thumbnails
-                loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            }
-
-        } else if (event.type === 'delete_node') {
-            // In the case of delete, the data.node passed in must be a node
-            // already as it can't be 'got' because it may be gone already
-            var node = data.node;
-            var old_parent = inst.get_node(data.old_parent);
-
-            if (containerNode === old_parent && node.type === 'image') {
-                removeThumbnail(node);
-
-            // If the current container was deleted
-            } else if (containerNode == node) {
-                //Load the parent (These containers don't have pages or fields)
-                loadThumbnailsPanel(old_parent, undefined, undefined)
-            }
-
-        } else if (event.type ==='create_node') {
-            var node = inst.get_node(data.node);
-            var parent = inst.get_node(data.parent);
-
-            if (containerNode === parent && node.type === 'image') {
-                loadThumbnailsPanel(parent, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            }
-        }
-    };
-
-    $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
 });
 

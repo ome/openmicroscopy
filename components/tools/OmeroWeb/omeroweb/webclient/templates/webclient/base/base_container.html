@@ -51,6 +51,16 @@
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js"|add:url_suffix %}"></script>
     <script src="{% static 'webclient/javascript/jquery.infieldlabel-0.1.js' %}" type="text/javascript"></script>
 
+    <!-- Centre panel templating -->
+    <script type="text/javascript" src="{% static '3rdparty/underscore/underscore-1.8.3-min.js' %}"></script>
+    <!-- Include the underscore html template -->
+    <script id="icon_thumbnails_template" type="text/template">
+        {% include "webclient/data/icon_thumbnails_underscore.html" %}
+    </script>
+    <script id="icon_header_template" type="text/template">
+        {% include "webclient/data/icon_header_underscore.html" %}
+    </script>
+
     <!-- Toolbar -->
     <script type="text/javascript" src="{% static "3rdparty/jquery.chosen-1.2.0/chosen.jquery.js" %}"></script>
 
@@ -103,6 +113,8 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css"|add:url_suffix %}" type="text/css" media="screen"/>
 
     <script>
+
+        var PAGE_SIZE = {{ page_size }};
         $(document).ready(function(){
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');
