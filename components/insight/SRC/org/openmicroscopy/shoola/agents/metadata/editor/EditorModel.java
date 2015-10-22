@@ -4236,12 +4236,13 @@ class EditorModel
 	        Iterator i = l.iterator();
 	        while (i.hasNext()) {
 	            data = saveAsObject(i.next());
-	            if (data != null)
+	            if (data != null) {
 	                objects.add(data);
+	            }
 	        }
 	    }
 	    data = saveAsObject(getRefObject());
-	    if (data != null)
+	    if (data != null && objects.size() == 0)
 	        objects.add(data);
 	    if (objects.size() > 0) {
 	        IconManager icons = IconManager.getInstance();
