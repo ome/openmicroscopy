@@ -970,6 +970,49 @@
              </div>
 
 
+            
+            <!-- COMMENTS -->
+            <h1 class="can-collapse defclose" data-name="comments">
+                Comments
+            </h1>
+            <div class="annotations_section">
+
+                    {% if manager.canAnnotate %}
+                    <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
+                    <table>
+                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
+                        <tr>
+                            <td>
+                                <div id="add_comment_wrapper" style="position: relative">
+                                    <label class="inline_label" for="id_comment">Add Comment:</label>
+                                    {{ form_comment.comment }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
+                        </tr>
+                    </table>
+                    </form>
+                    {% endif %}
+
+                    <div id="comments_container" class="lncomments">
+                        {% for tann in manager.text_annotations %}
+                            {% with added_by=tann.link.getDetails.getOwner.id %}
+                                {% include "webclient/annotations/comment.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+            </div>
+            <div class="clear"></div>          
+            
+
 
             <!-- 'OTHER' ANNOTATIONS -->
             {% if manager.xml_annotations or manager.boolean_annotations or manager.double_annotations or manager.long_annotations or manager.term_annotations or manager.time_annotations %}
@@ -978,7 +1021,7 @@
             </h1>
             <div class="annotations_section">
                 <h2>{% trans "Others" %}:</h2>
-                
+
                     <!-- tool tips for each <td> is contained in child <span>, which are also hidden -->
                     <table id="custom_annotations">
                         {% for ann in manager.xml_annotations %}
@@ -991,7 +1034,7 @@
                             </td>
                         </tr>
                         {% endfor %}
-                        
+
                         {% for ann in manager.boolean_annotations %}
                         <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
                             <th>Boolean:</th>
@@ -1041,49 +1084,6 @@
             </div>
             {% endif %}
 
-
-            
-            <!-- COMMENTS -->
-            <h1 class="can-collapse defclose" data-name="comments">
-                Comments
-            </h1>
-            <div class="annotations_section">
-                
-                    {% if manager.canAnnotate %}
-                    <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
-                    <table>
-                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
-                        <tr>
-                            <td>
-                                <div id="add_comment_wrapper" style="position: relative">
-                                    <label class="inline_label" for="id_comment">Add Comment:</label>
-                                    {{ form_comment.comment }}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
-                        </tr>
-                    </table>
-                    </form>
-                    {% endif %}                        
-                
-                    <div id="comments_container" class="lncomments">
-                        {% for tann in manager.text_annotations %}
-                            {% with added_by=tann.link.getDetails.getOwner.id %}
-                                {% include "webclient/annotations/comment.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
-            </div>
-            <div class="clear"></div>          
-            
         </div>
         {% endif %}
 
