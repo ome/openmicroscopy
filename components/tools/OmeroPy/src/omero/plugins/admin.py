@@ -37,7 +37,7 @@ from omero.plugins.prefs import \
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
-from omero_ext.argparse import FileType
+from omero_ext.argparse import FileType, SUPPRESS
 from omero_version import ice_compatibility
 
 try:
@@ -320,24 +320,7 @@ dt_socket,address=8787,suspend=y" \\
             "--finish", action="store_true",
             help="Re-enables the background indexer after for indexing")
 
-        ports = Action(
-            "ports",
-            """Allows modifying the ports from a standard OMERO install (deprecated)
-
-To have multiple OMERO servers running on the same machine several ports
-must be modified from their defaults. Changing the ports on a running server
-will be prevented, use --skipcheck to override this.
-
-Examples:
-
-  # Set ports to registry:14061, tcp:14063, ssl:14064, web:14080
-  %(prog)s --prefix=1
-  # Set ports back to defaults: 4061, 4063, 4064, 4080
-  %(prog)s --prefix=1 --revert
-  # Set ports to: 4444, 5555, 6666, 7777
-  %(prog)s --registry=4444 --tcp=5555 --ssl=6666 --webserver=7777
-
-""").parser
+        ports = Action("ports", SUPPRESS).parser
         ports.add_argument(
             "--prefix",
             help="Adds a prefix to each port ON TOP OF any other settings")
@@ -713,8 +696,6 @@ present, the user will enter a console""")
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
-        if self._isWindows():
-            self.checkwindows(args)
 
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
@@ -725,6 +706,8 @@ present, the user will enter a console""")
         if not args.force_rewrite:
             self.rewrite(args, config)
 
+        if self._isWindows():
+            self.checkwindows(args)
         self.check_lock(config)
 
         self._initDir()
@@ -1028,6 +1011,7 @@ present, the user will enter a console""")
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
+            '@Ice.Default.Host@': config.get('Ice.Default.Host', '127.0.0.1')
             }
 
         def copy_template(input_file, output_dir):
@@ -1050,6 +1034,8 @@ present, the user will enter a console""")
                 self._get_templates_dir() / "grid" / "*default.xml"):
             copy_template(xml_file, self._get_etc_dir() / "grid")
         ice_config = self._get_templates_dir() / "ice.config"
+        substitutions['@Ice.Default.Host@'] = config.get(
+            'Ice.Default.Host', 'localhost')
         copy_template(ice_config, self._get_etc_dir())
 
         return rv
@@ -1062,13 +1048,15 @@ present, the user will enter a console""")
 
         self.check_access(os.R_OK)
         templates = self._get_grid_dir() / "templates.xml"
-        template_xml = XML(templates.text())
-        try:
-            memory = read_settings(template_xml)
-        except Exception, e:
-            self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
-                         % (templates, e))
-
+        if templates.exists():
+            template_xml = XML(templates.text())
+            try:
+                memory = read_settings(template_xml)
+            except Exception, e:
+                self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
+                             % (templates, e))
+        else:
+            memory = None
         omero_data_dir = self._get_data_dir(config)
 
         from omero.util.temp_files import gettempdir
@@ -1249,39 +1237,40 @@ OMERO Diagnostics %s
                     win32service.CloseServiceHandle(hsc)
                 win32service.CloseServiceHandle(hscm)
 
-        if not args.no_logs:
+        def parse_logs():
 
-            def log_dir(log, cat, cat2, knownfiles):
+            log_dir = self.ctx.dir / "var" / "log"
+            self.ctx.out("")
+            item("Log dir", "%s" % log_dir.abspath())
+            if not log_dir.exists():
                 self.ctx.out("")
-                item(cat, "%s" % log.abspath())
-                exists(log)
-                self.ctx.out("")
+                self.ctx.out("No logs available")
+                return
+            else:
+                exists(log_dir)
 
-                if log.exists():
-                    files = log.files()
-                    files = set([x.basename() for x in files])
-                    # Adding known names just in case
-                    for x in knownfiles:
-                        files.add(x)
-                    files = list(files)
-                    files.sort()
-                    for x in files:
-                        item(cat2, x)
-                        exists(log / x)
-                    item(cat2, "Total size")
-                    sz = 0
-                    for x in log.walkfiles():
-                        sz += x.size
-                    self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
-
-            log_dir(
-                self.ctx.dir / "var" / "log", "Log dir", "Log files",
-                ["Blitz-0.log", "Tables-0.log", "Processor-0.log",
-                 "Indexer-0.log", "FileServer.log", "MonitorServer.log",
-                 "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
+            known_log_files = [
+                "Blitz-0.log", "Tables-0.log", "Processor-0.log",
+                "Indexer-0.log", "FileServer.log", "MonitorServer.log",
+                "DropBox.log", "TestDropBox.log", "OMEROweb.log"]
+            files = log_dir.files()
+            files = set([x.basename() for x in files])
+            # Adding known names just in case
+            for x in known_log_files:
+                files.add(x)
+            files = list(files)
+            files.sort()
+            for x in files:
+                item("Log files", x)
+                exists(log_dir / x)
+            item("Log files", "Total size")
+            sz = 0
+            for x in log_dir.walkfiles():
+                sz += x.size
+            self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+            self.ctx.out("")
 
             # Parsing well known issues
-            self.ctx.out("")
             ready = re.compile(".*?ome.services.util.ServerVersionCheck\
             .*OMERO.Version.*Ready..*?")
             db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
@@ -1317,6 +1306,9 @@ OMERO Diagnostics %s
                                 break
             except:
                 self.ctx.err("Error while parsing logs")
+
+        if not args.no_logs:
+            parse_logs()
 
         self.ctx.out("")
 
@@ -1381,10 +1373,11 @@ OMERO Diagnostics %s
 
         # JVM settings
         self.ctx.out("")
-        for k, v in sorted(memory.items()):
-            sb = " ".join([str(x) for x in v])
-            item("JVM settings", " %s" % (k[0].upper() + k[1:]))
-            self.ctx.out("%s" % sb)
+        if memory:
+            for k, v in sorted(memory.items()):
+                sb = " ".join([str(x) for x in v])
+                item("JVM settings", " %s" % (k[0].upper() + k[1:]))
+                self.ctx.out("%s" % sb)
 
         # OMERO.web diagnostics
         self.ctx.out("")
@@ -1393,6 +1386,11 @@ OMERO Diagnostics %s
             WebControl().status(args)
         except:
             self.ctx.out("OMERO.web not installed!")
+        try:
+            import django
+            self.ctx.out("Django version: %s" % django.get_version())
+        except:
+            self.ctx.out("Django not installed!")
 
     def email(self, args):
         client = self.ctx.conn(args)

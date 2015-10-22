@@ -149,17 +149,13 @@ def imageMarshal(image, key=None, request=None):
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
 
-    try:
-        init_zoom = request.session['server_settings']['initial_zoom_level']
-        if init_zoom < 0:
-            init_zoom = levels + init_zoom
-    except:
-        init_zoom = 0
+    server_settings = request.session.get('server_settings',
+                                          {}) if request else {}
+    init_zoom = server_settings.get('initial_zoom_level', 0)
+    if init_zoom < 0:
+        init_zoom = levels + init_zoom
 
-    try:
-        interpolate = request.session['server_settings']['interpolate_pixels']
-    except:
-        interpolate = False
+    interpolate = server_settings.get('interpolate_pixels', True)
 
     try:
         rv.update({

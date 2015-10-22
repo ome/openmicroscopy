@@ -37,10 +37,10 @@ logger = logging.getLogger(__name__)
 
 
 def index(request, **kwargs):
-    if request.REQUEST.get('show', None) is not None:
+    if request.GET.get('show', None) is not None:
         url = "?".join([
             reverse(viewname="webindex"),
-            "show="+request.REQUEST.get('show')
+            "show="+request.GET.get('show')
             ])
         return HttpResponseRedirect(url)
     else:

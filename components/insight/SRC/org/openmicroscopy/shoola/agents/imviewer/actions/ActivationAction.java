@@ -82,7 +82,8 @@ public class ActivationAction
      * Activates the model. 
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.activate(null, -1,
-    		model.getDisplayMode()); }
-    
+    public void actionPerformed(ActionEvent e) {
+        model.activate(null, -1, model.getDisplayMode(), -1);
+    }
+
 }

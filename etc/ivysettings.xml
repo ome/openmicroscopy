@@ -80,14 +80,6 @@
           m2compatible="true"
           root="http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"/>
 
-      <url name="com.springsource.repository.bundles.release" cache="maven">
-        <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-        <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-      </url>
-      <url name="com.springsource.repository.bundles.external" cache="maven">
-        <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-        <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-      </url>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
@@ -113,11 +105,9 @@
 
     <!-- Spring resolver which has as its first resolver the location
     where all our jars will be published -->
-    <chain name="spring-resolver" returnFirst="true">
-        <resolver ref="repo"/>
+    <chain name="maven-resolver" returnFirst="true">
         <resolver ref="user-maven"/>
-        <resolver ref="com.springsource.repository.bundles.release"/>
-        <resolver ref="com.springsource.repository.bundles.external"/>
+        <resolver ref="maven"/>
     </chain>
 
     <!-- Laughing Panda resolver -->
@@ -151,10 +141,11 @@
     <module organisation="edu.ucar" resolver="unidata-resolver"/>
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
-    <module organisation="org.springframework" resolver="spring-resolver"/>
+    <module organisation="org.springframework" resolver="maven-resolver"/>
     <module organisation="abbot" resolver="laughingpanda-resolver"/>
     <module organisation="jretrofit" resolver="laughingpanda-resolver"/>
     <module organisation="ome" name="appbundler" resolver="ome-resolver"/>
+    <module organisation="zeroc" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
   </modules>
 

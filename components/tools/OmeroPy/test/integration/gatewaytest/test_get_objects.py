@@ -4,7 +4,7 @@
 """
    gateway tests - Testing the gateway.getObject() and deleteObjects() methods
 
-   Copyright 2013-2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2013-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -157,8 +157,9 @@ class TestFindObject (object):
         find_ns = "omero.gateway.test.test_find_annotations"
         find_tag = gatewaywrapper.gateway.getObjects(
             "Annotation", attributes={"textValue": tag_value, "ns": find_ns})
-        for t in find_tag:
-            gatewaywrapper.gateway.deleteObjectDirect(t._obj)
+        ids = [t._obj.id.val for t in find_tag]
+        if ids:
+            gatewaywrapper.gateway.deleteObjects("Annotation", ids, wait=True)
 
         # create Tag
         tag = omero.gateway.TagAnnotationWrapper(gatewaywrapper.gateway)
@@ -265,16 +266,12 @@ class TestFindObject (object):
         assert timeId in [t.getId() for t in times]
 
         # delete what we created
-        # direct delete
-        gatewaywrapper.gateway.deleteObjectDirect(longAnn._obj)
+        gatewaywrapper.gateway.deleteObjects(
+            "Annotation", [longId, boolId, fileId, commId, tagId], wait=True)
         assert gatewaywrapper.gateway.getObject("Annotation", longId) is None
-        gatewaywrapper.gateway.deleteObjectDirect(boolAnn._obj)
         assert gatewaywrapper.gateway.getObject("Annotation", boolId) is None
-        gatewaywrapper.gateway.deleteObjectDirect(fileAnn._obj)
         assert gatewaywrapper.gateway.getObject("Annotation", fileId) is None
-        gatewaywrapper.gateway.deleteObjectDirect(commAnn._obj)
         assert gatewaywrapper.gateway.getObject("Annotation", commId) is None
-        gatewaywrapper.gateway.deleteObjectDirect(tag._obj)
         assert gatewaywrapper.gateway.getObject("Annotation", tagId) is None
 
 
@@ -547,9 +544,8 @@ class TestGetObject (object):
         image = author_testimg_tiny
         # This should return image wrapper
         pr = image.getProject()
-        ds = image.getDataset()
+        ds = image.getParent()
 
-        assert ds == image.getParent()
         assert image.listParents()[0] == image.getParent()
         assert ds == image.getParent(withlinks=True)[0]
         assert image.getParent(withlinks=True) == \

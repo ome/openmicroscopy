@@ -519,9 +519,38 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     public Session find(String uuid) {
         SessionContext sessionContext = cache.getSessionContext(uuid);
+        checkIfShare(sessionContext);
         return (sessionContext == null) ? null : sessionContext.getSession();
     }
 
+    private void checkIfShare(SessionContext sessionContext) {
+        if (sessionContext.getSession() instanceof Share) {
+            final Long id = sessionContext.getSession().getId();
+            final String uuid = sessionContext.getSession().getUuid();
+            final String prefix = String.format("Share:%s (%s)", id, uuid);
+
+            List<Object[]> rv = executeProjection(
+                    "select s.active, s.timeToLive, s.started from Share s where s.id = :id",
+                    new Parameters().addId(sessionContext.getSession().getId()));
+
+            if (rv.size() != 1) {
+                throw new RuntimeException(prefix + " could not be found!");
+            }
+
+            Object[] items = rv.get(0);
+            Boolean active = (Boolean) items[0];
+            Long timeToLive = (Long) items[1];
+            Timestamp started = (Timestamp) items[2];
+
+            if (Boolean.FALSE.equals(active)) {
+               throw new SecurityViolation(prefix + " is inactive");
+            } else if ((System.currentTimeMillis() - started.getTime()) > timeToLive) {
+                String msg = String.format("%s has expired: %s, timeToLive=%s",
+                        prefix, started, timeToLive);
+                throw new SecurityViolation(msg);
+            }
+        }
+    }
     private final static String findBy1 =
         "select s.id, s.uuid from Session s " +
         "join s.owner o where " +

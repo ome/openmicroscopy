@@ -596,7 +596,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             ds.description = rstring(str(description))
         dsid = self.saveAndReturnId(ds)
         if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
+            iids = [int(i) for i in img_ids]
             links = []
             for iid in iids:
                 link = omero.model.DatasetImageLinkI()
@@ -838,10 +838,11 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             links = exp._getAnnotationLinks()
             # there should be only one ExperimenterAnnotationLink
             # but if there is more then one all of them should be deleted.
-            for l in links:
-                self.deleteObjectDirect(l)
+            linkIds = [l.id.val for l in links]
+            self.deleteObjects(
+                "ExperimenterAnnotationLink", linkIds, wait=True)
             # No error handling?
-            self.deleteObjects("/Annotation", [ann.id.val])
+            self.deleteObject(ann)
 
     def cropExperimenterPhoto(self, box, oid=None):
         """
@@ -1953,7 +1954,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 correct_dataset = False
                 for plink in i.getParentLinks():
                     if plink.parent.id != target_ds:
-                        self.deleteObjectDirect(plink._obj)
+                        self.deleteObject(plink._obj)
                     else:
                         correct_dataset = True
                 if not correct_dataset:
@@ -2129,11 +2130,11 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.setLongValue(rlong(rating))
                     ratingAnn.save()
                 else:
-                    self._conn.deleteObjectDirect(ratingLink._obj)
-                    self._conn.deleteObjectDirect(ratingAnn._obj)
+                    self._conn.deleteObject(ratingLink._obj)
+                    self._conn.deleteObject(ratingAnn._obj)
             # otherwise, unlink and create a new rating
             else:
-                self._conn.deleteObjectDirect(ratingLink._obj)
+                self._conn.deleteObject(ratingLink._obj)
                 addRating(rating)
         else:
             addRating(rating)
@@ -2454,15 +2455,6 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
             self.link = 'link' in kwargs and kwargs['link'] or None
 
 omero.gateway.WellWrapper = WellWrapper
-
-
-class TagWrapper(OmeroWebObjectWrapper, omero.gateway.TagAnnotationWrapper):
-    """
-    omero_model_TagAnnotationI class wrapper overwrite
-    omero.gateway.TagAnnotationWrapper and extends OmeroWebObjectWrapper.
-    """
-
-omero.gateway.TagAnnotationWrapper = TagWrapper
 
 
 class PlateAcquisitionWrapper(OmeroWebObjectWrapper,

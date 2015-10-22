@@ -28,10 +28,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.JFrame;
 
 import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -43,9 +43,13 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+
 import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
@@ -1187,4 +1191,20 @@ public interface TreeViewer
      * @return See above.
      */
     Collection<DataObject> getSelectedObjectsFromBrowser();
+    
+    /**
+     * Resets the rendering settings.
+     *
+     * @param imageID The image id.
+     * @param settings The settings to reset
+     */
+    void resetRndSettings(long imageID, RndProxyDef settings);
+
+    /**
+     * Returns the rendering setting of the selected viewed by item if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedViewedBy();
+
 }

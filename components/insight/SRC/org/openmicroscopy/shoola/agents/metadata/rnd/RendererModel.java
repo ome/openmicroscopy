@@ -176,6 +176,9 @@ class RendererModel
     /** Map hosting the extra dimension if available.*/
     private Map<Integer, ModuloInfo> modulo;
 
+    /** he alternative rendering settings if any.*/
+    private RndProxyDef def;
+
 	/**
 	 * Creates a new instance.
 	 *
@@ -183,9 +186,10 @@ class RendererModel
 	 * @param rndControl Reference to the component that controls the
 	 *                   rendering settings. Mustn't be <code>null</code>.
 	 * @param rndIndex The index associated to the renderer.
+	 * @param def The alternative rendering settings if any.
 	 */
 	RendererModel(SecurityContext ctx, RenderingControl rndControl,
-			int rndIndex)
+			int rndIndex, RndProxyDef def)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
@@ -197,6 +201,7 @@ class RendererModel
 		globalMinChannels = null;
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
+		this.def = def;
 	}
 
 	/**
@@ -1137,6 +1142,13 @@ class RendererModel
 		if (rndControl == null) return null;
 		return rndControl.getRndSettingsCopy();
 	}
+
+	/**
+     * Returns the alternative rendering settings.
+     *
+     * @return See above.
+     */
+    RndProxyDef getAlternativeRndSettings() { return def; }
 
     /**
      * Returns the initial rendering settings.

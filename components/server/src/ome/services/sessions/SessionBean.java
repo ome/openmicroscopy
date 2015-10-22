@@ -109,7 +109,7 @@ public class SessionBean implements ISession {
                 public Session call() throws Exception {
                     SessionManager.CreationRequest req = new SessionManager.CreationRequest();
                     req.principal = principal;
-                    req.agent = "createSession";
+                    req.agent = "OMERO.sudo";
                     req.groupsLed = groupsLed;
                     req.timeToIdle = timeToIdleMilliseconds;
                     req.timeToLive = timeToLiveMilliseconds;

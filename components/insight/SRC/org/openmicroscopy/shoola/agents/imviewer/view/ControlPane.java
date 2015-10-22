@@ -1269,7 +1269,6 @@ class ControlPane
     /** Resets the rendering settings. */
     void resetRndSettings()
     {
-        boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
         Iterator<ChannelButton> i = channelButtons.iterator();
         ChannelButton button;
         int index;

@@ -795,7 +795,7 @@ public class DomainPane
      * @see ControlPane#getPaneIndex()
      */
     protected int getPaneIndex() { return ControlPane.DOMAIN_PANE_INDEX; }
-    
+
     /**
      * Resets the default rendering settings. 
      * @see ControlPane#resetDefaultRndSettings()
@@ -809,14 +809,24 @@ public class DomainPane
         resetBitResolution();
         int n = model.getMaxC();
         for (int i = 0; i < n; i++) {
-        	setChannelColor(i);
-		}
+            setChannelColor(i);
+        }
         resetGamma(model.getCurveCoefficient());
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
         setGreyScale(model.isGreyScale());
     }
-    
+
+    /**
+     * Resets the settings.
+     *
+     * @param settings the value to set.
+     */
+    void resetViewedBy(RndProxyDef settings)
+    {
+        graphicsPane.resetViewedBy(settings);
+    }
+
     /**
      * Sets the enabled flag of the UI components.
      * @see ControlPane#onStateChange(boolean)
@@ -1035,7 +1045,16 @@ public class DomainPane
 			cb.setText(data.getChannelLabeling());
 		}
     }
-    
+
+    /**
+     * Returns the selected rendering settings if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef()
+    {
+        return graphicsPane.getSelectedDef();
+    }
     /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.

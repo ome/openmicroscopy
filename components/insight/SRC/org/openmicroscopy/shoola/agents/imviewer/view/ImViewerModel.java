@@ -328,7 +328,10 @@ class ImViewerModel
     
     /** The unit used for the scale bar */
     private UnitsLength scaleBarUnit;
-    
+
+    /** The selected rendering settings in under "User Setting".*/
+    private long selectedRndDefID;
+
     /**
      * Returns the default resolution level.
      * 
@@ -559,22 +562,22 @@ class ImViewerModel
 	/** Initializes the {@link #metadataViewer}. */
 	private void initializeMetadataViewer()
 	{
-		metadataViewer = MetadataViewerFactory.getViewer("",
-				MetadataViewer.RND_SPECIFIC);
-		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
-				getSecurityContext());
-		
-		// there might already exist another MetadataViewer with modified
-		// rendering settings; if so copy it's original settings
-                MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
-                        ImageData.class.getName(), image.getId());
-                if (otherViewer != null) {
-                    Renderer otherRenderer = otherViewer.getRenderer();
-                    if (otherRenderer != null)
-                        originalDef = otherRenderer.getInitialRndSettings();
-                }
+	    metadataViewer = MetadataViewerFactory.getViewer("",
+	            MetadataViewer.RND_SPECIFIC, alternativeSettings, selectedRndDefID);
+	    metadataViewer.setRootObject(image, metadataViewer.getUserID(),
+	            getSecurityContext());
+
+	    // there might already exist another MetadataViewer with modified
+	    // rendering settings; if so copy its original settings
+	    MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
+	            ImageData.class.getName(), image.getId());
+	    if (otherViewer != null) {
+	        Renderer otherRenderer = otherViewer.getRenderer();
+	        if (otherRenderer != null)
+	            originalDef = otherRenderer.getInitialRndSettings();
+	    }
 	}
-	
+
 	/**
    	 * Reloads the 'saved by' thumbnails of the the rendering panel
     	 */
@@ -646,6 +649,7 @@ class ImViewerModel
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component,
 				ImViewerFactory.getPreferences());
+		selectedRndDefID = -1;
 	}
 	
 	/**
@@ -657,7 +661,7 @@ class ImViewerModel
 	}
 	
     /**
-     * Get the unit for the scalebar. 
+     * Get the unit for the scalebar.
      * Determined by assuming a 100px wide scalebar.
      * 
      * @return The unit used for the scalebar
@@ -1078,7 +1082,9 @@ class ImViewerModel
 			if (alternativeSettings != null && rnd != null)
 				rnd.resetSettings(alternativeSettings, false);
 			alternativeSettings = null;
-			if (rnd != null && originalDef == null) originalDef = rnd.getRndSettingsCopy();
+			if (rnd != null && originalDef == null) {
+			    originalDef = rnd.getRndSettingsCopy();
+			}
 		} catch (Exception e) {}
 	}
 	
@@ -3055,4 +3061,8 @@ class ImViewerModel
         browser.setInterpolation(interpolation);
     }
 
+    void setSelectedRndDef(long defID)
+    {
+        selectedRndDefID = defID;
+    }
 }

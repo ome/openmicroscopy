@@ -23,7 +23,10 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.util.Collection;
 
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import omero.gateway.model.ImageData;
 import omero.gateway.model.XMLAnnotationData;
 
@@ -49,13 +52,14 @@ public class RendererFactory
      * @param image The image the component is for.
      * @param rndIndex The index of the renderer.
      * @param modulo The modulo annotations if any.
+     * @param def The alternative rendering settings if any.
      * @return See above.
      */
     public static Renderer createRenderer(SecurityContext ctx,
     		RenderingControl rndControl, ImageData image, int rndIndex,
-    		Collection<XMLAnnotationData> modulo)
+    		Collection<XMLAnnotationData> modulo, RndProxyDef def)
     {
-        RendererModel model = new RendererModel(ctx, rndControl, rndIndex);
+        RendererModel model = new RendererModel(ctx, rndControl, rndIndex, def);
         model.setImage(image);
         model.setXMLAnnotations(modulo);
         RendererComponent rnd = new RendererComponent(model);

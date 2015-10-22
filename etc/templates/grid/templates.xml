@@ -455,7 +455,7 @@
          </adapter>
          <properties>
             <properties refid="Profile"/>
-            <property name="IcePatch2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+            <property name="IcePatch2.Admin.Endpoints" value="tcp -h @Ice.Default.Host@"/>
             <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
             <property name="IcePatch2.InstanceName" value="${instance-name}"/>
             <property name="IcePatch2.Directory" value="${directory}"/>

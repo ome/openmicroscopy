@@ -73,7 +73,7 @@ nPixels = numel(pixelsIds);
 % Create container service to load the thumbnails
 context = java.util.HashMap;
 group = images(1).getDetails().getGroup().getId().getValue();
-context.put('omero.group', num2str(group));
+context.put('omero.group', java.lang.String(num2str(group)));
 store = session.createThumbnailStore();
 pixelsRange = 1 : min(nPixels, MAX_RETRIEVAL);
 thumbnailMap = store.getThumbnailSet(width, height,...
