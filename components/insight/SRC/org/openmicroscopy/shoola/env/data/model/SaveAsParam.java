@@ -22,8 +22,10 @@ package org.openmicroscopy.shoola.env.data.model;
 
 import java.io.File;
 import java.util.List;
+
 import javax.swing.Icon;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -70,7 +72,7 @@ public class SaveAsParam
 	 */
 	public SaveAsParam(File folder, List<omero.gateway.model.DataObject> objects)
 	{
-		if (objects == null || objects.size() == 0)
+		if (CollectionUtils.isEmpty(objects))
 			throw new IllegalArgumentException("No objects specified.");
 		this.objects = objects;
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
