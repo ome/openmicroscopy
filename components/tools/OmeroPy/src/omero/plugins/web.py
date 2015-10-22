@@ -15,6 +15,7 @@ import platform
 import sys
 import os
 import re
+from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
 HELP = "OMERO.web configuration/deployment tools"
@@ -32,9 +33,10 @@ Configuration:
 Example Nginx developer usage:
 
     omero config set omero.web.debug true
+    omero config set omero.web.application_server.max_requests 1
     omero web config nginx-development --http=8000 >> nginx.conf
-    omero web start
     nginx -c `pwd`/nginx.conf
+    omero web start --wsgi-args ' --reload'
     omero web status
     omero web stop
     nginx -s stop
@@ -51,6 +53,25 @@ Example IIS usage:
     iisreset
 
 """
+
+
+def config_required(func):
+    def import_django_settings(func):
+        def wrapper(*args, **kwargs):
+            args = list(args)
+            self = args[0]
+            try:
+                import django  # NOQA
+            except:
+                self.ctx.die(681, "Django not installed!")
+            try:
+                import omeroweb.settings as settings
+                kwargs['settings'] = settings
+            except Exception, e:
+                self.ctx.die(682, e)
+            return func(*args, **kwargs)
+        return wrapper
+    return wraps(func)(import_django_settings(func))
 
 
 class WebControl(BaseControl):
@@ -149,9 +170,9 @@ class WebControl(BaseControl):
             "Developer use: Loads the blitz gateway into a Python"
             " interpreter")
 
-    def help(self, args):
+    @config_required
+    def help(self, args, settings):
         """Return extended help"""
-        from omeroweb import settings
         try:
             CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
             CONFIG_TABLE = CONFIG_TABLE_FMT % (
@@ -169,12 +190,6 @@ class WebControl(BaseControl):
                 " Cannot display default values")
 
         self.ctx.err(LONGHELP % CONFIG_TABLE)
-
-    def _check_lib_installed(self):
-        try:
-            import django  # NOQA
-        except:
-            self.ctx.err("Django not installed!")
 
     def _get_python_dir(self):
         return self.ctx.dir / "lib" / "python"
@@ -228,10 +243,9 @@ class WebControl(BaseControl):
                                " used with 'omero web config %s'"
                                ".") % (settings.APPLICATION_SERVER, argtype))
 
-    def config(self, args):
+    @config_required
+    def config(self, args, settings):
         """Generate a configuration file from a template"""
-        from omeroweb import settings
-
         if args.system:
             self.ctx.err(
                 "WARNING: --system is no longer supported, see --help")
@@ -302,10 +316,10 @@ class WebControl(BaseControl):
     def syncmedia(self, args):
         self.collectstatic()
 
-    def enableapp(self, args):
+    @config_required
+    def enableapp(self, args, settings):
         location = self._get_python_dir() / "omeroweb"
         if not args.appname:
-            from omeroweb import settings
             apps = [x.name for x in filter(
                 lambda x: x.isdir() and
                 (x / 'scripts' / 'enable.py').exists(),
@@ -356,19 +370,19 @@ class WebControl(BaseControl):
         except:
             print traceback.print_exc()
 
-    def collectstatic(self):
+    @config_required
+    def collectstatic(self, settings):
         """Ensure that static media is copied to the correct location"""
-        self._check_lib_installed()
         location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
         rv = self.ctx.call(args, cwd=location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
 
-    def clearsessions(self, args):
+    @config_required
+    def clearsessions(self, args, settings):
         """Clean out expired sessions."""
         self.ctx.out("Clearing expired sessions. This may take some time... ")
-        self._check_lib_installed()
         location = self._get_python_dir() / "omeroweb"
         cmd = [sys.executable, "manage.py", "clearsessions"]
         if not args.no_wait:
@@ -379,11 +393,11 @@ class WebControl(BaseControl):
         else:
             self.ctx.popen(cmd, cwd=location)
 
-    def start(self, args):
+    @config_required
+    def start(self, args, settings):
         self.collectstatic()
         if not args.keep_sessions:
             self.clearsessions(args)
-        import omeroweb.settings as settings
         self._assert_gunicorn()
 
         link = ("%s:%d" % (settings.APPLICATION_SERVER_HOST,
@@ -460,10 +474,9 @@ class WebControl(BaseControl):
         self.ctx.out("[OK]")
         return rv
 
-    def status(self, args):
+    @config_required
+    def status(self, args, settings):
         self.ctx.out("OMERO.web status... ", newline=False)
-        self._check_lib_installed()
-        import omeroweb.settings as settings
         self._assert_gunicorn()
 
         deploy = getattr(settings, 'APPLICATION_SERVER')
@@ -487,14 +500,18 @@ class WebControl(BaseControl):
             except:
                 self.ctx.out("[NOT STARTED]")
                 return rv
+        elif deploy in settings.DEVELOPMENT:
+            self.ctx.err(
+                "DEVELOPMENT: You will have to kill processes by hand!")
         else:
-            self.ctx.err("DEVELOPMENT: You will have to check status by hand!")
+            self.ctx.err(
+                "Invalid APPLICATION_SERVER "
+                "(omero.web.application_server = '%s')!" % deploy)
         return rv
 
-    def stop(self, args):
+    @config_required
+    def stop(self, args, settings):
         self.ctx.out("Stopping OMERO.web... ", newline=False)
-        self._check_lib_installed()
-        import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER')
         if deploy in settings.WSGI_TYPES:
             pid = 'Unknown'
@@ -521,9 +538,14 @@ class WebControl(BaseControl):
             finally:
                 if pid_path.exists():
                     pid_path.remove()
-        else:
+        elif deploy in settings.DEVELOPMENT:
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
+            return False
+        else:
+            self.ctx.err(
+                "Invalid APPLICATION_SERVER "
+                "(omero.web.application_server = '%s')!" % deploy)
             return False
 
     def restart(self, args):
@@ -538,6 +560,7 @@ class WebControl(BaseControl):
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' +
                                  self.ctx.dir / 'bin')
 
+    @config_required
     def iis(self, args):
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
