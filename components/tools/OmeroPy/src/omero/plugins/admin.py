@@ -54,6 +54,8 @@ except ImportError:
 
 DEFAULT_WAIT = 300
 
+CHECKUPGRADE_USERAGENT = "test"
+
 HELP = """Administrative tools including starting/stopping OMERO.
 
 Environment variables:
@@ -1794,12 +1796,11 @@ OMERO Diagnostics %s
         """
 
         config = config.as_map()
-        agent = 'server'
         upgrade_url = config.get("omero.upgrades.url", None)
         if upgrade_url:
-            uc = UpgradeCheck(agent, url=upgrade_url)
+            uc = UpgradeCheck(CHECKUPGRADE_USERAGENT, url=upgrade_url)
         else:
-            uc = UpgradeCheck(agent)
+            uc = UpgradeCheck(CHECKUPGRADE_USERAGENT)
         uc.run()
         if uc.isUpgradeNeeded():
             self.ctx.die(1, uc.getUpgradeUrl())
