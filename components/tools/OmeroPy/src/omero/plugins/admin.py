@@ -1794,7 +1794,7 @@ OMERO Diagnostics %s
         """
 
         config = config.as_map()
-        url = config.get(
+        upgrade_url = config.get(
             "omero.upgrades.url", "http://upgrade.openmicroscopy.org.uk")
         uc = UpgradeCheck('server', url=upgrade_url)
         uc.run()
