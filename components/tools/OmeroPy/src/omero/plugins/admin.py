@@ -1794,9 +1794,12 @@ OMERO Diagnostics %s
         """
 
         config = config.as_map()
-        upgrade_url = config.get(
-            "omero.upgrades.url", "http://upgrade.openmicroscopy.org.uk")
-        uc = UpgradeCheck('server', url=upgrade_url)
+        agent = 'server'
+        upgrade_url = config.get("omero.upgrades.url", None)
+        if upgrade_url:
+            uc = UpgradeCheck(agent, url=upgrade_url)
+        else:
+            uc = UpgradeCheck(agent)
         uc.run()
         if uc.isUpgradeNeeded():
             self.ctx.die(1, uc.getUpgradeUrl())
