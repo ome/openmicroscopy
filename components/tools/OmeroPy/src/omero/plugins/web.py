@@ -74,6 +74,44 @@ def config_required(func):
     return wraps(func)(import_django_settings(func))
 
 
+def assert_config_argtype(func):
+    def config_argtype(func):
+        def wrapper(*args, **kwargs):
+            args = list(args)
+            self = args[0]
+            argtype = args[1].type
+            settings = kwargs['settings']
+            mismatch = False
+            if args[1].system:
+                self.ctx.die(683,
+                             "ERROR: --system is no longer supported, "
+                             "see --help")
+            if settings.APPLICATION_SERVER in ("development",):
+                mismatch = True
+            if settings.APPLICATION_SERVER in (settings.WSGITCP,):
+                try:
+                    import gunicorn  # NOQA
+                except ImportError:
+                    self.ctx.die(690,
+                                 "ERROR: FastCGI support was removed in "
+                                 "OMERO 5.2. Install Gunicorn and update "
+                                 "config.")
+                if argtype not in ("nginx", "nginx-development",):
+                    mismatch = True
+            if (settings.APPLICATION_SERVER in (settings.WSGI,) and
+                    argtype not in ("apache",)):
+                mismatch = True
+            if mismatch:
+                self.ctx.die(680,
+                             ("ERROR: configuration mismatch. "
+                              "omero.web.application_server=%s cannot be "
+                              "used with 'omero web config %s'.") %
+                             (settings.APPLICATION_SERVER, argtype))
+            return func(*args, **kwargs)
+        return wrapper
+    return wraps(func)(config_argtype(func))
+
+
 class WebControl(BaseControl):
 
     config_choices = ("nginx", "nginx-development", "apache")
@@ -218,40 +256,10 @@ class WebControl(BaseControl):
         d["OMEROPYTHONROOT"] = self._get_python_dir()
         d["OMEROFALLBACKROOT"] = self._get_fallback_dir()
 
-    def _assert_gunicorn(self):
-        try:
-            import gunicorn  # NOQA
-        except ImportError:
-            self.ctx.die(690,
-                         "ERROR: FastCGI support was removed in OMERO 5.2."
-                         " Install Gunicorn and update config.")
-
-    def _assert_config_argtype(self, argtype, settings):
-        self._assert_gunicorn()
-        mismatch = False
-        if settings.APPLICATION_SERVER in ("development",):
-            mismatch = True
-        if (settings.APPLICATION_SERVER in (settings.WSGITCP,) and
-                argtype not in ("nginx", "nginx-development",)):
-            mismatch = True
-        if (settings.APPLICATION_SERVER in (settings.WSGI,) and
-                argtype not in ("apache",)):
-            mismatch = True
-        if mismatch:
-            self.ctx.die(680, ("ERROR: configuration mismatch. "
-                               "omero.web.application_server=%s cannot be"
-                               " used with 'omero web config %s'"
-                               ".") % (settings.APPLICATION_SERVER, argtype))
-
     @config_required
+    @assert_config_argtype
     def config(self, args, settings):
         """Generate a configuration file from a template"""
-        if args.system:
-            self.ctx.err(
-                "WARNING: --system is no longer supported, see --help")
-
-        self._assert_config_argtype(args.type, settings)
-
         server = args.type
         if args.http:
             port = args.http
@@ -398,7 +406,6 @@ class WebControl(BaseControl):
         self.collectstatic()
         if not args.keep_sessions:
             self.clearsessions(args)
-        self._assert_gunicorn()
 
         link = ("%s:%d" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -407,7 +414,7 @@ class WebControl(BaseControl):
 
         if deploy in (settings.WSGI,):
             self.ctx.out("You are deploying OMERO.web using apache and"
-                         " mod_wsgi.")
+                         " mod_wsgi. You only need to add apache config.")
             return 1
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
@@ -446,7 +453,6 @@ class WebControl(BaseControl):
                     self.ctx.err("Removed stale %s" % pid_path)
 
         if deploy == settings.WSGITCP:
-            self._assert_gunicorn()
             try:
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
@@ -477,7 +483,6 @@ class WebControl(BaseControl):
     @config_required
     def status(self, args, settings):
         self.ctx.out("OMERO.web status... ", newline=False)
-        self._assert_gunicorn()
 
         deploy = getattr(settings, 'APPLICATION_SERVER')
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
