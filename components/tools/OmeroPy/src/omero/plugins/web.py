@@ -56,6 +56,7 @@ Example IIS usage:
 
 
 def config_required(func):
+    """Decorator validating Django dependences and omeroweb/settings.py"""
     def import_django_settings(func):
         def wrapper(*args, **kwargs):
             args = list(args)
@@ -75,6 +76,7 @@ def config_required(func):
 
 
 def assert_config_argtype(func):
+    """Decorator validating OMERO.web deployment dependences"""
     def config_argtype(func):
         def wrapper(*args, **kwargs):
             args = list(args)
