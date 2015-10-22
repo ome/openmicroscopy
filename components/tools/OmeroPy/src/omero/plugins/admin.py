@@ -1398,13 +1398,14 @@ OMERO Diagnostics %s
         from omero.plugins.web import WebControl
         try:
             WebControl().status(args)
-        except:
-            self.ctx.out("OMERO.web not installed!")
+        except Exception, e:
+            self.ctx.err("OMERO.web error:")
+            self.ctx.err(e)
         try:
             import django
             self.ctx.out("Django version: %s" % django.get_version())
         except:
-            self.ctx.out("Django not installed!")
+            self.ctx.err("Django not installed!")
 
     def email(self, args):
         client = self.ctx.conn(args)
