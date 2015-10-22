@@ -585,10 +585,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
              pix.sizeY as sizeY,
              pix.sizeZ as sizeZ
              """
-    if thumb_version:
-        extraValues += """,
-            thumbs.version as thumbVersion
-            """
+
     if date:
         extraValues += """,
             image.details.creationEvent.time as date,
@@ -605,18 +602,9 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
 
     from_join_clauses.append('Image image')
 
-    if load_pixels or thumb_version:
+    if load_pixels:
         # We use 'left outer join', since we still want images if no pixels
         from_join_clauses.append('left outer join image.pixels pix')
-
-    if thumb_version:
-        from_join_clauses.append('join pix.thumbnails thumbs')
-        where_clause.append("""thumbs.id = (
-                select max(t.id)
-                from Thumbnail t
-                where t.pixels = pix.id
-                and t.details.owner.id = image.details.owner.id
-            )""")
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
@@ -691,8 +679,6 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if load_pixels:
             d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
             kwargs['row_pixels'] = d
-        if thumb_version:
-            kwargs['thumbVersion'] = e['thumbVersion']
         if date:
             kwargs['acqDate'] = e['acqDate']
             kwargs['date'] = e['date']
@@ -706,37 +692,32 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
 
         images.append(_marshal_image(**kwargs))
 
-    # If we're loading user's thumbnails, and there are
-    # any images not owned by user...
+    # Load thumbnails separately
+    # We want version of most recent thumbnail (max thumbId) owned by user
     if thumb_version:
         userId = conn.getUserId()
-        notOwnedImgs = [i['id'] for i in images if i['ownerId'] != userId]
-        if len(notOwnedImgs) > 0:
-            # ...need to load them in a separate query
-            params = omero.sys.ParametersI()
-            params.addIds(notOwnedImgs)
-            params.add('thumbOwner', wrap(userId))
-            q = """select image.id, thumbs.version from Image image
-                join image.pixels pix join pix.thumbnails thumbs
-                where image.id in (:ids)
-                and thumbs.details.owner.id = :thumbOwner
-                and thumbs.id = (
-                    select max(t.id)
-                    from Thumbnail t
-                    where t.pixels = pix.id
-                )
-                """
-            thumbVersions = {}
-            for t in qs.projection(q, params, service_opts):
-                iid, tv = unwrap(t)
-                thumbVersions[iid] = tv
-            # For all images, set thumb version if we have it...
-            for i in images:
-                if i['id'] in thumbVersions:
-                    i['thumbVersion'] = thumbVersions[i['id']]
-                else:
-                    # ...otherwise remove
-                    i.pop('thumbVersion')
+        iids = [i['id'] for i in images]
+        params = omero.sys.ParametersI()
+        params.addIds(iids)
+        params.add('thumbOwner', wrap(userId))
+        q = """select image.id, thumbs.version from Image image
+            join image.pixels pix join pix.thumbnails thumbs
+            where image.id in (:ids)
+            and thumbs.id = (
+                select max(t.id)
+                from Thumbnail t
+                where t.pixels = pix.id
+                and t.details.owner.id = :thumbOwner
+            )
+            """
+        thumbVersions = {}
+        for t in qs.projection(q, params, service_opts):
+            iid, tv = unwrap(t)
+            thumbVersions[iid] = tv
+        # For all images, set thumb version if we have it...
+        for i in images:
+            if i['id'] in thumbVersions:
+                i['thumbVersion'] = thumbVersions[i['id']]
 
     # If there were any deleted images in the share, marshal and return
     # those
