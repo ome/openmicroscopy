@@ -357,17 +357,15 @@ class GeneralPaneUI
         
 		add(tagsTaskPane, c);
         c.gridy++;
-        
-        add(roiTaskPane, c);
-        c.gridy++;
+      
+        // Don't show, not yet implemented, put it back in for 5.2.1
+        //add(roiTaskPane, c);
+        //c.gridy++;
         
         add(mapTaskPane, c);
         c.gridy++;
         
         add(attachmentTaskPane, c);
-        c.gridy++;
-        
-        add(otherTaskPane, c);
         c.gridy++;
         
         add(ratingTaskPane, c);
@@ -377,6 +375,11 @@ class GeneralPaneUI
         c.gridy++;
         
         add(browserTaskPane, c);
+        c.gridy++;
+        
+        otherTaskPane.setVisible(false);
+        add(otherTaskPane, c);
+        c.gridy++;
         
         UIUtilities.addFiller(this, c, true);
 	}
@@ -439,9 +442,11 @@ class GeneralPaneUI
             roiTaskPane.refreshUI();
             mapTaskPane.refreshUI();
             attachmentTaskPane.refreshUI(); 
-            otherTaskPane.refreshUI(); 
             ratingTaskPane.refreshUI();
             commentTaskPane.refreshUI();  
+            
+            otherTaskPane.setVisible(!model.getAllOtherAnnotations().isEmpty());
+            otherTaskPane.refreshUI();
             
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
             
