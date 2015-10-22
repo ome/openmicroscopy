@@ -1332,6 +1332,19 @@
                                         node_parent.type !== 'experimenter') {
                                     return false;
                                 }
+                                // If we are about to make object an orphan, don't allow to
+                                // drop while dragging over parent, or between parent and it's children
+                                if (node_parent.type === 'experimenter') {
+                                    if (oldParent && more) {
+                                        var pIdx = $("#"+oldParent.id).index();
+                                        if (pIdx === node_position && more.pos === "b") {
+                                            return false;
+                                        }
+                                        if (pIdx + 1 === node_position && more.pos === "a") {
+                                            return false;
+                                        }
+                                    }
+                                }
 
                                 var nodeRules = inst.get_rules(node);
                                 var parentRules = inst.get_rules(node_parent);
