@@ -1791,8 +1791,10 @@ OMERO Diagnostics %s
     @with_config
     def checkupgrade(self, args, config):
         """
-        Checks whether a server upgrade is available,
-        exits with return code 1 if yes
+        Checks whether a server upgrade is available, exits with return code
+        0: this is the latest version
+        1: an upgrade is available
+        2: an error occurred whilst checking
         """
 
         config = config.as_map()
@@ -1804,6 +1806,8 @@ OMERO Diagnostics %s
         uc.run()
         if uc.isUpgradeNeeded():
             self.ctx.die(1, uc.getUpgradeUrl())
+        if uc.isExceptionThrown():
+            self.ctx.die(2, uc.getExceptionThrown())
 
 
 try:
