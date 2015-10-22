@@ -53,7 +53,6 @@ class TestAdmin(CLITest):
 
     def go(self):
         self.cli.invoke(self.args, strict=True)
-        return self.cli.get("tx.state")
 
     def test_checkupgrade0(self, monkeypatch):
         monkeypatch.setattr(omero.plugins.admin, "UpgradeCheck",
