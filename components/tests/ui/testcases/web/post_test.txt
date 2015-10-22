@@ -10,6 +10,89 @@ Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
+Test Cut Paste Image
+    [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
+
+    Go To                                       ${WELCOME URL}
+    Select Experimenter
+    ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
+    Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
+    Click Element                               id=cutButton
+    Click Element                               refreshButton
+    ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}
+    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
+    ${nodeId}                                   Select Orphaned Images Section
+    Wait Until Page Contains Element            xpath=//li[@id='${nodeId}']
+    Wait Until Page Contains Element            xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
+    # Dataset should be selected, paste back
+    Select Dataset By Id                        ${datasetId}    
+    Click Element                               id=pasteButton
+    Click Node                                  ${datasetNode}                                
+    Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
+
+Test Cut Paste Orphaned Image
+    [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
+    
+    ${nodeId}                                   Select Orphaned Images Section
+    ${imageId}                                  Select First Orphaned Image    
+    Click Element                               id=cutButton
+    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
+    ${did}                                      Select First Dataset
+    Click Element                               id=pasteButton    
+
+    ${datasetNode}                              Wait For Dataset Node                                           ${did}
+    Click Node                                  ${datasetNode}
+    Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
+
+Test Cut Paste Dataset
+    [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
+
+    Select Experimenter
+    ${p1id}=                                Create project      test Cut-Paste TO here
+    ${p2id}=                                Create project      test Cut-Paste FROM here
+    ${did}=                                 Create Dataset
+    Click Element                           refreshButton
+    # Check hierarchy
+    Select Project By Id                    ${p2id}
+    Wait Until Element Is Visible           xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']     ${WAIT}
+    Select Dataset By Id                    ${did}
+    # Wait until metadata panel loads
+    Wait Until Page Contains                Dataset ID:          30
+    Click Element                           id=cutButton
+    # POST a /move/ action - wait for Orphaned Dataset
+    Wait Until Element Is Visible           xpath=//div[@id='dataTree']/ul/li/ul/li[@data-id='${did}']  ${WAIT}
+    Wait Until Element Is Visible           xpath=//li[@id='${treeRootId}']/ul/li[@data-id='${did}']    ${WAIT}
+    Select Project By Id                    ${p1id}
+    Click Element                           id=pasteButton
+    # Another /move/ to different Project - Dataset should NOT be in first Project
+    # Need to expand the Paste-To Project to reveal Dataset
+    ${projectNode1}                         Wait For Project Node                                       ${p1id}
+    ${projectNode2}                         Wait For Project Node                                       ${p2id}
+    Select Project By Id                    ${p1id}
+    Wait Until Element Is Visible           xpath=//li[@id='${projectNode1}']/ul/li[@data-id='${did}']     ${WAIT}
+    Page Should Not Contain Element         xpath=//li[@id='${projectNode2}']/ul/li[@data-id='${did}']
+
+
+Test Cut Paste Plate
+    [Documentation]    Cut a Plate and paste it onto another screen
+
+    Select Experimenter
+    ${s1id}=                                Create Screen      test Cut-Paste TO here
+    Click Element                           refreshButton
+
+    ${s2id}=                                Select First Screen With Children
+    ${screenNode}                           Wait For Screen Node                 ${s2id}
+    ${plateId}=                             Select First Plate
+    Click Element                           id=cutButton    
+    
+    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${screenNode}']//li[@data-id='${plateId}']
+    Select Screen By Id                     ${s1id}
+    ${screenNode1}                          Wait For Screen Node                                           ${s1id}
+    Click Element                           id=pasteButton
+    Click Node                              ${screenNode1}                     
+    Wait Until Page Contains Element        xpath=//li[@id='${screenNode1}']//li[@data-id='${plateId}']
+
+
 Test Edit Project
     [Documentation]     Create a Project and edit its name and description
 
@@ -101,85 +184,6 @@ Test Copy Paste Plate
     Wait Until Page Contains Element        xpath=//li[@data-id='${s1id}']//li[@data-id='${plateId}']
     Wait Until Page Contains Element        xpath=//li[@data-id='${s2id}']//li[@data-id='${plateId}']
 
-Test Cut Paste Dataset
-    [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
-
-    Select Experimenter
-    ${p1id}=                                Create project      test Cut-Paste TO here
-    ${p2id}=                                Create project      test Cut-Paste FROM here
-    ${did}=                                 Create Dataset
-    Click Element                           refreshButton
-    # Check hierarchy
-    Select Project By Id                    ${p2id}
-    Wait Until Element Is Visible           xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']     ${WAIT}
-    Select Dataset By Id                    ${did}
-    # Wait until metadata panel loads
-    Wait Until Page Contains                Dataset ID:          30
-    Click Element                           id=cutButton
-    # POST a /move/ action - wait for Orphaned Dataset
-    Wait Until Element Is Visible           xpath=//div[@id='dataTree']/ul/li/ul/li[@data-id='${did}']  ${WAIT}
-    Wait Until Element Is Visible           xpath=//li[@id='${treeRootId}']/ul/li[@data-id='${did}']    ${WAIT}
-    Select Project By Id                    ${p1id}
-    Click Element                           id=pasteButton
-    # Another /move/ to different Project - Dataset should NOT be in first Project
-    # Need to expand the Paste-To Project to reveal Dataset
-    Select Project By Id                    ${p1id}
-    Wait Until Element Is Visible           xpath=//li[@data-id='${p1id}']/ul/li[@data-id='${did}']     ${WAIT}
-    Page Should Not Contain Element         xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']
-
-
-Test Cut Paste Image
-    [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
-
-    Select Experimenter
-    ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
-    Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
-    Click Element                               id=cutButton
-    ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}
-    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
-    ${nodeId}                                   Select Orphaned Images Section
-    Wait Until Element Is Visible               xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
-    # Dataset should be selected, paste back
-    Select Dataset By Id                        ${datasetId}    
-    Click Element                               id=pasteButton
-    Click Node                                  ${datasetNode}                                
-    Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
-
-Test Cut Paste Orphaned Image
-    [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
-    
-    ${nodeId}                                   Select Orphaned Images Section
-    ${imageId}                                  Select First Orphaned Image    
-    Click Element                               id=cutButton
-    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
-    ${did}                                      Select First Dataset
-    Click Element                               id=pasteButton    
-
-    ${datasetNode}                              Wait For Dataset Node                                           ${did}
-    Click Node                                  ${datasetNode}
-    Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
-
-
-Test Cut Paste Plate
-    [Documentation]    Cut a Plate and paste it onto another screen
-
-    Select Experimenter
-    ${s1id}=                                Create Screen      test Cut-Paste TO here
-    Click Element                           refreshButton
-
-    ${s2id}=                                Select First Screen With Children
-    ${screenNode}                           Wait For Screen Node                 ${s2id}
-    ${plateId}=                             Select First Plate
-    Click Element                           id=cutButton    
-    
-    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${screenNode}']//li[@data-id='${plateId}']
-    Select Screen By Id                     ${s1id}
-    ${screenNode1}                          Wait For Screen Node                                           ${s1id}
-    Click Element                           id=pasteButton
-    Click Node                              ${screenNode1}                     
-    Wait Until Page Contains Element        xpath=//li[@id='${screenNode1}']//li[@data-id='${plateId}']
-
-
 Test Chgrp
     [Documentation]     Tests chgrp of a Project to any other group
 
@@ -219,6 +223,7 @@ Test Drag And Drop Image
 
     #Bring database state back to original
     Select Image By Id                          ${imageId}
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a 
     Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId} 
@@ -232,6 +237,7 @@ Test Drag and Drop Orphaned Image
     ${imageId}=                                 Select First Orphaned Image
     ${imageNode}=                               Wait For Image Node                                             ${imageId}
 
+    Wait Until Element is Visible               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
@@ -243,6 +249,7 @@ Test Drag and Drop Orphaned Dataset
 
     ${datasetNode}=                             Select First Dataset With Name                                  testCreateContainerRobot                                      
 
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']/a
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${projectNode}']/a
     Select Project By Id                        ${pid}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
@@ -259,6 +266,7 @@ Test Drag and Drop Plate
     ${plateId}                                  Select First Plate
     ${plateNode}                                Wait For Plate Node                                             ${plateId}
 
+    Wait Until Element is Visible               xpath=//li[@id='${plateNode}']/a
     Drag And Drop                               xpath=//li[@id='${plateNode}']/a                                xpath=//li[@id='${screenNode}']/a
     Select Screen By Id                         ${screenId}
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
