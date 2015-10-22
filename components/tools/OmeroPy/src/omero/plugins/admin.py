@@ -1399,8 +1399,10 @@ OMERO Diagnostics %s
         try:
             WebControl().status(args)
         except Exception, e:
-            self.ctx.err("OMERO.web error:")
-            self.ctx.err(e)
+            try:
+                self.ctx.out("OMERO.web error: %s" % e.message[1].message)
+            except:
+                self.ctx.out("OMERO.web not installed!")
         try:
             import django
             self.ctx.out("Django version: %s" % django.get_version())
