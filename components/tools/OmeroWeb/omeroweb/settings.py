@@ -332,7 +332,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["SECRET_KEY",
          None,
          leave_none_unset,
-         ("A boolean that set SECRET_KEY for a particular Django "
+         ("A boolean that sets SECRET_KEY for a particular Django "
           "installation.")],
     "omero.web.admins":
         ["ADMINS",
