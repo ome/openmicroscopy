@@ -77,7 +77,7 @@ public class UpgradeCheck implements Runnable {
         try {
             trustingContext = SSLContext.getInstance("SSL");
         } catch (NoSuchAlgorithmException e) {
-            // http://docs.oracle.com/javase/6/docs/technotes/guides/security/StandardNames.html#SSLContext
+            // http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext
         }
 
         try {
