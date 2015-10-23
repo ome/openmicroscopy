@@ -309,9 +309,12 @@ Test Drag and Drop Dataset On Experimenter
     [Documentation]                             This test will currently fail on 5.1 Series
 
     Select Experimenter
-    ${projectNode}=                             Select First Project With Name                                  testCreateContainerRobot
+    ${pid}                                      Create Project    
     ${did}=                                     Create Dataset
     Click Element                               refreshButton
+
+    ${projectNode}=                             Wait For Project Node                                           ${pid}
+    Click Node                                  ${projectNode}
     ${datasetNode}                              Wait For Dataset Node                                           ${did}
 
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
