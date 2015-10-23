@@ -68,7 +68,7 @@ class RobotControl(BaseControl):
         d["WEBPREFIX"] = static_prefix
         d["QWEBPREFIX"] = urllib.quote(static_prefix, '')
         d["QSEP"] = urllib.quote('/', '')
-        if settings.APPLICATION_SERVER in settings.FASTCGI_TYPES:
+        if settings.APPLICATION_SERVER in settings.WSGI_TYPES:
             d["WEBHOST"] = d["HOST"]
         else:
             d["WEBHOST"] = "%s:%s" % (settings.APPLICATION_SERVER_HOST,

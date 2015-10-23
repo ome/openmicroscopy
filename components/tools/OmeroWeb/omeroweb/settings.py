@@ -196,11 +196,9 @@ del get_event
 WSGI = "wsgi"
 WSGITCP = "wsgi-tcp"
 WSGI_TYPES = (WSGI, WSGITCP)
-FASTCGITCP = "fastcgi-tcp"
-FASTCGI_TYPES = (FASTCGITCP, )
 DEVELOPMENT = "development"
-DEFAULT_SERVER_TYPE = FASTCGITCP
-ALL_SERVER_TYPES = (WSGI, WSGITCP, FASTCGITCP, DEVELOPMENT)
+DEFAULT_SERVER_TYPE = WSGITCP
+ALL_SERVER_TYPES = (WSGI, WSGITCP, DEVELOPMENT)
 
 DEFAULT_SESSION_ENGINE = 'omeroweb.filesessionstore'
 SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
@@ -348,10 +346,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER",
          DEFAULT_SERVER_TYPE,
          check_server_type,
-         ("OMERO.web is configured to use FastCGI TCP by default. If you are "
-          "using a non-standard web server configuration you may wish to "
-          "change this before generating your web server configuration. "
-          "Available options: \"fastcgi-tcp\", \"wsgi-tcp\", \"wsgi\"")],
+         ("OMERO.web is configured to run in Gunicorn as a generic WSGI "
+          "application by default. If you are using Apache change this "
+          "to \"wsgi\" before generating your web server configuration. "
+          "Available options: \"wsgi-tcp\" (Gunicorn), \"wsgi\" (Apache)")],
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
@@ -735,7 +733,8 @@ def process_custom_settings(
             setattr(module, global_name, mapping(global_value))
         except ValueError:
             raise ValueError(
-                "Invalid %s JSON: %r" % (global_name, global_value))
+                "Invalid %s (%s = %r) %s" % (global_name, key, global_value,
+                                             description))
         except LeaveUnset:
             pass
 

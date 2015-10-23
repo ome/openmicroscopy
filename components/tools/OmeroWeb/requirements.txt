@@ -5,4 +5,5 @@
 #
 #     pip install -r requirements.txt
 #
-Django==1.8.4
+Django>=1.8,<1.9
+gunicorn>=19.3.0

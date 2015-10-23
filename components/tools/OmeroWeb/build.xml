@@ -48,11 +48,6 @@
                 </untar>
             </then>
         </if>
-        <if><not><available file="${basedir}/../target/lib/python/flup"/></not>
-            <then>
-                <untar compression="gzip" src="${lib.dir}/repository/flup-lib-1.0.2.tar.gz" dest="${basedir}/../target/lib/python"/>
-            </then>
-        </if>
     </target>
 
     <target name="tools-build" depends="tools-init"/>
@@ -62,6 +57,8 @@
             <fileset dir="${basedir}/omeroweb" excludes="**/*.pyc,media/**,logs,log,db.sqlite3,custom_settings.py,initial_data.json"/>
             <fileset dir="${basedir}/omeroweb" includes="media/omeroweb/**"/>
         </copy>
+        <copy file="${basedir}/requirements.txt" todir="${dist.dir}/"/>
+        <copy file="${basedir}/requirements_python26.txt" todir="${dist.dir}/"/>
     </target>
 
    <target name="tools-clean" depends="python-clean">
