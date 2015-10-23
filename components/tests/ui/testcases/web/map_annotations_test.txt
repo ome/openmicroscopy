@@ -13,8 +13,9 @@ Suite Teardown      Close all browsers
 Test Map Annotation
     [Documentation]     Tests creation of Map Annotation on New Project
 
-    ${projectId}=                       Create Project
+    ${projectId}=                       Create Project          TestMapAnnotation
     Wait Until Page Contains Element    css=div.mapAnnContainer
+    Click Element                       xpath=//h1[@data-name='keyvaluepairs']
     # No rows selected. Toolbar should allow 'Insert' only.
     Xpath Should Not Have Class   xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Insert rows']  button-disabled
     Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Copy rows']    button-disabled
@@ -52,8 +53,9 @@ Test Map Annotation
     # Refresh to check saved data
     Go To                               ${WELCOME URL}?show=project-${projectId}
     Wait Until Page Contains Element    css=div.mapAnnContainer
-    Page Should Contain Element         xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${key}')]
-    Page Should Contain Element         xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${value}')]
+    Click Element                       xpath=//h1[@data-name='keyvaluepairs']
+    Wait Until Element Is Visible       xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${key}')]
+    Wait Until Element Is Visible       xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${value}')]
     # Table shouldn't now have 'Add Key' or 'Add Value' placeholders
     Xpath Should Match X Times          //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    1
     Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]

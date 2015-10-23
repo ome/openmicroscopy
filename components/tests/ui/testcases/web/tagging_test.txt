@@ -21,6 +21,7 @@ Test Tag
     Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
 
     # Tag a single Project
+    Click Element                               xpath=//h1[@data-name='tags']
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
     Sleep                                       5                   # allow tags to load
@@ -30,6 +31,8 @@ Test Tag
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
     # Refresh, check and add another Tag, remove first one
     Go To                                       ${WELCOME URL}?show=project-${pId}
+    Wait Until Page Contains Element            xpath=//h1[@data-name='tags']
+    Click Element                               xpath=//h1[@data-name='tags']
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag

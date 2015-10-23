@@ -258,7 +258,7 @@
 
             // Nothing selected - actions will apply to user's own table
             if ($selRows.length == 0) {
-                var canEdit = $('.editableKeyValueTable:visible').length > 0;
+                var canEdit = $('.editableKeyValueTable').length > 0;
                 enabled["Insert rows"] = canEdit;
                 enabled["Copy rows"] = false;
                 enabled["Paste rows"] = (canPaste && canEdit);

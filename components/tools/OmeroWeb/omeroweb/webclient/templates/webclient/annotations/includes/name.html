@@ -64,6 +64,15 @@
         </tr>
     </table>
 
+    {% if not manager.tag %}
+    <select id="annotationFilter" title="Filter annotations by user" data-userId="{{ ome.user.id }}"
+            style="position:absolute; right:0; bottom:3px; width:80px">
+        <option value="all">Show all</option>
+        <option value="me">Show added by me</option>
+        <option value="others">Show added by others</option>
+    </select>
+    {% endif %}
+
     {% if manager.openAstexViewerCompatible %}
         <button style="position: absolute; right:0; top:0" class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url 'open_astex_viewer' 'image_8bit' manager.image.id %}')"
                 title="Open with Open Astex Viewer">
