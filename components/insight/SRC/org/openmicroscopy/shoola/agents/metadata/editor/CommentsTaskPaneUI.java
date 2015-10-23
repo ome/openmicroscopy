@@ -119,8 +119,11 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
 
     /** The constraints used to lay out the components. */
     private GridBagConstraints constraints;
+    
+    /** The background color of the next comment to add (alternating) */
+    private Color bgColor;
 
-    /** The collection of annotation to display. */
+    /** The collection of annotations to display. */
     private List annotationToDisplay;
 
     /** The collection of annotations to remove. */
@@ -169,6 +172,11 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         });
         addButton.setEnabled(false);
 
+        pane = new JScrollPane(commentArea);
+        pane.setBorder(null);
+
+        setLayout(new GridBagLayout());
+        
         buildGUI();
     }
 
@@ -188,11 +196,8 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
     private void buildGUI() {
         removeAll();
 
-        pane = new JScrollPane(commentArea);
-        pane.setBorder(null);
-
-        setLayout(new GridBagLayout());
-
+        bgColor = UIUtilities.BACKGROUND_COLOUR_ODD;
+        
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(2, 0, 2, 0);
         constraints.fill = GridBagConstraints.BOTH;
@@ -232,8 +237,9 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         }
         commentArea.setEnabled(enabled);
 
+        buildGUI();
+        
         if (!CollectionUtils.isEmpty(list)) {
-            Color c = UIUtilities.BACKGROUND_COLOUR_ODD;
             for (Object obj : annotationToDisplay) {
                 TextualAnnotationData data = (TextualAnnotationData) obj;
                 if (filter == Filter.SHOW_ALL
@@ -243,17 +249,20 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
                     TextualAnnotationComponent comp = new TextualAnnotationComponent(
                             model, data);
                     comp.addPropertyChangeListener(controller);
-                    comp.setAreaColor(c);
+                    comp.setAreaColor(bgColor);
                     add(comp, constraints);
                     constraints.gridy++;
 
-                    if (c == UIUtilities.BACKGROUND_COLOUR_ODD)
-                        c = UIUtilities.BACKGROUND_COLOUR_EVEN;
+                    if (bgColor == UIUtilities.BACKGROUND_COLOUR_ODD)
+                        bgColor = UIUtilities.BACKGROUND_COLOUR_EVEN;
                     else
-                        c = UIUtilities.BACKGROUND_COLOUR_ODD;
+                        bgColor = UIUtilities.BACKGROUND_COLOUR_ODD;
                 }
             }
         }
+        
+        revalidate();
+        repaint();
     }
 
     /**
@@ -301,8 +310,6 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         } else {
             displayAnnotations(model.getTextualAnnotationsByDate());
         }
-        revalidate();
-        repaint();
     }
 
     /**
@@ -358,8 +365,28 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
     /** Saves the comment */
     private void saveComment() {
         List<AnnotationData> comments = getAnnotationToSave();
-        model.fireAnnotationSaving(
-                new DataToSave(comments, Collections.emptyList()), null, false);
+
+        if (!comments.isEmpty()) {
+            model.fireAnnotationSaving(
+                    new DataToSave(comments, Collections.emptyList()), null,
+                    true);
+
+            TextualAnnotationData data = (TextualAnnotationData) comments
+                    .get(0);
+            TextualAnnotationComponent comp = new TextualAnnotationComponent(
+                    model, data);
+            comp.addPropertyChangeListener(controller);
+            comp.setAreaColor(bgColor);
+            add(comp, constraints);
+            constraints.gridy++;
+
+            if (bgColor == UIUtilities.BACKGROUND_COLOUR_ODD)
+                bgColor = UIUtilities.BACKGROUND_COLOUR_EVEN;
+            else
+                bgColor = UIUtilities.BACKGROUND_COLOUR_ODD;
+
+            commentArea.setText("");
+        }
     }
 
     /**
