@@ -655,7 +655,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                         packages="ome.dynamic*:ome.rules*"/>
 
                 <link href="http://docs.oracle.com/javase/7/docs/api/"/>
-                <link href="http://docs.spring.io/spring/docs/3.0.1.RELEASE/api/"/>
+                <link href="http://docs.spring.io/spring/docs/${versions.spring}/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>
 
             </javadoc>
