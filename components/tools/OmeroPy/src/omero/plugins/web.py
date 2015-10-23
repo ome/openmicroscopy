@@ -58,9 +58,7 @@ Example IIS usage:
 def config_required(func):
     """Decorator validating Django dependences and omeroweb/settings.py"""
     def import_django_settings(func):
-        def wrapper(*args, **kwargs):
-            args = list(args)
-            self = args[0]
+        def wrapper(self, *args, **kwargs):
             try:
                 import django  # NOQA
             except:
@@ -70,7 +68,7 @@ def config_required(func):
                 kwargs['settings'] = settings
             except Exception, e:
                 self.ctx.die(682, e)
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
         return wrapper
     return wraps(func)(import_django_settings(func))
 
@@ -78,13 +76,11 @@ def config_required(func):
 def assert_config_argtype(func):
     """Decorator validating OMERO.web deployment dependences"""
     def config_argtype(func):
-        def wrapper(*args, **kwargs):
-            args = list(args)
-            self = args[0]
-            argtype = args[1].type
+        def wrapper(self, *args, **kwargs):
+            argtype = args[0].type
             settings = kwargs['settings']
             mismatch = False
-            if args[1].system:
+            if args[0].system:
                 self.ctx.die(683,
                              "ERROR: --system is no longer supported, "
                              "see --help")
@@ -109,7 +105,7 @@ def assert_config_argtype(func):
                               "omero.web.application_server=%s cannot be "
                               "used with 'omero web config %s'.") %
                              (settings.APPLICATION_SERVER, argtype))
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
         return wrapper
     return wraps(func)(config_argtype(func))
 
