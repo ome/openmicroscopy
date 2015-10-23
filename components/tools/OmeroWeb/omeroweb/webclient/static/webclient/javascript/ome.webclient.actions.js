@@ -69,16 +69,6 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
-// Function to enable measuring of a specific text element in jquery
-$.fn.textWidth = function(text, font) {
-    if (!$.fn.textWidth.fakeEl) $.fn.textWidth.fakeEl = $('<span>').appendTo(document.body);
-    var htmlText = text || this.val() || this.text();
-    htmlText = $.fn.textWidth.fakeEl.text(htmlText).html(); //encode to Html
-    htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
-    $.fn.textWidth.fakeEl.html(htmlText).css('font', font || this.css('font'));
-    return $.fn.textWidth.fakeEl.width();
-};
-
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data, event) {
 
