@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,13 +25,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import omero.gateway.SecurityContext;
-import omero.gateway.rnd.DataSink;
 
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import omero.gateway.model.PixelsData;
 
@@ -61,6 +60,9 @@ public class Analyser
     /** Loads the specified experimenter groups. */
     private BatchCall loadCall;
     
+    /** The plane to analyze the shapes for */
+    private Coord3D plane;
+    
     /**
      * Creates a {@link BatchCall} to analyze the specified shapes.
      * 
@@ -76,7 +78,7 @@ public class Analyser
             {
             	ROIAnalyser analyser = new ROIAnalyser(context.getGateway(), pixels);
             	try {
-            		result = analyser.analyze(ctx, shapes, channels);
+            		result = analyser.analyze(ctx, shapes, channels, plane);
 				} catch (Exception e) {
 				}
             }
@@ -105,9 +107,10 @@ public class Analyser
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
+     * @param plane     The plane to analyze the shapes for, can be <code>null</code>
      */
     public Analyser(SecurityContext ctx, PixelsData pixels, Collection channels,
-    		List shapes)
+    		List shapes, Coord3D plane)
     {
     	if (pixels == null) 
     		throw new IllegalArgumentException("No Pixels specified."); 
@@ -117,6 +120,7 @@ public class Analyser
 			throw new IllegalArgumentException("No shapes specified.");
 		this.pixels = pixels;
     	this.channels = channels;
+    	this.plane = plane;
     	Iterator i = shapes.iterator();
     	ROIShape[] data = new ROIShape[shapes.size()];
     	int index = 0;

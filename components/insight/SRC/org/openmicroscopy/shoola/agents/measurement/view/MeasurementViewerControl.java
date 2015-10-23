@@ -444,10 +444,19 @@ class MeasurementViewerControl
 	}
     
     /** Analyzes the selected figures. */
-	void analyseSelectedFigures()
+    void analyseSelectedFigures()
+    {
+        analyseFigures(model.getSelectedFigures());
+    }
+    
+    /** 
+     * Analyzes the selected figures. 
+     * @param figures The figures to analyse
+     */
+	void analyseFigures(Collection<Figure> figures)
 	{
-		Collection<Figure> figures = model.getSelectedFigures();
-		if (figures.size() != 1 && !view.inDataView()) return;
+		if (figures.size() != 1 && !view.inDataView()) 
+		    return;
 		Iterator<Figure> j = figures.iterator();
 		ROIFigure figure = null;
 		if (j.hasNext()) figure = (ROIFigure) j.next();
