@@ -388,16 +388,36 @@ class WebControl(BaseControl):
     @config_required
     def clearsessions(self, args, settings):
         """Clean out expired sessions."""
-        self.ctx.out("Clearing expired sessions. This may take some time... ")
+        self.ctx.out("Clearing expired sessions. This may take some time... ",
+                     newline=False)
         location = self._get_python_dir() / "omeroweb"
         cmd = [sys.executable, "manage.py", "clearsessions"]
         if not args.no_wait:
             rv = self.ctx.call(cmd, cwd=location)
             if rv != 0:
+                self.ctx.out("[FAILED]")
                 self.ctx.die(607, "Failed to clear sessions.\n")
             self.ctx.out("[OK]")
         else:
             self.ctx.popen(cmd, cwd=location)
+
+    def _get_django_pid(self, pid_path):
+        """Get Django Process ID"""
+        pid = None
+        if pid_path.exists():
+            with open(pid_path, 'r') as pid_file:
+                pid = int(pid_file.read().strip())
+        return pid
+
+    def _check_pid(self, pid, pid_path):
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            self.ctx.out("[ERROR] OMERO.web workers (PID %s) - no such "
+                         "process. Use `ps aux| grep %s` and kill stale "
+                         "processes by hand. " % (pid, pid_path))
+            return False
+        return True
 
     @config_required
     def start(self, args, settings):
@@ -411,13 +431,26 @@ class WebControl(BaseControl):
         deploy = getattr(settings, 'APPLICATION_SERVER')
 
         if deploy in (settings.WSGI,):
-            self.ctx.out("You are deploying OMERO.web using apache and"
+            self.ctx.die(609, "You are deploying OMERO.web using apache and"
                          " mod_wsgi. Generate apache config using"
                          " 'omero web config apache' and reload"
                          " web server.")
-            return 1
+            return False
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
+
+        # 3216
+        pid_path = self.ctx.dir / "var" / "django.pid"
+        pid = self._get_django_pid(pid_path)
+        if pid:
+            if not self._check_pid(pid, pid_path):
+                pid_path.remove()
+                self.ctx.die(608, "Removed stale %s" % pid_path)
+            else:
+                self.ctx.die(606,
+                             "[FAILED] OMERO.web already started. "
+                             "%s exists (PID: %s)! Use 'web stop or restart'"
+                             " first." % (pid_path, str(pid)))
 
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None and cache_backend.startswith("file:///"):
@@ -427,30 +460,7 @@ class WebControl(BaseControl):
                 self.ctx.out("[FAILED]")
                 self.ctx.out("CACHE_BACKEND '%s' not writable or missing." %
                              getattr(settings, 'CACHE_BACKEND'))
-                return 1
-
-        # 3216
-        if deploy in (settings.WSGI,):
-            pid_path = self.ctx.dir / "var" / "django.pid"
-            pid_num = None
-
-            if pid_path.exists():
-                pid_txt = pid_path.text().strip()
-                try:
-                    pid_num = int(pid_txt)
-                except:
-                    pid_path.remove()
-                    self.ctx.err("Removed invalid %s: '%s'"
-                                 % (pid_path, pid_txt))
-
-            if pid_num is not None:
-                try:
-                    os.kill(pid_num, 0)
-                    self.ctx.die(606,
-                                 "%s exists! Use 'web stop' first" % pid_path)
-                except OSError:
-                    pid_path.remove()
-                    self.ctx.err("Removed stale %s" % pid_path)
+                return False
 
         if deploy == settings.WSGITCP:
             try:
@@ -498,59 +508,56 @@ class WebControl(BaseControl):
             cache_backend = ' (CACHE_BACKEND %s)' % cache_backend
         else:
             cache_backend = ''
-        rv = 0
-        if deploy in settings.WSGI_TYPES:
-            try:
-                f = open(self.ctx.dir / "var" / "django.pid", 'r')
-                pid = int(f.read())
-            except IOError:
-                self.ctx.out("[NOT STARTED]")
-                return rv
 
-            try:
-                os.kill(pid, 0)  # NULL signal
-                self.ctx.out("[RUNNING] (PID %d)%s" % (pid, cache_backend))
-            except:
-                self.ctx.out("[NOT STARTED]")
-                return rv
-        elif deploy in settings.DEVELOPMENT:
+        if deploy in (settings.WSGITCP,):
+            pid_path = self.ctx.dir / "var" / "django.pid"
+            pid = self._get_django_pid(pid_path)
+            if pid:
+                if not self._check_pid(pid, pid_path):
+                    self.ctx.err("[NOT STARTED]")
+                else:
+                    self.ctx.out("[RUNNING] (PID %d)%s" % (pid, cache_backend))
+            else:
+                self.ctx.err("[NOT STARTED]")
+        elif deploy in (settings.WSGI,):
+            self.ctx.err("You are deploying OMERO.web using apache and"
+                         " mod_wsgi. Cannot check status.")
+        elif deploy in (settings.DEVELOPMENT,):
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
         else:
             self.ctx.err(
                 "Invalid APPLICATION_SERVER "
                 "(omero.web.application_server = '%s')!" % deploy)
-        return rv
+        return 0
 
     @config_required
     def stop(self, args, settings):
         self.ctx.out("Stopping OMERO.web... ", newline=False)
         deploy = getattr(settings, 'APPLICATION_SERVER')
-        if deploy in settings.WSGI_TYPES:
-            pid = 'Unknown'
+        if deploy in (settings.WSGITCP,):
             pid_path = self.ctx.dir / "var" / "django.pid"
-            pid_text = "Unknown"
-            if pid_path.exists():
-                pid_text = pid_path.text().strip()
-            try:
+            pid = self._get_django_pid(pid_path)
+            if pid:
                 try:
-                    pid = int(pid_text)
-                    import signal
-                    os.kill(pid, 0)  # NULL signal
-                except:
-                    self.ctx.out("[FAILED]")
-                    self.ctx.out(
-                        "OMERO.web %s workers (PID %s) not started?"
-                        % (deploy.replace("-tcp", "").upper(), pid_text))
+                    if self._check_pid(pid, pid_path):
+                        import signal
+                        os.kill(pid, signal.SIGTERM)  # kill whole group
+                        self.ctx.out("[OK]")
+                        self.ctx.out("OMERO.web %s workers (PID %d) killed." %
+                                     (deploy.replace("-tcp", "").upper(), pid))
+                finally:
+                    if pid_path.exists():
+                        pid_path.remove()
+                        self.ctx.out("Removed stale %s" % pid_path)
                     return True
-                os.kill(pid, signal.SIGTERM)  # kill whole group
-                self.ctx.out("[OK]")
-                self.ctx.out("OMERO.web %s workers (PID %d) killed." %
-                             (deploy.replace("-tcp", "").upper(), pid))
+            else:
+                self.ctx.out("[NOT STARTED]")
                 return True
-            finally:
-                if pid_path.exists():
-                    pid_path.remove()
+        elif deploy in (settings.WSGI,):
+            self.ctx.err("You are deploying OMERO.web using apache and"
+                         " mod_wsgi. Cannot check status.")
+            return False
         elif deploy in settings.DEVELOPMENT:
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
