@@ -345,6 +345,9 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
             filesDocList.add(doc);
             add(doc);
         }
+        
+        revalidate();
+        repaint();
     }
 
     @Override 
