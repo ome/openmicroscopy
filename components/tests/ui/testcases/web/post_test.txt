@@ -8,12 +8,24 @@ Resource          ../../resources/web/tree.txt
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
+*** Keywords ***
+
+Delete Container
+
+    Click Element                           id=deleteButton
+    Wait Until Element Is Visible           id=delete-dialog-form
+    Click Dialog Button                     Yes
+    # Wait for activities to show job done, then refresh tree...
+    Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus']
+    Click Element                           refreshButton
+
+Refresh Page
+
 *** Test Cases ***
 
 Test Cut Paste Image
     [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
 
-    Go To                                       ${WELCOME URL}
     Select Experimenter
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
@@ -135,6 +147,16 @@ Test Copy Paste Dataset
     Wait Until Page Contains Element        xpath=//li[@data-id='${p1id}']//li[@data-id='${did}']
     Wait Until Page Contains Element        xpath=//li[@data-id='${p2id}']//li[@data-id='${did}']
 
+    #Delete Copied Dataset
+    Select Dataset By Id                    ${did}
+    Delete Container
+
+    Select Project By Id                    ${p2id}
+    Delete Container
+
+    Select Project By Id                    ${p1id}
+    Delete Container
+
 Test Copy Paste Image
     [Documentation]     Copy Image from one dataset to another. Check if the link exists on both datasets.
 
@@ -152,6 +174,9 @@ Test Copy Paste Image
     Wait Until Page Contains Element        xpath=//li[@data-id='${d1id}']//li[@data-id='${imageId}']
     Wait Until Page Contains Element        xpath=//li[@data-id='${d2id}']//li[@data-id='${imageId}']
 
+    Select Image By Id                      ${imageId}
+    Delete Container
+
 Test Copy Paste Orphaned Image
     [Documentation]     Test copy pasting an orphaned Image into a Dataset. Check if the link exists on Both locations.
 
@@ -165,6 +190,12 @@ Test Copy Paste Orphaned Image
     Click Node                              ${dnodeId}
     Wait Until Page Contains Element        xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
     Wait Until Page Contains Element        xpath=//li[@id='${dnodeId}']//li[@data-id='${imageId}']
+
+    Select Image By Id                      ${imageId}
+    Delete Container
+
+    Click Node                              ${dnodeId}
+    Delete Container
 
 Test Copy Paste Plate
     [Documentation]     Test copy pasting a plate into another screen. Check if the link exists on both the screens.
@@ -183,6 +214,9 @@ Test Copy Paste Plate
     Click Node                              ${screenNode} 
     Wait Until Page Contains Element        xpath=//li[@data-id='${s1id}']//li[@data-id='${plateId}']
     Wait Until Page Contains Element        xpath=//li[@data-id='${s2id}']//li[@data-id='${plateId}']
+
+    Click Node                              ${screenNode}
+    Delete Container
 
 Test Chgrp
     [Documentation]     Tests chgrp of a Project to any other group
