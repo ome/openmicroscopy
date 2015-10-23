@@ -307,10 +307,9 @@ class WebControl(BaseControl):
             settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
 
         if settings.APPLICATION_SERVER not in settings.WSGI_TYPES:
-            self.ctx.die(
-                679,
-                "Web template configuration requires"
-                "wsgi or wsgi-tcp.")
+            self.ctx.die(679,
+                         "Web template configuration requires"
+                         "wsgi or wsgi-tcp.")
 
         if server == "apache":
             self._set_apache_wsgi(d, settings)
@@ -412,7 +411,7 @@ class WebControl(BaseControl):
 
         if deploy in (settings.WSGI,):
             self.ctx.out("You are deploying OMERO.web using apache and"
-                         " mod_wsgi. You only need to add apache config.")
+                         " mod_wsgi. Add config to Apache and reload.")
             return 1
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
