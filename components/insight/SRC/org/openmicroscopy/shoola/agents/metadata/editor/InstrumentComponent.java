@@ -102,7 +102,7 @@ class InstrumentComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		microscopeBox = EditorUtil.createComboBox(array);
 	}
 	

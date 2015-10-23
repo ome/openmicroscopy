@@ -183,7 +183,7 @@ class ObjectiveComponent
         			else irisBox.setSelectedItem(AcquisitionDataUI.BOOLEAN_NO);
         		} else {
         			set = false;
-        			irisBox.setSelectedItem(AnnotationDataUI.NO_SET_TEXT);
+        			irisBox.setSelectedItem(AnnotationUI.NO_SET_TEXT);
         		}
         		irisBox.setEditedColor(UIUtilities.EDITED_COLOR);
         		area = irisBox;//parent.replaceCombobox(irisBox);
@@ -237,7 +237,7 @@ class ObjectiveComponent
 		String[] values = new String[3];
 		values[0] = AcquisitionDataUI.BOOLEAN_YES;
 		values[1] = AcquisitionDataUI.BOOLEAN_NO;
-		values[2] = AnnotationDataUI.NO_SET_TEXT;
+		values[2] = AnnotationUI.NO_SET_TEXT;
 		irisBox = EditorUtil.createComboBox(values);
 	}
 	
@@ -265,7 +265,7 @@ class ObjectiveComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		mediumBox = EditorUtil.createComboBox(array);
 	}
 	
