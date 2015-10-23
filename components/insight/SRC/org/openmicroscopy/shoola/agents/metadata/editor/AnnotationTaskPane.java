@@ -168,7 +168,7 @@ public class AnnotationTaskPane extends JXTaskPane {
     }
 
     /**
-     * Get the annotations which ahve to be deleted
+     * Get the annotations which have to be deleted
      * 
      * @return See above
      */
