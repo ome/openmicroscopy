@@ -37,6 +37,8 @@ import omero.clients
 import tempfile
 import re
 import json
+import random
+import string
 
 from omero_ext import portalocker
 
@@ -326,6 +328,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "false",
          parse_boolean,
          "A boolean that turns on/off debug mode."],
+    "omero.web.secret_key":
+        ["SECRET_KEY",
+         None,
+         leave_none_unset,
+         ("A boolean that sets SECRET_KEY for a particular Django "
+          "installation.")],
     "omero.web.admins":
         ["ADMINS",
          '[]',
@@ -785,11 +793,32 @@ FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 LANGUAGE_CODE = 'en-gb'
 
 # SECRET_KEY: A secret key for this particular Django installation. Used to
-# provide a seed in secret-key hashing algorithms. Set this to a random string
-# -- the longer, the better. django-admin.py startproject creates one
-# automatically.
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
+# provide a seed in secret-key hashing algorithms. Set this to a random string,
+# the longer, the better. Make this unique, and don't share it with anybody.
+try:
+    SECRET_KEY
+except NameError:
+    secret_path = os.path.join(OMERO_HOME, 'var',
+                               'django_secret_key').replace('\\', '/')
+    if not os.path.isfile(secret_path):
+        try:
+            secret_key = ''.join(
+                [random.SystemRandom()
+                 .choice("{0}{1}{2}"
+                 .format(string.ascii_letters,
+                         string.digits,
+                         string.punctuation)) for i in range(50)]
+            )
+            with open(secret_path, 'w') as secret_file:
+                secret_file.write(secret_key)
+        except IOError, e:
+            raise IOError("Please create a %s file with random characters"
+                          " to generate your secret key!" % secret_path)
+    try:
+        with open(secret_path, 'r') as secret_file:
+            SECRET_KEY = secret_file.read().strip()
+    except IOError, e:
+        raise IOError("Could not find secret key in %s!" % secret_path)
 
 # USE_I18N: A boolean that specifies whether Django's internationalization
 # system should be enabled.
