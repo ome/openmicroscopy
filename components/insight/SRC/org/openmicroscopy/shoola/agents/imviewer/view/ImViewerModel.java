@@ -122,7 +122,9 @@ import omero.gateway.model.WellSampleData;
 class ImViewerModel
 {
 
-	
+    /** Default maximum export size, 12kx12kx image */
+    static int DEFAULT_MAX_EXPORT_SIZE = 144000000;
+    
 	/** The maximum size for the bird eye view for standard screen size.*/
 	private static final int BIRD_EYE_SIZE_LOWER = 128;
 	
@@ -1290,7 +1292,35 @@ class ImViewerModel
 		return rnd.isBigImage();
 	}
 
+	/**
+     * Checks if the image can be exported, i. e. it does not exceed the maximum
+     * size for being able to get exported as jpg, png or tif
+     * 
+     * @return See above
+     */
+    public boolean isExportable() {
+        if (getPixelsData() == null)
+            return false;
 
+        int imgSize = getPixelsData().getSizeX() * getPixelsData().getSizeY();
+        int maxSize = DEFAULT_MAX_EXPORT_SIZE;
+        String tmp = (String) ImViewerAgent.getRegistry().lookup(
+                LookupNames.MAX_EXPORT_SIZE);
+        if (tmp != null) {
+            try {
+                maxSize = Integer.parseInt(tmp);
+            } catch (NumberFormatException e) {
+                ImViewerAgent
+                        .getRegistry()
+                        .getLogger()
+                        .warn(this,
+                                "Non integer value provided for "
+                                        + LookupNames.MAX_EXPORT_SIZE);
+            }
+        }
+        return imgSize <= maxSize;
+    }
+    
 	/**
 	 * Returns <code>true</code> if it is a large image,
 	 * <code>false</code> otherwise.
