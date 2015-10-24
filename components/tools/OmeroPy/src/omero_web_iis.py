@@ -49,7 +49,20 @@ class SerialWSGIHandler (django.core.handlers.wsgi.WSGIHandler):
         finally:
             lock.release()
 
-application = SerialWSGIHandler()
+
+def get_wsgi_application():
+    """
+    The public interface to Django's WSGI support. Should return a WSGI
+    callable.
+    Allows us to avoid making django.core.handlers.WSGIHandler public API, in
+    case the internal WSGI implementation changes or moves in the future.
+    see https://github.com/django/django/blob/1.6.11/django/core/wsgi.py
+    """
+    # django.setup()
+    return SerialWSGIHandler()
+
+
+application = get_wsgi_application()
 
 import isapi_wsgi
 # The entry points for the ISAPI extension.
