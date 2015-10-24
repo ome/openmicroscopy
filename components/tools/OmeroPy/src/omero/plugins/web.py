@@ -563,7 +563,7 @@ class WebControl(BaseControl):
                                  self.ctx.dir / 'bin')
 
     @config_required
-    def iis(self, args):
+    def iis(self, args, settings):
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
 
