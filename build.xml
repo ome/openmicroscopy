@@ -703,7 +703,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version,create-workdirs"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-bftools,copy-server,copy-client,update-version,create-workdirs"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -735,6 +735,16 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <fileset dir="${omero.home}">
                     <include name="sql/**"/>
                 </fileset>
+            </copy>
+    </target>
+
+    <target name="copy-bftools" depends="init">
+            <copy todir="${dist.dir}/bin">
+                <fileset dir="${bioformats.comp}/tools"/>
+            </copy>
+            <chmod dir="${dist.dir}/bin" perm="a+x" includes="*"/>
+            <copy todir="${dist.dir}/bin">
+                <fileset file="${bioformats.comp}/artifacts/bioformats_package.jar"/>
             </copy>
     </target>
 
