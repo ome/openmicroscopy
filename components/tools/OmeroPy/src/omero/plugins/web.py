@@ -275,6 +275,7 @@ class WebControl(BaseControl):
         d = {
             "ROOT": self.ctx.dir,
             "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
+            "STATIC_ROOT": settings.STATIC_ROOT,
             "STATIC_URL": settings.STATIC_URL.rstrip("/"),
             "NOW": str(datetime.now())}
 

@@ -67,6 +67,12 @@ class TestWeb(object):
                                 raising=False)
         return app_server
 
+    def add_static_root(self, static_root, monkeypatch):
+        if static_root:
+            monkeypatch.setattr(settings, 'STATIC_ROOT', static_root,
+                                raising=False)
+        return static_root
+
     def add_upstream_name(self, prefix, monkeypath):
         if prefix:
             name = "omeroweb_%s" % re.sub(r'\W+', '', prefix)
@@ -239,9 +245,13 @@ class TestWeb(object):
         ["nginx", 'wsgi-tcp'],
         ["nginx-development", 'wsgi-tcp'],
         ["apache", 'wsgi']])
-    def testFullTemplateDefaults(self, server_type, capsys, monkeypatch):
+    @pytest.mark.parametrize('static_root', [
+        '/home/omero/OMERO.server/lib/python/omeroweb/static'])
+    def testFullTemplateDefaults(self, server_type, static_root,
+                                 capsys, monkeypatch):
         app_server = server_type[-1]
         del server_type[-1]
+        self.add_static_root(static_root, monkeypatch)
         self.add_application_server(app_server, monkeypatch)
         self.args += ["config"] + server_type
         self.set_templates_dir(monkeypatch)
@@ -261,12 +271,16 @@ class TestWeb(object):
         ['nginx-development', '--http', '1234', '--max-body-size', '2m',
          'wsgi-tcp'],
         ['apache', '--http', '1234', 'wsgi']])
-    def testFullTemplateWithOptions(self, server_type, capsys, monkeypatch):
+    @pytest.mark.parametrize('static_root', [
+        '/home/omero/OMERO.server/lib/python/omeroweb/static'])
+    def testFullTemplateWithOptions(self, server_type, static_root,
+                                    capsys, monkeypatch):
         prefix = '/test'
         cgihost = '0.0.0.0'
         cgiport = '12345'
         app_server = server_type[-1]
         del server_type[-1]
+        self.add_static_root(static_root, monkeypatch)
         self.add_application_server(app_server, monkeypatch)
         self.add_prefix(prefix, monkeypatch)
         self.add_hostport(cgihost, cgiport, monkeypatch)
