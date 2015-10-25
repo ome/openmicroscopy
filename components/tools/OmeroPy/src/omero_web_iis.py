@@ -32,15 +32,15 @@ STATICS = os.path.realpath(STATICS)
 sys.path.append(str(CWD))
 sys.path.append(str(os.path.join(CWD, 'omeroweb')))
 
-from omeroweb import settings
-
 os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-import django.core.handlers.wsgi
+
+
+from django.core.handlers.wsgi import WSGIHandler
 import threading
 lock = threading.Lock()
 
 
-class SerialWSGIHandler (django.core.handlers.wsgi.WSGIHandler):
+class SerialWSGIHandler (WSGIHandler):
 
     def __call__(self, *args, **kwargs):
         try:
@@ -56,9 +56,11 @@ def get_wsgi_application():
     callable.
     Allows us to avoid making django.core.handlers.WSGIHandler public API, in
     case the internal WSGI implementation changes or moves in the future.
-    see https://github.com/django/django/blob/1.6.11/django/core/wsgi.py
+    see https://github.com/django/django/blob/1.8/django/core/wsgi.py
     """
-    # django.setup()
+    import django  # noqa
+    if django.VERSION > (1, 7):
+        django.setup()
     return SerialWSGIHandler()
 
 
@@ -97,12 +99,12 @@ def permit_iis(filename):
 
 if __name__ == '__main__':
 
+    from omeroweb import settings
     static_prefix = settings.STATIC_URL.rstrip("/")
     try:
         web_prefix = settings.FORCE_SCRIPT_NAME.rstrip("/")
     except:
         web_prefix = "/omero"
-
     permit_iis(CONFIG)
     permit_iis(LOGS)
 
