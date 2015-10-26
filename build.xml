@@ -250,6 +250,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-web-requirements" inheritRefs="true" inheritAll="true"/>
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -703,7 +704,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version,create-workdirs"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,copy-web-requirements,update-version,create-workdirs"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -728,6 +729,15 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <copy file="${omero.home}/components/tests/ui/resources/robot.template" todir="${dist.dir}/etc/templates"/>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
+    </target>
+
+    <target name="copy-web-requirements" depends="init">
+        <mkdir dir="${dist.dir}/share/web"/>
+        <copy todir="${dist.dir}/share/web">
+            <fileset dir="components/tools/OmeroWeb">
+                <include name="requirements*.txt"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="copy-sql" depends="init">
