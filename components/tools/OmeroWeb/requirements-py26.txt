@@ -3,7 +3,7 @@
 #
 # This file is meant to be consumed by pip
 #
-#     pip install -r requirements.txt
+#     pip install -r requirements-py26.txt
 #
 Django==1.6.11
 gunicorn>=19.3.0
