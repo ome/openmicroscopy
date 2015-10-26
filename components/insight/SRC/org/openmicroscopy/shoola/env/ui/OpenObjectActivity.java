@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.OpenObjectActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -117,19 +117,30 @@ public class OpenObjectActivity
 		    if (name != null) {
 		        name = name.toLowerCase();
 		        //Always use BF to open the file if Fiji or ImageJ
-		        if (name.contains("fiji") || name.contains("imagej")) {
-		            path = null;
-		            List<String> args = new ArrayList<String>();
-		            args.add("-eval");
-		            args.add("run('Bio-Formats Importer',"
-		                    + "'open=["+f.getAbsolutePath()+"]')");
-		            data.setCommandLineArguments(args);
-		        }
+                if (name.contains("fiji") || name.contains("imagej")) {
+                    path = null;
+                    List<String> args = new ArrayList<String>();
+                    args.add("-eval");
+                    args.add("run('Bio-Formats Importer'," + "'open=["
+                            + replaceWindowsPathSeparator(f.getAbsolutePath())
+                            + "]')");
+                    data.setCommandLineArguments(args);
+                }
 		    }
 		}
 		viewer.openApplication(parameters.getApplication(), path);
 		type.setText(DESCRIPTION_CREATED);
 	}
+	
+    /**
+     * Replaces the Windows backslash path separator with a slash
+     * 
+     * @param path The path
+     * @return See above
+     */
+    private String replaceWindowsPathSeparator(String path) {
+        return path.replaceAll("\\\\", "/");
+    }
 	
 	/**
 	 * Modifies the text of the component. 
