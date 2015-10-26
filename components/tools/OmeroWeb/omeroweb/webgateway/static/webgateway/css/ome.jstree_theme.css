@@ -600,6 +600,9 @@
   height: 18px;
   line-height: 18px;
 }
+.jstree-default-ome .inactive .jstree-icon {
+  opacity: 0.5;
+}
 .jstree-default-ome .jstree-icon:empty {
   width: 18px;
   height: 18px;

@@ -261,7 +261,7 @@
                                                 'disabled'  : !this.isOwned && ( !this.active || this.expired )
                                             },
                                             'li_attr': {
-                                                // 'class': 'share',
+                                                'class': this.active ? "" : "inactive",
                                                 'data-id': value.id
                                             }
                                         };
@@ -281,7 +281,7 @@
                                                 'disabled'  : !this.isOwned && ( !this.active || this.expired )
                                             },
                                             'li_attr': {
-                                                // 'class': 'discussion',
+                                                'class': this.active ? "" : "inactive",
                                                 'data-id': value.id
                                             }
                                         };
