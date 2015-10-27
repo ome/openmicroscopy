@@ -21,15 +21,19 @@
 Tests display of metadata in webclient
 """
 import omero
+import json
+import pytest
 
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import get
+from omeroweb.testlib import get, _get_response
 
 from django.core.urlresolvers import reverse
+from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.model.enums import UnitsLength
 from omero_model_ImageI import ImageI
 
 from omero.rtypes import rstring
+from omero.rtypes import wrap
 
 
 class TestCoreMetadata(IWebTest):
@@ -82,3 +86,59 @@ class TestCoreMetadata(IWebTest):
         # Just check that the metadata panel is loaded
         rsp = get(self.django_client, request_url, status_code=200)
         assert "no_pixels" in rsp.content
+
+
+class TestBulkAnnotations(IWebTest):
+    """
+    Tests retrieval of bulk annotations and related metadata
+    """
+
+    @pytest.mark.parametrize("bulkann", [True, False])
+    def test_nsbulkannotations_file(self, bulkann):
+        if bulkann:
+            ns = NSBULKANNOTATIONS
+        else:
+            ns = 'other'
+        # Create plate
+        p = omero.model.PlateI()
+        p.setName(wrap(self.uuid()))
+        update = self.client.sf.getUpdateService()
+        p = update.saveAndReturnObject(p)
+
+        # Create a file annotation
+        name = self.uuid()
+        fa = self.make_file_annotation(name=name, namespace=ns)
+        link = self.link(p, fa)
+
+        # retrieve annotations
+        request_url = reverse(
+            "webgateway_annotations", args=["Plate", p.id.val])
+        rsp = _get_response(
+            self.django_client, request_url, {}, status_code=200)
+        j = json.loads(rsp.content)
+
+        if bulkann:
+            assert len(j["data"]) == 1
+            assert j["data"][0]["file"] == link.child.file.id.val
+        else:
+            assert len(j["data"]) == 0
+
+    def test_nsbulkannotations_not_file(self):
+        # Create plate
+        p = omero.model.PlateI()
+        p.setName(wrap(self.uuid()))
+        update = self.client.sf.getUpdateService()
+        p = update.saveAndReturnObject(p)
+
+        # Create a non-file annotation
+        tag = self.new_tag(ns=NSBULKANNOTATIONS)
+        link = self.link(p, tag)
+        assert link
+
+        # retrieve annotations
+        request_url = reverse(
+            "webgateway_annotations", args=["Plate", p.id.val])
+        rsp = _get_response(
+            self.django_client, request_url, {}, status_code=200)
+        j = json.loads(rsp.content)
+        assert len(j["data"]) == 0
