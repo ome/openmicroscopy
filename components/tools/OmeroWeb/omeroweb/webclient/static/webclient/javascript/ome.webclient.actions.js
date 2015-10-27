@@ -549,13 +549,6 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 dataType: "json",
                 type: "POST",
                 success: function(r){
-                    // Update the central panel in case delete removes an icon
-                    $.each(selected, function(index, node) {
-                        var e = {'type': 'delete_node'};
-                        var data = {'node': node,
-                                    'old_parent': firstParent};
-                        update_thumbnails_panel(e, data);
-                    });
 
                     datatree.delete_node(selected);
 
@@ -569,6 +562,14 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                         //TODO Make use of server calculated update like chgrp?
                         updateParentRemoveNode(datatree, node, firstParent);
                         removeDuplicateNodes(datatree, node);
+                    });
+
+                    // Update the central panel in case delete has removed an icon
+                    $.each(selected, function(index, node) {
+                        var e = {'type': 'delete_node'};
+                        var data = {'node': node,
+                                    'old_parent': firstParent};
+                        update_thumbnails_panel(e, data);
                     });
 
                     OME.refreshActivities();
