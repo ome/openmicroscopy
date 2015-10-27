@@ -61,22 +61,19 @@ class SendFeedback(object):
             except:
                 pass
             try:
-                try:
-                    p['python_version'] = platform.python_version()
-                except:
-                    pass
-                try:
-                    p['os_name'] = platform.platform()
-                except:
-                    pass
-                try:
-                    p['os_arch'] = platform.machine()
-                except:
-                    pass
-                try:
-                    p['os_version'] = platform.release()
-                except:
-                    pass
+                p['python_version'] = platform.python_version()
+            except:
+                pass
+            try:
+                p['os_name'] = platform.platform()
+            except:
+                pass
+            try:
+                p['os_arch'] = platform.machine()
+            except:
+                pass
+            try:
+                p['os_version'] = platform.release()
             except:
                 pass
             data = urllib.urlencode(p)
@@ -85,6 +82,7 @@ class SendFeedback(object):
                 "Accept": "text/plain",
                 "User-Agent": user_agent}
             request = urllib2.Request(self.url, data, headers)
+            response = None
             try:
                 response = urllib2.urlopen(request)
                 if response.code == 200:
@@ -94,12 +92,17 @@ class SendFeedback(object):
                         "Feedback server error: %s" % response.reason)
                     raise Exception(
                         "Feedback server error: %s" % response.reason)
+            except urllib2.HTTPError, e:
+                logger.error(traceback.format_exc())
+                raise Exception(
+                    "Feedback server error: %s" % e.code)
             except urllib2.URLError, e:
                 logger.error(traceback.format_exc())
                 raise Exception(
                     "Feedback server error: %s" % e.reason)
             finally:
-                response.close()
+                if response:
+                    response.close()
         except Exception, x:
             logger.error(traceback.format_exc())
             raise Exception("Feedback server error: %s" % x.message)
