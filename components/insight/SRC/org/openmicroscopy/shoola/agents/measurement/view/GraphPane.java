@@ -601,10 +601,14 @@ public class GraphPane
 			cT = c3D.getTimePoint();
 			cZ = c3D.getZSection();
 			
-			minT = Math.min(minT, cT);
-			maxT = Math.max(maxT, cT);
-			minZ = Math.min(minZ, cZ);
-			maxZ = Math.max(maxZ, cZ);
+            if (cZ == z) {
+                minT = Math.min(minT, cT);
+                maxT = Math.max(maxT, cT);
+            }
+            if (cT == t) {
+                minZ = Math.min(minZ, cZ);
+                maxZ = Math.max(maxZ, cZ);
+            }
 			
 			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
