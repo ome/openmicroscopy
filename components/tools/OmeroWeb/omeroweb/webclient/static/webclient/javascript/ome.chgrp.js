@@ -386,11 +386,11 @@ $(function() {
 
             // Update the central panel in case chgrp removes an icon
             $.each(removalClosure, function(index, node) {
+                inst.delete_node(node);
                 var e = {'type': 'delete_node'};
                 var data = {'node': node,
                             'old_parent': inst.get_parent(node)};
                 update_thumbnails_panel(e, data);
-                inst.delete_node(node);
             });
 
             function markChildless(ids, dtype) {
