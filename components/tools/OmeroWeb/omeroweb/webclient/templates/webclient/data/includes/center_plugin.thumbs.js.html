@@ -60,6 +60,7 @@ $(document).ready(function() {
     var li_styles = [];
     var aspect_ratios = [];
     var iconSize = 65;
+    var parentId;       // E.g. dataset-1
 
     var dateFormatOptions = {
         weekday: "short", year: "numeric", month: "short",
@@ -108,24 +109,6 @@ $(document).ready(function() {
             handleClickSelection(event);
         });
 
-        // plugin to handle drag-select of images (share is single-select only)
-        if (parentNode.type !== "share") {
-            $("#icon_table").selectable({
-                filter: 'li.row',
-                distance: 2,
-                stop: function() {
-                    // Make the same selection in the jstree etc
-                    syncTreeSelection();
-                },
-                start: function() {
-                    // Remove any fileset selection markings
-                    $("#dataIcons li.row:visible")
-                        .removeClass("fs-selected")
-                        .removeClass("lastSelected");
-                }
-            });
-        }
-
         $("#filtersearch label").inFieldLabels();
 
         $("#thumb_size_slider").slider({
@@ -159,11 +142,15 @@ $(document).ready(function() {
 
         if (selected.length === 0) {
             $("#content_details").html("");
+            parentId = undefined;
+            clearThumbnailsPanel();
             return;
         }
         var dtype = selected[0].type;
         if (selected.length > 1 && dtype !== "image") {
             $("#content_details").html("");
+            parentId = undefined;
+            clearThumbnailsPanel();
             return;
         }
 
@@ -175,22 +162,35 @@ $(document).ready(function() {
         } else if (dtype === "image") {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
+            parentId = undefined;
             load_spw(event, data);
             return;
         // All other types have blank centre panel
         } else {
+            parentId = undefined;
             clearThumbnailsPanel();
             return;
         }
-
-        // clear html and stored data before adding back html
-        clearThumbnailsPanel();
 
         if (!parentNode) {
             // need this for pagination etc
             parentNode = inst.get_node(data.node);
         }
 
+        var newParentId = parentNode.type + "-" + parentNode.data.obj.id;
+        if (parentId === newParentId
+                && event.type !== "load_node"
+                && event.type !== "delete_node") {
+
+            highlightSelectedThumbs(selected);
+
+            return;
+        }
+
+        parentId = newParentId;
+
+        // clear html and stored data before adding back html
+        clearThumbnailsPanel();
 
         imgNodes = [];
         parentNode.children.forEach(function(ch){
@@ -282,14 +282,54 @@ $(document).ready(function() {
         // init the elementsorter plugin
         setupSorting();
 
+        // plugin to handle drag-select of images (share is single-select only)
+        if (parentNode.type !== "share") {
+            setupSelectable();
+        }
+
         return;
     }
 
     // Update thumbnails when we switch between plugins
     $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
+    // Use selected nodes from tree to indicate thumbnails
+    var highlightSelectedThumbs = function(selected) {
+        $("#dataIcons li.row").removeClass("ui-selected").removeClass("fs-selected");
+        var selFileSets = [];
+        selected.forEach(function(node){
+            if (node.type == "image") {
+                $("#image_icon-" + node.data.obj.id).addClass("ui-selected");
+            }
+            var fsId = node.data.obj.filesetId;
+            if (fsId) {
+                selFileSets.push(fsId);
+            }
+        });
+        selFileSets.forEach(function(fsId){
+            $("#dataIcons li[data-fileset='" + fsId + "']").addClass("fs-selected");
+        });
+    }
+
     var getRandom = function() {
         return (Math.random() + "").slice(2);
+    }
+
+    var setupSelectable = function() {
+        $("#dataIcons").selectable({
+            filter: 'li.row',
+            distance: 2,
+            stop: function() {
+                // Make the same selection in the jstree etc
+                syncTreeSelection();
+            },
+            start: function() {
+                // Remove any fileset selection markings
+                $("#dataIcons li.row:visible")
+                    .removeClass("fs-selected")
+                    .removeClass("lastSelected");
+            }
+        });
     }
 
     var setupSorting = function() {
