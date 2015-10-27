@@ -25,7 +25,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -34,14 +33,10 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -56,24 +51,23 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-
+import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
 import omero.gateway.model.ChannelData;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -625,13 +619,21 @@ class MeasurementViewerUI
 		{
 			ROIFigure roi;
 			ROI r;
-			boolean b = false;
+			List<DeletableObject> deobs = new ArrayList<DeletableObject>();
 			for (ROIShape shape : shapeList)
 			{
 				roi = shape.getFigure();
+				
 				if (roi.canDelete()) {
 					r = roi.getROI();
-					if (!r.isClientSide()) b = true;
+                    if (r.getID() >= 0 && !r.isClientSide()) {
+                        ROIData rd = new ROIData();
+                        rd.setId(r.getID());
+                        rd.setImage(model.getImage().asImage());
+                        DeletableObject d = new DeletableObject(rd);
+                        d.setSecurityContext(model.getSecurityContext());
+                        deobs.add(d);
+                    }
 					if (getDrawing().contains(roi)) {
 						shape.getFigure().removeFigureListener(controller);
 						getDrawing().removeDrawingListener(controller);
@@ -639,11 +641,11 @@ class MeasurementViewerUI
 						getDrawing().addDrawingListener(controller);
 					}
 					model.deleteShape(shape.getID(), shape.getCoord3D());
-					model.markROIForDelete(shape.getID(), r, false);
 				}
 			}
-			model.notifyDataChanged(b);
+			model.deleteAllROIs(deobs);
 		} catch (Exception e) {
+		    e.printStackTrace();
 			handleROIException(e, DELETE_MSG);
 		}
 	}
