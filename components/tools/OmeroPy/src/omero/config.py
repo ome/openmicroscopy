@@ -139,13 +139,12 @@ class ConfigXml(object):
         self.source = None
         if not self.read_only:
             try:
-                # Try to open the file for modification
-                # If this fails, then the file is readonly
                 self.source = open(self.filename, "a+")  # Open file handle
                 self.lock = self._open_lock()  # Open file handle for lock
             except IOError:
                 self.logger.debug("open('%s', 'a+') failed" % self.filename)
-
+                if not os.path.isfile(self.filename):
+                    raise
                 # Before we're forced to open read-only, we need to check
                 # that no other configuration has been requested because
                 # it will not be possible to modify the __ACTIVE__ setting
