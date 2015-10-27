@@ -136,17 +136,20 @@ class WebControl(BaseControl):
             group.add_argument(
                 "--no-wait", action="store_true",
                 help="Do not wait on expired sessions clean-up")
-            nginx_start_group = x.add_argument_group()
-            nginx_start_group.add_argument(
-                "--workers", type=int, default=5,
-                help="The number of worker processes for handling requests.")
-            nginx_start_group.add_argument(
-                "--worker-connections", type=int, default=1000,
-                help="The maximum number of simultaneous clients.")
-            nginx_start_group.add_argument(
-                "--wsgi-args", type=str, default="",
-                help=("Additional arguments. Check Gunicorn Documentation "
-                      "http://docs.gunicorn.org/en/latest/settings.html"))
+
+        start.add_argument(
+            "--workers", type=int, default=5,
+            help="NGINX only: the number of worker processes for handling "
+                 "requests.")
+        start.add_argument(
+            "--worker-connections", type=int, default=1000,
+            help="NGINX only: the maximum number of simultaneous clients.")
+        start.add_argument(
+            "--wsgi-args", type=str, default="",
+            help=("NGINX only: additional arguments. "
+                  "Check Gunicorn Documentation"
+                  "http://docs.gunicorn.org/en/latest/settings.html"))
+
         #
         # Advanced
         #
@@ -275,6 +278,7 @@ class WebControl(BaseControl):
         d = {
             "ROOT": self.ctx.dir,
             "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
+            "STATIC_ROOT": settings.STATIC_ROOT,
             "STATIC_URL": settings.STATIC_URL.rstrip("/"),
             "NOW": str(datetime.now())}
 

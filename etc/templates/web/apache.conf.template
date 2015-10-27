@@ -62,13 +62,13 @@
 
   WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py
 
-  <Directory %(OMEROWEBROOT)s>
+  <Directory "%(OMEROWEBROOT)s">
     Order allow,deny
     Allow from all
   </Directory>
 
-  Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
-  <Directory "%(OMEROWEBROOT)s/static">
+  Alias %(STATIC_URL)s %(STATIC_ROOT)s
+  <Directory "%(STATIC_ROOT)s">
       Options -Indexes FollowSymLinks
       Order allow,deny
       Allow from all

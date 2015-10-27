@@ -17,7 +17,7 @@ server {
 
     # weblitz django apps serve media from here
     location %(STATIC_URL)s {
-        alias %(OMEROWEBROOT)s/static;
+        alias %(STATIC_ROOT)s;
     }
 
     location @proxy_to_app%(PREFIX_NAME)s {

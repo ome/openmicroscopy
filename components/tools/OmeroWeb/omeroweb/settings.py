@@ -277,6 +277,14 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.allowed_hosts":
         ["ALLOWED_HOSTS", '["*"]', json.loads, None],
 
+    # Do not show WARNING (1_8.W001): The standalone TEMPLATE_* settings
+    # were deprecated in Django 1.8 and the TEMPLATES dictionary takes
+    # precedence. You must put the values of the following settings
+    # into your default TEMPLATES dict:
+    # TEMPLATE_DIRS, TEMPLATE_CONTEXT_PROCESSORS.
+    "omero.web.system_checks":
+        ["SILENCED_SYSTEM_CHECKS", '["1_8.W001"]', json.loads, None],
+
     # Internal email notification for omero.web.admins,
     # loaded from config.xml directly
     "omero.mail.from":
@@ -808,7 +816,9 @@ except NameError:
                          string.digits,
                          string.punctuation)) for i in range(50)]
             )
-            with open(secret_path, 'w') as secret_file:
+            with os.fdopen(os.open(secret_path,
+                                   os.O_WRONLY | os.O_CREAT,
+                                   0600), 'w') as secret_file:
                 secret_file.write(secret_key)
         except IOError, e:
             raise IOError("Please create a %s file with random characters"
