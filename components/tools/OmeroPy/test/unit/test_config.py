@@ -337,3 +337,14 @@ class TestConfig(object):
         with pytest.raises(IOError) as excinfo:
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
+
+    def testCannotCreateLock(self):
+        d = create_path(folder=True)
+        filename = str(d / "config.xml")
+        lock_filename = "%s.lock" % filename
+        with open(lock_filename, "w") as fo:
+            fo.write("dummy\n")
+        os.chmod(lock_filename, 0444)
+        with pytest.raises(IOError) as excinfo:
+            ConfigXml(filename).close()
+        assert excinfo.value.errno == errno.EACCES

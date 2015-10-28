@@ -140,7 +140,6 @@ class ConfigXml(object):
         if not self.read_only:
             try:
                 self.source = open(self.filename, "a+")  # Open file handle
-                self.lock = self._open_lock()  # Open file handle for lock
             except IOError:
                 self.logger.debug("open('%s', 'a+') failed" % self.filename)
                 if not os.path.isfile(self.filename):
@@ -153,6 +152,8 @@ class ConfigXml(object):
                 if val is not None:
                     raise Exception(
                         "Non-default OMERO_CONFIG on read-only: %s" % val)
+            else:
+                self.lock = self._open_lock()  # Open file handle for lock
 
         if self.source is None:
             self.lock = None
