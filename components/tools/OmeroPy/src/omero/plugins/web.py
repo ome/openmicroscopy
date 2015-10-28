@@ -137,18 +137,19 @@ class WebControl(BaseControl):
                 "--no-wait", action="store_true",
                 help="Do not wait on expired sessions clean-up")
 
-        start.add_argument(
-            "--workers", type=int, default=5,
-            help="NGINX only: the number of worker processes for handling "
-                 "requests.")
-        start.add_argument(
-            "--worker-connections", type=int, default=1000,
-            help="NGINX only: the maximum number of simultaneous clients.")
-        start.add_argument(
-            "--wsgi-args", type=str, default="",
-            help=("NGINX only: additional arguments. "
-                  "Check Gunicorn Documentation"
-                  "http://docs.gunicorn.org/en/latest/settings.html"))
+        for x in (start, restart):
+            x.add_argument(
+                "--workers", type=int, default=5,
+                help="NGINX only: the number of worker processes for handling "
+                     "requests.")
+            x.add_argument(
+                "--worker-connections", type=int, default=1000,
+                help="NGINX only: the maximum number of simultaneous clients.")
+            x.add_argument(
+                "--wsgi-args", type=str, default="",
+                help=("NGINX only: additional arguments. "
+                      "Check Gunicorn Documentation"
+                      "http://docs.gunicorn.org/en/latest/settings.html"))
 
         #
         # Advanced
