@@ -88,8 +88,7 @@ import omero.gateway.model.XMLAnnotationData;
  * @version 3.0
  * @since 3.0-Beta4
  */
-class GeneralPaneUI 
-	extends JPanel//JScrollPane
+class GeneralPaneUI extends JPanel
 {
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
@@ -478,9 +477,13 @@ class GeneralPaneUI
                 else
                     browserTaskPane.setTitle("Located in");
             }
-            
+      
+            namePane.setVisible(!multi);
+            idLabel.setVisible(!multi);
+            ownerLabel.setVisible(!multi);
             propertiesTaskPane.setVisible(!multi);
-    
+      
+   
             revalidate();
         }
 	
