@@ -348,3 +348,10 @@ class TestConfig(object):
         with pytest.raises(IOError) as excinfo:
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
+
+    def testCannotRead(self):
+        p = create_path()
+        p.chmod(0)
+        with pytest.raises(IOError) as excinfo:
+            ConfigXml(str(p)).close()
+        assert excinfo.value.errno == errno.EACCES
