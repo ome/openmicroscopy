@@ -425,6 +425,7 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
     @Override
     void onRelatedNodesSet() {
         addButton.setEnabled(model.canAddAnnotationLink());
+        refreshUI();
     }
     
     
