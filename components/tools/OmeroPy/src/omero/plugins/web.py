@@ -87,13 +87,6 @@ def assert_config_argtype(func):
             if settings.APPLICATION_SERVER in ("development",):
                 mismatch = True
             if settings.APPLICATION_SERVER in (settings.WSGITCP,):
-                try:
-                    import gunicorn  # NOQA
-                except ImportError:
-                    self.ctx.die(690,
-                                 "ERROR: FastCGI support was removed in "
-                                 "OMERO 5.2. Install Gunicorn and update "
-                                 "config.")
                 if argtype not in ("nginx", "nginx-development",):
                     mismatch = True
             if (settings.APPLICATION_SERVER in (settings.WSGI,) and
@@ -416,7 +409,9 @@ class WebControl(BaseControl):
 
         if deploy in (settings.WSGI,):
             self.ctx.out("You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Add config to Apache and reload.")
+                         " mod_wsgi. Generate apache config using"
+                         " 'omero web config apache' and reload"
+                         " web server.")
             return 1
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
@@ -455,6 +450,14 @@ class WebControl(BaseControl):
                     self.ctx.err("Removed stale %s" % pid_path)
 
         if deploy == settings.WSGITCP:
+            try:
+                import gunicorn  # NOQA
+            except ImportError:
+                self.ctx.err("[FAILED]")
+                self.ctx.die(690,
+                             "ERROR: FastCGI support was removed in "
+                             "OMERO 5.2. Install Gunicorn and update "
+                             "config.")
             try:
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
