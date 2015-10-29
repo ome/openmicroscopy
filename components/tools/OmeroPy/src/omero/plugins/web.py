@@ -90,8 +90,7 @@ def assert_config_argtype(func):
                 try:
                     import gunicorn  # NOQA
                 except ImportError:
-                    self.ctx.die(690,
-                                 "ERROR: FastCGI support was removed in "
+                    self.ctx.err("ERROR: FastCGI support was removed in "
                                  "OMERO 5.2. Install Gunicorn and update "
                                  "config.")
                 if argtype not in ("nginx", "nginx-development",):
