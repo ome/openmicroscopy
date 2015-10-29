@@ -180,7 +180,9 @@ $(document).ready(function() {
         var newParentId = parentNode.type + "-" + parentNode.data.obj.id;
         if (parentId === newParentId
                 && event.type !== "load_node"
-                && event.type !== "delete_node") {
+                && event.type !== "delete_node"
+                && event.type !== "refreshThumb"
+                && event.type !== "refreshThumbnails") {
 
             highlightSelectedThumbs(selected);
 
