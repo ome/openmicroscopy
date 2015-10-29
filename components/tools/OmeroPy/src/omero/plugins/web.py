@@ -63,6 +63,9 @@ def config_required(func):
                 import django  # NOQA
             except:
                 self.ctx.die(681, "Django not installed!")
+            if django.VERSION < (1, 6) or django.VERSION >= (1, 9):
+                self.ctx.die(684, "Django version %s is not "
+                             "supported!" % django.get_version())
             try:
                 import omeroweb.settings as settings
                 kwargs['settings'] = settings
