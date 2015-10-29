@@ -68,6 +68,14 @@ def config_required(func):
                 kwargs['settings'] = settings
             except Exception, e:
                 self.ctx.die(682, e)
+            if settings.APPLICATION_SERVER in (settings.WSGITCP,):
+                try:
+                    import gunicorn  # NOQA
+                except ImportError:
+                    self.ctx.die(690,
+                                 "ERROR: FastCGI support was removed in "
+                                 "OMERO 5.2. Install Gunicorn and update "
+                                 "config.")
             return func(self, *args, **kwargs)
         return wrapper
     return wraps(func)(import_django_settings(func))
@@ -87,13 +95,6 @@ def assert_config_argtype(func):
             if settings.APPLICATION_SERVER in ("development",):
                 mismatch = True
             if settings.APPLICATION_SERVER in (settings.WSGITCP,):
-                try:
-                    import gunicorn  # NOQA
-                except ImportError:
-                    self.ctx.die(690,
-                                 "ERROR: FastCGI support was removed in "
-                                 "OMERO 5.2. Install Gunicorn and update "
-                                 "config.")
                 if argtype not in ("nginx", "nginx-development",):
                     mismatch = True
             if (settings.APPLICATION_SERVER in (settings.WSGI,) and
