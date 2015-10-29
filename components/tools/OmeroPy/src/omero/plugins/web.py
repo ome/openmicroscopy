@@ -408,8 +408,9 @@ class WebControl(BaseControl):
 
         if deploy in (settings.WSGI,):
             self.ctx.out("You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Generate apache config "
-                         "bin/omero web config apache and reload web server.")
+                         " mod_wsgi. Generate apache config using"
+                         " 'omero web config apache' and reload"
+                         " web server.")
             return 1
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
