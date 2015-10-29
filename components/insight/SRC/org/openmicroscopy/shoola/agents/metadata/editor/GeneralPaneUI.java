@@ -417,6 +417,8 @@ class GeneralPaneUI extends JPanel
                 init = true;
             }
             
+            boolean multi = model.isMultiSelection();
+            
             namePane.buildUI(model.getRefObjectName(), model.canEdit());
             
             Object refObject = model.getRefObject();
@@ -432,8 +434,18 @@ class GeneralPaneUI extends JPanel
             
             String ownerName = model.getOwnerName();
             ownerLabel.setText("");
-            if (ownerName != null && ownerName.length() > 0)
+            if(multi) {
+                // on multiselection 'misuse' the owner label to indicate
+                // that the user can still annotate the objects
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("Annotate the selected ");
+                buffer.append(model.getObjectTypeAsString(refObject));
+                buffer.append("s");
+                ownerLabel.setText(buffer.toString());
+            }
+            else if (ownerName != null && ownerName.length() > 0) {
                 ownerLabel.setText(OWNER_TEXT+ownerName);
+            }
             
             propertiesUI.buildUI();
             
@@ -448,8 +460,7 @@ class GeneralPaneUI extends JPanel
             otherTaskPane.refreshUI();
             
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
-            
-            boolean multi = model.isMultiSelection();
+           
             boolean showBrowser = false;
     
             if (refObject instanceof ImageData && !multi && model.getChannelData()==null) {
@@ -480,7 +491,6 @@ class GeneralPaneUI extends JPanel
       
             namePane.setVisible(!multi);
             idLabel.setVisible(!multi);
-            ownerLabel.setVisible(!multi);
             propertiesTaskPane.setVisible(!multi);
       
    
