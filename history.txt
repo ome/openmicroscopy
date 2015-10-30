@@ -13,23 +13,24 @@ and introducing new user features and many fixes and performance improvements:
 -  performance improvements for OMERO.web including faster data tree loading
 -  Java Web Start has been dropped, it is no longer possible to launch the
    desktop clients from the web
-  re-worked display of metadata and annotations in both UI clients
+-  re-worked display of metadata and annotations in both UI clients
 -  many bugs fixed
 
 Developer updates include:
 
-- the OMERO web framework no longer bundles a copy of the Django package, this 
+- the OMERO web framework no longer bundles a copy of the Django package, this
   dependency must be installed manually
 - updated jstree to 3.08 and now using json for all tree loading to
   substantially improve performance
 - removed FastCGI support, OMERO.web can be deployed using WSGI
 - configuration property :property:`omero.graphs.wrap` which allowed
   switching back to the old server code for moving and deleting data has now
-  been removed. You must migrate to using the new graph request operations
+  been removed. You should migrate to using the new graph request operations
+  before 5.3 when the old request operations will be removed
 - introduced new Java Gateway to facilitate the development of Java
   applications
-- aligned OME-XML schema for ROI and OMERO. Clients using the OMERO.blitz
-  server API to work with ROIs will need to be updated
+- aligned OMERO Rect with OME-XML schema for ROI. Clients using the
+  OMERO.blitz server API to work with ROIs will need to be updated
 
 
 5.1.4 (September 2015)
