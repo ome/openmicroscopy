@@ -23,8 +23,9 @@ Developer updates include:
 - updated jstree to 3.08 and now using json for all tree loading to
   substantially improve performance
 - removed FastCGI support, OMERO.web can be deployed using WSGI
-- removed property allowing switching back to old server code to delete or
-  move data. You must migrate to using the new request operations
+- configuration property :property:`omero.graphs.wrap` which allowed
+  switching back to the old server code for moving and deleting data has now
+  been removed. You must migrate to using the new graph request operations
 - introduced new Java Gateway to facilitate the development of Java
   applications
 - aligned OME-XML schema for ROI and OMERO. Clients using the OMERO.blitz
