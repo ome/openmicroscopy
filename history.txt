@@ -9,7 +9,7 @@ A full, production-ready release of OMERO 5.2.0; dropping support for Java
 and introducing new user features and many fixes and performance improvements:
 
 -  improved support for many file formats via Bio-Formats
--  faster import
+-  faster import for images with a large number of ROIs
 -  performance improvements for OMERO.web including faster data tree loading
 -  Java Web Start has been dropped, it is no longer possible to launch the
    desktop clients from the web
