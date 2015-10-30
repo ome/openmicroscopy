@@ -201,6 +201,7 @@ public class BrowseFacility extends Facility {
      *            The type of object to retrieve.
      * @param id
      *            The object's id.
+     * @param allGroups Pass <code>true</code> to look for all groups
      * @return The last version of the object.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or logged in
@@ -1007,6 +1008,7 @@ public class BrowseFacility extends Facility {
      *            The {@link SecurityContext}
      * @param ownerId
      *            The id of the user
+     * @param ids The image ids
      * @return A collection of {@link ImageData}s
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,

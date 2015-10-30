@@ -78,6 +78,7 @@ public class DataManagerFacility extends Facility {
      *            The security context.
      * @param object
      *            The object to delete.
+     * @return The {@link Response} handle
      * @throws DSOutOfServiceException
      *             If the connection is broken, or logged in
      * @throws DSAccessException
@@ -96,6 +97,7 @@ public class DataManagerFacility extends Facility {
      *            The security context.
      * @param objects
      *            The objects to delete.
+     * @return The {@link Response} handle
      * @throws DSOutOfServiceException
      *             If the connection is broken, or logged in
      * @throws DSAccessException
@@ -313,6 +315,7 @@ public class DataManagerFacility extends Facility {
      *            The objects to update.
      * @param options
      *            Options to update the data.
+     * @param userName The username
      * @return The updated object.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or logged in

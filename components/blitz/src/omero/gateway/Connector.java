@@ -21,6 +21,8 @@
  */
 package omero.gateway;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,8 +39,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.MapMaker;
@@ -109,14 +109,6 @@ import omero.sys.Principal;
  */
 class Connector
 {
-    // just for debugging purposes to monitor the amount of connections created
-    // and if they get properly closed again
-    private static AtomicInteger nConnector = new AtomicInteger(0);
-    private static AtomicInteger nStateful = new AtomicInteger(0);
-    private static AtomicInteger nStateless = new AtomicInteger(0);
-    private static AtomicInteger nRenderingEngine = new AtomicInteger(0);
-    private static AtomicInteger nImportStore = new AtomicInteger(0);
-    
     /**
      * The elapsed time before checking if the services need to be
      * kept alive.
@@ -180,6 +172,12 @@ class Connector
     /** Reference to the logger.*/
     private final Logger logger;
 
+    /** The username if this is a derived connector */
+    private String username = null;
+    
+    /** The PropertyChangeSupport */
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    
     /**
      * Creates a new instance.
      *
@@ -195,6 +193,25 @@ class Connector
             ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
                     throws Exception
     {
+        this(context, client,
+                entryEncrypted, encrypted, null, logger);
+    }
+    
+    /**
+     * Creates a new instance.
+     *
+     * @param context The context hosting information about the user.
+     * @param secureClient The entry point to server.
+     * @param entryEncrypted The entry point to access the various services.
+     * @param encrypted The entry point to access the various services.
+     * @param logger Reference to the logger.
+     * @param elapseTime The time between network check.
+     * @throws Exception Thrown if entry points cannot be initialized.
+     */
+    Connector(SecurityContext context, client client,
+            ServiceFactoryPrx entryEncrypted, boolean encrypted, String username, Logger logger)
+                    throws Exception
+    {
         if (context == null)
             throw new IllegalArgumentException("No Security context.");
         if (client == null)
@@ -208,6 +225,7 @@ class Connector
             unsecureClient = null;
             entryUnencrypted = null;
         }
+        this.username = username;
         this.logger = logger;
         this.secureClient = client;
         this.entryEncrypted = entryEncrypted;
@@ -223,7 +241,30 @@ class Connector
                 HashMultimap.<Long, RenderingEnginePrx>create());
 
         derived = CacheBuilder.newBuilder().build();
-        logger.debug(this, "Created Connector nConnector="+nConnector.incrementAndGet());
+    }
+    
+    /**
+     * Adds a {@link PropertyChangeListener}
+     * @param listener The listener
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a {@link PropertyChangeListener}
+     * @param listener The listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.removePropertyChangeListener(listener);
+    }
+    
+    /**
+     * Get the {@link PropertyChangeListener}s
+     * @return See above
+     */
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return this.pcs.getPropertyChangeListeners();
     }
 
     //
@@ -514,7 +555,7 @@ class Connector
             } else {
                 importStore.initialize(entryEncrypted);
             }
-            logger.debug(this, "Create import store "+importStore.getClass().getSimpleName()+" nImportStore="+nImportStore.incrementAndGet());
+            this.pcs.firePropertyChange(Gateway.PROP_IMPORTSTORE_CREATED, null, importStore);
             importStores.put(importStore, "");
             return importStore;
         } catch (Exception e) {
@@ -539,7 +580,7 @@ class Connector
             } else {
                 prx = entryEncrypted.createRenderingEngine();
             }
-            logger.debug(this, "Create rendering engine "+pixelsID+" nRenderingEngine="+nRenderingEngine.incrementAndGet());
+            this.pcs.firePropertyChange(Gateway.PROP_RENDERINGENGINE_CREATED, null, prx);
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not get rendering engine", e);
         }
@@ -601,10 +642,19 @@ class Connector
         if (networkup) {
             shutDownServices(true);
         }
+        String id = secureClient.getSessionId();
         secureClient.__del__(); // Won't throw.
-        if (unsecureClient != null) unsecureClient.__del__();
+        this.pcs.firePropertyChange(Gateway.PROP_SESSION_CLOSED, null, id);
+        if (unsecureClient != null) {
+            id = unsecureClient.getSessionId();
+            unsecureClient.__del__();
+            this.pcs.firePropertyChange(Gateway.PROP_SESSION_CLOSED, null, id);
+        }
+        if(username==null)
+            this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CLOSED, null, id);
+        else
+            this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CLOSED, null, id+"_"+username);
         closeDerived(networkup);
-        logger.debug(this, "Closed Connector nConnector="+nConnector.decrementAndGet());
     }
 
     /**
@@ -707,14 +757,14 @@ class Connector
             logger.warn(this, new LogMessage("Failed to close " + proxy, e));
         } finally {
             if (proxy instanceof RenderingEnginePrx) {
-                logger.debug(this, "Close rendering engine "+proxy.getClass().getSimpleName()+" nRenderingEngine="+nRenderingEngine.decrementAndGet());
+                this.pcs.firePropertyChange(Gateway.PROP_RENDERINGENGINE_CLOSED, null, proxy);
                 Set<Long> keys = reServices.keySet();
                 keys = Sets.newHashSet(keys);
                 for (Long key : keys) {
                     reServices.remove(key, proxy);
                 }
             } else {
-                logger.debug(this, "Close stateful service "+proxy.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
+                this.pcs.firePropertyChange(Gateway.PROP_STATEFUL_SERVICE_CLOSED, null, proxy);
                 Set<String> keys = statefulServices.keySet();
                 keys = Sets.newHashSet(keys);
                 for (String key : keys) {
@@ -748,7 +798,7 @@ class Connector
         for (OMEROMetadataStoreClient store : imports) {
             try {
                 store.closeServices();
-                logger.debug(this, "Close import store "+store.getClass().getSimpleName()+" nImportStore="+nImportStore.decrementAndGet());
+                this.pcs.firePropertyChange(Gateway.PROP_IMPORTSTORE_CLOSED, null, store);
             } catch (Exception e) {
                 logger.warn(this, new LogMessage("Failed to close import store:", e));
             }
@@ -764,7 +814,7 @@ class Connector
         }
         for (StatefulServiceInterfacePrx prx : proxies) {
             close(prx);
-            logger.debug(this, "Close stateful service "+prx.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
+            this.pcs.firePropertyChange(Gateway.PROP_STATEFUL_SERVICE_CLOSED, null, prx);
         }
     }
 
@@ -860,8 +910,12 @@ class Connector
                         .getServerInformation().getPort());
                 ServiceFactoryPrx userSession = client.createSession(session
                         .getUuid().getValue(), session.getUuid().getValue());
+                Connector.this.pcs.firePropertyChange(Gateway.PROP_SESSION_CREATED, null, client.getSessionId());
                 final Connector c = new Connector(context.copy(), client,
-                        userSession, unsecureClient == null, logger);
+                        userSession, unsecureClient == null, username, logger);
+                for(PropertyChangeListener l : Connector.this.pcs.getPropertyChangeListeners())
+                    c.addPropertyChangeListener(l);
+                Connector.this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId()+"_"+userName);
                 logger.debug(this, "Created derived connector: " + userName);
                 return c;
             }
@@ -907,7 +961,7 @@ class Connector
                 prx = entryEncrypted.getByName(name);
             }
             statelessServices.put(name, prx);
-            logger.debug(this, "Create stateless service "+name+" nStateless="+nStateless.incrementAndGet());
+            this.pcs.firePropertyChange(Gateway.PROP_STATELESS_SERVICE_CREATED, null, prx);
             return prx;
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not load " + name, e);
@@ -933,7 +987,7 @@ class Connector
                 prx = entryEncrypted.createByName(name);
             }
             statefulServices.put(name, prx);
-            logger.debug(this, "Create stateful service "+name+" nStateful="+nStateful.incrementAndGet());
+            this.pcs.firePropertyChange(Gateway.PROP_STATEFUL_SERVICE_CREATED, null, prx);
             return prx;
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not create " + name, e);

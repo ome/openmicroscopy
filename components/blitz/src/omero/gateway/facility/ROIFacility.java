@@ -335,12 +335,9 @@ public class ROIFacility extends Facility {
             Map<ROICoordinate, ShapeData> clientCoordMap;
             Roi serverRoi;
             Iterator<List<ShapeData>> shapeIterator;
-            Iterator<ROICoordinate> serverIterator;
             Map<ROICoordinate, Shape>serverCoordMap;
             Shape s;
             ROICoordinate coord;
-            long id;
-            RoiResult tempResults;
             int shapeIndex;
 
             Collection<ROIData> updated = new ArrayList<ROIData>();
@@ -399,7 +396,6 @@ public class ROIFacility extends Facility {
                 Iterator si = serverCoordMap.entrySet().iterator();
                 Entry entry;
                 List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
-                List<IObject> toDelete = new ArrayList<IObject>();
                 while (si.hasNext()) {
                     entry = (Entry) si.next();
                     coord = (ROICoordinate) entry.getKey();

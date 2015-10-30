@@ -20,6 +20,8 @@
  */
 package omero.gateway.facility;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -66,6 +68,9 @@ public abstract class Facility {
     /** Reference to the {@link Gateway} */
     final Gateway gateway;
 
+    /** The PropertyChangeSupport */
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    
     /**
      * Creates a new instance
      * 
@@ -95,8 +100,13 @@ public abstract class Facility {
             public Facility call() throws Exception {
                 gateway.getLogger().debug(null,
                         "Created new " + type.getSimpleName());
-                return type.getDeclaredConstructor(Gateway.class).newInstance(
+                Facility facility = type.getDeclaredConstructor(Gateway.class).newInstance(
                         gateway);
+                for(PropertyChangeListener l : gateway.getPropertyChangeListeners()) {
+                    facility.addPropertyChangeListener(l);
+                    facility.pcs.firePropertyChange(Gateway.PROP_FACILITY_CREATED, null, type.getName());
+                }
+                return facility;
             }
 
         });
@@ -109,6 +119,22 @@ public abstract class Facility {
         Facility.cache.invalidateAll();
     }
 
+    /**
+     * Adds a {@link PropertyChangeListener}
+     * @param listener The listener
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a {@link PropertyChangeListener}
+     * @param listener The listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.removePropertyChangeListener(listener);
+    }
+    
     /**
      * Helper method to simplify logging
      * 
