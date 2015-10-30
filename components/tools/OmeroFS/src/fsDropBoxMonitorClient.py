@@ -544,7 +544,7 @@ class MonitorClientI(monitors.MonitorClient):
 
     def loginUser(self, exName):
         """
-        Logins in the given user and returns the client
+        Logs in in the given user and returns the session
         """
 
         if not self.ctx.hasSession():
@@ -569,13 +569,34 @@ class MonitorClientI(monitors.MonitorClient):
             sf.getAdminService().lookupExperimenter(exName)
             sess = sf.getSessionService().createSessionWithTimeouts(
                 p, self.timeToLive, self.timeToIdle)
-            return sess.uuid.val
+            return sess
         except omero.ApiUsageException:
             self.log.info("User unknown: %s", exName)
             return None
         except:
             self.log.exception("Unknown exception during loginUser")
             return None
+
+    def logoutUser(self, sess):
+        """
+        Logs out the user's session
+        """
+        if not self.ctx.hasSession():
+            self.ctx.newSession()
+
+        sf = None
+        try:
+            sf = self.ctx.getSession()
+        except:
+            self.log.exception("Failed to get sf \n")
+
+        if not sf:
+            self.log.error("No connection")
+        else:
+            try:
+                sf.getSessionService().closeSession(sess)
+            except:
+                self.log.exception("Unknown exception during logoutUser")
 
     def userExists(self, exName):
         """
@@ -618,10 +639,11 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             self.state.appropriateWait(self.throttleImport)  # See ticket:5739
 
-            key = self.loginUser(exName)
-            if not key:
+            sess = self.loginUser(exName)
+            if not sess:
                 self.log.info("File not imported: %s", fileName)
                 return
+            key = sess.uuid.val
             self.log.info("Importing %s (session=%s)", fileName, key)
 
             imageId = []
@@ -671,6 +693,7 @@ class MonitorClientI(monitors.MonitorClient):
                 else:
                     self.log.error("%s not found !" % t)
                 self.log.error("***** end of output from importer-cli *****")
+                self.logoutUser(sess)
         finally:
             remove_path(t)
             remove_path(to)
