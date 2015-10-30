@@ -13,7 +13,7 @@ and introducing new user features and many fixes and performance improvements:
 -  performance improvements for OMERO.web including faster data tree loading
 -  Java Web Start has been dropped, it is no longer possible to launch the
    desktop clients from the web
--  re-worked display of metadata and annotations in both UI clients
+-  reworked display of metadata and annotations in both UI clients
 -  many bugs fixed
 
 Developer updates include:
