@@ -912,7 +912,7 @@ class Connector
                         .getUuid().getValue(), session.getUuid().getValue());
                 Connector.this.pcs.firePropertyChange(Gateway.PROP_SESSION_CREATED, null, client.getSessionId());
                 final Connector c = new Connector(context.copy(), client,
-                        userSession, unsecureClient == null, username, logger);
+                        userSession, unsecureClient == null, userName, logger);
                 for(PropertyChangeListener l : Connector.this.pcs.getPropertyChangeListeners())
                     c.addPropertyChangeListener(l);
                 Connector.this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId()+"_"+userName);
