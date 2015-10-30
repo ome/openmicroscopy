@@ -102,9 +102,11 @@ public abstract class Facility {
                         "Created new " + type.getSimpleName());
                 Facility facility = type.getDeclaredConstructor(Gateway.class).newInstance(
                         gateway);
-                for(PropertyChangeListener l : gateway.getPropertyChangeListeners()) {
+                for (PropertyChangeListener l : gateway
+                        .getPropertyChangeListeners()) {
                     facility.addPropertyChangeListener(l);
-                    facility.pcs.firePropertyChange(Gateway.PROP_FACILITY_CREATED, null, type.getName());
+                    facility.pcs.firePropertyChange(
+                            Gateway.PROP_FACILITY_CREATED, null, type.getName());
                 }
                 return facility;
             }

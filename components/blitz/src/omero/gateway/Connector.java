@@ -204,6 +204,7 @@ class Connector
      * @param secureClient The entry point to server.
      * @param entryEncrypted The entry point to access the various services.
      * @param encrypted The entry point to access the various services.
+     * @param username The username if this is a derived connector
      * @param logger Reference to the logger.
      * @param elapseTime The time between network check.
      * @throws Exception Thrown if entry points cannot be initialized.
@@ -650,10 +651,11 @@ class Connector
             unsecureClient.__del__();
             this.pcs.firePropertyChange(Gateway.PROP_SESSION_CLOSED, null, id);
         }
-        if(username==null)
+        if (username == null)
             this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CLOSED, null, id);
         else
-            this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CLOSED, null, id+"_"+username);
+            this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CLOSED, null, id
+                    + "_" + username);
         closeDerived(networkup);
     }
 
@@ -913,7 +915,8 @@ class Connector
                 Connector.this.pcs.firePropertyChange(Gateway.PROP_SESSION_CREATED, null, client.getSessionId());
                 final Connector c = new Connector(context.copy(), client,
                         userSession, unsecureClient == null, userName, logger);
-                for(PropertyChangeListener l : Connector.this.pcs.getPropertyChangeListeners())
+                for (PropertyChangeListener l : Connector.this.pcs
+                        .getPropertyChangeListeners())
                     c.addPropertyChangeListener(l);
                 Connector.this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId()+"_"+userName);
                 logger.debug(this, "Created derived connector: " + userName);

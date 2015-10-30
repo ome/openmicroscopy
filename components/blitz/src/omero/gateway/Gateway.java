@@ -1019,7 +1019,8 @@ public class Gateway {
                 ctx.setServerInformation(cred.getServer());
                 connector = new Connector(ctx, client, entryEncrypted,
                         cred.isEncryption(), log);
-                for(PropertyChangeListener l : this.pcs.getPropertyChangeListeners())
+                for (PropertyChangeListener l : this.pcs
+                        .getPropertyChangeListeners())
                     connector.addPropertyChangeListener(l);
                 this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId());
                 groupConnectorMap.put(ctx.getGroupID(), connector);
@@ -1032,7 +1033,8 @@ public class Gateway {
                     ctx.setCompression(cred.getCompression());
                     connector = new Connector(ctx, client, entryEncrypted,
                             cred.isEncryption(), log);
-                    for(PropertyChangeListener l : this.pcs.getPropertyChangeListeners())
+                    for (PropertyChangeListener l : this.pcs
+                            .getPropertyChangeListeners())
                         connector.addPropertyChangeListener(l);
                     exp = getUserDetails(ctx, userName);
                     groupConnectorMap.put(ctx.getGroupID(), connector);
@@ -1470,7 +1472,8 @@ public class Gateway {
                         false));
             
             c = new Connector(ctx, client, prx, login.isEncryption(), log);
-            for(PropertyChangeListener l : this.pcs.getPropertyChangeListeners())
+            for (PropertyChangeListener l : this.pcs
+                    .getPropertyChangeListeners())
                 c.addPropertyChangeListener(l);
             this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId());
             groupConnectorMap.put(ctx.getGroupID(), c);
