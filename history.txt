@@ -4,27 +4,30 @@ OMERO version history
 5.2.0 (November 2015)
 ----------------------
 
-A full, production-ready release of OMERO 5.2.0; dropping support for Java 1.6;
-major upgrading of OMERO.web; re-working of the Java Gateway;
+A full, production-ready release of OMERO 5.2.0; dropping support for Java
+1.6; featuring major upgrading of OMERO.web; re-working of the Java Gateway;
 and introducing new user features and many fixes and performance improvements:
 
 -  improved support for many file formats via Bio-Formats
--  speed up import
--  no longer possible to launch Desktop clients using Java Web Start
--  updated jstree to 3.08 and use json for all tree loading to substantially
-   improve performances
--  re-worked display of metadata and annotation in both UI clients
+-  faster import
+-  Java Web Start has been dropped, it is no longer possible to launch the
+   desktop clients from the web
+-  updated jstree to 3.08 and now using json for all tree loading to
+   substantially improve performance
+-  re-worked display of metadata and annotations in both UI clients
 -  many bugs fixed
 
 Developer updates include:
 
-- OMERO.web is no longer bundled with a copy of the Django package
+- the OMERO web framework no longer bundles a copy of the Django package, this 
+  dependency must be installed manually
 - removed FastCGI support, OMERO.web can be deployed using WSGI
-- removed property allowing to switch back to old server code to delete or move
-  data. You must migrate to using the new request operations
-- introduced new Java Gateway to facilitate the development of Java applications
-- aligned OME-XML schema for ROI and OMERO. Clients using the OMERO.blitz server API
-  to work with ROIs will need to be updated
+- removed property allowing switching back to old server code to delete or
+  move data. You must migrate to using the new request operations
+- introduced new Java Gateway to facilitate the development of Java
+  applications
+- aligned OME-XML schema for ROI and OMERO. Clients using the OMERO.blitz
+  server API to work with ROIs will need to be updated
 
 
 5.1.4 (September 2015)
