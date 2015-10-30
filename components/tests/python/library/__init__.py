@@ -38,13 +38,13 @@ import omero
 import omero.gateway
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
-from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
+import omero.model
+from omero.model import DatasetI, ImageI, ProjectI
 from omero.model import Annotation, FileAnnotationI, TagAnnotationI
 from omero.model import OriginalFileI
 from omero.model import DimensionOrderI, PixelsI, PixelsTypeI
 from omero.model import Experimenter, ExperimenterI
 from omero.model import ExperimenterGroup, ExperimenterGroupI
-from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
@@ -993,17 +993,18 @@ class ITest(object):
         """
         if client is None:
             client = self.client
-        if isinstance(obj1, ProjectI):
-            if isinstance(obj2, DatasetI):
-                link = ProjectDatasetLinkI()
-        elif isinstance(obj1, DatasetI):
-            if isinstance(obj2, ImageI):
-                link = DatasetImageLinkI()
-        elif isinstance(obj1, ImageI):
-            if isinstance(obj2, Annotation):
-                link = ImageAnnotationLinkI()
+
+        otype1 = obj1.ice_staticId().split("::")[-1]
+        if isinstance(obj2, Annotation):
+            otype2 = "Annotation"
         else:
+            otype2 = obj2.ice_staticId().split("::")[-1]
+        try:
+            linktype = getattr(omero.model, "%s%sLinkI" % (otype1, otype2))
+        except AttributeError:
             assert False, "Object type not supported."
+
+        link = linktype()
 
         """check if object exist or not"""
         if obj1.id is None:
