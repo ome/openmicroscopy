@@ -544,7 +544,7 @@ class MonitorClientI(monitors.MonitorClient):
 
     def loginUser(self, exName):
         """
-        Logs in in the given user and returns the session
+        Logs in the given user and returns the session
         """
 
         if not self.ctx.hasSession():
