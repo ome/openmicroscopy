@@ -67,7 +67,6 @@ import omero.gateway.cache.CacheService;
 import omero.gateway.exception.ConnectionStatus;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.Facility;
-import omero.gateway.util.GatewayMonitor;
 import omero.gateway.util.NetworkChecker;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ScriptProcessPrx;
