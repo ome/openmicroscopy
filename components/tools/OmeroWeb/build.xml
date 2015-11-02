@@ -57,8 +57,6 @@
             <fileset dir="${basedir}/omeroweb" excludes="**/*.pyc,media/**,logs,log,db.sqlite3,custom_settings.py,initial_data.json"/>
             <fileset dir="${basedir}/omeroweb" includes="media/omeroweb/**"/>
         </copy>
-        <copy file="${basedir}/requirements.txt" todir="${dist.dir}/"/>
-        <copy file="${basedir}/requirements_python26.txt" todir="${dist.dir}/"/>
     </target>
 
    <target name="tools-clean" depends="python-clean">
