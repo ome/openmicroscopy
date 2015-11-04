@@ -44,9 +44,12 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
 
 /**
  *
@@ -59,7 +62,9 @@ public class MetadataFacilityTest extends GatewayTest {
 
     private ImageData img;
     private Temperature temp;
-
+    private TagAnnotationData tag;
+    private TextualAnnotationData comment;
+    
     @Override
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
@@ -103,7 +108,29 @@ public class MetadataFacilityTest extends GatewayTest {
         env.setTemperature(temp);
         img.asImage().setImagingEnvironment(env);
 
-        gw.getFacility(DataManagerFacility.class).saveAndReturnObject(rootCtx,
+        img = (ImageData) gw.getFacility(DataManagerFacility.class).saveAndReturnObject(rootCtx,
                 img);
+        
+        DataManagerFacility dm = gw.getFacility(DataManagerFacility.class);
+        tag = dm.attachAnnotation(rootCtx, new TagAnnotationData("tag1", "test"), img);
+        comment = dm.attachAnnotation(rootCtx, new TextualAnnotationData("bla bla"), img);
+    }
+    
+    @Test
+    public void testGetAnnotations() throws ExecutionException,
+            DSOutOfServiceException, DSAccessException {
+        MetadataFacility mdf = gw.getFacility(MetadataFacility.class);
+        List<AnnotationData> annos = mdf.getAnnotations(rootCtx, img);
+        Assert.assertEquals(annos.size(), 2);
+        int found = 0;
+        for (AnnotationData anno : annos) {
+            if (anno instanceof TagAnnotationData
+                    && anno.getId() == tag.getId())
+                found++;
+            if (anno instanceof TextualAnnotationData
+                    && anno.getId() == comment.getId())
+                found++;
+        }
+        Assert.assertEquals(found, 2);
     }
 }

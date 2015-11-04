@@ -21,19 +21,28 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import omero.api.IMetadataPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.Channel;
+import omero.model.IObject;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
+import omero.gateway.util.PojoMapper;
 
 
 /**
@@ -108,4 +117,109 @@ public class MetadataFacility extends Facility {
         return result;
     }
     
+    /**
+     * Get all annotations for the given {@link DataObject}
+     * @param ctx The {@link SecurityContext}
+     * @param object The {@link DataObject} to load the annotations for
+     * @return See above
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public List<AnnotationData> getAnnotations(SecurityContext ctx,
+            DataObject object) throws DSOutOfServiceException,
+            DSAccessException {
+        return getAnnotations(ctx, object, null, null);
+    }
+
+    /**
+     * Get the annotations for the given {@link DataObject}
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param object
+     *            The {@link DataObject} to load the annotations for
+     * @param annotationTypes
+     *            The type of annotations to load (can be <code>null</code>)
+     * @param userIds
+     *            Only load annotations of certain users (can be
+     *            <code>null</code>, i. e. all users)
+     * @return See above
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public List<AnnotationData> getAnnotations(SecurityContext ctx,
+            DataObject object,
+            List<Class<? extends AnnotationData>> annotationTypes,
+            List<Long> userIds) throws DSOutOfServiceException,
+            DSAccessException {
+        Map<DataObject, List<AnnotationData>> result = getAnnotations(ctx,
+                Arrays.asList(new DataObject[] { object }), annotationTypes,
+                userIds);
+        return result.get(object);
+    }
+
+    /**
+     * Get the annotations for the given {@link DataObject}s
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param objects
+     *            The {@link DataObject}s to load the annotations for
+     * @param annotationTypes
+     *            The type of annotations to load (can be <code>null</code>)
+     * @param userIds
+     *            Only load annotations of certain users (can be
+     *            <code>null</code>, i. e. all users)
+     * @return Lists of {@link AnnotationData}s mapped to the {@link DataObject}s
+     *         they are attached to.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public Map<DataObject, List<AnnotationData>> getAnnotations(
+            SecurityContext ctx, List<? extends DataObject> objects,
+            List<Class<? extends AnnotationData>> annotationTypes,
+            List<Long> userIds) throws DSOutOfServiceException,
+            DSAccessException {
+        Map<DataObject, List<AnnotationData>> result = new HashMap<DataObject, List<AnnotationData>>();
+
+        String type = null;
+        List<Long> ids = new ArrayList<Long>();
+        for (DataObject obj : objects) {
+            if (type == null)
+                type = PojoMapper.getModelType(obj.getClass()).getName();
+            ids.add(obj.getId());
+        }
+
+        try {
+            IMetadataPrx proxy = gateway.getMetadataService(ctx);
+            List<String> annoTypes = null;
+            if (annotationTypes != null) {
+                annoTypes = new ArrayList<String>(annotationTypes.size());
+                for (Class c : annotationTypes)
+                    annoTypes.add(PojoMapper.getModelType(c).getName());
+            }
+            Map<Long, List<IObject>> annos = proxy.loadAnnotations(type, ids,
+                    annoTypes, userIds, null);
+            for (Entry<Long, List<IObject>> e : annos.entrySet()) {
+                long id = e.getKey();
+                DataObject dobj = null;
+                for (DataObject o : objects) {
+                    if (o.getId() == id) {
+                        dobj = o;
+                        break;
+                    }
+                }
+                List<AnnotationData> list = new ArrayList<AnnotationData>();
+                for (IObject a : e.getValue()) {
+                    list.add((AnnotationData) PojoMapper.asDataObject(a));
+                }
+                result.put(dobj, list);
+            }
+        } catch (Throwable t) {
+            handleException(this, t, "Cannot get annotations.");
+        }
+
+        return result;
+    }
+
 }
