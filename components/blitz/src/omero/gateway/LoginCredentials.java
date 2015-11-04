@@ -30,6 +30,9 @@ package omero.gateway;
 
 public class LoginCredentials {
 
+    /** The default port of the OMERO server */
+    private static final int DEFAULT_PORT = 4064;
+    
     /** The user */
     private UserCredentials user;
 
@@ -57,6 +60,41 @@ public class LoginCredentials {
     public LoginCredentials() {
         user = new UserCredentials();
         server = new ServerInformation();
+    }
+
+    /**
+     * Creates a new instance with the given credentials and default port
+     * 
+     * @param username
+     *            The username
+     * @param password
+     *            The password
+     * @param host
+     *            The server hostname
+     */
+    public LoginCredentials(String username, String password, String host) {
+        this(username, password, host, DEFAULT_PORT);
+    }
+
+    /**
+     * Creates a new instance with the given credentials
+     * 
+     * @param username
+     *            The username
+     * @param password
+     *            The password
+     * @param host
+     *            The server hostname
+     * @param port
+     *            The server port
+     */
+    public LoginCredentials(String username, String password, String host,
+            int port) {
+        this();
+        user.setUsername(username);
+        user.setPassword(password);
+        server.setHostname(host);
+        server.setPort(port);
     }
 
     /**
