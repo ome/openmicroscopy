@@ -184,7 +184,8 @@ class Connector
      * @param context The context hosting information about the user.
      * @param secureClient The entry point to server.
      * @param entryEncrypted The entry point to access the various services.
-     * @param encrypted The entry point to access the various services.
+     * @param encrypted Pass <code>false</code> to use an unencrypted connection
+     *                  for data transfers
      * @param logger Reference to the logger.
      * @param elapseTime The time between network check.
      * @throws Exception Thrown if entry points cannot be initialized.
@@ -203,7 +204,8 @@ class Connector
      * @param context The context hosting information about the user.
      * @param secureClient The entry point to server.
      * @param entryEncrypted The entry point to access the various services.
-     * @param encrypted The entry point to access the various services.
+     * @param encrypted Pass <code>false</code> to use an unencrypted connection
+     *                  for data transfers
      * @param username The username if this is a derived connector
      * @param logger Reference to the logger.
      * @param elapseTime The time between network check.
