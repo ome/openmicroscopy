@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,7 +46,6 @@ import omero.model.PixelsType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.DataObject;
