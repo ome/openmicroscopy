@@ -644,8 +644,19 @@ class MeasurementViewerUI
 				}
 			}
 			model.deleteAllROIs(deobs);
+			
+            TreeMap<Long, ROI> rois = model.getROIComponent().getROIMap();
+            boolean allsaved = true;
+            for (ROI tmp : rois.values()) {
+                if (tmp.isClientSide()) {
+                    allsaved = false;
+                    break;
+                }
+            }
+            if (allsaved) {
+                model.notifyDataChanged(false);
+            }
 		} catch (Exception e) {
-		    e.printStackTrace();
 			handleROIException(e, DELETE_MSG);
 		}
 	}
