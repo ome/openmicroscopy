@@ -25,6 +25,7 @@ Test of various things under omero.util
 """
 
 import pytest
+import warnings
 from path import path
 
 from omero.util.text import CSVStyle, PlainStyle, TableBuilder
@@ -183,6 +184,7 @@ class TestTempFileManager(object):
                 monkeypatch.delenv(var, raising=False)
 
         if environment.get('OMERO_TEMPDIR'):
+            warnings.simplefilter("always")
             pytest.deprecated_call(manager.tmpdir)
 
         if environment.get('OMERO_TMPDIR'):
