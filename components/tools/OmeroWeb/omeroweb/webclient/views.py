@@ -474,6 +474,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
+    context['page_size'] = settings.PAGE
     context['template'] = template
 
     return context
@@ -700,6 +701,9 @@ def api_image_list(request, conn=None, **kwargs):
         group_id = get_long_or_default(request, 'group', -1)
         dataset_id = get_long_or_default(request, 'id', None)
         orphaned = get_bool_or_default(request, 'orphaned', False)
+        load_pixels = get_bool_or_default(request, 'sizeXYZ', False)
+        thumb_version = get_bool_or_default(request, 'thumbVersion', False)
+        date = get_bool_or_default(request, 'date', False)
         experimenter_id = get_long_or_default(request,
                                               'experimenter_id', -1)
     except ValueError:
@@ -718,8 +722,11 @@ def api_image_list(request, conn=None, **kwargs):
                                      experimenter_id=experimenter_id,
                                      dataset_id=dataset_id,
                                      share_id=share_id,
+                                     load_pixels=load_pixels,
                                      group_id=group_id,
                                      page=page,
+                                     date=date,
+                                     thumb_version=thumb_version,
                                      limit=limit)
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
@@ -1019,6 +1026,8 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         tag_id = get_long_or_default(request, 'id', None)
         experimenter_id = get_long_or_default(request, 'experimenter_id', -1)
         orphaned = get_bool_or_default(request, 'orphaned', False)
+        load_pixels = get_bool_or_default(request, 'sizeXYZ', False)
+        date = get_bool_or_default(request, 'date', False)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1026,10 +1035,12 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         # Get ALL data (all owners) under specified tags
         if tag_id is not None:
             tagged = tree.marshal_tagged(conn=conn,
-                                         experimenter_id=-1,
+                                         experimenter_id=experimenter_id,
                                          tag_id=tag_id,
                                          group_id=group_id,
                                          page=page,
+                                         load_pixels=load_pixels,
+                                         date=date,
                                          limit=limit)
         else:
             tagged = {}

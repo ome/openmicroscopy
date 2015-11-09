@@ -1526,7 +1526,7 @@ class ImViewerComponent
 		}
 		if (includeROI) {
 			if (layers == null) return model.getDisplayedImage();
-			return createImageWithROI(model.getDisplayedImage());//model.getBrowser().getRenderedImage());
+			return createImageWithROI(model.getDisplayedImage());
 		}
 		return model.getDisplayedImage();
 	}
@@ -3031,6 +3031,21 @@ class ImViewerComponent
 		}
 		return model.isBigImage();
 	}
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#isExportable()
+     */
+    public boolean isExportable() {
+        switch (model.getState()) {
+        case NEW:
+        case DISCARDED:
+        case LOADING_IMAGE_DATA:
+            return false;
+        }
+        return model.isExportable();
+    }
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.

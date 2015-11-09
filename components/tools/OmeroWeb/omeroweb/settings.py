@@ -37,6 +37,8 @@ import omero.clients
 import tempfile
 import re
 import json
+import random
+import string
 
 from omero_ext import portalocker
 
@@ -194,11 +196,9 @@ del get_event
 WSGI = "wsgi"
 WSGITCP = "wsgi-tcp"
 WSGI_TYPES = (WSGI, WSGITCP)
-FASTCGITCP = "fastcgi-tcp"
-FASTCGI_TYPES = (FASTCGITCP, )
 DEVELOPMENT = "development"
-DEFAULT_SERVER_TYPE = FASTCGITCP
-ALL_SERVER_TYPES = (WSGI, WSGITCP, FASTCGITCP, DEVELOPMENT)
+DEFAULT_SERVER_TYPE = WSGITCP
+ALL_SERVER_TYPES = (WSGI, WSGITCP, DEVELOPMENT)
 
 DEFAULT_SESSION_ENGINE = 'omeroweb.filesessionstore'
 SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
@@ -277,6 +277,14 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.allowed_hosts":
         ["ALLOWED_HOSTS", '["*"]', json.loads, None],
 
+    # Do not show WARNING (1_8.W001): The standalone TEMPLATE_* settings
+    # were deprecated in Django 1.8 and the TEMPLATES dictionary takes
+    # precedence. You must put the values of the following settings
+    # into your default TEMPLATES dict:
+    # TEMPLATE_DIRS, TEMPLATE_CONTEXT_PROCESSORS.
+    "omero.web.system_checks":
+        ["SILENCED_SYSTEM_CHECKS", '["1_8.W001"]', json.loads, None],
+
     # Internal email notification for omero.web.admins,
     # loaded from config.xml directly
     "omero.mail.from":
@@ -326,6 +334,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "false",
          parse_boolean,
          "A boolean that turns on/off debug mode."],
+    "omero.web.secret_key":
+        ["SECRET_KEY",
+         None,
+         leave_none_unset,
+         ("A boolean that sets SECRET_KEY for a particular Django "
+          "installation.")],
     "omero.web.admins":
         ["ADMINS",
          '[]',
@@ -340,10 +354,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER",
          DEFAULT_SERVER_TYPE,
          check_server_type,
-         ("OMERO.web is configured to use FastCGI TCP by default. If you are "
-          "using a non-standard web server configuration you may wish to "
-          "change this before generating your web server configuration. "
-          "Available options: \"fastcgi-tcp\", \"wsgi-tcp\", \"wsgi\"")],
+         ("OMERO.web is configured to run in Gunicorn as a generic WSGI "
+          "application by default. If you are using Apache change this "
+          "to \"wsgi\" before generating your web server configuration. "
+          "Available options: \"wsgi-tcp\" (Gunicorn), \"wsgi\" (Apache)")],
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
@@ -727,7 +741,8 @@ def process_custom_settings(
             setattr(module, global_name, mapping(global_value))
         except ValueError:
             raise ValueError(
-                "Invalid %s JSON: %r" % (global_name, global_value))
+                "Invalid %s (%s = %r) %s" % (global_name, key, global_value,
+                                             description))
         except LeaveUnset:
             pass
 
@@ -785,11 +800,34 @@ FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 LANGUAGE_CODE = 'en-gb'
 
 # SECRET_KEY: A secret key for this particular Django installation. Used to
-# provide a seed in secret-key hashing algorithms. Set this to a random string
-# -- the longer, the better. django-admin.py startproject creates one
-# automatically.
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
+# provide a seed in secret-key hashing algorithms. Set this to a random string,
+# the longer, the better. Make this unique, and don't share it with anybody.
+try:
+    SECRET_KEY
+except NameError:
+    secret_path = os.path.join(OMERO_HOME, 'var',
+                               'django_secret_key').replace('\\', '/')
+    if not os.path.isfile(secret_path):
+        try:
+            secret_key = ''.join(
+                [random.SystemRandom()
+                 .choice("{0}{1}{2}"
+                 .format(string.ascii_letters,
+                         string.digits,
+                         string.punctuation)) for i in range(50)]
+            )
+            with os.fdopen(os.open(secret_path,
+                                   os.O_WRONLY | os.O_CREAT,
+                                   0600), 'w') as secret_file:
+                secret_file.write(secret_key)
+        except IOError, e:
+            raise IOError("Please create a %s file with random characters"
+                          " to generate your secret key!" % secret_path)
+    try:
+        with open(secret_path, 'r') as secret_file:
+            SECRET_KEY = secret_file.read().strip()
+    except IOError, e:
+        raise IOError("Could not find secret key in %s!" % secret_path)
 
 # USE_I18N: A boolean that specifies whether Django's internationalization
 # system should be enabled.

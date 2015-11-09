@@ -69,16 +69,6 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
-// Function to enable measuring of a specific text element in jquery
-$.fn.textWidth = function(text, font) {
-    if (!$.fn.textWidth.fakeEl) $.fn.textWidth.fakeEl = $('<span>').appendTo(document.body);
-    var htmlText = text || this.val() || this.text();
-    htmlText = $.fn.textWidth.fakeEl.text(htmlText).html(); //encode to Html
-    htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
-    $.fn.textWidth.fakeEl.html(htmlText).css('font', font || this.css('font'));
-    return $.fn.textWidth.fakeEl.width();
-};
-
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data, event) {
 
@@ -239,36 +229,6 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 };
 
 
-// This is called by the Pagination controls at the bottom of icon or table pages.
-OME.doPagination = function(page) {
-    var datatree = $.jstree.reference('#dataTree');
-
-    var $container = $("#content_details");
-    var containerId = $container.data('id');
-    var containerType = $container.data('type');
-    var containerPath = $container.data('path');
-    containerPath = JSON.parse(containerPath);
-    var containerNode = datatree.find_omepath(containerPath);
-
-    if (!containerNode) {
-        console.log('WARNING: Had to guess container');
-        containerNode = OME.getTreeBestGuess(containerType, containerId);
-    }
-
-    // Deselect all
-    datatree.deselect_all(true);
-
-    // Set the page for that node in the tree and reload the tree section
-    datatree.change_page(containerNode, page);
-
-    // and then reselect the same node again to trigger update
-    datatree.select_node(containerNode);
-
-    return false;
-};
-
-
-
 // handle deleting of Tag, File, Comment
 // on successful delete via AJAX, the parent .domClass is hidden
 OME.removeItem = function(event, domClass, url, parentId, index) {
@@ -411,20 +371,35 @@ OME.initToolbarDropdowns = function() {
 OME.refreshThumbnails = function(options) {
     options = options || {};
     var rdm = Math.random(),
-        thumbs_selector = "#dataIcons img",
+        // thumbs_selector = "#dataIcons img",
         search_selector = ".search_thumb",
         spw_selector = "#spw img";
     // handle Dataset thumbs, search rusults and SPW thumbs
     if (options.imageId) {
-        thumbs_selector = "#image_icon-" + options.imageId + " img";
+        // thumbs_selector = "#image_icon-" + options.imageId + " img";
         search_selector = "#image-" + options.imageId + " img.search_thumb";
         spw_selector += "#image-" + options.imageId;
     }
-    $(thumbs_selector + ", " + spw_selector + ", " + search_selector).each(function(){
-        var $this = $(this),
-            base_src = $this.attr('src').split('?')[0];
-        $this.attr('src', base_src + "?_="+rdm);
-    });
+    // Try SPW data or Search data by directly updating thumb src...
+    var $thumbs = $(spw_selector + ", " + search_selector);
+    if ($thumbs.length > 0){
+        $thumbs.each(function(){
+            var $this = $(this),
+                base_src = $this.attr('src').split('?')[0];
+            $this.attr('src', base_src + "?_="+rdm);
+        });
+    } else if (window.update_thumbnails_panel) {
+        // ...Otherwise update thumbs via jsTree
+        // (avoids revert of src on selection change)
+        var type = 'refreshThumbnails',
+            data = {};
+        if (options.imageId) {
+            type = "refreshThumb";
+            data = {'imageId': options.imageId};
+        }
+        var e = {'type': type};
+        update_thumbnails_panel(e, data);
+    }
 
     // Update viewport via global variable
     if (!options.ignorePreview && OME.preview_viewport && OME.preview_viewport.loadedImg.id) {
@@ -574,13 +549,6 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 dataType: "json",
                 type: "POST",
                 success: function(r){
-                    // Update the central panel in case delete removes an icon
-                    $.each(selected, function(index, node) {
-                        var e = {'type': 'delete_node'};
-                        var data = {'node': node,
-                                    'old_parent': firstParent};
-                        update_thumbnails_panel(e, data);
-                    });
 
                     datatree.delete_node(selected);
 
@@ -594,6 +562,14 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                         //TODO Make use of server calculated update like chgrp?
                         updateParentRemoveNode(datatree, node, firstParent);
                         removeDuplicateNodes(datatree, node);
+                    });
+
+                    // Update the central panel in case delete has removed an icon
+                    $.each(selected, function(index, node) {
+                        var e = {'type': 'delete_node'};
+                        var data = {'node': node,
+                                    'old_parent': firstParent};
+                        update_thumbnails_panel(e, data);
                     });
 
                     OME.refreshActivities();

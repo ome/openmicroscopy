@@ -333,7 +333,7 @@ class MeasurementViewerUI
 		roiResults = new MeasurementResults(controller, model, this);
         if (showGraph) {
             graphPane = new GraphPane(this, controller, model);
-            intensityView = new IntensityView(this, model);
+            intensityView = new IntensityView(this, model, controller);
             intensityResultsView = new IntensityResultsView(this, model);
         }
 		calcWizard = new CalculationWizard(controller, model);
@@ -1341,8 +1341,10 @@ class MeasurementViewerUI
 	/** Builds the graphs and displays them in the results pane. */
 	void displayAnalysisResults()
 	{
-		if (inGraphView()) graphPane.displayAnalysisResults();
-		else if (inIntensityView()) intensityView.displayAnalysisResults();
+		if (inGraphView()) 
+		    graphPane.displayAnalysisResults();
+		else if (inIntensityView())
+		    intensityView.displayAnalysisResults();
 		else if (inIntensityResultsView())
 			intensityResultsView.displayAnalysisResults();
 	}

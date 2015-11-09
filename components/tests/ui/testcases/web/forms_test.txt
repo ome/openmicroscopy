@@ -107,11 +107,13 @@ Test Annotate
     ${pid}=                                     Create Project      robot test annotate
 
     # Comment Form
+    Click Element                               xpath=//h1[@data-name='comments']
     Input Text                                  comment     test add comment
     Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
     # Tags
+    Click Element                               xpath=//h1[@data-name='tags']
     Click Element                               launch_tags_form
     # Wait for tag panel being loded
     Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
@@ -124,6 +126,7 @@ Test Annotate
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
+    Click Element                               xpath=//h1[@data-name='attachments']
     Click Element                               choose_file_anns
     Wait Until Page Contains Element            id_files
     Click Element                               xpath=//select[@id='id_files']/option    # just pick first file

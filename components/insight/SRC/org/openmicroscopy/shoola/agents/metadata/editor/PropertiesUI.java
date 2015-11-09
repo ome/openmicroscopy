@@ -34,8 +34,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
@@ -59,15 +57,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
-
-import com.google.common.base.CharMatcher;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -127,17 +122,8 @@ public class PropertiesUI
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Add Description";
     
-    /** The text for the id. */
-    private static final String ID_TEXT = "ID: ";
-    
     /** The text for the creation date. */
     private static final String CREATIONDATE_TEXT = "Creation Date: ";
-    
-    /** The text for the owner. */
-    private static final String OWNER_TEXT = "Owner: ";
-    
-    /** Text indicating to edit the name.*/
-    private static final String EDIT_NAME_TEXT = "Edit the name";
     
     /** Text indicating to edit the description.*/
     private static final String EDIT_DESC_TEXT = "Edit the description.";
@@ -155,45 +141,21 @@ public class PropertiesUI
      *  channel names component
      */
     private static final int MAX_CHANNELNAMES_LENGTH_IN_CHARS = 40;
-    
-    /** Button to edit the name. */
-	private JToggleButton				editName;
 	
 	/** Button to edit the description. */
 	private JToggleButton				descriptionButtonEdit;
-	
-    /** The name before possible modification.*/
-    private String				originalName;
-    
-    /** The name before possible modification.*/
-    private String				originalDisplayedName;
     
     /** The description before possible modification.*/
     private String				originalDescription;
-    
-    /** The component hosting the name of the <code>DataObject</code>.*/
-    private JTextArea			namePane;
-    
+
     /** The component hosting the name of the <code>DataObject</code>. */
     private JTextArea			typePane;
     
     /** The component hosting the description of the <code>DataObject</code>. */
     private OMEWikiComponent	descriptionWiki;
     
-    /** The component hosting the {@link #namePane}. */
-    private JPanel				namePanel;
-    
     /** The component hosting the {@link #descriptionWiki}. */
     private JPanel				descriptionPanel;
-    
-    /** The component hosting the id of the <code>DataObject</code>. */
-    private JTextField				idLabel;
-    
-    /** 
-     * The component hosting the owner of the <code>DataObject</code>.
-     * if not the current user. 
-     */
-    private JLabel				ownerLabel;
     
     /** The label displaying the parent of the node. */
     private JLabel				parentLabel;
@@ -206,12 +168,6 @@ public class PropertiesUI
     
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
-
-	/** The new full name. */
-	private String				modifiedName;
-	
-	/** The default border of the name and description components. */
-	private Border				defaultBorder;
 	
 	/** Reference to the control. */
 	private EditorControl		controller;
@@ -312,41 +268,11 @@ public class PropertiesUI
        	wellLabel.setOpaque(false);
        	wellLabel.setFont(newFont);
        	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	
-       	idLabel = new JTextField();
-       	idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
-       	idLabel.setEditable(false);
-       	idLabel.setBorder(BorderFactory.createEmptyBorder());
         
-       	ownerLabel = new JLabel();
-       	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	ownerLabel.setFont(f.deriveFont(Font.BOLD));
-    	namePane = createTextPane();
-    	namePane.setEditable(false);
     	typePane = createTextPane();
     	typePane.setEditable(false);
-    	namePane.addFocusListener(this);
-    	f = namePane.getFont(); 
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
-    	namePane.addKeyListener(new KeyListener() {
-            
-            @Override
-            public void keyTyped(KeyEvent arg0) {
-                
-            }
-            
-            @Override
-            public void keyReleased(KeyEvent arg0) {
-                if(arg0.getKeyCode()==KeyEvent.VK_ENTER) {
-                	save();
-                }
-            }
-            
-            @Override
-            public void keyPressed(KeyEvent arg0) {
-                
-            }
-        });
+
     	
     	descriptionWiki = new OMEWikiComponent(false);
     	descriptionWiki.setDefaultText(DEFAULT_DESCRIPTION_TEXT);
@@ -356,9 +282,7 @@ public class PropertiesUI
     	descriptionWiki.setAllowOneClick(true);
     	descriptionWiki.addFocusListener(this);
     	descriptionWiki.addPropertyChangeListener(this);
-    	
-    	defaultBorder = namePane.getBorder();
-    	namePane.setFont(f.deriveFont(Font.BOLD));
+
     	typePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	
@@ -376,8 +300,6 @@ public class PropertiesUI
     	
     	channelsPane = channelsArea;
     	IconManager icons = IconManager.getInstance();
-		editName = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
-		formatButton(editName, EDIT_NAME_TEXT);
 		descriptionButtonEdit = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(descriptionButtonEdit, EDIT_DESC_TEXT);
 		
@@ -389,23 +311,14 @@ public class PropertiesUI
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getSource() instanceof JToggleButton) {
 					JToggleButton b = (JToggleButton) e.getSource();
-					if (b == editName) {
-						if (b.isSelected())
-							editField(namePane);
-						else
-							save();
-					} else if (b == descriptionButtonEdit) {
 						if (b.isSelected()) {
 							expandDescriptionField(true);
 							editField(descriptionWiki);
 						} else
 							save();
-					}
 				}	
 			}
 		};
-		
-		editName.addItemListener(l);
 		descriptionButtonEdit.addItemListener(l);
 		
 		editChannel.addActionListener(new ActionListener() {
@@ -936,22 +849,10 @@ public class PropertiesUI
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
-        namePanel = layoutEditablefield(editName, namePane);
-        p.add(namePanel);
         p.add(Box.createVerticalStrut(2));
         
-        JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
-        l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(l);
-        p.add(Box.createVerticalStrut(2));
-        
-        l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
-        l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(l);
-        p.add(Box.createVerticalStrut(2));
-        
-        int w = editName.getIcon().getIconWidth()+4;
-        l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
+        int w = 10;
+        JPanel l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
         l = UIUtilities.buildComponentPanel(parentLabel, 0, 0);
@@ -1100,31 +1001,9 @@ public class PropertiesUI
 	 */
 	private void editField(JComponent field)
 	{
-		if (field == namePane) {
-			namePane.setEditable(true);
-			namePane.setBorder(EDIT_BORDER_BLACK);
-			field.requestFocus();
-
-			namePane.getDocument().removeDocumentListener(this);
-			String text = namePane.getText();
-			if (text != null) 
-				text = text.trim();
-			
-			// the user might have finished editing by hitting return key, therefore
-			// remove line break characters
-			modifiedName = CharMatcher.JAVA_ISO_CONTROL.removeFrom(modifiedName);
-			namePane.setText(modifiedName);
-			namePane.setMaximumSize(namePane.getSize());
-			namePane.setLineWrap(true);
-
-			namePane.getDocument().addDocumentListener(this);
-			namePane.select(0, 0);
-			namePane.setCaretPosition(0);
-		} else if (field == descriptionWiki) {
-			descriptionWiki.setEnabled(true);
-			descriptionScrollPane.setBorder(EDIT_BORDER_BLACK);
-			field.requestFocus();
-		}
+		descriptionWiki.setEnabled(true);
+		descriptionScrollPane.setBorder(EDIT_BORDER_BLACK);
+		field.requestFocus();
 	}
 	
 	/**
@@ -1205,8 +1084,6 @@ public class PropertiesUI
         if (refObject instanceof FileData) {
                 b = false;
         }
-        namePane.setEnabled(b);
-        editName.setEnabled(b);
         descriptionButtonEdit.setEnabled(b);
     }
 
@@ -1217,34 +1094,14 @@ public class PropertiesUI
     protected void buildUI()
     {
         removeAll();
-        namePane.setEditable(false);
         Object refObject = model.getRefObject();
         text = model.getObjectTypeAsString(refObject);
-        if (model.isMultiSelection()) return;
-        namePane.getDocument().removeDocumentListener(this);
+        if (model.isMultiSelection())
+            return;
         descriptionWiki.removeDocumentListener(this);
-        originalName = model.getRefObjectName();
-        modifiedName = model.getRefObjectName();
-        originalDisplayedName = UIUtilities.formatPartialName(originalName);
-        namePane.setText(originalDisplayedName);
-        namePane.setToolTipText(originalName);
-        // disable line wrap and only enable it in editing mode;
-        // otherwise keeping it enabled has a weird effect on the layout
-        namePane.setLineWrap(false);
 
         boolean b = model.canEdit();
-        String t = text;
-        if (model.getRefObjectID() > 0)
-            t += " "+ID_TEXT+model.getRefObjectID();
-        if (refObject instanceof WellSampleData) {
-            WellSampleData wsd = (WellSampleData) refObject;
-            t += " (Image ID: "+wsd.getImage().getId()+")";
-        }
-        idLabel.setText(t);
-        String ownerName = model.getOwnerName();
-        ownerLabel.setText("");
-        if (ownerName != null && ownerName.length() > 0)
-            ownerLabel.setText(OWNER_TEXT+ownerName);
+        
         originalDescription = model.getRefObjectDescription();
         if (CommonsLangUtils.isEmpty(originalDescription))
             originalDescription = DEFAULT_DESCRIPTION_TEXT;
@@ -1256,7 +1113,6 @@ public class PropertiesUI
 
         editNames();
         if (b) {
-            namePane.getDocument().addDocumentListener(this);
             descriptionWiki.addDocumentListener(this);
         }
         setParentLabel();
@@ -1274,7 +1130,8 @@ public class PropertiesUI
 	}
 	
     /** Sets the focus on the name area. */
-	void setFocusOnName() { namePane.requestFocus(); }
+	void setFocusOnName() { //namePane.requestFocus();
+	}
 	
 	/** Updates the data object. */
 	void setParentRootObject()
@@ -1290,8 +1147,6 @@ public class PropertiesUI
         boolean b = model.canEdit();
         descriptionButtonEdit.setEnabled(b);
         descriptionButtonEdit.setSelected(false);
-        editName.setEnabled(b);
-        editName.setSelected(false);
         if (b) {
         	descriptionWiki.addDocumentListener(this);
         }
@@ -1307,59 +1162,37 @@ public class PropertiesUI
 	{
 		if (!hasDataToSave()) return;
 		Object object =  model.getRefObject();
-		String name = modifiedName;
 		String desc = descriptionWiki.getText().trim();
 		if (desc == null) desc = "";
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
-			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof DatasetData) {
 			DatasetData p = (DatasetData) object;
-			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
-			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
-			if (name.length() > 0) p.setTagValue(name);
 			p.setTagDescription(desc);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
-			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof PlateData) {
 			PlateData p = (PlateData) object;
-			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof WellSampleData) {
 			WellSampleData well = (WellSampleData) object;
 			ImageData img = well.getImage();
-			if (name.length() > 0) img.setName(name);
 			img.setDescription(desc);
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
-			if (name.length() > 0) pa.setName(name);
 			pa.setDescription(desc);
 		}
-	}
-	
-	/**
-	 * Returns <code>true</code> if the name is valid,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isNameValid()
-	{ 
-		String name = namePane.getText();
-		if (name == null) return false;
-		return name.trim().length() != 0;
 	}
 	
 	/**
@@ -1421,16 +1254,11 @@ public class PropertiesUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		if (model.isMultiSelection()) return false;
-		String name = originalName;
-		String value = namePane.getText();
-		value = value.trim();
-		if (name == null) return false;
-		if (!name.equals(value) && !originalDisplayedName.equals(value))
-			return true;
+		if (model.isMultiSelection()) 
+		    return false;
 		
-		name = originalDescription;
-		value = descriptionWiki.getText();
+		String name = originalDescription;
+		String value = descriptionWiki.getText();
 		value = value.trim();
 		if (name == null) return value.length() != 0;
 		name = OMEWikiComponent.prepare(name.trim(), true);
@@ -1446,19 +1274,12 @@ public class PropertiesUI
 	 */
 	protected void clearData(Object oldObject)
 	{
-	    originalName = model.getRefObjectName();
-	    originalDisplayedName = originalName;
 	    originalDescription = model.getRefObjectDescription();
-	    namePane.getDocument().removeDocumentListener(this);
 	    descriptionWiki.removeDocumentListener(this);
-	    namePane.setText(originalName);
 	    if (CommonsLangUtils.isEmpty(originalDescription))
 	        originalDescription = DEFAULT_DESCRIPTION_TEXT;
 	    descriptionWiki.setText(originalDescription);
 	    expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
-	    namePane.getDocument().addDocumentListener(this);
-	    namePane.setBorder(defaultBorder);
-	    editName.setSelected(false);
 	    descriptionButtonEdit.setSelected(false);
 	    descriptionWiki.addDocumentListener(this);
 	    channelEditPane = null;
@@ -1467,8 +1288,6 @@ public class PropertiesUI
 	    if (oldObject == null) return;
 	    if (!model.isSameObject(oldObject)) {
 	        channelsArea.setText("");
-	        idLabel.setText("");
-	        ownerLabel.setText("");
 	        parentLabel.setText("");
 	        wellLabel.setText("");
 	        gpLabel.setText("");
@@ -1493,11 +1312,6 @@ public class PropertiesUI
          * @see DocumentListener#insertUpdate(DocumentEvent)
          */
         public void insertUpdate(DocumentEvent e) {
-            if (e.getDocument() == namePane.getDocument()) {
-                modifiedName = namePane.getText();
-                firePropertyChange(EditorControl.SAVE_PROPERTY,
-                        Boolean.valueOf(false), Boolean.valueOf(true));
-            } 
         }
 
 	/**
@@ -1506,11 +1320,6 @@ public class PropertiesUI
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-	    if (e.getDocument() == namePane.getDocument()) {
-	        modifiedName = namePane.getText();
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
-				Boolean.valueOf(true));
-	    }
 	}
 	
 	/**
@@ -1520,27 +1329,14 @@ public class PropertiesUI
 	 */
 	public void focusLost(FocusEvent e)
 	{
-		Object src = e.getSource();
-		if (src == namePane) {
-			String text = namePane.getText();
-			editNames();
-			if (CommonsLangUtils.isBlank(text)) {
-				namePane.getDocument().removeDocumentListener(this);
-				namePane.setText(modifiedName);
-				namePane.getDocument().addDocumentListener(this);
-				firePropertyChange(EditorControl.SAVE_PROPERTY,
-						Boolean.valueOf(false), Boolean.valueOf(true));
-			}
-		} else if (src == descriptionWiki) {
-			String text = descriptionWiki.getText();
-			editNames();
-			if (CommonsLangUtils.isBlank(text)) {
-				descriptionWiki.removeDocumentListener(this);
-				descriptionWiki.setText(DEFAULT_DESCRIPTION_TEXT);
-				descriptionWiki.addDocumentListener(this);
-				firePropertyChange(EditorControl.SAVE_PROPERTY,
-						Boolean.valueOf(false), Boolean.valueOf(true));
-			}
+		String text = descriptionWiki.getText();
+		editNames();
+		if (CommonsLangUtils.isBlank(text)) {
+			descriptionWiki.removeDocumentListener(this);
+			descriptionWiki.setText(DEFAULT_DESCRIPTION_TEXT);
+			descriptionWiki.addDocumentListener(this);
+			firePropertyChange(EditorControl.SAVE_PROPERTY,
+					Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
 	

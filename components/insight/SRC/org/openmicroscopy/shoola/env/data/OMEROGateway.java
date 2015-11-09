@@ -2801,6 +2801,14 @@ class OMEROGateway
 					userID));
 			results.addAll(loadLinks(ctx, "ImageAnnotationLink", childID,
 					userID));
+			results.addAll(loadLinks(ctx, "ScreenAnnotationLink", childID,
+                    userID));
+			results.addAll(loadLinks(ctx, "PlateAnnotationLink", childID,
+                    userID));
+			results.addAll(loadLinks(ctx, "WellAnnotationLink", childID,
+                    userID));
+			results.addAll(loadLinks(ctx, "PlateAcquisitionAnnotationLink", childID,
+                    userID));
 			return results;
 		}
 		return loadLinks(ctx, getTableForLink(parentClass), childID, userID);

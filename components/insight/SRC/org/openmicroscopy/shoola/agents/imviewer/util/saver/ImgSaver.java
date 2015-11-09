@@ -210,32 +210,33 @@ public class ImgSaver
     /**
      * Creates a single image.
      * 
-     * @param image		The image to create.
-     * @param constrain	The constrain indicating to add the scale bar.
-     * @param name		The name of the image.
-     * @throws EncoderException 
+     * @param image The image to create.
+     * @param constraint The constraint indicating to add the scale bar.
+     * @param name The name of the image.
+     * @throws EncoderException
      * @throws IOException
      */
-    private void writeSingleImage(BufferedImage image, boolean constrain, 
-    							String name) throws EncoderException, IOException
+    private void writeSingleImage(BufferedImage image, boolean constraint,
+            String name)
+                    throws EncoderException, IOException
     {
-    	int width = image.getWidth();
+        int width = image.getWidth();
         int h = image.getHeight();
         String v = getUnitBarValue(); 
         int s = (int) model.getUnitBarSize();
-        
-        BufferedImage newImage = new BufferedImage(width, h, 
-                					BufferedImage.TYPE_INT_RGB);
+
+        BufferedImage newImage = new BufferedImage(width, h,
+                BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = (Graphics2D) newImage.getGraphics();
         ImagePaintingFactory.setGraphicRenderingSettings(g2);
         //Paint the original image.
         g2.drawImage(image, null, 0, 0); 
-        
-        if (constrain)
+
+        if (constraint)
             ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
         writeImage(newImage, name);
     }
-    
+
     /**
      * Displays the preview dialog with images depending on the 
      * saving type.

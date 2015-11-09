@@ -270,8 +270,7 @@ class BrowserComponent
     private boolean hasDataToSave(TreeImageDisplay node)
     {
         if (model.getParentModel().hasDataToSave()) {
-        	//toSelectAfterSave = node;
-        	model.getParentModel().showPreSavingDialog();
+        	model.getParentModel().saveMetadata();
         	return false;
         }
         return false;

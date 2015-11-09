@@ -18,7 +18,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/Search.html">Search.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.2/api/ome/api/Search.html">Search.html</a>
          **/
         ["ami", "amd"] interface Search extends StatefulServiceInterface
             {

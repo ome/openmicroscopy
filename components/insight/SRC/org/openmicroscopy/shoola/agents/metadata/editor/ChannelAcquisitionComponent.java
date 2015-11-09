@@ -160,7 +160,7 @@ class ChannelAcquisitionComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		illuminationBox = EditorUtil.createComboBox(array);
 		
 		l = model.getChannelEnumerations(Editor.CONTRAST_METHOD);
@@ -171,7 +171,7 @@ class ChannelAcquisitionComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		contrastMethodBox = EditorUtil.createComboBox(array);
 		
 		l = model.getChannelEnumerations(Editor.MODE);
@@ -182,7 +182,7 @@ class ChannelAcquisitionComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		modeBox = EditorUtil.createComboBox(array);
 		
 		l = model.getChannelEnumerations(Editor.BINNING);
@@ -193,7 +193,7 @@ class ChannelAcquisitionComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 	}
 	
 	/** Initializes the components */

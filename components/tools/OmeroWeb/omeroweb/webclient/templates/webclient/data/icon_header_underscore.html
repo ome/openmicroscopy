@@ -1,0 +1,17 @@
+
+<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">
+    <div id="layout_chooser">
+        <button id="icon_layout" title="View as Thumbnails" class="<% if (layout === 'icon') print('checked') %>" /><button id="table_layout" title="View as List" class="<% if (layout === 'table') print('checked') %>" />
+    </div>
+    <form class="search filtersearch" id="filtersearch" action="#" style="top:4px">
+        <div>
+            <label for="id_search"> Filter Images </label>
+            <input id="id_search" type="text" size="25">
+        </div>
+        <span class="loading" style="display: none;"></span>
+    </form>
+</div>
+<div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
+    <div id="thumb_size_slider" title="Zoom Thumbnails"></div>
+</div>
+<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>

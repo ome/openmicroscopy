@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.PixelsData;
@@ -141,9 +142,9 @@ class ImageDataViewImpl
      * 									AgentEventListener)
      */
 	public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
-			Collection channels, List shapes, AgentEventListener observer)
+			Collection channels, List shapes, Coord3D plane, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new Analyser(ctx, pixels, channels, shapes);
+		BatchCallTree cmd = new Analyser(ctx, pixels, channels, shapes, plane);
 		return cmd.exec(observer);
 	}
 

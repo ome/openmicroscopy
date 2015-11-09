@@ -21,19 +21,14 @@
                     var left = offset ? offset.left : 36;
 
                     // Truncate where necessary
-                    var lp_width = $("#left_panel").width() - left - 75;  // margins
+                    var lp_width = $("#left_panel").width() - left - 65;  // margins
+                    var fullWidth = anchor.width(); // we start with full text from redraw_node() above
 
-                    if (anchor.textWidth(node.text) > lp_width) {
-                        // Optimize by calculating the estimated reduction required
-                        var letterWidth = anchor.textWidth('a');
-                        // +3 for the '...'
-                        var truncated = node.text.slice(3 + Math.floor((anchor.textWidth(node.text) - lp_width) / letterWidth));
-
-                        // If it's still too long, iterate until it isn't
-                        while (anchor.textWidth(truncated) > lp_width) {
-                            truncated = truncated.slice(1);
-                        }
-
+                    if (fullWidth > lp_width) {
+                        // Calculate the reduction required, +3 for the '...'
+                        var letterWidth = fullWidth / node.text.length;
+                        var truncated = node.text.slice(3 + Math.floor((fullWidth - lp_width) / letterWidth));
+                        // update the text
                         anchor.contents().filter(function(){
                             return this.nodeType == 3;
                         }).replaceWith(document.createTextNode('...' + truncated));
