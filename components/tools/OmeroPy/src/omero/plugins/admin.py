@@ -1161,7 +1161,7 @@ OMERO Diagnostics %s
 
         import logging
         logging.basicConfig()
-        check = self.run_upgrade_check("diagnostics", config)
+        check = self.run_upgrade_check(config, "diagnostics")
         if check.isUpgradeNeeded():
             self.ctx.out("")
 
@@ -1835,7 +1835,7 @@ OMERO Diagnostics %s
         2: an error occurred whilst checking
         """
 
-        uc = self.run_upgrade_check(CHECKUPGRADE_USERAGENT, config)
+        uc = self.run_upgrade_check(config, CHECKUPGRADE_USERAGENT)
         if uc.isUpgradeNeeded():
             self.ctx.die(1, uc.getUpgradeUrl())
         if uc.isExceptionThrown():
