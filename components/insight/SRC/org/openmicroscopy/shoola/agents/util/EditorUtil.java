@@ -1663,40 +1663,27 @@ public class EditorUtil
         if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Length p;
-        double f;
+        
         try {
-            p = data.getPositionX(UnitsLength.REFERENCEFRAME);
-            f = 0;
-            if (p == null) {
+            Length l = data.getPositionX(null);
+            if (l == null)
                 notSet.add(POSITION_X);
-            } else
-                f = p.getValue();
-            details.put(POSITION_X, NF.format(f));
-        } catch (BigResult e) {
-            details.put(POSITION_X, e);
-        }
-
-        try {
-            p = data.getPositionY(UnitsLength.REFERENCEFRAME);
-            f = 0;
-            if (p == null) {
+            else
+                details.put(POSITION_X, l);
+            
+            l = data.getPositionY(null);
+            if (l == null)
                 notSet.add(POSITION_Y);
-            } else f = p.getValue();
-            details.put(POSITION_Y, NF.format(f));
-        } catch (BigResult e) {
-            details.put(POSITION_Y, e);
-        }
-       
-        try {
-            p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
-            f = 0;
-            if (p == null) {
+            else
+                details.put(POSITION_Y, l);
+            
+            l = data.getPositionZ(null);
+            if (l == null)
                 notSet.add(POSITION_Z);
-            } else f = p.getValue();
-            details.put(POSITION_Z, NF.format(f));
-        } catch (BigResult e) {
-            details.put(POSITION_Z, e);
+            else
+                details.put(POSITION_Z, l);
+        } catch (BigResult e1) {
+            // can't be thrown when called with null argument
         }
 
         details.put(NOT_SET, notSet);

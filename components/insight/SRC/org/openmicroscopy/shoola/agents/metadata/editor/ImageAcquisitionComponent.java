@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import ome.formats.model.UnitsFactory;
+import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.PressureI;
 import omero.model.TemperatureI;
@@ -184,6 +186,16 @@ class ImageAcquisitionComponent
                 }
                 ((OMETextArea) area).setText((String) value);
            	 	((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
+            } else if (value instanceof Length) {
+                Length l = (Length) value;
+                area = UIUtilities.createComponent(OMETextArea.class, null);
+                if (value == null || value.equals("")) {
+                    value = AnnotationUI.DEFAULT_TEXT;
+                    set = false;
+                }
+                DecimalFormat df = new DecimalFormat("0.##");
+                ((OMETextArea) area).setText(df.format(l.getValue())+" "+l.getSymbol());
+                ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             } else {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
             			null);
