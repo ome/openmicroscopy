@@ -41,6 +41,8 @@ Test Cut Paste Image
     Click Element                               id=pasteButton
     Click Node                                  ${datasetNode}                                
     Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
+    ${projectNode}                              Wait For Project Node                                           ${pId}
+    Click Node                                  ${pId}
 
 Test Cut Paste Orphaned Image
     [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
@@ -63,7 +65,7 @@ Test Cut Paste Dataset
     ${p1id}=                                Create project      test Cut-Paste TO here
     ${p2id}=                                Create project      test Cut-Paste FROM here
     ${did}=                                 Create Dataset
-    Click Element                           refreshButton
+
     # Check hierarchy
     Select Project By Id                    ${p2id}
     Wait Until Element Is Visible           xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']     ${WAIT}
@@ -103,6 +105,7 @@ Test Cut Paste Plate
     Click Element                           id=pasteButton
     Click Node                              ${screenNode1}                     
     Wait Until Page Contains Element        xpath=//li[@id='${screenNode1}']//li[@data-id='${plateId}']
+    Click Node                              ${screenNode1} 
 
 
 Test Edit Project
@@ -162,7 +165,6 @@ Test Copy Paste Image
 
     Select Experimenter
     ${d1id}=                                Create dataset     test copy-paste TO here
-    Click Element                           refreshButton
 
     ${pId}    ${d2id}    ${imageId}         Select And Expand Project Dataset Image
     Click Element                           id=copyButton
@@ -242,7 +244,6 @@ Test Drag And Drop Image
 
     Select Experimenter
     ${did}=                                     Create Dataset
-    Click Element                               refreshButton
 
     Select Experimenter
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
@@ -261,9 +262,12 @@ Test Drag And Drop Image
     Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId} 
+    ${projectNode}=                             Wait for Project Node                                             ${pId}
+    Click Node                                  ${projectNode}                             
 
 Test Drag and Drop Orphaned Image
 
+    Select Experimenter
     ${did}=                                     Select First Dataset
     ${datasetNode}=                             Wait For Dataset Node                                           ${did}
 
@@ -275,25 +279,29 @@ Test Drag and Drop Orphaned Image
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
+    Click Node                                  ${datasetNode}
 
 Test Drag and Drop Orphaned Dataset
-                                 
+     
+    Select Experimenter                            
     ${pid}=                                     Select First Project With Children
     ${projectNode}                              Wait For Project Node                                           ${pid}
 
-    ${datasetNode}=                             Select First Dataset With Name                                  testCreateContainerRobot                                      
+    Select Experimenter                         
+    ${datasetId}                                Create Dataset
+    ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}                            
 
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']/a
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${projectNode}']/a
     Select Project By Id                        ${pid}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
+    Click Node                                  ${projectNode}
     
 
 Test Drag and Drop Plate
     
     Select Experimenter
     ${screenId}                                 Create Screen
-    Click Element                               refreshButton
     ${screenNode}                               Wait For Screen Node                                            ${screenId}
 
     ${screenId1}                                Select First Screen With Children
@@ -304,6 +312,7 @@ Test Drag and Drop Plate
     Drag And Drop                               xpath=//li[@id='${plateNode}']/a                                xpath=//li[@id='${screenNode}']/a
     Select Screen By Id                         ${screenId}
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
+    Click Node                                  ${screenNode}
 
 Test Drag and Drop Dataset On Experimenter
     [Documentation]                             This test will currently fail on 5.1 Series
@@ -311,7 +320,6 @@ Test Drag and Drop Dataset On Experimenter
     Select Experimenter
     ${pid}                                      Create Project    
     ${did}=                                     Create Dataset
-    Click Element                               refreshButton
 
     ${projectNode}=                             Wait For Project Node                                           ${pid}
     Click Node                                  ${projectNode}
