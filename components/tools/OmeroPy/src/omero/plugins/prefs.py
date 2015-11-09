@@ -24,6 +24,7 @@ from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
 from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
+from omero.util.upgrade_check import UpgradeCheck
 from omero_ext import portalocker
 
 import omero.java
@@ -104,7 +105,6 @@ class WriteableConfigControl(BaseControl):
             self.ctx.die(333, "Cannot modify %s" % config.filename)
 
     def run_upgrade_check(self, config, agent):
-        from omero.util.upgrade_check import UpgradeCheck
         properties = config.as_map()
         upgrade_url = properties.get("omero.upgrades.url", None)
         if upgrade_url:
