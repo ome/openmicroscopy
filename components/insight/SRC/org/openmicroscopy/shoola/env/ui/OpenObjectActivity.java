@@ -38,6 +38,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.SecurityContext;
 
 /** 
@@ -122,7 +124,7 @@ public class OpenObjectActivity
                     List<String> args = new ArrayList<String>();
                     args.add("-eval");
                     args.add("run('Bio-Formats Importer'," + "'open=["
-                            + replaceWindowsPathSeparator(f.getAbsolutePath())
+                            + UIUtilities.replaceWindowsPathSeparator(f.getAbsolutePath())
                             + "]')");
                     data.setCommandLineArguments(args);
                 }
@@ -131,16 +133,6 @@ public class OpenObjectActivity
 		viewer.openApplication(parameters.getApplication(), path);
 		type.setText(DESCRIPTION_CREATED);
 	}
-	
-    /**
-     * Replaces the Windows backslash path separator with a slash
-     * 
-     * @param path The path
-     * @return See above
-     */
-    private String replaceWindowsPathSeparator(String path) {
-        return path.replaceAll("\\\\", "/");
-    }
 	
 	/**
 	 * Modifies the text of the component. 

@@ -23,9 +23,13 @@ package org.openmicroscopy.shoola.env.ui;
 import java.io.File;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
@@ -92,28 +96,19 @@ public class OpenObjectLoader
     		String name = image.getName();
     		name += image.getName();
     		name += "_"+image.getId();
-    		path += replaceNonWordCharacters(name)+"."+OMETIFFFilter.OME_TIFF;
+    		path += UIUtilities.replaceNonWordCharacters(name)+"."+OMETIFFFilter.OME_TIFF;
     		f = new File(path);
     		f.deleteOnExit();
     		handle = ivView.exportImageAsOMETiff(ctx, image.getId(), f, null,
     				this);
     	} else {
     		FileAnnotationData fa = (FileAnnotationData) object;
-    		path += replaceNonWordCharacters(fa.getFileName());
+    		path += UIUtilities.replaceNonWordCharacters(fa.getFileName());
     		f = new File(path);
     		f.deleteOnExit();
     		handle = mhView.loadFile(ctx, f, fa.getId(), 
     				FileLoader.FILE_ANNOTATION, this);
     	}
-    }
-    
-    /**
-     * Simply replaces all non word characters with underscores.
-     * @param name The original name
-     * @return See above.
-     */
-    private String replaceNonWordCharacters(String name) {
-        return name.replaceAll("\\W", "_");
     }
     
     /**
