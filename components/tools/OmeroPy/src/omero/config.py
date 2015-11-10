@@ -428,7 +428,7 @@ class ConfigXml(object):
         default = self.default()
         props = self.properties(default)
         to_remove = []
-        for p in props.getchildren():
+        for p in props:
             if p.get("name") == key:
                 to_remove.append(p)
         for x in to_remove:
