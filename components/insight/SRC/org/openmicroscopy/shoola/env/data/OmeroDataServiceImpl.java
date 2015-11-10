@@ -338,12 +338,7 @@ class OmeroDataServiceImpl
 			if (links.size() > 0)
 				gateway.createObjects(ctx, links);
 		}
-		try {
-			gateway.shutDownDerivedConnector(ctx);
-		} catch (Exception e) {
-			context.getLogger().info(this, "Cannot shut down the connectors.");
-		}
-
+		
 		return PojoMapper.asDataObject(created);
 	}
 

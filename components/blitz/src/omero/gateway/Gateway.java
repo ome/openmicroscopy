@@ -20,6 +20,8 @@
  */
 package omero.gateway;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,7 +91,43 @@ import com.google.common.collect.Multimaps;
  */
 
 public class Gateway {
-
+    
+    /** Property to indicate that a {@link Connector} has been created */
+    public static final String PROP_CONNECTOR_CREATED = "PROP_CONNECTOR_CREATED";
+    
+    /** Property to indicate that a {@link Connector} has been closed */
+    public static final String PROP_CONNECTOR_CLOSED = "PROP_CONNECTOR_CLOSED";
+    
+    /** Property to indicate that a session has been created */
+    public static final String PROP_SESSION_CREATED = "PROP_SESSION_CREATED";
+    
+    /** Property to indicate that a session has been closed */
+    public static final String PROP_SESSION_CLOSED = "PROP_SESSION_CLOSED";
+    
+    /** Property to indicate that a {@link Facility} has been created */
+    public static final String PROP_FACILITY_CREATED = "PROP_FACILITY_CREATED";
+    
+    /** Property to indicate that an import store has been created */
+    public static final String PROP_IMPORTSTORE_CREATED = "PROP_IMPORTSTORE_CREATED";
+    
+    /** Property to indicate that an import store has been closed */
+    public static final String PROP_IMPORTSTORE_CLOSED = "PROP_IMPORTSTORE_CLOSED";
+    
+    /** Property to indicate that a rendering engine has been created */
+    public static final String PROP_RENDERINGENGINE_CREATED = "PROP_RENDERINGENGINE_CREATED";
+    
+    /** Property to indicate that a rendering engine has been closed */
+    public static final String PROP_RENDERINGENGINE_CLOSED = "PROP_RENDERINGENGINE_CLOSED";
+    
+    /** Property to indicate that a stateful service has been created */
+    public static final String PROP_STATEFUL_SERVICE_CREATED = "PROP_SERVICE_CREATED";
+    
+    /** Property to indicate that a stateful service has been closed */
+    public static final String PROP_STATEFUL_SERVICE_CLOSED = "PROP_SERVICE_CLOSED";
+    
+    /** Property to indicate that a stateless service has been created */
+    public static final String PROP_STATELESS_SERVICE_CREATED = "PROP_STATELESS_SERVICE_CREATED";
+    
     /** Reference to a {@link Logger} */
     private Logger log;
 
@@ -119,6 +157,9 @@ public class Gateway {
     /** Optional reference to a {@link CacheService} */
     private CacheService cacheService;
 
+    /** The PropertyChangeSupport */
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    
     /**
      * Creates a new Gateway instance
      * @param log A {@link Logger}
@@ -308,13 +349,40 @@ public class Gateway {
     // General public methods
 
     /**
+     * Adds a {@link PropertyChangeListener}
+     * @param listener The listener
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a {@link PropertyChangeListener}
+     * @param listener The listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.removePropertyChangeListener(listener);
+    }
+    
+    /**
+     * Get the {@link PropertyChangeListener}s
+     * @return See above
+     */
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return this.pcs.getPropertyChangeListeners();
+    }
+    
+    /**
      * Executes the commands.
-     *
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
      * @param commands
      *            The commands to execute.
      * @param target
      *            The target context is any.
      * @return See above.
+     * @throws Throwable 
      */
     public CmdCallbackI submit(SecurityContext ctx, List<Request> commands,
             SecurityContext target) throws Throwable {
@@ -417,7 +485,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public SharedResourcesPrx getSharedResources(SecurityContext ctx)
@@ -434,7 +502,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IRenderingSettingsPrx getRenderingSettingsService(SecurityContext ctx)
@@ -451,7 +519,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IRepositoryInfoPrx getRepositoryService(SecurityContext ctx)
@@ -468,7 +536,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IScriptPrx getScriptService(SecurityContext ctx)
@@ -485,7 +553,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IContainerPrx getPojosService(SecurityContext ctx)
@@ -502,7 +570,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IQueryPrx getQueryService(SecurityContext ctx)
@@ -519,7 +587,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IUpdatePrx getUpdateService(SecurityContext ctx)
@@ -532,8 +600,9 @@ public class Gateway {
      * 
      * @param ctx
      *            The {@link SecurityContext}
+     * @param userName The username
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IUpdatePrx getUpdateService(SecurityContext ctx, String userName)
@@ -558,7 +627,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IMetadataPrx getMetadataService(SecurityContext ctx)
@@ -575,7 +644,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IRoiPrx getROIService(SecurityContext ctx)
@@ -592,7 +661,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IConfigPrx getConfigService(SecurityContext ctx)
@@ -609,7 +678,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public ThumbnailStorePrx getThumbnailService(SecurityContext ctx)
@@ -626,7 +695,8 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException 
+     *          Thrown if the service cannot be initialized.
      */
     public ExporterPrx getExporterService(SecurityContext ctx)
             throws DSOutOfServiceException {
@@ -642,7 +712,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException Thrown if the service cannot be initialized.
      */
     public RawFileStorePrx getRawFileService(SecurityContext ctx)
             throws DSOutOfServiceException {
@@ -658,7 +728,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public RawPixelsStorePrx getPixelsStore(SecurityContext ctx)
@@ -675,7 +745,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IPixelsPrx getPixelsService(SecurityContext ctx)
@@ -692,7 +762,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public SearchPrx getSearchService(SecurityContext ctx)
@@ -709,7 +779,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IProjectionPrx getProjectionService(SecurityContext ctx)
@@ -726,7 +796,7 @@ public class Gateway {
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IAdminPrx getAdminService(SecurityContext ctx)
@@ -746,7 +816,7 @@ public class Gateway {
      *            Pass <code>true</code> to have a secure admin service,
      *            <code>false</code> otherwise.
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public IAdminPrx getAdminService(SecurityContext ctx, boolean secure)
@@ -759,9 +829,9 @@ public class Gateway {
 
     /**
      * Creates or recycles the import store.
-     * 
+     * @param ctx The {@link SecurityContext}
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public OMEROMetadataStoreClient getImportStore(SecurityContext ctx)
@@ -771,9 +841,10 @@ public class Gateway {
 
     /**
      * Creates or recycles the import store.
-     * 
+     * @param ctx The {@link SecurityContext}
+     * @param userName The username
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
      *             Thrown if the service cannot be initialized.
      */
     public OMEROMetadataStoreClient getImportStore(SecurityContext ctx,
@@ -794,9 +865,12 @@ public class Gateway {
 
     /**
      * Returns the {@link RenderingEnginePrx Rendering service}.
-     * 
+     * @param ctx  The {@link SecurityContext}
+     * @param pixelsID The pixels ID
      * @return See above.
-     * @throws Throwable
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
+     * @throws ServerError 
      *             Thrown if the service cannot be initialized.
      */
     public RenderingEnginePrx getRenderingService(SecurityContext ctx,
@@ -847,17 +921,21 @@ public class Gateway {
             secureClient.setAgent(c.getApplicationName());
             ServiceFactoryPrx entryEncrypted;
             boolean session = true;
+            ServiceFactoryPrx guestSession = null;
             try {
                 // Check if it is a session first
-                ServiceFactoryPrx guestSession = secureClient.createSession(
+                guestSession = secureClient.createSession(
                         "guest", "guest");
+                this.pcs.firePropertyChange(PROP_SESSION_CREATED, null, secureClient.getSessionId());
                 guestSession.getSessionService().getSession(
                         c.getUser().getUsername());
             } catch (Exception e) {
                 // thrown if it is not a session or session has experied.
                 session = false;
             } finally {
+                String id = secureClient.getSessionId();
                 secureClient.closeSession();
+                this.pcs.firePropertyChange(PROP_SESSION_CLOSED, null, id);
             }
             if (session) {
                 entryEncrypted = secureClient.joinSession(c.getUser()
@@ -866,6 +944,7 @@ public class Gateway {
                 entryEncrypted = secureClient.createSession(c.getUser()
                         .getUsername(), c.getUser().getPassword());
             }
+            this.pcs.firePropertyChange(PROP_SESSION_CREATED, null, secureClient.getSessionId());
             serverVersion = entryEncrypted.getConfigService().getVersion();
 
             if (c.isCheckNetwork()) {
@@ -939,6 +1018,10 @@ public class Gateway {
                 ctx.setServerInformation(cred.getServer());
                 connector = new Connector(ctx, client, entryEncrypted,
                         cred.isEncryption(), log);
+                for (PropertyChangeListener l : this.pcs
+                        .getPropertyChangeListeners())
+                    connector.addPropertyChangeListener(l);
+                this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId());
                 groupConnectorMap.put(ctx.getGroupID(), connector);
                 if (defaultID == cred.getGroupID())
                     return exp;
@@ -949,6 +1032,9 @@ public class Gateway {
                     ctx.setCompression(cred.getCompression());
                     connector = new Connector(ctx, client, entryEncrypted,
                             cred.isEncryption(), log);
+                    for (PropertyChangeListener l : this.pcs
+                            .getPropertyChangeListeners())
+                        connector.addPropertyChangeListener(l);
                     exp = getUserDetails(ctx, userName);
                     groupConnectorMap.put(ctx.getGroupID(), connector);
                 } catch (Exception e) {
@@ -965,6 +1051,9 @@ public class Gateway {
             ctx.setCompression(cred.getCompression());
             connector = new Connector(ctx, client, entryEncrypted,
                     cred.isEncryption(), log);
+            for(PropertyChangeListener l : this.pcs.getPropertyChangeListeners())
+                connector.addPropertyChangeListener(l);
+            this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId());
             groupConnectorMap.put(ctx.getGroupID(), connector);
             return exp;
         } catch (Throwable e) {
@@ -1070,6 +1159,7 @@ public class Gateway {
      * @param useCachedValue
      *            Uses the result of the last check instead of really performing
      *            the test if the last check is not older than 5 sec
+     * @return See above
      * @throws Exception
      */
     public boolean isNetworkUp(boolean useCachedValue) {
@@ -1221,6 +1311,7 @@ public class Gateway {
      *            whether or not to throw a {@link DSOutOfServiceException} if
      *            no {@link Connector} is available by the end of the execution.
      * @return See above.
+     * @throws DSOutOfServiceException 
      */
     public Connector getConnector(SecurityContext ctx, boolean recreate,
             boolean permitNull) throws DSOutOfServiceException {
@@ -1380,6 +1471,10 @@ public class Gateway {
                         false));
             
             c = new Connector(ctx, client, prx, login.isEncryption(), log);
+            for (PropertyChangeListener l : this.pcs
+                    .getPropertyChangeListeners())
+                c.addPropertyChangeListener(l);
+            this.pcs.firePropertyChange(Gateway.PROP_CONNECTOR_CREATED, null, client.getSessionId());
             groupConnectorMap.put(ctx.getGroupID(), c);
         } catch (Throwable e) {
             if (!permitNull) {

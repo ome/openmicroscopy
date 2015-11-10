@@ -1442,16 +1442,16 @@ class OMEROGateway
 	
     /**
      * Get the omero client properties from the server
-     * 
+     * @param The groupId for the {@link SecurityContext}
      * @return See above.
      * @throws DSAccessException
      * @throws DSOutOfServiceException
      */
-    Map<String, String> getOmeroClientProperties()
+    Map<String, String> getOmeroClientProperties(long groupId)
             throws DSOutOfServiceException, DSAccessException {
         if (isConnected()) {
             try {
-                return gw.getConfigService(new SecurityContext(-1)).getClientConfigValues();
+                return gw.getConfigService(new SecurityContext(groupId)).getClientConfigValues();
             } catch (Exception e) {
                 handleException(e, "Cannot access config service. ");
             }
