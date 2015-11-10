@@ -20,6 +20,11 @@
  */
 package omero.gateway;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+
 /**
  * Holds all necessary information needed for connecting to an OMERO server
  * 
@@ -52,7 +57,7 @@ public class LoginCredentials {
     private long groupID = -1;
 
     /** The connection argument.*/
-    private String[] args;
+    private ImmutableList<String> args;
 
     /**
      * Creates a new instance
@@ -70,7 +75,7 @@ public class LoginCredentials {
     public LoginCredentials(String[] args)
     {
         this();
-        this.args = args;
+        this.args = ImmutableList.copyOf(args);
     }
 
     /**
@@ -113,7 +118,7 @@ public class LoginCredentials {
      *
      * @return See above.
      */
-    public String[] getArguments() { return args; }
+    public ImmutableList<String> getArguments() { return args; }
 
     /**
      * @return If encryption is enabled

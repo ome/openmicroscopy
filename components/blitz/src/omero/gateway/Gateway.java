@@ -78,6 +78,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -913,10 +914,10 @@ public class Gateway {
 
         try {
             // client must be cleaned up by caller.
-            String[] args = c.getArguments();
+            ImmutableList<String> args = c.getArguments();
             String username;
             if (args != null) {
-                secureClient = new client(args);
+                secureClient = new client(args.toArray(new String[args.size()])));
                 username = secureClient.getProperty("omero.user");
             } else {
                 username = c.getUser().getUsername();
