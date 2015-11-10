@@ -917,7 +917,7 @@ public class Gateway {
             ImmutableList<String> args = c.getArguments();
             String username;
             if (args != null) {
-                secureClient = new client(args.toArray(new String[args.size()])));
+                secureClient = new client(args.toArray(new String[args.size()]));
                 username = secureClient.getProperty("omero.user");
             } else {
                 username = c.getUser().getUsername();
