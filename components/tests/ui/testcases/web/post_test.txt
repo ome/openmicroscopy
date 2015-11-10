@@ -43,10 +43,12 @@ Test Cut Paste Image
     Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
     ${projectNode}                              Wait For Project Node                                           ${pId}
     Click Node                                  ${projectNode}
+    Click Element                               refreshButton
 
 Test Cut Paste Orphaned Image
     [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
     
+    Select Experimenter
     ${nodeId}                                   Select Orphaned Images Section
     ${imageId}                                  Select First Orphaned Image    
     Click Element                               id=cutButton
@@ -65,7 +67,7 @@ Test Cut Paste Dataset
     ${p1id}=                                Create project      test Cut-Paste TO here
     ${p2id}=                                Create project      test Cut-Paste FROM here
     ${did}=                                 Create Dataset
-
+    Click Element                           refreshButton
     # Check hierarchy
     Select Project By Id                    ${p2id}
     Wait Until Element Is Visible           xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']     ${WAIT}
@@ -85,6 +87,7 @@ Test Cut Paste Dataset
     Select Project By Id                    ${p1id}
     Wait Until Element Is Visible           xpath=//li[@id='${projectNode1}']/ul/li[@data-id='${did}']     ${WAIT}
     Page Should Not Contain Element         xpath=//li[@id='${projectNode2}']/ul/li[@data-id='${did}']
+    Click Element                           refreshButton
 
 
 Test Cut Paste Plate
@@ -105,7 +108,8 @@ Test Cut Paste Plate
     Click Element                           id=pasteButton
     Click Node                              ${screenNode1}                     
     Wait Until Page Contains Element        xpath=//li[@id='${screenNode1}']//li[@data-id='${plateId}']
-    Click Node                              ${screenNode1} 
+    Click Node                              ${screenNode1}
+    Click Element                           refreshButton 
 
 
 Test Edit Project
@@ -159,6 +163,7 @@ Test Copy Paste Dataset
 
     Select Project By Id                    ${p1id}
     Delete Container
+    Click Element                           refreshButton
 
 Test Copy Paste Image
     [Documentation]     Copy Image from one dataset to another. Check if the link exists on both datasets.
@@ -178,10 +183,12 @@ Test Copy Paste Image
 
     Select Image By Id                      ${imageId}
     Delete Container
+    Click Element                           refreshButton
 
 Test Copy Paste Orphaned Image
     [Documentation]     Test copy pasting an orphaned Image into a Dataset. Check if the link exists on Both locations.
 
+    Select Experimenter
     ${nodeId}                               Select Orphaned Images Section
     ${imageId}                              Select First Orphaned Image
     Click Element                           id=copyButton
@@ -198,6 +205,7 @@ Test Copy Paste Orphaned Image
 
     Click Node                              ${dnodeId}
     Delete Container
+    Click Element                           refreshButton
 
 Test Copy Paste Plate
     [Documentation]     Test copy pasting a plate into another screen. Check if the link exists on both the screens.
@@ -219,6 +227,7 @@ Test Copy Paste Plate
 
     Click Node                              ${screenNode}
     Delete Container
+    Click Element                           refreshButton
 
 Test Chgrp
     [Documentation]     Tests chgrp of a Project to any other group
@@ -263,7 +272,8 @@ Test Drag And Drop Image
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId} 
     ${projectNode}=                             Wait for Project Node                                             ${pId}
-    Click Node                                  ${projectNode}                             
+    Click Node                                  ${projectNode}
+    Click Element                               refreshButton                             
 
 Test Drag and Drop Orphaned Image
 
@@ -280,6 +290,7 @@ Test Drag and Drop Orphaned Image
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
     Click Node                                  ${datasetNode}
+    Click Element                               refreshButton
 
 Test Drag and Drop Orphaned Dataset
      
@@ -296,6 +307,7 @@ Test Drag and Drop Orphaned Dataset
     Select Project By Id                        ${pid}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
     Click Node                                  ${projectNode}
+    Click Element                               refreshButton
     
 
 Test Drag and Drop Plate
@@ -313,6 +325,7 @@ Test Drag and Drop Plate
     Select Screen By Id                         ${screenId}
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
     Click Node                                  ${screenNode}
+    Click Element                               refreshButton
 
 Test Drag and Drop Dataset On Experimenter
     [Documentation]                             This test will currently fail on 5.1 Series
@@ -329,6 +342,7 @@ Test Drag and Drop Dataset On Experimenter
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${treeRootId}']/a
 
     Wait Until Element is Visible               xpath=//li[@id='${treeRootId}']/ul/li[@id='${datasetNode}']
+    Click Element                               refreshButton
 
 Test Drag and Drop Negative Tests
 
