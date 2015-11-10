@@ -937,7 +937,7 @@ public class Gateway {
                 this.pcs.firePropertyChange(PROP_SESSION_CREATED, null, secureClient.getSessionId());
                 guestSession.getSessionService().getSession(username);
             } catch (Exception e) {
-                // thrown if it is not a session or session has experied.
+                // thrown if it is not a session or session has expired.
                 session = false;
             } finally {
                 String id = secureClient.getSessionId();
