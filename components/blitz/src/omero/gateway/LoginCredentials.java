@@ -51,12 +51,26 @@ public class LoginCredentials {
     /** ID of the group if not the default group of the user should be used */
     private long groupID = -1;
 
+    /** The connection argument.*/
+    private String[] args;
+
     /**
      * Creates a new instance
      */
     public LoginCredentials() {
         user = new UserCredentials();
         server = new ServerInformation();
+        args = null;
+    }
+
+    /**
+     * Creates a new instance.
+     * @param args The connection argument.
+     */
+    public LoginCredentials(String[] args)
+    {
+        this();
+        this.args = args;
     }
 
     /**
@@ -93,6 +107,13 @@ public class LoginCredentials {
         server.setHostname(host);
         server.setPort(port);
     }
+
+    /**
+     * Returns the arguments if set.
+     *
+     * @return See above.
+     */
+    public String[] getArguments() { return args; }
 
     /**
      * @return If encryption is enabled

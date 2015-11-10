@@ -913,11 +913,19 @@ public class Gateway {
 
         try {
             // client must be cleaned up by caller.
-            if (c.getServer().getPort() > 0)
-                secureClient = new client(c.getServer().getHostname(), c
-                        .getServer().getPort());
-            else
-                secureClient = new client(c.getServer().getHostname());
+            String[] args = c.getArguments();
+            String username;
+            if (args != null) {
+                secureClient = new client(args);
+                username = secureClient.getProperty("omero.user");
+            } else {
+                username = c.getUser().getUsername();
+                if (c.getServer().getPort() > 0)
+                    secureClient = new client(c.getServer().getHostname(), c
+                            .getServer().getPort());
+                else
+                    secureClient = new client(c.getServer().getHostname());
+            }
             secureClient.setAgent(c.getApplicationName());
             ServiceFactoryPrx entryEncrypted;
             boolean session = true;
@@ -927,8 +935,7 @@ public class Gateway {
                 guestSession = secureClient.createSession(
                         "guest", "guest");
                 this.pcs.firePropertyChange(PROP_SESSION_CREATED, null, secureClient.getSessionId());
-                guestSession.getSessionService().getSession(
-                        c.getUser().getUsername());
+                guestSession.getSessionService().getSession(username);
             } catch (Exception e) {
                 // thrown if it is not a session or session has experied.
                 session = false;
@@ -938,11 +945,14 @@ public class Gateway {
                 this.pcs.firePropertyChange(PROP_SESSION_CLOSED, null, id);
             }
             if (session) {
-                entryEncrypted = secureClient.joinSession(c.getUser()
-                        .getUsername());
+                entryEncrypted = secureClient.joinSession(username);
             } else {
-                entryEncrypted = secureClient.createSession(c.getUser()
-                        .getUsername(), c.getUser().getPassword());
+                if (args != null) {
+                    entryEncrypted = secureClient.createSession();
+                } else {
+                    entryEncrypted = secureClient.createSession(c.getUser()
+                            .getUsername(), c.getUser().getPassword());
+                }
             }
             this.pcs.firePropertyChange(PROP_SESSION_CREATED, null, secureClient.getSessionId());
             serverVersion = entryEncrypted.getConfigService().getVersion();
@@ -959,7 +969,7 @@ public class Gateway {
                                     + c.getServer().getHostname(), e));
                 }
             }
-            
+
             Runnable r = new Runnable() {
                 public void run() {
                     try {
