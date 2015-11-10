@@ -30,9 +30,6 @@ package omero.gateway;
 
 public class LoginCredentials {
 
-    /** The default port of the OMERO server */
-    private static final int DEFAULT_PORT = 4064;
-    
     /** The user */
     private UserCredentials user;
 
@@ -73,7 +70,7 @@ public class LoginCredentials {
      *            The server hostname
      */
     public LoginCredentials(String username, String password, String host) {
-        this(username, password, host, DEFAULT_PORT);
+        this(username, password, host, omero.constants.GLACIER2PORT.value);
     }
 
     /**
