@@ -1647,9 +1647,9 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(4);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(POSITION_X, Double.valueOf(0));
-        details.put(POSITION_Y, Double.valueOf(0));
-        details.put(POSITION_Z, Double.valueOf(0));
+        details.put(POSITION_X, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Y, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Z, new LengthI(0, UnitsLength.REFERENCEFRAME));
 
         if (data == null) {
             notSet.add(NAME);
@@ -2266,9 +2266,9 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(4);
         details.put(DELTA_T, Double.valueOf(0));
         details.put(EXPOSURE_TIME, Double.valueOf(0));
-        details.put(POSITION_X, Double.valueOf(0));
-        details.put(POSITION_Y, Double.valueOf(0));
-        details.put(POSITION_Z, Double.valueOf(0));
+        details.put(POSITION_X, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Y, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Z, new LengthI(0, UnitsLength.REFERENCEFRAME));
         final List<String> notSet = new ArrayList<String>(5);
         notSet.add(DELTA_T);
         notSet.add(EXPOSURE_TIME);
@@ -2299,17 +2299,17 @@ public class EditorUtil
             Length o = plane.getPositionX();
             if (o != null) {
                 notSet.remove(POSITION_X);
-                details.put(POSITION_X, NF.format(o.getValue()));
+                details.put(POSITION_X, o);
             }
             o = plane.getPositionY();
             if (o != null) {
                 notSet.remove(POSITION_Y);
-                details.put(POSITION_Y, NF.format(o.getValue()));
+                details.put(POSITION_Y, o);
             }
             o = plane.getPositionZ();
             if (o != null) {
                 notSet.remove(POSITION_Z);
-                details.put(POSITION_Z, NF.format(o.getValue()));
+                details.put(POSITION_Z, o);
             }
         }
         return details;
