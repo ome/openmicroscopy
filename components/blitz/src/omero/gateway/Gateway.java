@@ -91,43 +91,43 @@ import com.google.common.collect.Multimaps;
  */
 
 public class Gateway {
-    
+
     /** Property to indicate that a {@link Connector} has been created */
     public static final String PROP_CONNECTOR_CREATED = "PROP_CONNECTOR_CREATED";
-    
+
     /** Property to indicate that a {@link Connector} has been closed */
     public static final String PROP_CONNECTOR_CLOSED = "PROP_CONNECTOR_CLOSED";
-    
+
     /** Property to indicate that a session has been created */
     public static final String PROP_SESSION_CREATED = "PROP_SESSION_CREATED";
-    
+
     /** Property to indicate that a session has been closed */
     public static final String PROP_SESSION_CLOSED = "PROP_SESSION_CLOSED";
-    
+
     /** Property to indicate that a {@link Facility} has been created */
     public static final String PROP_FACILITY_CREATED = "PROP_FACILITY_CREATED";
-    
+
     /** Property to indicate that an import store has been created */
     public static final String PROP_IMPORTSTORE_CREATED = "PROP_IMPORTSTORE_CREATED";
-    
+
     /** Property to indicate that an import store has been closed */
     public static final String PROP_IMPORTSTORE_CLOSED = "PROP_IMPORTSTORE_CLOSED";
-    
+
     /** Property to indicate that a rendering engine has been created */
     public static final String PROP_RENDERINGENGINE_CREATED = "PROP_RENDERINGENGINE_CREATED";
-    
+
     /** Property to indicate that a rendering engine has been closed */
     public static final String PROP_RENDERINGENGINE_CLOSED = "PROP_RENDERINGENGINE_CLOSED";
-    
+
     /** Property to indicate that a stateful service has been created */
     public static final String PROP_STATEFUL_SERVICE_CREATED = "PROP_SERVICE_CREATED";
-    
+
     /** Property to indicate that a stateful service has been closed */
     public static final String PROP_STATEFUL_SERVICE_CLOSED = "PROP_SERVICE_CLOSED";
-    
+
     /** Property to indicate that a stateless service has been created */
     public static final String PROP_STATELESS_SERVICE_CREATED = "PROP_STATELESS_SERVICE_CREATED";
-    
+
     /** Reference to a {@link Logger} */
     private Logger log;
 
