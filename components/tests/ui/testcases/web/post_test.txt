@@ -42,7 +42,7 @@ Test Cut Paste Image
     Click Node                                  ${datasetNode}                                
     Wait Until Page Contains Element            xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
     ${projectNode}                              Wait For Project Node                                           ${pId}
-    Click Node                                  ${pId}
+    Click Node                                  ${projectNode}
 
 Test Cut Paste Orphaned Image
     [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
