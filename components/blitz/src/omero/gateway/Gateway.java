@@ -1056,6 +1056,10 @@ public class Gateway {
                 }
             }
             // Connector now controls the secureClient for closing.
+            String host = client.getProperty("omero.host");
+            cred.getServer().setHostname(host);
+            String port = client.getProperty("omero.port");
+            cred.getServer().setPort(Integer.parseInt(port));
             ctx = new SecurityContext(exp.getDefaultGroup().getId());
             ctx.setServerInformation(cred.getServer());
             ctx.setCompression(cred.getCompression());
