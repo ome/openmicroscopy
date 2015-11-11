@@ -23,6 +23,8 @@ package omero.gateway;
 import java.util.ArrayList;
 import java.util.List;
 
+import omero.IllegalArgumentException;
+
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -70,11 +72,14 @@ public class LoginCredentials {
 
     /**
      * Creates a new instance.
-     * @param args The connection argument.
+     * @param args The connection arguments.
      */
     public LoginCredentials(String[] args)
     {
         this();
+        if (args == null) {
+            throw new IllegalArgumentException("No connection arguments");
+        }
         this.args = ImmutableList.copyOf(args);
     }
 
