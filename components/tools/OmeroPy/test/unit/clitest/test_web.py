@@ -187,11 +187,12 @@ class TestWeb(object):
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
+    @pytest.mark.parametrize('server_type', ["apache", "apache22", "apache24"])
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('app_server', ['wsgi'])
     @pytest.mark.parametrize('http', [False, 8081])
-    def testApacheWSGIConfig(self, prefix, app_server, http, capsys,
-                             monkeypatch):
+    def testApacheWSGIConfig(self, server_type, prefix, app_server, http,
+                             capsys, monkeypatch):
 
         self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
@@ -205,7 +206,7 @@ class TestWeb(object):
             username = getpass.getuser()
         icepath = os.path.dirname(Ice.__file__)
 
-        self.args += ["config", "apache"]
+        self.args += ["config", server_type]
         if http:
             self.args += ["--http", str(http)]
 
@@ -215,6 +216,8 @@ class TestWeb(object):
 
         lines = self.clean_generated_file(o)
 
+        # Note: the differences between the generated apache22 and apache24
+        # configurations are in unchanged parts of the template
         if prefix:
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
@@ -244,7 +247,8 @@ class TestWeb(object):
     @pytest.mark.parametrize('server_type', [
         ["nginx", 'wsgi-tcp'],
         ["nginx-development", 'wsgi-tcp'],
-        ["apache", 'wsgi']])
+        ["apache22", 'wsgi'],
+        ["apache24", 'wsgi']])
     @pytest.mark.parametrize('static_root', [
         '/home/omero/OMERO.server/lib/python/omeroweb/static'])
     def testFullTemplateDefaults(self, server_type, static_root,
@@ -270,7 +274,8 @@ class TestWeb(object):
         ['nginx', '--http', '1234', '--max-body-size', '2m', 'wsgi-tcp'],
         ['nginx-development', '--http', '1234', '--max-body-size', '2m',
          'wsgi-tcp'],
-        ['apache', '--http', '1234', 'wsgi']])
+        ['apache22', '--http', '1234', 'wsgi'],
+        ['apache24', '--http', '1234', 'wsgi']])
     @pytest.mark.parametrize('static_root', [
         '/home/omero/OMERO.server/lib/python/omeroweb/static'])
     def testFullTemplateWithOptions(self, server_type, static_root,
