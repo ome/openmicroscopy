@@ -58,6 +58,15 @@ Wait For Toolbar Button Disabled
 Right Click Image Rendering Settings
     [Arguments]            ${imageId}       ${optionText}
     ${treeId}=                              Wait For Image Node           ${imageId}
+    Right Click Rendering Settings          ${treeId}       ${optionText}
+
+Right Click Dataset Rendering Settings
+    [Arguments]            ${datasetId}       ${optionText}
+    ${treeId}=                              Wait For Dataset Node           ${datasetId}
+    Right Click Rendering Settings          ${treeId}       ${optionText}
+
+Right Click Rendering Settings
+    [Arguments]            ${treeId}       ${optionText}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
     Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Rendering Settings...')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
