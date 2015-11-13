@@ -26,4 +26,5 @@
 
 # see https://code.google.com/p/modwsgi/wiki/ConfigurationIssues
 WSGISocketPrefix run/wsgi
+# Use this on Ubuntu/Debian systems:
 # WSGISocketPrefix /var/run/wsgi
