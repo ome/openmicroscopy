@@ -143,7 +143,7 @@ Test Rdef Copy Paste Save
     Click Element                           id=rdef-save-all
 
     # Return to Previous Image (now Blue)
-    Click Element                           id=image_icon-${imageId}
+    Select Image By Id                      ${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(0, 0, 255)
 
@@ -227,7 +227,7 @@ Test Owners Rdef
     Right Click Image Rendering Settings    ${imageId_2}            Paste and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
-    Click Element                           id=image_icon-${imageId_2}
+    Select Image By Id                      ${imageId_2}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(255, 255, 255)
     Textfield Value Should Be               wblitz-ch0-cw-end           200
