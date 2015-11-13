@@ -91,7 +91,6 @@ public class BrowseFacility extends Facility {
             param.exp(omero.rtypes.rlong(userId));
         }
         param.orphan();
-        param.leaves();
         return loadHierarchy(ctx, rootType, null, param);
     }
 
@@ -318,11 +317,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx) {
         try {
-            ParametersI param = new ParametersI();
-
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> projects = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ProjectData.class).getName(), null, param);
+                    .getModelType(ProjectData.class).getName(), null, null);
 
             Collection<ProjectData> result = new ArrayList<ProjectData>(
                     projects.size());
@@ -592,11 +589,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx) {
         try {
-            ParametersI param = new ParametersI();
-
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ScreenData.class).getName(), null, param);
+                    .getModelType(ScreenData.class).getName(), null, null);
 
             Collection<ScreenData> result = new ArrayList<ScreenData>(
                     screens.size());
@@ -726,12 +721,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx) {
         try {
-            ParametersI param = new ParametersI();
-            param.leaves();
-
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(PlateData.class).getName(), null, param);
+                    .getModelType(PlateData.class).getName(), null, null);
 
             Collection<PlateData> result = new ArrayList<PlateData>(
                     plates.size());
@@ -760,15 +752,12 @@ public class BrowseFacility extends Facility {
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
-            ParametersI param = new ParametersI();
-            param.leaves();
-
             List<Long> idsList = new ArrayList<Long>(ids.size());
             for (long id : ids)
                 idsList.add(id);
 
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(PlateData.class).getName(), idsList, param);
+                    .getModelType(PlateData.class).getName(), idsList, null);
 
             Collection<PlateData> result = new ArrayList<PlateData>(
                     plates.size());
@@ -796,7 +785,6 @@ public class BrowseFacility extends Facility {
         try {
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
-            param.leaves();
 
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
@@ -837,8 +825,7 @@ public class BrowseFacility extends Facility {
 
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
-            param.leaves();
-
+            
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
                     .getModelType(PlateData.class).getName(), idsList, param);
 
