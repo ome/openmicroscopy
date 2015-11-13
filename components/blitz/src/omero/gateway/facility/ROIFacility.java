@@ -243,6 +243,39 @@ public class ROIFacility extends Facility {
     }
 
     /**
+     * Load all ROIs of an image
+     * @param ctx The {@link SecurityContext}
+     * @param imageId The id of the image
+     * @return The ROIs
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public List<ShapeData> loadShapes(SecurityContext ctx, long imageId)
+            throws DSOutOfServiceException, DSAccessException {
+        List<ShapeData> shapes = new ArrayList<ShapeData>();
+        try {
+            List<ROIResult> roiresults = loadROIs(ctx, imageId);
+            ROIResult r = roiresults.iterator().next();
+            if (r == null)
+                return shapes;
+            Collection<ROIData> rois = r.getROIs();
+
+            Iterator<ROIData> j = rois.iterator();
+            while (j.hasNext()) {
+                ROIData roi = j.next();
+                Iterator<List<ShapeData>> it = roi.getIterator();
+                while (it.hasNext()) {
+                    shapes.addAll(it.next());
+                }
+            }
+        } catch (Exception e) {
+            handleException(this, e, "Cannot load the ROIs for image: "
+                    + imageId);
+        }
+        return shapes;
+    }
+    
+    /**
      * Save the ROI for the image to the server.
      *
      * @param ctx

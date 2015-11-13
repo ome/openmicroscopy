@@ -223,4 +223,24 @@ public class EllipseData
         setDirty(true);
     }
 
+    @Override
+    public double getArea() {
+        return getRadiusX()*getRadiusY()*Math.PI;
+    }
+
+    @Override
+    public double getLength() {
+        return getWidth()>getHeight() ? getWidth() : getHeight();
+    }
+
+    @Override
+    public double getWidth() {
+        return 2*getRadiusX();
+    }
+
+    @Override
+    public double getHeight() {
+        return 2*getRadiusY();
+    }
+
 }

@@ -360,5 +360,15 @@ public class MaskData
                 (byte)1 : (byte)0);
     }
 
+    @Override
+    public double getArea() {
+        return Double.NaN;
+    }
+
+    @Override
+    public double getLength() {
+        return Double.NaN;
+    }
+
 
 }
