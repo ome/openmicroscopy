@@ -78,7 +78,14 @@ Test Rdef Copy Paste Save
     [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
 
     Select Experimenter
-    Select And Expand Image
+
+    Select First Project With Children
+    # Start by resetting rdefs to imported settings within Dataset
+    # In case previous failed tests left unexpected rdefs
+    ${datasetId}=                           Select First Dataset With Children
+    Right Click Dataset Rendering Settings  ${datasetId}            Set Imported and Save
+    Select First Image
+
     ${imageId}=                             Wait For General Panel And Return Id    Image
     Click Link                              Preview
     ${status}    ${oldId}                   Wait For Preview Load       FAIL      '1'
