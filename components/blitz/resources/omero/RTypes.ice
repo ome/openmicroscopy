@@ -29,7 +29,7 @@ module omero {
      *   rbool(true).compare(rbool(true)) == 0
      * </pre>
      *
-     * This method was originally addd (Oct 2008) to force the
+     * This method was originally added (Oct 2008) to force the
      * base RType class to be abstract in all languages.
      **/
     int compare(RType rhs);

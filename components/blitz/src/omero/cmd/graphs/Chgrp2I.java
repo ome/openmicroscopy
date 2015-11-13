@@ -96,7 +96,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
-     * @param targetClasses legal target object classes for chown
+     * @param targetClasses legal target object classes for chgrp
      * @param graphPolicy the graph policy to apply for chgrp
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
