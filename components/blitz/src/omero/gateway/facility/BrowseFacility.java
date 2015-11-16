@@ -1090,6 +1090,41 @@ public class BrowseFacility extends Facility {
 
         return Collections.emptyList();
     }
+    
+    /**
+     * Get orphaned images for a certain user
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param userID
+     *            The id of the user
+     * @return See above.
+     */
+    public Collection<ImageData> getOrphanedImages(SecurityContext ctx,
+            long userID) {
+        try {
+            IQueryPrx svc = gateway.getQueryService(ctx);
+            StringBuilder sb = new StringBuilder();
+            sb.append("select img from Image as img ");
+            sb.append("left outer join fetch img.details.owner ");
+            sb.append("left outer join fetch img.pixels as pix ");
+            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("where not exists (select obl from "
+                    + "DatasetImageLink as obl where obl.child = img.id)");
+            sb.append(" and not exists (select ws from WellSample as "
+                    + "ws where ws.image = img.id)");
+            ParametersI param = new ParametersI();
+            if (userID >= 0) {
+                sb.append(" and img.details.owner.id = :userID");
+                param.addLong("userID", userID);
+            }
+            return PojoMapper.asDataObjects(svc.findAllByQuery(sb.toString(),
+                    param));
+        } catch (Throwable t) {
+            logError(this, "Could not load orphaned images", t);
+        }
+        return Collections.emptyList();
+    }
 
     /**
      * Loads the images for a particular user
