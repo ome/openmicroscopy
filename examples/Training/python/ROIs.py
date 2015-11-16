@@ -82,11 +82,12 @@ roi.addShape(line)
 
 # create a point shape and add to ROI
 point = omero.model.PointI()
-point.x = rdouble(x)
-point.y = rdouble(y)
+point.cx = rdouble(x)
+point.cy = rdouble(y)
 point.theZ = rint(theZ)
 point.theT = rint(theT)
 point.textValue = rstring("test-Point")
+roi.addShape(point)
 
 
 # Save the ROI (saves any linked shapes too)
