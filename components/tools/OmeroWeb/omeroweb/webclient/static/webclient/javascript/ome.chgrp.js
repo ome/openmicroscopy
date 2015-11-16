@@ -105,6 +105,7 @@ $(function() {
         dryRunTargetObjects = {};
         dryRunTargetObjects[dtype] = ids;
         $.get(webindex_url + "fileset_check/chgrp/?" + sel, function(html){
+            html = $.trim(html);
             if($('div.split_fileset', html).length > 0) {
                 $(html).appendTo($chgrpform);
                 $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("Move All");
