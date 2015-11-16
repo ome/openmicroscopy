@@ -1827,53 +1827,38 @@ class OMEROGateway
 		return new HashSet();
 	}
 
-	/**
-	 * Retrieves the images imported by the current user.
-	 * Wraps the call to the {@link IPojos#getUserImages(Parameters)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 *
-	 * @param ctx The security context.
-	 * @param userID The id of the user.
-	 * @param orphan Indicates to load the images not in any container
-	 * @return A <code>Set</code> of retrieved images.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 * @see IPojos#getUserImages(Map)
-	 */
-	Set getUserImages(SecurityContext ctx, long userID, boolean orphan)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try {
-		    IContainerPrx service = gw.getPojosService(ctx);
-		    IQueryPrx svc = gw.getQueryService(ctx);
-			if (!orphan) {
-				ParametersI po = new ParametersI();
-				if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-				return PojoMapper.asDataObjects(service.getUserImages(po));
-			} else {
-				StringBuilder sb = new StringBuilder();
-				sb.append("select img from Image as img ");
-				sb.append("left outer join fetch img.details.owner ");
-				sb.append("left outer join fetch img.pixels as pix ");
-	            sb.append("left outer join fetch pix.pixelsType as pt ");
-	            sb.append("where not exists (select obl from " +
-	            		"DatasetImageLink as obl where obl.child = img.id)");
-	            sb.append(" and not exists (select ws from WellSample as " +
-	            		"ws where ws.image = img.id)");
-	            ParametersI param = new ParametersI();
-	            if (userID >= 0) {
-	            	sb.append(" and img.details.owner.id = :userID");
-	            	param.addLong("userID", userID);
-	            }
-            	return PojoMapper.asDataObjects(
-            			svc.findAllByQuery(sb.toString(), param));
-			}
-		} catch (Throwable t) {
-			handleException(t, "Cannot find user images.");
-		}
-		return new HashSet();
-	}
+    /**
+     * Retrieves the images imported by the current user. Wraps the call to the
+     * {@link IPojos#getUserImages(Parameters)} and maps the result calling
+     * {@link PojoMapper#asDataObjects(Set)}.
+     *
+     * @param ctx
+     *            The security context.
+     * @param userID
+     *            The id of the user.
+     * @param orphan
+     *            Indicates to load the images not in any container
+     * @return A <code>Collection</code> of retrieved images.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @see IPojos#getUserImages(Map)
+     */
+    Collection<ImageData> getUserImages(SecurityContext ctx, long userID, boolean orphan)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            BrowseFacility browse = gw.getFacility(BrowseFacility.class);
+            if (!orphan)
+                return browse.getUserImages(ctx);
+            else
+                return browse.getOrphanedImages(ctx, userID);
+        } catch (Throwable t) {
+            handleException(t, "Cannot find user images.");
+        }
+        return new HashSet();
+    }
 
 	/**
 	 * Counts the number of items in a collection for a given object.
