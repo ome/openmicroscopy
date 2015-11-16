@@ -1137,7 +1137,7 @@ def api_share_list(request, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def load_data(request, o1_type=None, o1_id=None, conn=None, **kwargs):
+def load_data(request, o1_type, o1_id, conn=None, **kwargs):
     """
     This loads data for the center panel, via AJAX calls.
     Used for Plates & Runs.
@@ -1147,10 +1147,7 @@ def load_data(request, o1_type=None, o1_id=None, conn=None, **kwargs):
     index = getIntOrDefault(request, 'index', 0)
 
     # prepare data. E.g. {'plate': 301L}  or  {'acquisition': 151L}
-    kw = dict()
-    if o1_type is not None:
-        if o1_id is not None and o1_id > 0:
-            kw[str(o1_type)] = long(o1_id)
+    kw = {str(o1_type): long(o1_id)}
 
     try:
         manager = BaseContainer(conn, **kw)
@@ -1165,39 +1162,38 @@ def load_data(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         'index': index}
 
     # load data & template
-    if 'plate' in kw or 'acquisition' in kw:
-        fields = manager.getNumberOfFields()
-        if fields is not None:
-            form_well_index = WellIndexForm(
-                initial={'index': index, 'range': fields})
-            if index == 0:
-                index = fields[0]
+    fields = manager.getNumberOfFields()
+    if fields is not None:
+        form_well_index = WellIndexForm(
+            initial={'index': index, 'range': fields})
+        if index == 0:
+            index = fields[0]
 
-        # We don't know what our menu is so we're setting it to None.
-        # Should only raise an exception below if we've been asked to
-        # show some tags which we don't care about anyway in this
-        # context.
-        show = Show(conn, request, None)
-        # Constructor does no loading.  Show.first_selected must be
-        # called first in order to set up our initial state correctly.
-        try:
-            first_selected = show.first_selected
-            if first_selected is not None:
-                wells_to_select = list()
-                paths = show.initially_open + show.initially_select
-                for path in paths:
-                    m = Show.PATH_REGEX.match(path)
-                    if m is None:
-                        continue
-                    if m.group('object_type') == 'well':
-                        wells_to_select.append(m.group('value'))
-                context['select_wells'] = ','.join(wells_to_select)
-        except IncorrectMenuError:
-            pass
+    # We don't know what our menu is so we're setting it to None.
+    # Should only raise an exception below if we've been asked to
+    # show some tags which we don't care about anyway in this
+    # context.
+    show = Show(conn, request, None)
+    # Constructor does no loading.  Show.first_selected must be
+    # called first in order to set up our initial state correctly.
+    try:
+        first_selected = show.first_selected
+        if first_selected is not None:
+            wells_to_select = list()
+            paths = show.initially_open + show.initially_select
+            for path in paths:
+                m = Show.PATH_REGEX.match(path)
+                if m is None:
+                    continue
+                if m.group('object_type') == 'well':
+                    wells_to_select.append(m.group('value'))
+            context['select_wells'] = ','.join(wells_to_select)
+    except IncorrectMenuError:
+        pass
 
-        context['baseurl'] = reverse('webgateway').rstrip('/')
-        context['form_well_index'] = form_well_index
-        context['index'] = index
+    context['baseurl'] = reverse('webgateway').rstrip('/')
+    context['form_well_index'] = form_well_index
+    context['index'] = index
 
     context['template'] = "webclient/data/plate.html"
     return context
