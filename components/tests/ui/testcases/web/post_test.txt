@@ -259,16 +259,20 @@ Test Drag And Drop Image
     ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a
     
-    ${datasetNode1}=                            Wait For Dataset Node                                             ${did}                                  
+    ${datasetNode1}=                            Wait For Dataset Node                                             ${did}
+    Sleep                                       0.5                                  
     Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
+    Sleep                                       0.5 
 
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
 
     #Bring database state back to original
     Select Image By Id                          ${imageId}
-    Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a 
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a
+    Sleep                                       0.5  
     Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@id='${datasetNode}']/a
+    Sleep                                       0.5 
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId} 
     ${projectNode}=                             Wait for Project Node                                             ${pId}
@@ -286,7 +290,9 @@ Test Drag and Drop Orphaned Image
     ${imageNode}=                               Wait For Image Node                                             ${imageId}
 
     Wait Until Element is Visible               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a
+    Sleep                                       0.5
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
+    Sleep                                       0.5 
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
     Click Node                                  ${datasetNode}
@@ -303,7 +309,9 @@ Test Drag and Drop Orphaned Dataset
     ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}                            
 
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']/a
+    Sleep                                       0.5 
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${projectNode}']/a
+    Sleep                                       0.5 
     Select Project By Id                        ${pid}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
     Click Node                                  ${projectNode}
@@ -321,7 +329,9 @@ Test Drag and Drop Plate
     ${plateNode}                                Wait For Plate Node                                             ${plateId}
 
     Wait Until Element is Visible               xpath=//li[@id='${plateNode}']/a
+    Sleep                                       0.5 
     Drag And Drop                               xpath=//li[@id='${plateNode}']/a                                xpath=//li[@id='${screenNode}']/a
+    Sleep                                       0.5 
     Select Screen By Id                         ${screenId}
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
     Click Node                                  ${screenNode}
@@ -339,7 +349,9 @@ Test Drag and Drop Dataset On Experimenter
     ${datasetNode}                              Wait For Dataset Node                                           ${did}
 
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
+    Sleep                                       0.5 
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${treeRootId}']/a
+    Sleep                                       0.5 
 
     Wait Until Element is Visible               xpath=//li[@id='${treeRootId}']/ul/li[@id='${datasetNode}']
     Click Element                               refreshButton
