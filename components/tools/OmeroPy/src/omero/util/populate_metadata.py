@@ -268,6 +268,8 @@ class ValueResolver(object):
         self.wells_by_id = dict()
         self.plates_by_name = dict()
         self.plates_by_id = dict()
+        images_by_id = dict()
+        self.images_by_id[self.target_object.id.val] = images_by_id
         for plate in (l.child for l in self.target_object.copyPlateLinks()):
             parameters = omero.sys.ParametersI()
             parameters.addId(plate.id.val)
@@ -281,10 +283,8 @@ class ValueResolver(object):
             self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
             wells_by_id = dict()
-            images_by_id = dict()
             self.wells_by_location[plate.name.val] = wells_by_location
             self.wells_by_id[plate.id.val] = wells_by_id
-            self.images_by_id[plate.id.val] = images_by_id
             self.parse_plate(
                 plate, wells_by_location, wells_by_id, images_by_id
             )
@@ -582,12 +582,9 @@ class ParsingContext(object):
                 log.info('Missing well name column, skipping.')
 
             if image_name_column is not None:
-                if PlateI is self.value_resolver.target_class:
-                    plate = self.value_resolver.target_object.id.val
-                elif ScreenI is self.value_resolver.target_class:
-                    plate = columns_by_name['Plate'].values[i]
                 try:
-                    image = self.value_resolver.images_by_id[plate]
+                    image = self.value_resolver.images_by_id[
+                        self.target_object.id.val]
                     image = image[image_column.values[i]]
                 except KeyError:
                     log.error(
