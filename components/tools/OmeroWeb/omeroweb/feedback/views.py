@@ -42,6 +42,9 @@ from django.template import RequestContext
 from django.views.defaults import page_not_found
 from django.core.urlresolvers import reverse
 
+from django.views.debug import get_exception_reporter_filter
+from django.utils.encoding import force_text
+
 from omeroweb.feedback.sendfeedback import SendFeedback
 from omeroweb.feedback.forms import ErrorForm, CommentForm
 
@@ -144,15 +147,15 @@ def handler500(request):
     If debug is True, Django returns it's own debug error page
     """
     logger.error('handler500: Server error')
+
     as_string = '\n'.join(traceback.format_exception(*sys.exc_info()))
     logger.error(as_string)
 
-    try:
-        request_repr = repr(request)
-    except:
-        request_repr = "Request repr() unavailable"
+    error_filter = get_exception_reporter_filter(request)
+    request_repr = '\n{}'.format(
+        force_text(error_filter.get_request_repr(request)))
 
-    error500 = "%s\n\n%s" % (as_string, request_repr)
+    error500 = "%s\n%s" % (as_string, request_repr)
 
     # If AJAX, return JUST the error message (not within html page)
     if request.is_ajax():
