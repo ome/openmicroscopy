@@ -1137,8 +1137,7 @@ def api_share_list(request, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
-              o3_type=None, o3_id=None, conn=None, **kwargs):
+def load_data(request, o1_type=None, o1_id=None, conn=None, **kwargs):
     """
     This loads data for the center panel, via AJAX calls.
     Used for Plates & Runs.
@@ -1147,18 +1146,11 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
     # get index of the plate
     index = getIntOrDefault(request, 'index', 0)
 
-    # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L,
-    # 'dataset': 301L}
+    # prepare data. E.g. {'plate': 301L}  or  {'acquisition': 151L}
     kw = dict()
     if o1_type is not None:
         if o1_id is not None and o1_id > 0:
             kw[str(o1_type)] = long(o1_id)
-        else:
-            kw[str(o1_type)] = bool(o1_id)
-    if o2_type is not None and o2_id > 0:
-        kw[str(o2_type)] = long(o2_id)
-    if o3_type is not None and o3_id > 0:
-        kw[str(o3_type)] = long(o3_id)
 
     try:
         manager = BaseContainer(conn, **kw)
@@ -1207,7 +1199,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
         context['form_well_index'] = form_well_index
         context['index'] = index
 
-    context['isLeader'] = conn.isLeader()
     context['template'] = "webclient/data/plate.html"
     return context
 
