@@ -238,7 +238,6 @@ public class DuplicationTest extends AbstractServerTest {
 
     /**
      * Assert that the given instances have the same property values.
-     * (The properties to compare are based on the behavior of {@link ModelMockFactory#createImage(int, int, int, int, int)}.)
      * @param original the original instance
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
@@ -254,7 +253,6 @@ public class DuplicationTest extends AbstractServerTest {
 
     /**
      * Assert that the given instances have the same property values.
-     * (The properties to compare are based on the behavior of {@link ModelMockFactory#createImage(int, int, int, int, int)}.)
      * @param original the original instance
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
@@ -270,7 +268,6 @@ public class DuplicationTest extends AbstractServerTest {
 
     /**
      * Assert that the given instances have the same property values.
-     * (The properties to compare are based on the behavior of {@link ModelMockFactory#createImage(int, int, int, int, int)}.)
      * @param original the original instance
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
@@ -286,7 +283,6 @@ public class DuplicationTest extends AbstractServerTest {
 
     /**
      * Assert that the given instances have the same property values.
-     * (The properties to compare are based on the behavior of {@link ModelMockFactory#createImage(int, int, int, int, int)}.)
      * @param original the original instance
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
