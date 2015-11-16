@@ -93,7 +93,7 @@ def assert_config_argtype(func):
                 if argtype not in ("nginx", "nginx-development",):
                     mismatch = True
             if (settings.APPLICATION_SERVER in (settings.WSGI,) and
-                    argtype not in ("apache",)):
+                    argtype not in ("apache22", "apache24", "apache")):
                 mismatch = True
             if mismatch:
                 self.ctx.die(680,
@@ -108,7 +108,9 @@ def assert_config_argtype(func):
 
 class WebControl(BaseControl):
 
-    config_choices = ("nginx", "nginx-development", "apache")
+    # DEPRECATED: apache
+    config_choices = (
+        "nginx", "nginx-development", "apache22", "apache24", "apache")
 
     def _configure(self, parser):
         sub = parser.sub()
@@ -156,7 +158,8 @@ class WebControl(BaseControl):
             "Output a config template for web server\n"
             "  nginx: Nginx system configuration for inclusion\n"
             "  nginx-development: Standalone user-run Nginx server\n"
-            "  apache: Apache 2.2+ with mod_wsgi\n")
+            "  apache22: Apache 2.2 with mod_wsgi\n"
+            "  apache24: Apache 2.4+ with mod_wsgi\n")
         config.add_argument("type", choices=self.config_choices)
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
@@ -259,6 +262,9 @@ class WebControl(BaseControl):
     def config(self, args, settings):
         """Generate a configuration file from a template"""
         server = args.type
+        # DEPRECATED: apache
+        if server == "apache":
+            server = "apache22"
         if args.http:
             port = args.http
         elif server in ('nginx-development',):
@@ -280,7 +286,7 @@ class WebControl(BaseControl):
             "NOW": str(datetime.now())}
 
         if server in ("nginx", "nginx-development",
-                      "apache",):
+                      "apache22", "apache24"):
             d["HTTPPORT"] = port
 
         if server in ("nginx", "nginx-development",):
@@ -298,7 +304,7 @@ class WebControl(BaseControl):
             d["FORCE_SCRIPT_NAME"] = "/"
             d["PREFIX_NAME"] = ""
 
-        if server in ("apache",):
+        if server in ("apache22", "apache24"):
             try:
                 d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             except:
@@ -312,7 +318,7 @@ class WebControl(BaseControl):
                          "Web template configuration requires"
                          "wsgi or wsgi-tcp.")
 
-        if server == "apache":
+        if server in ("apache22", "apache24"):
             self._set_apache_wsgi(d, settings)
 
         template_file = "%s.conf.template" % server
