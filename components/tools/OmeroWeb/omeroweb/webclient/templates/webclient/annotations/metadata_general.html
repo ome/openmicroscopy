@@ -229,7 +229,7 @@
                         if ($.trim(textArea.val()).length == 0) return false;
                     },
                     success: function(html) {
-                        var $comment = $(html)
+                        var $comment = $($.trim(html));
                         linkify_element($comment);
                         $('#comments_container').prepend( $comment ).show();
                         var textArea = $('#add_comment_form textarea');
