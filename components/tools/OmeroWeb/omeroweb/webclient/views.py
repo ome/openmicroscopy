@@ -1141,12 +1141,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
               o3_type=None, o3_id=None, conn=None, **kwargs):
     """
     This loads data for the center panel, via AJAX calls.
-    Used for Datasets, Plates & Orphaned Images.
+    Used for Plates & Runs.
     """
-
-    # get page
-    page = getIntOrDefault(request, 'page', 1)
-    # limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     # get index of the plate
     index = getIntOrDefault(request, 'index', 0)
@@ -1170,31 +1166,14 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
         return handlerInternalError(request, x)
 
     # prepare forms
-    filter_user_id = request.session.get('user_id')
     form_well_index = None
 
     context = {
         'manager': manager,
-        'form_well_index': form_well_index,
         'index': index}
 
     # load data & template
-    template = None
-    template = "webclient/data/containers_icon.html"
-    if 'orphaned' in kw:
-        # We need to set group context since we don't have a container Id
-        groupId = request.session.get('active_group')
-        if groupId is None:
-            groupId = conn.getEventContext().groupId
-        conn.SERVICE_OPTS.setOmeroGroup(groupId)
-        manager.listOrphanedImages(filter_user_id, page)
-    elif 'dataset' in kw:
-        # we need the sizeX and sizeY for these
-        load_pixels = True
-        filter_user_id = None   # Show images belonging to all users
-        manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
-                                    page, load_pixels=load_pixels)
-    elif 'plate' in kw or 'acquisition' in kw:
+    if 'plate' in kw or 'acquisition' in kw:
         fields = manager.getNumberOfFields()
         if fields is not None:
             form_well_index = WellIndexForm(
@@ -1227,10 +1206,9 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
         context['baseurl'] = reverse('webgateway').rstrip('/')
         context['form_well_index'] = form_well_index
         context['index'] = index
-        template = "webclient/data/plate.html"
 
     context['isLeader'] = conn.isLeader()
-    context['template'] = template
+    context['template'] = "webclient/data/plate.html"
     return context
 
 
