@@ -16,6 +16,7 @@ from omero.rtypes import rdouble, rint, rstring
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
+imageId = int(imageId)
 
 
 # Create a connection
