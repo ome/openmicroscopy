@@ -40,6 +40,10 @@ java_test()
         fold end $dir
     done
 
+    # Check for the use of '%' in the SQL templates. Since they are later passed through a python
+    # format statement, any use must be escaped as '%%'.
+    if [[ "2" -ne $(git grep -E '[^%]%[^%]' components/dsl/resources/ome/dsl/  | wc -l) ]]; then exit 2; fi
+
     # make sure that the current db script has no code-generated
     # foreign key names in it
     dist/bin/omero db script "" "" ome -f- | grep -LiE "fk[a-z]*[0-9]+[a-z0-9]{5}" && {
