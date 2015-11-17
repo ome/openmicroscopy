@@ -409,13 +409,16 @@ class WebControl(BaseControl):
                 pid = int(pid_file.read().strip())
         return pid
 
+    def _get_django_pid_path(self):
+        return self.ctx.dir / "var" / "django.pid"
+
     def _check_pid(self, pid, pid_path):
         try:
             os.kill(pid, 0)
         except OSError:
-            self.ctx.out("[ERROR] OMERO.web workers (PID %s) - no such "
-                         "process. Use `ps aux| grep %s` and kill stale "
-                         "processes by hand. " % (pid, pid_path))
+            self.ctx.err("[ERROR] OMERO.web workers (PID %s) - no such "
+                         "process. Use `ps aux | grep %s` and kill stale "
+                         "processes by hand." % (pid, pid_path))
             return False
         return True
 
@@ -439,7 +442,7 @@ class WebControl(BaseControl):
             self.ctx.out("Starting OMERO.web... ", newline=False)
 
         # 3216
-        pid_path = self.ctx.dir / "var" / "django.pid"
+        pid_path = self._get_django_pid_path()
         pid = self._get_django_pid(pid_path)
         if pid:
             if not self._check_pid(pid, pid_path):
@@ -509,7 +512,7 @@ class WebControl(BaseControl):
             cache_backend = ''
 
         if deploy in (settings.WSGITCP,):
-            pid_path = self.ctx.dir / "var" / "django.pid"
+            pid_path = self._get_django_pid_path()
             pid = self._get_django_pid(pid_path)
             if pid:
                 if not self._check_pid(pid, pid_path):
@@ -535,7 +538,7 @@ class WebControl(BaseControl):
         self.ctx.out("Stopping OMERO.web... ", newline=False)
         deploy = getattr(settings, 'APPLICATION_SERVER')
         if deploy in (settings.WSGITCP,):
-            pid_path = self.ctx.dir / "var" / "django.pid"
+            pid_path = self._get_django_pid_path()
             pid = self._get_django_pid(pid_path)
             if pid:
                 try:
