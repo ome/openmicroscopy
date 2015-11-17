@@ -435,7 +435,6 @@ class WebControl(BaseControl):
                          " mod_wsgi. Generate apache config using"
                          " 'omero web config apache' and reload"
                          " web server.")
-            return False
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
 
@@ -482,7 +481,7 @@ class WebControl(BaseControl):
             cmd += " --max-requests %(maxrequests)d"
             cmd += " %(wsgi_args)s"
             cmd += " omeroweb.wsgi:application"
-            django = (cmd % {
+            runserver = (cmd % {
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT,
@@ -490,11 +489,11 @@ class WebControl(BaseControl):
                 'workers': args.workers,
                 'worker_conn': args.worker_connections,
                 'wsgi_args': args.wsgi_args}).split()
-            rv = self.ctx.popen(args=django, cwd=location)  # popen
+            rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
-            django = [sys.executable, "manage.py", "runserver", link,
-                      "--noreload", "--nothreading"]
-            rv = self.ctx.call(django, cwd=location)
+            runserver = [sys.executable, "manage.py", "runserver", link,
+                         "--noreload", "--nothreading"]
+            rv = self.ctx.call(runserver, cwd=location)
         self.ctx.out("[OK]")
         return rv
 
