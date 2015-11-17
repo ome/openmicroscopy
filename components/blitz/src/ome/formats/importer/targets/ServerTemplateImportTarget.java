@@ -72,6 +72,9 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
                 screen.setName(omero.rtypes.rstring(name));
                 screen = (Screen) update.saveAndReturnObject(screen);
             }
+
+            log.info("screen.getName(): " + screen.getName());
+
             return screen;
         } else {
             Dataset dataset = (Dataset) query.findByString("Dataset", "name", name);
