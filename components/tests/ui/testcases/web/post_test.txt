@@ -26,6 +26,7 @@ Refresh Page
 Test Cut Paste Image
     [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
@@ -48,6 +49,7 @@ Test Cut Paste Image
 Test Cut Paste Orphaned Image
     [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
     
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${nodeId}                                   Select Orphaned Images Section
     ${imageId}                                  Select First Orphaned Image    
@@ -63,6 +65,7 @@ Test Cut Paste Orphaned Image
 Test Cut Paste Dataset
     [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${p1id}=                                Create project      test Cut-Paste TO here
     ${p2id}=                                Create project      test Cut-Paste FROM here
@@ -93,6 +96,7 @@ Test Cut Paste Dataset
 Test Cut Paste Plate
     [Documentation]    Cut a Plate and paste it onto another screen
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${s1id}=                                Create Screen      test Cut-Paste TO here
     Click Element                           refreshButton
@@ -115,6 +119,7 @@ Test Cut Paste Plate
 Test Edit Project
     [Documentation]     Create a Project and edit its name and description
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${pid}=                                 Create project      robot test edit
     Wait Until Page Contains Element        projectname-${pid}
@@ -136,6 +141,7 @@ Test Edit Project
 Test Copy Paste Dataset
     [Documentation]     Create 2 Projects and a Dataset. Copy and Paste the Dataset.
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${p1id}=                                Create project      test copy-paste TO here
     ${p2id}=                                Create project      test copy-paste FROM here
@@ -168,6 +174,7 @@ Test Copy Paste Dataset
 Test Copy Paste Image
     [Documentation]     Copy Image from one dataset to another. Check if the link exists on both datasets.
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${d1id}=                                Create dataset     test copy-paste TO here
 
@@ -188,6 +195,7 @@ Test Copy Paste Image
 Test Copy Paste Orphaned Image
     [Documentation]     Test copy pasting an orphaned Image into a Dataset. Check if the link exists on Both locations.
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${nodeId}                               Select Orphaned Images Section
     ${imageId}                              Select First Orphaned Image
@@ -210,6 +218,7 @@ Test Copy Paste Orphaned Image
 Test Copy Paste Plate
     [Documentation]     Test copy pasting a plate into another screen. Check if the link exists on both the screens.
     
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${s1id}=                                Create Screen      test Cut-Paste TO here1
     Click Element                           refreshButton
@@ -232,6 +241,7 @@ Test Copy Paste Plate
 Test Chgrp
     [Documentation]     Tests chgrp of a Project to any other group
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     # Clear any activities from earlier tests etc.
     Click Element                           id=launch_activities
     Click Element                           id=clear_activities
@@ -251,18 +261,16 @@ Test Chgrp
 
 Test Drag And Drop Image
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${did}=                                     Create Dataset
 
     Select Experimenter
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}
-    Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a
     
-    ${datasetNode1}=                            Wait For Dataset Node                                             ${did}
-    Sleep                                       0.5                                  
+    ${datasetNode1}=                            Wait For Dataset Node                                             ${did}                                
     Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
-    Sleep                                       0.5 
 
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
@@ -270,17 +278,13 @@ Test Drag And Drop Image
     #Bring database state back to original
     Select Image By Id                          ${imageId}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a
-    Sleep                                       0.5  
     Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@id='${datasetNode}']/a
-    Sleep                                       0.5 
     Select Dataset By Id                        ${datasetId}
-    Dataset Should Contain Image                ${imageId}     ${datasetId} 
-    ${projectNode}=                             Wait for Project Node                                             ${pId}
-    Click Node                                  ${projectNode}
-    Click Element                               refreshButton                             
+    Dataset Should Contain Image                ${imageId}     ${datasetId}                           
 
 Test Drag and Drop Orphaned Image
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${did}=                                     Select First Dataset
     ${datasetNode}=                             Wait For Dataset Node                                           ${did}
@@ -290,36 +294,30 @@ Test Drag and Drop Orphaned Image
     ${imageNode}=                               Wait For Image Node                                             ${imageId}
 
     Wait Until Element is Visible               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a
-    Sleep                                       0.5
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
-    Sleep                                       0.5 
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
-    Click Node                                  ${datasetNode}
-    Click Element                               refreshButton
 
 Test Drag and Drop Orphaned Dataset
      
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page 
     Select Experimenter                            
     ${pid}=                                     Select First Project With Children
-    ${projectNode}                              Wait For Project Node                                           ${pid}
-
     Select Experimenter                         
     ${datasetId}                                Create Dataset
+    Click Element                               refreshButton
+    ${projectNode}                              Wait For Project Node                                           ${pid}
     ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}                            
 
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']/a
-    Sleep                                       0.5 
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${projectNode}']/a
-    Sleep                                       0.5 
     Select Project By Id                        ${pid}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
-    Click Node                                  ${projectNode}
-    Click Element                               refreshButton
     
 
 Test Drag and Drop Plate
     
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${screenId}                                 Create Screen
     ${screenNode}                               Wait For Screen Node                                            ${screenId}
@@ -329,35 +327,31 @@ Test Drag and Drop Plate
     ${plateNode}                                Wait For Plate Node                                             ${plateId}
 
     Wait Until Element is Visible               xpath=//li[@id='${plateNode}']/a
-    Sleep                                       0.5 
     Drag And Drop                               xpath=//li[@id='${plateNode}']/a                                xpath=//li[@id='${screenNode}']/a
-    Sleep                                       0.5 
     Select Screen By Id                         ${screenId}
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
-    Click Node                                  ${screenNode}
-    Click Element                               refreshButton
 
 Test Drag and Drop Dataset On Experimenter
     [Documentation]                             This test will currently fail on 5.1 Series
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${pid}                                      Create Project    
     ${did}=                                     Create Dataset
+    Click Element                               refreshButton
 
     ${projectNode}=                             Wait For Project Node                                           ${pid}
     Click Node                                  ${projectNode}
     ${datasetNode}                              Wait For Dataset Node                                           ${did}
 
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
-    Sleep                                       0.5 
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${treeRootId}']/a
-    Sleep                                       0.5 
 
     Wait Until Element is Visible               xpath=//li[@id='${treeRootId}']/ul/li[@id='${datasetNode}']
-    Click Element                               refreshButton
 
 Test Drag and Drop Negative Tests
 
+    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
     Select Experimenter
     ${pid}                                      Create Project
     Click Element                               refreshButton
