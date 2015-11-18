@@ -151,9 +151,18 @@ def handler500(request):
     as_string = '\n'.join(traceback.format_exception(*sys.exc_info()))
     logger.error(as_string)
 
-    error_filter = get_exception_reporter_filter(request)
-    request_repr = '\n{}'.format(
-        force_text(error_filter.get_request_repr(request)))
+    try:
+        error_filter = get_exception_reporter_filter(request)
+        try:
+            request_repr = '\n{}'.format(
+                force_text(error_filter.get_request_repr(request)))
+        except:
+            request_repr = error_filter.get_request_repr(request)
+    except:
+        try:
+            request_repr = repr(request)
+        except:
+            request_repr = "Request unavailable"
 
     error500 = "%s\n%s" % (as_string, request_repr)
 
