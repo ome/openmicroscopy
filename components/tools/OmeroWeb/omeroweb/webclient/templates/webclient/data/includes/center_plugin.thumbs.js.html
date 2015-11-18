@@ -179,6 +179,7 @@ $(document).ready(function() {
 
         var newParentId = parentNode.type + "-" + parentNode.data.obj.id;
         if (parentId === newParentId
+                && event.type !== "copy_node"
                 && event.type !== "create_node"
                 && event.type !== "load_node"
                 && event.type !== "delete_node"
