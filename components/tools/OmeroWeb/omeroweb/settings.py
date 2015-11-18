@@ -437,7 +437,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          '[]',
          json.loads,
          ("A tuple representing a HTTP header/value combination that "
-          "signifies a request is secure.Example ``SECURE_PROXY_SSL_HEADER"
+          "signifies a request is secure. Example ``SECURE_PROXY_SSL_HEADER"
           " = ('HTTP_X_FORWARDED_PROTO', 'https')``. For more details see "
           "https://docs.djangoproject.com/en/1.8/ref/settings/"
           "#secure-proxy-ssl-header.")],
