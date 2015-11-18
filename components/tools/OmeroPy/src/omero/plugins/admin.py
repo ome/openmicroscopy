@@ -216,7 +216,13 @@ Examples:
 
         Action(
             "rewrite",
-            "Regenerate the template files using the current configuration")
+            """Regenerate the IceGrid configuration files
+
+Regenerates the IceGrid configuration files from the template files and the
+current configuration properties. Recalculates the JVM configuration settings
+and replaces the memory settings as well as the port and host properties under
+the corresponding application descriptors.
+            """)
 
         Action(
             "jvmcfg",
