@@ -914,7 +914,7 @@ public class Gateway {
 
         try {
             // client must be cleaned up by caller.
-            ImmutableList<String> args = c.getArguments();
+            List<String> args = c.getArguments();
             String username;
             if (args != null) {
                 secureClient = new client(args.toArray(new String[args.size()]));
