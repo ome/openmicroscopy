@@ -23,7 +23,7 @@ package integration.gateway;
 import integration.AbstractServerTest;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
-import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.log.SimpleLogger;
 
@@ -42,7 +42,7 @@ public class GatewayUsageTest extends AbstractServerTest
 
     @Test
     public void testLoginWithCredentials()
-            throws DSAccessException {
+            throws DSOutOfServiceException {
         omero.client client =  new omero.client();
         String port = client.getProperty("omero.port");
         LoginCredentials c = new LoginCredentials();
@@ -50,25 +50,15 @@ public class GatewayUsageTest extends AbstractServerTest
         c.getServer().setPort(Integer.parseInt(port));
         c.getUser().setUsername("root");
         c.getUser().setPassword(client.getProperty("omero.rootpass"));
-        Gateway gw = null;
-        try {
-            gw = new Gateway(new SimpleLogger());
-            ExperimenterData root = gw.connect(c);
-            Assert.assertNotNull(root);
-        } catch (Exception e) {
-            throw new DSAccessException("Not able to connect using credentials",
-                    e);
-        } finally {
-            if (gw != null) {
-                gw.disconnect();
-            }
-            client.__del__();
-        }
+        Gateway gw = new Gateway(new SimpleLogger());
+        ExperimenterData root = gw.connect(c);
+        Assert.assertNotNull(root);
+        gw.disconnect();
     }
 
     @Test
     public void testLoginWithArgs()
-            throws DSAccessException {
+            throws DSOutOfServiceException {
         omero.client client =  new omero.client();
         String[] args = new String[4];
         args[0] = "--omero.host="+client.getProperty("omero.host");
@@ -76,19 +66,9 @@ public class GatewayUsageTest extends AbstractServerTest
         args[2] = "--omero.user=root";
         args[3] = "--omero.pass="+client.getProperty("omero.rootpass");
         LoginCredentials c = new LoginCredentials(args);
-        Gateway gw = null;
-        try {
-            gw = new Gateway(new SimpleLogger());
-            ExperimenterData root = gw.connect(c);
-            Assert.assertNotNull(root);
-        } catch (Exception e) {
-            throw new DSAccessException("Not able to connect using args",
-                    e);
-        } finally {
-            if (gw != null) {
-                gw.disconnect();
-            }
-            client.__del__();
-        }
+        Gateway gw = new Gateway(new SimpleLogger());
+        ExperimenterData root = gw.connect(c);
+        Assert.assertNotNull(root);
+        gw.disconnect();
     }
 }
