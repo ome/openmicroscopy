@@ -119,11 +119,11 @@ public class LoginCredentials {
     }
 
     /**
-     * Returns the arguments if set.
+     * Returns the arguments if set as a read-only list.
      *
      * @return See above.
      */
-    public ImmutableList<String> getArguments() { return args; }
+    public List<String> getArguments() { return args; }
 
     /**
      * @return If encryption is enabled
