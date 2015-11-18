@@ -56,7 +56,7 @@ public class GatewayUsageTest extends AbstractServerTest
             ExperimenterData root = gw.connect(c);
             Assert.assertNotNull(root);
         } catch (Exception e) {
-            throw new DSAccessException("No able to connect using credentials",
+            throw new DSAccessException("Not able to connect using credentials",
                     e);
         } finally {
             if (gw != null) {
@@ -82,7 +82,7 @@ public class GatewayUsageTest extends AbstractServerTest
             ExperimenterData root = gw.connect(c);
             Assert.assertNotNull(root);
         } catch (Exception e) {
-            throw new DSAccessException("No able to connect using args",
+            throw new DSAccessException("Not able to connect using args",
                     e);
         } finally {
             if (gw != null) {
