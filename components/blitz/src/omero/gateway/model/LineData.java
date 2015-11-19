@@ -18,6 +18,8 @@
  */
 package omero.gateway.model;
 
+import java.awt.Point;
+
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
@@ -214,4 +216,24 @@ public class LineData
         shape.setY2(rtypes.rdouble(y2));
     }
 
+    @Override
+    public double getArea() {
+        return 0;
+    }
+
+    @Override
+    public double getLength() {
+        return (new Point((int)getX1(), (int)getY1())).distance(new Point((int)getX2(), (int)getY2()));
+    }
+
+    @Override
+    public double getWidth() {
+        return 0;
+    }
+
+    @Override
+    public double getHeight() {
+        return 0;
+    }
+    
 }

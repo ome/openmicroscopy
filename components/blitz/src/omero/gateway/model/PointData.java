@@ -161,4 +161,28 @@ extends ShapeData
         shape.setCy(rtypes.rdouble(y));
     }
 
+
+    @Override
+    public double getArea() {
+        return 0;
+    }
+
+
+    @Override
+    public double getLength() {
+        return 0;
+    }
+
+
+    @Override
+    public double getWidth() {
+        return 0;
+    }
+
+
+    @Override
+    public double getHeight() {
+        return 0;
+    }
+    
 }

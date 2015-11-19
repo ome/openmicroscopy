@@ -199,4 +199,24 @@ public class PolylineData
         shape.setPoints(rtypes.rstring(pts));
     }
 
+    @Override
+    public double getArea() {
+        return 0;
+    }
+
+    @Override
+    public double getLength() {
+        throw new RuntimeException("Not implemented yet!");
+    }
+
+    @Override
+    public double getWidth() {
+        throw new RuntimeException("Not implemented yet!");
+    }
+
+    @Override
+    public double getHeight() {
+        throw new RuntimeException("Not implemented yet!");
+    }
+
 }

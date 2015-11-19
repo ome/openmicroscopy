@@ -462,5 +462,29 @@ public abstract class ShapeData
         shape.setVisibility(rtypes.rbool(visible));
         setDirty(true);
     }
+    
+    /**
+     * @return The area covered by the ROI shape
+     * (or <code>Double.NaN</code> if not defined)
+     */
+    public abstract double getArea();
+    
+    /**
+     * @return The length of the ROI shape
+     * (or <code>Double.NaN</code> if not defined)
+     */
+    public abstract double getLength();
+    
+    /**
+     * @return The width of the ROI shape
+     * (or <code>Double.NaN</code> if not defined)
+     */
+    public abstract double getWidth();
+    
+    /**
+     * @return The height of the ROI shape
+     * (or <code>Double.NaN</code> if not defined)
+     */
+    public abstract double getHeight();
 
 }

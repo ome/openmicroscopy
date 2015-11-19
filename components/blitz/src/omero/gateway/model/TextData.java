@@ -157,4 +157,24 @@ public class TextData
         shape.setY(rtypes.rdouble(y));
     }
 
+    @Override
+    public double getArea() {
+        return Double.NaN;
+    }
+
+    @Override
+    public double getLength() {
+        return Double.NaN;
+    }
+
+    @Override
+    public double getWidth() {
+        return Double.NaN;
+    }
+
+    @Override
+    public double getHeight() {
+        return Double.NaN;
+    }
+    
 }

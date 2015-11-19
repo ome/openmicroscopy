@@ -218,4 +218,14 @@ public class RectangleData
         shape.setHeight(rtypes.rdouble(height));
     }
 
+    @Override
+    public double getArea() {
+        return getWidth()*getHeight();
+    }
+
+    @Override
+    public double getLength() {
+        return getWidth() > getHeight() ? getWidth() : getHeight();
+    }
+
 }
