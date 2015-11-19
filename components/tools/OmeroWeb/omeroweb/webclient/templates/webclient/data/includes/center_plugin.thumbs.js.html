@@ -289,6 +289,9 @@ $(document).ready(function() {
             setupSelectable();
         }
 
+        // scroll to selected thumbnail (if any)
+        focusThumbnail();
+
         return;
     }
 
@@ -311,6 +314,15 @@ $(document).ready(function() {
         selFileSets.forEach(function(fsId){
             $("#dataIcons li[data-fileset='" + fsId + "']").addClass("fs-selected");
         });
+        focusThumbnail();
+    }
+
+    var focusThumbnail = function() {
+        // We focus the thumbnail to make sure it's scrolled into view
+        var $focused = $(':focus');
+        $("#dataIcons li.ui-selected").first().focus();
+        // Then re-focus the jstree node, so that hot-keys work etc
+        $focused.focus();
     }
 
     var getRandom = function() {
