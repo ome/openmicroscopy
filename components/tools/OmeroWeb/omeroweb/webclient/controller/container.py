@@ -433,24 +433,6 @@ class BaseContainer(BaseController):
         self.c_size = (len(pr_list) + len(ds_list) + len(im_list) +
                        len(sc_list) + len(pl_list) + len(pa_list))
 
-    def listImagesInDataset(self, did, eid=None, page=None,
-                            load_pixels=False):
-        if eid is not None:
-            if eid == -1:       # Load data for all users
-                eid = None
-            # else:
-            #     self.experimenter = self.conn.getObject("Experimenter", eid)
-        im_list = list(self.conn.listImagesInDataset(
-            oid=did, eid=eid, page=page, load_pixels=load_pixels))
-        # List is already sorted by name, id in query
-        # im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
-        self.containers = {'images': im_list}
-        self.c_size = self.conn.getCollectionCount(
-            "Dataset", "imageLinks", [long(did)])[long(did)]
-
-        if page is not None:
-            self.paging = self.doPaging(page, len(im_list), self.c_size)
-
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
             if eid == -1:
@@ -477,27 +459,6 @@ class BaseContainer(BaseController):
             'screens': sc_list,
             'plates': pl_list}
         self.c_size = len(pr_list)+len(ds_list)+len(sc_list)+len(pl_list)
-
-    def listOrphanedImages(self, eid=None, page=None):
-        if eid is not None:
-            if eid == -1:
-                eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
-        else:
-            eid = self.conn.getEventContext().userId
-
-        params = omero.sys.ParametersI()
-        if page is not None:
-            params.page((int(page)-1)*settings.PAGE, settings.PAGE)
-        im_list = list(self.conn.listOrphans(
-            "Image", eid=eid, params=params, loadPixels=True))
-        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
-        self.containers = {'orphaned': True, 'images': im_list}
-        self.c_size = self.conn.countOrphans("Image", eid=eid)
-
-        if page is not None:
-            self.paging = self.doPaging(page, len(im_list), self.c_size)
 
     # Annotation list
     def annotationList(self):

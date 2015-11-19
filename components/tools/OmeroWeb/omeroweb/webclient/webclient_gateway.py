@@ -545,46 +545,6 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 return rslt[0][0].val
         return 0
 
-    def listImagesInDataset(self, oid, eid=None, page=None,
-                            load_pixels=False):
-        """
-        List Images in the given Dataset.
-        Optinally filter by experimenter 'eid'
-
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Images
-        @rtype:             L{ImageWrapper} generator
-        """
-
-        q = self.getQueryService()
-        p = omero.sys.ParametersI()
-        p.map["oid"] = rlong(long(oid))
-        if page is not None:
-            p.page(((int(page)-1)*settings.PAGE), settings.PAGE)
-        if load_pixels:
-            pixels = ("join fetch im.pixels as pix"
-                      " left outer join fetch pix.thumbnails ")
-        else:
-            pixels = ""
-        sql = ("select im from Image im "
-               "join fetch im.details.creationEvent "
-               "join fetch im.details.owner join fetch im.details.group "
-               "left outer join fetch im.datasetLinks dil "
-               "left outer join fetch dil.parent d %s"
-               "where d.id = :oid" % pixels)
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " and im.details.owner.id=:eid"
-        sql += " order by lower(im.name), im.id"
-
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            kwargs = {'link': omero.gateway.BlitzObjectWrapper(
-                self, e.copyDatasetLinks()[0])}
-            yield ImageWrapper(self, e, None, **kwargs)
-
     def createDataset(self, name, description=None, img_ids=None):
         """
         Creates a Dataset and adds images if img_ids is specified.

@@ -68,13 +68,8 @@ urlpatterns = patterns(
         name="activities_update"),
 
     # loading data
-    url(r'^load_data/(?:(?P<o1_type>'
-        r'((?i)project|dataset|image|screen|plate|well|orphaned))/)'
-        r'?(?:(?P<o1_id>[0-9]+)/)'
-        r'?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)'
-        r'?(?:(?P<o2_id>[0-9]+)/)'
-        r'?(?:(?P<o3_type>((?i)image|well))/)'
-        r'?(?:(?P<o3_id>[0-9]+)/)?$',
+    url(r'^load_data/(?P<o1_type>((?i)plate|acquisition))/'
+        r'(?:(?P<o1_id>[0-9]+)/)?$',
         views.load_data,
         name="load_data"),
 
