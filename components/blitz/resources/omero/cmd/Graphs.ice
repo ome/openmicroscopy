@@ -362,6 +362,47 @@ module omero {
         };
 
         /**
+         * Duplicate model objects with some selection of their subgraph.
+         * All target model objects must be in the current group context.
+         * The extra three data members allow adjustment of the related
+         * subgraph. The same type must not be listed in more than one of
+         * those data members. Use of a more specific sub-type in a data
+         * member always overrides the more general type in another.
+         **/
+        class Duplicate extends GraphModify2 {
+
+            /**
+             * The types of the model objects to actually duplicate.
+             **/
+            omero::api::StringSet typesToDuplicate;
+
+            /**
+             * The types of the model objects that should not be duplicated
+             * but that may participate in references involving duplicates.
+             **/
+            omero::api::StringSet typesToReference;
+
+            /**
+             * The types of the model objects that should not be duplicated
+             * and that may not participate in references involving duplicates.
+             **/
+            omero::api::StringSet typesToIgnore;
+        };
+
+        /**
+         * Result of duplicating model objects.
+         **/
+        class DuplicateResponse extends OK {
+
+            /**
+             * The duplicate model objects created by the request.
+             * Note: If dryRun is set to true then this instead lists the model
+             * objects that would have been duplicated.
+             **/
+            omero::api::StringLongListMap duplicates;
+        };
+
+        /**
          * Graph requests typically allow only specific model object classes
          * to be targeted. This request lists the legal targets for a given
          * request. The request's fields are ignored, only its class matters.

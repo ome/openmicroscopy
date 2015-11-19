@@ -156,7 +156,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
         }
 
         /* set step count */
-        graphRequestSkipStatus.steps = 1 + wrappedRequest.getStepProvidingCompleteResponse();
+        graphRequestSkipStatus.steps = 1 + ((WrappableRequest<?>) graphRequestSkip).getStepProvidingCompleteResponse();
         helper.setSteps(graphRequestSkipStatus.steps + graphRequestPerformStatus.steps);
     }
 

@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -166,7 +164,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                                     String
                                             .format(
                                                     "The requested object (%s,%s) is not available.\n"
-                                                            + "Please use IQuery.find to deteremine existance.\n",
+                                                            + "Please use IQuery.find to determine existence.\n",
                                                     klass.getName(), id));
                         }
 
