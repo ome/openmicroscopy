@@ -78,6 +78,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -91,43 +92,43 @@ import com.google.common.collect.Multimaps;
  */
 
 public class Gateway {
-    
+
     /** Property to indicate that a {@link Connector} has been created */
     public static final String PROP_CONNECTOR_CREATED = "PROP_CONNECTOR_CREATED";
-    
+
     /** Property to indicate that a {@link Connector} has been closed */
     public static final String PROP_CONNECTOR_CLOSED = "PROP_CONNECTOR_CLOSED";
-    
+
     /** Property to indicate that a session has been created */
     public static final String PROP_SESSION_CREATED = "PROP_SESSION_CREATED";
-    
+
     /** Property to indicate that a session has been closed */
     public static final String PROP_SESSION_CLOSED = "PROP_SESSION_CLOSED";
-    
+
     /** Property to indicate that a {@link Facility} has been created */
     public static final String PROP_FACILITY_CREATED = "PROP_FACILITY_CREATED";
-    
+
     /** Property to indicate that an import store has been created */
     public static final String PROP_IMPORTSTORE_CREATED = "PROP_IMPORTSTORE_CREATED";
-    
+
     /** Property to indicate that an import store has been closed */
     public static final String PROP_IMPORTSTORE_CLOSED = "PROP_IMPORTSTORE_CLOSED";
-    
+
     /** Property to indicate that a rendering engine has been created */
     public static final String PROP_RENDERINGENGINE_CREATED = "PROP_RENDERINGENGINE_CREATED";
-    
+
     /** Property to indicate that a rendering engine has been closed */
     public static final String PROP_RENDERINGENGINE_CLOSED = "PROP_RENDERINGENGINE_CLOSED";
-    
+
     /** Property to indicate that a stateful service has been created */
     public static final String PROP_STATEFUL_SERVICE_CREATED = "PROP_SERVICE_CREATED";
-    
+
     /** Property to indicate that a stateful service has been closed */
     public static final String PROP_STATEFUL_SERVICE_CLOSED = "PROP_SERVICE_CLOSED";
-    
+
     /** Property to indicate that a stateless service has been created */
     public static final String PROP_STATELESS_SERVICE_CREATED = "PROP_STATELESS_SERVICE_CREATED";
-    
+
     /** Reference to a {@link Logger} */
     private Logger log;
 
@@ -913,11 +914,19 @@ public class Gateway {
 
         try {
             // client must be cleaned up by caller.
-            if (c.getServer().getPort() > 0)
-                secureClient = new client(c.getServer().getHostname(), c
-                        .getServer().getPort());
-            else
-                secureClient = new client(c.getServer().getHostname());
+            List<String> args = c.getArguments();
+            String username;
+            if (args != null) {
+                secureClient = new client(args.toArray(new String[args.size()]));
+                username = secureClient.getProperty("omero.user");
+            } else {
+                username = c.getUser().getUsername();
+                if (c.getServer().getPort() > 0)
+                    secureClient = new client(c.getServer().getHostname(), c
+                            .getServer().getPort());
+                else
+                    secureClient = new client(c.getServer().getHostname());
+            }
             secureClient.setAgent(c.getApplicationName());
             ServiceFactoryPrx entryEncrypted;
             boolean session = true;
@@ -927,10 +936,9 @@ public class Gateway {
                 guestSession = secureClient.createSession(
                         "guest", "guest");
                 this.pcs.firePropertyChange(PROP_SESSION_CREATED, null, secureClient.getSessionId());
-                guestSession.getSessionService().getSession(
-                        c.getUser().getUsername());
+                guestSession.getSessionService().getSession(username);
             } catch (Exception e) {
-                // thrown if it is not a session or session has experied.
+                // thrown if it is not a session or session has expired.
                 session = false;
             } finally {
                 String id = secureClient.getSessionId();
@@ -938,11 +946,14 @@ public class Gateway {
                 this.pcs.firePropertyChange(PROP_SESSION_CLOSED, null, id);
             }
             if (session) {
-                entryEncrypted = secureClient.joinSession(c.getUser()
-                        .getUsername());
+                entryEncrypted = secureClient.joinSession(username);
             } else {
-                entryEncrypted = secureClient.createSession(c.getUser()
-                        .getUsername(), c.getUser().getPassword());
+                if (args != null) {
+                    entryEncrypted = secureClient.createSession();
+                } else {
+                    entryEncrypted = secureClient.createSession(c.getUser()
+                            .getUsername(), c.getUser().getPassword());
+                }
             }
             this.pcs.firePropertyChange(PROP_SESSION_CREATED, null, secureClient.getSessionId());
             serverVersion = entryEncrypted.getConfigService().getVersion();
@@ -959,7 +970,7 @@ public class Gateway {
                                     + c.getServer().getHostname(), e));
                 }
             }
-            
+
             Runnable r = new Runnable() {
                 public void run() {
                     try {
@@ -1046,6 +1057,10 @@ public class Gateway {
                 }
             }
             // Connector now controls the secureClient for closing.
+            String host = client.getProperty("omero.host");
+            cred.getServer().setHostname(host);
+            String port = client.getProperty("omero.port");
+            cred.getServer().setPort(Integer.parseInt(port));
             ctx = new SecurityContext(exp.getDefaultGroup().getId());
             ctx.setServerInformation(cred.getServer());
             ctx.setCompression(cred.getCompression());
