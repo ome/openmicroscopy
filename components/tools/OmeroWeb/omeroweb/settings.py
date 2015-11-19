@@ -433,7 +433,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
-        ["SECURE_PROXY_SSL_HEADERO",
+        ["SECURE_PROXY_SSL_HEADER",
          '[]',
          json.loads,
          ("A tuple representing a HTTP header/value combination that "
