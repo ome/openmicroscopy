@@ -118,15 +118,17 @@ Test Container Creation Enabled
     ...                 creating various containers are enabled.
 
     Tree Should Be Visible
-    Wait For Node To Be Visible                 ${FULL NAME}
+    # Full name may be truncated at start (right panel not wide enough)
+    # just check last name
+    Wait For Node To Be Visible                 ${LAST NAME}
     Wait For Node To Be Visible                 Orphaned Images
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
-    Node Popup Menu Item Should Be Enabled      Project    ${FULL NAME}
-    Node Popup Menu Item Should Be Enabled      Dataset    ${FULL NAME}
-    Node Popup Menu Item Should Be Enabled      Screen     ${FULL NAME}
-    Node Popup Menu Item Should Be Disabled     Delete     ${FULL NAME}
+    Node Popup Menu Item Should Be Enabled      Project    ${LAST NAME}
+    Node Popup Menu Item Should Be Enabled      Dataset    ${LAST NAME}
+    Node Popup Menu Item Should Be Enabled      Screen     ${LAST NAME}
+    Node Popup Menu Item Should Be Disabled     Delete     ${LAST NAME}
     Select First Project With Children
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
