@@ -16,7 +16,7 @@ Delete Container
     Wait Until Element Is Visible           id=delete-dialog-form
     Click Dialog Button                     Yes
     # Wait for activities to show job done, then refresh tree...
-    Wait Until Keyword Succeeds     ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus']
+    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus']
     Click Element                           refreshButton
 
 Refresh Page
@@ -26,14 +26,15 @@ Refresh Page
 Test Cut Paste Image
     [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
+    Set Selenium Speed  .3
     Select Experimenter
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     Wait Until Element is Visible               xpath=//li[@data-id='${datasetId}']//li[@data-id='${imageId}']
     Click Element                               id=cutButton
     Click Element                               refreshButton
     ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}
-    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']
     ${nodeId}                                   Select Orphaned Images Section
     Wait Until Page Contains Element            xpath=//li[@id='${nodeId}']
     Wait Until Page Contains Element            xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
@@ -46,12 +47,12 @@ Test Cut Paste Image
 Test Cut Paste Orphaned Image
     [Documentation]    Cut an orphaned Image and paste in back into a Dataset.
     
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${nodeId}                                   Select Orphaned Images Section
     ${imageId}                                  Select First Orphaned Image    
     Click Element                               id=cutButton
-    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
     ${did}                                      Select First Dataset
     Click Element                               id=pasteButton    
 
@@ -62,12 +63,12 @@ Test Cut Paste Orphaned Image
 Test Cut Paste Dataset
     [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${p1id}=                                Create project      test Cut-Paste TO here
     ${p2id}=                                Create project      test Cut-Paste FROM here
     ${did}=                                 Create Dataset
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
     # Check hierarchy
     Select Project By Id                    ${p2id}
     Wait Until Element Is Visible           xpath=//li[@data-id='${p2id}']/ul/li[@data-id='${did}']     ${WAIT}
@@ -93,17 +94,17 @@ Test Cut Paste Dataset
 Test Cut Paste Plate
     [Documentation]    Cut a Plate and paste it onto another screen
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${s1id}=                                Create Screen      test Cut-Paste TO here
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
 
     ${s2id}=                                Select First Screen With Children
     ${screenNode}                           Wait For Screen Node                 ${s2id}
     ${plateId}=                             Select First Plate
     Click Element                           id=cutButton    
     
-    Wait Until Keyword Succeeds           10    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${screenNode}']//li[@data-id='${plateId}']
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${screenNode}']//li[@data-id='${plateId}']
     Select Screen By Id                     ${s1id}
     ${screenNode1}                          Wait For Screen Node                                           ${s1id}
     Click Element                           id=pasteButton
@@ -116,7 +117,7 @@ Test Cut Paste Plate
 Test Edit Project
     [Documentation]     Create a Project and edit its name and description
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${pid}=                                 Create project      robot test edit
     Wait Until Page Contains Element        projectname-${pid}
@@ -138,12 +139,12 @@ Test Edit Project
 Test Copy Paste Dataset
     [Documentation]     Create 2 Projects and a Dataset. Copy and Paste the Dataset.
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${p1id}=                                Create project      test copy-paste TO here
     ${p2id}=                                Create project      test copy-paste FROM here
     ${did}=                                 Create Dataset
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
     Select Project By Id                    ${p2id}
     Wait Until Page Contains Element        xpath=//li[@data-id='${p2id}']//li[@data-id='${did}']
     Select Dataset By Id                    ${did}
@@ -170,7 +171,7 @@ Test Copy Paste Dataset
 Test Copy Paste Image
     [Documentation]     Copy Image from one dataset to another. Check if the link exists on both datasets.
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${d1id}=                                Create dataset     test copy-paste TO here
 
@@ -190,7 +191,7 @@ Test Copy Paste Image
 Test Copy Paste Orphaned Image
     [Documentation]     Test copy pasting an orphaned Image into a Dataset. Check if the link exists on Both locations.
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${nodeId}                               Select Orphaned Images Section
     ${imageId}                              Select First Orphaned Image
@@ -209,10 +210,10 @@ Test Copy Paste Orphaned Image
 Test Copy Paste Plate
     [Documentation]     Test copy pasting a plate into another screen. Check if the link exists on both the screens.
     
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${s1id}=                                Create Screen      test Cut-Paste TO here1
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                              refreshButton
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Click Element                              refreshButton
 
     ${s2id}=                                Select First Screen With Children
     ${plateId}=                             Select First Plate
@@ -231,13 +232,13 @@ Test Copy Paste Plate
 Test Chgrp
     [Documentation]     Tests chgrp of a Project to any other group
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
     # Clear any activities from earlier tests etc.
     Click Element                           id=launch_activities
     Click Element                           id=clear_activities
     Select Experimenter
     ${pid}=                                 Create project      robot test chgrp
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                      refreshButton
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Click Element                                      refreshButton
     ${nodeId}=                              Select Project By Id            ${pid}
     Open Context Menu                       xpath=//li[@id='${nodeId}']/a
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Move to Group...')]
@@ -251,17 +252,18 @@ Test Chgrp
 
 Test Drag And Drop Image
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
+    Set Selenium Speed                          .5
     Select Experimenter
     ${did}=                                     Create Dataset
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                     refreshButton
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                     refreshButton
 
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}
     
     ${datasetNode1}=                            Wait For Dataset Node                                             ${did}                                
     Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
-
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                     refreshButton
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
 
@@ -269,12 +271,14 @@ Test Drag And Drop Image
     Select Image By Id                          ${imageId}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a
     Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@id='${datasetNode}']/a
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                     refreshButton
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId}                           
 
 Test Drag and Drop Orphaned Image
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
+    Set Selenium Speed                          .5
     Select Experimenter
     ${did}=                                     Select First Dataset
     ${datasetNode}=                             Wait For Dataset Node                                           ${did}
@@ -285,17 +289,19 @@ Test Drag and Drop Orphaned Image
 
     Wait Until Element is Visible               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                     refreshButton
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
 
 Test Drag and Drop Orphaned Dataset
      
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page 
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
+    Set Selenium Speed                          .5 
     Select Experimenter                            
     ${pid}=                                     Select First Project With Children
     Select Experimenter                         
     ${datasetId}                                Create Dataset
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton 
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton 
 
     ${projectNode}                              Wait For Project Node                                           ${pid}
     ${datasetNode}                              Wait For Dataset Node                                           ${datasetId}                            
@@ -303,17 +309,19 @@ Test Drag and Drop Orphaned Dataset
     Click Node                                  ${datasetNode}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']/a
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${projectNode}']/a
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                     refreshButton
     Select Project By Id                        ${pid}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
     
 
 Test Drag and Drop Plate
     
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
+    Set Selenium Speed                          .5
     Select Experimenter
     ${screenId}                                 Create Screen
     ${screenNode}                               Wait For Screen Node                                            ${screenId}
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
 
     ${screenId1}                                Select First Screen With Children
     ${plateId}                                  Select First Plate
@@ -321,17 +329,19 @@ Test Drag and Drop Plate
 
     Wait Until Element is Visible               xpath=//li[@id='${plateNode}']/a
     Drag And Drop                               xpath=//li[@id='${plateNode}']/a                                xpath=//li[@id='${screenNode}']/a
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Screen By Id                         ${screenId}
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
 
 Test Drag and Drop Dataset On Experimenter
     [Documentation]                             This test will currently fail on 5.1 Series
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
+    Set Selenium Speed                          .5
     Select Experimenter
     ${pid}                                      Create Project    
     ${did}=                                     Create Dataset
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
 
     ${projectNode}=                             Wait For Project Node                                           ${pid}
     Click Node                                  ${projectNode}
@@ -339,23 +349,23 @@ Test Drag and Drop Dataset On Experimenter
 
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@id='${datasetNode}']
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a                              xpath=//li[@id='${treeRootId}']/a
-
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Wait Until Element is Visible               xpath=//li[@id='${treeRootId}']/ul/li[@id='${datasetNode}']
 
 Test Drag and Drop Negative Tests
 
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     ${pid}                                      Create Project
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
 
     Select Experimenter
     ${did}=                                     Create Dataset
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
 
     Select Experimenter
     ${screenId}                                 Create Screen
-    Wait Until Keyword Succeeds           10    ${INTERVAL}     Click Element                                   refreshButton
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                                   refreshButton
 
     ${projectNode}                              Wait For Project Node                                           ${pid}
     ${datasetNode}                              Wait For Dataset Node                                           ${did}
