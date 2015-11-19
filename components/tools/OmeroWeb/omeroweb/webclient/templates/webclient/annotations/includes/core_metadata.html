@@ -40,15 +40,27 @@
         <td id='pixels_type'>{{ image.getPixelsType }}</td>
     </tr>
     <tr>
-        <th>Pixels Size (XYZ) ({{ image.getPixelSizeUnits }}):</th>
+        {% with psX=image.getPixelSizeXMicrons psY=image.getPixelSizeYMicrons psZ=image.getPixelSizeZMicrons %}
+            {% with uX=psX|lengthunit uY=psY|lengthunit uZ=psZ|lengthunit %}
+        <th>Pixels Size (XYZ) ({{ uX }}):</th>
         <td id='pixels_size'>
-            <div class='tooltip'>{{ image.getPixelSizeXMicrons|lengthformat|floatformat:2 }} x {{ image.getPixelSizeYMicrons|lengthformat|floatformat:2 }} 
-                {% if image.getPixelSizeZMicrons %} x {{ image.getPixelSizeZMicrons|lengthformat|floatformat:2 }} {% endif %}
+            <div class='tooltip'>
+                {{ psX|lengthformat|floatformat:2 }} {% if uX != uY %}({{ uX }}){% endif %}
+                x {{ psY|lengthformat|floatformat:2 }} {% if uY != uX %}({{ uY }}){% endif %}
+                {% if psZ %}
+                    x {{ psZ|lengthformat|floatformat:2 }} {% if uZ != uX %}({{ uZ }}){% endif %}
+                {% endif %}
             </div>
-            <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeXMicrons }} x {{ image.getPixelSizeYMicrons }}
-                {% if image.getPixelSizeZMicrons %} x {{ image.getPixelSizeZMicrons }} {% endif %} (&#181m)
+            <span class="tooltip_html" style='display:none'>
+                {{ psX }} ({{ uX }})
+                x {{ psY }} ({{ uY }})
+                {% if psZ %}
+                    x {{ psZ }} ({{ uZ }})
+                {% endif %}
             </span>
         </td>
+            {% endwith %}
+        {% endwith %}
     </tr>
     <tr>
         <th>Z-sections/Timepoints:</th>
