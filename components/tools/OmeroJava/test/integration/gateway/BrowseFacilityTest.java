@@ -22,6 +22,7 @@ package integration.gateway;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -112,6 +113,14 @@ public class BrowseFacilityTest extends GatewayTest {
         Collection<ProjectData> result = browseFacility.getProjects(ctx);
         Assert.assertEquals(result.size(), 2);
 
+        // check that we do *not* load the whole tree by default
+        for(ProjectData p : result) {
+            Set<DatasetData> datasets = p.getDatasets();
+            for(DatasetData ds : datasets) {
+                Assert.assertNull(ds.getImages(), "Images should not have been loaded at this point!");
+            }
+        }
+        
         // get specific project
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(proj.getId());
