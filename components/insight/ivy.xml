@@ -77,6 +77,5 @@
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
-    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}"/>
   </dependencies>
 </ivy-module>
