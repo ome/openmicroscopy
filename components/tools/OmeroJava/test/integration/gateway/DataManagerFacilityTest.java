@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Arrays;
 
 import omero.RLong;
 import omero.api.IPixelsPrx;
@@ -45,7 +46,6 @@ import omero.model.PixelsType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.DataObject;
