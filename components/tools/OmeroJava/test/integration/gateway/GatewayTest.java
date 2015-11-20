@@ -39,6 +39,7 @@ import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.Facility;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.facility.SearchFacility;
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.facility.TransferFacility;
 import omero.log.SimpleLogger;
 import omero.model.IObject;
@@ -79,6 +80,7 @@ public class GatewayTest {
     SearchFacility searchFacility = null;
     TransferFacility transferFacility = null;
     DataManagerFacility datamanagerFacility = null;
+    TablesFacility tablesFacility = null;
 
     @Test
     public void testConnected() throws DSOutOfServiceException {
@@ -119,6 +121,7 @@ public class GatewayTest {
         transferFacility = Facility.getFacility(TransferFacility.class, gw);
         datamanagerFacility = Facility.getFacility(DataManagerFacility.class,
                 gw);
+        tablesFacility = Facility.getFacility(TablesFacility.class, gw);
     }
 
     @AfterClass(alwaysRun = true)

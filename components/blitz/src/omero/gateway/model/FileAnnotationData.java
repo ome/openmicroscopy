@@ -83,6 +83,13 @@ public class FileAnnotationData extends AnnotationData {
     /** Identifies the FLIM namespace. */
     public static final String FLIM_NS =
             omero.constants.analysis.flim.NSFLIM.value;
+    
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is a <code>OMERO.tables</code> file.
+     */
+    public static final String TABLE_NS =
+            omero.constants.metadata.NSCLIENTTABLE.value;
 
     /** The default name for the original metadata file.*/
     public static final String ORIGINAL_METADATA_NAME =

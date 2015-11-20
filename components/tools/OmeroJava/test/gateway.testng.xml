@@ -11,6 +11,7 @@
 			<class name="integration.gateway.TransferFacilityTest" />
 			<class name="integration.gateway.MetadataFacilityTest" />
 			<class name="integration.gateway.ROIFacilityTest" />
+			<class name="integration.gateway.TablesFacilityTest" />
 		</classes>
 	</test>
 </suite>
