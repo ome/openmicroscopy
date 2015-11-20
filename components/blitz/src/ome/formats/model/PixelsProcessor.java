@@ -44,10 +44,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
- * that the physical pixel dimensions are updated if they were specified by
- * the user. If Image containers are present, Image.acquisitionDate is filled
- * out and that the Image name and description match that which was specified
- * by the user if the if provided either.
+ * that the physical pixel dimensions, Image name and description are
+ * updated to the corresponding user-provided values, if present.
  *
  * @author Chris Allan <callan at blackcat dot ca>
  *
