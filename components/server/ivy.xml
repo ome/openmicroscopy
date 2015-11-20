@@ -28,7 +28,7 @@
     <dependency org="zeroc" name="ice-freeze" rev="${versions.ice}"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
-    <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}"/>
+    <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}" transitive="false"/>
     <!-- Public -->
     <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
