@@ -32,8 +32,8 @@ package ome.formats.model;
 public interface ModelProcessor
 {
     /**
-     * Processes the an IObjectContainerStore.
-     * @param store IObjectContainer store store to process.
+     * Processes an IObjectContainerStore.
+     * @param store IObjectContainer store to process.
      * @throws ModelException If there is an error during processing.
      */
     void process(IObjectContainerStore store) throws ModelException;
