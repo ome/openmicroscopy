@@ -49,9 +49,9 @@ module omero {
                 idempotent int getResolutionLevels() throws ServerError;
 
                 /**
-                 * Retrives a more complete definition of the resolution
+                 * Retrieves a more complete definition of the resolution
                  * level in question. The size of this array will be of
-                 * length [getResolutionLevels].
+                 * length {@link #getResolutionLevels}.
                  **/
                 idempotent ResolutionDescriptions getResolutionDescriptions() throws ServerError;
 
