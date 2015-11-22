@@ -51,9 +51,10 @@ module omero {
          };
 
          /**
-         * Successful response for [SendEmailRequest]. Contains
+         * Successful response for {@link SendEmailRequest}. Contains
          * a list of invalid users that has no email address set.
-         * If no recipients or invalid users found, an [ERR] will be returned.
+         * If no recipients or invalid users found, an {@link ERR} will be
+         * returned.
          *
          * - invalidusers is a list of userIds that email didn't pass criteria
          *                  such as was empty or less then 5 characters
