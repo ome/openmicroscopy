@@ -34,10 +34,10 @@ module omero {
          *  - omero.cmd.SendEmailRequest(subject, body, everyone=True, inactive=True)
          *      sends message to everyone who has email set,
          *      even inactive users
-         *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...],
-         *      userIds=[...] )
+         *  - omero.cmd.SendEmailRequest(subject, body, groupIds=\[...],
+         *      userIds=\[...] )
          *      sends email to active members of given groups and selected users
-         *  - extra=[...] allows to set extra email address if not in DB
+         *  - extra=\[...] allows to set extra email address if not in DB
          **/
          class SendEmailRequest extends Request {
              string subject;

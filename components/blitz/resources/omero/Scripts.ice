@@ -95,7 +95,7 @@ module omero {
          *
          * <pre>
          * a = omero.scripts.String("a")
-         * a.param().values = ["hi", "bye"]
+         * a.param().values = \["hi", "bye"]
          * </pre>
          **/
         class Param {
@@ -254,10 +254,10 @@ module omero {
              *
              * <pre>
              *
-             *  Scale Bar: [ on/off ]
+             *  Scale Bar: \[ on/off ]
              *  ======================
-             *    Color:  [rgb]
-             *    Size:   [ 10]
+             *    Color:  \[rgb]
+             *    Size:   \[ 10]
              *
              * </pre>
              *
@@ -304,7 +304,7 @@ module omero {
          *
          * <pre>
          * params = omero.grid.JobParams()
-         * params.authors = ["Andy", "Kathy"]
+         * params.authors = \["Andy", "Kathy"]
          * params.version = "0.0.1"
          * params.description = """
          *     Clever way to count to 5
@@ -355,20 +355,20 @@ module omero {
             omero::api::StringArray institutions;
 
             /**
-             * For authors[i], authorInstitutions[i] should be
+             * For authors\[i], authorInstitutions\[i] should be
              * and array of indexes j such that author i is a member
-             * of authorsInstitutions[i][j].
+             * of authorsInstitutions\[i]\[j].
              *
              * Example:
-             *   authors = ["Jane", "Mike"]
-             *   institutions = ["Acme U.", "Private Corp."]
-             *   authorsInstitutions = [[1, 2], [1]]
+             *   authors = \["Jane", "Mike"]
+             *   institutions = \["Acme U.", "Private Corp."]
+             *   authorsInstitutions = \[\[1, 2], \[1]]
              *
              * which means that Jane is a member of both "Acme U."
              * and "Private Corp." while Mike is only a member of
              * "Acme U."
              *
-             * An empty authorsInsitutations array implies that all
+             * An empty authorsInstitutions array implies that all
              * authors are from all institutions.
              **/
             omero::api::IntegerArrayArray authorsInstitutions;

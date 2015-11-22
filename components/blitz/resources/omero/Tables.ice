@@ -202,8 +202,8 @@ module omero {
              * data = table.slice(None, None)
              * assert len(data.rowNumbers) == table.getNumberOfRows()
              *
-             * data = table.slice(None, [3,2,1])
-             * assert data.rowNumbers == [3,2,1]
+             * data = table.slice(None, \[3,2,1])
+             * assert data.rowNumbers == \[3,2,1]
              * </pre>
              **/
             idempotent

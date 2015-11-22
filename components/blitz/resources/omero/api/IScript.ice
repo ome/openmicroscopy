@@ -27,7 +27,7 @@ module omero {
          * scripts = svc.getScripts()
          *
          * if len(scripts) >= 1:
-         *   script_id = svc.keys()[0]
+         *   script_id = svc.keys()\[-1]
          * else:
          *   script_id = svc.uploadScript('/test/my_script.py', SCRIPT_TEXT)
          *

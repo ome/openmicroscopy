@@ -16,7 +16,7 @@
 module omero {
 
   /**
-   * Simple base ["protected"] class. Essentially abstract.
+   * Simple base "protected" class. Essentially abstract.
    **/
   ["protected"] class RType
   {
