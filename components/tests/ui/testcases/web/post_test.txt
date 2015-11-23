@@ -245,22 +245,20 @@ Test Drag And Drop Image
     Set Selenium Speed                          .3
     Select Experimenter
     ${did}=                                     Create Dataset
-    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                       refreshButton
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
 
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}
     
     ${datasetNode1}=                            Wait For Dataset Node                                             ${did}                                
     Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
-    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                       refreshButton
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
 
     #Bring database state back to original
     Select Image By Id                          ${imageId}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a
-    Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a        xpath=//li[@data-id='${pId}']//li[@id='${datasetNode}']/a
-    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                     refreshButton
+    Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a    xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId}                           
 
@@ -278,7 +276,6 @@ Test Drag and Drop Orphaned Image
 
     Wait Until Element is Visible               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a
     Drag And Drop                               xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']/a           xpath=//li[@id='${datasetNode}']/a
-    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                     refreshButton
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
 
