@@ -65,7 +65,7 @@ module omero {
                  * necessary for proper functioning can be retrieved via
                  * {@link #getParams}.
                  *
-                 * The {@link omero.model.OriginalFil#path} value can be used
+                 * The {@link omero.model.OriginalFile#path} value can be used
                  * in other official scripts via the
                  * language specific import command, since the script
                  * directory will be placed on the appropriate
