@@ -53,6 +53,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 
 from omero.gateway.utils import toBoolean
+from webgateway.templatetags.common_filters import lengthunit, lengthformat
 
 try:
     import hashlib
@@ -2324,7 +2325,6 @@ class ImageWrapper (OmeroWebObjectWrapper,
         However, if unit can't be converted, then we just return the
         current unit's symbol.
         """
-        from webgateway.templatetags.common_filters import lengthunit
         try:
             size = self.getPixelSizeX(units="MICROMETER")
         except:
@@ -2372,6 +2372,60 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if size is None:
             return 0
         return size.getValue()
+
+    def getPixelSizeXWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeX(True)
+        if size is None:
+            return (0, "µm")
+        length = size.getValue()
+        unit = size.getUnit()
+        if unit == "MICROMETER":
+            unit = lengthunit(length)
+            length = lengthformat(length)
+        else:
+            unit = size.getSymbol()
+        return (length, unit)
+
+    def getPixelSizeYWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeY(True)
+        if size is None:
+            return (0, "µm")
+        length = size.getValue()
+        unit = size.getUnit()
+        if unit == "MICROMETER":
+            unit = lengthunit(length)
+            length = lengthformat(length)
+        else:
+            unit = size.getSymbol()
+        return (length, unit)
+
+    def getPixelSizeZWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeZ(True)
+        if size is None:
+            return (0, "µm")
+        length = size.getValue()
+        unit = size.getUnit()
+        if unit == "MICROMETER":
+            unit = lengthunit(length)
+            length = lengthformat(length)
+        else:
+            unit = size.getSymbol()
+        return (length, unit)
 
     def getChannels(self, *args, **kwargs):
         """
