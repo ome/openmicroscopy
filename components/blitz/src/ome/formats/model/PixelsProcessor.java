@@ -132,32 +132,6 @@ public class PixelsProcessor implements ModelProcessor
                 image = (Image) container.sourceObject;
             }
 
-            /*
-             * Acquisition dates returned to being nullable, but this code may have value following
-             * TODO deeper review of why it was added in the first place.
-
-            // If acquistionDate is missing
-            if (image.getAcquisitionDate() == null)
-            {
-                if (earliestMTime == null)
-                {
-                    String[] fileNameList = store.getReader().getUsedFiles();
-
-                    long mtime = Long.MAX_VALUE;
-
-                    for (int j = 0; j < fileNameList.length; j++)
-                    {
-                        File f = new File(fileNameList[j]);
-
-                        if (f.lastModified() < mtime)
-                            mtime = f.lastModified();
-                    }
-                    earliestMTime = new Timestamp(mtime);
-                }
-                image.setAcquisitionDate(rtime(earliestMTime));
-            }
-            */
-
             // Ensure that the Image name is set
             String userSpecifiedName = store.getUserSpecifiedName();
             if (userSpecifiedName != null) {
