@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * Processes the references of an IObjectContainerStore and ensures
  * that container references are consistent with the LSID stored in the
  * IObjectContainer itself. It also keeps track of all LSID references
- * in their string form so that the may be given to the IObjectContainerStore.
+ * in their string form so that they may be given to the IObjectContainerStore.
  *
  * @author Chris Allan <callan at blackcat dot ca>
  *
