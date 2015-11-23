@@ -1,4 +1,7 @@
 /*
+ * ome.formats.model.UnitsFactory
+ *
+ *------------------------------------------------------------------------------
  * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment
  * All rights reserved.
  *

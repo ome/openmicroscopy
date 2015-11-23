@@ -1,5 +1,5 @@
 /*
- * ome.formats.enums.EnumerationProvider
+ * ome.formats.enums.InstanceProvider
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
