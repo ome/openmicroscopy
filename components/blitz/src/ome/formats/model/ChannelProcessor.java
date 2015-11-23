@@ -72,7 +72,7 @@ public class ChannelProcessor implements ModelProcessor
 	/** Name of the <code>blue</code> component when it is a graphics image. */
 	public static final String BLUE_TEXT = "Blue";
 
-	/** Name of the <code>blue</code> component when it is a graphics image. */
+	/** Name of the <code>alpha</code> component when it is a graphics image. */
 	public static final String ALPHA_TEXT = "Alpha";
 
 	/** Logger for this class */
