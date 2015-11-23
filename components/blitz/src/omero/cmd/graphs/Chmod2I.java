@@ -105,7 +105,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
-     * @param targetClasses legal target object classes for chown
+     * @param targetClasses legal target object classes for chmod
      * @param graphPolicy the graph policy to apply for chmod
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */

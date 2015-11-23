@@ -46,6 +46,41 @@ class TestWeb(object):
         monkeypatch.setattr(WebControl, '_get_web_templates_dir',
                             lambda x: dist_dir / "etc" / "templates" / "web")
 
+    def set_python_dir(self, monkeypatch):
+
+        dist_dir = path(__file__) / ".." / ".." / ".." / ".." / ".." /\
+            "target"  # FIXME: should not be hard-coded
+        dist_dir = dist_dir.abspath()
+        monkeypatch.setattr(WebControl, '_get_python_dir',
+                            lambda x: dist_dir / "lib" / "python")
+
+    def mock_os_kill(self, monkeypatch, error=False):
+        def os_kill(pid, signal):
+            if error:
+                raise OSError()
+            return None
+        monkeypatch.setattr(os, 'kill', os_kill)
+
+    def mock_subprocess_popen(self, monkeypatch):
+        def subprocess_popen(*args, **kwargs):
+            return 0
+        monkeypatch.setattr(omero.cli.CLI, 'popen', subprocess_popen)
+
+    def mock_subprocess_call(self, monkeypatch):
+        def subprocess_call(*args, **kwargs):
+            return 0
+        monkeypatch.setattr(omero.cli.CLI, 'call', subprocess_call)
+
+    def check_django_pid(self, monkeypatch, error=False):
+        def check_pid(self, pid, path):
+            return not error
+        monkeypatch.setattr(WebControl, '_check_pid', check_pid)
+
+    def set_django_pid(self, monkeypatch, pid=None):
+        def django_pid(self, path):
+            return pid
+        monkeypatch.setattr(WebControl, '_get_django_pid', django_pid)
+
     def add_prefix(self, prefix, monkeypatch):
 
         def _get_default_value(x):
@@ -137,6 +172,122 @@ class TestWeb(object):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
+    @pytest.mark.parametrize('app_server', ['wsgi', 'wsgi-tcp', 'development'])
+    def testWebStart(self, app_server, monkeypatch, capsys):
+        self.add_application_server(app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_subprocess_popen(monkeypatch)
+        self.mock_subprocess_call(monkeypatch)
+        self.set_django_pid(monkeypatch)
+        self.args += ["start"]
+        self.cli.invoke(self.args, strict=(app_server not in ('wsgi',)))
+        o, e = capsys.readouterr()
+        csout = "Clearing expired sessions. This may take some time... [OK]"
+        assert csout == o.split(os.linesep)[0]
+        if app_server in ('wsgi',):
+            stderr = (
+                ("You are deploying OMERO.web using apache and mod_wsgi. "
+                 "Generate apache config using 'omero web config apache' "
+                 "and reload web server."))
+            assert stderr == e.split(os.linesep)[0]
+            assert 1 == len(e.split(os.linesep))-1
+        elif app_server in ('wsgi-tcp',):
+            startout = "Starting OMERO.web... [OK]"
+            assert startout == o.split(os.linesep)[1]
+            assert 2 == len(o.split(os.linesep))-1
+        elif app_server in ('development',):
+            startout = "Starting OMERO.web... [OK]"
+            assert startout == o.split(os.linesep)[1]
+            assert 2 == len(o.split(os.linesep))-1
+
+    @pytest.mark.parametrize('app_server', ['wsgi', 'wsgi-tcp', 'development'])
+    def testWebRestart(self, app_server, monkeypatch, capsys):
+        self.add_application_server(app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_subprocess_popen(monkeypatch)
+        self.set_django_pid(monkeypatch)
+        self.args += ["restart"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        if app_server in ('wsgi',):
+            stderr = ("You are deploying OMERO.web using apache and mod_wsgi."
+                      " Cannot check status.")
+            assert stderr in e.split(os.linesep)[0]
+            assert 1 == len(e.split(os.linesep))-1
+        elif app_server in ('wsgi-tcp',):
+            stdout = (
+                "Stopping OMERO.web... [NOT STARTED]",
+                "Clearing expired sessions. This may take some time... [OK]",
+                "Starting OMERO.web... [OK]"
+            )
+            for msg in stdout:
+                assert msg in o.split(os.linesep)
+            assert 3 == len(o.split(os.linesep))-1
+        elif app_server in ('development',):
+            stderr = "DEVELOPMENT: You will have to kill processes by hand!"
+            assert stderr in e.split(os.linesep)[0]
+            assert 1 == len(e.split(os.linesep))-1
+
+    @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
+    def testWebStop(self, app_server, monkeypatch, capsys):
+        self.add_application_server(app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_os_kill(monkeypatch)
+        self.check_django_pid(monkeypatch)
+        self.set_django_pid(monkeypatch, -999999)
+        self.args += ["stop"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        stdout = ("Stopping OMERO.web... [OK]",
+                  "OMERO.web WSGI workers (PID -999999) killed.")
+        assert 2 == len(o.split(os.linesep))-1
+        for msg in stdout:
+            assert msg in o.split(os.linesep)
+
+    @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
+    def testWebBadRestart(self, app_server, monkeypatch, capsys):
+        self.add_application_server(app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_os_kill(monkeypatch)
+        self.set_django_pid(monkeypatch, -999999)
+        self.args += ["restart"]
+        self.cli.invoke(self.args, strict=False)
+        o, e = capsys.readouterr()
+        stdout = (
+            "Stopping OMERO.web... [OK]",
+            "OMERO.web WSGI workers (PID -999999) killed.",
+            "Clearing expired sessions. This may take some time... [OK]",
+            "Starting OMERO.web... "
+        )
+        for msg in stdout:
+            assert msg in o.split(os.linesep)
+        assert 4 == len(o.split(os.linesep))
+        stderr = ("[FAILED] OMERO.web already started. "
+                  "%s/var/django.pid exists (PID: -999999)! "
+                  "Use 'web stop or restart' first.") % str(self.cli.dir)
+        assert stderr == e.split(os.linesep)[0]
+        assert 1 == len(e.split(os.linesep))-1
+
+    @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
+    def testWebStale(self, app_server, monkeypatch, capsys):
+        self.add_application_server(app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_os_kill(monkeypatch, error=True)
+        self.set_django_pid(monkeypatch, -999999)
+        self.args += ["stop"]
+        self.cli.invoke(self.args, strict=False)
+        o, e = capsys.readouterr()
+
+        stdout = (
+            "Stopping OMERO.web... ",
+        )
+        for msg in stdout:
+            assert msg in o.split(os.linesep)
+        stderr = ("[ERROR] OMERO.web workers (PID -999999) - no such process."
+                  " Use `ps aux | grep %s/var/django.pid` and kill stale"
+                  " processes by hand.") % str(self.cli.dir)
+        assert stderr == e.split(os.linesep)[0]
+
     @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
     @pytest.mark.parametrize('server_type', [
         "nginx", "nginx-development"])
@@ -187,11 +338,12 @@ class TestWeb(object):
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
+    @pytest.mark.parametrize('server_type', ["apache", "apache22", "apache24"])
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('app_server', ['wsgi'])
     @pytest.mark.parametrize('http', [False, 8081])
-    def testApacheWSGIConfig(self, prefix, app_server, http, capsys,
-                             monkeypatch):
+    def testApacheWSGIConfig(self, server_type, prefix, app_server, http,
+                             capsys, monkeypatch):
 
         self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
@@ -205,7 +357,7 @@ class TestWeb(object):
             username = getpass.getuser()
         icepath = os.path.dirname(Ice.__file__)
 
-        self.args += ["config", "apache"]
+        self.args += ["config", server_type]
         if http:
             self.args += ["--http", str(http)]
 
@@ -215,6 +367,8 @@ class TestWeb(object):
 
         lines = self.clean_generated_file(o)
 
+        # Note: the differences between the generated apache22 and apache24
+        # configurations are in unchanged parts of the template
         if prefix:
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
@@ -244,7 +398,8 @@ class TestWeb(object):
     @pytest.mark.parametrize('server_type', [
         ["nginx", 'wsgi-tcp'],
         ["nginx-development", 'wsgi-tcp'],
-        ["apache", 'wsgi']])
+        ["apache22", 'wsgi'],
+        ["apache24", 'wsgi']])
     @pytest.mark.parametrize('static_root', [
         '/home/omero/OMERO.server/lib/python/omeroweb/static'])
     def testFullTemplateDefaults(self, server_type, static_root,
@@ -270,7 +425,8 @@ class TestWeb(object):
         ['nginx', '--http', '1234', '--max-body-size', '2m', 'wsgi-tcp'],
         ['nginx-development', '--http', '1234', '--max-body-size', '2m',
          'wsgi-tcp'],
-        ['apache', '--http', '1234', 'wsgi']])
+        ['apache22', '--http', '1234', 'wsgi'],
+        ['apache24', '--http', '1234', 'wsgi']])
     @pytest.mark.parametrize('static_root', [
         '/home/omero/OMERO.server/lib/python/omeroweb/static'])
     def testFullTemplateWithOptions(self, server_type, static_root,

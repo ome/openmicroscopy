@@ -20,6 +20,12 @@
  */
 package omero.gateway;
 
+import java.util.List;
+
+import omero.IllegalArgumentException;
+
+import com.google.common.collect.ImmutableList;
+
 /**
  * Holds all necessary information needed for connecting to an OMERO server
  * 
@@ -51,13 +57,72 @@ public class LoginCredentials {
     /** ID of the group if not the default group of the user should be used */
     private long groupID = -1;
 
+    /** The connection argument.*/
+    private ImmutableList<String> args;
+
     /**
      * Creates a new instance
      */
     public LoginCredentials() {
         user = new UserCredentials();
         server = new ServerInformation();
+        args = null;
     }
+
+    /**
+     * Creates a new instance.
+     * @param args The connection arguments.
+     */
+    public LoginCredentials(String[] args)
+    {
+        this();
+        if (args == null) {
+            throw new IllegalArgumentException("No connection arguments");
+        }
+        this.args = ImmutableList.copyOf(args);
+    }
+
+    /**
+     * Creates a new instance with the given credentials and default port
+     * 
+     * @param username
+     *            The username
+     * @param password
+     *            The password
+     * @param host
+     *            The server hostname
+     */
+    public LoginCredentials(String username, String password, String host) {
+        this(username, password, host, omero.constants.GLACIER2PORT.value);
+    }
+
+    /**
+     * Creates a new instance with the given credentials
+     * 
+     * @param username
+     *            The username
+     * @param password
+     *            The password
+     * @param host
+     *            The server hostname
+     * @param port
+     *            The server port
+     */
+    public LoginCredentials(String username, String password, String host,
+            int port) {
+        this();
+        user.setUsername(username);
+        user.setPassword(password);
+        server.setHostname(host);
+        server.setPort(port);
+    }
+
+    /**
+     * Returns the arguments if set as a read-only list.
+     *
+     * @return See above.
+     */
+    public List<String> getArguments() { return args; }
 
     /**
      * @return If encryption is enabled

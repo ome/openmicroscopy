@@ -73,11 +73,11 @@ if not os.path.isdir(LOGDIR):
 
 STANDARD_LOGFORMAT = (
     '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
-    ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s')
+    ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d %(message)s')
 
 FULL_REQUEST_LOGFORMAT = (
     '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
-    ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d'
+    ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d'
     ' HTTP %(status_code)d %(request)s')
 
 if platform.system() in ("Windows",):

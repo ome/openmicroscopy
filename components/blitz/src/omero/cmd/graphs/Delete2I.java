@@ -91,7 +91,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
-     * @param targetClasses legal target object classes for chown
+     * @param targetClasses legal target object classes for delete
      * @param graphPolicy the graph policy to apply for delete
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */

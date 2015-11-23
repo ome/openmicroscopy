@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import ome.services.graphs.ModelObjectSequencer;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
 
+import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -332,5 +334,44 @@ public class GraphUtil {
                 processor.assertMayProcess(className, id, details);
             }
         };
+    }
+
+    /**
+     * Copy the given value. If a collection type, recurse into copying the elements.
+     * @param mapping a mapping of non-collection elements to replace with others in the copy
+     * @param value the value to copy, may be {@code null}
+     * @return a copy of the value with newly instantiated lists, sets and maps
+     */
+    static Object copyComplexValue(Function<Object, Object> mapping, Object value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof List) {
+            @SuppressWarnings("unchecked")
+            final List<Object> original = (List<Object>) value;
+            final List<Object> copy = new ArrayList<Object>(original.size());
+            for (final Object element : original) {
+                copy.add(copyComplexValue(mapping, element));
+            }
+            return copy;
+        } else if (value instanceof Set) {
+            @SuppressWarnings("unchecked")
+            final Set<Object> original = (Set<Object>) value;
+            final Set<Object> copy = new HashSet<Object>();
+            for (final Object element : original) {
+                copy.add(copyComplexValue(mapping, element));
+            }
+            return copy;
+        } else if (value instanceof Map) {
+            @SuppressWarnings("unchecked")
+            final Map<Object, Object> original = (Map<Object, Object>) value;
+            final Map<Object, Object> copy = new HashMap<Object, Object>();
+            for (final Map.Entry<Object, Object> element : original.entrySet()) {
+                copy.put(copyComplexValue(mapping, element.getKey()), copyComplexValue(mapping, element.getValue()));
+            }
+            return copy;
+        } else {
+            final Object mapped = mapping.apply(value);
+            return mapped == null ? value : mapped;
+        }
     }
 }
