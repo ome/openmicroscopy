@@ -432,6 +432,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "The name to use for session cookies"],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
+    "omero.web.secure_proxy_ssl_header":
+        ["SECURE_PROXY_SSL_HEADER",
+         '[]',
+         json.loads,
+         ("A tuple representing a HTTP header/value combination that "
+          "signifies a request is secure. Example "
+          "``'[\"HTTP_X_FORWARDED_PROTO_OMERO_WEB\", \"https\"]'``. "
+          "For more details see :djangodoc:`secure proxy ssl header <ref/"
+          "settings/#secure-proxy-ssl-header>`.")],
 
     # Public user
     "omero.web.public.enabled":
