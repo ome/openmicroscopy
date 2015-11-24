@@ -112,6 +112,15 @@ Create Container
     Wait Until Page Contains Element    xpath=//li[@data-id='${newId}']/a[contains(@class, 'jstree-clicked')]    ${WAIT}
     [Return]                            ${newId}
 
+Delete Container
+    [Documentation]                         Delete the active container
+    Click Element                           id=deleteButton
+    Wait Until Element Is Visible           id=delete-dialog-form
+    Click Dialog Button                     Yes
+    # Wait for activities to show job done, then refresh tree...
+    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus']
+    Click Element                           refreshButton
+
 Key Down
     [Arguments]    ${keyCode}    ${cssSelector}=body
     #     Press Key    css=body    \\40     # This doesn't work, since body is not a text input
