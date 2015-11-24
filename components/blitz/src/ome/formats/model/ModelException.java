@@ -31,51 +31,46 @@ import omero.model.IObject;
  *
  * @author Chris Allan <callan at blackcat dot ca>
  */
-public class ModelException extends RuntimeException
-{
-	private static final long serialVersionUID = 4158130517527782400L;
+public class ModelException extends RuntimeException {
 
-	/** The class that was used in a failed instantiation. */
-    private Class<? extends IObject> failureClass;
+  private static final long serialVersionUID = 4158130517527782400L;
 
-    /**
-     * Default constructor.
-     * @param message Error message.
-     */
-    public ModelException(String message)
-    {
-	super(message);
+  /** The class that was used in a failed instantiation. */
+  private Class<? extends IObject> failureClass;
+
+  /**
+   * Default constructor.
+   * @param message Error message.
+   */
+  public ModelException(String message) {
+    super(message);
+  }
+
+  /**
+   * Default constructor.
+   * @param message Error message.
+   * @param klass Failed instantiation class.
+   * @param exception Upstream exception.
+   */
+  public ModelException(
+      String message, Class<? extends IObject> klass, Exception exception) {
+    super(message, exception);
+    this.failureClass = klass;
+  }
+
+  /**
+   * Returns the class that was used during a failed instantiation.
+   * @return See above.
+   */
+  public Class<? extends IObject> getFailureClass() {
+    return failureClass;
+  }
+
+  @Override
+  public String toString() {
+    if (failureClass == null) {
+      return getMessage();
     }
-
-    /**
-     * Default constructor.
-     * @param message Error message.
-     * @param klass Failed instantiation class.
-     * @param exception Upstream exception.
-     */
-    public ModelException(String message, Class<? extends IObject> klass,
-		              Exception exception)
-    {
-        super(message, exception);
-        this.failureClass = klass;
-    }
-
-    /**
-     * Returns the class that was used during a failed instantiation.
-     * @return See above.
-     */
-    public Class<? extends IObject> getFailureClass()
-    {
-        return failureClass;
-    }
-
-    @Override
-    public String toString()
-    {
-	if (failureClass == null)
-	{
-		return getMessage();
-	}
-        return getMessage() + " for " + failureClass;
-    }
+    return getMessage() + " for " + failureClass;
+  }
 }

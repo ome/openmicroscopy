@@ -43,47 +43,38 @@ import org.slf4j.LoggerFactory;
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class TargetProcessor implements ModelProcessor
-{
-    /** Logger for this class */
-    private Logger log = LoggerFactory.getLogger(TargetProcessor.class);
+public class TargetProcessor implements ModelProcessor {
 
-    /**
-     * Processes the OMERO client side metadata store.
-     * @param store OMERO metadata store to process.
-     * @throws ModelException If there is an error during processing.
-     */
-    public void process(IObjectContainerStore store)
-    throws ModelException
-    {
-        IObject target = store.getUserSpecifiedTarget();
-        if (target == null)
-        {
-            return;
-        }
+  /** Logger for this class */
+  private Logger log = LoggerFactory.getLogger(TargetProcessor.class);
 
-        List<IObjectContainer> containers = null;
-
-        if (target instanceof Dataset)
-        {
-            containers = store.getIObjectContainers(Image.class);
-        }
-        else if (target instanceof Screen)
-        {
-            containers = store.getIObjectContainers(Plate.class);
-        }
-        else
-        {
-            throw new ModelException("Unable to handle target: " + target);
-        }
-
-        for (IObjectContainer container : containers)
-        {
-            LSID targetLSID = new LSID(container.LSID);
-            LSID referenceLSID =
-                new LSID(String.format("%s:%d", target.getClass().getName(),
-                        target.getId().getValue()));
-            store.addReference(targetLSID, referenceLSID);
-        }
+  /**
+   * Processes the OMERO client side metadata store.
+   * @param store OMERO metadata store to process.
+   * @throws ModelException If there is an error during processing.
+   */
+  public void process(IObjectContainerStore store) throws ModelException {
+    IObject target = store.getUserSpecifiedTarget();
+    if (target == null) {
+      return;
     }
+
+    List<IObjectContainer> containers = null;
+
+    if (target instanceof Dataset) {
+      containers = store.getIObjectContainers(Image.class);
+    } else if (target instanceof Screen) {
+      containers = store.getIObjectContainers(Plate.class);
+    } else {
+      throw new ModelException("Unable to handle target: " + target);
+    }
+
+    for (IObjectContainer container : containers) {
+      LSID targetLSID = new LSID(container.LSID);
+      LSID referenceLSID =
+          new LSID(String.format("%s:%d", target.getClass().getName(),
+                                 target.getId().getValue()));
+      store.addReference(targetLSID, referenceLSID);
+    }
+  }
 }
