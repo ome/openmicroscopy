@@ -49,7 +49,6 @@
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="net.imagej" name="ij" rev="${versions.ij}"/>
     <dependency org="javax.xml" name="jaxrpc" rev="${versions.jaxrpc}"/>
-    <dependency org="org.jfree" name="jcommon" rev="${versions.jcommon}"/>
     <dependency org="org.jfree" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
     <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
@@ -78,6 +77,5 @@
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
-    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}"/>
   </dependencies>
 </ivy-module>
